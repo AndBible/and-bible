@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">முழுமையான பயனர் வழிகாட்டி andbible.org தளத்தில் உள்ளது. பக்கங்கள் உங்கள் உலாவியில் திறக்கும்.</string>
   <string name="help_user_guide_home">பயனர் வழிகாட்டி முகப்பு</string>
   <string name="help_read_in_user_guide">பயனர் வழிகாட்டியில் படிக்கவும்</string>
+  <string name="help_in_user_guide">பயனர் வழிகாட்டியில் உதவி</string>
+  <string name="help_matching_section">பொருந்தும் பகுதி</string>
   <string name="help_read_page">பயனர் வழிகாட்டியில் படிக்கவும்: %1$s</string>
   <string name="help_tutorial_videos">பயிற்சி வீடியோக்கள்</string>
   <string name="help_watch_in_order">பயிற்சி வீடியோக்களை வரிசையாகப் பாருங்கள்</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">ஒரு பகுதியை தேர்ந்தெடுக்கும்போது வசனத்தையும் (அதிகாரத்தோடு) தேர்ந்தெடுக்கவும்</string>
   <string name="prefs_open_links_in_special_window_title">இணைப்புகள் சாளரம்</string>
   <string name="prefs_open_links_in_special_window_summary">குறுக்கு குறிப்புகள் மற்றும் Strongs வரையரைகளை விரைவாகக் காண்பிக்க, சிறப்பு சாளரத்தில் இணைப்புகளைத் திறக்கவும்</string>
+  <string name="prefs_trusted_link_domains_title">நம்பகமான இணைப்பு டொமைன்கள்</string>
+  <string name="prefs_trusted_link_domains_summary">இந்த டொமைன்களின் இணைப்புகள் கேட்காமலே திறக்கும். மீண்டும் கேட்க வேண்டுமெனில் டொமைனின் தேர்வை நீக்கவும்.</string>
+  <string name="prefs_trusted_link_domains_empty">இதுவரை எதுவுமில்லை. இணைப்பைத் திறக்கும்போது \"மீண்டும் கேட்காதே\" என்பதைத் தேர்ந்தெடுத்தால் அதன் டொமைன் சேர்க்கப்படும்.</string>
   <string name="prefs_text_size_sample_text">மாதிரி உரை</string>
   <string name="prefs_screen_keep_on_title">திரையை ஆனில் வைக்கவும்</string>
   <string name="prefs_screen_keep_on_summary">பயன்படுத்தும் போது திரை தூங்குவதைத் தடுக்கவும்</string>
@@ -306,7 +311,6 @@
   <string name="line_spacing_title">வரி இடைவெளி</string>
   <string name="line_spacing_summary">வரிகளுக்கு இடையில் இடைவெளியை அமைக்கவும்</string>
   <string name="select_none">எதையும் தேர்ந்தெடுக்க வேண்டாம்</string>
-  <string name="reset_are_you_sure">இவை அனைத்தையும் மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="window_pinning_menutitle">சாரளத்தை பின் செய்வது</string>
   <string name="hide_window_buttons_title">சாரள பொத்தான்களை மறை</string>
   <string name="hide_window_buttons_summary">விவிலிய வாசிப்பு பக்கத்தின் வலப்புறம் காட்டப்படும் சாளர பொத்தான்கள் மறைக்கப்பட்டுள்ளன. கீழே உள்ள சாளர வழிசெலுத்தல் பட்டி இன்னும் காட்டப்படும் மற்றும் அவற்றை நீண்ட கிளிக் செய்வதன் மூலம் சாளர பாப்அப் மெனுவைத் திறக்கலாம்.</string>
@@ -329,6 +333,7 @@
   <string name="word_not_found_in_dictionaries">எந்த அகராதியிலும் சொல் கிடைக்கவில்லை</string>
   <string name="prefs_top_margin_title_mm">மேல் விளிம்பு (%d mm)</string>
   <string name="font_size_title">எழுத்துரு அளவு</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">தேவன், தமது ஒரேபேறான குமாரனை விசுவாசிக்கிறவன் எவனோ அவன் கெட்டுப்போகாமல் நித்தியஜீவனை அடையும்படிக்கு, அவரைத் தந்தருளி, இவ்வளவாய் உலகத்தில் அன்புகூர்ந்தார்.</string>
   <string name="font_size_title_pt">எழுத்துரு அளவு (%d pt)</string>
   <string name="prefs_font_text_size_summary">முதன்மை உரையின் எழுத்துரு அளவை மாற்ற</string>
@@ -346,6 +351,8 @@
   <string name="window_color_settings_title">நிற அமைப்புகள் (சாளரம்)</string>
   <string name="workspace_color_settings_title">நிற அமைப்புகள் (பணியிடம்)</string>
   <string name="color_workspace">பணியிட நிறம்</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">இயல்புநிலை</string>
   <string name="color_text">உரை நிறம்</string>
   <string name="color_background">பின்னணி நிறம்</string>
   <string name="colors_day_mode_title">பகல் பயன்முறை</string>
@@ -379,7 +386,6 @@
   <string name="download_source_last_updated">கோப்புப் பட்டியல் இறுதியாக புதுப்பிக்கப்பட்டது: %s.</string>
   <string name="download_refreshing_book_list">ஆவண சேவையகங்களிலிருந்து ஆவணங்களின் பட்டியல் புதுப்பிக்கப்படுகின்றது...</string>
   <string name="download_source_message1">ஆவணங்கள் பின்வரும் இடங்களில் இருந்து தரவிறக்கப்படுகின்றது:</string>
-  <string name="download_document_confirm_prefix">தரவிறக்கம்</string>
   <string name="error_downloading">பதிவிறக்கும் போது பிழை ஏற்பட்டது. உங்கள் இணைய இணைப்பைச் சரிபார்க்கவும்.</string>
   <string name="error_downloading_status">%1$s ஐ ஹோஸ்ட் செய்யும் சர்வர் %2$s ஆல் பிழை வழங்கியது (%3$d).</string>
   <string name="storage_space_warning">தேவையான சேமிப்பு இடம் இல்லை</string>
@@ -400,9 +406,6 @@
   <string name="activity_title">பின்னணி செயல்பாடு</string>
   <string name="activity_empty">எதுவும் இயங்கவில்லை</string>
   <string name="activity_failed_toast">%1$s — மெனுவைப் பார்க்கவும்</string>
-  <string name="download_question_title">ஆவணங்களைப் பதிவிறக்கவா?</string>
-  <string name="download_question_message">நீங்கள் துன்புறுத்தப்படும் நாட்டில் வசித்தால், இணையம் வழியாக கிறிஸ்தவ உள்ளடக்கத்தைப் பதிவிறக்குவதில் கவனமாக இருக்க வேண்டியிருக்கலாம். அதற்குப் பதிலாக, தொகுதி ஜிப் கோப்புகளை பாதுகாப்பான வழியில் பெற்று \"%1$s\" மூலம் நிறுவலாம். பதிவிறக்கத்தைத் தொடர விரும்புகிறீர்களா? தொகுதி சேவையகங்களிலிருந்து வரும் அனைத்துப் பதிவிறக்கங்களும் குறியாக்கம் செய்யப்பட்டவை (HTTPS).</string>
-  <string name="do_not_ask_again">ஆம், இனி கேட்க வேண்டாம்</string>
   <string name="recommended_document">பரிந்துரைக்கப்பட்டது!</string>
   <string name="about_version_history">பதிப்பு வரலாறு: %s</string>
   <string name="download_errors">பதிவிறக்க பிழைகள்</string>
@@ -419,11 +422,9 @@
   <string name="checking_zip_file">கொடுக்கப்பட்ட கோப்பு சரிபார்க்கப்படுகின்றது…</string>
   <string name="invalid_module">கோப்பில் சரியான SWORD தொகுதி இல்லை</string>
   <string name="install_zip_title">தயவுசெய்து காத்திருக்கவும். கோப்பிலிருந்து தொகுதிகளை ஏற்றுகிறது.</string>
-  <string name="overwrite_files">பின்வரும் கோப்புகள் ஏற்கனவே உள்ளன: %s மேலெழுதவா?</string>
   <string name="overwrite_files_title">கோப்புகளை மேலெழுதவா?</string>
   <string name="could_not_overwrite_files">நிறுவல் வெற்றிகரமாக இருந்த கோப்புகளைத் தவிற பிற கோப்புகளின் மேலெழுத முடியவில்லை: %s</string>
   <string name="module_backup_restore">இந்தக் கோப்பு AndBible ஆவணங்களின் காப்புப்பிரதி. அதன் ஆவணங்களை மீட்டெடுக்க விரும்புகிறீர்களா?</string>
-  <string name="install_do_you_want">(%s) தொகுதியை நிறுவ விரும்புகிறீர்களா?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">வாசிப்பு திட்டம்</string>
   <string name="reading_plans_plural">வாசிப்பு திட்டங்கள்</string>
@@ -431,15 +432,8 @@
   <string name="rdg_plan_day">%s நாள்</string>
   <string name="rdg_plan_set_start_date">தொடக்க தேதியை அமைக்கவும்…</string>
   <string name="set_current_day">நடப்பு நாளாக அமைக்கவும்…</string>
-  <string name="msg_set_current_day_reading_plan">இது %1$s ஐ இந்தத் திட்டத்தின் தற்போதைய நாளாக அமைத்து, முந்தைய அனைத்து நாட்களையும் படித்ததாகக் குறிக்கும். தொடரவா?</string>
   <string name="done">முடிந்தது</string>
-  <string name="reset_plan_question">இந்தத் திட்டத்தை மீளமைக்க விரும்புகிறீர்களா?</string>
   <string name="import_reading_plan">வாசிப்பு திட்டத்தை உள்ளேற்று…</string>
-  <string name="plan_duplicate_user_plan">
-        sdcard இல் பயனர் வாசிப்புத் திட்டம் உள்ளது
-        உள்ளே அதே பெயரில் jsword/readingplan உள்ளது. ஆகவே இதனை இங்கே பட்டியலிட முடியாது.
-        கோப்பு நீட்டிப்பை .properties என விட்டுவிட்டு, கோப்புக்கு வேறு பெயரிடவும்
-    </string>
   <string name="plan_name_y1ntpspr">ஒரு ஆண்டில் புதிய ஏற்பாடு திருப்பாடல்கள் மற்றும் நீதிமொழிகள்</string>
   <string name="plan_description_y1ntpspr">
         உபயம்: HEARTLIGHT Internet Magazine,
@@ -477,12 +471,8 @@
   <string name="delete_index">தேடல் அட்டவணையை நீக்கு</string>
   <string name="about">எம்மைப் பற்றி</string>
   <string name="delete_doc">%s நீக்கவா?</string>
-  <string name="interrupted_downloads_title">தரவிறக்கம் தடைபட்டது</string>
-  <string name="interrupted_downloads_message">இந்தக் கோப்புகளின் தரவிறக்கம் தடைபட்டதால் அவை நிறுவப்படவில்லை:</string>
-  <string name="interrupted_downloads_question">மீண்டும் தரவிறக்கவா?</string>
   <string name="download_again">மீண்டும் தரவிறக்கு</string>
   <string name="delete_docs_confirm">இந்தக் கோப்புகளை நீக்கவா?</string>
-  <string name="delete_search_index_doc"> %sஇன் அட்டவணையை நீக்க வா?</string>
   <!--Verse context menu-->
   <string name="notes">அடிக்குறிப்புகள் மற்றும் பிற குறிப்புகள்</string>
   <string name="share_verse">பகிர்…</string>
@@ -522,7 +512,6 @@
   <string name="bookmark_warning2">
         ஆவண அமைப்பு மாறியிருந்தால், இதனைப் புதுப்பிப்பது 
         இந்த புக்மார்க்குகள்/குறிப்புகளை ஆவணத்தின் உள்ளேயே இடம் மாற்றலாம் அல்லது முற்றிலும் தொலைந்து போகலாம்.</string>
-  <string name="bookmark_warning3">இன்னமும் மாடியல்களை புதுப்பிக்கலாமா?</string>
   <string name="bookmark_warning4">புதுப்பிப்பதற்கு முன்பு மாடியுல்களை பிரதி எடுக்க பரிந்துரைக்கப்படுகிறது.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">நாள் வரிசை</string>
@@ -703,10 +692,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">மீட்டமை அல்லது இறக்குமதி செய்…</string>
   <string name="backup_restore2">மீட்டமை அல்லது இறக்குமதி</string>
-  <string name="overwrite_something">%s-ஐ மேலெழுதவா?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">தரவு தள கோப்பை மீட்டமை</string>
-  <string name="restore_confirmation">என் குறிப்புகள், புக்மார்க்குகள், ஸ்டடி பேடுகள், வாசிப்பு திட்டங்கள் மற்றும் பணியிடங்களை மேலெழுதவா?</string>
   <string name="restore_success">என் குறிப்புகள், புக்மார்க்குகள், ஸ்டடி பேடுகள், வாசிப்பு திட்டங்கள் மற்றும் பணியிடங்கள் மீட்டெடுக்கப்பட்டன.</string>
   <string name="downloading_backup">கோப்பு நகல் தரவிறக்கப்படுகிறது...</string>
   <string name="loading_backup">நகலிலிருந்து தரவு தளம் ஏற்றப்படுகிறது...</string>
@@ -728,7 +715,6 @@
   <string name="send_export_file">ஏற்றுமதிக் கோப்பை அனுப்பு</string>
   <string name="backup_modules_title">நகல் எடுக்கவேண்டிய மாடியுல்களை தெரிவு செய்க</string>
   <string name="install_zip_canceled">மாடியுல்களை நிறுவுவது ரத்து செய்யப்பட்டது</string>
-  <string name="ask_restore_or_import">%s-க்கான தரவுதளத்தை மீட்டமைக்கலாம் (அதாவது ஏற்கனவே உள்ள தரவுதளம் நீக்கப்பட்டு தேர்ந்தெடுத்த தரவுதளம் ஏற்றப்படும்) அல்லது இறக்குமதி செய்யலாம் (தேர்ந்தெடுத்த தரவுதளம் ஏற்கனவே உள்ளதில் இறக்குமதி செய்யப்படும்). என்ன செய்ய வேண்டும்?</string>
   <string name="restore">மீட்டமை</string>
   <string name="import2">இறக்குமதி</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -784,7 +770,6 @@
   <string name="settings_editor_back">பின்செல்</string>
   <string name="settings_editor_close">மூடு</string>
   <string name="settings_editor_apply">செயல்படுத்து</string>
-  <string name="discard_changes_confirmation">சேமிக்காத மாற்றங்களை நிராகரிக்கவா?</string>
   <string name="discard">நிராகரி</string>
   <string name="remove">நீக்கு</string>
   <string name="overwrite">மேலெழுது</string>
@@ -811,7 +796,8 @@
   <string name="empty_list">காட்டுவதற்கு எதுவும் இல்லை</string>
   <string name="error_skip">தவிர்க்க</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">சேதமடைந்த தரவு</string>
+  <string name="corrupt_database_headline">உங்கள் சில தரவை ஆண்ட் பைபிலால் திறக்க முடியவில்லை</string>
+  <string name="corrupt_database_files_detail">இந்தக் கோப்புகளைத் திறக்க முடியவில்லை: %1$s. எதுவும் மாற்றப்படவில்லை, நீக்கப்படவில்லை. மீட்டமைத்தால் அவை காலியாகத் தொடங்கும்; சேதமடைந்த ஒவ்வொரு கோப்பும் .corrupt- என்பதுடன் தேதி, நேரம் சேர்த்து மறுபெயரிடப்பட்டு இந்தச் சாதனத்தில் வைக்கப்படும்.</string>
   <string name="corrupt_database_reset">சேதமடைந்த தரவை மீட்டமை</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">சேதமடைந்த தரவை மீட்டமைக்க முடியவில்லை: %1$s ஐ ஒதுக்கி வைக்க முடியவில்லை. எதுவும் மாற்றப்படவில்லை. மீண்டும் முயலலாம், பிழை அறிக்கையை அனுப்பலாம், அல்லது காப்பு நகல் &amp; மீட்டமைத்தல் பகுதியைப் பயன்படுத்தலாம்.</string>
@@ -819,8 +805,8 @@
   <string name="damaged_data_needs_attention">பயன்பாட்டின் தரவுக்குக் கவனம் தேவை. பயன்பாட்டைத் திறக்கத் தட்டவும்.</string>
   <string name="debug_test_error">சோதனைப் பிழை (டீபக் பதிப்பு)</string>
   <string name="bug_report_prepare_failed">அறிக்கையைத் தயார்செய்ய அல்லது பகிர முடியவில்லை. மீண்டும் முயலலாம், அல்லது உங்கள் தரவைச் சேமிக்க காப்புப்பிரதி &amp; மீட்டமைப்பைப் பயன்படுத்தலாம்.</string>
-  <string name="bug_report_email_title">பிழை அறிக்கையை மின்னஞ்சல் மூலம் அனுப்புக</string>
   <string name="bug_report_desktop_text">அடுத்து, பிழை அறிக்கைக் கோப்பை எங்கே சேமிக்க வேண்டும் என்று கேட்கப்படும். பின்னர் அதை உருவாக்குநர் குழுவுக்கு அனுப்புவதற்கான வழிமுறைகள் கிடைக்கும்.</string>
+  <string name="bug_report_email_title">பிழை அறிக்கையை மின்னஞ்சல் மூலம் அனுப்புக</string>
   <string name="bug_report_email_text">அடுத்து, டெவலப்பர் குழுவிற்கு அறிக்கையை அனுப்ப, உங்களுக்கு விருப்பமான மின்னஞ்சல் பயன்பாட்டை (உதாரணமாக ஜிமெயில்) தேர்ந்தெடுக்கவும்.</string>
   <string name="bug_report_manual_title">அறிக்கையை மின்னஞ்சலில் அனுப்பு</string>
   <string name="bug_report_manual_text_saved">அறிக்கை <b>%1$s</b> இல் சேமிக்கப்பட்டது.\n\nதயவுசெய்து <b>%2$s</b> முகவரிக்கு மின்னஞ்சல் அனுப்பி அந்தக் கோப்பை இணைக்கவும்; மின்னஞ்சல் நிரலால் அதை உங்களுக்காக இணைக்க முடியாது. பரிந்துரைக்கப்படும் தலைப்பு: <b>%3$s</b>. செய்தியில், நீங்கள் என்ன செய்தீர்கள், என்ன நடந்தது என்பதைச் சொல்லுங்கள்.</string>
@@ -891,8 +877,6 @@
   <string name="beta_special_regards">அன்புடன், Tuomas</string>
   <string name="beta_special_sponsor">பி.கு. %s மூலம் AndBible மேம்பாட்டுக்கு நிதியுதவி செய்து ஆதரிக்கலாம்.</string>
   <string name="beta_special_sponsor_link">மேம்பாட்டு நேரங்களுக்கு நிதியுதவி செய்வது</string>
-  <string name="new_sync_targets_notice_title">புதிய ஒத்திசைவு அமைப்புகள் கிடைக்கின்றன</string>
-  <string name="new_sync_targets_notice_message">AndBible-இன் இந்தப் பதிப்பு கூடுதல் ஒத்திசைவு இலக்குகளை அறிமுகப்படுத்துகிறது: என் ஆவணங்கள், AI அமைப்புகள் மற்றும் வாசிப்பு முன்னேற்றம். இவற்றை இயக்க விரும்பினால், சாதன ஒத்திசைவு அமைப்புகளில் செய்யலாம்.</string>
   <string name="open_settings">அமைப்புகளை திற</string>
   <!--History-->
   <string name="history_for">வரலாறு (%1$s: சாளரம் %2$d)</string>
@@ -1001,7 +985,6 @@
   <string name="give_passphrase_for_module"> %s கோப்பு குறியாக்கத்தின் மூலம் பூட்டப்பட்டிருக்கிறது. இதை திறக்க கடவுச்சொல் தேவை.</string>
   <string name="unlock_module">மாடியுலுக்கான கடவுச்சொல்லை உள்ளிடுக</string>
   <string name="unlock_info">குறியாக்கப்பட்ட ஆடியோல்களைத் திறக்க உதவி குறிப்புகள்</string>
-  <string name="try_again_passphrase">கடவுச்சொல் வேலை செய்யவில்லை, மீண்டும் முயலவா?</string>
   <string name="show_unlock_info">தொகுதியை திறக்கும் தகவல்</string>
   <string name="prefs_experimental_features_title">சோதனை அம்சங்கள்</string>
   <string name="prefs_experimental_features_summary">எந்த சோதனை அம்சங்களை இயக்க வேண்டும் என தேர்வு செய்க. இந்த அம்சங்கள் இன்னும் உருவாக்கத்தில் உள்ளன, மாறலாம் அல்லது நீக்கப்படலாம்</string>
@@ -1035,9 +1018,6 @@
   <string name="active_window_indicator_summary">எந்த சாளரம் செயலில் உள்ளது என்பதை அறிய, சாளர மூலைகளை முன்னிலைப்படுத்தவும்</string>
   <string name="app_licence_title">திறந்த மூல உரிமம் </string>
   <string name="how_to_contribute">எப்படி பங்களிப்பது?</string>
-  <string name="confirm_delete_bookmarks">%d இன் புக்மார்க்குகளையும் குறிப்புகளையும் நீக்கவா?</string>
-  <string name="confirm_delete_orphaned_bookmarks">தேர்ந்தெடுக்கப்பட்ட லேபிளுடன் %d புக்மார்க்குகள் இணைக்கப்பட்டுள்ளன, ஆனால் அவற்றுக்கு வேறு லேபிள்கள் இல்லை. இந்த புக்மார்க்குகளை லேபிளுடன் சேர்த்து நீக்கவா?</string>
-  <string name="delete_label_and_bookmarks">லேபிளையும் புக்மார்க்குகளையும் நீக்கு</string>
   <string name="delete_label_only">லேபிளை மட்டும் நீக்கு</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">நண்பர்களுக்கு பரிந்துரை</string>
@@ -1068,8 +1048,6 @@
   <string name="old_webview">Android WebView தொகுப்பு மிகவும் பழையது (%1$s). %3$sஐ பயன்படுத்த குறைந்தது Android WebView பதிப்பு  %2$sக்காவது புதுப்பிக்க வேண்டும். பொதுவாக இதனை %4$sஇல் செய்யலாம்.</string>
   <string name="play">கூகுள் ப்ளே</string>
   <string name="proceed_anyway">Proceed anyway</string>
-  <string name="proceed">Proceed</string>
-  <string name="rate_title">செயலியினை மதிப்பாய்வு செய்வது</string>
   <string name="rate_message5">
         நேர்மறை மற்றும் விரிவான மதிப்புரைகள் AndBible Open Source திட்டத்திற்கு பெரிதும் உதவும். நன்றி!
     </string>
@@ -1121,7 +1099,6 @@
   <string name="primary_label">முதன்மை லேபிள்</string>
   <string name="favourite_label">விருப்பமான லேபிள்</string>
   <string name="edit_label">லேபிளை மாற்ற</string>
-  <string name="delete_label_confirmation">புக் மார்க் லேபிள் \"%s\"ஐ நீக்குவதில் நீங்கள் உறுதியாக இருக்கிறீர்களா? இதனோடு தொடர்புடைய அனைத்து ஸ்டடி பேட் குறிப்புகளும் நீக்கப்படும்.</string>
   <string name="active_labels">தெரிவு செய்யப்பட்ட லேபில்கள்</string>
   <string name="recent_labels">அண்மைய லேபில்கள்</string>
   <string name="other_labels">பிற லேபில்கள்</string>
@@ -1131,8 +1108,6 @@
   <string name="book_menu_show_progress_bars">முன்னேற்ற பட்டைகளை காட்டு</string>
   <string name="reset_workspace_labels">இந்தப் பணியிடத்திற்கான தானியங்கி மற்றும் பிடித்த அமைப்புகளை மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="clear_auto_assign_labels">தானாக ஒதுக்கும் லேபிள்களை அழி</string>
-  <string name="reset_workspace_auto_assign_labels">இந்தப் பணியிடத்திலிருந்து தானாக ஒதுக்கும் எல்லா லேபிள்களையும் நீக்க விரும்புகிறீர்களா?</string>
-  <string name="reset_hide_labels">குறிப்பிட்ட லேபிள் அமைப்புகளை மறைப்பதற்கான அமைப்பை மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="reorder">மீல் வரிசைப்படுத்து</string>
   <string name="system_items">சிஸ்டம் செயல்கள்</string>
   <string name="system_items1">மேலும்</string>
@@ -1146,7 +1121,6 @@
   <string name="ios_fullscreen_hint">முழுத்திரையிலிருந்து வெளியேற இருமுறை தட்டவும் அல்லது பொத்தானைத் தட்டவும்.</string>
   <string name="desktop_exit_fullscreen">முழுத்திரையிலிருந்து வெளியேறு</string>
   <string name="exit_fullscreen">இரு முறை தட்டினால் முழு திரை பயன்முறையிலிருந்து வெளியேறலாம்</string>
-  <string name="reset_app_prefs">இந்தத் திரையில் காட்டப்படும் அனைத்து  பயன்பாட்டு விருப்பத்தேர்வுகளையும் அவற்றின் இயல்புநிலை மதிப்புகளுக்கு மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="label_red">சிவப்பு</string>
   <string name="label_green">பச்சை</string>
   <string name="label_blue">நீலம்</string>
@@ -1157,7 +1131,6 @@
   <string name="reset_databases_title">தரவுதளங்களை மீட்டமை</string>
   <string name="reset_databases_description">தனிப்பட்ட தரவுதளங்களை ஆரம்ப காலி நிலைக்கு மீட்டமை. இதை மீண்டும் செய்ய முடியாது.</string>
   <string name="last_crash_info_title">கடைசி செயலி முடக்க தகவல்</string>
-  <string name="reset_database_confirm">இது \"%1$s\"-இல் உள்ள அனைத்து தரவையும் நிரந்தரமாக நீக்கி ஆரம்ப நிலைக்கு மீட்டமைக்கும். இதை மீண்டும் செய்ய முடியாது.\n\nஉறுதியாகவா?</string>
   <string name="reset_database_success">தரவுதளம் வெற்றிகரமாக மீட்டமைக்கப்பட்டது</string>
   <string name="reset_something">மீட்டமை: %1$s</string>
   <string name="export">ஏற்றுமதி</string>
@@ -1227,19 +1200,18 @@
   <string name="manage_labels_help_favourite">விரைவாக அணுக இந்த லேபிளை உங்கள் பிடித்தவற்றில் வைத்திருங்கள்.</string>
   <string name="manage_labels_help_styles">பெயருக்குக் கீழே ஒரு சிறிய எடுத்துக்காட்டு லேபிளின் தோற்றத்தைக் காட்டும்: உரைத் தேர்வு புக்மார்க்கிற்குத் தேர்வு, முழு வசன புக்மார்க்கிற்கு முழு வசனம், இந்தப் பணியிடம் மாற்றியமைக்கும் பாணிக்குப் பணியிட குறிச்சொல். அலங்காரமின்றிச் சாம்பல் நிறத்தில் உள்ள எடுத்துக்காட்டு என்றால் லேபிளின் புக்மார்க்குகள் வரையப்படுவதில்லை. எடுத்துக்காட்டுகளை ⋮ பட்டியிலிருந்து மறைக்கலாம்.</string>
   <string name="manage_labels_help_reorder">⋮ பட்டியிலிருந்து பட்டியலை மறுவரிசைப்படுத்தலாம்.</string>
+  <string name="manage_labels_help_narrow_toggles">குறுகிய திரையில் லேபிள் பெயர்களுக்கு இடம் அளிக்க, முதன்மை, தானாக ஒதுக்கு, பிடித்தது ஐகான்கள் பட்டியலில் காட்டப்படாது. அவற்றை அமைக்க லேபிளைத் தொட்டு அதன் திருத்தியில் பயன்படுத்தவும்.</string>
   <string name="added_to_bookmark">இந்த புக்மார்க்கிற்கு ஒதுக்கப்பட்டது</string>
   <string name="strongs_links">இணைப்புகள்</string>
   <string name="strongs_text_and_links">உரை மற்றும் இணைப்புகள்</string>
   <string name="strongs_hidden_links">மறைக்கப்பட்ட இணைப்புகள்</string>
   <string name="verse_tip">வசனத்தின் பகுதியையோ அல்லது பல வசனங்களையோ தேர்ந்தெடுக்க, நீங்கள் உரையை நீண்ட நேரம் அழுத்தவும்</string>
-  <string name="permission_required">அனுமதி தேவை</string>
   <string name="labels_search_hint">தேடல்</string>
   <string name="search_mode_name_start">பெயர் (தொடக்கத்திலிருந்து)</string>
   <string name="search_mode_name_contains">பெயர் (உள்ளடக்கியது)</string>
   <string name="search_mode_content">உள்ளடக்கம்</string>
   <string name="search_results_matches">%d பொருத்தங்கள்</string>
   <string name="search_results_match">1 பொருத்தம்</string>
-  <string name="progress_status_permission">அறிவிப்புகளைக் காட்ட (பதிவிறக்க நிலை, செயலாக்கம், பேச்சு நிலை) உங்கள் அனுமதி தேவை.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">எளிய கணிப்பான்</string>
   <string name="prefs_persecution_cat">துன்புரும் கிறிஸ்தவர்களுக்கான அமைப்புகள்</string>
@@ -1288,7 +1260,6 @@
   <string name="custom_repositories_create_button_label">தனிப்பயன் களஞ்சியத்தை சேர்க்க</string>
   <string name="custom_repositories_info_button_label">தகவல்</string>
   <string name="repository_specification">களஞ்சிய URL</string>
-  <string name="delete_custom_repository">தனிப்பயன் களஞ்சியம் %s ஐ நீக்கவா?</string>
   <string name="custom_repositories_help1">புதிய தனிப்பயன் களஞ்சியத்தைச் சேர்க்க, இங்கே தட்டச்சு செய்யலாம் அல்லது களஞ்சிய URL ஐ இங்கே நகலெடுத்து ஒட்டலாம்.</string>
   <string name="custom_repositories_help2">தனிப்பயன் களஞ்சியங்கள் பற்றிய கூடுதல் தகவல்களை %sஇல் பெறலாம்.</string>
   <string name="custom_repositories_help0">தனிப்பயன் களஞ்சியங்களை நிறுவுவதன் மூலம் வெளிப்புற தனிப்பயன் களஞ்சியங்களிலிருந்து ஆவணங்களை நிறுவலாம்.</string>
@@ -1312,10 +1283,6 @@
   <string name="db_bookmarks">புக்மார்க்குகள், என் குறிப்புகள், லேபிள்கள் மற்றும் ஸ்டடி பேட்கள்</string>
   <string name="synchronizing">ஒத்திசெய்கிறது…</string>
   <string name="notification_finished">முடிந்தது</string>
-  <string name="overrideBackup">
-        இந்த கருவியிலிருந்து ஒத்திசைக்கப்படாத தரவு தளம் மேக சேமிப்பகத்தில் உள்ளது.
-        தரவு தளத்தில் %s உள்ளது. என்ன செய்ய விரும்புகிறீர்கள்?
-    </string>
   <string name="reading_plans_content">வாசிப்பு திட்டங்களும் அதன் நிலைகளும்</string>
   <string name="bookmarks_contents">புக்மார்க்குகள், லேபிள்கள் மற்றும் ஸ்டடி பேடுகள்.</string>
   <string name="workspaces_contents">பணியிடங்கள் மற்றும் சாரளங்கள்</string>
@@ -1335,7 +1302,6 @@
   <string name="reading_progress_calendar">வாசிப்பு செயல்பாடு</string>
   <string name="reading_progress_cycle">சுழற்சி %d</string>
   <string name="reading_progress_new_cycle">புதிய சுழற்சி</string>
-  <string name="reading_progress_new_cycle_confirm">புதிய வாசிப்பு சுழற்சியை தொடங்கவா? இது உங்கள் முன்னேற்றத்தை தொடக்கத்திலிருந்து கண்காணிக்கும், முந்தைய சுழற்சியின் தரவை பாதுகாக்கும்.</string>
   <string name="reading_progress_previous_cycle">முந்தைய சுழற்சி</string>
   <string name="reading_progress_next_cycle">அடுத்த சுழற்சி</string>
   <string name="cloud_merge_data">தரவை ஒன்றிணை</string>
@@ -1345,7 +1311,6 @@
   <string name="cloud_sync_title">கருவி ஒத்திசைவு</string>
   <string name="reset_sync">வெளியேறு</string>
   <string name="prefs_reset_sync_summary">ஒத்திசைவை முடக்கி, தொடர்புடைய அமைப்புகளை மீட்டமைக்கவும்.</string>
-  <string name="sync_confirmation">வெளியேறி விட்டு ஒத்திசைவை மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="cloud_info">மேக சேமிப்பக தகவல்</string>
   <string name="cloud_info_summary">மேக சேமிப்பகத்தில்: %s Mb</string>
   <string name="sync_adapter">ஒத்திசைவு பின்தளம்</string>
@@ -1361,7 +1326,6 @@
   <string name="webdav_server_url_hint">WebDAV கோப்புறையின் முகவரி, எ.கா. https://nas.local/dav/ அல்லது https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">ஒத்திசைவுக்குப் பாதுகாப்பான https:// முகவரி தேவை.</string>
   <string name="webdav_certificate_title">சர்வர் சான்றிதழ்</string>
-  <string name="webdav_forget_certificate_message">நம்பப்பட்ட சர்வர் சான்றிதழை மறக்கவா? அடுத்த இணைப்பில் சான்றிதழை மீண்டும் உறுதிப்படுத்தக் கேட்கப்படும்.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">நம்பப்படாத சர்வர் சான்றிதழ்</string>
   <string name="webdav_untrusted_certificate_message">%1$s இன் சான்றிதழை Android நம்பவில்லை. அதை நீங்கள் அறிந்திருந்தால் மட்டுமே நம்புங்கள், எடுத்துக்காட்டாக இந்த சர்வரை நீங்களே அமைத்திருந்தால்.\n\nபொருள்: %2$s\nவழங்கியவர்: %3$s\nசெல்லுபடி: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1378,14 +1342,7 @@
   <string name="synchronization_categories">ஒத்திசைவு வகைகள்</string>
   <string name="sync_general_settings">தகவல் &amp; பொது அமைப்புகள்</string>
   <string name="sync_introduction">முன்னுரை</string>
-  <string name="are_you_sure">உறுதியாகவா?</string>
   <string name="are_you_sure_merge">இந்தச் சாதனத்தில் உள்ள தரவும் மேகத்தில் உள்ள %s தரவும் இரண்டும் வைத்திருக்கப்படும். ஒரே உருப்படி இரண்டிலும் மாற்றப்பட்டிருந்தால் புதிய மாற்றம் வைத்திருக்கப்படும். இந்தச் சாதனத்தின் தரவு உங்கள் பிற சாதனங்களுக்கு அனுப்பப்படும்.</string>
-  <string name="are_you_sure_reset_local">இது உங்கள் கருவில் உள்ள %sக்கான தரவு தளத்தை மேக சேமிப்பகத்தில் உள்ளவற்றால் மாற்றும்.</string>
-  <string name="are_you_sure_reset_cloud">இது உங்கள் மேக சேமிப்பகத்தில் உள்ள %s ஆன தரவு தளத்தை இந்த கருவியில் உள்ள உள்ளவற்றால் மாற்றும்.</string>
-  <string name="sync_cant_fetch">மேக சேமிப்பகத்தில் உள்ள தரவு தளம் அல்லது ஒட்டு கோப்பு இந்த செயலியால் பயன்படுத்தக்கூடிய பதிப்பினை விட முந்தியது ஆகும்.</string>
-  <string name="sync_disabling">இப்போதைக்கு %sஇன் ஒத்திசைவை முடக்கு.</string>
-  <string name="sync_update_app">ஒத்திசைவை தொடர செயலியை புதுப்பிக்கவும்.</string>
-  <string name="sign_in_failed">ஒத்திசைவு பின்தள சேவையில் உள்நுழைவது தோல்வியடைந்தது.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">மேக சேமிப்பக ஒத்திசைவு முடக்கப்படுகிறது. மீட்டமைத்த பிறகு இதை நீங்கள் கைமுறையாக இயக்க வேண்டும்.</string>
   <string name="report">புகார் அளி</string>
@@ -1403,6 +1360,7 @@
   <string name="open_here">இங்கேயே திற</string>
   <string name="external_link">வெளி இணைப்பு</string>
   <string name="external_link_question">இது வெளி இணைப்பு %s ஐ உலாவியில் திறக்கும். தொடர விரும்புகிறீர்களா?</string>
+  <string name="external_link_dont_ask_again">%s க்கு மீண்டும் கேட்காதே</string>
   <string name="nameless">தலைப்பு வரையறுக்கப்படவில்லை</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ஒரு-தட்டல் செயல்கள் (விவிலியங்கள்)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">ஒரு-தட்டல் செயல்கள் (பிற)</string>
@@ -1452,8 +1410,6 @@
   <string name="memorize_include_reference_summary">மனன பயிற்சியின் கடைசி பகுதியாக வசன குறிப்பை (எ.கா. யோவான் 3:16) சேர்க்கவும்</string>
   <string name="reading_progress_settings">முன்னேற்றம் &amp; மனன பயிற்சி</string>
   <string name="reading_progress_settings_summary">தானியக்க கண்காணிப்பு, மனன பயிற்சி மற்றும் தட்டச்சு பயிற்சி அமைப்புகள்</string>
-  <string name="memorize_confirm_unmark">%s-க்கான மனன நிலையை நீக்கவா?</string>
-  <string name="memorize_confirm_remove_target">மனன இலக்கு %s-ஐ நீக்கவா?</string>
   <string name="memorize_tab_reading">வாசிப்பு</string>
   <string name="memorize_tab_memorization">மனன பயிற்சி</string>
   <string name="memorize_verses_memorized">மனனம் செய்யப்பட்டது</string>
@@ -1479,7 +1435,6 @@
   <string name="llm_reset_usage_title">பயன்பாட்டு தரவை மீட்டமை</string>
   <string name="llm_reset_usage_summary">திரட்டப்பட்ட டோக்கன் மற்றும் செலவு கண்காணிப்பை அழி</string>
   <string name="llm_reset_usage_confirm_title">பயன்பாட்டு தரவை மீட்டமைக்கவா?</string>
-  <string name="llm_reset_usage_confirm_message">இது அனைத்து திரட்டப்பட்ட பயன்பாட்டு தரவையும் அழிக்கும்.</string>
   <string name="llm_custom_input_price_title">உள்ளீடு விலை ($/மில்லியன் டோக்கன்)</string>
   <string name="llm_custom_output_price_title">வெளியீடு விலை ($/மில்லியன் டோக்கன்)</string>
   <string name="llm_cost_total">மொத்தம்: %1$s</string>
@@ -1495,8 +1450,6 @@
   <string name="llm_parse_error_anthropic">Anthropic பதிலை பகுக்க தோல்வி: %1$s</string>
   <string name="llm_error_unknown">அறியப்படாத பிழை</string>
   <string name="llm_error_max_iterations">முடிவடையாமல் அதிகபட்ச மறுசெய்கைகள் (%1$d) எட்டப்பட்டன</string>
-  <string name="llm_continue_iterations_title">தொடரவா?</string>
-  <string name="llm_continue_iterations_message">AI முகவர் முடிவடையாமல் %1$d மறுசெய்கைகளை எட்டியுள்ளது. %2$d மறுசெய்கைகள் தொடரவா?</string>
   <string name="agent_max_iterations_title">முகவரின் அதிகபட்ச மறுசெய்கைகள்</string>
   <string name="agent_max_iterations_summary">தொடரலாமா என கேட்பதற்கு முன் அதிகபட்ச மறுசெய்கைகள் (0 = வரம்பற்றது)</string>
   <string name="ask_model_before_run_title">இயக்குவதற்கு முன் மாடல் கேளு</string>
@@ -1556,7 +1509,6 @@
   <string name="ai_models_summary_none">மாடல்கள் கட்டமைக்கப்படவில்லை</string>
   <string name="ai_add_provider">வழங்குனர் சேர்</string>
   <string name="ai_provider_edit">திருத்து</string>
-  <string name="ai_provider_delete_confirm">வழங்குனர் \"%1$s\"-ஐ நீக்கவா? இந்த வழங்குனரை பயன்படுத்தும் வரைவுகள் இயல்புநிலைக்கு திரும்பும்.</string>
   <string name="ai_provider_api_key_not_set">API திறவு அமைக்கப்படவில்லை</string>
   <string name="ai_provider_select_type">வழங்குனர் வகையை தேர்வு செய்க</string>
   <string name="ai_provider_name">வழங்குனர் பெயர்</string>
@@ -1576,7 +1528,6 @@
   <string name="edit_model_title">மாடலை திருத்து</string>
   <string name="model_saved">மாடல் சேமிக்கப்பட்டது</string>
   <string name="model_deleted">மாடல் நீக்கப்பட்டது</string>
-  <string name="model_delete_confirm">மாடல் \"%1$s\"-ஐ நீக்கவா?</string>
   <string name="model_set_default">இயல்புநிலை மாடலாக அமை</string>
   <string name="model_select_provider">வழங்குனர்</string>
   <string name="model_supported_badge">✓ ஆதரிக்கப்படுகிறது</string>
@@ -1616,7 +1567,6 @@
   <string name="ai_disclaimer_point8">உங்கள் தரவு தேர்ந்தெடுத்த AI வழங்குனரின் சேவையகங்களுக்கு அனுப்பப்படுகிறது. API திறவை பயன்படுத்துவதன் மூலம், அந்த வழங்குனரின் விதிமுறைகளையும் தனியுரிமைக் கொள்கையையும் ஏற்கிறீர்கள். சொந்த-ஹோஸ்ட் மாடல்கள் சாத்தியம், ஆனால் அதிக தொழில்நுட்ப நிபுணத்துவம் தேவை, மற்றும் வணிக மாடல்களைப் போல் நல்ல முடிவுகளை தர முடியாமல் போகலாம்.</string>
   <string name="ai_disclaimer_point9">AI வழங்குனர்கள் API பயன்பாட்டிற்கு கட்டணம் வசூலிக்கிறார்கள். AndBible-இல் காட்டப்படும் செலவு மதிப்பீடுகள் தோராயமானவை — உண்மையான கட்டணங்களுக்கு எப்போதும் உங்கள் வழங்குனரின் பில்லிங்கை சரிபார்க்கவும்.</string>
   <string name="ai_disclaimer_accept_title">AI நிராகரண உரைஞர்வை ஏற்கவும்</string>
-  <string name="ai_disclaimer_accept_button">நான் ஏற்கிறேன் மற்றும் முழு பொறுப்பை ஏற்கிறேன்</string>
   <string name="prompt_permission_mode">அனுமதி முறை</string>
   <string name="prompt_permission_mode_description">AI எழுத்து செயல்களை செய்வதற்கு முன் பயனர் உறுதிப்படுத்தல் தேவைப்படும்போதை கட்டுப்படுத்துகிறது. கீழேயுள்ள கருவி அமைப்புகள் தனிப்பட்ட கருவிகளுக்கு இதை மேலீடு செய்யலாம்.</string>
   <string name="agent_permission_mode_summary">AI எழுத்து செயல்களுக்கு முன் பயனர் உறுதிப்படுத்தல் தேவைப்படும்போதை கட்டுப்படுத்துகிறது</string>
@@ -1732,7 +1682,6 @@
   <string name="default_prompt_custom_desc">தேர்ந்தெடுத்த பகுதியில் தனிப்பயன் பணியை இயக்கு</string>
   <string name="default_prompt_custom_template">தேர்ந்தெடுத்த விவிலிய பகுதிக்கான பயனரின் பணி விவரக்குறிப்பைப் பின்பற்றவும்.</string>
   <string name="copy">நகலெடு</string>
-  <string name="delete_prompt_confirm_message">இந்த வரைவை நீக்க உறுதியாகவா?</string>
   <string name="ai_hide_prompt">மறை</string>
   <string name="ai_restore_hidden_prompts">மறைக்கப்பட்ட வரைவுகளை மீட்டமை</string>
   <string name="ai_prompt_hidden">வரைவு மறைக்கப்பட்டது</string>
@@ -1817,8 +1766,6 @@
   <string name="permission_allow_all_session">இந்த அமர்வில் அனைத்து கருவிகளுக்கும் அனுமதி</string>
   <string name="permission_allow_always">\"%1$s\"-ஐ எப்போதும் அனுமதி</string>
   <string name="permission_deny">மறு</string>
-  <string name="permission_always_allow_confirm_title">எப்போதும் அனுமதிக்கவா?</string>
-  <string name="permission_always_allow_confirm">\"%1$s\"-ஐ நிரந்தரமாக அனுமதிக்க உறுதியாகவா?</string>
   <string name="permission_always_allow_confirm_reset_hint">இதை AI அமைப்புகளில் மீட்டமைக்கலாம்.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">கருவி அனுமதிகள்</string>
@@ -1923,18 +1870,15 @@
   <string name="my_document_new_name">ஆவணம் %d</string>
   <string name="my_document_create_title">புதிய ஆவணம் உருவாக்கு</string>
   <string name="my_document_rename_title">ஆவணத்தை மறுபெயரிடு</string>
-  <string name="my_document_delete_confirmation">\"%s\" ஆவணத்தை நீக்கவா?</string>
   <string name="show_secret">காட்டு</string>
   <string name="hide_secret">மறை</string>
   <string name="ai_documents_name">AI ஆவணங்கள்</string>
   <string name="ai_documents_description">AI இலிருந்து தானாக உருவாக்கப்பட்ட ஆவணங்கள்</string>
-  <string name="my_document_cannot_delete_ai_documents">பக்கங்கள் இருக்கும் போது AI ஆவணங்களை நீக்க முடியாது. முதலில் பக்கங்களை நீக்கவும்.</string>
   <string name="my_document_save_changes">மாற்றங்களை சேமிக்கவா?</string>
   <string name="my_document_no_description">விவரம் இல்லை</string>
   <string name="my_document_edit_description">விவரத்தை திருத்து</string>
   <string name="my_document_pages_title">%s - பக்கங்கள்</string>
   <string name="my_document_page_rename_title">பக்கத்தை மறுபெயரிடு</string>
-  <string name="my_document_page_delete_confirmation">\"%s\" பக்கத்தை நீக்கவா?</string>
   <string name="my_document_pages_delete_confirmation">இந்தப் பக்கங்களை நீக்கவா?</string>
   <string name="my_documents_switch_document">கோப்பை மாற்று</string>
   <string name="my_document_new_page_name">பக்கம் %1$d</string>
@@ -2002,7 +1946,6 @@
   <string name="cloud_doc_show_removed">நீக்கப்பட்ட கோப்புகளைக் காட்டு</string>
   <string name="cloud_doc_status_removed">மேகத்திலிருந்து நீக்கப்பட்டது</string>
   <string name="cloud_doc_status_still_installed">இங்கே இன்னும் நிறுவப்பட்டுள்ளது</string>
-  <string name="cloud_doc_purge_confirm">\"%1$s\" ஐ மேக வரலாற்றிலிருந்து நிரந்தரமாக நீக்கவா? அது மற்றொரு சாதனத்தில் இன்னும் நிறுவப்பட்டிருந்தால், அந்த சாதனம் அதன் அடுத்த ஒத்திசைவின் போது அதை மீண்டும் மேகத்திற்குப் பதிவேற்றக்கூடும்.</string>
   <string name="cloud_doc_action_download">தரவிறக்கம்</string>
   <string name="cloud_doc_action_push">மேகத்திற்குப் பதிவேற்று</string>
   <string name="cloud_doc_action_remove_cloud">மேகத்திலிருந்து நீக்கு</string>
@@ -2013,8 +1956,6 @@
   <string name="cloud_doc_action_dont_sync">மேகத்திற்கு ஒத்திசைக்க வேண்டாம்</string>
   <string name="cloud_doc_action_allow_sync">மேகத்திற்கு ஒத்திசை</string>
   <string name="cloud_doc_action_purge">மேக வரலாற்றிலிருந்து நீக்கு</string>
-  <string name="cloud_doc_remove_all_confirm">%1$s ஐ மேகத்திலிருந்தும் இந்த சாதனம் உட்பட உங்கள் அனைத்து சாதனங்களிலிருந்தும் நீக்கவா?</string>
-  <string name="cloud_doc_remove_cloud_confirm">%1$s ஐ மேகத்திலிருந்து நீக்கவா? இந்த சாதனத்தில் உள்ள நகல் வைத்துக்கொள்ளப்படும்; கோப்பு ஒத்திசைவு இயக்கப்பட்ட சாதனங்களும் அதை நீக்கும்.</string>
   <string name="cloud_doc_sync_now">இப்போது ஒத்திசை</string>
   <string name="cloud_doc_rescan">மேகத்திலிருந்து மீண்டும் ஸ்கேன் செய்</string>
   <string name="cloud_doc_sync_now_download">புதிய மற்றும் புதுப்பிக்கப்பட்ட கோப்புகளைத் தரவிறக்கு</string>
@@ -2026,6 +1967,14 @@
   <string name="cloud_doc_summary_download">%1$d தரவிறக்கு</string>
   <string name="cloud_doc_summary_download_size">%1$d தரவிறக்கு (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">தானியங்கி தரவிறக்கங்கள் Wi-Fi-யில் தொடங்கும்.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d கோப்பு</item>
+        <item quantity="other">%1$d கோப்புகள்</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d கோப்பு (%2$s)</item>
+        <item quantity="other">%1$d கோப்புகள் (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">பரிமாற்ற எதுவும் இல்லை</string>
   <string name="cloud_doc_selected_count">%1$d தேர்ந்தெடுக்கப்பட்டது</string>
   <string name="cloud_doc_bulk_skipped">%1$d பொருந்தாதவை தவிர்க்கப்பட்டன</string>
@@ -2042,8 +1991,6 @@
   <string name="background_image_import">கேலரியிலிருந்து இறக்குமதி செய்…</string>
   <string name="background_image_empty">இறக்குமதி செய்யப்பட்ட படங்கள் இன்னும் இல்லை. ஒன்றைச் சேர்க்க \"கேலரியிலிருந்து இறக்குமதி செய்…\" என்பதைத் தட்டவும்.</string>
   <string name="background_image_importing">இறக்குமதி செய்கிறது…</string>
-  <string name="background_image_delete_title">படத்தை நீக்கவா?</string>
-  <string name="background_image_delete_confirm">இந்தப் பின்னணிப் படத்தை நீக்கவா? இதைப் பயன்படுத்தும் பணியிடங்கள் படம் இல்லாத நிலைக்கு மாறும்.</string>
   <string name="background_image_day">பின்னணிப் படம் (பகல்)</string>
   <string name="background_image_night">பின்னணிப் படம் (இரவு)</string>
   <string name="background_image_opacity_day">பின்னணிப் படத்தின் ஒளிபுகாத்தன்மை (பகல்)</string>
@@ -2117,6 +2064,10 @@
   <string name="legacy_notice_icloud">ஒத்திசைவு இப்போது iCloud Drive-ஐப் பயன்படுத்துகிறது. அமைப்புகள் → ஒத்திசைவு என்பதில் அதை மீண்டும் இயக்கவும். இந்தச் சாதனம் தன்னிடம் இருப்பதை வைத்திருக்கும்; ஒத்திசைவு மீண்டும் அமைக்கப்பட்டதும் உங்கள் பிற சாதனங்களின் மாற்றங்கள் வந்து சேரும். பழைய iCloud தரவை விடுவிக்க: அமைப்புகள் → உங்கள் பெயர் → iCloud → சேமிப்பிடத்தை நிர்வகி → AndBible.</string>
   <string name="legacy_notice_nextcloud">உங்கள் Nextcloud இணைப்பு கொண்டுவரப்பட்டது, ஆனால் ஒத்திசைவு நிறுத்தத்தில் உள்ளது. அமைப்புகள் → ஒத்திசைவு என்பதில் அதை இயக்கி, மேகத்திலிருந்து பெறுவதா அல்லது புதிதாக உருவாக்குவதா என்பதைத் தேர்ந்தெடுக்கவும்.</string>
   <string name="legacy_notice_nextcloud_unsent">இந்தச் சாதனத்தில் சில மாற்றங்கள் இன்னும் Nextcloud-க்கு அனுப்பப்படவில்லை. அவை அனுப்பப்படவில்லை, இந்தச் சாதனத்தில் மட்டுமே இருக்கும்.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d புக்மார்க்கை நம்பகமாக இடமிட முடியவில்லை, அது இறக்குமதி செய்யப்படவில்லை. இந்தச் சாதனத்தில் உங்கள் பழைய தரவுடன் அது வைக்கப்பட்டுள்ளது.</item>
+        <item quantity="other">%1$d புக்மார்க்குகளை நம்பகமாக இடமிட முடியவில்லை, அவை இறக்குமதி செய்யப்படவில்லை. இந்தச் சாதனத்தில் உங்கள் பழைய தரவுடன் அவை வைக்கப்பட்டுள்ளன.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">இது சக்திவாய்ந்த, ஆனாலும் பயன்படுத்த எளிதான, இணையமின்றிச் செயல்படும் விவிலிய ஆய்வுச் செயலி.</string>
   <string name="webdav_untrusted_certificate_message_device">%1$s இன் சான்றிதழை இந்தச் சாதனம் நம்பவில்லை. அதை நீங்கள் அறிந்திருந்தால் மட்டுமே நம்புங்கள், எடுத்துக்காட்டாக இந்த சர்வரை நீங்களே அமைத்திருந்தால்.\n\nபொருள்: %2$s\nவழங்கியவர்: %3$s\nசெல்லுபடி: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2168,6 +2119,25 @@
   <string name="recommend_share_link">இணைப்பைப் பகிர்</string>
   <string name="recommend_qr_caption">உங்கள் தொலைபேசி, டேப்லெட் அல்லது கணினிக்கு AndBible ஐப் பெற ஸ்கேன் செய்யுங்கள்.</string>
   <string name="desktop_activation_failed">AndBible ஏற்கனவே இயங்குகிறது, ஆனால் அதன் சாளரம் பதிலளிக்கவில்லை. இயங்கும் நிகழ்வுக்கு மாறி மீண்டும் முயலவும். உள்வரும் கோப்புகள் வழங்கப்பட்டதாக உறுதிசெய்யப்படவில்லை.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">இதைத் திரும்பப் பெற முடியாது.</string>
+  <string name="ai_raw_log_delete_lead">இந்தப் பதிவை நீக்கவா?</string>
+  <string name="ai_provider_delete_lead">வழங்குனர் “%1$s” ஐ நீக்கவா?</string>
+  <string name="ai_provider_delete_detail">இதைப் பயன்படுத்தும் வரைவுகள் இயல்புநிலை வழங்குனருக்குத் திரும்பும்.</string>
+  <string name="ai_model_delete_lead">மாடல் “%1$s” ஐ நீக்கவா?</string>
+  <string name="ai_prompt_delete_named_lead">வரைவு “%1$s” ஐ நீக்கவா?</string>
+  <string name="ai_prompt_delete_lead">இந்த வரைவை நீக்கவா?</string>
+  <string name="ai_reset_usage_detail">டோக்கன், செலவு மொத்தங்கள் பூஜ்யத்திற்குத் திரும்பும். இதைத் திரும்பப் பெற முடியாது.</string>
+  <string name="ai_reset_usage_button">மீட்டமை</string>
+  <string name="ai_disclaimer_accept">நான் ஏற்கிறேன்</string>
+  <string name="llm_continue_iterations_lead">மேலும் %1$d மறுசெய்கைகளுக்குத் தொடரவா?</string>
+  <string name="llm_continue_iterations_detail">ai முகவர் முடிக்காமலேயே %1$d மறுசெய்கைகளின் வரம்பை அடைந்துவிட்டது.</string>
+  <string name="llm_continue_button">தொடர்</string>
+  <string name="permission_always_allow_lead">“%1$s” ஐ எப்போதும் அனுமதிக்கவா?</string>
+  <string name="permission_always_allow_button">எப்போதும் அனுமதி</string>
+  <string name="ai_bug_report_send_lead">ai பிழை அறிக்கையை அனுப்பவா?</string>
+  <string name="ai_bug_report_send_button">அனுப்பு</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">தொடங்குதல்</string>
   <string name="user_guide_section_reading_workspace">வாசிப்பும் பணியிடமும்</string>
@@ -2245,4 +2215,150 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI உதவியாளர், பகுதி 3: கருவிகள், உங்கள் தரவு மற்றும் அனுமதிகள்</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI உதவியாளர், பகுதி 4: உங்கள் வரைவுகள், செலவுகள் மற்றும் ஒத்திசைவு</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">மாற்றங்களை நிராகரிக்கவா?</string>
+  <string name="dialog_keep_editing">திருத்துவதைத் தொடர்</string>
+  <string name="dialog_label_delete_lead">லேபிள் “%1$s” ஐ நீக்கவா?</string>
+  <string name="dialog_label_delete_detail">அதன் ஸ்டடி பேடு குறிப்புகளும் நீக்கப்படும். இதைத் திரும்பப் பெற முடியாது.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d புக்மார்க்குக்கு வேறு லேபிள் இல்லை.</item>
+        <item quantity="other">%1$d புக்மார்க்குகளுக்கு வேறு லேபிள் இல்லை.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">லேபிளையும் %1$d புக்மார்க்கையும் நீக்கு</item>
+        <item quantity="other">லேபிளையும் %1$d புக்மார்க்குகளையும் நீக்கு</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">புக்மார்க்குகளும் அவற்றின் குறிப்புகளும் நீக்கப்படும்.</string>
+  <string name="dialog_label_delete_only_consequence">புக்மார்க்குகள் லேபிள் இல்லாமல் இருக்கும்.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">இந்தப் புக்மார்க்கை நீக்கவா?</item>
+        <item quantity="other">%1$d புக்மார்க்குகளை நீக்கவா?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">அதன் குறிப்பும் நீக்கப்படும்.</item>
+        <item quantity="other">அவற்றின் குறிப்புகளும் நீக்கப்படும்.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">இந்தப் பணியிடத்திலிருந்து தானாக ஒதுக்கும் அனைத்து லேபிள்களையும் நீக்கவா?</string>
+  <string name="dialog_labels_reset_hidden_lead">மறைத்த அனைத்து லேபிள்களையும் மீண்டும் காட்டவா?</string>
+  <string name="dialog_labels_reset_shown_detail">பட்டியலிலிருந்து நீங்கள் மறைத்த லேபிள்கள் மீண்டும் காட்டப்படும்.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">“%s” ஐ நிறுவவா?</string>
+  <string name="install_action">நிறுவு</string>
+  <string name="install_from_file_question">கோப்பிலிருந்து கோப்புகளை நிறுவவா?</string>
+  <string name="overwrite_files_detail">இந்தக் கோப்புகள் ஏற்கனவே உள்ளன:%s</string>
+  <string name="import_studypads_question">இந்த ஸ்டடி பேடுகளை இறக்குமதி செய்யவா?</string>
+  <string name="import_action">இறக்குமதி</string>
+  <string name="restore_backup_question">இந்தக் காப்புப்பிரதியிலுள்ள கோப்புகளை மீட்டமைக்கவா?</string>
+  <string name="restore_backup_detail">இந்தக் கோப்பு ஆண்ட் பைபில் கோப்புகளின் காப்புப்பிரதி.</string>
+  <string name="update_document_question">இந்தக் கோப்பைப் புதுப்பிக்கவா?</string>
+  <string name="update_action">புதுப்பி</string>
+  <string name="download_documents_question">கோப்புகளைத் தரவிறக்கவா?</string>
+  <string name="download_persecution_warning">நீங்கள் துன்புறுத்தல் உள்ள நாட்டில் வாழ்ந்தால், இணையம் வழியாக கிறிஸ்தவ உள்ளடக்கத்தைத் தரவிறக்குவதில் கவனமாக இருக்க வேண்டியிருக்கலாம். அதற்குப் பதிலாக, கோப்பு zip கோப்புகளை பாதுகாப்பான வழியில் பெற்று “%1$s” மூலம் நிறுவலாம். ஆவண சேவையகங்களிலிருந்து அனைத்து தரவிறக்கங்களும் குறியாக்கம் செய்யப்பட்டவை (HTTPS).</string>
+  <string name="download_action">தரவிறக்கு</string>
+  <string name="download_dont_ask_again">தரவிறக்கு, மீண்டும் கேட்காதே</string>
+  <string name="download_dont_ask_again_consequence">இனி இந்தக் கேள்வி இல்லாமலே தரவிறக்கங்கள் தொடங்கும்.</string>
+  <string name="passphrase_did_not_work">கடவுச்சொற்றொடர் செயல்படவில்லை.</string>
+  <string name="try_again">மீண்டும் முயற்சிக்கவும்</string>
+  <string name="interrupted_downloads_lead">இந்தக் கோப்புகளை மீண்டும் தரவிறக்கவா?</string>
+  <string name="interrupted_downloads_detail">அவற்றின் தரவிறக்கம் தடைபட்டதால் அவை நிறுவப்படவில்லை.</string>
+  <string name="external_link_open_question">இந்த இணைப்பை உங்கள் உலாவியில் திறக்கவா?</string>
+  <string name="open_action">திற</string>
+  <string name="notification_permission_question">அறிவிப்புகளை அனுமதிக்கவா?</string>
+  <string name="notification_permission_detail">அறிவிப்புகள் தரவிறக்க நிலை, செயலாக்கம், வாசிப்பு நிலை ஆகியவற்றைக் காட்டும்.</string>
+  <string name="allow_action">அனுமதி</string>
+  <string name="rate_question">செயலியை மதிப்பிட்டு மதிப்புரை எழுதவா?</string>
+  <string name="bug_report_email_question">பிழை அறிக்கையை மின்னஞ்சலில் அனுப்பவா?</string>
+  <string name="continue_action">தொடர்</string>
+  <string name="delete_search_index_question">“%s” இன் தேடல் குறியீட்டை நீக்கவா?</string>
+  <string name="remove_custom_repository_question">தனிப்பயன் களஞ்சியம் “%s” ஐ நீக்கவா?</string>
+  <string name="download_document_question">“%s” ஐ தரவிறக்கவா?</string>
+  <string name="choose_file_action">கோப்பைத் தேர்ந்தெடு</string>
+  <string name="old_webview_question">பழைய WebView உடன் செயலியைப் பயன்படுத்தவா?</string>
+  <string name="incomplete_translation_question">பகுதி மொழிபெயர்ப்புடன் தொடரவா?</string>
+  <string name="rate_action">மதிப்பிடு</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">கோப்பு “%s” ஐ நீக்கவா?</string>
+  <string name="my_document_page_delete_lead">பக்கம் “%s” ஐ நீக்கவா?</string>
+  <string name="my_document_cannot_delete_ai_lead">பக்கங்கள் இருக்கும்போது ai கோப்புகளை நீக்க முடியாது.</string>
+  <string name="my_document_cannot_delete_ai_detail">முதலில் பக்கங்களை நீக்கவும்.</string>
+  <string name="reading_progress_new_cycle_lead">புதிய வாசிப்பு சுழற்சியைத் தொடங்கவா?</string>
+  <string name="reading_progress_new_cycle_detail">உங்கள் முன்னேற்றம் புதிதாகக் கண்காணிக்கப்படும். முந்தைய சுழற்சியின் தரவு வைக்கப்படும்.</string>
+  <string name="reading_progress_new_cycle_start">தொடங்கு</string>
+  <string name="reset_plan_lead">இந்தத் திட்டத்தை மீட்டமைக்கவா?</string>
+  <string name="reset_plan_detail">இந்தத் திட்டத்தில் உங்கள் தொடக்கத் தேதியும் முன்னேற்றமும் அழிக்கப்படும்.</string>
+  <string name="set_current_day_lead">%1$s ஐ தற்போதைய நாளாக அமைக்கவா?</string>
+  <string name="set_current_day_detail">முந்தைய அனைத்து நாட்களும் வாசித்ததாகக் குறிக்கப்படும்.</string>
+  <string name="plan_duplicate_user_plan_lead">ஒரு வாசிப்பு திட்டக் கோப்பின் பெயர் உள்ளமைந்த திட்டத்தின் பெயரைப் போலவே உள்ளது.</string>
+  <string name="plan_duplicate_user_plan_detail">அந்தத் திட்டக் கோப்பைப் பட்டியலிட முடியாது. jsword/readingplan கோப்புறையில் கோப்பின் பெயரை மாற்றவும்; அதன் .properties நீட்சியை வைத்திருக்கவும்.</string>
+  <string name="background_image_delete_lead">இந்தப் பின்னணிப் படத்தை நீக்கவா?</string>
+  <string name="background_image_delete_detail">இதைப் பயன்படுத்தும் பணியிடங்கள் படம் இல்லாத நிலைக்குத் திரும்பும்.</string>
+  <string name="reset_values_lead">இந்த மதிப்புகள் அனைத்தையும் மீட்டமைக்கவா?</string>
+  <string name="revert_setting_lead">இந்த அமைப்பை பெறப்பட்ட மதிப்புக்குத் திருப்பவா?</string>
+  <string name="revert_setting_confirm">திருப்பு</string>
+  <string name="reset_settings_screen_lead">இந்தத் திரையிலுள்ள அமைப்புகளை மீட்டமைக்கவா?</string>
+  <string name="reset_settings_screen_detail">அவை இயல்புநிலை மதிப்புகளுக்குத் திரும்பும்.</string>
+  <string name="memorize_unmark_lead">“%s” க்கான மனன நிலையை நீக்கவா?</string>
+  <string name="memorize_remove_target_lead">மனன இலக்கு “%s” ஐ நீக்கவா?</string>
+  <string name="dialog_apply">செயல்படுத்து</string>
+  <string name="dialog_dont_apply">செயல்படுத்த வேண்டாம்</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">கிளவுடில் ஏற்கனவே உங்கள் %s உள்ளது. என்ன செய்ய வேண்டும்?</string>
+  <string name="cloud_merge_consequence">இரு பக்கங்களும் வைக்கப்படும்; இரண்டிலும் மாறிய உருப்படியில் புதிய மாற்றம் நிலைக்கும்.</string>
+  <string name="cloud_fetch_consequence">இந்தச் சாதனத்திலுள்ள தரவை கிளவுடு நகலால் மாற்றும்.</string>
+  <string name="cloud_create_consequence">கிளவுடு நகலை இந்தச் சாதனத்திலுள்ள தரவால் மாற்றும்.</string>
+  <string name="cloud_disable_consequence">இந்தத் தரவுக்கு ஒத்திசைவு அணைந்தே இருக்கும்.</string>
+  <string name="cloud_merge_lead">உங்கள் %s ஐ கிளவுடுடன் இணைக்கவா?</string>
+  <string name="cloud_merge_confirm">இணை</string>
+  <string name="cloud_replace_confirm">மாற்று</string>
+  <string name="cloud_replace_local_lead">இந்தச் சாதனத்தின் %s ஐ கிளவுடு நகலால் மாற்றவா?</string>
+  <string name="cloud_replace_local_detail">இந்தச் சாதனத்தில் இப்போது உள்ளவை மேலெழுதப்படும்; அவற்றை மீட்க முடியாது.</string>
+  <string name="cloud_replace_cloud_lead">%s இன் கிளவுடு நகலை இந்தச் சாதனத்தின் தரவால் மாற்றவா?</string>
+  <string name="cloud_replace_cloud_detail">கிளவுடில் இப்போது உள்ளவை மேலெழுதப்படும்; உங்கள் மற்ற சாதனங்களுக்கு இந்தச் சாதனத்தின் தரவு கிடைக்கும்.</string>
+  <string name="sign_in_failed_lead">ஒத்திசைவு சேவையில் உள்நுழைய முடியவில்லை.</string>
+  <string name="sync_too_old_lead">%s ஐ ஒத்திசைக்க இந்தச் செயலி மிகவும் பழையது.</string>
+  <string name="sync_too_old_detail">கிளவுடு தரவு இந்தச் செயலி ஆதரிப்பதை விடப் புதிய பதிப்பைப் பயன்படுத்துகிறது. அதற்கான ஒத்திசைவு தற்போதைக்கு அணைக்கப்பட்டுள்ளது; மீண்டும் இயக்க செயலியைப் புதுப்பிக்கவும்.</string>
+  <string name="backup_replace_lead">உங்கள் %s ஐ காப்புப்பிரதியால் மாற்றவா?</string>
+  <string name="backup_replace_detail">இந்தச் சாதனத்தில் இப்போது உள்ளவை மேலெழுதப்படும்; அவற்றை மீட்க முடியாது.</string>
+  <string name="reset_database_lead">“%1$s” ஐ அதன் தொடக்க நிலைக்கு மீட்டமைக்கவா?</string>
+  <string name="reset_database_detail">அதிலுள்ள அனைத்துத் தரவும் நிரந்தரமாக நீக்கப்படும். இதைத் திரும்பப் பெற முடியாது.</string>
+  <string name="reset_database_button">மீட்டமை</string>
+  <string name="restore_all_lead">உங்கள் குறிப்புகள், புக்மார்க்குகள், ஸ்டடி பேடுகள், வாசிப்பு திட்டங்கள், பணியிடங்களை மாற்றவா?</string>
+  <string name="restore_or_import_lead">%s ஐ மீட்டமைக்கவா அல்லது இறக்குமதி செய்யவா?</string>
+  <string name="restore_consequence">இந்தச் சாதனத்தில் உள்ளவற்றை காப்புப்பிரதியால் மாற்றும்.</string>
+  <string name="import_consequence">காப்புப்பிரதியின் உருப்படிகளை இந்தச் சாதனத்தில் உள்ளவற்றுடன் சேர்க்கும்.</string>
+  <string name="sync_start_syncing">ஒத்திசைவைத் தொடங்கு</string>
+  <string name="sync_reset_lead">வெளியேறி ஒத்திசைவை மீட்டமைக்கவா?</string>
+  <string name="sync_reset_detail">ஒத்திசைவை மீண்டும் அமைக்க வேண்டும்.</string>
+  <string name="webdav_forget_certificate_lead">நம்பகமான சேவையகச் சான்றிதழை மறக்கவா?</string>
+  <string name="webdav_forget_certificate_detail">அடுத்த இணைப்பில் சான்றிதழை மீண்டும் உறுதிப்படுத்தும்படி கேட்கப்படுவீர்கள்.</string>
+  <string name="webdav_forget_certificate_confirm">மற</string>
+  <string name="cloud_doc_remove_all_lead">“%1$s” ஐ கிளவுடிலிருந்தும் உங்கள் அனைத்துச் சாதனங்களிலிருந்தும் நீக்கவா?</string>
+  <string name="cloud_doc_remove_cloud_lead">“%1$s” ஐ கிளவுடிலிருந்து நீக்கவா?</string>
+  <string name="cloud_doc_purge_lead">“%1$s” ஐ கிளவுடு வரலாற்றிலிருந்து நிரந்தரமாக நீக்கவா?</string>
+  <string name="cloud_doc_remove_all_detail">இது இந்தச் சாதனத்திலும், கோப்பு ஒத்திசைவு இயக்கத்திலுள்ள மற்ற ஒவ்வொரு சாதனத்திலும் உள்ள நகல்களையும் நீக்கும்.</string>
+  <string name="cloud_doc_remove_cloud_detail">இந்தச் சாதனத்திலுள்ள நகல்கள் வைக்கப்படும். கோப்பு ஒத்திசைவு இயக்கத்திலுள்ள சாதனங்கள் அவற்றையும் நீக்கும்.</string>
+  <string name="cloud_doc_purge_detail">இன்னும் நகல் வைத்திருக்கும் சாதனம் அடுத்த ஒத்திசைவில் அதை மீண்டும் பதிவேற்றக்கூடும்.</string>
+  <string name="cloud_doc_block_confirm_button">ஒத்திசைக்காதே</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">%1$d கோப்பை கிளவுடிலிருந்தும் உங்கள் அனைத்துச் சாதனங்களிலிருந்தும் நீக்கவா?</item>
+        <item quantity="other">%1$d கோப்புகளை கிளவுடிலிருந்தும் உங்கள் அனைத்துச் சாதனங்களிலிருந்தும் நீக்கவா?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">%1$d கோப்பை கிளவுடிலிருந்து நீக்கவா?</item>
+        <item quantity="other">%1$d கோப்புகளை கிளவுடிலிருந்து நீக்கவா?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">%1$d கோப்பை கிளவுடு வரலாற்றிலிருந்து நிரந்தரமாக நீக்கவா?</item>
+        <item quantity="other">%1$d கோப்புகளை கிளவுடு வரலாற்றிலிருந்து நிரந்தரமாக நீக்கவா?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">%1$d கோப்பை கிளவுடுக்கு ஒத்திசைப்பதை நிறுத்தவா?</item>
+        <item quantity="other">%1$d கோப்புகளை கிளவுடுக்கு ஒத்திசைப்பதை நிறுத்தவா?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">உங்கள் மேலும் பல தரவை இப்போது ஒத்திசைக்கலாம்</string>
+  <string name="new_sync_targets_detail">என் ஆவணங்கள், ai அமைப்புகள், வாசிப்பு முன்னேற்றம் ஆகியவற்றையும் ஒத்திசைக்கலாம். சாதன ஒத்திசைவு அமைப்புகளில் அவற்றை இயக்கவும்.</string>
+  <!--end dialog copy: B3b-->
 </resources>

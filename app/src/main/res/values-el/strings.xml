@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Ο πλήρης οδηγός χρήσης βρίσκεται στο andbible.org. Οι σελίδες ανοίγουν στο πρόγραμμα περιήγησής σας.</string>
   <string name="help_user_guide_home">Αρχική σελίδα οδηγού χρήσης</string>
   <string name="help_read_in_user_guide">Διαβάστε στον οδηγό χρήσης</string>
+  <string name="help_in_user_guide">Βοήθεια στον οδηγό χρήστη</string>
+  <string name="help_matching_section">Αντίστοιχη ενότητα</string>
   <string name="help_read_page">Διαβάστε στον οδηγό χρήσης: %1$s</string>
   <string name="help_tutorial_videos">Βίντεο οδηγιών</string>
   <string name="help_watch_in_order">Δείτε τα βίντεο οδηγιών με τη σειρά</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Επιλογή στίχου (και κεφαλαίου) κατά την επιλογή ενός περάσματος</string>
   <string name="prefs_open_links_in_special_window_title">Παράθυρο συνδέσμων</string>
   <string name="prefs_open_links_in_special_window_summary">Άνοιξε τους συνδέσμους σε ξεχωριστό παράθυρο, για γρήγορη θέαση των παραπομπών και των Strongs</string>
+  <string name="prefs_trusted_link_domains_title">Αξιόπιστοι τομείς συνδέσμων</string>
+  <string name="prefs_trusted_link_domains_summary">Οι σύνδεσμοι προς αυτούς τους τομείς ανοίγουν χωρίς ερώτηση. Αποεπιλέξτε έναν τομέα για να ερωτάστε ξανά.</string>
+  <string name="prefs_trusted_link_domains_empty">Κανένας ακόμη. Επιλέξτε \"Να μην ερωτηθώ ξανά\" όταν ανοίγετε έναν σύνδεσμο για να προσθέσετε τον τομέα του.</string>
   <string name="prefs_text_size_sample_text">Δείγμα κειμένου</string>
   <string name="prefs_screen_keep_on_title">Διατήρηση ανοιχτής οθόνης</string>
   <string name="prefs_screen_keep_on_summary">Διατήρηση ανοιχτής οθόνης κατά την χρήση της εφαρμογής</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">Απόσταση γραμμών</string>
   <string name="line_spacing_summary">Ρύθμιση απόστασης μεταξύ των γραμμών</string>
   <string name="select_none">Αποεπιλογή</string>
-  <string name="reset_are_you_sure">Σίγουρα θέλετε να επαναφέρετε αυτές τις τιμές?</string>
   <string name="window_pinning_menutitle">Καρφίτσωμα παραθύρου</string>
   <string name="hide_window_buttons_title">Απόκρυψη κουμπιών παραθύρου</string>
   <string name="hide_window_buttons_summary">Απόκρυψη κουμπιών παραθύρου που εμφανίζονται στη δεξιά πλευρά στην εμφάνιση Βίβλου. Η μπάρα πλοήγησης του παραθύρου στο κάτω μέρος είναι ακόμα εμφανής και μπορείτε να ανοίξετε το αναδυόμενο παράθυρο μενού με παρατεταμένο πάτημα</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">Η λέξη δεν βρέθηκε σε κανένα λεξικό</string>
   <string name="prefs_top_margin_title_mm">Επάνω περιθώριο (%d mm)</string>
   <string name="font_size_title">Μέγεθος γραμματοσειράς</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Επειδή τόσο ἠγάπησεν ὁ Θεὸς τὸν κόσμον, ὥστε τὸν Υἱὸν αὐτοῦ τὸν μονογενῆ ἔδωκεν, ἵνα πᾶς ὁ πιστεύων εἰς αὐτὸν μὴ ἀπόληται, ἀλλ᾿ ἔχῃ ζωὴν αἰώνιον.</string>
   <string name="font_size_title_pt">Μέγεθος γραμματοσειράς (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ρύθμιση μεγέθους γραμματοσειράς κυρίου κειμένου</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">Ρυθμίσεις χρωμάτων (Παράθυρο)</string>
   <string name="workspace_color_settings_title">Ρυθμίσεις χρωμάτων (Χώρος εργασίας)</string>
   <string name="color_workspace">Χρώμα Χώρου Εργασίας</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Προεπιλογή</string>
   <string name="color_text">Χρώμα κειμένου</string>
   <string name="color_background">Χρώμα παρασκηνίου</string>
   <string name="colors_day_mode_title">Λειτουργία ημέρας</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">Τελευταία ανανέωση λίστας Εγγραφου: %s.</string>
   <string name="download_refreshing_book_list">Ανανεωση λίστας διαθέσιμων εγγράφων από διακομιστές εγγράφων...</string>
   <string name="download_source_message1">Τα έγγραφα λαμβάνονται από τις ακόλουθες πηγές:</string>
-  <string name="download_document_confirm_prefix">Λήψη</string>
   <string name="error_downloading">Σφάλμα κατά τη λήψη. Παρακαλώ ελέγξτε την σύνδεση διαδικτύου σας.</string>
   <string name="error_downloading_status">Ο διακομιστής που φιλοξενεί %1$sανέφερε σφάλμα λόγω %2$s (%3$d).</string>
   <string name="storage_space_warning">Ανεπαρκής τοπικός χώρος αποθήκευσης.</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">Δραστηριότητα παρασκηνίου</string>
   <string name="activity_empty">Τίποτα σε εξέλιξη</string>
   <string name="activity_failed_toast">%1$s — δείτε το μενού</string>
-  <string name="download_question_title">Συνέχεια στην λήψη εγγράφων?</string>
-  <string name="download_question_message">Αν ζείτε σε χώρα όπου υπάρχει δίωξη, ίσως χρειάζεται να είστε προσεκτικοί με τη λήψη χριστιανικού υλικού μέσω Διαδικτύου. Αντί γι\' αυτό, μπορεί να θέλετε να αποκτήσετε αρχεία zip εγγράφων με πιο ασφαλή τρόπο και να τα εγκαταστήσετε μέσω του \"%1$s\". Είστε βέβαιοι ότι θέλετε να συνεχίσετε με τη λήψη; Όλες οι λήψεις από διακομιστές εγγράφων είναι κρυπτογραφημένες (HTTPS).</string>
-  <string name="do_not_ask_again">Ναι, μη ρωτήσεις πάλι</string>
   <string name="recommended_document">Προτεινόμενο!</string>
   <string name="about_version_history">Ιστορικό έκδοσης: %s</string>
   <string name="download_errors">Σφάλματα λήψης</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">Έλεγχος υποβαλλόμενου αρχείου...</string>
   <string name="invalid_module">Το αρχείο δεν περιέχει έγκυρο πρόσθετο SWORD</string>
   <string name="install_zip_title">Παρακαλώ περιμένετε. Φόρτωση προσθέτων από αρχείο.</string>
-  <string name="overwrite_files">Τα ακόλουθα αρχεία ήδη υπάρχουν: %s Αντικατάσταση?</string>
   <string name="overwrite_files_title">Αντικατάσταση αρχείων?</string>
   <string name="could_not_overwrite_files">Δεν μπορούσαν να επανεγγραφούν αρχεία: %s. Εκτός από αυτό η εγκατάσταση ήταν επιτυχής.</string>
   <string name="module_backup_restore">Αυτό το αρχείο είναι αντίγραφο ασφαλείας εγγράφων του AndBible. Θέλετε να επαναφέρετε τα έγγραφά του;</string>
-  <string name="install_do_you_want">Θέλετε να εγκαταστήσετε πρόσθετο (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Σχέδιο ανάγνωσης</string>
   <string name="reading_plans_plural">Σχέδια ανάγνωσης</string>
@@ -429,14 +430,8 @@
   <string name="rdg_plan_day">Ημέρα %s</string>
   <string name="rdg_plan_set_start_date">Ρύθμιση Ημερομηνίας έναρξης...</string>
   <string name="set_current_day">Ρύθμιση ως τρέχουσα ημέρα...</string>
-  <string name="msg_set_current_day_reading_plan">Αυτό θα ορίσει το %1$s ως την τρέχουσα ημέρα σε αυτό το σχέδιο και θα σημειώσει όλες τις προηγούμενες ημέρες ως αναγνωσμένες. Συνέχεια;</string>
   <string name="done">Τελος</string>
-  <string name="reset_plan_question">Σίγουρα θέλετε να επαναφέρετε αυτό το σχέδιο?</string>
   <string name="import_reading_plan">Εισαγωγή σχέδιου ανάγνωσης...</string>
-  <string name="plan_duplicate_user_plan">
-Υπάρχει στην κάρτα μνήμης σχέδιο ανάγνωσης του χρήστη
-jsword/readingplan με όνομα ίδιο με τοπικά αποθηκευμένο σχέδιο. Δεν γίνεται να εμφανιστεί εδώ.
-Παρακαλώ μετονομάστε το αρχείο σε κάτι άλλο,διατηρώντας την επέκτασή του ως .properties</string>
   <string name="plan_name_y1ntpspr">Καινή Διαθήκη, Ψαλμοί &amp; Παροιμίες σε ένα χρόνο</string>
   <string name="plan_description_y1ntpspr">
 Ευγενική προσφορά του ιντερνετικού περιοδικού HEARTLIGHT,
@@ -469,12 +464,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="delete_index">Διαγραφή ευρετήριου αναζήτησης</string>
   <string name="about">Σχετικά με</string>
   <string name="delete_doc">Διαγραφή του %s?</string>
-  <string name="interrupted_downloads_title">Η λήψη διακόπηκε</string>
-  <string name="interrupted_downloads_message">Αυτά τα έγγραφα δεν εγκαταστάθηκαν επειδή η λήψη τους διακόπηκε:</string>
-  <string name="interrupted_downloads_question">Να γίνει ξανά λήψη;</string>
   <string name="download_again">Νέα λήψη</string>
   <string name="delete_docs_confirm">Να διαγραφούν αυτά τα έγγραφα;</string>
-  <string name="delete_search_index_doc">Διαγραφή ευρετήριου του %s?</string>
   <!--Verse context menu-->
   <string name="notes">Υποσημειώσεις και παραπομπές</string>
   <string name="share_verse">Κοινοποίηση...</string>
@@ -514,7 +505,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="bookmark_warning2">
 Αν η δομή του εγγράφου έχει αλλάξει, ενημερώνοντας αυτό το έγγραφο θα μπορούσε να
 μετακινήσει τις τοποθεσίες των σελιδοδεικτών/σημειώσεων αυτών μέσα στο έγγραφο ή να τα εξαφανίσει τελείως.</string>
-  <string name="bookmark_warning3">Θέλετε ακόμα να ενημερώσετε το πρόσθετο?</string>
   <string name="bookmark_warning4">Προτείνετε να κρατήσετε backup του προσθέτου πρίν το ενημερώσετε</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Κατά ημερομηνία</string>
@@ -681,10 +671,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Επαναφορά ή εισαγωγή από...</string>
   <string name="backup_restore2">Επαναφορά ή εισαγωγή</string>
-  <string name="overwrite_something">Αντικατάσταση %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Επαναφορά αρχείου βάσης δεδομένων</string>
-  <string name="restore_confirmation">Αντικατάσταση Σημειώσεων Μου, σελιδοδεικτών, Μπλοκ Μελέτης, σχεδίων ανάγνωσης και χώρων εργασίας?</string>
   <string name="restore_success">Οι Σημειώσεις Μου, σελιδοδεικτες, Μπλοκ Μελέτης, σχέδια ανάγνωσης και χώροι εργασίας επαναφέρθηκαν επιτυχώς</string>
   <string name="downloading_backup">Κατέβασμα αντιγράφου ασφαλείας...</string>
   <string name="loading_backup">Επαναφορά βάσης δεδομένων από αντίγραφο...</string>
@@ -706,7 +694,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="send_export_file">Αποστολή αρχείου εξαγωγής</string>
   <string name="backup_modules_title">Επιλέξτε ποιά πρόσθετα θα αντιγράψετε</string>
   <string name="install_zip_canceled">Ακυρώθηκε η εγκατάσταση προσθέτου</string>
-  <string name="ask_restore_or_import">Η βάση δεδομένων για %s μπορεί είτε να αντικατασταθεί (π.χ. η υπάρχουσα βάση διαγράφεται και η επιλεγμένη βάση φορτώνεται) είτε να εισαχθεί (η επιλεγμένη βάση εισάγεται μέσα στην υπάρχουσα βάση). Τι θέλετε να κάνετε?</string>
   <string name="restore">Επαναφορά</string>
   <string name="import2">Εισαγωγή</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -761,7 +748,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="settings_editor_back">Πίσω</string>
   <string name="settings_editor_close">Κλείσιμο</string>
   <string name="settings_editor_apply">Εφαρμογή</string>
-  <string name="discard_changes_confirmation">Απόρριψη μη αποθηκευμένων αλλαγών;</string>
   <string name="discard">Απόρριψη</string>
   <string name="remove">Αφαίρεση</string>
   <string name="overwrite">Αντικατάσταση</string>
@@ -788,7 +774,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="empty_list">Δεν υπάρχουν στοιχεία για εμφάνιση</string>
   <string name="error_skip">Παράβλεψη</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Κατεστραμμένα δεδομένα</string>
+  <string name="corrupt_database_headline">Το AndBible δεν μπορεί να ανοίξει ορισμένα από τα δεδομένα σας</string>
+  <string name="corrupt_database_files_detail">Δεν ήταν δυνατό το άνοιγμα αυτών των αρχείων: %1$s. Τίποτα δεν έχει αλλάξει ή διαγραφεί. Η επαναφορά τα ξεκινά κενά και κρατά κάθε κατεστραμμένο αρχείο σε αυτήν τη συσκευή, μετονομασμένο με .corrupt- συν την ημερομηνία και την ώρα.</string>
   <string name="corrupt_database_reset">Επαναρύθμιση κατεστραμμένων δεδομένων</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Τα κατεστραμμένα δεδομένα δεν μπόρεσαν να επαναρυθμιστούν: το %1$s δεν μπόρεσε να μετακινηθεί. Δεν άλλαξε τίποτα. Μπορείτε να δοκιμάσετε ξανά, να στείλετε μια αναφορά σφάλματος ή να χρησιμοποιήσετε το Αντίγραφο ασφαλείας &amp; επαναφορά.</string>
@@ -796,8 +783,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="damaged_data_needs_attention">Τα δεδομένα της εφαρμογής χρειάζονται προσοχή. Πατήστε για να ανοίξετε την εφαρμογή.</string>
   <string name="debug_test_error">Δοκιμαστικό σφάλμα (έκδοση αποσφαλμάτωσης)</string>
   <string name="bug_report_prepare_failed">Δεν ήταν δυνατή η προετοιμασία ή η κοινοποίηση της αναφοράς. Μπορείτε να δοκιμάσετε ξανά ή να χρησιμοποιήσετε το Αντίγραφο ασφαλείας και επαναφορά για να αποθηκεύσετε τα δεδομένα σας.</string>
-  <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
   <string name="bug_report_desktop_text">Στη συνέχεια θα σας ζητηθεί να επιλέξετε πού θα αποθηκευτεί το αρχείο αναφοράς σφάλματος. Έπειτα θα λάβετε οδηγίες για την αποστολή του στην ομάδα ανάπτυξης.</string>
+  <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
   <string name="bug_report_email_text">Ακολούθως, παρακαλώ επιλέξτε την προτιμώμενη εφαρμογή email (π.χ. Gmail) για να αποστείλετε την αναφορά στην ομάδα ανάπτυξης</string>
   <string name="bug_report_manual_title">Αποστολή της αναφοράς με email</string>
   <string name="bug_report_manual_text_saved">Η αναφορά αποθηκεύτηκε στο <b>%1$s</b>.\n\nΣτείλτε ένα email στη διεύθυνση <b>%2$s</b> και επισυνάψτε αυτό το αρχείο· ένα πρόγραμμα email δεν μπορεί να το επισυνάψει για εσάς. Προτεινόμενο θέμα: <b>%3$s</b>. Στο μήνυμα, πείτε μας τι κάνατε και τι συνέβη.</string>
@@ -868,8 +855,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="beta_special_regards">Με εκτίμηση, Tuomas</string>
   <string name="beta_special_sponsor">Υ.Γ. Μπορείτε να στηρίξετε οικονομικά την ανάπτυξη του AndBible %s.</string>
   <string name="beta_special_sponsor_link">χορηγώντας ώρες ανάπτυξης</string>
-  <string name="new_sync_targets_notice_title">Νέες ρυθμίσεις συγχρονισμού διαθέσιμες</string>
-  <string name="new_sync_targets_notice_message">Αυτή η έκδοση του AndBible εισάγει πρόσθετους στόχους συγχρονισμού: Τα Έγγραφά Μου, ρυθμίσεις AI και πρόοδος ανάγνωσης. Εάν θέλετε να τα ενεργοποιήσετε, μπορείτε να το κάνετε στις ρυθμίσεις Συγχρονισμού Συσκευής.</string>
   <string name="open_settings">Άνοιγμα ρυθμίσεων</string>
   <!--History-->
   <string name="history_for">Ιστορικό (%1$s: Παράθυρο %2$d)</string>
@@ -970,7 +955,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="give_passphrase_for_module">Το έγγραφο %s είναι κρυπτογραφημένο και χρειάζεται φραση πρόσβασης για να ξεκλειδωθεί</string>
   <string name="unlock_module">Όρισμός φράσης πρόσβασης προσθέτου</string>
   <string name="unlock_info">Πληροφορίες ξεκλειδώματος κρυπτογραφημένου προσθέτου</string>
-  <string name="try_again_passphrase">Η φράση πρόσβασης δεν έγινε δεκτή, άλλη μια προσπάθεια?</string>
   <string name="show_unlock_info">Πληροφορίες ξεκλειδώματος προσθέτου &amp;</string>
   <string name="prefs_experimental_features_title">Πειραματικες δυνατότητες</string>
   <string name="prefs_experimental_features_summary">Επιλέξτε ποιές πειραματικές δυνατότητες θέλετε να ενεργοποιήσετε. Αυτές οι δυνατότητες βρίσκονται ακόμα υπό ανάπτυξη και μπορεί να αλλάξουν ή να καταργηθούν</string>
@@ -1004,9 +988,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="active_window_indicator_summary">Υπερτονισμός γωνιών παραθύρου, για αναγνώριση ενεργού παραθύρου</string>
   <string name="app_licence_title">Άδεια Ανοιχτού Κώδικα</string>
   <string name="how_to_contribute">Πως μπορώ να συνεισφέρω?</string>
-  <string name="confirm_delete_bookmarks">Θέλετε να απομακρύνετε %dσελιδοδείκτες και τις σημειώσεις τους?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Η επιλεγμένη ετικέτα είναι συνδεδεμένη με %d σελιδοδείκτες που δεν έχουν άλλες ετικέτες. Θέλετε να διαγράψετε αυτούς τους σελιδοδείκτες μαζί με τις ετικέτες;</string>
-  <string name="delete_label_and_bookmarks">Διαγραφή ετικέτας και σελιδοδεικτών</string>
   <string name="delete_label_only">Διαγραφή ετικέτας μόνο</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Προτείνετε σε έναν φίλο</string>
@@ -1037,8 +1018,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="old_webview">Το πακέτο Android Webview είναι παρωχημένο (%1$s). Χρειάζεται η αναβάθμισή του τουλάχιστον στην έκδοση %2$s για να χρησιμοποιηθεί το %3$s. Στις περισσότερες συσκευές γίνεται μέσω %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Προχώρα παρ\'όλα αυτά</string>
-  <string name="proceed">Προχώρα</string>
-  <string name="rate_title">Βαθμολόγηση και αξιολόγηση εφαρμογής</string>
   <string name="rate_message5">
 Θετικές και λεπτομερείς αξιολογήσεις βοηθούν πολύ την Εφαρμογή Ανοιχτού Κώδικα AndBible. Ευχαριστούμε!</string>
   <string name="rate_message6">
@@ -1079,7 +1058,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="primary_label">Κύρια ετικέτα</string>
   <string name="favourite_label">Αγαπημένη ετικέτα</string>
   <string name="edit_label">Επεξεργασία ετικέτας</string>
-  <string name="delete_label_confirmation">Απομάκρυνση ετικέτας σελιδοδείκτη \"%s\"? Τα συνδεδεμένα Μπλοκ Μελέτης θα αφαιρεθούν επίσης.</string>
   <string name="active_labels">Επιλεγμένες ετικέτες</string>
   <string name="recent_labels">Πρόσφατες ετικέτες</string>
   <string name="other_labels">Άλλες ετικέτες</string>
@@ -1089,8 +1067,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="book_menu_show_progress_bars">Εμφάνιση γραμμών προόδου</string>
   <string name="reset_workspace_labels">Θέλετε να επαναφέρτε τις προκαθορισμένες και προτιμώμενες ρυθμίσεις γι\'αυτόν τον Χώρο Εργασίας?</string>
   <string name="clear_auto_assign_labels">Εκκαθάριση ετικετών αυτόματης ανάθεσης</string>
-  <string name="reset_workspace_auto_assign_labels">Θέλετε να αφαιρέσετε όλες τις ετικέτες αυτόματης ανάθεσης από αυτόν τον χώρο εργασίας;</string>
-  <string name="reset_hide_labels">Θέλετε να επαναφέρετε την ρύθμιση για την απόκρυψη ρυθμίσεων των συγκεκριμένων ετικετών?</string>
   <string name="reorder">Αναδιάταξη</string>
   <string name="system_items">Ενέργειες συστήματος</string>
   <string name="system_items1">Περισσότερα</string>
@@ -1104,7 +1080,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ios_fullscreen_hint">Πατήστε δύο φορές ή πατήστε το κουμπί για έξοδο από την πλήρη οθόνη.</string>
   <string name="desktop_exit_fullscreen">Έξοδος από την πλήρη οθόνη</string>
   <string name="exit_fullscreen">Διπλό πάτημα για έξοδο από πλήρη οθόνη</string>
-  <string name="reset_app_prefs">Θέλετε να επαναφέρετε όλες τις γενικές ρυθμίσεις της εφαρμογής που εμφανίζονται σε αυτή τις οθόνη στις προεπιλεγμένες τους τιμές?</string>
   <string name="label_red">Κόκκινο</string>
   <string name="label_green">Πράσινο</string>
   <string name="label_blue">Μπλε</string>
@@ -1115,7 +1090,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="reset_databases_title">Επαναφορά Βάσεων Δεδομένων</string>
   <string name="reset_databases_description">Επαναφορά μεμονωμένων βάσεων δεδομένων στην αρχική κενή κατάστασή τους. Αυτό δεν μπορεί να αναιρεθεί.</string>
   <string name="last_crash_info_title">Πληροφορίες τελευταίου σφάλματος</string>
-  <string name="reset_database_confirm">Αυτό θα διαγράψει μόνιμα όλα τα δεδομένα στο \"%1$s\" και θα το επαναφέρει στην αρχική κατάσταση. Αυτό δεν μπορεί να αναιρεθεί.\n\nΕίστε σίγουροι;</string>
   <string name="reset_database_success">Η βάση δεδομένων επαναφέρθηκε επιτυχώς</string>
   <string name="reset_something">Επαναφορά: %1$s</string>
   <string name="export">Εξαγωγή</string>
@@ -1185,19 +1159,18 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="manage_labels_help_favourite">Διατήρηση της ετικέτας στα αγαπημένα σας για γρήγορη πρόσβαση.</string>
   <string name="manage_labels_help_styles">Κάτω από το όνομα, ένα μικρό παράδειγμα δείχνει την εμφάνιση της ετικέτας: Επιλογή για σελιδοδείκτη επιλογής κειμένου, Ολόκληρο εδάφιο για σελιδοδείκτη ολόκληρου εδαφίου, και μια ένδειξη Χώρος εργασίας για στυλ που παρακάμπτεται από αυτόν τον χώρο εργασίας. Ένα γκριζαρισμένο παράδειγμα χωρίς διακόσμηση σημαίνει ότι οι σελιδοδείκτες της ετικέτας δεν σχεδιάζονται. Αποκρύψτε τα παραδείγματα από το μενού ⋮.</string>
   <string name="manage_labels_help_reorder">Αλλάξτε τη σειρά της λίστας από το μενού ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Σε στενή οθόνη, η λίστα παραλείπει τα εικονίδια κύριας, αυτόματης ανάθεσης και αγαπημένης ετικέτας για να χωρούν τα ονόματα των ετικετών. Πατήστε μια ετικέτα για να τα ορίσετε στον επεξεργαστή της.</string>
   <string name="added_to_bookmark">Εκχωρημένο σε αυτόν τον σελιδοδείκτη</string>
   <string name="strongs_links">Σύνδεσμοι</string>
   <string name="strongs_text_and_links">Κείμενο και σύνδεσμοι</string>
   <string name="strongs_hidden_links">Κρυφοί σύνδεσμοι</string>
   <string name="verse_tip">Για να επιλέξετε πολλούς στίχους ή μέρος τους, μπορείτε να πατήσετε παρατεταμένα στο Βιβλικό κείμενο</string>
-  <string name="permission_required">Απαιτείται άδεια</string>
   <string name="labels_search_hint">Αναζήτηση</string>
   <string name="search_mode_name_start">Όνομα (από την αρχή)</string>
   <string name="search_mode_name_contains">Όνομα (περιεχόμενα)</string>
   <string name="search_mode_content">Περιεχόμενο</string>
   <string name="search_results_matches">%d αντιστοιχίες</string>
   <string name="search_results_match">1 αντιστοιχία</string>
-  <string name="progress_status_permission">Χρειάζεται η άδειά σας, για την εμφάνιση ειδοποιήσεων (κατάσταση μεταφόρτωσης, πρόοδος, κατάσταση ακρόασης)</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Απλή Αριθμομηχανή</string>
   <string name="prefs_persecution_cat">Ρυθμίσεις για τους διωκόμενους</string>
@@ -1239,7 +1212,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="custom_repositories_create_button_label">Προσθήκη αποθετηρίου χρήστη</string>
   <string name="custom_repositories_info_button_label">Πληροφορίες</string>
   <string name="repository_specification">Τοποθεσία αποθετηρίου</string>
-  <string name="delete_custom_repository">Θέλετε να διαγράψετε το αποθετήριο χρήστη %s?</string>
   <string name="custom_repositories_help1">Για να προσθέσετε ενα νέο προσαρμοσμένο αποθετήριο, γράψτε ή αντιγράψτε &amp; επικολλήστε το URL του αποθετηρίου εδώ.</string>
   <string name="custom_repositories_help2">Μπορείτε να διαβάσετε περισσότερες πληροφορίες για τα προσαρμοσμένα αποθετήρια στο %s</string>
   <string name="custom_repositories_help0">Μπορείτε να εγκαταστήσετε έγγραφα από εξωτερικά προσαρμοσμένα αποθετήρια εγκαθιστώντας προσσαρμοσμένα αποθετήρια</string>
@@ -1262,9 +1234,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="db_bookmarks">Σελιδοδείκτες, Σημειώσεις Μου, Ετικέτες και Μπλοκ Μελέτης</string>
   <string name="synchronizing">Συγχρονισμός...</string>
   <string name="notification_finished">Ολοκληρώθηκε</string>
-  <string name="overrideBackup">
-Βρέθηκε στο Cloud, βάση δεδομένων που δεν είναι συγχρονισμένη σε αυτή τη συσκευή.
-Η βάση περιέχει %s. Τι θέλετε να κάνετε?</string>
   <string name="reading_plans_content">Σχέδια ανάγνωσης και η κατάσταση τους</string>
   <string name="bookmarks_contents">Σελιδοδείκτες, Ετικέτες και Μπλοκ Μελέτης</string>
   <string name="workspaces_contents">Χώροι εργασίας και Παράθυρα</string>
@@ -1284,7 +1253,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="reading_progress_calendar">Δραστηριότητα Ανάγνωσης</string>
   <string name="reading_progress_cycle">Κύκλος %d</string>
   <string name="reading_progress_new_cycle">Νέος Κύκλος</string>
-  <string name="reading_progress_new_cycle_confirm">Έναρξη νέου κύκλου ανάγνωσης; Θα ξεκινήσει η παρακολούθηση της προόδου σας από την αρχή, διατηρώντας τα δεδομένα του προηγούμενου κύκλου.</string>
   <string name="reading_progress_previous_cycle">Προηγούμενος κύκλος</string>
   <string name="reading_progress_next_cycle">Επόμενος κύκλος</string>
   <string name="cloud_merge_data">Συγχώνευση δεδομένων</string>
@@ -1294,7 +1262,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_sync_title">Συγχρονισμός συσκευής</string>
   <string name="reset_sync">Αποσύνδεση</string>
   <string name="prefs_reset_sync_summary">Απενεργοποίηση συγχρονισμού και επαναφορά σχετικών ρυθμίσεων.</string>
-  <string name="sync_confirmation">Θέλετε σίγουρα αποσύνδεση και επαναφορά συγχρονισμού?</string>
   <string name="cloud_info">Πληροφορίες υπηρεσίας cloud</string>
   <string name="cloud_info_summary">Δεδομένα αποθήκης cloud: %s Mb</string>
   <string name="sync_adapter">Συγχρονισμός παρασκηνίου</string>
@@ -1310,7 +1277,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="webdav_server_url_hint">Διεύθυνση του φακέλου WebDAV, π.χ. https://nas.local/dav/ ή https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Ο συγχρονισμός απαιτεί ασφαλή διεύθυνση https://.</string>
   <string name="webdav_certificate_title">Πιστοποιητικό διακομιστή</string>
-  <string name="webdav_forget_certificate_message">Να ξεχαστεί το αξιόπιστο πιστοποιητικό διακομιστή; Θα σας ζητηθεί να επιβεβαιώσετε ξανά το πιστοποιητικό στην επόμενη σύνδεση.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Μη αξιόπιστο πιστοποιητικό διακομιστή</string>
   <string name="webdav_untrusted_certificate_message">Το πιστοποιητικό του %1$s δεν θεωρείται αξιόπιστο από το Android. Εμπιστευτείτε το μόνο αν το αναγνωρίζετε, για παράδειγμα επειδή στήσατε εσείς αυτόν τον διακομιστή.\n\nΘέμα: %2$s\nΕκδότης: %3$s\nΙσχύει: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1327,14 +1293,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="synchronization_categories">Κατηγορίες συγχρονισμού</string>
   <string name="sync_general_settings">Πληροφορίες &amp; γενικές ρυθμίσεις</string>
   <string name="sync_introduction">Εισαγωγή</string>
-  <string name="are_you_sure">Είστε σίγουρος?</string>
   <string name="are_you_sure_merge">Θα διατηρηθούν και τα δεδομένα σε αυτή τη συσκευή και το %s στο νέφος. Όπου το ίδιο στοιχείο άλλαξε και στα δύο, διατηρείται η νεότερη αλλαγή. Τα δεδομένα αυτής της συσκευής θα σταλούν στις άλλες συσκευές σας.</string>
-  <string name="are_you_sure_reset_local">Αυτό θα επαναφέρει στην τοπική βάση για το %s το περιεχομενο που είναι τώρα αποθηκευμένο στην υπηρεσία cloud </string>
-  <string name="are_you_sure_reset_cloud">Αυτό θα επαναφέρει στην υπηρεσία cloud για το %s το περιεχομενο που  έχετε σε αυτή τη συσκευή.</string>
-  <string name="sync_cant_fetch">Η έκδοση της βάσης ή του αρχείου επιδιόρθωσης που βρίσκεται στο cloud είναι υψηλότερη της υποστηριζόμενης από αυτή την εφαρμογή</string>
-  <string name="sync_disabling">Απενεργοποίηση συγχρονισμου για %s προσωρινά</string>
-  <string name="sync_update_app">Παρακαλώ αναβαθμίστε την εφαρμογή για συνέχιση συγχρονισμού.</string>
-  <string name="sign_in_failed">Η είσοδος στο παρασκήνιο υπηρεσίας συγχρονισμού απέτυχε</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Απενεργοποίηση συγχρονισμού cloud. Ενεργοποιήστε το χειροκίνητα μετά την επαναφορά.</string>
   <string name="report">Αναφορά</string>
@@ -1352,6 +1311,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="open_here">Άνοιγμα εδώ</string>
   <string name="external_link">Εξωτερικός σύνδεσμος</string>
   <string name="external_link_question">Αυτό θα ανοίξει εξωτερικό σύνδεσμο %s σε εφαρμογή περιηγητή, επιθυμείτε να συνεχίσετε?</string>
+  <string name="external_link_dont_ask_again">Να μην ερωτηθώ ξανά για %s</string>
   <string name="nameless">Τίτλος δεν προσδιορίστηκε</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Ενέργειες ενός πατήματος (Άγιες Γραφές)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Ενέργειες ενός πατήματος (άλλο)</string>
@@ -1400,8 +1360,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="memorize_include_reference_summary">Προσθέστε την αναφορά στίχου (π.χ. Ιωάν. 3:16) ως τελευταίο στοιχείο για απομνημόνευση</string>
   <string name="reading_progress_settings">Πρόοδος &amp; απομνημόνευση</string>
   <string name="reading_progress_settings_summary">Ρυθμίσεις αυτόματης παρακολούθησης, απομνημόνευσης και εξάσκησης πληκτρολόγησης</string>
-  <string name="memorize_confirm_unmark">Αφαίρεση κατάστασης απομνημόνευσης για %s;</string>
-  <string name="memorize_confirm_remove_target">Αφαίρεση στόχου απομνημόνευσης %s;</string>
   <string name="memorize_tab_reading">Ανάγνωση</string>
   <string name="memorize_tab_memorization">Απομνημόνευση</string>
   <string name="memorize_verses_memorized">Απομνημονευμένοι</string>
@@ -1427,7 +1385,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="llm_reset_usage_title">Επαναφορά δεδομένων χρήσης</string>
   <string name="llm_reset_usage_summary">Εκκαθάριση σωρευτικής παρακολούθησης token και κόστους</string>
   <string name="llm_reset_usage_confirm_title">Επαναφορά δεδομένων χρήσης;</string>
-  <string name="llm_reset_usage_confirm_message">Αυτό θα διαγράψει όλα τα σωρευτικά δεδομένα χρήσης.</string>
   <string name="llm_custom_input_price_title">Τιμή εισόδου ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Τιμή εξόδου ($/Mtoken)</string>
   <string name="llm_cost_total">Σύνολο: %1$s</string>
@@ -1443,8 +1400,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="llm_parse_error_anthropic">Αποτυχία ανάλυσης απάντησης Anthropic: %1$s</string>
   <string name="llm_error_unknown">Άγνωστο σφάλμα</string>
   <string name="llm_error_max_iterations">Συμπληρώθηκε το μέγιστο πλήθος επαναλήψεων (%1$d) χωρίς ολοκλήρωση</string>
-  <string name="llm_continue_iterations_title">Συνέχεια;</string>
-  <string name="llm_continue_iterations_message">Ο βοηθός AI έφτασε το όριο των %1$d επαναλήψεων χωρίς να ολοκληρώσει. Συνέχεια για %2$d ακόμη επαναλήψεις;</string>
   <string name="agent_max_iterations_title">Μέγιστες επαναλήψεις βοηθού</string>
   <string name="agent_max_iterations_summary">Μέγιστες επαναλήψεις πριν ζητηθεί συνέχεια (0 = απεριόριστες)</string>
   <string name="ask_model_before_run_title">Ερώτηση μοντέλου πριν την εκτέλεση</string>
@@ -1504,7 +1459,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_models_summary_none">Δεν έχουν ρυθμιστεί μοντέλα</string>
   <string name="ai_add_provider">Προσθήκη παρόχου</string>
   <string name="ai_provider_edit">Επεξεργασία</string>
-  <string name="ai_provider_delete_confirm">Διαγραφή παρόχου \"%1$s\"; Οι εντολές που χρησιμοποιούν αυτόν τον πάροχο θα επιστρέψουν στον προεπιλεγμένο.</string>
   <string name="ai_provider_api_key_not_set">Το κλειδί API δεν έχει οριστεί</string>
   <string name="ai_provider_select_type">Επιλογή τύπου παρόχου</string>
   <string name="ai_provider_name">Όνομα παρόχου</string>
@@ -1524,7 +1478,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="edit_model_title">Επεξεργασία μοντέλου</string>
   <string name="model_saved">Το μοντέλο αποθηκεύτηκε</string>
   <string name="model_deleted">Το μοντέλο διαγράφηκε</string>
-  <string name="model_delete_confirm">Διαγραφή μοντέλου \"%1$s\";</string>
   <string name="model_set_default">Ορισμός ως προεπιλεγμένο μοντέλο</string>
   <string name="model_select_provider">Πάροχος</string>
   <string name="model_supported_badge">✓ Υποστηρίζεται</string>
@@ -1564,7 +1517,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_disclaimer_point8">Τα δεδομένα σας αποστέλλονται στους διακομιστές του παρόχου AI που επιλέξατε. Χρησιμοποιώντας ένα κλειδί API, αποδέχεστε τους όρους και την πολιτική απορρήτου αυτού του παρόχου. Τα αυτο-φιλοξενούμενα μοντέλα είναι δυνατά αλλά απαιτούν περισσότερη τεχνική εξειδίκευση, και μπορεί να μην παράγουν αποτελέσματα τόσο καλά όσο τα εμπορικά μοντέλα.</string>
   <string name="ai_disclaimer_point9">Οι πάροχοι AI χρεώνουν για τη χρήση API. Οι εκτιμήσεις κόστους που εμφανίζονται στο AndBible είναι κατά προσέγγιση — πάντα ελέγχετε τη χρέωση του παρόχου σας για τις πραγματικές χρεώσεις.</string>
   <string name="ai_disclaimer_accept_title">Αποδοχή αποποίησης ευθύνης AI</string>
-  <string name="ai_disclaimer_accept_button">Αποδέχομαι και αναλαμβάνω πλήρη ευθύνη</string>
   <string name="prompt_permission_mode">Λειτουργία δικαιωμάτων</string>
   <string name="prompt_permission_mode_description">Ελέγχει πότε απαιτείται επιβεβαίωση χρήστη πριν το AI εκτελέσει λειτουργίες εγγραφής. Οι παρακάτω ρυθμίσεις ανά εργαλείο μπορούν να παρακάμψουν αυτήν τη ρύθμιση για μεμονωμένα εργαλεία.</string>
   <string name="agent_permission_mode_summary">Ελέγχει πότε απαιτείται επιβεβαίωση χρήστη πριν από εγγραφές του AI</string>
@@ -1680,7 +1632,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="default_prompt_custom_desc">Εκτέλεση προσαρμοσμένης εργασίας στο επιλεγμένο χωρίο</string>
   <string name="default_prompt_custom_template">Ακολουθήστε τις προδιαγραφές εργασίας του χρήστη για το επιλεγμένο χωρίο της Αγίας Γραφής.</string>
   <string name="copy">Αντιγραφή</string>
-  <string name="delete_prompt_confirm_message">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν την εντολή;</string>
   <string name="ai_hide_prompt">Απόκρυψη</string>
   <string name="ai_restore_hidden_prompts">Επαναφορά κρυφών εντολών</string>
   <string name="ai_prompt_hidden">Η εντολή αποκρύφθηκε</string>
@@ -1765,8 +1716,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="permission_allow_all_session">Αποδοχή όλων των εργαλείων για αυτή τη συνεδρία</string>
   <string name="permission_allow_always">Πάντα αποδοχή \"%1$s\"</string>
   <string name="permission_deny">Απόρριψη</string>
-  <string name="permission_always_allow_confirm_title">Πάντα αποδοχή;</string>
-  <string name="permission_always_allow_confirm">Είστε βέβαιοι ότι θέλετε να επιτρέψετε μόνιμα το \"%1$s\";</string>
   <string name="permission_always_allow_confirm_reset_hint">Μπορείτε να το επαναφέρετε στις Ρυθμίσεις AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Δικαιώματα εργαλείων</string>
@@ -1871,18 +1820,15 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="my_document_new_name">Έγγραφο %d</string>
   <string name="my_document_create_title">Δημιουργία νέου εγγράφου</string>
   <string name="my_document_rename_title">Μετονομασία εγγράφου</string>
-  <string name="my_document_delete_confirmation">Διαγραφή εγγράφου \"%s\";</string>
   <string name="show_secret">Εμφάνιση</string>
   <string name="hide_secret">Απόκρυψη</string>
   <string name="ai_documents_name">Έγγραφα AI</string>
   <string name="ai_documents_description">Έγγραφα που δημιουργούνται αυτόματα από AI</string>
-  <string name="my_document_cannot_delete_ai_documents">Τα έγγραφα AI δεν μπορούν να διαγραφούν ενώ περιέχουν σελίδες. Διαγράψτε πρώτα τις σελίδες.</string>
   <string name="my_document_save_changes">Αποθήκευση αλλαγών;</string>
   <string name="my_document_no_description">Χωρίς περιγραφή</string>
   <string name="my_document_edit_description">Επεξεργασία περιγραφής</string>
   <string name="my_document_pages_title">%s - Σελίδες</string>
   <string name="my_document_page_rename_title">Μετονομασία σελίδας</string>
-  <string name="my_document_page_delete_confirmation">Διαγραφή σελίδας \"%s\";</string>
   <string name="my_document_pages_delete_confirmation">Να διαγραφούν αυτές οι σελίδες;</string>
   <string name="my_documents_switch_document">Αλλαγή εγγράφου</string>
   <string name="my_document_new_page_name">Σελίδα %1$d</string>
@@ -1950,7 +1896,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_doc_show_removed">Εμφάνιση αφαιρεμένων εγγράφων</string>
   <string name="cloud_doc_status_removed">Αφαιρέθηκε από το σύννεφο</string>
   <string name="cloud_doc_status_still_installed">εξακολουθεί να είναι εγκατεστημένο εδώ</string>
-  <string name="cloud_doc_purge_confirm">Οριστική αφαίρεση του \"%1$s\" από το ιστορικό του σύννεφου; Εάν εξακολουθεί να είναι εγκατεστημένο σε άλλη συσκευή, η συσκευή αυτή ενδέχεται να το μεταφορτώσει ξανά στο σύννεφο κατά τον επόμενο συγχρονισμό της.</string>
   <string name="cloud_doc_action_download">Λήψη</string>
   <string name="cloud_doc_action_push">Μεταφόρτωση στο σύννεφο</string>
   <string name="cloud_doc_action_remove_cloud">Αφαίρεση από το σύννεφο</string>
@@ -1961,8 +1906,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_doc_action_dont_sync">Να μη συγχρονίζεται με το σύννεφο</string>
   <string name="cloud_doc_action_allow_sync">Συγχρονισμός με το σύννεφο</string>
   <string name="cloud_doc_action_purge">Αφαίρεση από το ιστορικό του σύννεφου</string>
-  <string name="cloud_doc_remove_all_confirm">Αφαίρεση του %1$s από το σύννεφο και από όλες τις συσκευές σας, συμπεριλαμβανομένης αυτής;</string>
-  <string name="cloud_doc_remove_cloud_confirm">Αφαίρεση του %1$s από το σύννεφο; Το αντίγραφο σε αυτή τη συσκευή διατηρείται· οι συσκευές με ενεργό τον συγχρονισμό εγγράφων θα το αφαιρέσουν επίσης.</string>
   <string name="cloud_doc_sync_now">Συγχρονισμός τώρα</string>
   <string name="cloud_doc_rescan">Επανασάρωση από το σύννεφο</string>
   <string name="cloud_doc_sync_now_download">Λήψη νέων και ενημερωμένων εγγράφων</string>
@@ -1974,6 +1917,14 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_doc_summary_download">Λήψη %1$d</string>
   <string name="cloud_doc_summary_download_size">Λήψη %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Οι αυτόματες λήψεις θα ξεκινήσουν μέσω Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d έγγραφο</item>
+    <item quantity="other">%1$d έγγραφα</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d έγγραφο (%2$s)</item>
+    <item quantity="other">%1$d έγγραφα (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Τίποτα προς μεταφορά</string>
   <string name="cloud_doc_selected_count">%1$d επιλεγμένα</string>
   <string name="cloud_doc_bulk_skipped">Παραλείφθηκαν %1$d μη εφαρμόσιμα</string>
@@ -1990,8 +1941,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="background_image_import">Εισαγωγή από τη συλλογή…</string>
   <string name="background_image_empty">Δεν υπάρχουν ακόμη εισαγμένες εικόνες. Πατήστε «Εισαγωγή από τη συλλογή…» για να προσθέσετε μία.</string>
   <string name="background_image_importing">Εισαγωγή…</string>
-  <string name="background_image_delete_title">Διαγραφή εικόνας;</string>
-  <string name="background_image_delete_confirm">Να διαγραφεί αυτή η εικόνα φόντου; Οι χώροι εργασίας που τη χρησιμοποιούν θα επανέλθουν σε φόντο χωρίς εικόνα.</string>
   <string name="background_image_day">Εικόνα φόντου (ημέρα)</string>
   <string name="background_image_night">Εικόνα φόντου (νύχτα)</string>
   <string name="background_image_opacity_day">Αδιαφάνεια εικόνας φόντου (ημέρα)</string>
@@ -2065,6 +2014,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="legacy_notice_icloud">Ο συγχρονισμός χρησιμοποιεί πλέον το iCloud Drive. Ενεργοποιήστε τον ξανά στις Ρυθμίσεις → Συγχρονισμός. Αυτή η συσκευή διατηρεί ό,τι είχε· οι αλλαγές από τις άλλες συσκευές σας θα φτάσουν όταν ρυθμιστεί ξανά ο συγχρονισμός. Για να ελευθερώσετε τα παλαιά δεδομένα του iCloud: Ρυθμίσεις → το όνομά σας → iCloud → Διαχείριση αποθηκευτικού χώρου → AndBible.</string>
   <string name="legacy_notice_nextcloud">Η σύνδεσή σας στο Nextcloud μεταφέρθηκε, αλλά ο συγχρονισμός είναι ανενεργός. Ενεργοποιήστε τον στις Ρυθμίσεις → Συγχρονισμός και επιλέξτε λήψη από το νέφος ή δημιουργία νέου.</string>
   <string name="legacy_notice_nextcloud_unsent">Ορισμένες αλλαγές σε αυτή τη συσκευή δεν είχαν σταλεί ακόμη στο Nextcloud. Δεν στάλθηκαν και παραμένουν μόνο σε αυτή τη συσκευή.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d σελιδοδείκτης δεν μπόρεσε να τοποθετηθεί αξιόπιστα και δεν εισήχθη. Διατηρείται με τα παλιά δεδομένα σας σε αυτήν τη συσκευή.</item>
+    <item quantity="other">%1$d σελιδοδείκτες δεν μπόρεσαν να τοποθετηθούν αξιόπιστα και δεν εισήχθησαν. Διατηρούνται με τα παλιά δεδομένα σας σε αυτήν τη συσκευή.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Είναι μια ισχυρή αλλά εύκολη στη χρήση εφαρμογή μελέτης της Αγίας Γραφής χωρίς σύνδεση.</string>
   <string name="webdav_untrusted_certificate_message_device">Το πιστοποιητικό του %1$s δεν θεωρείται αξιόπιστο από αυτή τη συσκευή. Εμπιστευτείτε το μόνο αν το αναγνωρίζετε, για παράδειγμα επειδή στήσατε εσείς αυτόν τον διακομιστή.\n\nΘέμα: %2$s\nΕκδότης: %3$s\nΙσχύει: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2116,6 +2069,25 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="recommend_share_link">Κοινοποίηση συνδέσμου</string>
   <string name="recommend_qr_caption">Σαρώστε για να αποκτήσετε το AndBible για το τηλέφωνο, το tablet ή τον υπολογιστή σας.</string>
   <string name="desktop_activation_failed">Το AndBible εκτελείται ήδη, αλλά το παράθυρό του δεν ανταποκρίθηκε. Μεταβείτε στην εκτελούμενη εφαρμογή και δοκιμάστε ξανά. Δεν επιβεβαιώθηκε η παράδοση των εισερχόμενων αρχείων.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+  <string name="ai_raw_log_delete_lead">Διαγραφή αυτού του αρχείου καταγραφής;</string>
+  <string name="ai_provider_delete_lead">Διαγραφή του παρόχου «%1$s»;</string>
+  <string name="ai_provider_delete_detail">Οι εντολές που τον χρησιμοποιούν επιστρέφουν στον προεπιλεγμένο πάροχο.</string>
+  <string name="ai_model_delete_lead">Διαγραφή του μοντέλου «%1$s»;</string>
+  <string name="ai_prompt_delete_named_lead">Διαγραφή της εντολής «%1$s»;</string>
+  <string name="ai_prompt_delete_lead">Διαγραφή αυτής της εντολής;</string>
+  <string name="ai_reset_usage_detail">Τα σύνολα διακριτικών και κόστους μηδενίζονται. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+  <string name="ai_reset_usage_button">Επαναφορά</string>
+  <string name="ai_disclaimer_accept">Αποδέχομαι</string>
+  <string name="llm_continue_iterations_lead">Συνέχεια για %1$d ακόμη επαναλήψεις;</string>
+  <string name="llm_continue_iterations_detail">Ο πράκτορας ai έφτασε το όριό του των %1$d επαναλήψεων χωρίς να ολοκληρώσει.</string>
+  <string name="llm_continue_button">Συνέχεια</string>
+  <string name="permission_always_allow_lead">Να επιτρέπεται πάντα το «%1$s»;</string>
+  <string name="permission_always_allow_button">Πάντα αποδοχή</string>
+  <string name="ai_bug_report_send_lead">Αποστολή αναφοράς σφάλματος ai;</string>
+  <string name="ai_bug_report_send_button">Αποστολή</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Ξεκινώντας</string>
   <string name="user_guide_section_reading_workspace">Ανάγνωση και χώροι εργασίας</string>
@@ -2193,4 +2165,150 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Βοηθός AI, μέρος 3: εργαλεία, δεδομένα και δικαιώματα</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Βοηθός AI, μέρος 4: δικές σας εντολές, κόστος και συγχρονισμός</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Απόρριψη αλλαγών;</string>
+  <string name="dialog_keep_editing">Συνέχεια επεξεργασίας</string>
+  <string name="dialog_label_delete_lead">Διαγραφή της ετικέτας “%1$s”;</string>
+  <string name="dialog_label_delete_detail">Διαγράφονται και οι σημειώσεις του μπλοκ μελέτης της. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d σελιδοδείκτης δεν έχει άλλη ετικέτα.</item>
+    <item quantity="other">%1$d σελιδοδείκτες δεν έχουν άλλη ετικέτα.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Διαγραφή ετικέτας και %1$d σελιδοδείκτη</item>
+    <item quantity="other">Διαγραφή ετικέτας και %1$d σελιδοδεικτών</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Οι σελιδοδείκτες και οι σημειώσεις τους διαγράφονται.</string>
+  <string name="dialog_label_delete_only_consequence">Οι σελιδοδείκτες παραμένουν, χωρίς ετικέτα.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Αφαίρεση αυτού του σελιδοδείκτη;</item>
+    <item quantity="other">Αφαίρεση %1$d σελιδοδεικτών;</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">Αφαιρείται και η σημείωσή του.</item>
+    <item quantity="other">Αφαιρούνται και οι σημειώσεις τους.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Αφαίρεση όλων των ετικετών αυτόματης ανάθεσης από αυτόν τον χώρο εργασίας;</string>
+  <string name="dialog_labels_reset_hidden_lead">Εμφάνιση ξανά όλων των κρυφών ετικετών;</string>
+  <string name="dialog_labels_reset_shown_detail">Οι ετικέτες που αποκρύψατε από τη λίστα εμφανίζονται ξανά.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Εγκατάσταση του «%s»;</string>
+  <string name="install_action">Εγκατάσταση</string>
+  <string name="install_from_file_question">Εγκατάσταση εγγράφων από αρχείο;</string>
+  <string name="overwrite_files_detail">Αυτά τα αρχεία υπάρχουν ήδη:%s</string>
+  <string name="import_studypads_question">Εισαγωγή αυτών των μπλοκ μελέτης;</string>
+  <string name="import_action">Εισαγωγή</string>
+  <string name="restore_backup_question">Επαναφορά των εγγράφων σε αυτό το αντίγραφο ασφαλείας;</string>
+  <string name="restore_backup_detail">Αυτό το αρχείο είναι αντίγραφο ασφαλείας εγγράφων του AndBible.</string>
+  <string name="update_document_question">Ενημέρωση αυτού του εγγράφου;</string>
+  <string name="update_action">Ενημέρωση</string>
+  <string name="download_documents_question">Λήψη εγγράφων;</string>
+  <string name="download_persecution_warning">Αν ζείτε σε χώρα όπου υπάρχει δίωξη, ίσως χρειάζεται να είστε προσεκτικοί με τη λήψη χριστιανικού υλικού μέσω Διαδικτύου. Αντί γι\' αυτό, μπορεί να θέλετε να αποκτήσετε αρχεία zip εγγράφων με πιο ασφαλή τρόπο και να τα εγκαταστήσετε μέσω του «%1$s». Όλες οι λήψεις από διακομιστές εγγράφων είναι κρυπτογραφημένες (HTTPS).</string>
+  <string name="download_action">Λήψη</string>
+  <string name="download_dont_ask_again">Λήψη, χωρίς ερώτηση ξανά</string>
+  <string name="download_dont_ask_again_consequence">Στο εξής οι λήψεις ξεκινούν χωρίς αυτήν την ερώτηση.</string>
+  <string name="passphrase_did_not_work">Η φράση πρόσβασης δεν λειτούργησε.</string>
+  <string name="try_again">Δοκιμή ξανά</string>
+  <string name="interrupted_downloads_lead">Λήψη ξανά αυτών των εγγράφων;</string>
+  <string name="interrupted_downloads_detail">Η λήψη τους διακόπηκε, οπότε δεν εγκαταστάθηκαν.</string>
+  <string name="external_link_open_question">Άνοιγμα αυτού του συνδέσμου στο πρόγραμμα περιήγησης;</string>
+  <string name="open_action">Άνοιγμα</string>
+  <string name="notification_permission_question">Να επιτρέπονται οι ειδοποιήσεις;</string>
+  <string name="notification_permission_detail">Οι ειδοποιήσεις εμφανίζουν την κατάσταση λήψης, την επεξεργασία και την κατάσταση ανάγνωσης φωναχτά.</string>
+  <string name="allow_action">Να επιτρέπεται</string>
+  <string name="rate_question">Βαθμολόγηση και αξιολόγηση της εφαρμογής;</string>
+  <string name="bug_report_email_question">Αποστολή της αναφοράς σφάλματος με email;</string>
+  <string name="continue_action">Συνέχεια</string>
+  <string name="delete_search_index_question">Διαγραφή του ευρετηρίου αναζήτησης του «%s»;</string>
+  <string name="remove_custom_repository_question">Αφαίρεση του αποθετηρίου χρήστη «%s»;</string>
+  <string name="download_document_question">Λήψη του «%s»;</string>
+  <string name="choose_file_action">Επιλογή αρχείου</string>
+  <string name="old_webview_question">Χρήση της εφαρμογής με παλιό WebView;</string>
+  <string name="incomplete_translation_question">Συνέχεια με μερική μετάφραση;</string>
+  <string name="rate_action">Βαθμολόγηση</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Διαγραφή του εγγράφου «%s»;</string>
+  <string name="my_document_page_delete_lead">Διαγραφή της σελίδας «%s»;</string>
+  <string name="my_document_cannot_delete_ai_lead">Τα έγγραφα ai δεν μπορούν να διαγραφούν όσο περιέχουν σελίδες.</string>
+  <string name="my_document_cannot_delete_ai_detail">Διαγράψτε πρώτα τις σελίδες.</string>
+  <string name="reading_progress_new_cycle_lead">Έναρξη νέου κύκλου ανάγνωσης;</string>
+  <string name="reading_progress_new_cycle_detail">Η πρόοδός σας παρακολουθείται από την αρχή. Τα δεδομένα του προηγούμενου κύκλου διατηρούνται.</string>
+  <string name="reading_progress_new_cycle_start">Έναρξη</string>
+  <string name="reset_plan_lead">Επαναφορά αυτού του σχεδίου;</string>
+  <string name="reset_plan_detail">Η ημερομηνία έναρξης και η πρόοδός σας σε αυτό το σχέδιο διαγράφονται.</string>
+  <string name="set_current_day_lead">Ορισμός του %1$s ως τρέχουσας ημέρας;</string>
+  <string name="set_current_day_detail">Όλες οι προηγούμενες ημέρες επισημαίνονται ως αναγνωσμένες.</string>
+  <string name="plan_duplicate_user_plan_lead">Ένα αρχείο σχεδίου ανάγνωσης έχει το ίδιο όνομα με ένα ενσωματωμένο σχέδιο.</string>
+  <string name="plan_duplicate_user_plan_detail">Το αρχείο σχεδίου δεν μπορεί να εμφανιστεί στη λίστα. Μετονομάστε το αρχείο στον φάκελο jsword/readingplan, διατηρώντας την κατάληξή του .properties.</string>
+  <string name="background_image_delete_lead">Διαγραφή αυτής της εικόνας φόντου;</string>
+  <string name="background_image_delete_detail">Οι χώροι εργασίας που τη χρησιμοποιούν θα επιστρέψουν σε κατάσταση χωρίς εικόνα.</string>
+  <string name="reset_values_lead">Επαναφορά όλων αυτών των τιμών;</string>
+  <string name="revert_setting_lead">Επαναφορά αυτής της ρύθμισης στην κληρονομημένη τιμή;</string>
+  <string name="revert_setting_confirm">Επαναφορά</string>
+  <string name="reset_settings_screen_lead">Επαναφορά των ρυθμίσεων αυτής της οθόνης;</string>
+  <string name="reset_settings_screen_detail">Επιστρέφουν στις προεπιλεγμένες τιμές τους.</string>
+  <string name="memorize_unmark_lead">Αφαίρεση της κατάστασης απομνημόνευσης για το «%s»;</string>
+  <string name="memorize_remove_target_lead">Αφαίρεση του στόχου απομνημόνευσης «%s»;</string>
+  <string name="dialog_apply">Εφαρμογή</string>
+  <string name="dialog_dont_apply">Να μην εφαρμοστεί</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Το cloud έχει ήδη τα δεδομένα σας: %s. Τι πρέπει να γίνει;</string>
+  <string name="cloud_merge_consequence">Διατηρούνται και οι δύο πλευρές· όπου ένα στοιχείο άλλαξε και στις δύο, κερδίζει η νεότερη αλλαγή.</string>
+  <string name="cloud_fetch_consequence">Αντικαθιστά τα δεδομένα αυτής της συσκευής με το αντίγραφο του cloud.</string>
+  <string name="cloud_create_consequence">Αντικαθιστά το αντίγραφο του cloud με τα δεδομένα αυτής της συσκευής.</string>
+  <string name="cloud_disable_consequence">Ο συγχρονισμός παραμένει απενεργοποιημένος για αυτά τα δεδομένα.</string>
+  <string name="cloud_merge_lead">Συγχώνευση των δεδομένων σας (%s) με το cloud;</string>
+  <string name="cloud_merge_confirm">Συγχώνευση</string>
+  <string name="cloud_replace_confirm">Αντικατάσταση</string>
+  <string name="cloud_replace_local_lead">Αντικατάσταση των δεδομένων αυτής της συσκευής (%s) με το αντίγραφο του cloud;</string>
+  <string name="cloud_replace_local_detail">Ό,τι υπάρχει τώρα σε αυτήν τη συσκευή αντικαθίσταται και δεν μπορεί να ανακτηθεί.</string>
+  <string name="cloud_replace_cloud_lead">Αντικατάσταση του αντιγράφου του cloud (%s) με τα δεδομένα αυτής της συσκευής;</string>
+  <string name="cloud_replace_cloud_detail">Ό,τι υπάρχει τώρα στο cloud αντικαθίσταται και οι άλλες συσκευές σας θα λάβουν τα δεδομένα αυτής της συσκευής.</string>
+  <string name="sign_in_failed_lead">Δεν ήταν δυνατή η σύνδεση στην υπηρεσία συγχρονισμού.</string>
+  <string name="sync_too_old_lead">Αυτή η εφαρμογή είναι πολύ παλιά για τον συγχρονισμό: %s.</string>
+  <string name="sync_too_old_detail">Τα δεδομένα του cloud χρησιμοποιούν νεότερη έκδοση από αυτήν που υποστηρίζει η εφαρμογή. Ο συγχρονισμός τους είναι προσωρινά απενεργοποιημένος· ενημερώστε την εφαρμογή για να τον ενεργοποιήσετε ξανά.</string>
+  <string name="backup_replace_lead">Αντικατάσταση των δεδομένων σας (%s) με το αντίγραφο ασφαλείας;</string>
+  <string name="backup_replace_detail">Ό,τι υπάρχει τώρα σε αυτήν τη συσκευή αντικαθίσταται και δεν μπορεί να ανακτηθεί.</string>
+  <string name="reset_database_lead">Επαναφορά του «%1$s» στην αρχική του κατάσταση;</string>
+  <string name="reset_database_detail">Όλα τα δεδομένα του διαγράφονται οριστικά. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+  <string name="reset_database_button">Επαναφορά</string>
+  <string name="restore_all_lead">Αντικατάσταση των σημειώσεων, σελιδοδεικτών, μπλοκ μελέτης, σχεδίων ανάγνωσης και χώρων εργασίας σας;</string>
+  <string name="restore_or_import_lead">Επαναφορά ή εισαγωγή: %s;</string>
+  <string name="restore_consequence">Αντικαθιστά ό,τι υπάρχει σε αυτήν τη συσκευή με το αντίγραφο ασφαλείας.</string>
+  <string name="import_consequence">Προσθέτει τα στοιχεία του αντιγράφου ασφαλείας σε ό,τι υπάρχει σε αυτήν τη συσκευή.</string>
+  <string name="sync_start_syncing">Έναρξη συγχρονισμού</string>
+  <string name="sync_reset_lead">Αποσύνδεση και επαναφορά του συγχρονισμού;</string>
+  <string name="sync_reset_detail">Θα χρειαστεί να ρυθμίσετε ξανά τον συγχρονισμό.</string>
+  <string name="webdav_forget_certificate_lead">Διαγραφή του αξιόπιστου πιστοποιητικού διακομιστή;</string>
+  <string name="webdav_forget_certificate_detail">Θα σας ζητηθεί να επιβεβαιώσετε ξανά το πιστοποιητικό στην επόμενη σύνδεση.</string>
+  <string name="webdav_forget_certificate_confirm">Διαγραφή</string>
+  <string name="cloud_doc_remove_all_lead">Αφαίρεση του «%1$s» από το cloud και από όλες τις συσκευές σας;</string>
+  <string name="cloud_doc_remove_cloud_lead">Αφαίρεση του «%1$s» από το cloud;</string>
+  <string name="cloud_doc_purge_lead">Οριστική αφαίρεση του «%1$s» από το ιστορικό του cloud;</string>
+  <string name="cloud_doc_remove_all_detail">Διαγράφονται επίσης τα αντίγραφα σε αυτήν τη συσκευή και σε κάθε άλλη συσκευή με ενεργό συγχρονισμό εγγράφων.</string>
+  <string name="cloud_doc_remove_cloud_detail">Τα αντίγραφα σε αυτήν τη συσκευή διατηρούνται. Οι συσκευές με ενεργό συγχρονισμό εγγράφων θα τα αφαιρέσουν επίσης.</string>
+  <string name="cloud_doc_purge_detail">Μια συσκευή που έχει ακόμη αντίγραφο μπορεί να το ανεβάσει ξανά στον επόμενο συγχρονισμό της.</string>
+  <string name="cloud_doc_block_confirm_button">Χωρίς συγχρονισμό</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Αφαίρεση %1$d εγγράφου από το cloud και από όλες τις συσκευές σας;</item>
+    <item quantity="other">Αφαίρεση %1$d εγγράφων από το cloud και από όλες τις συσκευές σας;</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Αφαίρεση %1$d εγγράφου από το cloud;</item>
+    <item quantity="other">Αφαίρεση %1$d εγγράφων από το cloud;</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Οριστική αφαίρεση %1$d εγγράφου από το ιστορικό του cloud;</item>
+    <item quantity="other">Οριστική αφαίρεση %1$d εγγράφων από το ιστορικό του cloud;</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Διακοπή συγχρονισμού %1$d εγγράφου με το cloud;</item>
+    <item quantity="other">Διακοπή συγχρονισμού %1$d εγγράφων με το cloud;</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Περισσότερα δεδομένα σας μπορούν πλέον να συγχρονιστούν</string>
+  <string name="new_sync_targets_detail">Τα έγγραφά μου, οι ρυθμίσεις ai και η πρόοδος ανάγνωσης μπορούν επίσης να συγχρονιστούν. Ενεργοποιήστε τα στις ρυθμίσεις συγχρονισμού συσκευής.</string>
+  <!--end dialog copy: B3b-->
 </resources>

@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">সম্পূর্ণ ব্যবহারকারী নির্দেশিকা andbible.org-এ আছে। পৃষ্ঠাগুলো আপনার ব্রাউজারে খুলবে।</string>
   <string name="help_user_guide_home">ব্যবহারকারী নির্দেশিকার হোম</string>
   <string name="help_read_in_user_guide">ব্যবহার নির্দেশিকায় পড়ুন</string>
+  <string name="help_in_user_guide">ব্যবহারকারী নির্দেশিকায় সাহায্য</string>
+  <string name="help_matching_section">সংশ্লিষ্ট বিভাগ</string>
   <string name="help_read_page">ব্যবহার নির্দেশিকায় পড়ুন: %1$s</string>
   <string name="help_tutorial_videos">টিউটোরিয়াল ভিডিও</string>
   <string name="help_watch_in_order">টিউটোরিয়াল ভিডিওগুলো ক্রমানুসারে দেখুন</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">একটি গ্রন্থাংশ নির্বাচন করার সময় পদ ( এবং অধ্যায়) চয়ণ করুন। </string>
   <string name="prefs_open_links_in_special_window_title">লিঙ্ক উইন্ডো</string>
   <string name="prefs_open_links_in_special_window_summary">ক্রস-রেফারেন্স এবং শক্তিশালী প্রদর্শনের জন্য বিশেষ উইন্ডোতে লিঙ্কগুলি খুলুন</string>
+  <string name="prefs_trusted_link_domains_title">বিশ্বস্ত লিংক ডোমেইন</string>
+  <string name="prefs_trusted_link_domains_summary">এই ডোমেইনগুলির লিংক জিজ্ঞাসা ছাড়াই খোলে। আবার জিজ্ঞাসা পেতে ডোমেইনের টিক তুলে দিন।</string>
+  <string name="prefs_trusted_link_domains_empty">এখনও কিছু নেই। কোনো লিংক খোলার সময় \"আর জিজ্ঞাসা করবেন না\" টিক দিলে তার ডোমেইন এখানে যোগ হবে।</string>
   <string name="prefs_text_size_sample_text">নমুনা পাঠ </string>
   <string name="prefs_screen_keep_on_title">স্ক্রিন চালু রাখুন</string>
   <string name="prefs_screen_keep_on_summary">এই অ্যাপ্লিকেশনটি ব্যবহার করার সময় স্ক্রিন স্লিপিং প্রতিরোধ করুন</string>
@@ -306,7 +311,6 @@
   <string name="line_spacing_title">লাইনের ব্যবধান</string>
   <string name="line_spacing_summary">লাইনের মাঝে স্থান নির্ধারণ করুন</string>
   <string name="select_none">কিছু নির্বাচন করবেন না</string>
-  <string name="reset_are_you_sure">আপনি কি নিশ্চিত যে আপনি সমস্ত মান পুনরায় সেট করতে চান?</string>
   <string name="window_pinning_menutitle">উইন্ডো পিনিং</string>
   <string name="hide_window_buttons_title">উইন্ডো বোতামগুলি লুকান</string>
   <string name="hide_window_buttons_summary">বাইবেলের দৃশ্যের ডানদিকে প্রদর্শিত উইন্ডো বোতামগুলি লুকানো আছে। নীচে উইন্ডো ন্যাভিগেশন বারটি এখনও প্রদর্শিত হবে এবং আপনি দীর্ঘ-ক্লিক করে উইন্ডো পপআপ মেনুটি খুলতে পারেন।</string>
@@ -329,6 +333,7 @@
   <string name="word_not_found_in_dictionaries">কোনো অভিধানে শব্দ পাওয়া যায়নি</string>
   <string name="prefs_top_margin_title_mm">শীর্ষ মার্জিন(%dmm)</string>
   <string name="font_size_title">অক্ষরের আকার</string>
+  <string name="font_preview_verse_number">১৬</string>
   <string name="font_preview_verse">কারণ ঈশ্বর জগৎকে এমন প্রেম করিলেন যে, আপনার একজাত পুত্রকে দান করিলেন, যেন, যে কেহ তাঁহাতে বিশ্বাস করে, সে বিনষ্ট না হয়, কিন্তু অনন্ত জীবন পায়।</string>
   <string name="font_size_title_pt">ফন্টের আকার(%dpt)</string>
   <string name="prefs_font_text_size_summary">প্রধান পাঠ্য ফন্টের আকার সামঞ্জস্য করুন</string>
@@ -346,6 +351,8 @@
   <string name="window_color_settings_title">কালার সেটিংস (উইন্ডো)</string>
   <string name="workspace_color_settings_title">কালার সেটিংস (ওয়ার্কস্পেস)</string>
   <string name="color_workspace">কর্মক্ষেত্রের রঙ</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">ডিফল্ট</string>
   <string name="color_text">লেখার রঙ
  </string>
   <string name="color_background">ব্যাকগ্রউন্ড কালার </string>
@@ -381,7 +388,6 @@
   <string name="download_source_last_updated">নথির তালিকা সর্বশেষ আপডেট করা হয়েছে:%s</string>
   <string name="download_refreshing_book_list">উপলব্ধ নথিগুলির সতেজতা তালিকা</string>
   <string name="download_source_message1">নথিগুলি নিম্নলিখিত উত্স থেকে ডাউনলোড করা হয়:</string>
-  <string name="download_document_confirm_prefix">ডাউনলোড</string>
   <string name="error_downloading">ডাউনলোড করতে একটি ত্রুটি ঘটেছে। আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।</string>
   <string name="error_downloading_status">হোস্ট যে সার্ভার %1$s এর কারণে একটি ত্রুটি ফিরিয়ে দিয়েছে %2$s (%3$d)।</string>
   <string name="storage_space_warning">অপর্যাপ্ত স্থানীয় সঞ্চয় স্থান।</string>
@@ -402,9 +408,6 @@
   <string name="activity_title">ব্যাকগ্রাউন্ড কার্যকলাপ</string>
   <string name="activity_empty">কিছুই চলছে না</string>
   <string name="activity_failed_toast">%1$s — মেনু দেখুন</string>
-  <string name="download_question_title">আপনি কি ডকুমেন্টস  ডাউনলোড করার জন্য এগিয়ে যেতে চান?</string>
-  <string name="download_question_message">আপনি যদি নির্যাতিত খ্রিস্টানদের দেশে বাস করেন, তবে ইন্টারনেটের মাধ্যমে খ্রিস্টীয় সামগ্রী ডাউনলোড করার ব্যাপারে আপনাকে সতর্ক থাকতে হতে পারে। বরং আপনি মডিউল জিপ ফাইলগুলো আরও নিরাপদ উপায়ে সংগ্রহ করে \"%1$s\"-এর মাধ্যমে ইনস্টল করতে চাইতে পারেন। আপনি কি ডাউনলোড চালিয়ে যেতে নিশ্চিত? মডিউল সার্ভার থেকে সমস্ত ডাউনলোড এনক্রিপ্টেড (HTTPS)।</string>
-  <string name="do_not_ask_again">হ্যাঁ, আর জিজ্ঞাসা করবেন না</string>
   <string name="recommended_document">বাঞ্ছনীয়!</string>
   <string name="about_version_history">সংস্করণ ইতিহাস: %s </string>
   <string name="download_errors">ডাউনলোড ত্রুটি</string>
@@ -421,12 +424,10 @@
   <string name="checking_zip_file">প্রদত্ত ফাইলটি পরীক্ষা করা হচ্ছে</string>
   <string name="invalid_module">ফাইলটিতে একটি বৈধ SWORD মডিউল নেই</string>
   <string name="install_zip_title">অনুগ্রহ করে অপেক্ষা করুন। একটি ফাইল থেকে মডিউল লোড হচ্ছে।</string>
-  <string name="overwrite_files">নিম্নলিখিত ফাইলগুলি ইতিমধ্যে বিদ্যমান: %s ওভাররাইট?</string>
   <string name="overwrite_files_title">ওভাররাইট ফাইল?
  </string>
   <string name="could_not_overwrite_files">ফাইলগুলি ওভাররাইট করা যায়নি: .%s তা ছাড়া ইনস্টল সফল হয়েছে।</string>
   <string name="module_backup_restore">এই ফাইলটি AndBible ডকুমেন্টের ব্যাকআপ। আপনি কি এর ডকুমেন্টগুলো পুনরুদ্ধার করতে চান?</string>
-  <string name="install_do_you_want">আপনি মডিউল ইনস্টল করতে চান(%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">পঠন পরিকল্পনা</string>
   <string name="reading_plans_plural">পড়ার পরিকল্পনা</string>
@@ -435,14 +436,8 @@
   <string name="rdg_plan_set_start_date">শুরুর তারিখ সেট করুন ...
  </string>
   <string name="set_current_day">বর্তমান দিন হিসাবে সেট করুন...</string>
-  <string name="msg_set_current_day_reading_plan">এটি %1$s-কে এই পরিকল্পনার বর্তমান দিন হিসেবে সেট করবে এবং আগের সব দিন পড়া হিসেবে চিহ্নিত করবে। চালিয়ে যাবেন?</string>
   <string name="done">সম্পন্ন</string>
-  <string name="reset_plan_question">আপনি কি নিশ্চিত যে আপনি এই পরিকল্পনাটি পুনরায় সেট করতে চান?</string>
   <string name="import_reading_plan">পড়ার পরিকল্পনা আমদানি করুন...</string>
-  <string name="plan_duplicate_user_plan">
-এসডিকার্ডে একটি ব্যবহারকারী পড়ার পরিকল্পনা রয়েছে
-অভ্যন্তরীণ পরিকল্পনা হিসাবে একই নামে jsword / রিডিং প্ল্যান। এটি এখানে তালিকাভুক্ত করা যাবে না।
-দয়া করে ফাইলটির এক্সটেনশানটিকে .properties হিসাবে রেখে অন্য কোনও নামকরণ করুন</string>
   <string name="plan_name_y1ntpspr">এক বছরের মধ্যে নতুন নিয়ম, গীতসংহিতা &amp; হিতোপদেশ </string>
   <string name="plan_description_y1ntpspr">
 HEARTLIGHT Internet Magazine এর সৌজন্যে 
@@ -476,12 +471,8 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="delete_index">অনুসন্ধান সূচক মুছুন</string>
   <string name="about">সম্বন্ধে </string>
   <string name="delete_doc">মুছে ফেলুন %s ?</string>
-  <string name="interrupted_downloads_title">ডাউনলোড বাধাপ্রাপ্ত হয়েছে</string>
-  <string name="interrupted_downloads_message">ডাউনলোড বাধাপ্রাপ্ত হওয়ায় এই নথিগুলো ইনস্টল করা হয়নি:</string>
-  <string name="interrupted_downloads_question">আবার ডাউনলোড করবেন?</string>
   <string name="download_again">আবার ডাউনলোড করুন</string>
   <string name="delete_docs_confirm">এই নথিগুলো মুছে ফেলবেন?</string>
-  <string name="delete_search_index_doc">%s  এর সূচক মুছুন?</string>
   <!--Verse context menu-->
   <string name="notes">পাদটীকা এবং রেফারেন্স</string>
   <string name="share_verse">সেয়ার </string>
@@ -521,7 +512,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="bookmark_warning2">
 যদি নথির কাঠামো পরিবর্তিত হয়, তাহলে এই নথিটি আপডেট করা হতে পারে 
 এই বুকমার্ক/নোটগুলির অবস্থানগুলি নথির ভিতরে চলে যায় বা সম্পূর্ণরূপে অদৃশ্য হয়ে যায়</string>
-  <string name="bookmark_warning3">আপনি এখনও মডিউল আপডেট করতে চান?</string>
   <string name="bookmark_warning4">এটি সুপারিশ করা হয় যে আপনি আপডেট করার আগে মডিউলটি ব্যাকআপ করুন৷</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date"> 
@@ -696,10 +686,8 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">পুনরুদ্ধার করুন বা এখান থেকে আমদানি করুন...</string>
   <string name="backup_restore2">পুনরুদ্ধার বা আমদানি করুন</string>
-  <string name="overwrite_something">ওভাররাইট করুন%s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">ডাটাবেস ফাইল পুনরুদ্ধার করুন</string>
-  <string name="restore_confirmation">আমার নোটস, বুকমার্কস, পঠন পরিকল্পনা এবং কর্মক্ষেত্রগুলিকে ওভাররাইট করবেন?</string>
   <string name="restore_success">আমার নোটস, বুকমার্কস, পড়ার পরিকল্পনা এবং কর্মক্ষেত্রগুলি সাফল্যের সাথে পুনরুদ্ধার হয়েছে</string>
   <string name="downloading_backup">ব্যাকআপ ফাইল ডাউনলোড হচ্ছে...</string>
   <string name="loading_backup">ব্যাকআপ থেকে ডেটাবেস লোড হচ্ছে…</string>
@@ -721,7 +709,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="send_export_file">রপ্তানি ফাইল পাঠান</string>
   <string name="backup_modules_title">ব্যাকআপ নেওয়ার জন্য কোন মডিউলগুলি নির্বাচন করুন</string>
   <string name="install_zip_canceled">মডিউল ইনস্টল বাতিল হয়েছে</string>
-  <string name="ask_restore_or_import">এর জন্য ডাটাবেস%s হয় পুনরুদ্ধার করা যেতে পারে (অর্থাৎ বিদ্যমান ডাটাবেস সরানো হয় এবং নির্বাচিত ডাটাবেস লোড করা হয়) অথবা আমদানি করা হয় (নির্বাচিত ডাটাবেস বিদ্যমান ডাটাবেসে আমদানি করা হয়)। আপনি কি করতে চান?</string>
   <string name="restore">পুনরুদ্ধার করুন</string>
   <string name="import2">আমদানি</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -776,7 +763,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="settings_editor_back">পিছনে</string>
   <string name="settings_editor_close">বন্ধ করুন</string>
   <string name="settings_editor_apply">প্রয়োগ করুন</string>
-  <string name="discard_changes_confirmation">সংরক্ষণ না করা পরিবর্তন বাতিল করবেন?</string>
   <string name="discard">বাতিল করুন</string>
   <string name="remove">সরান</string>
   <string name="overwrite">ওভাররাইট করুন</string>
@@ -803,7 +789,8 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="empty_list">প্রদর্শনের জন্য কোনও আইটেম নেই</string>
   <string name="error_skip">এড়িয়ে যান</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">ক্ষতিগ্রস্ত ডেটা</string>
+  <string name="corrupt_database_headline">অ্যান্ডবাইবেল আপনার কিছু ডেটা খুলতে পারছে না</string>
+  <string name="corrupt_database_files_detail">এই ফাইলগুলি খোলা যায়নি: %1$s। কিছুই পরিবর্তন বা মুছে ফেলা হয়নি। রিসেট করলে সেগুলি খালি অবস্থায় শুরু হবে এবং প্রতিটি ক্ষতিগ্রস্ত ফাইল .corrupt- এবং তারিখ ও সময় যোগ করে নাম বদলে এই ডিভাইসে রাখা হবে।</string>
   <string name="corrupt_database_reset">ক্ষতিগ্রস্ত ডেটা রিসেট করুন</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">ক্ষতিগ্রস্ত ডেটা রিসেট করা যায়নি: %1$s সরানো যায়নি। কিছুই পরিবর্তন হয়নি। আপনি আবার চেষ্টা করতে পারেন, একটি ত্রুটির রিপোর্ট পাঠাতে পারেন, অথবা ব্যাকআপ &amp; প্রত্যর্পণ করা ব্যবহার করতে পারেন।</string>
@@ -811,8 +798,8 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="damaged_data_needs_attention">অ্যাপের ডেটায় মনোযোগ প্রয়োজন। অ্যাপ খুলতে ট্যাপ করুন।</string>
   <string name="debug_test_error">পরীক্ষামূলক ত্রুটি (ডিবাগ বিল্ড)</string>
   <string name="bug_report_prepare_failed">রিপোর্ট তৈরি বা শেয়ার করা যায়নি। আপনি আবার চেষ্টা করতে পারেন, অথবা আপনার তথ্য সংরক্ষণ করতে ব্যাকআপ ও পুনরুদ্ধার ব্যবহার করুন।</string>
-  <string name="bug_report_email_title">ইমেলের মাধ্যমে বাগ রিপোর্ট পাঠান</string>
   <string name="bug_report_desktop_text">এরপর আপনাকে জিজ্ঞাসা করা হবে বাগ রিপোর্ট ফাইলটি কোথায় সংরক্ষণ করবেন। তারপর ডেভেলপার দলকে পাঠানোর নির্দেশনা পাবেন।</string>
+  <string name="bug_report_email_title">ইমেলের মাধ্যমে বাগ রিপোর্ট পাঠান</string>
   <string name="bug_report_email_text">এরপর, ডেভেলপার দলের কাছে রিপোর্ট পাঠাতে অনুগ্রহ করে আপনার পছন্দের ইমেল অ্যাপ্লিকেশন (উদাহরণস্বরূপ Gmail) নির্বাচন করুন।</string>
   <string name="bug_report_manual_title">রিপোর্ট ইমেইলে পাঠান</string>
   <string name="bug_report_manual_text_saved">রিপোর্টটি <b>%1$s</b> এ সংরক্ষণ করা হয়েছে।\n\nঅনুগ্রহ করে <b>%2$s</b> ঠিকানায় একটি ইমেইল পাঠান এবং সেই ফাইলটি সংযুক্ত করুন; ইমেইল প্রোগ্রাম আপনার জন্য এটি সংযুক্ত করতে পারে না। প্রস্তাবিত বিষয়: <b>%3$s</b>। বার্তায় জানান আপনি কী করেছিলেন এবং কী ঘটেছিল।</string>
@@ -883,8 +870,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="beta_special_regards">শুভেচ্ছান্তে, Tuomas</string>
   <string name="beta_special_sponsor">পুনশ্চ: আপনি %s করে AndBible-এর উন্নয়নে আর্থিকভাবে সহায়তা করতে পারেন।</string>
   <string name="beta_special_sponsor_link">ডেভেলপমেন্টের ঘণ্টা স্পনসর</string>
-  <string name="new_sync_targets_notice_title">নতুন সিঙ্ক সেটিংস পাওয়া গেছে</string>
-  <string name="new_sync_targets_notice_message">AndBible-এর এই সংস্করণে অতিরিক্ত সিঙ্ক লক্ষ্য যুক্ত হয়েছে: আমার নথিপত্র, AI সেটিংস এবং পঠন অগ্রগতি। আপনি যদি এগুলো সক্রিয় করতে চান, তাহলে ডিভাইস সিঙ্ক্রোনাইজেশন সেটিংসে যান।</string>
   <string name="open_settings">সেটিংস খুলুন</string>
   <!--History-->
   <string name="history_for">ইতিহাস (%1$s: উইন্ডো %2$d)</string>
@@ -983,7 +968,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="give_passphrase_for_module">নথিটি %sএনক্রিপ্ট করা হয়েছে এবং আনলক করার জন্য পাসফ্রেজ প্রয়োজন৷</string>
   <string name="unlock_module">মডিউল পাসফ্রেজ সেট করুন</string>
   <string name="unlock_info">এনক্রিপ্ট করা মডিউল আনলক তথ্য</string>
-  <string name="try_again_passphrase">পাসফ্রেজ কাজ করেনি, আবার চেষ্টা করুন?</string>
   <string name="show_unlock_info">মডিউল &amp; তথ্য আনলক</string>
   <string name="prefs_experimental_features_title">পরীক্ষামূলক বৈশিষ্ট্য</string>
   <string name="prefs_experimental_features_summary">কোন পরীক্ষামূলক বৈশিষ্ট্যগুলি সক্ষম করতে হবে তা নির্বাচন করুন। এই বৈশিষ্ট্যগুলি এখনও উন্নয়নাধীন এবং পরিবর্তন বা সরিয়ে দেওয়া হতে পারে</string>
@@ -1017,9 +1001,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="active_window_indicator_summary">কোন উইন্ডোটি সক্রিয় তা শনাক্ত করতে সাহায্য করার জন্য উইন্ডোর কোণগুলি হাইলাইট করুন</string>
   <string name="app_licence_title">ওপেন সোর্স লাইসেন্স</string>
   <string name="how_to_contribute">কিভাবে অবদান রাখতে হবে?</string>
-  <string name="confirm_delete_bookmarks">আপনি কি বুকমার্ক এবং তাদের নোটগুলি সরাতে চান %d?</string>
-  <string name="confirm_delete_orphaned_bookmarks">নির্বাচিত লেবেলটি %d বুকমার্কের সাথে সংযুক্ত যার আর কোনো লেবেল নেই। এই বুকমার্কগুলি লেবেলের সাথে মুছে ফেলতে চান?</string>
-  <string name="delete_label_and_bookmarks">লেবেল ও বুকমার্ক মুছুন</string>
   <string name="delete_label_only">শুধু লেবেল মুছুন</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">একজন বন্ধুকে সুপারিশ করুন</string>
@@ -1050,8 +1031,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="old_webview">অ্যান্ড্রয়েড ওয়েবভিউ প্যাকেজ অনেক পুরানো (%1$s)। ব্যবহার করার জন্য আপনাকে আপনার Android WebView প্যাকেজটিকে কমপক্ষে সংস্করণে %2$s আপগ্রেড করতে হবে %3$s। বেশিরভাগ ডিভাইসের জন্য এটি এর মাধ্যমে %4$s করা যেতে পারে।</string>
   <string name="play">গুগল প্লে</string>
   <string name="proceed_anyway">যাইহোক এগিয়ে যান</string>
-  <string name="proceed">এগিয়ে যান</string>
-  <string name="rate_title">রেটিং এবং পর্যালোচনা অ্যাপ</string>
   <string name="rate_message5">
 ইতিবাচক এবং বিস্তারিত পর্যালোচনা AndBible ওপেন সোর্স প্রকল্পকে অনেক সাহায্য করে। ধন্যবাদ!</string>
   <string name="rate_message6">
@@ -1092,7 +1071,6 @@ Google Play এ এগিয়ে যান</string>
   <string name="primary_label">প্রধান লেবেল</string>
   <string name="favourite_label">প্রিয় লেবেল</string>
   <string name="edit_label">লেবেল সম্পাদনা করুন</string>
-  <string name="delete_label_confirmation">আপনি কি বুকমার্ক লেবেল \"%s\" সরাতে চান? এছাড়াও সমস্ত সম্পর্কিত স্টাডি প্যাড নোট মুছে ফেলা হবে।</string>
   <string name="active_labels">নির্বাচিত লেবেল</string>
   <string name="recent_labels">সাম্প্রতিক লেবেল</string>
   <string name="other_labels">অন্যান্য লেবেল</string>
@@ -1102,8 +1080,6 @@ Google Play এ এগিয়ে যান</string>
   <string name="book_menu_show_progress_bars">অগ্রগতি বার দেখান</string>
   <string name="reset_workspace_labels">আপনি কি এই ওয়ার্কস্পেসের জন্য অটো-অ্যাসাইন এবং প্রিয় সেটিংস রিসেট করতে চান?</string>
   <string name="clear_auto_assign_labels">স্বয়ংক্রিয় লেবেল মুছুন</string>
-  <string name="reset_workspace_auto_assign_labels">আপনি কি এই ওয়ার্কস্পেস থেকে সব স্বয়ংক্রিয় লেবেল সরাতে চান?</string>
-  <string name="reset_hide_labels">আপনি কি নির্দিষ্ট লেবেল সেটিংস লুকানোর জন্য সেটিংস রিসেট করতে চান?</string>
   <string name="reorder">পুনরায় অর্ডার করুন</string>
   <string name="system_items">সিস্টেম ক্রিয়াকলাপ</string>
   <string name="system_items1">আরও</string>
@@ -1117,7 +1093,6 @@ Google Play এ এগিয়ে যান</string>
   <string name="ios_fullscreen_hint">ফুল স্ক্রিন থেকে বের হতে ডাবল-ট্যাপ করুন বা বোতামে ট্যাপ করুন।</string>
   <string name="desktop_exit_fullscreen">ফুলস্ক্রিন থেকে বের হন</string>
   <string name="exit_fullscreen">ফুলস্ক্রিন থেকে প্রস্থান করতে স্ক্রীনে ডবল-ট্যাপ করুন</string>
-  <string name="reset_app_prefs">আপনি কি এই স্ক্রিনে প্রদর্শিত সমস্ত বিশ্বব্যাপী অ্যাপ্লিকেশন পছন্দগুলিকে তাদের ডিফল্ট মানগুলিতে পুনরায় সেট করতে চান?</string>
   <string name="label_red">লাল</string>
   <string name="label_green">সবুজ</string>
   <string name="label_blue">্নীল</string>
@@ -1128,7 +1103,6 @@ Google Play এ এগিয়ে যান</string>
   <string name="reset_databases_title">ডাটাবেস রিসেট করুন</string>
   <string name="reset_databases_description">পৃথক ডাটাবেসগুলি তাদের প্রাথমিক খালি অবস্থায় রিসেট করুন। এটি পূর্বাবস্থায় ফেরানো যাবে না।</string>
   <string name="last_crash_info_title">শেষ ক্র্যাশের তথ্য</string>
-  <string name="reset_database_confirm">এটি \"%1$s\"-এর সমস্ত ডেটা স্থায়ীভাবে মুছে ফেলবে এবং প্রাথমিক অবস্থায় রিসেট করবে। এটি পূর্বাবস্থায় ফেরানো যাবে না।\n\nআপনি কি নিশ্চিত?</string>
   <string name="reset_database_success">ডাটাবেস সফলভাবে রিসেট হয়েছে</string>
   <string name="reset_something">রিসেট: %1$s</string>
   <string name="export">রপ্তানি</string>
@@ -1198,19 +1172,18 @@ Google Play এ এগিয়ে যান</string>
   <string name="manage_labels_help_favourite">দ্রুত পেতে লেবেলটি আপনার প্রিয়তে রাখুন।</string>
   <string name="manage_labels_help_styles">নামের নিচে একটি ছোট উদাহরণ লেবেলের চেহারা দেখায়: লেখা-নির্বাচনের বুকমার্কের জন্য নির্বাচন, সম্পূর্ণ পদের বুকমার্কের জন্য সম্পূর্ণ পদ, আর এই ওয়ার্কস্পেস যে স্টাইল বদলেছে তার জন্য ওয়ার্কস্পেস ট্যাগ। কোনো সাজসজ্জা ছাড়া ধূসর উদাহরণ মানে লেবেলের বুকমার্কগুলো আঁকা হয় না। ⋮ মেনু থেকে উদাহরণগুলো লুকান।</string>
   <string name="manage_labels_help_reorder">⋮ মেনু থেকে তালিকার ক্রম বদলান।</string>
+  <string name="manage_labels_help_narrow_toggles">সংকীর্ণ স্ক্রিনে লেবেলের নামের জায়গা দিতে তালিকায় প্রাথমিক, স্বয়ংক্রিয় নিযুক্তি ও প্রিয় আইকনগুলি বাদ দেওয়া হয়। সেগুলি ঠিক করতে লেবেলে ট্যাপ করে তার সম্পাদকে যান।</string>
   <string name="added_to_bookmark">এই বুকমার্কে বরাদ্দ করা হয়েছে৷</string>
   <string name="strongs_links">লিঙ্ক</string>
   <string name="strongs_text_and_links">টেক্সট এবং লিঙ্ক</string>
   <string name="strongs_hidden_links">লুকানো লিঙ্ক</string>
   <string name="verse_tip">আংশিক বা অনেক পদ নির্বাচন করতে, আপনি বাইবেলের পাঠ্য দীর্ঘক্ষণ চাপতে পারেন</string>
-  <string name="permission_required">অনুমতি প্রয়োজন</string>
   <string name="labels_search_hint">অনুসন্ধান করুন</string>
   <string name="search_mode_name_start">নাম (শুরু থেকে)</string>
   <string name="search_mode_name_contains">নাম (যুক্ত আছে)</string>
   <string name="search_mode_content">বিষয়বস্তু</string>
   <string name="search_results_matches">%d মিল পাওয়া গেছে</string>
   <string name="search_results_match">১টি মিল পাওয়া গেছে</string>
-  <string name="progress_status_permission">বিজ্ঞপ্তি দেখানোর জন্য (ডাউনলোড স্ট্যাটাস, প্রসেসিং, স্পিক স্ট্যাটাস), আমাদের আপনার অনুমতি প্রয়োজন।</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">সহজ ক্যালকুলেটর</string>
   <string name="prefs_persecution_cat">নির্যাতিতদের জন্য সেটিংস</string>
@@ -1252,7 +1225,6 @@ Google Play এ এগিয়ে যান</string>
   <string name="custom_repositories_create_button_label">কাস্টম সংগ্রহস্থল যোগ করুন</string>
   <string name="custom_repositories_info_button_label">তথ্য</string>
   <string name="repository_specification">সংগ্রহস্থল URL</string>
-  <string name="delete_custom_repository">আপনি কাস্টম সংগ্রহস্থল সরাতে চান%s?</string>
   <string name="custom_repositories_help1">একটি নতুন কাস্টম সংগ্রহস্থল যোগ করতে, টাইপ করুন বা অনুলিপি করুন &amp; এখানে কাস্টম সংগ্রহস্থলের URL পেস্ট করুন।</string>
   <string name="custom_repositories_help2">আপনি কাস্টম সংগ্রহস্থল সম্পর্কে আরও তথ্য পড়তে পারেন%s।</string>
   <string name="custom_repositories_help0">আপনি কাস্টম সংগ্রহস্থল ইনস্টল করে বহিরাগত কাস্টম সংগ্রহস্থল থেকে নথি ইনস্টল করতে পারেন।</string>
@@ -1274,9 +1246,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="db_bookmarks">বুকমার্ক, আমার নোট, লেবেল এবং স্টাডি প্যাড</string>
   <string name="synchronizing">সিঙ্ক্রোনাইজ হচ্ছে...</string>
   <string name="notification_finished">সমাপ্ত</string>
-  <string name="overrideBackup">
-এই ডিভাইসটি সিঙ্ক্রোনাইজ করা নেই এমন বিদ্যমান ডাটাবেসটি ক্লাউডে পাওয়া যায়।
-ডাটাবেস ধারণ %sকরে। আপনি কি করতে চান?</string>
   <string name="reading_plans_content">পরিকল্পনা এবং তাদের অবস্থা পড়া</string>
   <string name="bookmarks_contents">বুকমার্ক, লেবেল এবং স্টাডি প্যাড</string>
   <string name="workspaces_contents">ওয়ার্কস্পেস এবং উইন্ডোজ</string>
@@ -1296,7 +1265,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="reading_progress_calendar">পঠন কার্যক্রম</string>
   <string name="reading_progress_cycle">চক্র %d</string>
   <string name="reading_progress_new_cycle">নতুন চক্র</string>
-  <string name="reading_progress_new_cycle_confirm">একটি নতুন পঠন চক্র শুরু করবেন? এটি আপনার পূর্ববর্তী চক্রের ডেটা সংরক্ষণ করে নতুন করে অগ্রগতি ট্র্যাক করা শুরু করবে।</string>
   <string name="reading_progress_previous_cycle">পূর্ববর্তী চক্র</string>
   <string name="reading_progress_next_cycle">পরবর্তী চক্র</string>
   <string name="cloud_merge_data">তথ্য একত্র করুন</string>
@@ -1306,7 +1274,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_sync_title">ডিভাইস সিঙ্ক্রোনাইজেশন</string>
   <string name="reset_sync">সাইন আউট</string>
   <string name="prefs_reset_sync_summary">সিঙ্ক্রোনাইজিং অক্ষম করুন এবং সম্পর্কিত সেটিংস রিসেট করুন।</string>
-  <string name="sync_confirmation">আপনি কি নিশ্চিত যে আপনি সাইন আউট এবং সিঙ্ক্রোনাইজেশন রিসেট করতে চান?</string>
   <string name="cloud_info">ক্লাউড তথ্য</string>
   <string name="cloud_info_summary">ক্লাউড স্টোরেজে ডেটা: %sMb</string>
   <string name="sync_adapter">সিঙ্ক্রোনাইজেশন ব্যাকএন্ড</string>
@@ -1322,7 +1289,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="webdav_server_url_hint">WebDAV ফোল্ডারের ঠিকানা, যেমন https://nas.local/dav/ বা https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">সিঙ্কের জন্য নিরাপদ https:// ঠিকানা প্রয়োজন।</string>
   <string name="webdav_certificate_title">সার্ভারের সার্টিফিকেট</string>
-  <string name="webdav_forget_certificate_message">বিশ্বস্ত সার্ভার সার্টিফিকেট ভুলে যাবেন? পরবর্তী সংযোগে আপনাকে আবার সার্টিফিকেট নিশ্চিত করতে বলা হবে।</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">অবিশ্বস্ত সার্ভার সার্টিফিকেট</string>
   <string name="webdav_untrusted_certificate_message">%1$s-এর সার্টিফিকেট Android বিশ্বাস করে না। এটি চিনলে তবেই বিশ্বাস করুন, যেমন যদি আপনি নিজেই এই সার্ভার সেট আপ করে থাকেন।\n\nবিষয়: %2$s\nপ্রদানকারী: %3$s\nমেয়াদ: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1339,14 +1305,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="synchronization_categories">সিঙ্ক্রোনাইজেশন বিভাগ</string>
   <string name="sync_general_settings">তথ্য &amp; সাধারণ সেটিংস</string>
   <string name="sync_introduction">ভূমিকা</string>
-  <string name="are_you_sure">আপনি কি নিশ্চিত?</string>
   <string name="are_you_sure_merge">এই ডিভাইসের তথ্য এবং ক্লাউডের %s উভয়ই রাখা হবে। একই আইটেম দুই জায়গায় বদলানো হলে নতুন পরিবর্তনটি রাখা হবে। এই ডিভাইসের তথ্য আপনার অন্য ডিভাইসগুলোতে পাঠানো হবে।</string>
-  <string name="are_you_sure_reset_local">এটি বর্তমানে ক্লাউড পরিষেবাতে সংরক্ষিত সামগ্রীর জন্য %sআপনার স্থানীয় ডাটাবেস রিসেট করবে৷</string>
-  <string name="are_you_sure_reset_cloud">এটি আপনার এই ডিভাইসে থাকা সামগ্রীর জন্য%s আপনার ক্লাউড ডেটাবেস রিসেট করবে৷</string>
-  <string name="sync_cant_fetch">ক্লাউডে সংরক্ষিত ডাটাবেস বা প্যাচ ফাইলের সংস্করণ এই অ্যাপ দ্বারা সমর্থিত সংস্করণের চেয়ে বেশি।</string>
-  <string name="sync_disabling">আপাতত%s সিঙ্ক্রোনাইজিং অক্ষম করা হচ্ছে।</string>
-  <string name="sync_update_app">সিঙ্ক্রোনাইজেশন চালিয়ে যেতে অ্যাপ আপডেট করুন।</string>
-  <string name="sign_in_failed">সিঙ্ক্রোনাইজেশন ব্যাকএন্ড পরিষেবাতে সাইন ইন করা ব্যর্থ হয়েছে৷</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">ক্লাউড সিঙ্ক্রোনাইজিং অক্ষম করা হচ্ছে। পুনরুদ্ধারের পরে আপনাকে অবশ্যই ম্যানুয়ালি পুনরায় সক্ষম করতে হবে।</string>
   <string name="report">রিপোর্ট</string>
@@ -1364,6 +1323,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="open_here">এখানে খুলুন</string>
   <string name="external_link">বাহ্যিক লিঙ্ক</string>
   <string name="external_link_question">এটি একটি ব্রাউজার অ্যাপ্লিকেশনে বাহ্যিক লিঙ্ক খুলবে%s, আপনি কি চালিয়ে যেতে চান?</string>
+  <string name="external_link_dont_ask_again">%s-এর জন্য আর জিজ্ঞাসা করবেন না</string>
   <string name="nameless">শিরোনাম সংজ্ঞায়িত নয়</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ওয়ান-ট্যাপ অ্যাকশন (বাইবেল)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">ওয়ান-ট্যাপ অ্যাকশন (অন্যান্য)</string>
@@ -1412,8 +1372,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="memorize_include_reference_summary">মুখস্থ করার শেষ আইটেম হিসেবে পদের রেফারেন্স (যেমন John 3:16) যোগ করুন</string>
   <string name="reading_progress_settings">অগ্রগতি ও মুখস্থকরণ</string>
   <string name="reading_progress_settings_summary">স্বয়ংক্রিয় ট্র্যাকিং, মুখস্থকরণ এবং টাইপিং অনুশীলন সেটিংস</string>
-  <string name="memorize_confirm_unmark">%s-এর মুখস্থ অবস্থা সরিয়ে দেবেন?</string>
-  <string name="memorize_confirm_remove_target">মুখস্থকরণের লক্ষ্য %s সরিয়ে দেবেন?</string>
   <string name="memorize_tab_reading">পঠন</string>
   <string name="memorize_tab_memorization">মুখস্থকরণ</string>
   <string name="memorize_verses_memorized">মুখস্থ</string>
@@ -1439,7 +1397,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="llm_reset_usage_title">ব্যবহার ডেটা রিসেট করুন</string>
   <string name="llm_reset_usage_summary">সঞ্চিত টোকেন ও খরচ ট্র্যাকিং সাফ করুন</string>
   <string name="llm_reset_usage_confirm_title">ব্যবহার ডেটা রিসেট করবেন?</string>
-  <string name="llm_reset_usage_confirm_message">এটি সমস্ত সঞ্চিত ব্যবহার ডেটা সাফ করবে।</string>
   <string name="llm_custom_input_price_title">ইনপুট মূল্য ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">আউটপুট মূল্য ($/Mtoken)</string>
   <string name="llm_cost_total">মোট: %1$s</string>
@@ -1455,8 +1412,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="llm_parse_error_anthropic">Anthropic প্রতিক্রিয়া পার্স করতে ব্যর্থ: %1$s</string>
   <string name="llm_error_unknown">অজানা ত্রুটি</string>
   <string name="llm_error_max_iterations">সম্পন্ন না করেই সর্বোচ্চ পুনরাবৃত্তি (%1$d) পৌঁছে গেছে</string>
-  <string name="llm_continue_iterations_title">চালিয়ে যাবেন?</string>
-  <string name="llm_continue_iterations_message">AI এজেন্ট %1$d পুনরাবৃত্তির সীমায় পৌঁছেছে কিন্তু সম্পন্ন করেনি। আরও %2$d পুনরাবৃত্তির জন্য চালিয়ে যাবেন?</string>
   <string name="agent_max_iterations_title">সর্বোচ্চ এজেন্ট পুনরাবৃত্তি</string>
   <string name="agent_max_iterations_summary">চালিয়ে যেতে জিজ্ঞাসার আগে সর্বোচ্চ পুনরাবৃত্তি (০ = সীমাহীন)</string>
   <string name="ask_model_before_run_title">চালানোর আগে মডেল জিজ্ঞাসা করুন</string>
@@ -1516,7 +1471,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="ai_models_summary_none">কোনো মডেল কনফিগার করা হয়নি</string>
   <string name="ai_add_provider">প্রদানকারী যোগ করুন</string>
   <string name="ai_provider_edit">সম্পাদনা</string>
-  <string name="ai_provider_delete_confirm">প্রদানকারী \"%1$s\" মুছবেন? এই প্রদানকারী ব্যবহার করা প্রম্পটগুলি ডিফল্টে ফিরে যাবে।</string>
   <string name="ai_provider_api_key_not_set">API কী সেট করা হয়নি</string>
   <string name="ai_provider_select_type">প্রদানকারীর ধরন নির্বাচন করুন</string>
   <string name="ai_provider_name">প্রদানকারীর নাম</string>
@@ -1536,7 +1490,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="edit_model_title">মডেল সম্পাদনা করুন</string>
   <string name="model_saved">মডেল সংরক্ষিত হয়েছে</string>
   <string name="model_deleted">মডেল মুছে ফেলা হয়েছে</string>
-  <string name="model_delete_confirm">মডেল \"%1$s\" মুছবেন?</string>
   <string name="model_set_default">ডিফল্ট মডেল হিসেবে সেট করুন</string>
   <string name="model_select_provider">প্রদানকারী</string>
   <string name="model_supported_badge">✓ সমর্থিত</string>
@@ -1576,7 +1529,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="ai_disclaimer_point8">আপনার ডেটা আপনার পছন্দের AI প্রদানকারীর সার্ভারে পাঠানো হয়। API কী ব্যবহার করে, আপনি সেই প্রদানকারীর শর্তাবলী ও গোপনীয়তা নীতি গ্রহণ করেন। স্ব-হোস্টেড মডেল সম্ভব কিন্তু আরও প্রযুক্তিগত দক্ষতা প্রয়োজন, এবং বাণিজ্যিক মডেলের মতো ভালো ফলাফল নাও দিতে পারে।</string>
   <string name="ai_disclaimer_point9">AI প্রদানকারীরা API ব্যবহারের জন্য চার্জ করে। AndBible-এ দেখানো খরচ অনুমান আনুমানিক — সত্যিকারের চার্জের জন্য সর্বদা আপনার প্রদানকারীর বিলিং পরীক্ষা করুন।</string>
   <string name="ai_disclaimer_accept_title">AI দায়িত্বমুক্তি গ্রহণ করুন</string>
-  <string name="ai_disclaimer_accept_button">আমি গ্রহণ করি এবং সম্পূর্ণ দায়িত্ব নিই</string>
   <string name="prompt_permission_mode">অনুমতি মোড</string>
   <string name="prompt_permission_mode_description">AI রাইট অপারেশন করার আগে ব্যবহারকারীর নিশ্চিতকরণ কখন প্রয়োজন তা নিয়ন্ত্রণ করে। নীচের প্রতি-টুল সেটিংস পৃথক টুলের জন্য এটি ওভাররাইড করতে পারে।</string>
   <string name="agent_permission_mode_summary">AI রাইট অপারেশনের আগে ব্যবহারকারীর নিশ্চিতকরণ কখন প্রয়োজন তা নিয়ন্ত্রণ করে</string>
@@ -1692,7 +1644,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="default_prompt_custom_desc">নির্বাচিত অনুচ্ছেদে একটি কাস্টম কাজ চালান</string>
   <string name="default_prompt_custom_template">নির্বাচিত বাইবেলের অনুচ্ছেদের জন্য ব্যবহারকারীর কাজের নির্দেশিকা অনুসরণ করুন।</string>
   <string name="copy">কপি</string>
-  <string name="delete_prompt_confirm_message">আপনি কি এই প্রম্পটটি মুছতে চান?</string>
   <string name="ai_hide_prompt">লুকান</string>
   <string name="ai_restore_hidden_prompts">লুকানো প্রম্পট পুনরুদ্ধার করুন</string>
   <string name="ai_prompt_hidden">প্রম্পট লুকানো হয়েছে</string>
@@ -1777,8 +1728,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="permission_allow_all_session">এই সেশনে সব টুলের অনুমতি দিন</string>
   <string name="permission_allow_always">সর্বদা \"%1$s\" অনুমতি দিন</string>
   <string name="permission_deny">অস্বীকার করুন</string>
-  <string name="permission_always_allow_confirm_title">সর্বদা অনুমতি দেবেন?</string>
-  <string name="permission_always_allow_confirm">আপনি কি নিশ্চিত যে \"%1$s\" স্থায়ীভাবে অনুমতি দিতে চান?</string>
   <string name="permission_always_allow_confirm_reset_hint">আপনি AI সেটিংসে এটি রিসেট করতে পারবেন।</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">টুল অনুমতি</string>
@@ -1883,18 +1832,15 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="my_document_new_name">নথি %d</string>
   <string name="my_document_create_title">নতুন নথি তৈরি করুন</string>
   <string name="my_document_rename_title">নথি পুনরায় নামকরণ করুন</string>
-  <string name="my_document_delete_confirmation">নথি \"%s\" মুছবেন?</string>
   <string name="show_secret">দেখান</string>
   <string name="hide_secret">লুকান</string>
   <string name="ai_documents_name">AI ডকুমেন্ট</string>
   <string name="ai_documents_description">AI দ্বারা স্বয়ংক্রিয়ভাবে তৈরি ডকুমেন্ট</string>
-  <string name="my_document_cannot_delete_ai_documents">AI নথিতে পৃষ্ঠা থাকা অবস্থায় মুছে ফেলা যাবে না। প্রথমে পৃষ্ঠাগুলি মুছুন।</string>
   <string name="my_document_save_changes">পরিবর্তন সংরক্ষণ করবেন?</string>
   <string name="my_document_no_description">কোনো বিবরণ নেই</string>
   <string name="my_document_edit_description">বিবরণ সম্পাদনা করুন</string>
   <string name="my_document_pages_title">%s - পৃষ্ঠাসমূহ</string>
   <string name="my_document_page_rename_title">পৃষ্ঠা পুনরায় নামকরণ করুন</string>
-  <string name="my_document_page_delete_confirmation">পৃষ্ঠা \"%s\" মুছবেন?</string>
   <string name="my_document_pages_delete_confirmation">এই পৃষ্ঠাগুলো মুছে ফেলবেন?</string>
   <string name="my_documents_switch_document">নথি বদলান</string>
   <string name="my_document_new_page_name">পৃষ্ঠা %1$d</string>
@@ -1962,7 +1908,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_doc_show_removed">অপসারিত নথিপত্র দেখান</string>
   <string name="cloud_doc_status_removed">ক্লাউড থেকে অপসারিত</string>
   <string name="cloud_doc_status_still_installed">এখনও এখানে ইনস্টল করা আছে</string>
-  <string name="cloud_doc_purge_confirm">ক্লাউড ইতিহাস থেকে \"%1$s\" স্থায়ীভাবে অপসারণ করবেন? যদি এটি অন্য কোনো ডিভাইসে এখনও ইনস্টল করা থাকে, তবে সেই ডিভাইসটি পরবর্তী সিঙ্কের সময় এটি আবার ক্লাউডে আপলোড করতে পারে।</string>
   <string name="cloud_doc_action_download">ডাউনলোড</string>
   <string name="cloud_doc_action_push">ক্লাউডে আপলোড করুন</string>
   <string name="cloud_doc_action_remove_cloud">ক্লাউড থেকে অপসারণ করুন</string>
@@ -1973,8 +1918,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_doc_action_dont_sync">ক্লাউডে সিঙ্ক করবেন না</string>
   <string name="cloud_doc_action_allow_sync">ক্লাউডে সিঙ্ক করুন</string>
   <string name="cloud_doc_action_purge">ক্লাউড ইতিহাস থেকে অপসারণ করুন</string>
-  <string name="cloud_doc_remove_all_confirm">এই ডিভাইস সহ ক্লাউড এবং আপনার সব ডিভাইস থেকে %1$s অপসারণ করবেন?</string>
-  <string name="cloud_doc_remove_cloud_confirm">ক্লাউড থেকে %1$s অপসারণ করবেন? এই ডিভাইসের কপিটি রাখা হবে; নথিপত্র সিঙ্ক চালু থাকা ডিভাইসগুলিও এটি অপসারণ করবে।</string>
   <string name="cloud_doc_sync_now">এখন সিঙ্ক করুন</string>
   <string name="cloud_doc_rescan">ক্লাউড থেকে পুনরায় স্ক্যান করুন</string>
   <string name="cloud_doc_sync_now_download">নতুন এবং আপডেট করা নথিপত্র ডাউনলোড করুন</string>
@@ -1986,6 +1929,14 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_doc_summary_download">ডাউনলোড %1$d</string>
   <string name="cloud_doc_summary_download_size">ডাউনলোড %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Wi-Fi-তে স্বয়ংক্রিয় ডাউনলোড শুরু হবে।</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$dটি নথি</item>
+        <item quantity="other">%1$dটি নথি</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$dটি নথি (%2$s)</item>
+        <item quantity="other">%1$dটি নথি (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">স্থানান্তর করার কিছু নেই</string>
   <string name="cloud_doc_selected_count">%1$d নির্বাচিত</string>
   <string name="cloud_doc_bulk_skipped">%1$d প্রাসঙ্গিক নয় বলে এড়িয়ে যাওয়া হয়েছে</string>
@@ -2002,8 +1953,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="background_image_import">গ্যালারি থেকে আমদানি করুন…</string>
   <string name="background_image_empty">এখনো কোনো ছবি আমদানি করা হয়নি। যোগ করতে \"গ্যালারি থেকে আমদানি করুন…\"-এ ট্যাপ করুন।</string>
   <string name="background_image_importing">আমদানি হচ্ছে…</string>
-  <string name="background_image_delete_title">ছবি মুছবেন?</string>
-  <string name="background_image_delete_confirm">এই পটভূমির ছবিটি মুছবেন? যেসব ওয়ার্কস্পেস এখনো এটি ব্যবহার করছে সেগুলোতে কোনো ছবি থাকবে না।</string>
   <string name="background_image_day">পটভূমির ছবি (দিন)</string>
   <string name="background_image_night">পটভূমির ছবি (রাত)</string>
   <string name="background_image_opacity_day">পটভূমির ছবির অস্বচ্ছতা (দিন)</string>
@@ -2077,6 +2026,10 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="legacy_notice_icloud">সিঙ্ক এখন iCloud Drive ব্যবহার করে। সেটিংস → সিঙ্কে গিয়ে এটি আবার চালু করুন। এই ডিভাইসে যা ছিল তা থাকবে; সিঙ্ক আবার সেট আপ হলে আপনার অন্য ডিভাইসের পরিবর্তনগুলো আসবে। পুরোনো iCloud তথ্য মুছে জায়গা খালি করতে: সেটিংস → আপনার নাম → iCloud → স্টোরেজ পরিচালনা → AndBible।</string>
   <string name="legacy_notice_nextcloud">আপনার Nextcloud সংযোগ রয়ে গেছে, কিন্তু সিঙ্ক বন্ধ আছে। সেটিংস → সিঙ্কে এটি চালু করুন এবং ক্লাউড থেকে আনা বা নতুন তৈরি করা বেছে নিন।</string>
   <string name="legacy_notice_nextcloud_unsent">এই ডিভাইসের কিছু পরিবর্তন এখনো Nextcloud-এ পাঠানো হয়নি। সেগুলো পাঠানো হয়নি এবং শুধু এই ডিভাইসেই থাকবে।</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$dটি বুকমার্ক নির্ভরযোগ্যভাবে বসানো যায়নি এবং আমদানি করা হয়নি। এটি এই ডিভাইসে আপনার পুরনো ডেটার সঙ্গে রাখা আছে।</item>
+        <item quantity="other">%1$dটি বুকমার্ক নির্ভরযোগ্যভাবে বসানো যায়নি এবং আমদানি করা হয়নি। সেগুলি এই ডিভাইসে আপনার পুরনো ডেটার সঙ্গে রাখা আছে।</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">এটি একটি শক্তিশালী অথচ সহজে ব্যবহারযোগ্য অফলাইন বাইবেল অধ্যয়ন অ্যাপ্লিকেশন।</string>
   <string name="webdav_untrusted_certificate_message_device">%1$s-এর সার্টিফিকেট এই ডিভাইস বিশ্বাস করে না। এটি চিনলে তবেই বিশ্বাস করুন, যেমন যদি আপনি নিজেই এই সার্ভার সেট আপ করে থাকেন।\n\nবিষয়: %2$s\nপ্রদানকারী: %3$s\nমেয়াদ: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2128,6 +2081,25 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="recommend_share_link">একটি লিঙ্ক শেয়ার করুন</string>
   <string name="recommend_qr_caption">আপনার ফোন, ট্যাবলেট বা কম্পিউটারের জন্য AndBible পেতে স্ক্যান করুন।</string>
   <string name="desktop_activation_failed">AndBible ইতিমধ্যে চলছে, কিন্তু এর উইন্ডো সাড়া দেয়নি। চলমান অ্যাপটিতে যান এবং আবার চেষ্টা করুন। আসা ফাইলগুলো পৌঁছেছে বলে নিশ্চিত হয়নি।</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">এটি ফেরানো যাবে না।</string>
+  <string name="ai_raw_log_delete_lead">এই লগ মুছে ফেলবেন?</string>
+  <string name="ai_provider_delete_lead">“%1$s” প্রদানকারী মুছে ফেলবেন?</string>
+  <string name="ai_provider_delete_detail">এটি ব্যবহারকারী প্রম্পটগুলি ডিফল্ট প্রদানকারীতে ফিরে যাবে।</string>
+  <string name="ai_model_delete_lead">“%1$s” মডেল মুছে ফেলবেন?</string>
+  <string name="ai_prompt_delete_named_lead">“%1$s” প্রম্পট মুছে ফেলবেন?</string>
+  <string name="ai_prompt_delete_lead">এই প্রম্পট মুছে ফেলবেন?</string>
+  <string name="ai_reset_usage_detail">টোকেন ও খরচের মোট শূন্যে ফিরে যাবে। এটি ফেরানো যাবে না।</string>
+  <string name="ai_reset_usage_button">রিসেট</string>
+  <string name="ai_disclaimer_accept">আমি গ্রহণ করছি</string>
+  <string name="llm_continue_iterations_lead">আরও %1$d বার পুনরাবৃত্তি চালিয়ে যাবেন?</string>
+  <string name="llm_continue_iterations_detail">ai এজেন্ট কাজ শেষ না করেই %1$d বার পুনরাবৃত্তির সীমায় পৌঁছেছে।</string>
+  <string name="llm_continue_button">চালিয়ে যান</string>
+  <string name="permission_always_allow_lead">“%1$s” সর্বদা অনুমতি দেবেন?</string>
+  <string name="permission_always_allow_button">সর্বদা অনুমতি দিন</string>
+  <string name="ai_bug_report_send_lead">একটি ai বাগ রিপোর্ট পাঠাবেন?</string>
+  <string name="ai_bug_report_send_button">পাঠান</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">শুরু করুন</string>
   <string name="user_guide_section_reading_workspace">পড়া ও ওয়ার্কস্পেস</string>
@@ -2205,4 +2177,150 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI সহায়ক, পর্ব ৩: সরঞ্জাম, আপনার তথ্য ও অনুমতি</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI সহায়ক, পর্ব ৪: নিজস্ব প্রম্পট, খরচ ও সিঙ্ক</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">পরিবর্তনগুলি বাতিল করবেন?</string>
+  <string name="dialog_keep_editing">সম্পাদনা চালিয়ে যান</string>
+  <string name="dialog_label_delete_lead">“%1$s” লেবেল মুছে ফেলবেন?</string>
+  <string name="dialog_label_delete_detail">এর স্টাডি প্যাড নোটগুলিও মুছে যাবে। এটি ফেরানো যাবে না।</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$dটি বুকমার্কের অন্য কোনো লেবেল নেই।</item>
+        <item quantity="other">%1$dটি বুকমার্কের অন্য কোনো লেবেল নেই।</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">লেবেল ও %1$dটি বুকমার্ক মুছুন</item>
+        <item quantity="other">লেবেল ও %1$dটি বুকমার্ক মুছুন</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">বুকমার্ক ও সেগুলির নোট মুছে যাবে।</string>
+  <string name="dialog_label_delete_only_consequence">বুকমার্কগুলি লেবেল ছাড়া থাকবে।</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">এই বুকমার্ক সরাবেন?</item>
+        <item quantity="other">%1$dটি বুকমার্ক সরাবেন?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">এর নোটও সরানো হবে।</item>
+        <item quantity="other">সেগুলির নোটও সরানো হবে।</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">এই ওয়ার্কস্পেস থেকে সমস্ত স্বয়ংক্রিয় নিযুক্তির লেবেল সরাবেন?</string>
+  <string name="dialog_labels_reset_hidden_lead">সমস্ত লুকানো লেবেল আবার দেখাবেন?</string>
+  <string name="dialog_labels_reset_shown_detail">তালিকা থেকে আপনার লুকানো লেবেলগুলি আবার দেখানো হবে।</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">“%s” ইনস্টল করবেন?</string>
+  <string name="install_action">ইনস্টল করুন</string>
+  <string name="install_from_file_question">ফাইল থেকে নথি ইনস্টল করবেন?</string>
+  <string name="overwrite_files_detail">এই ফাইলগুলি আগে থেকেই আছে:%s</string>
+  <string name="import_studypads_question">এই স্টাডি প্যাডগুলি আমদানি করবেন?</string>
+  <string name="import_action">আমদানি করুন</string>
+  <string name="restore_backup_question">এই ব্যাকআপের নথিগুলি পুনরুদ্ধার করবেন?</string>
+  <string name="restore_backup_detail">এই ফাইলটি অ্যান্ডবাইবেল নথির ব্যাকআপ।</string>
+  <string name="update_document_question">এই নথি আপডেট করবেন?</string>
+  <string name="update_action">আপডেট করুন</string>
+  <string name="download_documents_question">নথি ডাউনলোড করবেন?</string>
+  <string name="download_persecution_warning">আপনি যদি নির্যাতিত দেশে বাস করেন, তবে ইন্টারনেটের মাধ্যমে খ্রিস্টীয় সামগ্রী ডাউনলোড করার ব্যাপারে আপনাকে সতর্ক থাকতে হতে পারে। এর পরিবর্তে আপনি নথির জিপ ফাইল আরও নিরাপদে সংগ্রহ করে “%1$s”-এর মাধ্যমে ইনস্টল করতে পারেন। নথি সার্ভার থেকে সমস্ত ডাউনলোড এনক্রিপ্টেড (HTTPS)।</string>
+  <string name="download_action">ডাউনলোড করুন</string>
+  <string name="download_dont_ask_again">ডাউনলোড করুন, আর জিজ্ঞাসা করবেন না</string>
+  <string name="download_dont_ask_again_consequence">ভবিষ্যতে এই প্রশ্ন ছাড়াই ডাউনলোড শুরু হবে।</string>
+  <string name="passphrase_did_not_work">পাসফ্রেজটি কাজ করেনি।</string>
+  <string name="try_again">আবার চেষ্টা করুন</string>
+  <string name="interrupted_downloads_lead">এই নথিগুলি আবার ডাউনলোড করবেন?</string>
+  <string name="interrupted_downloads_detail">সেগুলির ডাউনলোড বাধাপ্রাপ্ত হয়েছিল, তাই ইনস্টল হয়নি।</string>
+  <string name="external_link_open_question">এই লিংক আপনার ব্রাউজারে খুলবেন?</string>
+  <string name="open_action">খুলুন</string>
+  <string name="notification_permission_question">বিজ্ঞপ্তির অনুমতি দেবেন?</string>
+  <string name="notification_permission_detail">বিজ্ঞপ্তিতে ডাউনলোডের অবস্থা, প্রক্রিয়াকরণ এবং পাঠের অবস্থা দেখানো হয়।</string>
+  <string name="allow_action">অনুমতি দিন</string>
+  <string name="rate_question">অ্যাপটি রেট ও রিভিউ করবেন?</string>
+  <string name="bug_report_email_question">বাগ রিপোর্ট ইমেইলে পাঠাবেন?</string>
+  <string name="continue_action">চালিয়ে যান</string>
+  <string name="delete_search_index_question">“%s”-এর অনুসন্ধান সূচি মুছে ফেলবেন?</string>
+  <string name="remove_custom_repository_question">কাস্টম সংগ্রহস্থল “%s” সরাবেন?</string>
+  <string name="download_document_question">“%s” ডাউনলোড করবেন?</string>
+  <string name="choose_file_action">ফাইল বেছে নিন</string>
+  <string name="old_webview_question">পুরনো WebView দিয়ে অ্যাপ ব্যবহার করবেন?</string>
+  <string name="incomplete_translation_question">আংশিক অনুবাদ নিয়ে চালিয়ে যাবেন?</string>
+  <string name="rate_action">রেট করুন</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">“%s” নথি মুছে ফেলবেন?</string>
+  <string name="my_document_page_delete_lead">“%s” পৃষ্ঠা মুছে ফেলবেন?</string>
+  <string name="my_document_cannot_delete_ai_lead">পৃষ্ঠা থাকা অবস্থায় ai নথি মুছে ফেলা যায় না।</string>
+  <string name="my_document_cannot_delete_ai_detail">আগে পৃষ্ঠাগুলি মুছে ফেলুন।</string>
+  <string name="reading_progress_new_cycle_lead">নতুন পঠন চক্র শুরু করবেন?</string>
+  <string name="reading_progress_new_cycle_detail">আপনার অগ্রগতি নতুন করে ট্র্যাক করা হবে। আপনার আগের চক্রের ডেটা রাখা হবে।</string>
+  <string name="reading_progress_new_cycle_start">শুরু করুন</string>
+  <string name="reset_plan_lead">এই পরিকল্পনা রিসেট করবেন?</string>
+  <string name="reset_plan_detail">এই পরিকল্পনায় আপনার শুরুর তারিখ ও অগ্রগতি মুছে যাবে।</string>
+  <string name="set_current_day_lead">%1$s-কে বর্তমান দিন হিসেবে সেট করবেন?</string>
+  <string name="set_current_day_detail">আগের সব দিন পড়া হয়েছে বলে চিহ্নিত হবে।</string>
+  <string name="plan_duplicate_user_plan_lead">একটি পঠন পরিকল্পনা ফাইলের নাম অন্তর্নির্মিত পরিকল্পনার নামের সঙ্গে একই।</string>
+  <string name="plan_duplicate_user_plan_detail">পরিকল্পনা ফাইলটি তালিকাভুক্ত করা যাবে না। jsword/readingplan ফোল্ডারে ফাইলটির নাম বদলান এবং এর .properties এক্সটেনশন রাখুন।</string>
+  <string name="background_image_delete_lead">এই ব্যাকগ্রাউন্ড ছবি মুছে ফেলবেন?</string>
+  <string name="background_image_delete_detail">যে ওয়ার্কস্পেসগুলি এটি ব্যবহার করছে সেগুলি ছবি ছাড়া থাকবে।</string>
+  <string name="reset_values_lead">এই সমস্ত মান রিসেট করবেন?</string>
+  <string name="revert_setting_lead">এই সেটিং উত্তরাধিকারসূত্রে পাওয়া মানে ফিরিয়ে আনবেন?</string>
+  <string name="revert_setting_confirm">ফিরিয়ে আনুন</string>
+  <string name="reset_settings_screen_lead">এই স্ক্রিনের সেটিংস রিসেট করবেন?</string>
+  <string name="reset_settings_screen_detail">সেগুলি ডিফল্ট মানে ফিরে যাবে।</string>
+  <string name="memorize_unmark_lead">“%s”-এর মুখস্থ অবস্থা সরাবেন?</string>
+  <string name="memorize_remove_target_lead">“%s” মুখস্থকরণ লক্ষ্য সরাবেন?</string>
+  <string name="dialog_apply">প্রয়োগ করুন</string>
+  <string name="dialog_dont_apply">প্রয়োগ করবেন না</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">ক্লাউডে ইতিমধ্যে আপনার %s আছে। কী করা হবে?</string>
+  <string name="cloud_merge_consequence">দুই দিকেরই ডেটা রাখা হয়; যেখানে কোনো আইটেম দুই দিকেই বদলেছে, সেখানে নতুন পরিবর্তন জেতে।</string>
+  <string name="cloud_fetch_consequence">এই ডিভাইসের ডেটা ক্লাউডের কপি দিয়ে প্রতিস্থাপিত হয়।</string>
+  <string name="cloud_create_consequence">ক্লাউডের কপি এই ডিভাইসের ডেটা দিয়ে প্রতিস্থাপিত হয়।</string>
+  <string name="cloud_disable_consequence">এই ডেটার জন্য সিঙ্ক বন্ধ থাকে।</string>
+  <string name="cloud_merge_lead">আপনার %s ক্লাউডের সঙ্গে মার্জ করবেন?</string>
+  <string name="cloud_merge_confirm">মার্জ করুন</string>
+  <string name="cloud_replace_confirm">প্রতিস্থাপন করুন</string>
+  <string name="cloud_replace_local_lead">এই ডিভাইসের %s ক্লাউডের কপি দিয়ে প্রতিস্থাপন করবেন?</string>
+  <string name="cloud_replace_local_detail">এই ডিভাইসে এখন যা আছে তা ওভাররাইট হবে এবং পুনরুদ্ধার করা যাবে না।</string>
+  <string name="cloud_replace_cloud_lead">%s-এর ক্লাউড কপি এই ডিভাইসের ডেটা দিয়ে প্রতিস্থাপন করবেন?</string>
+  <string name="cloud_replace_cloud_detail">ক্লাউডে এখন যা আছে তা ওভাররাইট হবে, এবং আপনার অন্যান্য ডিভাইস এই ডিভাইসের ডেটা পাবে।</string>
+  <string name="sign_in_failed_lead">সিঙ্ক পরিষেবায় সাইন ইন করা যায়নি।</string>
+  <string name="sync_too_old_lead">%s সিঙ্ক করার জন্য এই অ্যাপটি খুব পুরনো।</string>
+  <string name="sync_too_old_detail">ক্লাউডের ডেটা এমন একটি নতুন সংস্করণ ব্যবহার করে যা এই অ্যাপ সমর্থন করে না। এর সিঙ্ক আপাতত বন্ধ করা হয়েছে; আবার চালু করতে অ্যাপ আপডেট করুন।</string>
+  <string name="backup_replace_lead">আপনার %s ব্যাকআপ দিয়ে প্রতিস্থাপন করবেন?</string>
+  <string name="backup_replace_detail">এই ডিভাইসে এখন যা আছে তা ওভাররাইট হবে এবং পুনরুদ্ধার করা যাবে না।</string>
+  <string name="reset_database_lead">“%1$s” তার প্রাথমিক অবস্থায় রিসেট করবেন?</string>
+  <string name="reset_database_detail">এর সমস্ত ডেটা স্থায়ীভাবে মুছে যাবে। এটি ফেরানো যাবে না।</string>
+  <string name="reset_database_button">রিসেট</string>
+  <string name="restore_all_lead">আপনার নোট, বুকমার্ক, স্টাডি প্যাড, পঠন পরিকল্পনা ও ওয়ার্কস্পেস প্রতিস্থাপন করবেন?</string>
+  <string name="restore_or_import_lead">%s পুনরুদ্ধার বা আমদানি করবেন?</string>
+  <string name="restore_consequence">এই ডিভাইসে যা আছে তা ব্যাকআপ দিয়ে প্রতিস্থাপিত হয়।</string>
+  <string name="import_consequence">ব্যাকআপের আইটেমগুলি এই ডিভাইসে যা আছে তার সঙ্গে যোগ হয়।</string>
+  <string name="sync_start_syncing">সিঙ্ক শুরু করুন</string>
+  <string name="sync_reset_lead">সাইন আউট করে সিঙ্ক্রোনাইজেশন রিসেট করবেন?</string>
+  <string name="sync_reset_detail">আপনাকে আবার সিঙ্ক্রোনাইজেশন সেট আপ করতে হবে।</string>
+  <string name="webdav_forget_certificate_lead">বিশ্বস্ত সার্ভার সার্টিফিকেট ভুলে যাবেন?</string>
+  <string name="webdav_forget_certificate_detail">পরের সংযোগে আপনাকে আবার সার্টিফিকেট নিশ্চিত করতে বলা হবে।</string>
+  <string name="webdav_forget_certificate_confirm">ভুলে যান</string>
+  <string name="cloud_doc_remove_all_lead">“%1$s” ক্লাউড ও আপনার সব ডিভাইস থেকে সরাবেন?</string>
+  <string name="cloud_doc_remove_cloud_lead">“%1$s” ক্লাউড থেকে সরাবেন?</string>
+  <string name="cloud_doc_purge_lead">“%1$s” ক্লাউডের ইতিহাস থেকে স্থায়ীভাবে সরাবেন?</string>
+  <string name="cloud_doc_remove_all_detail">এতে এই ডিভাইসের এবং নথি সিঙ্ক চালু থাকা প্রতিটি অন্য ডিভাইসের কপিগুলিও মুছে যাবে।</string>
+  <string name="cloud_doc_remove_cloud_detail">এই ডিভাইসের কপিগুলি রাখা হয়। নথি সিঙ্ক চালু থাকা ডিভাইসগুলিও সেগুলি সরিয়ে দেবে।</string>
+  <string name="cloud_doc_purge_detail">যে ডিভাইসে এখনও কপি আছে সেটি পরের সিঙ্কে আবার আপলোড করতে পারে।</string>
+  <string name="cloud_doc_block_confirm_button">সিঙ্ক করবেন না</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">%1$dটি নথি ক্লাউড ও আপনার সব ডিভাইস থেকে সরাবেন?</item>
+        <item quantity="other">%1$dটি নথি ক্লাউড ও আপনার সব ডিভাইস থেকে সরাবেন?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">%1$dটি নথি ক্লাউড থেকে সরাবেন?</item>
+        <item quantity="other">%1$dটি নথি ক্লাউড থেকে সরাবেন?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">%1$dটি নথি ক্লাউডের ইতিহাস থেকে স্থায়ীভাবে সরাবেন?</item>
+        <item quantity="other">%1$dটি নথি ক্লাউডের ইতিহাস থেকে স্থায়ীভাবে সরাবেন?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">%1$dটি নথি ক্লাউডে সিঙ্ক করা বন্ধ করবেন?</item>
+        <item quantity="other">%1$dটি নথি ক্লাউডে সিঙ্ক করা বন্ধ করবেন?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">আপনার আরও ডেটা এখন সিঙ্ক হতে পারে</string>
+  <string name="new_sync_targets_detail">আমার নথিপত্র, ai সেটিংস এবং পঠনের অগ্রগতিও সিঙ্ক হতে পারে। ডিভাইস সিঙ্ক্রোনাইজেশন সেটিংসে সেগুলি চালু করুন।</string>
+  <!--end dialog copy: B3b-->
 </resources>

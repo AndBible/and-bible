@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">完整的用户指南位于 andbible.org。页面将在浏览器中打开。</string>
   <string name="help_user_guide_home">用户指南首页</string>
   <string name="help_read_in_user_guide">在用户指南中阅读</string>
+  <string name="help_in_user_guide">用户指南中的帮助</string>
+  <string name="help_matching_section">匹配的章节</string>
   <string name="help_read_page">在用户指南中阅读：%1$s</string>
   <string name="help_tutorial_videos">教程视频</string>
   <string name="help_watch_in_order">按顺序观看教程视频</string>
@@ -242,6 +244,9 @@
   <string name="prefs_navigate_to_verse_summary">选择圣经段落时选择章节</string>
   <string name="prefs_open_links_in_special_window_title">链接窗口</string>
   <string name="prefs_open_links_in_special_window_summary">在特殊窗口中打开链接，以便快速查看交叉引用及史特郎号码。</string>
+  <string name="prefs_trusted_link_domains_title">受信任的链接域名</string>
+  <string name="prefs_trusted_link_domains_summary">指向这些域名的链接无需询问即可打开。取消勾选某个域名后将再次询问。</string>
+  <string name="prefs_trusted_link_domains_empty">暂无。打开链接时勾选\"不再询问\"即可添加其域名。</string>
   <string name="prefs_text_size_sample_text">我能吞下玻璃而不伤身体</string>
   <string name="prefs_screen_keep_on_title">保持屏幕常亮</string>
   <string name="prefs_screen_keep_on_summary">防止在使用应用时锁屏</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">行距</string>
   <string name="line_spacing_summary">设置每行的间距</string>
   <string name="select_none">全不选</string>
-  <string name="reset_are_you_sure">您真的想要重置所有的值吗？</string>
   <string name="window_pinning_menutitle">固定窗口</string>
   <string name="hide_window_buttons_title">隐藏窗口按钮</string>
   <string name="hide_window_buttons_summary">隐藏在圣经窗口右边的视窗按钮。底部的窗口导航栏仍会显示，你可以长按以开启窗口弹出菜单。</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">在任何字典中均未找到该单词</string>
   <string name="prefs_top_margin_title_mm">顶边界 (%d mm)</string>
   <string name="font_size_title">字型大小</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。</string>
   <string name="font_size_title_pt">字型大小 (%d pt)</string>
   <string name="prefs_font_text_size_summary">调整主要文字大小</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">颜色设置（窗口）</string>
   <string name="workspace_color_settings_title">颜色设置（工作区）</string>
   <string name="color_workspace">工作区颜色</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">默认</string>
   <string name="color_text">文字颜色</string>
   <string name="color_background">背景颜色</string>
   <string name="colors_day_mode_title">日间模式</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">文件列表最后更新：%s</string>
   <string name="download_refreshing_book_list">正在更新文件列表...</string>
   <string name="download_source_message1">文件来自以下来源：</string>
-  <string name="download_document_confirm_prefix">下载</string>
   <string name="error_downloading">下载时出错。请检查你的网络连接。</string>
   <string name="error_downloading_status">提供 %1$s 的服务器返回了错误： %2$s（%3$d）</string>
   <string name="storage_space_warning">SD卡储存空间不足</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">后台活动</string>
   <string name="activity_empty">没有正在运行的任务</string>
   <string name="activity_failed_toast">%1$s — 请查看菜单</string>
-  <string name="download_question_title">你想继续下载文件吗？</string>
-  <string name="download_question_message">如果您生活在受迫害的国家，通过互联网下载基督教资料时可能需要谨慎。您也许更愿意通过更安全的方式获取模块压缩文件，然后通过\"%1$s\"安装。您确定要继续下载吗？所有来自模块服务器的下载都是加密的（HTTPS）。</string>
-  <string name="do_not_ask_again">确定。不要再询问</string>
   <string name="recommended_document">推荐！</string>
   <string name="about_version_history">版本历史: %s</string>
   <string name="download_errors">下载错误</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">正在检查所选文件...</string>
   <string name="invalid_module">档案不包含兼容的SWORD模块</string>
   <string name="install_zip_title">正在从文件中载入模块，请稍等。</string>
-  <string name="overwrite_files">以下文件已经存在: %s 覆盖吗？</string>
   <string name="overwrite_files_title">覆盖文件？</string>
   <string name="could_not_overwrite_files">无法覆盖文件：%s。其中一部分已经安装成功。</string>
   <string name="module_backup_restore">此文件是 AndBible 文档备份。您要恢复其中的文档吗？</string>
-  <string name="install_do_you_want">您想要安装模块（%s）吗？</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">读经计划</string>
   <string name="reading_plans_plural">读经计划</string>
@@ -429,15 +430,8 @@
   <string name="rdg_plan_day">第 %s 天</string>
   <string name="rdg_plan_set_start_date">设定开始日期...</string>
   <string name="set_current_day">设定为目前日子...</string>
-  <string name="msg_set_current_day_reading_plan">这将把 %1$s 设为此计划的当前日，并将之前的所有日期标记为已读。是否继续？</string>
   <string name="done">完成</string>
-  <string name="reset_plan_question">你确定要重设该计划吗？</string>
   <string name="import_reading_plan">汇入读经计划...</string>
-  <string name="plan_duplicate_user_plan">
-SD卡中有使用者jsword/readingplan的读经计划
-它与内部读经计划名称相同，不能在此列举。
-请重新命名至其他名称，并将副档名转为 *.properties
-</string>
   <string name="plan_name_y1ntpspr">新约、诗篇与箴言一年计划</string>
   <string name="plan_description_y1ntpspr">
 感谢 HEARTLIGHT Internet Magazine
@@ -477,12 +471,8 @@ http://www.heartlight.org 准予使用
   <string name="delete_index">删除索引</string>
   <string name="about">关于</string>
   <string name="delete_doc">删除 %s</string>
-  <string name="interrupted_downloads_title">下载已中断</string>
-  <string name="interrupted_downloads_message">以下文档因下载中断而未能安装：</string>
-  <string name="interrupted_downloads_question">重新下载？</string>
   <string name="download_again">重新下载</string>
   <string name="delete_docs_confirm">删除这些文档？</string>
-  <string name="delete_search_index_doc">删除 %s 的索引</string>
   <!--Verse context menu-->
   <string name="notes">注脚及参考</string>
   <string name="share_verse">分享...</string>
@@ -523,7 +513,6 @@ http://www.heartlight.org 准予使用
   如果文档结构被修改，更新此文档可能让
   这些书签或笔记移动到文档中或彻底消失。
 </string>
-  <string name="bookmark_warning3">您是否仍想更新模块？</string>
   <string name="bookmark_warning4">推荐您先备份模块再更新。</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期顺序</string>
@@ -699,10 +688,8 @@ http://www.heartlight.org 准予使用
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Geri yükle veya İçe aktar…</string>
   <string name="backup_restore2">Geri Yükle veya İçe Aktar</string>
-  <string name="overwrite_something">%s üzerine yaz?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">恢复资料库档案</string>
-  <string name="restore_confirmation">覆写我的笔记、书签、个人笔记、读经计划及工作检视吗？</string>
   <string name="restore_success">成功恢复了我的笔记、书签、个人笔记、读经计划及工作检视</string>
   <string name="downloading_backup">正在下载备份文件...</string>
   <string name="loading_backup">正在从备份载入资料库</string>
@@ -724,7 +711,6 @@ http://www.heartlight.org 准予使用
   <string name="send_export_file">发送导出文件</string>
   <string name="backup_modules_title">选择备份模组</string>
   <string name="install_zip_canceled">模组安装已取消</string>
-  <string name="ask_restore_or_import">%s 的数据库可以选择恢复（即删除现有数据库并加载所选数据库）或导入（将所选数据库导入现有数据库）。请选择操作？</string>
   <string name="restore">恢复</string>
   <string name="import2">导入</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -779,7 +765,6 @@ http://www.heartlight.org 准予使用
   <string name="settings_editor_back">返回</string>
   <string name="settings_editor_close">关闭</string>
   <string name="settings_editor_apply">应用</string>
-  <string name="discard_changes_confirmation">放弃未保存的更改？</string>
   <string name="discard">放弃</string>
   <string name="remove">移除</string>
   <string name="overwrite">覆盖</string>
@@ -806,7 +791,8 @@ http://www.heartlight.org 准予使用
   <string name="empty_list">没有可显示项目</string>
   <string name="error_skip">暂停</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">数据已损坏</string>
+  <string name="corrupt_database_headline">AndBible 无法打开您的部分数据</string>
+  <string name="corrupt_database_files_detail">无法打开这些文件：%1$s。没有任何内容被更改或删除。重置将使它们变为空白，并将每个损坏的文件保留在此设备上，重命名为 .corrupt- 加日期和时间。</string>
   <string name="corrupt_database_reset">重置已损坏的数据</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">无法重置已损坏的数据：无法移开 %1$s。未做任何更改。您可以重试、发送错误报告或使用“备份及恢复”。</string>
@@ -814,8 +800,8 @@ http://www.heartlight.org 准予使用
   <string name="damaged_data_needs_attention">应用数据需要处理。点按以打开应用。</string>
   <string name="debug_test_error">测试错误（调试版本）</string>
   <string name="bug_report_prepare_failed">无法准备或分享报告。您可以重试，或使用“备份与恢复”来保存您的数据。</string>
-  <string name="bug_report_email_title">通过电子邮件发送缺陷报告</string>
   <string name="bug_report_desktop_text">接下来，系统会询问您将错误报告文件保存在哪里。然后您会看到将其发送给开发团队的说明。</string>
+  <string name="bug_report_email_title">通过电子邮件发送缺陷报告</string>
   <string name="bug_report_email_text">请在下一步选择您想要的电子邮件应用（例如 Gmail）来将报告发送给开发者团队。</string>
   <string name="bug_report_manual_title">通过电子邮件发送报告</string>
   <string name="bug_report_manual_text_saved">报告已保存到 <b>%1$s</b>。\n\n请发送电子邮件至 <b>%2$s</b> 并附上该文件；电子邮件程序无法替您添加附件。建议的主题：<b>%3$s</b>。请在邮件中告诉我们您做了什么以及发生了什么。</string>
@@ -886,8 +872,6 @@ http://www.heartlight.org 准予使用
   <string name="beta_special_regards">此致，Tuomas</string>
   <string name="beta_special_sponsor">附言：您可以通过%s在经济上支持 AndBible 的开发。</string>
   <string name="beta_special_sponsor_link">赞助开发工时</string>
-  <string name="new_sync_targets_notice_title">新同步设置可用</string>
-  <string name="new_sync_targets_notice_message">此版本的 AndBible 新增了额外的同步目标：我的文档、AI 设置和阅读进度。如需启用，可在设备同步设置中进行配置。</string>
   <string name="open_settings">打开设置</string>
   <!--History-->
   <string name="history_for">历史（%1$s：窗口 %2$d）</string>
@@ -985,7 +969,6 @@ http://www.heartlight.org 准予使用
   <string name="give_passphrase_for_module">%s 文件已加密，需要密码解锁。</string>
   <string name="unlock_module">设定模块密码</string>
   <string name="unlock_info">加密模块解锁信息</string>
-  <string name="try_again_passphrase">密码无效，再试一次吗？</string>
   <string name="show_unlock_info">模块及解锁资讯</string>
   <string name="prefs_experimental_features_title">实验性功能</string>
   <string name="prefs_experimental_features_summary">选择要启用的实验性功能。这些功能仍在开发中，可能会更改或移除</string>
@@ -1019,9 +1002,6 @@ http://www.heartlight.org 准予使用
   <string name="active_window_indicator_summary">在使用中的视窗角落显示标示</string>
   <string name="app_licence_title">开源许可</string>
   <string name="how_to_contribute">如何可以贡献？</string>
-  <string name="confirm_delete_bookmarks">你希望移除 %d 书签及它的笔记吗？</string>
-  <string name="confirm_delete_orphaned_bookmarks">所选标签附加在 %d 个无其他标签的书签上。是否同时删除这些书签和标签？</string>
-  <string name="delete_label_and_bookmarks">删除标签和书签</string>
   <string name="delete_label_only">仅删除标签</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">分享给朋友</string>
@@ -1052,8 +1032,6 @@ http://www.heartlight.org 准予使用
   <string name="old_webview">Android Webview 包太旧（%1$s）。您需要将 Android WebView 包升级到至少 %2$s 版本以使用 %3$s。对于大多数设备，可以通过 %4$s 升级。</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">忽略并继续</string>
-  <string name="proceed">继续</string>
-  <string name="rate_title">评分及评论此app</string>
   <string name="rate_message5">
     积极且详细的评论可以更好地帮助 AndBible 开源工程。感谢！
  </string>
@@ -1105,7 +1083,6 @@ http://www.heartlight.org 准予使用
   <string name="primary_label">主标签</string>
   <string name="favourite_label">最爱标签</string>
   <string name="edit_label">编辑标签</string>
-  <string name="delete_label_confirmation">你希望移除书签「%s」吗？对应的个人笔记亦会被移除。</string>
   <string name="active_labels">选择标签</string>
   <string name="recent_labels">最近标签</string>
   <string name="other_labels">其他标签</string>
@@ -1115,8 +1092,6 @@ http://www.heartlight.org 准予使用
   <string name="book_menu_show_progress_bars">显示进度条</string>
   <string name="reset_workspace_labels">你想重设此工作区的自动标示及最爱设定吗？</string>
   <string name="clear_auto_assign_labels">清除自动分配标签</string>
-  <string name="reset_workspace_auto_assign_labels">要从此工作区中移除所有自动分配标签吗？</string>
-  <string name="reset_hide_labels">你想重设隐藏标签设定吗？</string>
   <string name="reorder">重新排列</string>
   <string name="system_items">系统动作</string>
   <string name="system_items1">更多</string>
@@ -1130,7 +1105,6 @@ http://www.heartlight.org 准予使用
   <string name="ios_fullscreen_hint">双击或点按按钮可退出全屏。</string>
   <string name="desktop_exit_fullscreen">退出全屏</string>
   <string name="exit_fullscreen">双击以退出全屏幕模式</string>
-  <string name="reset_app_prefs">你希望重设所有偏好设置吗？</string>
   <string name="label_red">红色</string>
   <string name="label_green">绿色</string>
   <string name="label_blue">蓝色</string>
@@ -1141,7 +1115,6 @@ http://www.heartlight.org 准予使用
   <string name="reset_databases_title">重置数据库</string>
   <string name="reset_databases_description">将各数据库重置为初始空白状态。此操作不可撤销。</string>
   <string name="last_crash_info_title">上次崩溃信息</string>
-  <string name="reset_database_confirm">此操作将永久删除 \"%1$s\" 中的所有数据并将其重置为初始状态。此操作不可撤销。\n\n确定要继续吗？</string>
   <string name="reset_database_success">数据库已成功重置</string>
   <string name="reset_something">重置：%1$s</string>
   <string name="export">Dışa aktar</string>
@@ -1211,19 +1184,18 @@ http://www.heartlight.org 准予使用
   <string name="manage_labels_help_favourite">将此标签保留在收藏中，以便快速访问。</string>
   <string name="manage_labels_help_styles">名称下方的小示例显示标签的外观：“选择”表示文字选择书签，“整节经文”表示整节经文书签，“工作区”标记表示此工作区覆盖的样式。灰色且无装饰的示例表示该标签的书签不会被绘制。可从 ⋮ 菜单中隐藏这些示例。</string>
   <string name="manage_labels_help_reorder">可从 ⋮ 菜单重新排列列表。</string>
+  <string name="manage_labels_help_narrow_toggles">在窄屏上，列表会省略主要、自动分配和收藏图标，以便为标签名称留出空间。点按标签即可在其编辑器中设置这些选项。</string>
   <string name="added_to_bookmark">分配至此书签</string>
   <string name="strongs_links">链接</string>
   <string name="strongs_text_and_links">文字及链接</string>
   <string name="strongs_hidden_links">隐藏的链接</string>
   <string name="verse_tip">长按以选择部分或多节经文</string>
-  <string name="permission_required">需要权限</string>
   <string name="labels_search_hint">搜寻</string>
   <string name="search_mode_name_start">名称（从开头）</string>
   <string name="search_mode_name_contains">名称（包含）</string>
   <string name="search_mode_content">内容</string>
   <string name="search_results_matches">%d 个匹配</string>
   <string name="search_results_match">1 个匹配</string>
-  <string name="progress_status_permission">要显示通知（下载状态、处理状态、朗读状态）我们需要您的授权。</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">「简单计算器」</string>
   <string name="prefs_persecution_cat">受迫害区域的设置</string>
@@ -1263,7 +1235,6 @@ http://www.heartlight.org 准予使用
   <string name="custom_repositories_create_button_label">新增自定义存储库</string>
   <string name="custom_repositories_info_button_label">信息</string>
   <string name="repository_specification">存储库URL</string>
-  <string name="delete_custom_repository">你是否希望删除自定义存储库%s？</string>
   <string name="custom_repositories_help1">新建自定义存储库，请在此输入或粘贴自定义存储库URL。</string>
   <string name="custom_repositories_help2">在%s可以找到更多关于自定义存储库的信息。</string>
   <string name="custom_repositories_help0">你可以安装外部存储库，来安装外部存储库里的文件。</string>
@@ -1285,9 +1256,6 @@ http://www.heartlight.org 准予使用
   <string name="db_bookmarks">书签、我的笔记、标签、研经笔记</string>
   <string name="synchronizing">同步中...</string>
   <string name="notification_finished">已完成</string>
-  <string name="overrideBackup">
-在云端发现当前设备尚未同步的数据库。
-数据库包含%s，请问你希望如何操作？</string>
   <string name="reading_plans_content">读经计划和相应状态</string>
   <string name="bookmarks_contents">书签、标签、研经笔记</string>
   <string name="workspaces_contents">工作空间与窗口</string>
@@ -1307,7 +1275,6 @@ http://www.heartlight.org 准予使用
   <string name="reading_progress_calendar">阅读活动</string>
   <string name="reading_progress_cycle">第 %d 轮</string>
   <string name="reading_progress_new_cycle">新一轮</string>
-  <string name="reading_progress_new_cycle_confirm">开始新一轮阅读？这将从头开始记录您的进度，同时保留上一轮的数据。</string>
   <string name="reading_progress_previous_cycle">上一轮</string>
   <string name="reading_progress_next_cycle">下一轮</string>
   <string name="cloud_merge_data">合并数据</string>
@@ -1317,7 +1284,6 @@ http://www.heartlight.org 准予使用
   <string name="cloud_sync_title">设备同步</string>
   <string name="reset_sync">注销登陆</string>
   <string name="prefs_reset_sync_summary">关闭同步功能，并重置相关设置。</string>
-  <string name="sync_confirmation">请确认你要注销登陆，并重置同步功能？</string>
   <string name="cloud_info">云端信息</string>
   <string name="cloud_info_summary">云端已存储数据：%sMb</string>
   <string name="sync_adapter">同步功能后端</string>
@@ -1333,7 +1299,6 @@ http://www.heartlight.org 准予使用
   <string name="webdav_server_url_hint">WebDAV 文件夹的地址，例如 https://nas.local/dav/ 或 https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">同步需要安全的 https:// 地址。</string>
   <string name="webdav_certificate_title">服务器证书</string>
-  <string name="webdav_forget_certificate_message">忘记受信任的服务器证书？下次连接时将要求您重新确认该证书。</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">不受信任的服务器证书</string>
   <string name="webdav_untrusted_certificate_message">Android 不信任 %1$s 的证书。只有在您认识该证书时才信任它，例如这台服务器是您自己搭建的。\n\n主体：%2$s\n颁发者：%3$s\n有效期：%4$s – %5$s\nSHA-256：%6$s</string>
@@ -1350,14 +1315,7 @@ http://www.heartlight.org 准予使用
   <string name="synchronization_categories">同步类别</string>
   <string name="sync_general_settings">信息 &amp; 常规设置</string>
   <string name="sync_introduction">介绍</string>
-  <string name="are_you_sure">你确定吗？</string>
   <string name="are_you_sure_merge">此设备上的数据和云端的 %s 都将保留。如果同一项目在两边都被更改，则保留较新的更改。此设备的数据将发送到您的其他设备。</string>
-  <string name="are_you_sure_reset_local">这将使用当前存储在云端的%s相关内容，来重置你的本地数据库。</string>
-  <string name="are_you_sure_reset_cloud">这将使用你在这台设备存储的%s相关内容，来重置你的云端数据库相关内容。</string>
-  <string name="sync_cant_fetch">云端的数据库或补丁文件版本，高于软件支持的版本。</string>
-  <string name="sync_disabling">暂时关闭与%s的同步。</string>
-  <string name="sync_update_app">继续同步前，请先更新软件。</string>
-  <string name="sign_in_failed">无法登陆同步功能所使用的后端服务。</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">正在关闭云同步功能。重置完成后需要重新手动开启云同步功能。</string>
   <string name="report">报告</string>
@@ -1375,6 +1333,7 @@ http://www.heartlight.org 准予使用
   <string name="open_here">在这里打开</string>
   <string name="external_link">外部链接</string>
   <string name="external_link_question">将在浏览器打开外部链接%s，你希望继续吗？</string>
+  <string name="external_link_dont_ask_again">不再询问 %s</string>
   <string name="nameless">尚未定义标题</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">一键功能（圣经）</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">一键功能（其他）</string>
@@ -1423,8 +1382,6 @@ http://www.heartlight.org 准予使用
   <string name="memorize_include_reference_summary">将经文引用（例如约翰福音 3:16）作为最后一项加入记忆内容</string>
   <string name="reading_progress_settings">进度与记忆</string>
   <string name="reading_progress_settings_summary">自动跟踪、记忆和打字练习设置</string>
-  <string name="memorize_confirm_unmark">取消 %s 的已记忆状态？</string>
-  <string name="memorize_confirm_remove_target">删除记忆目标 %s？</string>
   <string name="memorize_tab_reading">阅读</string>
   <string name="memorize_tab_memorization">记忆</string>
   <string name="memorize_verses_memorized">已记忆</string>
@@ -1450,7 +1407,6 @@ http://www.heartlight.org 准予使用
   <string name="llm_reset_usage_title">重置用量数据</string>
   <string name="llm_reset_usage_summary">清除累计的 token 和费用记录</string>
   <string name="llm_reset_usage_confirm_title">重置用量数据？</string>
-  <string name="llm_reset_usage_confirm_message">这将清除所有累计用量数据。</string>
   <string name="llm_custom_input_price_title">输入价格（$/百万 token）</string>
   <string name="llm_custom_output_price_title">输出价格（$/百万 token）</string>
   <string name="llm_cost_total">总计：%1$s</string>
@@ -1466,8 +1422,6 @@ http://www.heartlight.org 准予使用
   <string name="llm_parse_error_anthropic">解析Anthropic响应失败：%1$s</string>
   <string name="llm_error_unknown">未知错误</string>
   <string name="llm_error_max_iterations">已达到最大迭代次数（%1$d），未能完成</string>
-  <string name="llm_continue_iterations_title">继续？</string>
-  <string name="llm_continue_iterations_message">AI助手已达到%1$d次迭代上限，尚未完成。是否继续%2$d次迭代？</string>
   <string name="agent_max_iterations_title">最大代理迭代次数</string>
   <string name="agent_max_iterations_summary">询问是否继续前的最大迭代次数（0 = 不限）</string>
   <string name="ask_model_before_run_title">运行前询问模型</string>
@@ -1527,7 +1481,6 @@ http://www.heartlight.org 准予使用
   <string name="ai_models_summary_none">未配置模型</string>
   <string name="ai_add_provider">添加提供商</string>
   <string name="ai_provider_edit">编辑</string>
-  <string name="ai_provider_delete_confirm">删除提供商\"%1$s\"？使用此提供商的提示词将恢复为默认。</string>
   <string name="ai_provider_api_key_not_set">未设置API密钥</string>
   <string name="ai_provider_select_type">选择提供商类型</string>
   <string name="ai_provider_name">提供商名称</string>
@@ -1547,7 +1500,6 @@ http://www.heartlight.org 准予使用
   <string name="edit_model_title">编辑模型</string>
   <string name="model_saved">模型已保存</string>
   <string name="model_deleted">模型已删除</string>
-  <string name="model_delete_confirm">删除模型\"%1$s\"？</string>
   <string name="model_set_default">设为默认模型</string>
   <string name="model_select_provider">提供商</string>
   <string name="model_supported_badge">✓ 支持</string>
@@ -1587,7 +1539,6 @@ http://www.heartlight.org 准予使用
   <string name="ai_disclaimer_point8">您的数据将发送至您所选AI提供商的服务器。使用API密钥即表示您接受该提供商的服务条款和隐私政策。自托管模型在技术上可行，但需要更多专业知识，且效果可能不如商业模型。</string>
   <string name="ai_disclaimer_point9">AI提供商会对API使用收费。AndBible中显示的费用估算为近似值——实际费用请以您提供商的账单为准。</string>
   <string name="ai_disclaimer_accept_title">接受AI免责声明</string>
-  <string name="ai_disclaimer_accept_button">我接受并承担全部责任</string>
   <string name="prompt_permission_mode">权限模式</string>
   <string name="prompt_permission_mode_description">控制AI执行写操作前何时需要用户确认。以下各工具的单独设置可覆盖此项。</string>
   <string name="agent_permission_mode_summary">控制AI写操作前何时需要用户确认</string>
@@ -1703,7 +1654,6 @@ http://www.heartlight.org 准予使用
   <string name="default_prompt_custom_desc">对所选段落执行自定义任务</string>
   <string name="default_prompt_custom_template">根据用户的任务说明处理所选圣经段落。</string>
   <string name="copy">复制</string>
-  <string name="delete_prompt_confirm_message">确定要删除此提示词吗？</string>
   <string name="ai_hide_prompt">隐藏</string>
   <string name="ai_restore_hidden_prompts">恢复已隐藏的提示词</string>
   <string name="ai_prompt_hidden">提示词已隐藏</string>
@@ -1788,8 +1738,6 @@ http://www.heartlight.org 准予使用
   <string name="permission_allow_all_session">本次会话允许所有工具</string>
   <string name="permission_allow_always">始终允许\"%1$s\"</string>
   <string name="permission_deny">拒绝</string>
-  <string name="permission_always_allow_confirm_title">始终允许？</string>
-  <string name="permission_always_allow_confirm">您确定要永久允许\"%1$s\"吗？</string>
   <string name="permission_always_allow_confirm_reset_hint">您可以在AI设置中重置此选项。</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">工具权限</string>
@@ -1894,18 +1842,15 @@ http://www.heartlight.org 准予使用
   <string name="my_document_new_name">文档 %d</string>
   <string name="my_document_create_title">新建文档</string>
   <string name="my_document_rename_title">重命名文档</string>
-  <string name="my_document_delete_confirmation">删除文档\"%s\"？</string>
   <string name="show_secret">显示</string>
   <string name="hide_secret">隐藏</string>
   <string name="ai_documents_name">AI 文档</string>
   <string name="ai_documents_description">由 AI 自动生成的文档</string>
-  <string name="my_document_cannot_delete_ai_documents">AI 文档包含页面时无法删除。请先删除其中的页面。</string>
   <string name="my_document_save_changes">保存更改？</string>
   <string name="my_document_no_description">无描述</string>
   <string name="my_document_edit_description">编辑描述</string>
   <string name="my_document_pages_title">%s - 页面</string>
   <string name="my_document_page_rename_title">重命名页面</string>
-  <string name="my_document_page_delete_confirmation">删除页面\"%s\"？</string>
   <string name="my_document_pages_delete_confirmation">删除这些页面？</string>
   <string name="my_documents_switch_document">切换文档</string>
   <string name="my_document_new_page_name">第 %1$d 页</string>
@@ -1973,7 +1918,6 @@ http://www.heartlight.org 准予使用
   <string name="cloud_doc_show_removed">显示已移除的文档</string>
   <string name="cloud_doc_status_removed">已从云端移除</string>
   <string name="cloud_doc_status_still_installed">仍安装在此处</string>
-  <string name="cloud_doc_purge_confirm">永久从云端历史记录中移除 \"%1$s\"？如果该文档仍安装在其他设备上，该设备可能会在下次同步时将其重新上传到云端。</string>
   <string name="cloud_doc_action_download">下载</string>
   <string name="cloud_doc_action_push">推送到云端</string>
   <string name="cloud_doc_action_remove_cloud">从云端移除</string>
@@ -1984,8 +1928,6 @@ http://www.heartlight.org 准予使用
   <string name="cloud_doc_action_dont_sync">不同步到云端</string>
   <string name="cloud_doc_action_allow_sync">同步到云端</string>
   <string name="cloud_doc_action_purge">从云端历史记录中移除</string>
-  <string name="cloud_doc_remove_all_confirm">从云端及您的所有设备（包括此设备）移除 %1$s？</string>
-  <string name="cloud_doc_remove_cloud_confirm">从云端移除 %1$s？此设备上的副本将保留；已开启文档同步的设备也会将其移除。</string>
   <string name="cloud_doc_sync_now">立即同步</string>
   <string name="cloud_doc_rescan">从云端重新扫描</string>
   <string name="cloud_doc_sync_now_download">下载新文档和更新文档</string>
@@ -1997,6 +1939,12 @@ http://www.heartlight.org 准予使用
   <string name="cloud_doc_summary_download">下载 %1$d</string>
   <string name="cloud_doc_summary_download_size">下载 %1$d（%2$s）</string>
   <string name="cloud_doc_wifi_waiting">自动下载将在 Wi-Fi 下开始。</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="other">%1$d 个文档</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="other">%1$d 个文档（%2$s）</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">无需传输</string>
   <string name="cloud_doc_selected_count">已选择 %1$d 个</string>
   <string name="cloud_doc_bulk_skipped">已跳过 %1$d 个不适用项</string>
@@ -2013,8 +1961,6 @@ http://www.heartlight.org 准予使用
   <string name="background_image_import">从图库导入…</string>
   <string name="background_image_empty">尚未导入图片。点按“从图库导入…”即可添加。</string>
   <string name="background_image_importing">正在导入…</string>
-  <string name="background_image_delete_title">删除图片？</string>
-  <string name="background_image_delete_confirm">删除此背景图片？仍在使用它的工作区将恢复为无图片。</string>
   <string name="background_image_day">背景图片（白天）</string>
   <string name="background_image_night">背景图片（夜间）</string>
   <string name="background_image_opacity_day">背景图片不透明度（白天）</string>
@@ -2088,6 +2034,9 @@ http://www.heartlight.org 准予使用
   <string name="legacy_notice_icloud">同步现在使用 iCloud Drive。请在“设置”→“同步”中重新开启。此设备会保留原有内容；重新设置同步后，您其他设备上的更改才会到达。要释放旧的 iCloud 数据：设置 → 您的姓名 → iCloud → 管理储存空间 → AndBible。</string>
   <string name="legacy_notice_nextcloud">您的 Nextcloud 连接已沿用，但同步处于关闭状态。请在“设置”→“同步”中开启，并选择从云端获取或新建。</string>
   <string name="legacy_notice_nextcloud_unsent">此设备上的一些更改尚未发送到 Nextcloud。它们没有被发送，只保留在此设备上。</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="other">有 %1$d 个书签无法可靠定位，未被导入。它们与您的旧数据一起保留在此设备上。</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">这是一款功能强大又易于使用的离线圣经学习应用。</string>
   <string name="webdav_untrusted_certificate_message_device">此设备不信任 %1$s 的证书。只有在您认识该证书时才信任它，例如这台服务器是您自己搭建的。\n\n主体：%2$s\n颁发者：%3$s\n有效期：%4$s – %5$s\nSHA-256：%6$s</string>
@@ -2139,6 +2088,25 @@ http://www.heartlight.org 准予使用
   <string name="recommend_share_link">分享链接</string>
   <string name="recommend_qr_caption">扫描二维码，在您的手机、平板电脑或电脑上获取 AndBible。</string>
   <string name="desktop_activation_failed">AndBible 已在运行，但其窗口没有响应。请切换到正在运行的实例后重试。传入的文件未确认已送达。</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">此操作无法撤销。</string>
+  <string name="ai_raw_log_delete_lead">删除此日志？</string>
+  <string name="ai_provider_delete_lead">删除提供商“%1$s”？</string>
+  <string name="ai_provider_delete_detail">使用该提供商的提示词将恢复使用默认提供商。</string>
+  <string name="ai_model_delete_lead">删除模型“%1$s”？</string>
+  <string name="ai_prompt_delete_named_lead">删除提示词“%1$s”？</string>
+  <string name="ai_prompt_delete_lead">删除此提示词？</string>
+  <string name="ai_reset_usage_detail">令牌和费用总计将归零。此操作无法撤销。</string>
+  <string name="ai_reset_usage_button">重置</string>
+  <string name="ai_disclaimer_accept">我接受</string>
+  <string name="llm_continue_iterations_lead">再继续 %1$d 次迭代？</string>
+  <string name="llm_continue_iterations_detail">AI 代理在达到 %1$d 次迭代上限时仍未完成。</string>
+  <string name="llm_continue_button">继续</string>
+  <string name="permission_always_allow_lead">始终允许“%1$s”？</string>
+  <string name="permission_always_allow_button">始终允许</string>
+  <string name="ai_bug_report_send_lead">发送 AI 错误报告？</string>
+  <string name="ai_bug_report_send_button">发送</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">入门</string>
   <string name="user_guide_section_reading_workspace">阅读与工作区</string>
@@ -2216,4 +2184,142 @@ http://www.heartlight.org 准予使用
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI 助手，第三部分：工具、数据和权限</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI 助手，第四部分：自定义提示词、费用和同步</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">放弃更改？</string>
+  <string name="dialog_keep_editing">继续编辑</string>
+  <string name="dialog_label_delete_lead">删除标签“%1$s”？</string>
+  <string name="dialog_label_delete_detail">其学习笔记也将被删除。此操作无法撤销。</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="other">有 %1$d 个书签没有其他标签。</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="other">删除标签及 %1$d 个书签</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">书签及其笔记将被删除。</string>
+  <string name="dialog_label_delete_only_consequence">书签将保留，但不带标签。</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="other">移除 %1$d 个书签？</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="other">它们的笔记也将被移除。</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">移除此工作区中所有自动分配的标签？</string>
+  <string name="dialog_labels_reset_hidden_lead">再次显示所有已隐藏的标签？</string>
+  <string name="dialog_labels_reset_shown_detail">您从列表中隐藏的标签将重新显示。</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">安装“%s”？</string>
+  <string name="install_action">安装</string>
+  <string name="install_from_file_question">从文件安装文档？</string>
+  <string name="overwrite_files_detail">这些文件已存在：%s</string>
+  <string name="import_studypads_question">导入这些学习笔记？</string>
+  <string name="import_action">导入</string>
+  <string name="restore_backup_question">恢复此备份中的文档？</string>
+  <string name="restore_backup_detail">此文件是 AndBible 文档备份。</string>
+  <string name="update_document_question">更新此文档？</string>
+  <string name="update_action">更新</string>
+  <string name="download_documents_question">下载文档？</string>
+  <string name="download_persecution_warning">如果您生活在受迫害的国家，通过互联网下载基督教材料时可能需要谨慎。您可以改用更安全的方式获取文档压缩文件，并通过“%1$s”安装。所有来自文档服务器的下载均已加密（HTTPS）。</string>
+  <string name="download_action">下载</string>
+  <string name="download_dont_ask_again">下载，不再询问</string>
+  <string name="download_dont_ask_again_consequence">今后下载将不再询问此问题而直接开始。</string>
+  <string name="passphrase_did_not_work">密码短语无效。</string>
+  <string name="try_again">重试</string>
+  <string name="interrupted_downloads_lead">重新下载这些文档？</string>
+  <string name="interrupted_downloads_detail">它们的下载被中断，因此尚未安装。</string>
+  <string name="external_link_open_question">在浏览器中打开此链接？</string>
+  <string name="open_action">打开</string>
+  <string name="notification_permission_question">允许通知？</string>
+  <string name="notification_permission_detail">通知会显示下载状态、处理状态和朗读状态。</string>
+  <string name="allow_action">允许</string>
+  <string name="rate_question">为应用评分并评价？</string>
+  <string name="bug_report_email_question">通过电子邮件发送错误报告？</string>
+  <string name="continue_action">继续</string>
+  <string name="delete_search_index_question">删除“%s”的搜索索引？</string>
+  <string name="remove_custom_repository_question">移除自定义存储库“%s”？</string>
+  <string name="download_document_question">下载“%s”？</string>
+  <string name="choose_file_action">选择文件</string>
+  <string name="old_webview_question">在旧版 WebView 上使用应用？</string>
+  <string name="incomplete_translation_question">继续使用不完整的翻译？</string>
+  <string name="rate_action">评分</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">删除文档“%s”？</string>
+  <string name="my_document_page_delete_lead">删除页面“%s”？</string>
+  <string name="my_document_cannot_delete_ai_lead">包含页面的 AI 文档无法删除。</string>
+  <string name="my_document_cannot_delete_ai_detail">请先删除这些页面。</string>
+  <string name="reading_progress_new_cycle_lead">开始新的阅读周期？</string>
+  <string name="reading_progress_new_cycle_detail">您的进度将从头开始记录。您上一个周期的数据会被保留。</string>
+  <string name="reading_progress_new_cycle_start">开始</string>
+  <string name="reset_plan_lead">重置此计划？</string>
+  <string name="reset_plan_detail">您在此计划中的开始日期和进度将被清除。</string>
+  <string name="set_current_day_lead">将 %1$s 设为当前日？</string>
+  <string name="set_current_day_detail">之前的所有日期都将标记为已读。</string>
+  <string name="plan_duplicate_user_plan_lead">有一个读经计划文件与内置计划同名。</string>
+  <string name="plan_duplicate_user_plan_detail">该计划文件无法列出。请在 jsword/readingplan 文件夹中重命名该文件，并保留其 .properties 扩展名。</string>
+  <string name="background_image_delete_lead">删除此背景图片？</string>
+  <string name="background_image_delete_detail">仍在使用它的工作区将恢复为无图片。</string>
+  <string name="reset_values_lead">重置所有这些值？</string>
+  <string name="revert_setting_lead">将此设置恢复为继承的值？</string>
+  <string name="revert_setting_confirm">恢复</string>
+  <string name="reset_settings_screen_lead">重置此屏幕上的设置？</string>
+  <string name="reset_settings_screen_detail">它们将恢复为默认值。</string>
+  <string name="memorize_unmark_lead">移除“%s”的已记忆状态？</string>
+  <string name="memorize_remove_target_lead">移除记忆目标“%s”？</string>
+  <string name="dialog_apply">应用</string>
+  <string name="dialog_dont_apply">不应用</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">云端已有您的%s。应如何处理？</string>
+  <string name="cloud_merge_consequence">双方都会保留；若某项在两边都有更改，则以较新的更改为准。</string>
+  <string name="cloud_fetch_consequence">用云端副本替换此设备上的数据。</string>
+  <string name="cloud_create_consequence">用此设备上的数据替换云端副本。</string>
+  <string name="cloud_disable_consequence">此数据的同步保持关闭。</string>
+  <string name="cloud_merge_lead">将您的%s与云端合并？</string>
+  <string name="cloud_merge_confirm">合并</string>
+  <string name="cloud_replace_confirm">替换</string>
+  <string name="cloud_replace_local_lead">用云端副本替换此设备的%s？</string>
+  <string name="cloud_replace_local_detail">此设备上现有的内容将被覆盖且无法恢复。</string>
+  <string name="cloud_replace_cloud_lead">用此设备的数据替换云端的%s副本？</string>
+  <string name="cloud_replace_cloud_detail">云端现有的内容将被覆盖，您的其他设备将收到此设备的数据。</string>
+  <string name="sign_in_failed_lead">无法登录同步服务。</string>
+  <string name="sync_too_old_lead">此应用版本过旧，无法同步%s。</string>
+  <string name="sync_too_old_detail">云端数据使用的版本高于此应用所支持的版本。其同步已暂时关闭；请更新应用以重新开启。</string>
+  <string name="backup_replace_lead">用备份替换您的%s？</string>
+  <string name="backup_replace_detail">此设备上现有的内容将被覆盖且无法恢复。</string>
+  <string name="reset_database_lead">将“%1$s”重置为初始状态？</string>
+  <string name="reset_database_detail">其中的所有数据将被永久删除。此操作无法撤销。</string>
+  <string name="reset_database_button">重置</string>
+  <string name="restore_all_lead">替换您的笔记、书签、学习笔记、读经计划和工作区？</string>
+  <string name="restore_or_import_lead">恢复或导入%s？</string>
+  <string name="restore_consequence">用备份替换此设备上的内容。</string>
+  <string name="import_consequence">将备份中的项目添加到此设备上的内容中。</string>
+  <string name="sync_start_syncing">开始同步</string>
+  <string name="sync_reset_lead">退出登录并重置同步？</string>
+  <string name="sync_reset_detail">您需要重新设置同步。</string>
+  <string name="webdav_forget_certificate_lead">忘记受信任的服务器证书？</string>
+  <string name="webdav_forget_certificate_detail">下次连接时，系统将再次要求您确认证书。</string>
+  <string name="webdav_forget_certificate_confirm">忘记</string>
+  <string name="cloud_doc_remove_all_lead">从云端及您的所有设备中移除“%1$s”？</string>
+  <string name="cloud_doc_remove_cloud_lead">从云端移除“%1$s”？</string>
+  <string name="cloud_doc_purge_lead">从云端历史记录中永久移除“%1$s”？</string>
+  <string name="cloud_doc_remove_all_detail">这也会删除此设备以及其他所有开启文档同步的设备上的副本。</string>
+  <string name="cloud_doc_remove_cloud_detail">此设备上的副本会保留。开启文档同步的设备也将移除它们。</string>
+  <string name="cloud_doc_purge_detail">仍保留副本的设备可能会在下次同步时再次上传。</string>
+  <string name="cloud_doc_block_confirm_button">不同步</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="other">从云端及您的所有设备中移除 %1$d 个文档？</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="other">从云端移除 %1$d 个文档？</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="other">从云端历史记录中永久移除 %1$d 个文档？</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="other">停止将 %1$d 个文档同步到云端？</item>
+  </plurals>
+  <string name="new_sync_targets_lead">现在可以同步更多数据</string>
+  <string name="new_sync_targets_detail">我的文档、AI 设置和阅读进度也可以同步。请在“设备同步”设置中开启。</string>
+  <!--end dialog copy: B3b-->
 </resources>

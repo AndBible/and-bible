@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Hướng dẫn sử dụng đầy đủ có trên andbible.org. Các trang sẽ mở trong trình duyệt của bạn.</string>
   <string name="help_user_guide_home">Trang chủ hướng dẫn sử dụng</string>
   <string name="help_read_in_user_guide">Đọc trong hướng dẫn sử dụng</string>
+  <string name="help_in_user_guide">Trợ giúp trong hướng dẫn sử dụng</string>
+  <string name="help_matching_section">Mục tương ứng</string>
   <string name="help_read_page">Đọc trong hướng dẫn sử dụng: %1$s</string>
   <string name="help_tutorial_videos">Video hướng dẫn</string>
   <string name="help_watch_in_order">Xem video hướng dẫn theo thứ tự</string>
@@ -242,6 +244,9 @@
   <string name="prefs_navigate_to_verse_summary">Chọn câu (và chương) khi chọn một đoạn văn</string>
   <string name="prefs_open_links_in_special_window_title">Cửa sổ liên kết</string>
   <string name="prefs_open_links_in_special_window_summary">Mở liên kết trong cửa sổ đặc biệt để hiển thị nhanh hơn các tham chiếu chéo và Strong\'s</string>
+  <string name="prefs_trusted_link_domains_title">Tên miền liên kết đáng tin cậy</string>
+  <string name="prefs_trusted_link_domains_summary">Liên kết đến các tên miền này sẽ mở mà không hỏi. Bỏ chọn một tên miền để được hỏi lại.</string>
+  <string name="prefs_trusted_link_domains_empty">Chưa có. Chọn \"Không hỏi lại\" khi mở một liên kết để thêm tên miền của nó.</string>
   <string name="prefs_text_size_sample_text">Văn bản mẫu</string>
   <string name="prefs_screen_keep_on_title">Giữ màn hình sáng</string>
   <string name="prefs_screen_keep_on_summary">Ngăn màn hình tắt khi đang sử dụng ứng dụng này</string>
@@ -302,7 +307,6 @@
   <string name="line_spacing_title">Giãn dòng</string>
   <string name="line_spacing_summary">Đặt khoảng cách giữa các dòng</string>
   <string name="select_none">Bỏ chọn tất cả</string>
-  <string name="reset_are_you_sure">Bạn có chắc muốn đặt lại tất cả các giá trị này không?</string>
   <string name="window_pinning_menutitle">Ghim cửa sổ</string>
   <string name="hide_window_buttons_title">Ẩn nút cửa sổ</string>
   <string name="hide_window_buttons_summary">Các nút cửa sổ hiển thị ở bên phải của khung xem Kinh Thánh sẽ bị ẩn. Thanh điều hướng cửa sổ ở phía dưới vẫn hiển thị và bạn có thể mở menu bật lên của cửa sổ bằng cách nhấn giữ chúng.</string>
@@ -325,6 +329,7 @@
   <string name="word_not_found_in_dictionaries">Không tìm thấy từ trong bất kỳ từ điển nào</string>
   <string name="prefs_top_margin_title_mm">Lề trên (%d mm)</string>
   <string name="font_size_title">Cỡ chữ</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Vì Đức Chúa Trời yêu thương thế gian, đến nỗi đã ban Con một của Ngài, hầu cho hễ ai tin Con ấy không bị hư mất mà được sự sống đời đời.</string>
   <string name="font_size_title_pt">Cỡ chữ (%d pt)</string>
   <string name="prefs_font_text_size_summary">Điều chỉnh cỡ chữ của văn bản chính</string>
@@ -342,6 +347,8 @@
   <string name="window_color_settings_title">Cài đặt màu sắc (Cửa sổ)</string>
   <string name="workspace_color_settings_title">Cài đặt màu sắc (Không gian làm việc)</string>
   <string name="color_workspace">Màu không gian làm việc</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Mặc định</string>
   <string name="color_text">Màu văn bản</string>
   <string name="color_background">Màu nền</string>
   <string name="colors_day_mode_title">Chế độ ban ngày</string>
@@ -375,7 +382,6 @@
   <string name="download_source_last_updated">Danh sách tài liệu được cập nhật lần cuối: %s.</string>
   <string name="download_refreshing_book_list">Đang làm mới danh sách tài liệu từ máy chủ…</string>
   <string name="download_source_message1">Tài liệu được tải xuống từ các nguồn sau:</string>
-  <string name="download_document_confirm_prefix">Tải xuống</string>
   <string name="error_downloading">Đã xảy ra lỗi khi tải xuống. Vui lòng kiểm tra kết nối internet của bạn.</string>
   <string name="error_downloading_status">Máy chủ lưu trữ %1$s đã trả về lỗi do %2$s (%3$d).</string>
   <string name="storage_space_warning">Không đủ dung lượng lưu trữ cục bộ.</string>
@@ -396,9 +402,6 @@
   <string name="activity_title">Hoạt động nền</string>
   <string name="activity_empty">Không có gì đang chạy</string>
   <string name="activity_failed_toast">%1$s — xem menu</string>
-  <string name="download_question_title">Bạn có muốn tiến hành tải tài liệu không?</string>
-  <string name="download_question_message">Nếu bạn sống ở một quốc gia có đàn áp tôn giáo, bạn có thể cần thận trọng khi tải tài liệu Cơ Đốc qua Internet. Thay vào đó, bạn có thể muốn lấy các tệp zip mô-đun một cách an toàn hơn và cài đặt chúng qua \"%1$s\". Bạn có chắc chắn muốn tiếp tục tải xuống không? Mọi lượt tải từ máy chủ mô-đun đều được mã hóa (HTTPS).</string>
-  <string name="do_not_ask_again">Có, đừng hỏi thêm nữa</string>
   <string name="recommended_document">Được khuyến nghị!</string>
   <string name="about_version_history">Lịch sử phiên bản: %s</string>
   <string name="download_errors">Lỗi tải xuống</string>
@@ -415,11 +418,9 @@
   <string name="checking_zip_file">Đang kiểm tra tệp đã cho…</string>
   <string name="invalid_module">Tệp không chứa mô-đun SWORD hợp lệ</string>
   <string name="install_zip_title">Vui lòng chờ. Đang tải mô-đun từ tệp.</string>
-  <string name="overwrite_files">Các tệp sau đã tồn tại: %s Ghi đè?</string>
   <string name="overwrite_files_title">Ghi đè tệp?</string>
   <string name="could_not_overwrite_files">Không thể ghi đè các tệp: %s. Ngoài ra, quá trình cài đặt đã thành công.</string>
   <string name="module_backup_restore">Tệp này là bản sao lưu tài liệu AndBible. Bạn có muốn khôi phục các tài liệu của nó không?</string>
-  <string name="install_do_you_want">Bạn có muốn cài đặt mô-đun (%s) không?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Kế Hoạch Đọc</string>
   <string name="reading_plans_plural">Kế Hoạch Đọc</string>
@@ -427,11 +428,8 @@
   <string name="rdg_plan_day">Ngày %s</string>
   <string name="rdg_plan_set_start_date">Đặt Ngày Bắt Đầu…</string>
   <string name="set_current_day">Đặt làm ngày hiện tại…</string>
-  <string name="msg_set_current_day_reading_plan">Thao tác này sẽ đặt %1$s làm ngày hiện tại trong kế hoạch này và đánh dấu tất cả các ngày trước đó là đã đọc. Tiếp tục?</string>
   <string name="done">Hoàn thành</string>
-  <string name="reset_plan_question">Bạn có chắc muốn đặt lại kế hoạch này không?</string>
   <string name="import_reading_plan">Nhập kế hoạch đọc…</string>
-  <string name="plan_duplicate_user_plan">Có một kế hoạch đọc của người dùng trên thẻ nhớ jsword/readingplan có cùng tên với một kế hoạch nội bộ. Không thể liệt kê ở đây. Vui lòng đổi tên tệp thành tên khác, giữ nguyên phần mở rộng .properties</string>
   <string name="plan_name_y1ntpspr">Tân Ước, Thi Thiên &amp; Châm Ngôn trong Một Năm</string>
   <string name="plan_description_y1ntpspr">Courtesy of HEARTLIGHT Internet Magazine, http://www.heartlight.org, permission granted</string>
   <string name="plan_name_y1ot1nt1_chronological">Biên Niên Sử 1 Năm qua Kinh Thánh</string>
@@ -451,12 +449,8 @@
   <string name="delete_index">Xóa chỉ mục tìm kiếm</string>
   <string name="about">Giới thiệu</string>
   <string name="delete_doc">Xóa %s?</string>
-  <string name="interrupted_downloads_title">Tải xuống bị gián đoạn</string>
-  <string name="interrupted_downloads_message">Các tài liệu này chưa được cài đặt vì quá trình tải xuống bị gián đoạn:</string>
-  <string name="interrupted_downloads_question">Tải xuống lại?</string>
   <string name="download_again">Tải xuống lại</string>
   <string name="delete_docs_confirm">Xóa các tài liệu này?</string>
-  <string name="delete_search_index_doc">Xóa chỉ mục của %s?</string>
   <!--Verse context menu-->
   <string name="notes">Chú thích và tham chiếu</string>
   <string name="share_verse">Chia sẻ…</string>
@@ -494,7 +488,6 @@
   <!--can be removed-->
   <string name="bookmark_warning">Có các đánh dấu và/hoặc ghi chú cho tài liệu này.</string>
   <string name="bookmark_warning2">Nếu cấu trúc tài liệu đã thay đổi, việc cập nhật tài liệu này có thể làm vị trí của các đánh dấu/ghi chú bị di chuyển bên trong tài liệu hoặc biến mất hoàn toàn.</string>
-  <string name="bookmark_warning3">Bạn vẫn muốn cập nhật mô-đun không?</string>
   <string name="bookmark_warning4">Nên sao lưu mô-đun trước khi cập nhật.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Thứ tự ngày</string>
@@ -641,10 +634,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Khôi phục hoặc nhập từ…</string>
   <string name="backup_restore2">Khôi phục hoặc nhập</string>
-  <string name="overwrite_something">Ghi đè %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Khôi phục tệp cơ sở dữ liệu</string>
-  <string name="restore_confirmation">Ghi đè Ghi chú của tôi, Đánh dấu, Sổ tay nghiên cứu, Kế hoạch đọc và Không gian làm việc?</string>
   <string name="restore_success">Ghi chú của tôi, Đánh dấu, Sổ tay nghiên cứu, Kế hoạch đọc và Không gian làm việc đã được khôi phục thành công</string>
   <string name="downloading_backup">Đang tải xuống tệp sao lưu…</string>
   <string name="loading_backup">Đang tải cơ sở dữ liệu từ sao lưu…</string>
@@ -666,7 +657,6 @@
   <string name="send_export_file">Gửi tệp xuất</string>
   <string name="backup_modules_title">Chọn mô-đun nào để sao lưu</string>
   <string name="install_zip_canceled">Đã hủy cài đặt mô-đun</string>
-  <string name="ask_restore_or_import">Cơ sở dữ liệu cho %s có thể được khôi phục (tức là xóa cơ sở dữ liệu hiện có và tải cơ sở dữ liệu đã chọn) hoặc nhập (nhập cơ sở dữ liệu đã chọn vào cơ sở dữ liệu hiện có). Bạn muốn làm gì?</string>
   <string name="restore">Khôi phục</string>
   <string name="import2">Nhập</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -721,7 +711,6 @@
   <string name="settings_editor_back">Quay lại</string>
   <string name="settings_editor_close">Đóng</string>
   <string name="settings_editor_apply">Áp dụng</string>
-  <string name="discard_changes_confirmation">Hủy bỏ các thay đổi chưa lưu?</string>
   <string name="discard">Bỏ đi</string>
   <string name="remove">Gỡ bỏ</string>
   <string name="overwrite">Ghi đè</string>
@@ -748,7 +737,8 @@
   <string name="empty_list">Không có mục nào để hiển thị</string>
   <string name="error_skip">Bỏ qua</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Dữ liệu bị hỏng</string>
+  <string name="corrupt_database_headline">AndBible không thể mở một số dữ liệu của bạn</string>
+  <string name="corrupt_database_files_detail">Không thể mở các tệp này: %1$s. Chưa có gì bị thay đổi hay xóa. Đặt lại sẽ khởi tạo chúng ở trạng thái trống và giữ từng tệp hỏng trên thiết bị này, đổi tên thành .corrupt- kèm ngày và giờ.</string>
   <string name="corrupt_database_reset">Đặt lại dữ liệu bị hỏng</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Không thể đặt lại dữ liệu bị hỏng: không thể di chuyển %1$s sang một bên. Không có gì bị thay đổi. Bạn có thể thử lại, gửi báo cáo lỗi hoặc dùng Sao lưu &amp; Khôi phục.</string>
@@ -756,8 +746,8 @@
   <string name="damaged_data_needs_attention">Dữ liệu của ứng dụng cần được xử lý. Chạm để mở ứng dụng.</string>
   <string name="debug_test_error">Lỗi thử nghiệm (bản gỡ lỗi)</string>
   <string name="bug_report_prepare_failed">Không thể chuẩn bị hoặc chia sẻ báo cáo. Bạn có thể thử lại, hoặc dùng Sao lưu &amp; Khôi phục để lưu dữ liệu của mình.</string>
-  <string name="bug_report_email_title">Gửi báo cáo lỗi qua email</string>
   <string name="bug_report_desktop_text">Tiếp theo, bạn sẽ được hỏi nơi lưu tệp báo lỗi. Sau đó bạn sẽ nhận được hướng dẫn gửi tệp đó cho nhóm phát triển.</string>
+  <string name="bug_report_email_title">Gửi báo cáo lỗi qua email</string>
   <string name="bug_report_email_text">Tiếp theo, vui lòng chọn ứng dụng email ưa thích của bạn (ví dụ: Gmail) để gửi báo cáo đến nhóm phát triển.</string>
   <string name="bug_report_manual_title">Gửi báo cáo qua email</string>
   <string name="bug_report_manual_text_saved">Báo cáo đã được lưu tại <b>%1$s</b>.\n\nVui lòng gửi email tới <b>%2$s</b> và đính kèm tệp đó; chương trình email không thể tự đính kèm giúp bạn. Tiêu đề gợi ý: <b>%3$s</b>. Trong nội dung thư, hãy cho chúng tôi biết bạn đã làm gì và điều gì đã xảy ra.</string>
@@ -828,8 +818,6 @@
   <string name="beta_special_regards">Trân trọng, Tuomas</string>
   <string name="beta_special_sponsor">T.B. Bạn có thể hỗ trợ tài chính cho việc phát triển AndBible bằng cách %s.</string>
   <string name="beta_special_sponsor_link">tài trợ giờ phát triển</string>
-  <string name="new_sync_targets_notice_title">Có cài đặt đồng bộ mới</string>
-  <string name="new_sync_targets_notice_message">Phiên bản AndBible này giới thiệu thêm các mục đồng bộ: Tài liệu của tôi, Cài đặt AI và Tiến độ đọc. Nếu bạn muốn bật chúng, bạn có thể thực hiện trong Cài đặt Đồng bộ Thiết bị.</string>
   <string name="open_settings">Mở cài đặt</string>
   <!--History-->
   <string name="history_for">Lịch sử (%1$s: Cửa sổ %2$d)</string>
@@ -902,7 +890,6 @@
   <string name="give_passphrase_for_module">Tài liệu %s được mã hóa và cần mật khẩu để mở khóa</string>
   <string name="unlock_module">Đặt mật khẩu mô-đun</string>
   <string name="unlock_info">Thông tin mở khóa mô-đun được mã hóa</string>
-  <string name="try_again_passphrase">Mật khẩu không đúng, thử lại?</string>
   <string name="show_unlock_info">Mô-đun &amp; thông tin mở khóa</string>
   <string name="prefs_experimental_features_title">Tính năng thử nghiệm</string>
   <string name="prefs_experimental_features_summary">Chọn tính năng thử nghiệm nào cần bật. Các tính năng này vẫn đang được phát triển và có thể thay đổi hoặc bị xóa</string>
@@ -936,9 +923,6 @@
   <string name="active_window_indicator_summary">Đánh dấu góc cửa sổ để nhận biết cửa sổ nào đang hoạt động</string>
   <string name="app_licence_title">Giấy phép mã nguồn mở</string>
   <string name="how_to_contribute">Cách đóng góp?</string>
-  <string name="confirm_delete_bookmarks">Bạn có muốn xóa %d đánh dấu và ghi chú của chúng không?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Nhãn đã chọn được gắn với %d đánh dấu không có nhãn nào khác. Bạn có muốn xóa các đánh dấu này cùng với nhãn không?</string>
-  <string name="delete_label_and_bookmarks">Xóa nhãn và đánh dấu</string>
   <string name="delete_label_only">Chỉ xóa nhãn</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Giới thiệu cho bạn bè</string>
@@ -969,8 +953,6 @@
   <string name="old_webview">Gói Android WebView quá cũ (%1$s). Bạn cần nâng cấp gói Android WebView lên ít nhất phiên bản %2$s để sử dụng %3$s. Đối với hầu hết các thiết bị, có thể thực hiện qua %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Tiếp tục dù sao</string>
-  <string name="proceed">Tiếp tục</string>
-  <string name="rate_title">Đánh giá và nhận xét ứng dụng</string>
   <string name="rate_message5">Các đánh giá tích cực và chi tiết giúp ích rất nhiều cho Dự án Mã nguồn mở AndBible. Cảm ơn bạn!</string>
   <string name="rate_message6">Trước khi viết đánh giá tiêu cực, vui lòng xem xét những điều sau:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -1000,7 +982,6 @@
   <string name="primary_label">Nhãn chính</string>
   <string name="favourite_label">Nhãn yêu thích</string>
   <string name="edit_label">Chỉnh sửa nhãn</string>
-  <string name="delete_label_confirmation">Bạn có muốn xóa nhãn đánh dấu \"%s\"? Tất cả ghi chú Sổ tay nghiên cứu liên quan cũng sẽ bị xóa.</string>
   <string name="active_labels">Nhãn đã chọn</string>
   <string name="recent_labels">Nhãn gần đây</string>
   <string name="other_labels">Nhãn khác</string>
@@ -1010,8 +991,6 @@
   <string name="book_menu_show_progress_bars">Hiển thị thanh tiến trình</string>
   <string name="reset_workspace_labels">Bạn có muốn đặt lại cài đặt tự động gán và yêu thích cho không gian làm việc này không?</string>
   <string name="clear_auto_assign_labels">Xóa nhãn tự động gán</string>
-  <string name="reset_workspace_auto_assign_labels">Bạn có muốn gỡ bỏ tất cả nhãn tự động gán khỏi không gian làm việc này không?</string>
-  <string name="reset_hide_labels">Bạn có muốn đặt lại cài đặt ẩn các nhãn đã chỉ định không?</string>
   <string name="reorder">Sắp xếp lại</string>
   <string name="system_items">Thao tác hệ thống</string>
   <string name="system_items1">Thêm</string>
@@ -1025,7 +1004,6 @@
   <string name="ios_fullscreen_hint">Chạm hai lần hoặc chạm vào nút để thoát toàn màn hình.</string>
   <string name="desktop_exit_fullscreen">Thoát toàn màn hình</string>
   <string name="exit_fullscreen">Nhấn đúp màn hình để thoát toàn màn hình</string>
-  <string name="reset_app_prefs">Bạn có muốn đặt lại tất cả tùy chọn ứng dụng toàn cục được hiển thị trên màn hình này về giá trị mặc định không?</string>
   <string name="label_red">Đỏ</string>
   <string name="label_green">Xanh lá</string>
   <string name="label_blue">Xanh dương</string>
@@ -1036,7 +1014,6 @@
   <string name="reset_databases_title">Đặt lại cơ sở dữ liệu</string>
   <string name="reset_databases_description">Đặt lại từng cơ sở dữ liệu về trạng thái trống ban đầu. Không thể hoàn tác thao tác này.</string>
   <string name="last_crash_info_title">Thông tin sự cố gần nhất</string>
-  <string name="reset_database_confirm">Thao tác này sẽ xóa vĩnh viễn tất cả dữ liệu trong \"%1$s\" và đặt lại về trạng thái ban đầu. Không thể hoàn tác.\n\nBạn có chắc chắn không?</string>
   <string name="reset_database_success">Cơ sở dữ liệu đã được đặt lại thành công</string>
   <string name="reset_something">Đặt lại: %1$s</string>
   <string name="export">Xuất</string>
@@ -1106,19 +1083,18 @@
   <string name="manage_labels_help_favourite">Giữ nhãn trong mục yêu thích để truy cập nhanh.</string>
   <string name="manage_labels_help_styles">Dưới tên nhãn, một ví dụ nhỏ cho thấy diện mạo của nhãn: Vùng chọn cho đánh dấu vùng văn bản chọn, Cả câu cho đánh dấu cả câu, và thẻ Không gian làm việc cho kiểu mà không gian làm việc này ghi đè. Ví dụ màu xám không có trang trí nghĩa là các đánh dấu của nhãn không được vẽ. Ẩn các ví dụ từ menu ⋮.</string>
   <string name="manage_labels_help_reorder">Sắp xếp lại danh sách từ menu ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Trên màn hình hẹp, danh sách bỏ các biểu tượng chính, tự động gán và yêu thích để dành chỗ cho tên nhãn. Chạm vào một nhãn để đặt chúng trong trình chỉnh sửa của nhãn đó.</string>
   <string name="added_to_bookmark">Được gán cho đánh dấu này</string>
   <string name="strongs_links">Liên kết</string>
   <string name="strongs_text_and_links">Văn bản và Liên kết</string>
   <string name="strongs_hidden_links">Liên kết ẩn</string>
   <string name="verse_tip">Để chọn một phần hoặc nhiều câu, bạn có thể nhấn giữ vào văn bản Kinh Thánh</string>
-  <string name="permission_required">Cần cấp quyền</string>
   <string name="labels_search_hint">Tìm kiếm</string>
   <string name="search_mode_name_start">Tên (từ đầu)</string>
   <string name="search_mode_name_contains">Tên (chứa)</string>
   <string name="search_mode_content">Nội dung</string>
   <string name="search_results_matches">%d kết quả</string>
   <string name="search_results_match">1 kết quả</string>
-  <string name="progress_status_permission">Để hiển thị thông báo (trạng thái tải xuống, xử lý, trạng thái đọc), chúng tôi cần quyền của bạn.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Máy tính đơn giản</string>
   <string name="prefs_persecution_cat">Cài đặt cho những người bị bức hại</string>
@@ -1152,7 +1128,6 @@
   <string name="custom_repositories_create_button_label">Thêm kho lưu trữ tùy chỉnh</string>
   <string name="custom_repositories_info_button_label">Thông tin</string>
   <string name="repository_specification">URL kho lưu trữ</string>
-  <string name="delete_custom_repository">Bạn có muốn xóa kho lưu trữ tùy chỉnh %s không?</string>
   <string name="custom_repositories_help1">Để thêm kho lưu trữ tùy chỉnh mới, hãy nhập hoặc sao chép &amp; dán URL kho lưu trữ tùy chỉnh vào đây.</string>
   <string name="custom_repositories_help2">Bạn có thể đọc thêm thông tin về kho lưu trữ tùy chỉnh tại %s.</string>
   <string name="custom_repositories_help0">Bạn có thể cài đặt tài liệu từ các kho lưu trữ tùy chỉnh bên ngoài bằng cách thêm kho lưu trữ tùy chỉnh.</string>
@@ -1172,7 +1147,6 @@
   <string name="db_bookmarks">Đánh dấu, Ghi chú của tôi, Nhãn và Sổ tay nghiên cứu</string>
   <string name="synchronizing">Đang đồng bộ hóa…</string>
   <string name="notification_finished">Đã hoàn tất</string>
-  <string name="overrideBackup">Cơ sở dữ liệu hiện có mà thiết bị này chưa đồng bộ hóa được tìm thấy trên Cloud. Cơ sở dữ liệu chứa %s. Bạn muốn làm gì?</string>
   <string name="reading_plans_content">Kế hoạch đọc và trạng thái của chúng</string>
   <string name="bookmarks_contents">Đánh dấu, Nhãn và Sổ tay nghiên cứu</string>
   <string name="workspaces_contents">Không gian làm việc và Cửa sổ</string>
@@ -1192,7 +1166,6 @@
   <string name="reading_progress_calendar">Hoạt động đọc</string>
   <string name="reading_progress_cycle">Chu kỳ %d</string>
   <string name="reading_progress_new_cycle">Chu kỳ mới</string>
-  <string name="reading_progress_new_cycle_confirm">Bắt đầu chu kỳ đọc mới? Điều này sẽ bắt đầu theo dõi tiến độ của bạn từ đầu, trong khi vẫn giữ nguyên dữ liệu chu kỳ trước.</string>
   <string name="reading_progress_previous_cycle">Chu kỳ trước</string>
   <string name="reading_progress_next_cycle">Chu kỳ tiếp theo</string>
   <string name="cloud_merge_data">Hợp nhất dữ liệu</string>
@@ -1202,7 +1175,6 @@
   <string name="cloud_sync_title">Đồng bộ hóa thiết bị</string>
   <string name="reset_sync">Đăng xuất</string>
   <string name="prefs_reset_sync_summary">Tắt đồng bộ hóa và đặt lại các cài đặt liên quan.</string>
-  <string name="sync_confirmation">Bạn có chắc muốn đăng xuất và đặt lại đồng bộ hóa không?</string>
   <string name="cloud_info">Thông tin Cloud</string>
   <string name="cloud_info_summary">Dữ liệu trong bộ nhớ đám mây: %s Mb</string>
   <string name="sync_adapter">Backend đồng bộ hóa</string>
@@ -1218,7 +1190,6 @@
   <string name="webdav_server_url_hint">Địa chỉ của thư mục WebDAV, ví dụ https://nas.local/dav/ hoặc https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Đồng bộ hóa yêu cầu địa chỉ https:// an toàn.</string>
   <string name="webdav_certificate_title">Chứng chỉ máy chủ</string>
-  <string name="webdav_forget_certificate_message">Quên chứng chỉ máy chủ đã tin cậy? Bạn sẽ được yêu cầu xác nhận lại chứng chỉ ở lần kết nối tiếp theo.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Chứng chỉ máy chủ không đáng tin cậy</string>
   <string name="webdav_untrusted_certificate_message">Chứng chỉ của %1$s không được Android tin cậy. Chỉ tin cậy nếu bạn nhận ra nó, ví dụ vì chính bạn đã thiết lập máy chủ này.\n\nChủ thể: %2$s\nNgười cấp: %3$s\nHiệu lực: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1235,14 +1206,7 @@
   <string name="synchronization_categories">Danh mục đồng bộ hóa</string>
   <string name="sync_general_settings">Thông tin &amp; cài đặt chung</string>
   <string name="sync_introduction">Giới thiệu</string>
-  <string name="are_you_sure">Bạn có chắc không?</string>
   <string name="are_you_sure_merge">Cả dữ liệu trên thiết bị này và %s trên đám mây đều sẽ được giữ lại. Khi cùng một mục được thay đổi ở cả hai nơi, thay đổi mới hơn sẽ được giữ lại. Dữ liệu của thiết bị này sẽ được gửi đến các thiết bị khác của bạn.</string>
-  <string name="are_you_sure_reset_local">Thao tác này sẽ đặt lại cơ sở dữ liệu cục bộ cho %s bằng nội dung hiện đang lưu trữ trong dịch vụ đám mây.</string>
-  <string name="are_you_sure_reset_cloud">Thao tác này sẽ đặt lại cơ sở dữ liệu đám mây cho %s bằng nội dung bạn có trên thiết bị này.</string>
-  <string name="sync_cant_fetch">Phiên bản cơ sở dữ liệu hoặc tệp vá lỗi lưu trữ trên Cloud cao hơn phiên bản được ứng dụng này hỗ trợ.</string>
-  <string name="sync_disabling">Đang tắt đồng bộ hóa cho %s trong thời gian này.</string>
-  <string name="sync_update_app">Vui lòng cập nhật ứng dụng để tiếp tục đồng bộ hóa.</string>
-  <string name="sign_in_failed">Đăng nhập vào dịch vụ backend đồng bộ hóa thất bại.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Đang tắt đồng bộ hóa đám mây. Bạn phải bật lại thủ công sau khi khôi phục.</string>
   <string name="report">Báo cáo</string>
@@ -1260,6 +1224,7 @@
   <string name="open_here">Mở tại đây</string>
   <string name="external_link">Liên kết ngoài</string>
   <string name="external_link_question">Thao tác này sẽ mở liên kết ngoài %s trong ứng dụng trình duyệt, bạn có muốn tiếp tục không?</string>
+  <string name="external_link_dont_ask_again">Không hỏi lại cho %s</string>
   <string name="nameless">Chưa xác định tiêu đề</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Hành động một chạm (Kinh Thánh)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Hành động một chạm (Khác)</string>
@@ -1307,8 +1272,6 @@
   <string name="memorize_include_reference_summary">Thêm tham chiếu câu (ví dụ: Giăng 3:16) làm mục cuối cùng để thuộc lòng</string>
   <string name="reading_progress_settings">Tiến độ &amp; thuộc lòng</string>
   <string name="reading_progress_settings_summary">Cài đặt tự động theo dõi, thuộc lòng và luyện gõ</string>
-  <string name="memorize_confirm_unmark">Xóa trạng thái đã thuộc lòng cho %s?</string>
-  <string name="memorize_confirm_remove_target">Xóa mục tiêu thuộc lòng %s?</string>
   <string name="memorize_tab_reading">Đọc</string>
   <string name="memorize_tab_memorization">Thuộc lòng</string>
   <string name="memorize_verses_memorized">Đã thuộc lòng</string>
@@ -1334,7 +1297,6 @@
   <string name="llm_reset_usage_title">Đặt lại dữ liệu sử dụng</string>
   <string name="llm_reset_usage_summary">Xóa theo dõi tích lũy token và chi phí</string>
   <string name="llm_reset_usage_confirm_title">Đặt lại dữ liệu sử dụng?</string>
-  <string name="llm_reset_usage_confirm_message">Thao tác này sẽ xóa tất cả dữ liệu sử dụng tích lũy.</string>
   <string name="llm_custom_input_price_title">Giá đầu vào ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Giá đầu ra ($/Mtoken)</string>
   <string name="llm_cost_total">Tổng cộng: %1$s</string>
@@ -1350,8 +1312,6 @@
   <string name="llm_parse_error_anthropic">Không thể phân tích phản hồi Anthropic: %1$s</string>
   <string name="llm_error_unknown">Lỗi không xác định</string>
   <string name="llm_error_max_iterations">Đã đạt số vòng lặp tối đa (%1$d) mà chưa hoàn thành</string>
-  <string name="llm_continue_iterations_title">Tiếp tục?</string>
-  <string name="llm_continue_iterations_message">Tác nhân AI đã đạt giới hạn %1$d vòng lặp mà chưa hoàn thành. Tiếp tục thêm %2$d vòng lặp nữa?</string>
   <string name="agent_max_iterations_title">Số vòng lặp tối đa của tác nhân</string>
   <string name="agent_max_iterations_summary">Số vòng lặp tối đa trước khi hỏi để tiếp tục (0 = không giới hạn)</string>
   <string name="ask_model_before_run_title">Hỏi mô hình trước khi chạy</string>
@@ -1411,7 +1371,6 @@
   <string name="ai_models_summary_none">Chưa có mô hình nào được cấu hình</string>
   <string name="ai_add_provider">Thêm nhà cung cấp</string>
   <string name="ai_provider_edit">Chỉnh sửa</string>
-  <string name="ai_provider_delete_confirm">Xóa nhà cung cấp \"%1$s\"? Các lệnh nhắc dùng nhà cung cấp này sẽ trở về mặc định.</string>
   <string name="ai_provider_api_key_not_set">Chưa đặt khóa API</string>
   <string name="ai_provider_select_type">Chọn loại nhà cung cấp</string>
   <string name="ai_provider_name">Tên nhà cung cấp</string>
@@ -1431,7 +1390,6 @@
   <string name="edit_model_title">Chỉnh sửa mô hình</string>
   <string name="model_saved">Đã lưu mô hình</string>
   <string name="model_deleted">Đã xóa mô hình</string>
-  <string name="model_delete_confirm">Xóa mô hình \"%1$s\"?</string>
   <string name="model_set_default">Đặt làm mô hình mặc định</string>
   <string name="model_select_provider">Nhà cung cấp</string>
   <string name="model_supported_badge">✓ Được hỗ trợ</string>
@@ -1471,7 +1429,6 @@
   <string name="ai_disclaimer_point8">Dữ liệu của bạn được gửi đến máy chủ của nhà cung cấp AI mà bạn chọn. Bằng cách sử dụng khóa API, bạn chấp nhận các điều khoản và chính sách bảo mật của nhà cung cấp đó. Các mô hình tự lưu trữ là khả thi nhưng đòi hỏi nhiều kiến thức kỹ thuật hơn và có thể không cho kết quả tốt như các mô hình thương mại.</string>
   <string name="ai_disclaimer_point9">Các nhà cung cấp AI tính phí sử dụng API. Ước tính chi phí hiển thị trong AndBible chỉ là xấp xỉ — hãy luôn kiểm tra hóa đơn của nhà cung cấp để biết chi phí thực tế.</string>
   <string name="ai_disclaimer_accept_title">Chấp nhận tuyên bố từ chối trách nhiệm AI</string>
-  <string name="ai_disclaimer_accept_button">Tôi chấp nhận và chịu hoàn toàn trách nhiệm</string>
   <string name="prompt_permission_mode">Chế độ quyền</string>
   <string name="prompt_permission_mode_description">Kiểm soát khi nào cần xác nhận của người dùng trước khi AI thực hiện các thao tác ghi. Cài đặt từng công cụ bên dưới có thể ghi đè điều này cho từng công cụ riêng lẻ.</string>
   <string name="agent_permission_mode_summary">Kiểm soát khi nào cần xác nhận của người dùng trước các thao tác ghi của AI</string>
@@ -1587,7 +1544,6 @@
   <string name="default_prompt_custom_desc">Thực hiện tác vụ tùy chỉnh trên đoạn văn được chọn</string>
   <string name="default_prompt_custom_template">Thực hiện theo yêu cầu của người dùng cho đoạn Kinh Thánh được chọn.</string>
   <string name="copy">Sao chép</string>
-  <string name="delete_prompt_confirm_message">Bạn có chắc muốn xóa lệnh này không?</string>
   <string name="ai_hide_prompt">Ẩn</string>
   <string name="ai_restore_hidden_prompts">Khôi phục các lệnh đã ẩn</string>
   <string name="ai_prompt_hidden">Đã ẩn lệnh</string>
@@ -1672,8 +1628,6 @@
   <string name="permission_allow_all_session">Cho phép tất cả công cụ trong phiên này</string>
   <string name="permission_allow_always">Luôn cho phép \"%1$s\"</string>
   <string name="permission_deny">Từ chối</string>
-  <string name="permission_always_allow_confirm_title">Luôn cho phép?</string>
-  <string name="permission_always_allow_confirm">Bạn có chắc muốn cho phép vĩnh viễn \"%1$s\" không?</string>
   <string name="permission_always_allow_confirm_reset_hint">Bạn có thể đặt lại điều này trong Cài đặt AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Quyền công cụ</string>
@@ -1778,18 +1732,15 @@
   <string name="my_document_new_name">Tài liệu %d</string>
   <string name="my_document_create_title">Tạo tài liệu mới</string>
   <string name="my_document_rename_title">Đổi tên tài liệu</string>
-  <string name="my_document_delete_confirmation">Xóa tài liệu \"%s\"?</string>
   <string name="show_secret">Hiện</string>
   <string name="hide_secret">Ẩn</string>
   <string name="ai_documents_name">Tài liệu AI</string>
   <string name="ai_documents_description">Tài liệu do AI tự động tạo</string>
-  <string name="my_document_cannot_delete_ai_documents">Không thể xóa tài liệu AI khi còn chứa trang. Hãy xóa các trang trước.</string>
   <string name="my_document_save_changes">Lưu thay đổi?</string>
   <string name="my_document_no_description">Không có mô tả</string>
   <string name="my_document_edit_description">Chỉnh sửa mô tả</string>
   <string name="my_document_pages_title">%s - Trang</string>
   <string name="my_document_page_rename_title">Đổi tên trang</string>
-  <string name="my_document_page_delete_confirmation">Xóa trang \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Xóa các trang này?</string>
   <string name="my_documents_switch_document">Chuyển tài liệu</string>
   <string name="my_document_new_page_name">Trang %1$d</string>
@@ -1857,7 +1808,6 @@
   <string name="cloud_doc_show_removed">Hiển thị tài liệu đã xóa</string>
   <string name="cloud_doc_status_removed">Đã xóa khỏi đám mây</string>
   <string name="cloud_doc_status_still_installed">vẫn còn cài đặt tại đây</string>
-  <string name="cloud_doc_purge_confirm">Xóa vĩnh viễn \"%1$s\" khỏi lịch sử đám mây? Nếu tài liệu vẫn được cài đặt trên một thiết bị khác, thiết bị đó có thể tải lại lên đám mây trong lần đồng bộ tiếp theo.</string>
   <string name="cloud_doc_action_download">Tải xuống</string>
   <string name="cloud_doc_action_push">Tải lên đám mây</string>
   <string name="cloud_doc_action_remove_cloud">Xóa khỏi đám mây</string>
@@ -1868,8 +1818,6 @@
   <string name="cloud_doc_action_dont_sync">Không đồng bộ lên đám mây</string>
   <string name="cloud_doc_action_allow_sync">Đồng bộ lên đám mây</string>
   <string name="cloud_doc_action_purge">Xóa khỏi lịch sử đám mây</string>
-  <string name="cloud_doc_remove_all_confirm">Xóa %1$s khỏi đám mây và khỏi tất cả thiết bị của bạn, bao gồm cả thiết bị này?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Xóa %1$s khỏi đám mây? Bản sao trên thiết bị này được giữ lại; các thiết bị bật đồng bộ tài liệu cũng sẽ xóa nó.</string>
   <string name="cloud_doc_sync_now">Đồng bộ ngay</string>
   <string name="cloud_doc_rescan">Quét lại từ đám mây</string>
   <string name="cloud_doc_sync_now_download">Tải các tài liệu mới và đã cập nhật</string>
@@ -1881,6 +1829,12 @@
   <string name="cloud_doc_summary_download">Tải xuống %1$d</string>
   <string name="cloud_doc_summary_download_size">Tải xuống %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Việc tải xuống tự động sẽ bắt đầu khi có Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="other">%1$d tài liệu</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="other">%1$d tài liệu (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Không có gì để chuyển</string>
   <string name="cloud_doc_selected_count">Đã chọn %1$d</string>
   <string name="cloud_doc_bulk_skipped">Đã bỏ qua %1$d không áp dụng</string>
@@ -1897,8 +1851,6 @@
   <string name="background_image_import">Nhập từ thư viện ảnh…</string>
   <string name="background_image_empty">Chưa có ảnh nào được nhập. Chạm vào \"Nhập từ thư viện ảnh…\" để thêm.</string>
   <string name="background_image_importing">Đang nhập…</string>
-  <string name="background_image_delete_title">Xóa ảnh?</string>
-  <string name="background_image_delete_confirm">Xóa ảnh nền này? Các không gian làm việc vẫn đang dùng nó sẽ chuyển về không có ảnh.</string>
   <string name="background_image_day">Ảnh nền (ban ngày)</string>
   <string name="background_image_night">Ảnh nền (ban đêm)</string>
   <string name="background_image_opacity_day">Độ mờ đục ảnh nền (ban ngày)</string>
@@ -1972,6 +1924,9 @@
   <string name="legacy_notice_icloud">Đồng bộ hóa giờ đây dùng iCloud Drive. Hãy bật lại trong Cài đặt → Đồng bộ hóa. Thiết bị này giữ nguyên những gì nó có; các thay đổi từ thiết bị khác của bạn sẽ đến khi đồng bộ hóa được thiết lập lại. Để giải phóng dữ liệu iCloud cũ: Cài đặt → tên của bạn → iCloud → Quản lý dung lượng → AndBible.</string>
   <string name="legacy_notice_nextcloud">Kết nối Nextcloud của bạn đã được chuyển sang, nhưng đồng bộ hóa đang tắt. Hãy bật nó trong Cài đặt → Đồng bộ hóa và chọn tải về từ đám mây hoặc tạo mới.</string>
   <string name="legacy_notice_nextcloud_unsent">Một số thay đổi trên thiết bị này chưa được gửi đến Nextcloud. Chúng đã không được gửi và chỉ còn trên thiết bị này.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="other">%1$d đánh dấu không thể đặt đúng vị trí một cách đáng tin cậy nên không được nhập. Chúng được giữ cùng dữ liệu cũ của bạn trên thiết bị này.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Đây là ứng dụng học Kinh Thánh ngoại tuyến mạnh mẽ nhưng dễ sử dụng.</string>
   <string name="webdav_untrusted_certificate_message_device">Chứng chỉ của %1$s không được thiết bị này tin cậy. Chỉ tin cậy nếu bạn nhận ra nó, ví dụ vì chính bạn đã thiết lập máy chủ này.\n\nChủ thể: %2$s\nNgười cấp: %3$s\nHiệu lực: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2023,6 +1978,25 @@
   <string name="recommend_share_link">Chia sẻ liên kết</string>
   <string name="recommend_qr_caption">Quét để tải AndBible cho điện thoại, máy tính bảng hoặc máy tính của bạn.</string>
   <string name="desktop_activation_failed">AndBible đã đang chạy, nhưng cửa sổ của nó không phản hồi. Hãy chuyển sang phiên bản đang chạy và thử lại. Các tệp được gửi đến chưa được xác nhận là đã chuyển giao.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Không thể hoàn tác thao tác này.</string>
+  <string name="ai_raw_log_delete_lead">Xóa nhật ký này?</string>
+  <string name="ai_provider_delete_lead">Xóa nhà cung cấp “%1$s”?</string>
+  <string name="ai_provider_delete_detail">Các lời nhắc dùng nhà cung cấp này sẽ quay về nhà cung cấp mặc định.</string>
+  <string name="ai_model_delete_lead">Xóa mô hình “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Xóa lời nhắc “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Xóa lời nhắc này?</string>
+  <string name="ai_reset_usage_detail">Tổng số token và chi phí quay về không. Không thể hoàn tác thao tác này.</string>
+  <string name="ai_reset_usage_button">Đặt lại</string>
+  <string name="ai_disclaimer_accept">Tôi chấp nhận</string>
+  <string name="llm_continue_iterations_lead">Tiếp tục thêm %1$d lần lặp?</string>
+  <string name="llm_continue_iterations_detail">Tác nhân AI đã đạt giới hạn %1$d lần lặp mà chưa hoàn thành.</string>
+  <string name="llm_continue_button">Tiếp tục</string>
+  <string name="permission_always_allow_lead">Luôn cho phép “%1$s”?</string>
+  <string name="permission_always_allow_button">Luôn cho phép</string>
+  <string name="ai_bug_report_send_lead">Gửi báo cáo lỗi AI?</string>
+  <string name="ai_bug_report_send_button">Gửi</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Bắt đầu</string>
   <string name="user_guide_section_reading_workspace">Đọc và không gian làm việc</string>
@@ -2100,4 +2074,142 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Trợ lý AI, phần 3: công cụ, dữ liệu và quyền của bạn</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Trợ lý AI, phần 4: lệnh nhắc riêng, chi phí và đồng bộ</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Hủy các thay đổi?</string>
+  <string name="dialog_keep_editing">Tiếp tục chỉnh sửa</string>
+  <string name="dialog_label_delete_lead">Xóa nhãn “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Các ghi chú Study Pad của nhãn cũng bị xóa. Không thể hoàn tác thao tác này.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="other">%1$d đánh dấu không có nhãn nào khác.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="other">Xóa nhãn và %1$d đánh dấu</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Các đánh dấu và ghi chú của chúng sẽ bị xóa.</string>
+  <string name="dialog_label_delete_only_consequence">Các đánh dấu được giữ lại, không có nhãn.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="other">Gỡ %1$d đánh dấu?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="other">Các ghi chú của chúng cũng bị gỡ.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Xóa tất cả nhãn tự động gán khỏi không gian làm việc này?</string>
+  <string name="dialog_labels_reset_hidden_lead">Hiện lại tất cả nhãn đã ẩn?</string>
+  <string name="dialog_labels_reset_shown_detail">Các nhãn bạn đã ẩn khỏi danh sách sẽ được hiện lại.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Cài đặt “%s”?</string>
+  <string name="install_action">Cài đặt</string>
+  <string name="install_from_file_question">Cài đặt tài liệu từ một tệp?</string>
+  <string name="overwrite_files_detail">Các tệp này đã tồn tại:%s</string>
+  <string name="import_studypads_question">Nhập các Study Pad này?</string>
+  <string name="import_action">Nhập</string>
+  <string name="restore_backup_question">Khôi phục các tài liệu trong bản sao lưu này?</string>
+  <string name="restore_backup_detail">Tệp này là bản sao lưu tài liệu của AndBible.</string>
+  <string name="update_document_question">Cập nhật tài liệu này?</string>
+  <string name="update_action">Cập nhật</string>
+  <string name="download_documents_question">Tải xuống tài liệu?</string>
+  <string name="download_persecution_warning">Nếu bạn sống ở một quốc gia có sự bách hại, bạn có thể cần thận trọng khi tải tài liệu Cơ Đốc qua Internet. Thay vào đó, bạn có thể muốn lấy các tệp zip tài liệu một cách an toàn hơn và cài đặt chúng qua “%1$s”. Mọi lượt tải từ máy chủ tài liệu đều được mã hóa (HTTPS).</string>
+  <string name="download_action">Tải xuống</string>
+  <string name="download_dont_ask_again">Tải xuống, không hỏi lại</string>
+  <string name="download_dont_ask_again_consequence">Từ nay các lượt tải xuống sẽ bắt đầu mà không hỏi câu này.</string>
+  <string name="passphrase_did_not_work">Cụm mật khẩu không đúng.</string>
+  <string name="try_again">Thử lại</string>
+  <string name="interrupted_downloads_lead">Tải lại các tài liệu này?</string>
+  <string name="interrupted_downloads_detail">Lượt tải của chúng bị gián đoạn nên chưa được cài đặt.</string>
+  <string name="external_link_open_question">Mở liên kết này trong trình duyệt của bạn?</string>
+  <string name="open_action">Mở</string>
+  <string name="notification_permission_question">Cho phép thông báo?</string>
+  <string name="notification_permission_detail">Thông báo hiển thị trạng thái tải xuống, xử lý và đọc thành tiếng.</string>
+  <string name="allow_action">Cho phép</string>
+  <string name="rate_question">Đánh giá và nhận xét ứng dụng?</string>
+  <string name="bug_report_email_question">Gửi báo cáo lỗi qua email?</string>
+  <string name="continue_action">Tiếp tục</string>
+  <string name="delete_search_index_question">Xóa chỉ mục tìm kiếm của “%s”?</string>
+  <string name="remove_custom_repository_question">Gỡ kho lưu trữ tùy chỉnh “%s”?</string>
+  <string name="download_document_question">Tải xuống “%s”?</string>
+  <string name="choose_file_action">Chọn tệp</string>
+  <string name="old_webview_question">Dùng ứng dụng với WebView cũ?</string>
+  <string name="incomplete_translation_question">Tiếp tục với bản dịch chưa đầy đủ?</string>
+  <string name="rate_action">Đánh giá</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Xóa tài liệu “%s”?</string>
+  <string name="my_document_page_delete_lead">Xóa trang “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">Không thể xóa tài liệu AI khi chúng còn chứa trang.</string>
+  <string name="my_document_cannot_delete_ai_detail">Hãy xóa các trang trước.</string>
+  <string name="reading_progress_new_cycle_lead">Bắt đầu một chu kỳ đọc mới?</string>
+  <string name="reading_progress_new_cycle_detail">Tiến độ của bạn được theo dõi lại từ đầu. Dữ liệu của chu kỳ trước được giữ lại.</string>
+  <string name="reading_progress_new_cycle_start">Bắt đầu</string>
+  <string name="reset_plan_lead">Đặt lại kế hoạch này?</string>
+  <string name="reset_plan_detail">Ngày bắt đầu và tiến độ của bạn trong kế hoạch này sẽ bị xóa.</string>
+  <string name="set_current_day_lead">Đặt %1$s làm ngày hiện tại?</string>
+  <string name="set_current_day_detail">Tất cả các ngày trước đó được đánh dấu là đã đọc.</string>
+  <string name="plan_duplicate_user_plan_lead">Một tệp kế hoạch đọc có cùng tên với một kế hoạch có sẵn.</string>
+  <string name="plan_duplicate_user_plan_detail">Không thể liệt kê tệp kế hoạch này. Hãy đổi tên tệp trong thư mục jsword/readingplan, giữ nguyên phần mở rộng .properties.</string>
+  <string name="background_image_delete_lead">Xóa ảnh nền này?</string>
+  <string name="background_image_delete_detail">Các không gian làm việc vẫn đang dùng nó sẽ quay về không có ảnh.</string>
+  <string name="reset_values_lead">Đặt lại tất cả các giá trị này?</string>
+  <string name="revert_setting_lead">Hoàn nguyên cài đặt này về giá trị kế thừa?</string>
+  <string name="revert_setting_confirm">Hoàn nguyên</string>
+  <string name="reset_settings_screen_lead">Đặt lại các cài đặt trên màn hình này?</string>
+  <string name="reset_settings_screen_detail">Chúng quay về giá trị mặc định.</string>
+  <string name="memorize_unmark_lead">Bỏ trạng thái đã ghi nhớ của “%s”?</string>
+  <string name="memorize_remove_target_lead">Gỡ mục tiêu ghi nhớ “%s”?</string>
+  <string name="dialog_apply">Áp dụng</string>
+  <string name="dialog_dont_apply">Không áp dụng</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Đám mây đã có %s của bạn. Nên làm gì?</string>
+  <string name="cloud_merge_consequence">Giữ cả hai phía; với mục thay đổi ở cả hai nơi, thay đổi mới hơn được ưu tiên.</string>
+  <string name="cloud_fetch_consequence">Thay dữ liệu trên thiết bị này bằng bản sao trên đám mây.</string>
+  <string name="cloud_create_consequence">Thay bản sao trên đám mây bằng dữ liệu trên thiết bị này.</string>
+  <string name="cloud_disable_consequence">Đồng bộ vẫn tắt cho dữ liệu này.</string>
+  <string name="cloud_merge_lead">Hợp nhất %s của bạn với đám mây?</string>
+  <string name="cloud_merge_confirm">Hợp nhất</string>
+  <string name="cloud_replace_confirm">Thay thế</string>
+  <string name="cloud_replace_local_lead">Thay %s của thiết bị này bằng bản sao trên đám mây?</string>
+  <string name="cloud_replace_local_detail">Nội dung hiện có trên thiết bị này sẽ bị ghi đè và không thể khôi phục.</string>
+  <string name="cloud_replace_cloud_lead">Thay bản sao %s trên đám mây bằng dữ liệu của thiết bị này?</string>
+  <string name="cloud_replace_cloud_detail">Nội dung hiện có trên đám mây sẽ bị ghi đè, và các thiết bị khác của bạn sẽ nhận dữ liệu của thiết bị này.</string>
+  <string name="sign_in_failed_lead">Không thể đăng nhập vào dịch vụ đồng bộ.</string>
+  <string name="sync_too_old_lead">Ứng dụng này quá cũ để đồng bộ %s.</string>
+  <string name="sync_too_old_detail">Dữ liệu trên đám mây dùng phiên bản mới hơn mức ứng dụng này hỗ trợ. Đồng bộ cho dữ liệu này tạm thời bị tắt; hãy cập nhật ứng dụng để bật lại.</string>
+  <string name="backup_replace_lead">Thay %s của bạn bằng bản sao lưu?</string>
+  <string name="backup_replace_detail">Nội dung hiện có trên thiết bị này sẽ bị ghi đè và không thể khôi phục.</string>
+  <string name="reset_database_lead">Đặt lại “%1$s” về trạng thái ban đầu?</string>
+  <string name="reset_database_detail">Toàn bộ dữ liệu trong đó bị xóa vĩnh viễn. Không thể hoàn tác thao tác này.</string>
+  <string name="reset_database_button">Đặt lại</string>
+  <string name="restore_all_lead">Thay thế ghi chú, đánh dấu, Study Pad, kế hoạch đọc và không gian làm việc của bạn?</string>
+  <string name="restore_or_import_lead">Khôi phục hoặc nhập %s?</string>
+  <string name="restore_consequence">Thay nội dung trên thiết bị này bằng bản sao lưu.</string>
+  <string name="import_consequence">Thêm các mục của bản sao lưu vào nội dung trên thiết bị này.</string>
+  <string name="sync_start_syncing">Bắt đầu đồng bộ</string>
+  <string name="sync_reset_lead">Đăng xuất và đặt lại đồng bộ hóa?</string>
+  <string name="sync_reset_detail">Bạn sẽ cần thiết lập lại đồng bộ hóa.</string>
+  <string name="webdav_forget_certificate_lead">Quên chứng chỉ máy chủ đáng tin cậy?</string>
+  <string name="webdav_forget_certificate_detail">Bạn sẽ được yêu cầu xác nhận lại chứng chỉ ở lần kết nối tiếp theo.</string>
+  <string name="webdav_forget_certificate_confirm">Quên</string>
+  <string name="cloud_doc_remove_all_lead">Gỡ “%1$s” khỏi đám mây và tất cả thiết bị của bạn?</string>
+  <string name="cloud_doc_remove_cloud_lead">Gỡ “%1$s” khỏi đám mây?</string>
+  <string name="cloud_doc_purge_lead">Gỡ vĩnh viễn “%1$s” khỏi lịch sử đám mây?</string>
+  <string name="cloud_doc_remove_all_detail">Thao tác này cũng xóa các bản sao trên thiết bị này và trên mọi thiết bị khác đang bật đồng bộ tài liệu.</string>
+  <string name="cloud_doc_remove_cloud_detail">Các bản sao trên thiết bị này được giữ lại. Các thiết bị đang bật đồng bộ tài liệu cũng sẽ gỡ chúng.</string>
+  <string name="cloud_doc_purge_detail">Một thiết bị vẫn còn bản sao có thể tải lên lại ở lần đồng bộ tiếp theo.</string>
+  <string name="cloud_doc_block_confirm_button">Không đồng bộ</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="other">Gỡ %1$d tài liệu khỏi đám mây và tất cả thiết bị của bạn?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="other">Gỡ %1$d tài liệu khỏi đám mây?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="other">Gỡ vĩnh viễn %1$d tài liệu khỏi lịch sử đám mây?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="other">Ngừng đồng bộ %1$d tài liệu lên đám mây?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Nhiều dữ liệu của bạn hơn nay có thể đồng bộ</string>
+  <string name="new_sync_targets_detail">Tài liệu của tôi, cài đặt AI và tiến độ đọc cũng có thể đồng bộ. Hãy bật chúng trong cài đặt Đồng bộ hóa thiết bị.</string>
+  <!--end dialog copy: B3b-->
 </resources>

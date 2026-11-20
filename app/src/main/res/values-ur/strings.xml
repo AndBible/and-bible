@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">مکمل صارف گائیڈ andbible.org پر موجود ہے۔ صفحات آپ کے براؤزر میں کھلتے ہیں۔</string>
   <string name="help_user_guide_home">صارف گائیڈ کا ہوم</string>
   <string name="help_read_in_user_guide">صارف گائیڈ میں پڑھیں</string>
+  <string name="help_in_user_guide">صارف گائیڈ میں مدد</string>
+  <string name="help_matching_section">متعلقہ سیکشن</string>
   <string name="help_read_page">صارف گائیڈ میں پڑھیں: %1$s</string>
   <string name="help_tutorial_videos">ٹیوٹوریل ویڈیوز</string>
   <string name="help_watch_in_order">ٹیوٹوریل ویڈیوز ترتیب سے دیکھیں</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">اقتباس منتخب کرتے وقت آیت (اور باب) منتخب کریں</string>
   <string name="prefs_open_links_in_special_window_title">لنکس ونڈو</string>
   <string name="prefs_open_links_in_special_window_summary">لنکس کو خصوصی ونڈو میں کھولیں، کراس حوالہ جات اور Strongs کی تیز ڈسپلے کے لیے</string>
+  <string name="prefs_trusted_link_domains_title">قابلِ اعتماد لنک ڈومینز</string>
+  <string name="prefs_trusted_link_domains_summary">ان ڈومینز کے لنک بغیر پوچھے کھل جاتے ہیں۔ دوبارہ پوچھے جانے کے لیے کسی ڈومین کا نشان ہٹا دیں۔</string>
+  <string name="prefs_trusted_link_domains_empty">ابھی کوئی نہیں۔ کسی لنک کو کھولتے وقت \"دوبارہ نہ پوچھیں\" پر نشان لگائیں تاکہ اس کا ڈومین شامل ہو جائے۔</string>
   <string name="prefs_text_size_sample_text">نمونہ متن</string>
   <string name="prefs_screen_keep_on_title">اسکرین آن رکھیں</string>
   <string name="prefs_screen_keep_on_summary">اس ایپ کے استعمال کے دوران اسکرین کو سونے سے روکیں</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">لائن اسپیسنگ</string>
   <string name="line_spacing_summary">لائنوں کے درمیان فاصلہ سیٹ کریں</string>
   <string name="select_none">کچھ نہیں منتخب کریں</string>
-  <string name="reset_are_you_sure">کیا آپ واقعی ان تمام اقدار کو ری سیٹ کرنا چاہتے ہیں؟</string>
   <string name="window_pinning_menutitle">ونڈو پننگ</string>
   <string name="hide_window_buttons_title">ونڈو بٹن چھپائیں</string>
   <string name="hide_window_buttons_summary">بائبل ویوز کے دائیں جانب دکھائے جانے والے ونڈو بٹن چھپا دیے جائیں گے۔ نیچے موجود ونڈو نیویگیشن بار اب بھی دکھائی دے گا اور آپ انہیں طویل کلک کر کے ونڈو پاپ اپ مینو کھول سکتے ہیں۔</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">لفظ کسی لغت میں نہیں ملا</string>
   <string name="prefs_top_margin_title_mm">اوپری حاشیہ (%d ملی میٹر)</string>
   <string name="font_size_title">فونٹ سائز</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">کیونکہ خدا نے دنیا سے ایسی محبت رکھی کہ اُس نے اپنا اکلوتا بیٹا بخش دیا تاکہ جو کوئی اُس پر ایمان لائے ہلاک نہ ہو بلکہ ہمیشہ کی زندگی پائے۔</string>
   <string name="font_size_title_pt">فونٹ سائز (%d pt)</string>
   <string name="prefs_font_text_size_summary">مرکزی متن فونٹ سائز ایڈجسٹ کریں</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">رنگ ترتیبات (ونڈو)</string>
   <string name="workspace_color_settings_title">رنگ ترتیبات (ورک اسپیس)</string>
   <string name="color_workspace">ورک اسپیس رنگ</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">ڈیفالٹ</string>
   <string name="color_text">متن کا رنگ</string>
   <string name="color_background">پس منظر کا رنگ</string>
   <string name="colors_day_mode_title">دن کا موڈ</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">دستاویز فہرستیں آخری بار اپ ڈیٹ: %s۔</string>
   <string name="download_refreshing_book_list">دستاویز سرورز سے دستیاب دستاویزات کی فہرست تازہ کی جا رہی ہے…</string>
   <string name="download_source_message1">دستاویزات مندرجہ ذیل ذرائع سے ڈاؤنلوڈ ہوتی ہیں:</string>
-  <string name="download_document_confirm_prefix">ڈاؤنلوڈ کریں</string>
   <string name="error_downloading">ڈاؤنلوڈ کرتے وقت خرابی ہوئی۔ براہ کرم اپنا انٹرنیٹ کنکشن چیک کریں۔</string>
   <string name="error_downloading_status">%1$s کی میزبانی کرنے والے سرور نے %2$s (%3$d) کی وجہ سے خرابی واپس کی۔</string>
   <string name="storage_space_warning">مقامی اسٹوریج ناکافی ہے۔</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">پس منظر کی سرگرمی</string>
   <string name="activity_empty">کچھ جاری نہیں</string>
   <string name="activity_failed_toast">%1$s — مینو دیکھیں</string>
-  <string name="download_question_title">کیا آپ دستاویزات ڈاؤنلوڈ کرنا چاہتے ہیں؟</string>
-  <string name="download_question_message">اگر آپ کسی ایسے ملک میں رہتے ہیں جہاں ایذا رسانی ہوتی ہے، تو آپ کو انٹرنیٹ کے ذریعے مسیحی مواد ڈاؤن لوڈ کرتے وقت محتاط رہنے کی ضرورت ہو سکتی ہے۔ اس کے بجائے، آپ ماڈیول زپ فائلیں زیادہ محفوظ طریقے سے حاصل کر کے \"%1$s\" کے ذریعے انسٹال کرنا چاہیں گے۔ کیا آپ واقعی ڈاؤن لوڈ جاری رکھنا چاہتے ہیں؟ ماڈیول سرورز سے تمام ڈاؤن لوڈز مرموز (HTTPS) ہیں۔</string>
-  <string name="do_not_ask_again">ہاں، دوبارہ نہ پوچھیں</string>
   <string name="recommended_document">تجویز کردہ!</string>
   <string name="about_version_history">ورژن تاریخ: %s</string>
   <string name="download_errors">ڈاؤنلوڈ خرابیاں</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">دی گئی فائل چیک کی جا رہی ہے…</string>
   <string name="invalid_module">فائل میں کوئی درست SWORD ماڈیول نہیں ہے</string>
   <string name="install_zip_title">براہ کرم انتظار کریں۔ فائل سے ماڈیول لوڈ ہو رہے ہیں۔</string>
-  <string name="overwrite_files">مندرجہ ذیل فائلیں پہلے سے موجود ہیں: %s اوور رائٹ کریں؟</string>
   <string name="overwrite_files_title">فائلیں اوور رائٹ کریں؟</string>
   <string name="could_not_overwrite_files">فائلیں اوور رائٹ نہ ہو سکیں: %s۔ اس کے علاوہ انسٹالیشن کامیاب رہی۔</string>
   <string name="module_backup_restore">یہ فائل AndBible دستاویزات کا بیک اپ ہے۔ کیا آپ اس کی دستاویزات بحال کرنا چاہتے ہیں؟</string>
-  <string name="install_do_you_want">کیا آپ ماڈیول (%s) انسٹال کرنا چاہتے ہیں؟</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">مطالعہ منصوبہ</string>
   <string name="reading_plans_plural">مطالعہ منصوبے</string>
@@ -429,11 +430,8 @@
   <string name="rdg_plan_day">دن %s</string>
   <string name="rdg_plan_set_start_date">شروع کی تاریخ سیٹ کریں…</string>
   <string name="set_current_day">موجودہ دن کے طور پر سیٹ کریں…</string>
-  <string name="msg_set_current_day_reading_plan">اس سے %1$s اس منصوبے کا موجودہ دن مقرر ہو جائے گا اور پچھلے تمام دن پڑھے ہوئے کے طور پر نشان زد ہو جائیں گے۔ جاری رکھیں؟</string>
   <string name="done">مکمل</string>
-  <string name="reset_plan_question">کیا آپ واقعی اس منصوبے کو ری سیٹ کرنا چاہتے ہیں؟</string>
   <string name="import_reading_plan">مطالعہ منصوبہ درآمد کریں…</string>
-  <string name="plan_duplicate_user_plan">sdcard jsword/readingplan میں کسی اندرونی منصوبے کے نام جیسا صارف مطالعہ منصوبہ ہے۔ اسے یہاں درج نہیں کیا جا سکتا۔ براہ کرم فائل کا نام تبدیل کریں، فائل ایکسٹنشن .properties رکھیں۔</string>
   <string name="plan_name_y1ntpspr">ایک سال میں NT، زبور اور امثال</string>
   <string name="plan_description_y1ntpspr">HEARTLIGHT انٹرنیٹ میگزین کی مہربانی سے، http://www.heartlight.org، اجازت دی گئی</string>
   <string name="plan_name_y1ot1nt1_chronological">تاریخی ترتیب کے مطابق ایک سال میں بائبل</string>
@@ -453,12 +451,8 @@
   <string name="delete_index">تلاش انڈیکس حذف کریں</string>
   <string name="about">کے بارے میں</string>
   <string name="delete_doc">%s حذف کریں؟</string>
-  <string name="interrupted_downloads_title">ڈاؤنلوڈ میں رکاوٹ</string>
-  <string name="interrupted_downloads_message">یہ دستاویزات انسٹال نہیں ہوئیں کیونکہ ان کا ڈاؤنلوڈ رک گیا تھا:</string>
-  <string name="interrupted_downloads_question">انہیں دوبارہ ڈاؤنلوڈ کریں؟</string>
   <string name="download_again">دوبارہ ڈاؤنلوڈ کریں</string>
   <string name="delete_docs_confirm">ان دستاویزات کو حذف کریں؟</string>
-  <string name="delete_search_index_doc">%s کا انڈیکس حذف کریں؟</string>
   <!--Verse context menu-->
   <string name="notes">حاشیے اور حوالہ جات</string>
   <string name="share_verse">شیئر کریں…</string>
@@ -496,7 +490,6 @@
   <!--can be removed-->
   <string name="bookmark_warning">اس دستاویز کے لیے بک مارکس اور/یا نوٹس ہیں۔</string>
   <string name="bookmark_warning2">اگر دستاویز کا ڈھانچہ بدل گیا ہو تو اس دستاویز کو اپ ڈیٹ کرنے سے یہ بک مارکس/نوٹس دستاویز کے اندر ادھر ادھر ہو سکتے ہیں یا مکمل طور پر غائب ہو سکتے ہیں۔</string>
-  <string name="bookmark_warning3">کیا آپ پھر بھی ماڈیول اپ ڈیٹ کرنا چاہتے ہیں؟</string>
   <string name="bookmark_warning4">اپ ڈیٹ کرنے سے پہلے ماڈیول کا بیک اپ لینا تجویز کیا جاتا ہے۔</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">تاریخ کی ترتیب</string>
@@ -643,10 +636,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">بحال یا درآمد کریں…</string>
   <string name="backup_restore2">بحال یا درآمد کریں</string>
-  <string name="overwrite_something">%s اوور رائٹ کریں؟</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">ڈیٹابیس فائل بحال کریں</string>
-  <string name="restore_confirmation">میرے نوٹس، بک مارکس، مطالعہ پیڈز، مطالعہ منصوبے اور ورک اسپیسز اوور رائٹ کریں؟</string>
   <string name="restore_success">میرے نوٹس، بک مارکس، مطالعہ پیڈز، مطالعہ منصوبے اور ورک اسپیسز کامیابی سے بحال ہو گئے</string>
   <string name="downloading_backup">بیک اپ فائل ڈاؤنلوڈ ہو رہی ہے…</string>
   <string name="loading_backup">بیک اپ سے ڈیٹابیس لوڈ ہو رہا ہے…</string>
@@ -668,7 +659,6 @@
   <string name="send_export_file">برآمد شدہ فائل بھیجیں</string>
   <string name="backup_modules_title">کون سے ماڈیول بیک اپ کرنا ہے منتخب کریں</string>
   <string name="install_zip_canceled">ماڈیول انسٹال منسوخ ہو گئی</string>
-  <string name="ask_restore_or_import">%s کے لیے ڈیٹابیس کو بحال (موجودہ ڈیٹابیس ہٹا کر منتخب ڈیٹابیس لوڈ) یا درآمد (منتخب ڈیٹابیس موجودہ میں شامل) کیا جا سکتا ہے۔ آپ کیا کرنا چاہتے ہیں؟</string>
   <string name="restore">بحال کریں</string>
   <string name="import2">درآمد کریں</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -723,7 +713,6 @@
   <string name="settings_editor_back">واپس</string>
   <string name="settings_editor_close">بند کریں</string>
   <string name="settings_editor_apply">لاگو کریں</string>
-  <string name="discard_changes_confirmation">غیر محفوظ تبدیلیاں رد کریں؟</string>
   <string name="discard">رد کریں</string>
   <string name="remove">ہٹائیں</string>
   <string name="overwrite">اوور رائٹ کریں</string>
@@ -750,7 +739,8 @@
   <string name="empty_list">دکھانے کے لیے کوئی آئٹم نہیں</string>
   <string name="error_skip">چھوڑیں</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">خراب ڈیٹا</string>
+  <string name="corrupt_database_headline">AndBible آپ کا کچھ ڈیٹا نہیں کھول سکتی</string>
+  <string name="corrupt_database_files_detail">یہ فائلیں نہیں کھولی جا سکیں: %1$s۔ کچھ بھی تبدیل یا حذف نہیں کیا گیا۔ ری سیٹ کرنے سے یہ خالی حالت میں شروع ہوں گی اور ہر خراب فائل اسی ڈیوائس پر رہے گی، جس کا نام .corrupt- کے ساتھ تاریخ اور وقت لگا کر بدل دیا جائے گا۔</string>
   <string name="corrupt_database_reset">خراب ڈیٹا ری سیٹ کریں</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">خراب ڈیٹا ری سیٹ نہیں ہو سکا: %1$s کو ایک طرف منتقل نہیں کیا جا سکا۔ کچھ بھی تبدیل نہیں ہوا۔ آپ دوبارہ کوشش کر سکتے ہیں، ایرر رپورٹ بھیج سکتے ہیں، یا بیک اپ اور بحالی استعمال کر سکتے ہیں۔</string>
@@ -758,8 +748,8 @@
   <string name="damaged_data_needs_attention">ایپ کے ڈیٹا پر توجہ درکار ہے۔ ایپ کھولنے کے لیے ٹیپ کریں۔</string>
   <string name="debug_test_error">ٹیسٹ ایرر (ڈیبگ بلڈ)</string>
   <string name="bug_report_prepare_failed">رپورٹ تیار یا شیئر نہیں ہو سکی۔ آپ دوبارہ کوشش کر سکتے ہیں، یا اپنا ڈیٹا محفوظ کرنے کے لیے بیک اپ اور بحالی استعمال کریں۔</string>
-  <string name="bug_report_email_title">ای میل کے ذریعے بگ رپورٹ بھیجیں</string>
   <string name="bug_report_desktop_text">اگلے مرحلے میں آپ سے پوچھا جائے گا کہ خرابی کی رپورٹ کی فائل کہاں محفوظ کرنی ہے۔ پھر آپ کو اسے ڈیویلپر ٹیم کو بھیجنے کی ہدایات ملیں گی۔</string>
+  <string name="bug_report_email_title">ای میل کے ذریعے بگ رپورٹ بھیجیں</string>
   <string name="bug_report_email_text">اگلے، براہ کرم اپنی پسندیدہ ای میل ایپلیکیشن (مثلاً Gmail) منتخب کریں تاکہ رپورٹ ڈویلپر ٹیم کو بھیجی جا سکے۔</string>
   <string name="bug_report_manual_title">رپورٹ ای میل سے بھیجیں</string>
   <string name="bug_report_manual_text_saved">رپورٹ <b>%1$s</b> میں محفوظ کر دی گئی۔\n\nبراہ کرم <b>%2$s</b> کو ای میل بھیجیں اور وہ فائل منسلک کریں؛ ای میل پروگرام اسے آپ کے لیے منسلک نہیں کر سکتا۔ تجویز کردہ موضوع: <b>%3$s</b>۔ پیغام میں بتائیں کہ آپ نے کیا کیا اور کیا ہوا۔</string>
@@ -830,8 +820,6 @@
   <string name="beta_special_regards">نیک تمناؤں کے ساتھ، Tuomas</string>
   <string name="beta_special_sponsor">پی ایس: آپ %s کے ذریعے AndBible کی ترقی کی مالی مدد کر سکتے ہیں۔</string>
   <string name="beta_special_sponsor_link">ڈیویلپمنٹ کے اوقات کی سرپرستی</string>
-  <string name="new_sync_targets_notice_title">نئی مطابقت ترتیبات دستیاب ہیں</string>
-  <string name="new_sync_targets_notice_message">AndBible کا یہ ورژن اضافی مطابقت اہداف متعارف کراتا ہے: میری دستاویزات، AI ترتیبات اور پڑھنے کی پیشرفت۔ اگر آپ انہیں فعال کرنا چاہتے ہیں، تو آپ ڈیوائس مطابقت ترتیبات میں ایسا کر سکتے ہیں۔</string>
   <string name="open_settings">ترتیبات کھولیں</string>
   <!--History-->
   <string name="history_for">تاریخ (%1$s: ونڈو %2$d)</string>
@@ -904,7 +892,6 @@
   <string name="give_passphrase_for_module">دستاویز %s انکرپٹڈ ہے اور کھولنے کے لیے پاس فریز درکار ہے</string>
   <string name="unlock_module">ماڈیول پاس فریز سیٹ کریں</string>
   <string name="unlock_info">انکرپٹڈ ماڈیول کھولنے کی معلومات</string>
-  <string name="try_again_passphrase">پاس فریز کام نہیں کیا، دوبارہ کوشش کریں؟</string>
   <string name="show_unlock_info">ماڈیول اور کھولنے کی معلومات</string>
   <string name="prefs_experimental_features_title">تجرباتی خصوصیات</string>
   <string name="prefs_experimental_features_summary">کون سی تجرباتی خصوصیات فعال کرنی ہیں منتخب کریں۔ یہ خصوصیات ابھی زیر تیاری ہیں اور تبدیل یا ہٹائی جا سکتی ہیں</string>
@@ -938,9 +925,6 @@
   <string name="active_window_indicator_summary">کون سی ونڈو فعال ہے یہ پہچاننے میں مدد کے لیے ونڈو کونوں کو نمایاں کریں</string>
   <string name="app_licence_title">اوپن سورس لائسنس</string>
   <string name="how_to_contribute">حصہ کیسے ڈالیں؟</string>
-  <string name="confirm_delete_bookmarks">کیا آپ %d بک مارکس اور ان کے نوٹس ہٹانا چاہتے ہیں؟</string>
-  <string name="confirm_delete_orphaned_bookmarks">منتخب لیبل %d بک مارکس سے منسلک ہے جن کے کوئی دوسرے لیبل نہیں ہیں۔ کیا آپ یہ بک مارکس لیبل کے ساتھ حذف کرنا چاہتے ہیں؟</string>
-  <string name="delete_label_and_bookmarks">لیبل اور بک مارکس حذف کریں</string>
   <string name="delete_label_only">صرف لیبل حذف کریں</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">کسی دوست کو تجویز کریں</string>
@@ -971,8 +955,6 @@
   <string name="old_webview">Android WebView پیکیج بہت پرانا ہے (%1$s)۔ %3$s استعمال کرنے کے لیے آپ کو اپنا Android WebView پیکیج کم از کم ورژن %2$s تک اپ گریڈ کرنا ہوگا۔ زیادہ تر ڈیوائسز پر یہ %4$s کے ذریعے ہو سکتا ہے۔</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">پھر بھی جاری رکھیں</string>
-  <string name="proceed">جاری رکھیں</string>
-  <string name="rate_title">ریٹنگ اور جائزہ</string>
   <string name="rate_message5">مثبت اور تفصیلی جائزے AndBible اوپن سورس پروجیکٹ کی بہت مدد کرتے ہیں۔ شکریہ!</string>
   <string name="rate_message6">منفی جائزہ لکھنے سے پہلے براہ کرم مندرجہ ذیل پر غور کریں:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -1002,7 +984,6 @@
   <string name="primary_label">مرکزی لیبل</string>
   <string name="favourite_label">پسندیدہ لیبل</string>
   <string name="edit_label">لیبل ترمیم کریں</string>
-  <string name="delete_label_confirmation">کیا آپ بک مارک لیبل \"%s\" ہٹانا چاہتے ہیں؟ اس سے منسلک تمام مطالعہ پیڈ نوٹس بھی ہٹ جائیں گے۔</string>
   <string name="active_labels">منتخب لیبل</string>
   <string name="recent_labels">حالیہ لیبل</string>
   <string name="other_labels">دیگر لیبل</string>
@@ -1012,8 +993,6 @@
   <string name="book_menu_show_progress_bars">پیشرفت بار دکھائیں</string>
   <string name="reset_workspace_labels">کیا آپ اس ورک اسپیس کے لیے خودکار تفویض اور پسندیدہ ترتیبات ری سیٹ کرنا چاہتے ہیں؟</string>
   <string name="clear_auto_assign_labels">خود کار تفویض لیبل صاف کریں</string>
-  <string name="reset_workspace_auto_assign_labels">کیا آپ اس ورک اسپیس سے تمام خود کار تفویض لیبل ہٹانا چاہتے ہیں؟</string>
-  <string name="reset_hide_labels">کیا آپ مخصوص لیبل چھپانے کی ترتیبات ری سیٹ کرنا چاہتے ہیں؟</string>
   <string name="reorder">دوبارہ ترتیب دیں</string>
   <string name="system_items">سسٹم اعمال</string>
   <string name="system_items1">مزید</string>
@@ -1027,7 +1006,6 @@
   <string name="ios_fullscreen_hint">فل اسکرین سے باہر نکلنے کے لیے ڈبل ٹیپ کریں یا بٹن کو ٹیپ کریں۔</string>
   <string name="desktop_exit_fullscreen">فل اسکرین سے باہر نکلیں</string>
   <string name="exit_fullscreen">فل اسکرین سے باہر نکلنے کے لیے اسکرین ڈبل ٹیپ کریں</string>
-  <string name="reset_app_prefs">کیا آپ اس اسکرین پر دکھائی گئی تمام عالمی ایپلیکیشن ترجیحات کو ان کی ڈیفالٹ اقدار پر ری سیٹ کرنا چاہتے ہیں؟</string>
   <string name="label_red">سرخ</string>
   <string name="label_green">سبز</string>
   <string name="label_blue">نیلا</string>
@@ -1038,7 +1016,6 @@
   <string name="reset_databases_title">ڈیٹابیسز ری سیٹ کریں</string>
   <string name="reset_databases_description">انفرادی ڈیٹابیسز کو ابتدائی خالی حالت میں ری سیٹ کریں۔ یہ واپس نہیں کیا جا سکتا۔</string>
   <string name="last_crash_info_title">آخری کریش کی معلومات</string>
-  <string name="reset_database_confirm">یہ \"%1$s\" میں تمام ڈیٹا مستقل طور پر حذف کر دے گا اور ابتدائی حالت میں ری سیٹ کر دے گا۔ یہ واپس نہیں کیا جا سکتا۔\n\nکیا آپ یقین میں ہیں؟</string>
   <string name="reset_database_success">ڈیٹابیس کامیابی سے ری سیٹ ہو گیا</string>
   <string name="reset_something">ری سیٹ: %1$s</string>
   <string name="export">برآمد کریں</string>
@@ -1108,19 +1085,18 @@
   <string name="manage_labels_help_favourite">لیبل کو فوری رسائی کے لیے اپنے پسندیدہ میں رکھیں۔</string>
   <string name="manage_labels_help_styles">نام کے نیچے ایک چھوٹی مثال لیبل کی شکل دکھاتی ہے: متن کے انتخاب والے بک مارک کے لیے انتخاب، پوری آیت والے کے لیے پوری آیت، اور اس انداز کے لیے ورک اسپیس کا ٹیگ جسے یہ ورک اسپیس بدلتا ہے۔ بغیر آرائش کے دھندلی مثال کا مطلب ہے کہ لیبل کے بک مارکس نہیں دکھائے جاتے۔ مثالیں ⋮ مینو سے چھپائیں۔</string>
   <string name="manage_labels_help_reorder">فہرست کی ترتیب ⋮ مینو سے تبدیل کریں۔</string>
+  <string name="manage_labels_help_narrow_toggles">تنگ اسکرین پر لیبل کے ناموں کو جگہ دینے کے لیے فہرست میں بنیادی، خود کار تفویض اور پسندیدہ آئیکنز شامل نہیں کیے جاتے۔ انہیں سیٹ کرنے کے لیے لیبل پر ٹیپ کر کے اس کے ایڈیٹر میں جائیں۔</string>
   <string name="added_to_bookmark">اس بک مارک کو تفویض</string>
   <string name="strongs_links">لنکس</string>
   <string name="strongs_text_and_links">متن اور لنکس</string>
   <string name="strongs_hidden_links">پوشیدہ لنکس</string>
   <string name="verse_tip">جزوی یا متعدد آیات منتخب کرنے کے لیے بائبل متن طویل دبائیں</string>
-  <string name="permission_required">اجازت درکار ہے</string>
   <string name="labels_search_hint">تلاش کریں</string>
   <string name="search_mode_name_start">نام (شروع سے)</string>
   <string name="search_mode_name_contains">نام (شامل ہے)</string>
   <string name="search_mode_content">مواد</string>
   <string name="search_results_matches">%d مطابقتیں</string>
   <string name="search_results_match">1 مطابقت</string>
-  <string name="progress_status_permission">اطلاعات دکھانے کے لیے (ڈاؤنلوڈ حیثیت، پروسیسنگ، بولنے کی حیثیت)، ہمیں آپ کی اجازت درکار ہے۔</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">سادہ کیلکولیٹر</string>
   <string name="prefs_persecution_cat">مظلوموں کے لیے ترتیبات</string>
@@ -1154,7 +1130,6 @@
   <string name="custom_repositories_create_button_label">کسٹم ذخیرہ شامل کریں</string>
   <string name="custom_repositories_info_button_label">معلومات</string>
   <string name="repository_specification">ذخیرے کا URL</string>
-  <string name="delete_custom_repository">کیا آپ کسٹم ذخیرہ %s ہٹانا چاہتے ہیں؟</string>
   <string name="custom_repositories_help1">نیا کسٹم ذخیرہ شامل کرنے کے لیے کسٹم ذخیرے کا URL یہاں ٹائپ یا پیسٹ کریں۔</string>
   <string name="custom_repositories_help2">کسٹم ذخائر کے بارے میں مزید معلومات %s میں پڑھ سکتے ہیں۔</string>
   <string name="custom_repositories_help0">آپ کسٹم ذخائر انسٹال کر کے بیرونی کسٹم ذخائر سے دستاویزات انسٹال کر سکتے ہیں۔</string>
@@ -1174,7 +1149,6 @@
   <string name="db_bookmarks">بک مارکس، میرے نوٹس، لیبل اور مطالعہ پیڈز</string>
   <string name="synchronizing">ہم آہنگ ہو رہا ہے…</string>
   <string name="notification_finished">مکمل</string>
-  <string name="overrideBackup">کلاؤڈ میں ایسا موجودہ ڈیٹابیس ملا جس سے یہ ڈیوائس ہم آہنگ نہیں ہے۔ ڈیٹابیس میں %s ہے۔ آپ کیا کرنا چاہتے ہیں؟</string>
   <string name="reading_plans_content">مطالعہ منصوبے اور ان کی حیثیت</string>
   <string name="bookmarks_contents">بک مارکس، لیبل اور مطالعہ پیڈز</string>
   <string name="workspaces_contents">ورک اسپیسز اور ونڈوز</string>
@@ -1194,7 +1168,6 @@
   <string name="reading_progress_calendar">پڑھنے کی سرگرمی</string>
   <string name="reading_progress_cycle">چکر %d</string>
   <string name="reading_progress_new_cycle">نیا چکر</string>
-  <string name="reading_progress_new_cycle_confirm">نیا پڑھنے کا چکر شروع کریں؟ یہ آپ کی پیشرفت از سر نو ٹریک کرنا شروع کرے گا، جبکہ پچھلے چکر کا ڈیٹا محفوظ رہے گا۔</string>
   <string name="reading_progress_previous_cycle">پچھلا چکر</string>
   <string name="reading_progress_next_cycle">اگلا چکر</string>
   <string name="cloud_merge_data">ڈیٹا ضم کریں</string>
@@ -1204,7 +1177,6 @@
   <string name="cloud_sync_title">ڈیوائس ہم آہنگی</string>
   <string name="reset_sync">سائن آؤٹ کریں</string>
   <string name="prefs_reset_sync_summary">ہم آہنگی غیر فعال کریں اور متعلقہ ترتیبات ری سیٹ کریں۔</string>
-  <string name="sync_confirmation">کیا آپ واقعی سائن آؤٹ کرنا اور ہم آہنگی ری سیٹ کرنا چاہتے ہیں؟</string>
   <string name="cloud_info">کلاؤڈ معلومات</string>
   <string name="cloud_info_summary">کلاؤڈ اسٹوریج میں ڈیٹا: %s Mb</string>
   <string name="sync_adapter">ہم آہنگی بیک اینڈ</string>
@@ -1220,7 +1192,6 @@
   <string name="webdav_server_url_hint">WebDAV فولڈر کا پتہ، مثلاً https://nas.local/dav/ یا https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">مطابقت پذیری کے لیے محفوظ https:// پتہ درکار ہے۔</string>
   <string name="webdav_certificate_title">سرور سرٹیفکیٹ</string>
-  <string name="webdav_forget_certificate_message">قابل اعتماد سرور سرٹیفکیٹ بھول جائیں؟ اگلے کنکشن پر آپ سے سرٹیفکیٹ کی دوبارہ تصدیق کرنے کو کہا جائے گا۔</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">ناقابل اعتماد سرور سرٹیفکیٹ</string>
   <string name="webdav_untrusted_certificate_message">%1$s کا سرٹیفکیٹ Android کے نزدیک قابل اعتماد نہیں ہے۔ اس پر صرف تبھی اعتماد کریں جب آپ اسے پہچانتے ہوں، مثلاً اس لیے کہ یہ سرور آپ نے خود بنایا ہے۔\n\nموضوع: %2$s\nجاری کنندہ: %3$s\nمیعاد: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1237,14 +1208,7 @@
   <string name="synchronization_categories">ہم آہنگی زمرے</string>
   <string name="sync_general_settings">معلومات اور عمومی ترتیبات</string>
   <string name="sync_introduction">تعارف</string>
-  <string name="are_you_sure">کیا آپ یقین میں ہیں؟</string>
   <string name="are_you_sure_merge">اس آلے کا ڈیٹا اور کلاؤڈ میں موجود %s دونوں رکھے جائیں گے۔ جہاں ایک ہی آئٹم دونوں جگہ تبدیل ہوا ہو، وہاں نئی تبدیلی رکھی جائے گی۔ اس آلے کا ڈیٹا آپ کے دوسرے آلات کو بھیجا جائے گا۔</string>
-  <string name="are_you_sure_reset_local">یہ اس ڈیوائس پر %s کا مقامی ڈیٹابیس کلاؤڈ سروس میں موجود مواد سے ری سیٹ کر دے گا۔</string>
-  <string name="are_you_sure_reset_cloud">یہ %s کے لیے آپ کا کلاؤڈ ڈیٹابیس اس ڈیوائس میں موجود مواد سے ری سیٹ کر دے گا۔</string>
-  <string name="sync_cant_fetch">کلاؤڈ میں محفوظ ڈیٹابیس یا پیچ فائل کا ورژن اس ایپ کی حمایت یافتہ ورژن سے زیادہ ہے۔</string>
-  <string name="sync_disabling">%s کے لیے ہم آہنگی فی الحال غیر فعال کی جا رہی ہے۔</string>
-  <string name="sync_update_app">ہم آہنگی جاری رکھنے کے لیے براہ کرم ایپ اپ ڈیٹ کریں۔</string>
-  <string name="sign_in_failed">ہم آہنگی بیک اینڈ سروس میں سائن ان ناکام ہوا۔</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">کلاؤڈ ہم آہنگی غیر فعال ہو رہی ہے۔ بحالی کے بعد آپ کو دستی طور پر دوبارہ فعال کرنا ہوگا۔</string>
   <string name="report">رپورٹ کریں</string>
@@ -1262,6 +1226,7 @@
   <string name="open_here">یہاں کھولیں</string>
   <string name="external_link">بیرونی لنک</string>
   <string name="external_link_question">یہ بیرونی لنک %s براؤزر ایپلیکیشن میں کھولے گا، کیا آپ جاری رکھنا چاہتے ہیں؟</string>
+  <string name="external_link_dont_ask_again">%s کے لیے دوبارہ نہ پوچھیں</string>
   <string name="nameless">عنوان بیان نہیں کیا گیا</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">یک ٹیپ اعمال (بائبلیں)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">یک ٹیپ اعمال (دیگر)</string>
@@ -1309,8 +1274,6 @@
   <string name="memorize_include_reference_summary">آیت کا حوالہ (مثلاً یوحنا 3:16) حفظ کرنے کے آخری عنصر کے طور پر شامل کریں</string>
   <string name="reading_progress_settings">پیشرفت اور حفظ</string>
   <string name="reading_progress_settings_summary">خودکار ٹریکنگ، حفظ، اور ٹائپنگ مشق کی ترتیبات</string>
-  <string name="memorize_confirm_unmark">%s کا حفظ شدہ حیثیت ہٹائیں؟</string>
-  <string name="memorize_confirm_remove_target">حفظ کا ہدف %s ہٹائیں؟</string>
   <string name="memorize_tab_reading">پڑھنا</string>
   <string name="memorize_tab_memorization">حفظ</string>
   <string name="memorize_verses_memorized">حفظ شدہ</string>
@@ -1336,7 +1299,6 @@
   <string name="llm_reset_usage_title">استعمال ڈیٹا ری سیٹ کریں</string>
   <string name="llm_reset_usage_summary">مجموعی ٹوکن اور لاگت ٹریکنگ صاف کریں</string>
   <string name="llm_reset_usage_confirm_title">استعمال ڈیٹا ری سیٹ کریں؟</string>
-  <string name="llm_reset_usage_confirm_message">یہ تمام مجموعی استعمال ڈیٹا صاف کر دے گا۔</string>
   <string name="llm_custom_input_price_title">ان پٹ قیمت ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">آؤٹ پٹ قیمت ($/Mtoken)</string>
   <string name="llm_cost_total">مجموعی: %1$s</string>
@@ -1352,8 +1314,6 @@
   <string name="llm_parse_error_anthropic">Anthropic جواب پارس کرنے میں ناکامی: %1$s</string>
   <string name="llm_error_unknown">نامعلوم خرابی</string>
   <string name="llm_error_max_iterations">زیادہ سے زیادہ تکرار (%1$d) مکمل ہونے کے بغیر پہنچ گئی</string>
-  <string name="llm_continue_iterations_title">جاری رکھیں؟</string>
-  <string name="llm_continue_iterations_message">AI ایجنٹ مکمل کیے بغیر %1$d تکرار کی حد تک پہنچ گیا۔ %2$d مزید تکرار کے لیے جاری رکھیں؟</string>
   <string name="agent_max_iterations_title">ایجنٹ کی زیادہ سے زیادہ تکرار</string>
   <string name="agent_max_iterations_summary">جاری رکھنے کا سوال پوچھنے سے پہلے زیادہ سے زیادہ تکرار (0 = لامحدود)</string>
   <string name="ask_model_before_run_title">چلانے سے پہلے ماڈل پوچھیں</string>
@@ -1413,7 +1373,6 @@
   <string name="ai_models_summary_none">کوئی ماڈل ترتیب نہیں دیا گیا</string>
   <string name="ai_add_provider">فراہم کنندہ شامل کریں</string>
   <string name="ai_provider_edit">ترمیم کریں</string>
-  <string name="ai_provider_delete_confirm">فراہم کنندہ \"%1$s\" حذف کریں؟ اس فراہم کنندہ کو استعمال کرنے والے پرامپٹس ڈیفالٹ پر واپس آ جائیں گے۔</string>
   <string name="ai_provider_api_key_not_set">API کلید سیٹ نہیں</string>
   <string name="ai_provider_select_type">فراہم کنندہ کی قسم منتخب کریں</string>
   <string name="ai_provider_name">فراہم کنندہ کا نام</string>
@@ -1433,7 +1392,6 @@
   <string name="edit_model_title">ماڈل ترمیم کریں</string>
   <string name="model_saved">ماڈل محفوظ ہو گیا</string>
   <string name="model_deleted">ماڈل حذف ہو گیا</string>
-  <string name="model_delete_confirm">ماڈل \"%1$s\" حذف کریں؟</string>
   <string name="model_set_default">ڈیفالٹ ماڈل بنائیں</string>
   <string name="model_select_provider">فراہم کنندہ</string>
   <string name="model_supported_badge">✓ سپورٹ شدہ</string>
@@ -1473,7 +1431,6 @@
   <string name="ai_disclaimer_point8">آپ کا ڈیٹا آپ کے منتخب AI فراہم کنندہ کے سرورز پر بھیجا جاتا ہے۔ API کلید استعمال کر کے آپ اس فراہم کنندہ کی شرائط اور رازداری پالیسی سے متفق ہوتے ہیں۔ خود میزبان ماڈل ممکن ہیں لیکن زیادہ تکنیکی مہارت درکار ہے اور تجارتی ماڈلز جتنے اچھے نتائج نہیں دے سکتے۔</string>
   <string name="ai_disclaimer_point9">AI فراہم کنندگان API استعمال کا معاوضہ لیتے ہیں۔ AndBible میں دکھائے گئے لاگت کے تخمینے تقریبی ہیں — اصل معاوضوں کے لیے اپنے فراہم کنندہ کی بلنگ چیک کریں۔</string>
   <string name="ai_disclaimer_accept_title">AI دستبرداری قبول کریں</string>
-  <string name="ai_disclaimer_accept_button">میں قبول کرتا ہوں اور مکمل ذمہ داری لیتا ہوں</string>
   <string name="prompt_permission_mode">اجازت موڈ</string>
   <string name="prompt_permission_mode_description">کنٹرول کرتا ہے کہ AI کے لکھنے والے کام انجام دینے سے پہلے صارف کی تصدیق کب درکار ہے۔ نیچے دی گئی فی ٹول ترتیبات انفرادی ٹولز کے لیے اسے اوور رائڈ کر سکتی ہیں۔</string>
   <string name="agent_permission_mode_summary">کنٹرول کرتا ہے کہ AI لکھنے والے کام سے پہلے صارف کی تصدیق کب درکار ہے</string>
@@ -1589,7 +1546,6 @@
   <string name="default_prompt_custom_desc">منتخب اقتباس پر کسٹم کام چلائیں</string>
   <string name="default_prompt_custom_template">منتخب بائبل اقتباس کے لیے صارف کی کام کی تصریح پر عمل کریں۔</string>
   <string name="copy">کاپی کریں</string>
-  <string name="delete_prompt_confirm_message">کیا آپ واقعی یہ پرامپٹ حذف کرنا چاہتے ہیں؟</string>
   <string name="ai_hide_prompt">چھپائیں</string>
   <string name="ai_restore_hidden_prompts">پوشیدہ پرامپٹس بحال کریں</string>
   <string name="ai_prompt_hidden">پرامپٹ پوشیدہ ہو گیا</string>
@@ -1674,8 +1630,6 @@
   <string name="permission_allow_all_session">اس سیشن میں تمام ٹولز کو اجازت دیں</string>
   <string name="permission_allow_always">ہمیشہ \"%1$s\" کو اجازت دیں</string>
   <string name="permission_deny">انکار کریں</string>
-  <string name="permission_always_allow_confirm_title">ہمیشہ اجازت دیں؟</string>
-  <string name="permission_always_allow_confirm">کیا آپ واقعی \"%1$s\" کو مستقل اجازت دینا چاہتے ہیں؟</string>
   <string name="permission_always_allow_confirm_reset_hint">آپ اسے AI ترتیبات میں ری سیٹ کر سکتے ہیں۔</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">ٹول اجازتیں</string>
@@ -1780,18 +1734,15 @@
   <string name="my_document_new_name">دستاویز %d</string>
   <string name="my_document_create_title">نئی دستاویز بنائیں</string>
   <string name="my_document_rename_title">دستاویز کا نام بدلیں</string>
-  <string name="my_document_delete_confirmation">دستاویز \"%s\" حذف کریں؟</string>
   <string name="show_secret">دکھائیں</string>
   <string name="hide_secret">چھپائیں</string>
   <string name="ai_documents_name">AI دستاویزات</string>
   <string name="ai_documents_description">AI سے خودکار طور پر بنائی گئی دستاویزات</string>
-  <string name="my_document_cannot_delete_ai_documents">AI دستاویزات کو حذف نہیں کیا جا سکتا جب تک صفحات موجود ہوں۔ پہلے صفحات حذف کریں۔</string>
   <string name="my_document_save_changes">تبدیلیاں محفوظ کریں؟</string>
   <string name="my_document_no_description">کوئی تفصیل نہیں</string>
   <string name="my_document_edit_description">تفصیل ترمیم کریں</string>
   <string name="my_document_pages_title">%s - صفحات</string>
   <string name="my_document_page_rename_title">صفحے کا نام بدلیں</string>
-  <string name="my_document_page_delete_confirmation">صفحہ \"%s\" حذف کریں؟</string>
   <string name="my_document_pages_delete_confirmation">ان صفحات کو حذف کریں؟</string>
   <string name="my_documents_switch_document">دستاویز تبدیل کریں</string>
   <string name="my_document_new_page_name">صفحہ %1$d</string>
@@ -1859,7 +1810,6 @@
   <string name="cloud_doc_show_removed">ہٹائی گئی دستاویزات دکھائیں</string>
   <string name="cloud_doc_status_removed">کلاؤڈ سے ہٹائی گئی</string>
   <string name="cloud_doc_status_still_installed">اب بھی یہاں انسٹال شدہ</string>
-  <string name="cloud_doc_purge_confirm">\"%1$s\" کو کلاؤڈ کی تاریخ سے مستقل طور پر ہٹا دیں؟ اگر یہ کسی دوسری ڈیوائس پر اب بھی انسٹال ہے، تو وہ ڈیوائس اگلی ہم آہنگی پر اسے دوبارہ کلاؤڈ پر اپ لوڈ کر سکتی ہے۔</string>
   <string name="cloud_doc_action_download">ڈاؤنلوڈ کریں</string>
   <string name="cloud_doc_action_push">کلاؤڈ پر اپ لوڈ کریں</string>
   <string name="cloud_doc_action_remove_cloud">کلاؤڈ سے ہٹائیں</string>
@@ -1870,8 +1820,6 @@
   <string name="cloud_doc_action_dont_sync">کلاؤڈ سے ہم آہنگ نہ کریں</string>
   <string name="cloud_doc_action_allow_sync">کلاؤڈ سے ہم آہنگ کریں</string>
   <string name="cloud_doc_action_purge">کلاؤڈ کی تاریخ سے ہٹائیں</string>
-  <string name="cloud_doc_remove_all_confirm">%1$s کو کلاؤڈ اور آپ کی تمام ڈیوائسز سے، بشمول اس ڈیوائس کے، ہٹا دیں؟</string>
-  <string name="cloud_doc_remove_cloud_confirm">%1$s کو کلاؤڈ سے ہٹا دیں؟ اس ڈیوائس پر موجود کاپی برقرار رہے گی؛ جن ڈیوائسز پر دستاویزات کی ہم آہنگی آن ہے وہ بھی اسے ہٹا دیں گی۔</string>
   <string name="cloud_doc_sync_now">ابھی ہم آہنگ کریں</string>
   <string name="cloud_doc_rescan">کلاؤڈ سے دوبارہ اسکین کریں</string>
   <string name="cloud_doc_sync_now_download">نئی اور اپ ڈیٹ شدہ دستاویزات ڈاؤنلوڈ کریں</string>
@@ -1883,6 +1831,14 @@
   <string name="cloud_doc_summary_download">%1$d ڈاؤنلوڈ کریں</string>
   <string name="cloud_doc_summary_download_size">%1$d ڈاؤنلوڈ کریں (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">خودکار ڈاؤنلوڈز Wi-Fi پر شروع ہوں گی۔</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d دستاویز</item>
+        <item quantity="other">%1$d دستاویزات</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d دستاویز (%2$s)</item>
+        <item quantity="other">%1$d دستاویزات (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">منتقل کرنے کے لیے کچھ نہیں</string>
   <string name="cloud_doc_selected_count">%1$d منتخب</string>
   <string name="cloud_doc_bulk_skipped">%1$d نظر انداز کی گئیں (لاگو نہیں)</string>
@@ -1899,8 +1855,6 @@
   <string name="background_image_import">گیلری سے درآمد کریں…</string>
   <string name="background_image_empty">ابھی کوئی تصویر درآمد نہیں کی گئی۔ شامل کرنے کے لیے \"گیلری سے درآمد کریں…\" پر ٹیپ کریں۔</string>
   <string name="background_image_importing">درآمد ہو رہی ہے…</string>
-  <string name="background_image_delete_title">تصویر حذف کریں؟</string>
-  <string name="background_image_delete_confirm">یہ پس منظر کی تصویر حذف کریں؟ جو ورک اسپیسز اسے استعمال کر رہے ہیں وہ بغیر تصویر کے ہو جائیں گے۔</string>
   <string name="background_image_day">پس منظر کی تصویر (دن)</string>
   <string name="background_image_night">پس منظر کی تصویر (رات)</string>
   <string name="background_image_opacity_day">پس منظر کی تصویر کی شفافیت (دن)</string>
@@ -1974,6 +1928,10 @@
   <string name="legacy_notice_icloud">مطابقت پذیری اب iCloud Drive استعمال کرتی ہے۔ اسے ترتیبات ← مطابقت پذیری میں دوبارہ آن کریں۔ یہ آلہ اپنا موجودہ ڈیٹا رکھتا ہے؛ آپ کے دوسرے آلات کی تبدیلیاں مطابقت پذیری دوبارہ ترتیب دینے کے بعد آئیں گی۔ پرانا iCloud ڈیٹا ہٹانے کے لیے: ترتیبات ← آپ کا نام ← iCloud ← اسٹوریج کا نظم ← AndBible۔</string>
   <string name="legacy_notice_nextcloud">آپ کا Nextcloud کنکشن منتقل ہو گیا، لیکن مطابقت پذیری بند ہے۔ اسے ترتیبات ← مطابقت پذیری میں آن کریں اور کلاؤڈ سے حاصل کرنے یا نیا بنانے کا انتخاب کریں۔</string>
   <string name="legacy_notice_nextcloud_unsent">اس آلے کی کچھ تبدیلیاں ابھی Nextcloud کو نہیں بھیجی گئی تھیں۔ وہ نہیں بھیجی گئیں اور صرف اسی آلے پر رہیں گی۔</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d بک مارک کو قابلِ اعتماد طریقے سے رکھا نہیں جا سکا اور اسے درآمد نہیں کیا گیا۔ وہ اس ڈیوائس پر آپ کے پرانے ڈیٹا کے ساتھ محفوظ ہے۔</item>
+        <item quantity="other">%1$d بک مارکس کو قابلِ اعتماد طریقے سے رکھا نہیں جا سکا اور انہیں درآمد نہیں کیا گیا۔ وہ اس ڈیوائس پر آپ کے پرانے ڈیٹا کے ساتھ محفوظ ہیں۔</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">یہ ایک طاقتور مگر استعمال میں آسان آف لائن بائبل مطالعہ ایپلیکیشن ہے۔</string>
   <string name="webdav_untrusted_certificate_message_device">%1$s کا سرٹیفکیٹ اس آلے کے نزدیک قابل اعتماد نہیں ہے۔ اس پر صرف تبھی اعتماد کریں جب آپ اسے پہچانتے ہوں، مثلاً اس لیے کہ یہ سرور آپ نے خود بنایا ہے۔\n\nموضوع: %2$s\nجاری کنندہ: %3$s\nمیعاد: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2025,6 +1983,25 @@
   <string name="recommend_share_link">لنک شیئر کریں</string>
   <string name="recommend_qr_caption">اپنے فون، ٹیبلیٹ یا کمپیوٹر کے لیے AndBible حاصل کرنے کے لیے اسکین کریں۔</string>
   <string name="desktop_activation_failed">AndBible پہلے سے چل رہا ہے، لیکن اس کی ونڈو نے جواب نہیں دیا۔ چلتی ہوئی انسٹینس پر جائیں اور دوبارہ کوشش کریں۔ آنے والی فائلوں کی ترسیل کی تصدیق نہیں ہوئی۔</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">اسے واپس نہیں کیا جا سکتا۔</string>
+  <string name="ai_raw_log_delete_lead">یہ لاگ حذف کریں؟</string>
+  <string name="ai_provider_delete_lead">فراہم کنندہ “%1$s” حذف کریں؟</string>
+  <string name="ai_provider_delete_detail">اسے استعمال کرنے والے پرامپٹس ڈیفالٹ فراہم کنندہ پر واپس چلے جائیں گے۔</string>
+  <string name="ai_model_delete_lead">ماڈل “%1$s” حذف کریں؟</string>
+  <string name="ai_prompt_delete_named_lead">پرامپٹ “%1$s” حذف کریں؟</string>
+  <string name="ai_prompt_delete_lead">یہ پرامپٹ حذف کریں؟</string>
+  <string name="ai_reset_usage_detail">ٹوکن اور لاگت کے مجموعے صفر پر واپس چلے جاتے ہیں۔ اسے واپس نہیں کیا جا سکتا۔</string>
+  <string name="ai_reset_usage_button">ری سیٹ کریں</string>
+  <string name="ai_disclaimer_accept">میں قبول کرتا ہوں</string>
+  <string name="llm_continue_iterations_lead">مزید %1$d تکرارات کے لیے جاری رکھیں؟</string>
+  <string name="llm_continue_iterations_detail">ai ایجنٹ بغیر مکمل کیے %1$d تکرارات کی حد تک پہنچ گیا۔</string>
+  <string name="llm_continue_button">جاری رکھیں</string>
+  <string name="permission_always_allow_lead">“%1$s” کی ہمیشہ اجازت دیں؟</string>
+  <string name="permission_always_allow_button">ہمیشہ اجازت دیں</string>
+  <string name="ai_bug_report_send_lead">ai بگ رپورٹ بھیجیں؟</string>
+  <string name="ai_bug_report_send_button">بھیجیں</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">ابتدائی رہنمائی</string>
   <string name="user_guide_section_reading_workspace">مطالعہ اور ورک اسپیس</string>
@@ -2102,4 +2079,150 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI معاون، حصہ 3: اوزار، آپ کا ڈیٹا اور اجازتیں</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI معاون، حصہ 4: اپنے پرامپٹس، اخراجات اور مطابقت پذیری</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">تبدیلیاں رد کریں؟</string>
+  <string name="dialog_keep_editing">ترمیم جاری رکھیں</string>
+  <string name="dialog_label_delete_lead">لیبل “%1$s” حذف کریں؟</string>
+  <string name="dialog_label_delete_detail">اس کے مطالعہ پیڈ کے نوٹس بھی حذف ہو جاتے ہیں۔ اسے واپس نہیں کیا جا سکتا۔</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d بک مارک کا کوئی اور لیبل نہیں ہے۔</item>
+        <item quantity="other">%1$d بک مارکس کا کوئی اور لیبل نہیں ہے۔</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">لیبل اور %1$d بک مارک حذف کریں</item>
+        <item quantity="other">لیبل اور %1$d بک مارکس حذف کریں</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">بک مارکس اور ان کے نوٹس حذف ہو جاتے ہیں۔</string>
+  <string name="dialog_label_delete_only_consequence">بک مارکس لیبل کے بغیر رہ جاتے ہیں۔</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">یہ بک مارک ہٹا دیں؟</item>
+        <item quantity="other">%1$d بک مارکس ہٹا دیں؟</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">اس کا نوٹ بھی ہٹا دیا جاتا ہے۔</item>
+        <item quantity="other">ان کے نوٹس بھی ہٹا دیے جاتے ہیں۔</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">اس ورک اسپیس سے تمام خود کار تفویض لیبل ہٹا دیں؟</string>
+  <string name="dialog_labels_reset_hidden_lead">تمام چھپے ہوئے لیبل دوبارہ دکھائیں؟</string>
+  <string name="dialog_labels_reset_shown_detail">جو لیبل آپ نے فہرست سے چھپائے تھے وہ دوبارہ دکھائے جاتے ہیں۔</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">“%s” انسٹال کریں؟</string>
+  <string name="install_action">انسٹال کریں</string>
+  <string name="install_from_file_question">فائل سے دستاویزات انسٹال کریں؟</string>
+  <string name="overwrite_files_detail">یہ فائلیں پہلے سے موجود ہیں:%s</string>
+  <string name="import_studypads_question">یہ مطالعہ پیڈز درآمد کریں؟</string>
+  <string name="import_action">درآمد کریں</string>
+  <string name="restore_backup_question">اس بیک اپ میں موجود دستاویزات بحال کریں؟</string>
+  <string name="restore_backup_detail">یہ فائل AndBible دستاویزات کا بیک اپ ہے۔</string>
+  <string name="update_document_question">یہ دستاویز اپ ڈیٹ کریں؟</string>
+  <string name="update_action">اپ ڈیٹ کریں</string>
+  <string name="download_documents_question">دستاویزات ڈاؤنلوڈ کریں؟</string>
+  <string name="download_persecution_warning">اگر آپ ایسے ملک میں رہتے ہیں جہاں مسیحیوں پر ظلم ہوتا ہے، تو انٹرنیٹ کے ذریعے مسیحی مواد ڈاؤنلوڈ کرتے وقت آپ کو احتیاط کرنی پڑ سکتی ہے۔ اس کے بجائے آپ دستاویزات کی زپ فائلیں زیادہ محفوظ طریقے سے حاصل کر کے “%1$s” کے ذریعے انسٹال کر سکتے ہیں۔ دستاویزی سرورز سے تمام ڈاؤنلوڈز انکرپٹڈ (HTTPS) ہیں۔</string>
+  <string name="download_action">ڈاؤنلوڈ کریں</string>
+  <string name="download_dont_ask_again">ڈاؤنلوڈ کریں، دوبارہ نہ پوچھیں</string>
+  <string name="download_dont_ask_again_consequence">آئندہ ڈاؤنلوڈز اس سوال کے بغیر شروع ہوں گے۔</string>
+  <string name="passphrase_did_not_work">پاس فریز کام نہیں کیا۔</string>
+  <string name="try_again">دوبارہ کوشش کریں</string>
+  <string name="interrupted_downloads_lead">یہ دستاویزات دوبارہ ڈاؤنلوڈ کریں؟</string>
+  <string name="interrupted_downloads_detail">ان کا ڈاؤنلوڈ رک گیا تھا، اس لیے وہ انسٹال نہیں ہوئیں۔</string>
+  <string name="external_link_open_question">یہ لنک اپنے براؤزر میں کھولیں؟</string>
+  <string name="open_action">کھولیں</string>
+  <string name="notification_permission_question">اطلاعات کی اجازت دیں؟</string>
+  <string name="notification_permission_detail">اطلاعات ڈاؤنلوڈ کی صورتحال، پروسیسنگ اور بولنے کی صورتحال دکھاتی ہیں۔</string>
+  <string name="allow_action">اجازت دیں</string>
+  <string name="rate_question">ایپ کو ریٹنگ اور ریویو دیں؟</string>
+  <string name="bug_report_email_question">بگ رپورٹ ای میل سے بھیجیں؟</string>
+  <string name="continue_action">جاری رکھیں</string>
+  <string name="delete_search_index_question">“%s” کا تلاش انڈیکس حذف کریں؟</string>
+  <string name="remove_custom_repository_question">کسٹم ذخیرہ “%s” ہٹا دیں؟</string>
+  <string name="download_document_question">“%s” ڈاؤنلوڈ کریں؟</string>
+  <string name="choose_file_action">فائل منتخب کریں</string>
+  <string name="old_webview_question">ایپ کو پرانے WebView کے ساتھ استعمال کریں؟</string>
+  <string name="incomplete_translation_question">جزوی ترجمے کے ساتھ جاری رکھیں؟</string>
+  <string name="rate_action">ریٹنگ دیں</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">دستاویز “%s” حذف کریں؟</string>
+  <string name="my_document_page_delete_lead">صفحہ “%s” حذف کریں؟</string>
+  <string name="my_document_cannot_delete_ai_lead">ai دستاویزات میں صفحات موجود ہوں تو انہیں حذف نہیں کیا جا سکتا۔</string>
+  <string name="my_document_cannot_delete_ai_detail">پہلے صفحات حذف کریں۔</string>
+  <string name="reading_progress_new_cycle_lead">نیا مطالعہ دور شروع کریں؟</string>
+  <string name="reading_progress_new_cycle_detail">آپ کی پیش رفت نئے سرے سے ٹریک کی جاتی ہے۔ آپ کے پچھلے دور کا ڈیٹا محفوظ رہتا ہے۔</string>
+  <string name="reading_progress_new_cycle_start">شروع کریں</string>
+  <string name="reset_plan_lead">یہ منصوبہ ری سیٹ کریں؟</string>
+  <string name="reset_plan_detail">اس منصوبے میں آپ کی شروع کی تاریخ اور پیش رفت مٹا دی جاتی ہے۔</string>
+  <string name="set_current_day_lead">%1$s کو موجودہ دن مقرر کریں؟</string>
+  <string name="set_current_day_detail">تمام پچھلے دنوں کو پڑھا ہوا نشان زد کر دیا جاتا ہے۔</string>
+  <string name="plan_duplicate_user_plan_lead">مطالعہ منصوبہ کی ایک فائل کا نام ایک بلٹ اِن منصوبے کے نام جیسا ہی ہے۔</string>
+  <string name="plan_duplicate_user_plan_detail">منصوبہ فائل کو فہرست میں شامل نہیں کیا جا سکتا۔ jsword/readingplan فولڈر میں فائل کا نام تبدیل کریں اور اس کی .properties توسیع برقرار رکھیں۔</string>
+  <string name="background_image_delete_lead">یہ پس منظر کی تصویر حذف کریں؟</string>
+  <string name="background_image_delete_detail">اسے استعمال کرنے والے ورک اسپیسز بغیر تصویر کے رہ جائیں گے۔</string>
+  <string name="reset_values_lead">ان تمام قدروں کو ری سیٹ کریں؟</string>
+  <string name="revert_setting_lead">اس ترتیب کو وراثتی قدر پر واپس لائیں؟</string>
+  <string name="revert_setting_confirm">واپس لائیں</string>
+  <string name="reset_settings_screen_lead">اس اسکرین کی ترتیبات ری سیٹ کریں؟</string>
+  <string name="reset_settings_screen_detail">وہ اپنی ڈیفالٹ قدروں پر واپس آ جاتی ہیں۔</string>
+  <string name="memorize_unmark_lead">“%s” کی حفظ شدہ حیثیت ہٹا دیں؟</string>
+  <string name="memorize_remove_target_lead">حفظ کا ہدف “%s” ہٹا دیں؟</string>
+  <string name="dialog_apply">لاگو کریں</string>
+  <string name="dialog_dont_apply">لاگو نہ کریں</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">کلاؤڈ میں پہلے سے آپ کے %s موجود ہیں۔ کیا کیا جائے؟</string>
+  <string name="cloud_merge_consequence">دونوں طرف کا ڈیٹا رکھا جاتا ہے؛ جہاں کوئی آئٹم دونوں جگہ تبدیل ہوا ہو وہاں نئی تبدیلی غالب رہتی ہے۔</string>
+  <string name="cloud_fetch_consequence">اس ڈیوائس کے ڈیٹا کو کلاؤڈ کی کاپی سے بدل دیتا ہے۔</string>
+  <string name="cloud_create_consequence">کلاؤڈ کی کاپی کو اس ڈیوائس کے ڈیٹا سے بدل دیتا ہے۔</string>
+  <string name="cloud_disable_consequence">اس ڈیٹا کے لیے سنک بند رہتا ہے۔</string>
+  <string name="cloud_merge_lead">اپنے %s کو کلاؤڈ کے ساتھ ضم کریں؟</string>
+  <string name="cloud_merge_confirm">ضم کریں</string>
+  <string name="cloud_replace_confirm">بدل دیں</string>
+  <string name="cloud_replace_local_lead">اس ڈیوائس کے %s کو کلاؤڈ کی کاپی سے بدل دیں؟</string>
+  <string name="cloud_replace_local_detail">اس ڈیوائس پر جو کچھ ابھی موجود ہے وہ اوور رائٹ ہو جائے گا اور بحال نہیں کیا جا سکے گا۔</string>
+  <string name="cloud_replace_cloud_lead">%s کی کلاؤڈ کاپی کو اس ڈیوائس کے ڈیٹا سے بدل دیں؟</string>
+  <string name="cloud_replace_cloud_detail">کلاؤڈ میں جو کچھ ابھی موجود ہے وہ اوور رائٹ ہو جائے گا، اور آپ کی دوسری ڈیوائسز کو اس ڈیوائس کا ڈیٹا ملے گا۔</string>
+  <string name="sign_in_failed_lead">سنک سروس میں سائن ان نہیں ہو سکا۔</string>
+  <string name="sync_too_old_lead">یہ ایپ %s کو سنک کرنے کے لیے بہت پرانی ہے۔</string>
+  <string name="sync_too_old_detail">کلاؤڈ ڈیٹا اس ایپ کے معاون ورژن سے نیا ورژن استعمال کرتا ہے۔ اس کا سنک فی الحال بند کر دیا گیا ہے؛ اسے دوبارہ چالو کرنے کے لیے ایپ اپ ڈیٹ کریں۔</string>
+  <string name="backup_replace_lead">اپنے %s کو بیک اپ سے بدل دیں؟</string>
+  <string name="backup_replace_detail">اس ڈیوائس پر جو کچھ ابھی موجود ہے وہ اوور رائٹ ہو جائے گا اور بحال نہیں کیا جا سکے گا۔</string>
+  <string name="reset_database_lead">“%1$s” کو اس کی ابتدائی حالت پر ری سیٹ کریں؟</string>
+  <string name="reset_database_detail">اس میں موجود تمام ڈیٹا مستقل طور پر حذف ہو جاتا ہے۔ اسے واپس نہیں کیا جا سکتا۔</string>
+  <string name="reset_database_button">ری سیٹ کریں</string>
+  <string name="restore_all_lead">اپنے نوٹس، بک مارکس، مطالعہ پیڈز، مطالعہ منصوبے اور ورک اسپیسز بدل دیں؟</string>
+  <string name="restore_or_import_lead">%s بحال کریں یا درآمد کریں؟</string>
+  <string name="restore_consequence">اس ڈیوائس پر موجود ڈیٹا کو بیک اپ سے بدل دیتا ہے۔</string>
+  <string name="import_consequence">بیک اپ کے آئٹمز کو اس ڈیوائس پر موجود ڈیٹا میں شامل کر دیتا ہے۔</string>
+  <string name="sync_start_syncing">سنک شروع کریں</string>
+  <string name="sync_reset_lead">سائن آؤٹ کریں اور سنکرونائزیشن ری سیٹ کریں؟</string>
+  <string name="sync_reset_detail">آپ کو سنکرونائزیشن دوبارہ سیٹ اپ کرنا پڑے گا۔</string>
+  <string name="webdav_forget_certificate_lead">قابلِ اعتماد سرور سرٹیفکیٹ بھول جائیں؟</string>
+  <string name="webdav_forget_certificate_detail">اگلے کنکشن پر آپ سے سرٹیفکیٹ کی دوبارہ تصدیق کرنے کو کہا جائے گا۔</string>
+  <string name="webdav_forget_certificate_confirm">بھول جائیں</string>
+  <string name="cloud_doc_remove_all_lead">“%1$s” کو کلاؤڈ اور آپ کی تمام ڈیوائسز سے ہٹا دیں؟</string>
+  <string name="cloud_doc_remove_cloud_lead">“%1$s” کو کلاؤڈ سے ہٹا دیں؟</string>
+  <string name="cloud_doc_purge_lead">“%1$s” کو کلاؤڈ کی تاریخ سے مستقل طور پر ہٹا دیں؟</string>
+  <string name="cloud_doc_remove_all_detail">اس سے اس ڈیوائس اور دستاویز سنک والی ہر دوسری ڈیوائس پر موجود کاپیاں بھی حذف ہو جاتی ہیں۔</string>
+  <string name="cloud_doc_remove_cloud_detail">اس ڈیوائس پر موجود کاپیاں رکھی جاتی ہیں۔ دستاویز سنک والی ڈیوائسز انہیں بھی ہٹا دیں گی۔</string>
+  <string name="cloud_doc_purge_detail">جس ڈیوائس کے پاس ابھی کاپی موجود ہے وہ اپنے اگلے سنک پر اسے دوبارہ اپ لوڈ کر سکتی ہے۔</string>
+  <string name="cloud_doc_block_confirm_button">سنک نہ کریں</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">%1$d دستاویز کو کلاؤڈ اور آپ کی تمام ڈیوائسز سے ہٹا دیں؟</item>
+        <item quantity="other">%1$d دستاویزات کو کلاؤڈ اور آپ کی تمام ڈیوائسز سے ہٹا دیں؟</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">%1$d دستاویز کو کلاؤڈ سے ہٹا دیں؟</item>
+        <item quantity="other">%1$d دستاویزات کو کلاؤڈ سے ہٹا دیں؟</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">%1$d دستاویز کو کلاؤڈ کی تاریخ سے مستقل طور پر ہٹا دیں؟</item>
+        <item quantity="other">%1$d دستاویزات کو کلاؤڈ کی تاریخ سے مستقل طور پر ہٹا دیں؟</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">%1$d دستاویز کو کلاؤڈ میں سنک کرنا بند کریں؟</item>
+        <item quantity="other">%1$d دستاویزات کو کلاؤڈ میں سنک کرنا بند کریں؟</item>
+    </plurals>
+  <string name="new_sync_targets_lead">آپ کا مزید ڈیٹا اب سنک ہو سکتا ہے</string>
+  <string name="new_sync_targets_detail">میری دستاویزات، ai ترتیبات اور مطالعہ کی پیش رفت بھی سنک ہو سکتی ہیں۔ انہیں ڈیوائس سنکرونائزیشن کی ترتیبات میں چالو کریں۔</string>
+  <!--end dialog copy: B3b-->
 </resources>

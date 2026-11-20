@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Полное руководство пользователя находится на andbible.org. Страницы открываются в браузере.</string>
   <string name="help_user_guide_home">Главная страница руководства</string>
   <string name="help_read_in_user_guide">Читать в руководстве пользователя</string>
+  <string name="help_in_user_guide">Справка в руководстве пользователя</string>
+  <string name="help_matching_section">Подходящий раздел</string>
   <string name="help_read_page">Читать в руководстве пользователя: %1$s</string>
   <string name="help_tutorial_videos">Обучающие видео</string>
   <string name="help_watch_in_order">Смотреть обучающие видео по порядку</string>
@@ -248,6 +250,9 @@
   <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при выборе отрывка</string>
   <string name="prefs_open_links_in_special_window_title">Окно ссылок</string>
   <string name="prefs_open_links_in_special_window_summary">Открыть ссылки в специальном окне, для более быстрого отображения перекрестных ссылок и номеров Стронга</string>
+  <string name="prefs_trusted_link_domains_title">Доверенные домены ссылок</string>
+  <string name="prefs_trusted_link_domains_summary">Ссылки на эти домены открываются без запроса. Снимите отметку с домена, чтобы снова получать запрос.</string>
+  <string name="prefs_trusted_link_domains_empty">Пока пусто. Отметьте «Больше не спрашивать» при открытии ссылки, чтобы добавить её домен.</string>
   <string name="prefs_text_size_sample_text">Образец текста</string>
   <string name="prefs_screen_keep_on_title">Не выключать экран</string>
   <string name="prefs_screen_keep_on_summary">Предотвращение засыпания экрана при использовании этого приложения</string>
@@ -309,7 +314,6 @@
   <string name="line_spacing_title">Межстрочный интервал</string>
   <string name="line_spacing_summary">Установите расстояние между строками</string>
   <string name="select_none">Выберите нет</string>
-  <string name="reset_are_you_sure">Вы уверены, что хотите сбросить все эти значения?</string>
   <string name="window_pinning_menutitle">Закрепления окна</string>
   <string name="hide_window_buttons_title">Скрыть кнопки окна</string>
   <string name="hide_window_buttons_summary">Кнопки окна, которые отображаются справа от просмотра Библии, скрыты. Панель навигации окна внизу по-прежнему отображается, и вы можете открыть всплывающее меню окна, нажав и удерживая ее.</string>
@@ -332,6 +336,7 @@
   <string name="word_not_found_in_dictionaries">Слово не найдено ни в одном словаре</string>
   <string name="prefs_top_margin_title_mm">Верхнее поле (%d мм)</string>
   <string name="font_size_title">Размер шрифта</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Ибо так возлюбил Бог мир, что отдал Сына Своего Единородного, дабы всякий верующий в Него, не погиб, но имел жизнь вечную.</string>
   <string name="font_size_title_pt">Размер шрифта (%d pt)</string>
   <string name="prefs_font_text_size_summary">Настроить размер шрифта основного текста</string>
@@ -349,6 +354,8 @@
   <string name="window_color_settings_title">Настройки цвета (окно)</string>
   <string name="workspace_color_settings_title">Настройки цвета (рабочая область)</string>
   <string name="color_workspace">Цвет рабочей области</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">По умолчанию</string>
   <string name="color_text">Цвет текста</string>
   <string name="color_background">Фоновый цвет</string>
   <string name="colors_day_mode_title">Дневной режим</string>
@@ -382,7 +389,6 @@
   <string name="download_source_last_updated">Списки ресурсов обновлялись последний раз: %s.</string>
   <string name="download_refreshing_book_list">Обновление списка доступных ресурсов с серверов ресурсов…</string>
   <string name="download_source_message1">Ресурсы скачиваются из следующих источников:</string>
-  <string name="download_document_confirm_prefix">Скачать</string>
   <string name="error_downloading">Произошла ошибка при загрузке. Пожалуйста, проверьте подключение к интернету.</string>
   <string name="error_downloading_status">Сервер, на котором размещен %1$s возвратил ошибку из-за %2$s (%3$d).</string>
   <string name="storage_space_warning">Недостаточно места на устройсве.</string>
@@ -403,9 +409,6 @@
   <string name="activity_title">Фоновая активность</string>
   <string name="activity_empty">Ничего не выполняется</string>
   <string name="activity_failed_toast">%1$s — см. меню</string>
-  <string name="download_question_title">Вы хотите продолжить загрузку документов?</string>
-  <string name="download_question_message">Если вы живёте в стране, где преследуют христиан, вам следует быть осторожными при загрузке христианских материалов через Интернет. Возможно, вам лучше получить zip-файлы модулей более безопасным способом и установить их через \"%1$s\". Вы уверены, что хотите продолжить загрузку? Все загрузки с серверов модулей зашифрованы (HTTPS).</string>
-  <string name="do_not_ask_again">Да, не спрашивать больше</string>
   <string name="recommended_document">Рекомендуемые!</string>
   <string name="about_version_history">История версий: %s</string>
   <string name="download_errors">Ошибки при загрузке</string>
@@ -422,11 +425,9 @@
   <string name="checking_zip_file">Проверка данного файла...</string>
   <string name="invalid_module">Файл не содержит правильный SWORD-модуль </string>
   <string name="install_zip_title">Пожалуйста, подождите. Загрузка модулей из файла.</string>
-  <string name="overwrite_files">Следующие файлы уже существуют: %s Перезаписать?</string>
   <string name="overwrite_files_title">Перезаписать файлы?</string>
   <string name="could_not_overwrite_files">Не удалось перезаписать файлы: %s. В остальном установка прошла успешно.</string>
   <string name="module_backup_restore">Этот файл является резервной копией документов AndBible. Хотите восстановить её документы?</string>
-  <string name="install_do_you_want">Хотите установить (%s) модуль?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План чтения</string>
   <string name="reading_plans_plural">Планы чтения</string>
@@ -434,14 +435,8 @@
   <string name="rdg_plan_day">День %s</string>
   <string name="rdg_plan_set_start_date">Установить дату начала...</string>
   <string name="set_current_day">Установить как текущий день...</string>
-  <string name="msg_set_current_day_reading_plan">Это установит %1$s текущим днём в этом плане и отметит все предыдущие дни как прочитанные. Продолжить?</string>
   <string name="done">Готово</string>
-  <string name="reset_plan_question">Вы уверены, что хотите сбросить этот план?</string>
   <string name="import_reading_plan">Импортировать план чтения…</string>
-  <string name="plan_duplicate_user_plan">
-        В SDCard есть план чтения jsword/readingplan
- с тем же именем, что и внутренний план. Невозможно перечислить здесь.
-Пожалуйста, переименуйте файл в другое, оставив его расширение .properties</string>
   <string name="plan_name_y1ntpspr">НЗ, Псалтырь и Притчи за год </string>
   <string name="plan_description_y1ntpspr">
         Предоставлено интернет-журналом HEARTLIGHT,
@@ -481,12 +476,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="delete_index">Удалить поисковой индекс?</string>
   <string name="about">Источник</string>
   <string name="delete_doc">Удалить %s?</string>
-  <string name="interrupted_downloads_title">Загрузка прервана</string>
-  <string name="interrupted_downloads_message">Эти ресурсы не были установлены, так как их загрузка была прервана:</string>
-  <string name="interrupted_downloads_question">Скачать их снова?</string>
   <string name="download_again">Скачать снова</string>
   <string name="delete_docs_confirm">Удалить эти ресурсы?</string>
-  <string name="delete_search_index_doc">Удалить индекс %s?</string>
   <!--Verse context menu-->
   <string name="notes">Заметки и ссылки</string>
   <string name="share_verse">Поделиться...</string>
@@ -527,7 +518,6 @@ http://www.heartlight.org, разрешение предоставлено
         Если структура ресурса изменилась, обновление этого ресурса может привести к
         расположению этих закладок/заметок переместиться внутрь ресурса или полностью исчезнуть.
     </string>
-  <string name="bookmark_warning3">Вы все еще хотите обновить модуль?</string>
   <string name="bookmark_warning4">Перед обновлением рекомендуется сделать резервную копию модуля.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По датам</string>
@@ -707,10 +697,8 @@ http://www.heartlight.org, разрешение предоставлено
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Восстановить или Импортировать из...</string>
   <string name="backup_restore2">Восстановить или Импортировать</string>
-  <string name="overwrite_something">Перезаписать %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Восстановить файл базы данных</string>
-  <string name="restore_confirmation">Перезаписать Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области?</string>
   <string name="restore_success">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно восстановлены.</string>
   <string name="downloading_backup">Загрузка файла резервной копии…</string>
   <string name="loading_backup">Загрузка базы данных из резервной копии...</string>
@@ -732,7 +720,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="send_export_file">Отправить файл экспорта</string>
   <string name="backup_modules_title">Выберите модули для резервного копирования</string>
   <string name="install_zip_canceled">Установка модуля отменена</string>
-  <string name="ask_restore_or_import">База данных для %sможет быть либо восстановлена (т.е. существующая база данных удаляется и загружается выбранная база данных), либо импортирована (выбранная база данных импортируется в существующую). Что Вы хотите сделать?</string>
   <string name="restore">Восстановить</string>
   <string name="import2">Импортировать</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -787,7 +774,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="settings_editor_back">Назад</string>
   <string name="settings_editor_close">Закрыть</string>
   <string name="settings_editor_apply">Применить</string>
-  <string name="discard_changes_confirmation">Отменить несохранённые изменения?</string>
   <string name="discard">Отменить</string>
   <string name="remove">Убрать</string>
   <string name="overwrite">Перезаписать</string>
@@ -814,7 +800,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="empty_list">Для отображения ничего нет</string>
   <string name="error_skip">Пропустить</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Повреждённые данные</string>
+  <string name="corrupt_database_headline">AndBible не может открыть некоторые ваши данные</string>
+  <string name="corrupt_database_files_detail">Не удалось открыть эти файлы: %1$s. Ничего не изменено и не удалено. При сбросе они начинаются заново пустыми, а каждый повреждённый файл сохраняется на этом устройстве с новым именем: .corrupt- плюс дата и время.</string>
   <string name="corrupt_database_reset">Сбросить повреждённые данные</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Не удалось сбросить повреждённые данные: не удалось переместить %1$s. Ничего не было изменено. Вы можете повторить попытку, отправить отчёт об ошибке или воспользоваться «Бэкап &amp; Восстановление».</string>
@@ -822,8 +809,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="damaged_data_needs_attention">Данные приложения требуют внимания. Нажмите, чтобы открыть приложение.</string>
   <string name="debug_test_error">Тестовая ошибка (отладочная сборка)</string>
   <string name="bug_report_prepare_failed">Не удалось подготовить или отправить отчёт. Можно повторить попытку или сохранить данные через «Резервное копирование и восстановление».</string>
-  <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
   <string name="bug_report_desktop_text">Далее вас попросят выбрать, где сохранить файл отчёта об ошибке. Затем вы получите инструкции по его отправке команде разработчиков.</string>
+  <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
   <string name="bug_report_email_text">Затем выберите предпочитаемое почтовое приложение (например, Gmail), чтобы отправить отчет команде разработчиков.</string>
   <string name="bug_report_manual_title">Отправить отчёт по электронной почте</string>
   <string name="bug_report_manual_text_saved">Отчёт сохранён в <b>%1$s</b>.\n\nОтправьте письмо на адрес <b>%2$s</b> и приложите этот файл: почтовая программа не может сделать это за вас. Предлагаемая тема: <b>%3$s</b>. В письме расскажите, что вы делали и что произошло.</string>
@@ -894,8 +881,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="beta_special_regards">С наилучшими пожеланиями, Туомас</string>
   <string name="beta_special_sponsor">P.S. Вы можете финансово поддержать разработку AndBible, %s.</string>
   <string name="beta_special_sponsor_link">оплатив часы разработки</string>
-  <string name="new_sync_targets_notice_title">Доступны новые настройки синхронизации</string>
-  <string name="new_sync_targets_notice_message">В этой версии AndBible добавлены новые объекты синхронизации: Мои документы, настройки ИИ и история чтения. Если вы хотите включить их, это можно сделать в настройках синхронизации устройства.</string>
   <string name="open_settings">Открыть настройки</string>
   <!--History-->
   <string name="history_for">История (%1$s: Окно %2$d)</string>
@@ -998,7 +983,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="give_passphrase_for_module">Документ %s зашифрован, для разблокировки требуется парольная фраза.</string>
   <string name="unlock_module">Установить парольную фразу модуля</string>
   <string name="unlock_info">Информация о разблокировке зашифрованного модуля</string>
-  <string name="try_again_passphrase">Парольная фраза не сработала, попробовать еще раз?</string>
   <string name="show_unlock_info">Информация о модуле и разблокировке</string>
   <string name="prefs_experimental_features_title">Экспериментальные функции</string>
   <string name="prefs_experimental_features_summary">Выберите, какие экспериментальные функции включить. Эти функции ещё в разработке и могут измениться или быть удалены</string>
@@ -1032,9 +1016,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="active_window_indicator_summary">Выделите углы окна, чтобы определить, какое окно активно</string>
   <string name="app_licence_title">Лицензия с открытым исходным кодом</string>
   <string name="how_to_contribute">Как внести свой вклад?</string>
-  <string name="confirm_delete_bookmarks">Вы хотите удалить %d закладки и их заметки?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Выбранная метка прикреплена к %d закладкам, у которых нет других меток. Удалить эти закладки вместе с метками?</string>
-  <string name="delete_label_and_bookmarks">Удалить метку и закладки</string>
   <string name="delete_label_only">Удалить только метку</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Порекомендовать другу</string>
@@ -1065,8 +1046,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="old_webview">Пакет Android WebView слишком старый (%1$s). Вам необходимо обновить пакет Android WebView как минимум до версии %2$s чтобы использовать %3$s. Для большинства устройств это можно сделать через %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все равно продолжить</string>
-  <string name="proceed">Продолжить</string>
-  <string name="rate_title">Оценка и обзор приложения</string>
   <string name="rate_message5">
         Положительные и подробные отзывы очень помогают And Bible проекту с открытым исходным кодом. Спасибо!
     </string>
@@ -1118,7 +1097,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="primary_label">Основная метка</string>
   <string name="favourite_label">Любимый ярлык</string>
   <string name="edit_label">Изменить ярлык</string>
-  <string name="delete_label_confirmation">Вы хотите удалить ярлык закладки \"%s\"? Также будут удалены все связанные записи в блокноте.</string>
   <string name="active_labels">Выбранные ярлыки</string>
   <string name="recent_labels">Недавние ярлыки</string>
   <string name="other_labels">Другие ярлыки</string>
@@ -1128,8 +1106,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="book_menu_show_progress_bars">Показать индикаторы прогресса</string>
   <string name="reset_workspace_labels">Вы хотите сбросить настройки автоматического назначения и любимых ярлыков для этой рабочей области?</string>
   <string name="clear_auto_assign_labels">Очистить автоназначаемые метки</string>
-  <string name="reset_workspace_auto_assign_labels">Убрать все автоназначаемые метки из этой рабочей области?</string>
-  <string name="reset_hide_labels">Сбросить настройку скрытия настроек ярлыков?</string>
   <string name="reorder">Изменение порядка</string>
   <string name="system_items">Системные действия</string>
   <string name="system_items1">Еще</string>
@@ -1143,7 +1119,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="ios_fullscreen_hint">Дважды коснитесь или нажмите кнопку, чтобы выйти из полноэкранного режима.</string>
   <string name="desktop_exit_fullscreen">Выйти из полноэкранного режима</string>
   <string name="exit_fullscreen">Дважды коснитесь экрана, чтобы выйти из полноэкранного режима</string>
-  <string name="reset_app_prefs">Сбросить все глобальные настройки приложения, отображаемые на этом экране, до значений по умолчанию?</string>
   <string name="label_red">Красный</string>
   <string name="label_green">Зеленый</string>
   <string name="label_blue">Синий</string>
@@ -1154,7 +1129,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="reset_databases_title">Сбросить базы данных</string>
   <string name="reset_databases_description">Сбросить отдельные базы данных до исходного пустого состояния. Это действие нельзя отменить.</string>
   <string name="last_crash_info_title">Сведения о последнем сбое</string>
-  <string name="reset_database_confirm">Это действие безвозвратно удалит все данные в «%1$s» и сбросит базу данных до исходного состояния. Его нельзя отменить.\n\nВы уверены?</string>
   <string name="reset_database_success">База данных успешно сброшена</string>
   <string name="reset_something">Сброс: %1$s</string>
   <string name="export">Экспортировать</string>
@@ -1224,19 +1198,18 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="manage_labels_help_favourite">Держать метку в избранном для быстрого доступа.</string>
   <string name="manage_labels_help_styles">Под названием маленький пример показывает вид метки: «Выделение» для закладки выделенного текста, «Целый стих» для закладки целого стиха и тег «Рабочая область» для стиля, переопределённого этой рабочей областью. Серый пример без оформления означает, что закладки этой метки не отображаются. Скрыть примеры можно в меню ⋮.</string>
   <string name="manage_labels_help_reorder">Изменить порядок списка можно в меню ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">На узком экране в списке нет значков основной метки, автоназначения и избранного, чтобы освободить место для названий меток. Нажмите на метку, чтобы настроить их в её редакторе.</string>
   <string name="added_to_bookmark">Назначено к этой закладке</string>
   <string name="strongs_links">Ссылки</string>
   <string name="strongs_text_and_links">Текст и ссылки</string>
   <string name="strongs_hidden_links">Скрытые Ссылки</string>
   <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
-  <string name="permission_required">Отказано в доступе</string>
   <string name="labels_search_hint">Поиск</string>
   <string name="search_mode_name_start">Имя (с начала)</string>
   <string name="search_mode_name_contains">Имя (содержит)</string>
   <string name="search_mode_content">Содержимое</string>
   <string name="search_results_matches">%d совпадений</string>
   <string name="search_results_match">1 совпадение</string>
-  <string name="progress_status_permission">Чтобы показывать уведомления (статус загрузки, обработка, голосовой статус), нам необходимо ваше разрешение.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Простой калькулятор</string>
   <string name="prefs_persecution_cat">Настройки для преследуемых</string>
@@ -1285,7 +1258,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="custom_repositories_create_button_label">Добавить личный репозиторий</string>
   <string name="custom_repositories_info_button_label">Информация</string>
   <string name="repository_specification">URL-адрес репозитория</string>
-  <string name="delete_custom_repository">Вы хотите удалить личный репозиторий %s?</string>
   <string name="custom_repositories_help1">Чтобы добавить новый личный репозиторий, введите или скопируйте и вставьте здесь URL-адрес личного репозитория.</string>
   <string name="custom_repositories_help2">Дополнительную информацию о личных репозиториях можно прочитать в разделе %s.</string>
   <string name="custom_repositories_help0">Вы можете установить ресурсы из внешних репозиториев, установив личные репозитории.</string>
@@ -1309,10 +1281,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="db_bookmarks">Закладки, заметки, ярлыки и блокноты</string>
   <string name="synchronizing">Синхронизация…</string>
   <string name="notification_finished">Завершено</string>
-  <string name="overrideBackup">
-        Существующая база данных, с которой это устройство не синхронизировано, находится в облаке.
-        База данных содержит%s. Что ты хочешь делать?
-    </string>
   <string name="reading_plans_content">Планы чтения и их статусы</string>
   <string name="bookmarks_contents">Закладки, ярлыки и блокноты</string>
   <string name="workspaces_contents">Рабочие области и окна</string>
@@ -1332,7 +1300,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="reading_progress_calendar">Активность чтения</string>
   <string name="reading_progress_cycle">Цикл %d</string>
   <string name="reading_progress_new_cycle">Новый цикл</string>
-  <string name="reading_progress_new_cycle_confirm">Начать новый цикл чтения? Отслеживание прогресса начнётся заново, при этом данные предыдущего цикла будут сохранены.</string>
   <string name="reading_progress_previous_cycle">Предыдущий цикл</string>
   <string name="reading_progress_next_cycle">Следующий цикл</string>
   <string name="cloud_merge_data">Объединить данные</string>
@@ -1342,7 +1309,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_sync_title">Синхронизация устройства</string>
   <string name="reset_sync">Выход</string>
   <string name="prefs_reset_sync_summary">Отключить синхронизацию и сбросить соответствующие настройки.</string>
-  <string name="sync_confirmation">Вы уверены, что хотите выйти и сбросить синхронизацию?</string>
   <string name="cloud_info">Информация об облаке</string>
   <string name="cloud_info_summary">Данные в облачном хранилище: %sМб</string>
   <string name="sync_adapter">Серверная часть синхронизации</string>
@@ -1358,7 +1324,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="webdav_server_url_hint">Адрес папки WebDAV, например https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Для синхронизации требуется защищённый адрес https://.</string>
   <string name="webdav_certificate_title">Сертификат сервера</string>
-  <string name="webdav_forget_certificate_message">Забыть доверенный сертификат сервера? При следующем подключении вас снова попросят подтвердить сертификат.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Ненадёжный сертификат сервера</string>
   <string name="webdav_untrusted_certificate_message">Сертификат сервера %1$s не является доверенным для Android. Доверяйте ему, только если вы его узнаёте, например, если вы сами настроили этот сервер.\n\nСубъект: %2$s\nИздатель: %3$s\nДействителен: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1375,14 +1340,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="synchronization_categories">Категории синхронизации</string>
   <string name="sync_general_settings">Информация и общие настройки</string>
   <string name="sync_introduction">Введение</string>
-  <string name="are_you_sure">Вы уверены?</string>
   <string name="are_you_sure_merge">Будут сохранены и данные на этом устройстве, и %s в облаке. Если один и тот же элемент был изменён в обоих местах, сохраняется более новое изменение. Данные этого устройства будут отправлены на другие ваши устройства.</string>
-  <string name="are_you_sure_reset_local">Это приведет к сбросу вашей локальной базы данных для %s с содержанием, которое в настоящее время хранится в облаке.</string>
-  <string name="are_you_sure_reset_cloud">Это приведет к сбросу вашей облачной базы данных для %s с содержанием, которое есть на этом устройстве.</string>
-  <string name="sync_cant_fetch">Версия базы данных или файла исправления, хранящегося в облаке, выше, чем версия, поддерживаемая этим приложением.</string>
-  <string name="sync_disabling">Отключение синхронизации для %s на данный момент.</string>
-  <string name="sync_update_app">Пожалуйста, обновите приложение, чтобы продолжить синхронизацию.</string>
-  <string name="sign_in_failed">Не удалось войти в серверную службу синхронизации.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Отключение синхронизации с облаком. После восстановления необходимо повторно включить вручную.</string>
   <string name="report">Отчет</string>
@@ -1400,6 +1358,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="open_here">Открыть здесь</string>
   <string name="external_link">Внешняя ссылка</string>
   <string name="external_link_question">Откроется внешняя ссылка %s в приложении браузера. Продолжить?</string>
+  <string name="external_link_dont_ask_again">Больше не спрашивать для %s</string>
   <string name="nameless">Название не определено</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия одним касанием (Библии)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Действия одним касанием (Другии)</string>
@@ -1449,8 +1408,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="memorize_include_reference_summary">Добавить ссылку на стих (например, Ин. 3:16) в качестве последнего элемента для заучивания</string>
   <string name="reading_progress_settings">Прогресс &amp; заучивание</string>
   <string name="reading_progress_settings_summary">Настройки автоматического отслеживания, заучивания и упражнений на ввод</string>
-  <string name="memorize_confirm_unmark">Снять отметку «заучено» для %s?</string>
-  <string name="memorize_confirm_remove_target">Удалить цель заучивания %s?</string>
   <string name="memorize_tab_reading">Чтение</string>
   <string name="memorize_tab_memorization">Заучивание</string>
   <string name="memorize_verses_memorized">Заучено</string>
@@ -1476,7 +1433,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="llm_reset_usage_title">Сбросить данные об использовании</string>
   <string name="llm_reset_usage_summary">Очистить накопленную статистику токенов и стоимости</string>
   <string name="llm_reset_usage_confirm_title">Сбросить данные об использовании?</string>
-  <string name="llm_reset_usage_confirm_message">Все накопленные данные об использовании будут удалены.</string>
   <string name="llm_custom_input_price_title">Цена входящих ($/млн токенов)</string>
   <string name="llm_custom_output_price_title">Цена исходящих ($/млн токенов)</string>
   <string name="llm_cost_total">Итого: %1$s</string>
@@ -1492,8 +1448,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="llm_parse_error_anthropic">Не удалось разобрать ответ Anthropic: %1$s</string>
   <string name="llm_error_unknown">Неизвестная ошибка</string>
   <string name="llm_error_max_iterations">Достигнуто максимальное количество итераций (%1$d) без завершения</string>
-  <string name="llm_continue_iterations_title">Продолжить?</string>
-  <string name="llm_continue_iterations_message">ИИ-агент достиг предела в %1$d итераций без завершения. Продолжить ещё %2$d итераций?</string>
   <string name="agent_max_iterations_title">Макс. итераций агента</string>
   <string name="agent_max_iterations_summary">Максимальное количество итераций перед запросом на продолжение (0 = без ограничений)</string>
   <string name="ask_model_before_run_title">Спрашивать модель перед запуском</string>
@@ -1553,7 +1507,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="ai_models_summary_none">Модели не настроены</string>
   <string name="ai_add_provider">Добавить провайдер</string>
   <string name="ai_provider_edit">Изменить</string>
-  <string name="ai_provider_delete_confirm">Удалить провайдер \"%1$s\"? Промпты, использующие этого провайдера, вернутся к значению по умолчанию.</string>
   <string name="ai_provider_api_key_not_set">API-ключ не задан</string>
   <string name="ai_provider_select_type">Выберите тип провайдера</string>
   <string name="ai_provider_name">Название провайдера</string>
@@ -1573,7 +1526,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="edit_model_title">Изменить модель</string>
   <string name="model_saved">Модель сохранена</string>
   <string name="model_deleted">Модель удалена</string>
-  <string name="model_delete_confirm">Удалить модель \"%1$s\"?</string>
   <string name="model_set_default">Установить как модель по умолчанию</string>
   <string name="model_select_provider">Провайдер</string>
   <string name="model_supported_badge">✓ Поддерживается</string>
@@ -1613,7 +1565,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="ai_disclaimer_point8">Ваши данные отправляются на серверы выбранного вами провайдера ИИ. Используя API-ключ, вы принимаете условия использования и политику конфиденциальности этого провайдера. Самостоятельно размещённые модели возможны, но требуют более глубоких технических знаний и могут давать результаты хуже, чем коммерческие модели.</string>
   <string name="ai_disclaimer_point9">Провайдеры ИИ взимают плату за использование API. Оценки стоимости, отображаемые в AndBible, являются приблизительными — всегда проверяйте фактические расходы в биллинге вашего провайдера.</string>
   <string name="ai_disclaimer_accept_title">Принять условия использования ИИ</string>
-  <string name="ai_disclaimer_accept_button">Я принимаю и беру на себя полную ответственность</string>
   <string name="prompt_permission_mode">Режим разрешений</string>
   <string name="prompt_permission_mode_description">Управляет тем, когда требуется подтверждение пользователя перед выполнением операций записи ИИ. Настройки отдельных инструментов ниже могут переопределять это для конкретных инструментов.</string>
   <string name="agent_permission_mode_summary">Управляет тем, когда требуется подтверждение пользователя перед операциями записи ИИ</string>
@@ -1729,7 +1680,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="default_prompt_custom_desc">Выполнить пользовательскую задачу для выбранного отрывка</string>
   <string name="default_prompt_custom_template">Следуйте указаниям пользователя для выбранного отрывка Библии.</string>
   <string name="copy">Копировать</string>
-  <string name="delete_prompt_confirm_message">Вы уверены, что хотите удалить этот промпт?</string>
   <string name="ai_hide_prompt">Скрыть</string>
   <string name="ai_restore_hidden_prompts">Восстановить скрытые промпты</string>
   <string name="ai_prompt_hidden">Промпт скрыт</string>
@@ -1814,8 +1764,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="permission_allow_all_session">Разрешить все инструменты для этой сессии</string>
   <string name="permission_allow_always">Всегда разрешать \"%1$s\"</string>
   <string name="permission_deny">Запретить</string>
-  <string name="permission_always_allow_confirm_title">Всегда разрешать?</string>
-  <string name="permission_always_allow_confirm">Вы уверены, что хотите постоянно разрешать \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Вы можете сбросить это в настройках AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Разрешения инструментов</string>
@@ -1920,18 +1868,15 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="my_document_new_name">Документ %d</string>
   <string name="my_document_create_title">Создать новый документ</string>
   <string name="my_document_rename_title">Переименовать документ</string>
-  <string name="my_document_delete_confirmation">Удалить документ \"%s\"?</string>
   <string name="show_secret">Показать</string>
   <string name="hide_secret">Скрыть</string>
   <string name="ai_documents_name">Документы ИИ</string>
   <string name="ai_documents_description">Автоматически созданные ИИ документы</string>
-  <string name="my_document_cannot_delete_ai_documents">AI-документы нельзя удалить, пока они содержат страницы. Сначала удалите страницы.</string>
   <string name="my_document_save_changes">Сохранить изменения?</string>
   <string name="my_document_no_description">Нет описания</string>
   <string name="my_document_edit_description">Изменить описание</string>
   <string name="my_document_pages_title">%s — Страницы</string>
   <string name="my_document_page_rename_title">Переименовать страницу</string>
-  <string name="my_document_page_delete_confirmation">Удалить страницу \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Удалить эти страницы?</string>
   <string name="my_documents_switch_document">Сменить документ</string>
   <string name="my_document_new_page_name">Страница %1$d</string>
@@ -1999,7 +1944,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_doc_show_removed">Показывать удалённые документы</string>
   <string name="cloud_doc_status_removed">Удалено из облака</string>
   <string name="cloud_doc_status_still_installed">всё ещё установлено здесь</string>
-  <string name="cloud_doc_purge_confirm">Окончательно удалить \"%1$s\" из истории облака? Если документ всё ещё установлен на другом устройстве, то при следующей синхронизации оно может снова выгрузить его в облако.</string>
   <string name="cloud_doc_action_download">Скачать</string>
   <string name="cloud_doc_action_push">Выгрузить в облако</string>
   <string name="cloud_doc_action_remove_cloud">Удалить из облака</string>
@@ -2010,8 +1954,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_doc_action_dont_sync">Не синхронизировать с облаком</string>
   <string name="cloud_doc_action_allow_sync">Синхронизировать с облаком</string>
   <string name="cloud_doc_action_purge">Удалить из истории облака</string>
-  <string name="cloud_doc_remove_all_confirm">Удалить %1$s из облака и со всех ваших устройств, включая это?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Удалить %1$s из облака? Копия на этом устройстве сохранится; устройства с включённой синхронизацией документов также удалят его.</string>
   <string name="cloud_doc_sync_now">Синхронизировать сейчас</string>
   <string name="cloud_doc_rescan">Пересканировать облако</string>
   <string name="cloud_doc_sync_now_download">Скачать новые и обновлённые документы</string>
@@ -2023,6 +1965,18 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_doc_summary_download">Скачать %1$d</string>
   <string name="cloud_doc_summary_download_size">Скачать %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Автоматическое скачивание начнётся при подключении к Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d документ</item>
+        <item quantity="few">%1$d документа</item>
+        <item quantity="many">%1$d документов</item>
+        <item quantity="other">%1$d документа</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d документ (%2$s)</item>
+        <item quantity="few">%1$d документа (%2$s)</item>
+        <item quantity="many">%1$d документов (%2$s)</item>
+        <item quantity="other">%1$d документа (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Нечего передавать</string>
   <string name="cloud_doc_selected_count">Выбрано: %1$d</string>
   <string name="cloud_doc_bulk_skipped">Пропущено %1$d неприменимых</string>
@@ -2039,8 +1993,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="background_image_import">Импорт из галереи…</string>
   <string name="background_image_empty">Импортированных изображений пока нет. Нажмите «Импорт из галереи…», чтобы добавить.</string>
   <string name="background_image_importing">Импорт…</string>
-  <string name="background_image_delete_title">Удалить изображение?</string>
-  <string name="background_image_delete_confirm">Удалить это фоновое изображение? Рабочие области, которые его используют, будут показываться без изображения.</string>
   <string name="background_image_day">Фоновое изображение (день)</string>
   <string name="background_image_night">Фоновое изображение (ночь)</string>
   <string name="background_image_opacity_day">Непрозрачность фонового изображения (день)</string>
@@ -2114,6 +2066,12 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="legacy_notice_icloud">Синхронизация теперь использует iCloud Drive. Включите её снова в разделе «Настройки» → «Синхронизация». Это устройство сохраняет свои данные; изменения с других ваших устройств поступят после повторной настройки синхронизации. Чтобы освободить старые данные iCloud: «Настройки» → ваше имя → iCloud → «Управление хранилищем» → AndBible.</string>
   <string name="legacy_notice_nextcloud">Ваше подключение к Nextcloud перенесено, но синхронизация выключена. Включите её в разделе «Настройки» → «Синхронизация» и выберите: загрузить из облака или создать заново.</string>
   <string name="legacy_notice_nextcloud_unsent">Некоторые изменения на этом устройстве ещё не были отправлены в Nextcloud. Они не были отправлены и останутся только на этом устройстве.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d закладку не удалось надёжно разместить, и она не была импортирована. Она сохранена вместе с вашими старыми данными на этом устройстве.</item>
+        <item quantity="few">%1$d закладки не удалось надёжно разместить, и они не были импортированы. Они сохранены вместе с вашими старыми данными на этом устройстве.</item>
+        <item quantity="many">%1$d закладок не удалось надёжно разместить, и они не были импортированы. Они сохранены вместе с вашими старыми данными на этом устройстве.</item>
+        <item quantity="other">%1$d закладки не удалось надёжно разместить, и они не были импортированы. Они сохранены вместе с вашими старыми данными на этом устройстве.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Это мощное и в то же время простое в использовании приложение для изучения Библии без подключения к интернету.</string>
   <string name="webdav_untrusted_certificate_message_device">Сертификат сервера %1$s не является доверенным для этого устройства. Доверяйте ему, только если вы его узнаёте, например, если вы сами настроили этот сервер.\n\nСубъект: %2$s\nИздатель: %3$s\nДействителен: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2165,6 +2123,25 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="recommend_share_link">Поделиться ссылкой</string>
   <string name="recommend_qr_caption">Отсканируйте, чтобы получить AndBible для телефона, планшета или компьютера.</string>
   <string name="desktop_activation_failed">AndBible уже запущен, но его окно не отвечает. Переключитесь на запущенный экземпляр и повторите попытку. Входящие файлы не были подтверждены как доставленные.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Это действие нельзя отменить.</string>
+  <string name="ai_raw_log_delete_lead">Удалить этот журнал?</string>
+  <string name="ai_provider_delete_lead">Удалить провайдера «%1$s»?</string>
+  <string name="ai_provider_delete_detail">Промпты, которые его используют, вернутся к провайдеру по умолчанию.</string>
+  <string name="ai_model_delete_lead">Удалить модель «%1$s»?</string>
+  <string name="ai_prompt_delete_named_lead">Удалить промпт «%1$s»?</string>
+  <string name="ai_prompt_delete_lead">Удалить этот промпт?</string>
+  <string name="ai_reset_usage_detail">Суммы по токенам и стоимости обнулятся. Это действие нельзя отменить.</string>
+  <string name="ai_reset_usage_button">Сбросить</string>
+  <string name="ai_disclaimer_accept">Принимаю</string>
+  <string name="llm_continue_iterations_lead">Продолжить ещё на %1$d итераций?</string>
+  <string name="llm_continue_iterations_detail">AI-агент достиг лимита в %1$d итераций, не завершив работу.</string>
+  <string name="llm_continue_button">Продолжить</string>
+  <string name="permission_always_allow_lead">Всегда разрешать «%1$s»?</string>
+  <string name="permission_always_allow_button">Всегда разрешать</string>
+  <string name="ai_bug_report_send_lead">Отправить отчёт об ошибке AI?</string>
+  <string name="ai_bug_report_send_button">Отправить</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Начало работы</string>
   <string name="user_guide_section_reading_workspace">Чтение и рабочая область</string>
@@ -2242,4 +2219,166 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="tutorial_title_31_ai_3_tools_data_permissions">ИИ-помощник, часть 3: инструменты, ваши данные и разрешения</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">ИИ-помощник, часть 4: свои промпты, расходы и синхронизация</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Отменить изменения?</string>
+  <string name="dialog_keep_editing">Продолжить редактирование</string>
+  <string name="dialog_label_delete_lead">Удалить метку «%1$s»?</string>
+  <string name="dialog_label_delete_detail">Её заметки в блокноте тоже будут удалены. Это действие нельзя отменить.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">У %1$d закладки нет другой метки.</item>
+        <item quantity="few">У %1$d закладок нет другой метки.</item>
+        <item quantity="many">У %1$d закладок нет другой метки.</item>
+        <item quantity="other">У %1$d закладки нет другой метки.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Удалить метку и %1$d закладку</item>
+        <item quantity="few">Удалить метку и %1$d закладки</item>
+        <item quantity="many">Удалить метку и %1$d закладок</item>
+        <item quantity="other">Удалить метку и %1$d закладки</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Закладки и их заметки будут удалены.</string>
+  <string name="dialog_label_delete_only_consequence">Закладки останутся, но без метки.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Удалить %1$d закладку?</item>
+        <item quantity="few">Удалить %1$d закладки?</item>
+        <item quantity="many">Удалить %1$d закладок?</item>
+        <item quantity="other">Удалить %1$d закладки?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Заметки к ним тоже будут удалены.</item>
+        <item quantity="few">Их заметки тоже будут удалены.</item>
+        <item quantity="many">Их заметки тоже будут удалены.</item>
+        <item quantity="other">Их заметки тоже будут удалены.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Убрать все автоназначаемые метки из этой рабочей области?</string>
+  <string name="dialog_labels_reset_hidden_lead">Снова показать все скрытые метки?</string>
+  <string name="dialog_labels_reset_shown_detail">Метки, скрытые вами в списке, будут показаны снова.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Установить «%s»?</string>
+  <string name="install_action">Установить</string>
+  <string name="install_from_file_question">Установить ресурсы из файла?</string>
+  <string name="overwrite_files_detail">Эти файлы уже существуют:%s</string>
+  <string name="import_studypads_question">Импортировать эти блокноты?</string>
+  <string name="import_action">Импортировать</string>
+  <string name="restore_backup_question">Восстановить ресурсы из этой резервной копии?</string>
+  <string name="restore_backup_detail">Этот файл — резервная копия ресурсов AndBible.</string>
+  <string name="update_document_question">Обновить этот ресурс?</string>
+  <string name="update_action">Обновить</string>
+  <string name="download_documents_question">Скачать ресурсы?</string>
+  <string name="download_persecution_warning">Если вы живёте в стране, где преследуют христиан, скачивать христианские материалы через Интернет может быть небезопасно. Возможно, лучше получить zip-файлы ресурсов более безопасным способом и установить их через «%1$s». Все загрузки с серверов ресурсов зашифрованы (HTTPS).</string>
+  <string name="download_action">Скачать</string>
+  <string name="download_dont_ask_again">Скачать и больше не спрашивать</string>
+  <string name="download_dont_ask_again_consequence">В дальнейшем загрузки будут начинаться без этого вопроса.</string>
+  <string name="passphrase_did_not_work">Парольная фраза не подошла.</string>
+  <string name="try_again">Повторить</string>
+  <string name="interrupted_downloads_lead">Скачать эти ресурсы снова?</string>
+  <string name="interrupted_downloads_detail">Их загрузка была прервана, поэтому они не установлены.</string>
+  <string name="external_link_open_question">Открыть эту ссылку в браузере?</string>
+  <string name="open_action">Открыть</string>
+  <string name="notification_permission_question">Разрешить уведомления?</string>
+  <string name="notification_permission_detail">Уведомления показывают состояние загрузки, обработки и озвучивания.</string>
+  <string name="allow_action">Разрешить</string>
+  <string name="rate_question">Оценить приложение и оставить отзыв?</string>
+  <string name="bug_report_email_question">Отправить отчёт об ошибке по электронной почте?</string>
+  <string name="continue_action">Продолжить</string>
+  <string name="delete_search_index_question">Удалить поисковый индекс «%s»?</string>
+  <string name="remove_custom_repository_question">Удалить личный репозиторий «%s»?</string>
+  <string name="download_document_question">Скачать «%s»?</string>
+  <string name="choose_file_action">Выбрать файл</string>
+  <string name="old_webview_question">Использовать приложение со старым WebView?</string>
+  <string name="incomplete_translation_question">Продолжить с неполным переводом?</string>
+  <string name="rate_action">Оценить</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Удалить документ «%s»?</string>
+  <string name="my_document_page_delete_lead">Удалить страницу «%s»?</string>
+  <string name="my_document_cannot_delete_ai_lead">Документы ИИ нельзя удалить, пока в них есть страницы.</string>
+  <string name="my_document_cannot_delete_ai_detail">Сначала удалите страницы.</string>
+  <string name="reading_progress_new_cycle_lead">Начать новый цикл чтения?</string>
+  <string name="reading_progress_new_cycle_detail">Ваш прогресс будет отслеживаться заново. Данные предыдущего цикла сохранятся.</string>
+  <string name="reading_progress_new_cycle_start">Начать</string>
+  <string name="reset_plan_lead">Сбросить этот план?</string>
+  <string name="reset_plan_detail">Дата начала и прогресс по этому плану будут очищены.</string>
+  <string name="set_current_day_lead">Назначить %1$s текущим днём?</string>
+  <string name="set_current_day_detail">Все предыдущие дни будут отмечены как прочитанные.</string>
+  <string name="plan_duplicate_user_plan_lead">Файл плана чтения имеет то же имя, что и встроенный план.</string>
+  <string name="plan_duplicate_user_plan_detail">Файл плана нельзя показать в списке. Переименуйте файл в папке jsword/readingplan, сохранив расширение .properties.</string>
+  <string name="background_image_delete_lead">Удалить это фоновое изображение?</string>
+  <string name="background_image_delete_detail">Рабочие области, которые его используют, останутся без изображения.</string>
+  <string name="reset_values_lead">Сбросить все эти значения?</string>
+  <string name="revert_setting_lead">Вернуть этой настройке унаследованное значение?</string>
+  <string name="revert_setting_confirm">Вернуть</string>
+  <string name="reset_settings_screen_lead">Сбросить настройки на этом экране?</string>
+  <string name="reset_settings_screen_detail">Они вернутся к значениям по умолчанию.</string>
+  <string name="memorize_unmark_lead">Снять отметку «заучено» для «%s»?</string>
+  <string name="memorize_remove_target_lead">Удалить цель заучивания «%s»?</string>
+  <string name="dialog_apply">Применить</string>
+  <string name="dialog_dont_apply">Не применять</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">В облаке уже есть ваши данные: %s. Что сделать?</string>
+  <string name="cloud_merge_consequence">Сохраняются обе стороны; если элемент изменён на обеих, побеждает более новое изменение.</string>
+  <string name="cloud_fetch_consequence">Заменяет данные на этом устройстве копией из облака.</string>
+  <string name="cloud_create_consequence">Заменяет копию в облаке данными с этого устройства.</string>
+  <string name="cloud_disable_consequence">Синхронизация этих данных остаётся выключенной.</string>
+  <string name="cloud_merge_lead">Объединить ваши данные (%s) с облаком?</string>
+  <string name="cloud_merge_confirm">Объединить</string>
+  <string name="cloud_replace_confirm">Заменить</string>
+  <string name="cloud_replace_local_lead">Заменить данные этого устройства (%s) копией из облака?</string>
+  <string name="cloud_replace_local_detail">Всё, что сейчас на этом устройстве, будет перезаписано и не подлежит восстановлению.</string>
+  <string name="cloud_replace_cloud_lead">Заменить копию в облаке (%s) данными этого устройства?</string>
+  <string name="cloud_replace_cloud_detail">Всё, что сейчас в облаке, будет перезаписано, а другие ваши устройства получат данные этого устройства.</string>
+  <string name="sign_in_failed_lead">Не удалось войти в службу синхронизации.</string>
+  <string name="sync_too_old_lead">Это приложение слишком старое для синхронизации: %s.</string>
+  <string name="sync_too_old_detail">Данные в облаке используют более новую версию, чем поддерживает это приложение. Их синхронизация пока выключена; обновите приложение, чтобы включить её снова.</string>
+  <string name="backup_replace_lead">Заменить ваши данные (%s) резервной копией?</string>
+  <string name="backup_replace_detail">Всё, что сейчас на этом устройстве, будет перезаписано и не подлежит восстановлению.</string>
+  <string name="reset_database_lead">Сбросить «%1$s» в исходное состояние?</string>
+  <string name="reset_database_detail">Все данные в ней будут удалены без возможности восстановления. Это действие нельзя отменить.</string>
+  <string name="reset_database_button">Сбросить</string>
+  <string name="restore_all_lead">Заменить ваши заметки, закладки, блокноты, планы чтения и рабочие области?</string>
+  <string name="restore_or_import_lead">Восстановить или импортировать: %s?</string>
+  <string name="restore_consequence">Заменяет то, что есть на этом устройстве, резервной копией.</string>
+  <string name="import_consequence">Добавляет элементы из резервной копии к тому, что есть на этом устройстве.</string>
+  <string name="sync_start_syncing">Начать синхронизацию</string>
+  <string name="sync_reset_lead">Выйти и сбросить синхронизацию?</string>
+  <string name="sync_reset_detail">Вам придётся настроить синхронизацию заново.</string>
+  <string name="webdav_forget_certificate_lead">Забыть доверенный сертификат сервера?</string>
+  <string name="webdav_forget_certificate_detail">При следующем подключении вас снова попросят подтвердить сертификат.</string>
+  <string name="webdav_forget_certificate_confirm">Забыть</string>
+  <string name="cloud_doc_remove_all_lead">Удалить «%1$s» из облака и со всех ваших устройств?</string>
+  <string name="cloud_doc_remove_cloud_lead">Удалить «%1$s» из облака?</string>
+  <string name="cloud_doc_purge_lead">Окончательно удалить «%1$s» из истории облака?</string>
+  <string name="cloud_doc_remove_all_detail">Это также удалит копии на этом устройстве и на каждом другом устройстве с включённой синхронизацией ресурсов.</string>
+  <string name="cloud_doc_remove_cloud_detail">Копии на этом устройстве сохранятся. Устройства с включённой синхронизацией ресурсов тоже удалят их.</string>
+  <string name="cloud_doc_purge_detail">Устройство, на котором ещё есть копия, может снова загрузить её при следующей синхронизации.</string>
+  <string name="cloud_doc_block_confirm_button">Не синхронизировать</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">Удалить %1$d документ из облака и со всех ваших устройств?</item>
+        <item quantity="few">Удалить %1$d документа из облака и со всех ваших устройств?</item>
+        <item quantity="many">Удалить %1$d документов из облака и со всех ваших устройств?</item>
+        <item quantity="other">Удалить %1$d документа из облака и со всех ваших устройств?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">Удалить %1$d документ из облака?</item>
+        <item quantity="few">Удалить %1$d документа из облака?</item>
+        <item quantity="many">Удалить %1$d документов из облака?</item>
+        <item quantity="other">Удалить %1$d документа из облака?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">Окончательно удалить %1$d документ из истории облака?</item>
+        <item quantity="few">Окончательно удалить %1$d документа из истории облака?</item>
+        <item quantity="many">Окончательно удалить %1$d документов из истории облака?</item>
+        <item quantity="other">Окончательно удалить %1$d документа из истории облака?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">Прекратить синхронизацию %1$d документа с облаком?</item>
+        <item quantity="few">Прекратить синхронизацию %1$d документов с облаком?</item>
+        <item quantity="many">Прекратить синхронизацию %1$d документов с облаком?</item>
+        <item quantity="other">Прекратить синхронизацию %1$d документа с облаком?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Теперь можно синхронизировать больше ваших данных</string>
+  <string name="new_sync_targets_detail">Мои документы, настройки AI и прогресс чтения тоже можно синхронизировать. Включите их в настройках синхронизации устройств.</string>
+  <!--end dialog copy: B3b-->
 </resources>

@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Повний посібник користувача розміщено на andbible.org. Сторінки відкриваються у вашому браузері.</string>
   <string name="help_user_guide_home">Головна сторінка посібника</string>
   <string name="help_read_in_user_guide">Читати в посібнику користувача</string>
+  <string name="help_in_user_guide">Довідка в посібнику користувача</string>
+  <string name="help_matching_section">Відповідний розділ</string>
   <string name="help_read_page">Читати в посібнику користувача: %1$s</string>
   <string name="help_tutorial_videos">Навчальні відео</string>
   <string name="help_watch_in_order">Переглядайте навчальні відео по черзі</string>
@@ -248,6 +250,9 @@
   <string name="prefs_navigate_to_verse_summary">Вибір вірша (і розділу) при виборі місця з Біблії</string>
   <string name="prefs_open_links_in_special_window_title">Вікно посилань</string>
   <string name="prefs_open_links_in_special_window_summary">Відкрити посилання в спеціальному вікні, для швидшого відображення перехресних посилань та Стронга</string>
+  <string name="prefs_trusted_link_domains_title">Довірені домени посилань</string>
+  <string name="prefs_trusted_link_domains_summary">Посилання на ці домени відкриваються без запиту. Зніміть позначку з домену, щоб знову отримувати запит.</string>
+  <string name="prefs_trusted_link_domains_empty">Поки що немає. Позначте «Більше не питати» під час відкриття посилання, щоб додати його домен.</string>
   <string name="prefs_text_size_sample_text">Зразок тексту</string>
   <string name="prefs_screen_keep_on_title">Не виключати екран</string>
   <string name="prefs_screen_keep_on_summary">Запобігти засипанню екрана під час користування додатком</string>
@@ -309,7 +314,6 @@
   <string name="line_spacing_title">Міжрядковий інтервал</string>
   <string name="line_spacing_summary">Встановлення простору між лініями</string>
   <string name="select_none">Не вибирати</string>
-  <string name="reset_are_you_sure">Ви впевнені, що хочете скинути всі ці значення?</string>
   <string name="window_pinning_menutitle">Закріплення вікон</string>
   <string name="hide_window_buttons_title">Сховати кнопки вікна</string>
   <string name="hide_window_buttons_summary">Кнопки вікна, які відображаються на правій стороні під час перегляду Біблії, приховані. Навігаційна панель вікна внизу все ще відображається, і ви можете відкрити спливаюче меню вікна, довго натискаючи її.</string>
@@ -332,6 +336,7 @@
   <string name="word_not_found_in_dictionaries">Слово не знайдено в жодному словнику</string>
   <string name="prefs_top_margin_title_mm">Верхнє поле (%d мм)</string>
   <string name="font_size_title">Розмір шрифту</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Бо так Бог полюбив світ, що віддав Сина Свого Єдинородного, щоб кожен, хто вірує в Нього, не загинув, але мав життя вічне.</string>
   <string name="font_size_title_pt">Розмір шрифту (%d точ)</string>
   <string name="prefs_font_text_size_summary">Налаштування розміру шрифту основного тексту</string>
@@ -349,6 +354,8 @@
   <string name="window_color_settings_title">Налаштування кольору (вікно)</string>
   <string name="workspace_color_settings_title">Налаштування кольору (робоча область)</string>
   <string name="color_workspace">Колір робочої області</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Типовий</string>
   <string name="color_text">Колір тексту</string>
   <string name="color_background">Колір фону</string>
   <string name="colors_day_mode_title">Денний режим</string>
@@ -382,7 +389,6 @@
   <string name="download_source_last_updated">Останнє оновлення списків ресурсів: %s.</string>
   <string name="download_refreshing_book_list">Оновлення списку доступних ресурсів із серверів ресурсів…</string>
   <string name="download_source_message1">Ресурси завантажуються з слідуючих джерел:</string>
-  <string name="download_document_confirm_prefix">Завантажити</string>
   <string name="error_downloading">Під час завантаження сталася помилка. Перевірте підключення до Інтернету.</string>
   <string name="error_downloading_status">Сервер, на якому розміщено %1$s повернув помилку через %2$s (%3$d).</string>
   <string name="storage_space_warning">Недостатньо місця на пристрої.</string>
@@ -403,9 +409,6 @@
   <string name="activity_title">Фонова активність</string>
   <string name="activity_empty">Нічого не виконується</string>
   <string name="activity_failed_toast">%1$s — див. меню</string>
-  <string name="download_question_title">Ви хочете продовжити завантаження ресурсів?</string>
-  <string name="download_question_message">Якщо ви живете в країні, де християн переслідують, вам може знадобитися обережність під час завантаження християнських матеріалів через Інтернет. Натомість ви можете безпечніше отримати zip-файли модулів і встановити їх через \"%1$s\". Ви впевнені, що хочете продовжити завантаження? Усі завантаження із серверів ресурсів зашифровані (HTTPS).</string>
-  <string name="do_not_ask_again">Так, більше не питати</string>
   <string name="recommended_document">Рекомендовано!</string>
   <string name="about_version_history">Журнал версій: %s</string>
   <string name="download_errors">Помилки завантаження</string>
@@ -422,11 +425,9 @@
   <string name="checking_zip_file">Перевірка заданого файлу…</string>
   <string name="invalid_module">Файл не містить дійсний SWORD-модуль</string>
   <string name="install_zip_title">Будь ласка, зачекайте. Модулі завантажуються з файлу.</string>
-  <string name="overwrite_files">Наступні файли вже існують: %s Перезаписати?</string>
   <string name="overwrite_files_title">Перезаписати файли?</string>
   <string name="could_not_overwrite_files">Не вдалося перезаписати файли: %s. Крім того, встановлення пройшло успішно.</string>
   <string name="module_backup_restore">Цей файл є резервною копією документів AndBible. Відновити її документи?</string>
-  <string name="install_do_you_want">Ви хочете встановити (%s) модуль?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План читання</string>
   <string name="reading_plans_plural">Плани читання</string>
@@ -434,15 +435,8 @@
   <string name="rdg_plan_day">День %s</string>
   <string name="rdg_plan_set_start_date">Встановити дату початку…</string>
   <string name="set_current_day">Встановити як поточний день…</string>
-  <string name="msg_set_current_day_reading_plan">Це зробить %1$s поточним днем цього плану та позначить усі попередні дні як прочитані. Продовжити?</string>
   <string name="done">Готово</string>
-  <string name="reset_plan_question">Ви впевнені, що хочете скинути цей план?</string>
   <string name="import_reading_plan">Імпортувати план читання…</string>
-  <string name="plan_duplicate_user_plan">
-         SD картка містить план читання користувача
-         jsword/readingplan з тією ж назвою, що і внутрішній план. Неможливо показати тут.
-         Перейменуйте файл на щось інше, залишивши його розширення як .properties
-    </string>
   <string name="plan_name_y1ntpspr">НЗ, Псалми та Приповісті за рік</string>
   <string name="plan_description_y1ntpspr">
         Надано дозволом HEARTLIGHT Internet Magazine,
@@ -481,12 +475,8 @@
   <string name="delete_index">Видалити індекс пошуку</string>
   <string name="about">Про</string>
   <string name="delete_doc">Видалити %s?</string>
-  <string name="interrupted_downloads_title">Завантаження перервано</string>
-  <string name="interrupted_downloads_message">Ці ресурси не встановлено, бо їх завантаження було перервано:</string>
-  <string name="interrupted_downloads_question">Завантажити їх знову?</string>
   <string name="download_again">Завантажити знову</string>
   <string name="delete_docs_confirm">Видалити ці ресурси?</string>
-  <string name="delete_search_index_doc">Видалити індекс %s?</string>
   <!--Verse context menu-->
   <string name="notes">Виноски та посилання</string>
   <string name="share_verse">Поділитися...</string>
@@ -527,7 +517,6 @@
         Якщо структура документа змінилася, оновлення цього ресурсу може спричинити
         розташування цих закладок/нотаток переміститися всередину документа або повністю зникнути.
     </string>
-  <string name="bookmark_warning3">Ви все ще хочете оновити модуль?</string>
   <string name="bookmark_warning4">Перед оновленням рекомендується зробити резервну копію модуля.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Сортувати за датою</string>
@@ -702,10 +691,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Відновити або Імпортувати з...</string>
   <string name="backup_restore2">Відновити або Імпортувати</string>
-  <string name="overwrite_something">Імпортувати %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Відновити файл бази даних</string>
-  <string name="restore_confirmation">Перезаписати Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області?</string>
   <string name="restore_success">Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області відновлено успішно</string>
   <string name="downloading_backup">Завантаження файлу резервної копії…</string>
   <string name="loading_backup">Завантаження бази даних із резервної копії…</string>
@@ -727,7 +714,6 @@
   <string name="send_export_file">Надіслати файл експорту</string>
   <string name="backup_modules_title">Виберіть модулі для резервного копіювання</string>
   <string name="install_zip_canceled">Встановлення модуля скасовано</string>
-  <string name="ask_restore_or_import">База даних для %s може бути або відновлена (тобто наявну базу даних буде видалено і замінено вибраною) або імпортована (вибрану базу даних буде імпортовано до наявної). Що ви хочете зробити?</string>
   <string name="restore">Відновлення</string>
   <string name="import2">Імпортувати</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -783,7 +769,6 @@
   <string name="settings_editor_back">Назад</string>
   <string name="settings_editor_close">Закрити</string>
   <string name="settings_editor_apply">Застосувати</string>
-  <string name="discard_changes_confirmation">Відхилити незбережені зміни?</string>
   <string name="discard">Відхилити</string>
   <string name="remove">Вилучити</string>
   <string name="overwrite">Перезаписати</string>
@@ -810,7 +795,8 @@
   <string name="empty_list">Немає елементів для відображення</string>
   <string name="error_skip">Пропустити</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Пошкоджені дані</string>
+  <string name="corrupt_database_headline">AndBible не може відкрити частину ваших даних</string>
+  <string name="corrupt_database_files_detail">Ці файли не вдалося відкрити: %1$s. Нічого не змінено й не видалено. Скидання починає їх з порожнього стану й залишає кожен пошкоджений файл на цьому пристрої, перейменований з .corrupt- та датою й часом.</string>
   <string name="corrupt_database_reset">Скинути пошкоджені дані</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Не вдалося скинути пошкоджені дані: не вдалося відсунути вбік %1$s. Нічого не змінено. Ви можете спробувати ще раз, надіслати звіт про помилку або скористатися «Резервним копіюванням та відновленням».</string>
@@ -818,8 +804,8 @@
   <string name="damaged_data_needs_attention">Дані застосунку потребують уваги. Торкніться, щоб відкрити застосунок.</string>
   <string name="debug_test_error">Тестова помилка (збірка для налагодження)</string>
   <string name="bug_report_prepare_failed">Не вдалося підготувати або надіслати звіт. Можна спробувати знову або скористатися «Резервне копіювання й відновлення», щоб зберегти свої дані.</string>
-  <string name="bug_report_email_title">Надіслати звіт про помилку електронною поштою</string>
   <string name="bug_report_desktop_text">Далі вас запитають, де зберегти файл звіту про помилку. Потім ви отримаєте інструкції щодо надсилання його команді розробників.</string>
+  <string name="bug_report_email_title">Надіслати звіт про помилку електронною поштою</string>
   <string name="bug_report_email_text">Далі, виберіть бажану програму електронної пошти (наприклад, Gmail), щоб надіслати звіт команді розробників.</string>
   <string name="bug_report_manual_title">Надіслати звіт електронною поштою</string>
   <string name="bug_report_manual_text_saved">Звіт збережено в <b>%1$s</b>.\n\nБудь ласка, надішліть листа на <b>%2$s</b> і додайте цей файл; поштова програма не може додати його за вас. Запропонована тема: <b>%3$s</b>. У повідомленні розкажіть, що ви робили і що сталося.</string>
@@ -890,8 +876,6 @@
   <string name="beta_special_regards">З найкращими побажаннями, Туомас</string>
   <string name="beta_special_sponsor">P.S. Ви можете фінансово підтримати розробку AndBible, %s.</string>
   <string name="beta_special_sponsor_link">спонсоруючи години розробки</string>
-  <string name="new_sync_targets_notice_title">Доступні нові налаштування синхронізації</string>
-  <string name="new_sync_targets_notice_message">У цій версії AndBible з\'явилися додаткові цілі синхронізації: Мої ресурси, налаштування ШІ та прогрес читання. Якщо ви хочете їх увімкнути, це можна зробити в налаштуваннях синхронізації пристрою.</string>
   <string name="open_settings">Відкрити налаштування</string>
   <!--History-->
   <string name="history_for">Журнал (%1$s: Вікно %2$d)</string>
@@ -994,7 +978,6 @@
   <string name="give_passphrase_for_module">Ресурс %s зашифрований, потрібно парольну фразу для розблокування</string>
   <string name="unlock_module">Встановити парольну фразу модуля</string>
   <string name="unlock_info">Інформація про розблокування зашифрованого модуля</string>
-  <string name="try_again_passphrase">Парольна фраза не спрацювала, спробувати ще раз?</string>
   <string name="show_unlock_info">Модуль і інформацію про розблокування </string>
   <string name="prefs_experimental_features_title">Експериментальні функції</string>
   <string name="prefs_experimental_features_summary">Вибрати, які експериментальні функції увімкнути. Ці функції ще в розробці та можуть змінитися або бути видалені</string>
@@ -1028,9 +1011,6 @@
   <string name="active_window_indicator_summary">Виділіть кути вікна, щоб розпізнати, яке вікно активне</string>
   <string name="app_licence_title">Ліцензія з відкритим кодом</string>
   <string name="how_to_contribute">Як внести свій внесок?</string>
-  <string name="confirm_delete_bookmarks">Видалити %d закладки та їх примітки?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Вибрана мітка прикріплена до %d закладок, які не мають інших міток. Бажаєте видалити ці закладки разом із мітками?</string>
-  <string name="delete_label_and_bookmarks">Видалити мітку та закладки</string>
   <string name="delete_label_only">Видалити лише мітку</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Порекомендувати другові</string>
@@ -1061,8 +1041,6 @@
   <string name="old_webview">Пакет Android WebView застарілий (%1$s). Вам потрібно оновити пакет Android WebView принаймні до версії %2$s, щоб використовувати %3$s. Для більшості пристроїв це можна зробити через %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все одно продовжити</string>
-  <string name="proceed">Продовжити</string>
-  <string name="rate_title">Оцінка та огляд додатка</string>
   <string name="rate_message5">
         Позитивні та докладні відгуки дуже допомагають AndBible Open Source Project. Щиро Дякуємо! Рясних Божих Вам Благословінь!
     </string>
@@ -1114,7 +1092,6 @@
   <string name="primary_label">Основна мітка</string>
   <string name="favourite_label">Улюблена мітка</string>
   <string name="edit_label">Редагувати мітку</string>
-  <string name="delete_label_confirmation">Видалити мітку закладки \"%s\"? Також будуть видалені всі блокнотні примітки пов’язані з цею міткою.</string>
   <string name="active_labels">Вибрані мітки</string>
   <string name="recent_labels">Останні мітки</string>
   <string name="other_labels">Інші мітки</string>
@@ -1124,8 +1101,6 @@
   <string name="book_menu_show_progress_bars">Показати смуги прогресу</string>
   <string name="reset_workspace_labels">Скинути налаштування автоматичного призначення та налаштування улюблених для цієї робочої області?</string>
   <string name="clear_auto_assign_labels">Очистити мітки автопризначення</string>
-  <string name="reset_workspace_auto_assign_labels">Видалити всі мітки автопризначення з цієї робочої області?</string>
-  <string name="reset_hide_labels">Скинути налаштування для приховування заданих налаштувань мітків?</string>
   <string name="reorder">Змінити порядок</string>
   <string name="system_items">Дії системи</string>
   <string name="system_items1">Більше</string>
@@ -1139,7 +1114,6 @@
   <string name="ios_fullscreen_hint">Двічі торкніться або торкніться кнопки, щоб вийти з повноекранного режиму.</string>
   <string name="desktop_exit_fullscreen">Вийти з повноекранного режиму</string>
   <string name="exit_fullscreen">Двічі торкніться екрана, щоб вийти з повноекранного режиму</string>
-  <string name="reset_app_prefs">Ви хочете скинути всі загальні налаштування програми, які відображаються на цьому екрані, до значень за замовчуванням?</string>
   <string name="label_red">Червона</string>
   <string name="label_green">Зелена</string>
   <string name="label_blue">Синя</string>
@@ -1150,7 +1124,6 @@
   <string name="reset_databases_title">Скинути бази даних</string>
   <string name="reset_databases_description">Скинути окремі бази даних до початкового порожнього стану. Це неможливо скасувати.</string>
   <string name="last_crash_info_title">Інформація про останній збій</string>
-  <string name="reset_database_confirm">Це назавжди видалить усі дані в «%1$s» та скине до початкового стану. Це неможливо скасувати.\n\nВи впевнені?</string>
   <string name="reset_database_success">База даних успішно скинута</string>
   <string name="reset_something">Скинути: %1$s</string>
   <string name="export">Експортувати</string>
@@ -1220,19 +1193,18 @@
   <string name="manage_labels_help_favourite">Тримати мітку в улюблених для швидкого доступу.</string>
   <string name="manage_labels_help_styles">Під назвою невеликий приклад показує вигляд мітки: «Виділення» для закладки виділеного тексту, «Цілий вірш» для закладки цілого вірша та позначка «Робоча область» для стилю, який ця робоча область перевизначає. Сірий приклад без оформлення означає, що закладки цієї мітки не малюються. Приховати приклади можна в меню ⋮.</string>
   <string name="manage_labels_help_reorder">Змінити порядок списку можна в меню ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">На вузькому екрані список не показує піктограми основної, автопризначення та улюбленої міток, щоб залишити місце для назв міток. Торкніться мітки, щоб налаштувати їх у її редакторі.</string>
   <string name="added_to_bookmark">Призначено цій закладці</string>
   <string name="strongs_links">Посилання</string>
   <string name="strongs_text_and_links">Текст і посилання</string>
   <string name="strongs_hidden_links">Сховані посилання</string>
   <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
-  <string name="permission_required">У доступі відмовлено</string>
   <string name="labels_search_hint">Пошук</string>
   <string name="search_mode_name_start">Назва (з початку)</string>
   <string name="search_mode_name_contains">Назва (містить)</string>
   <string name="search_mode_content">Вміст</string>
   <string name="search_results_matches">%d збігів</string>
   <string name="search_results_match">1 збіг</string>
-  <string name="progress_status_permission">Щоб показувати сповіщення (статус завантаження, обробка, статус озвучення), нам потрібен ваш дозвіл.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Простий калькулятор</string>
   <string name="prefs_persecution_cat">Налаштування для переслідуваних</string>
@@ -1279,7 +1251,6 @@
   <string name="custom_repositories_create_button_label">Добавити індивідуальне сховище</string>
   <string name="custom_repositories_info_button_label">Інформація</string>
   <string name="repository_specification">URL-адрес сховища</string>
-  <string name="delete_custom_repository">Ви хочете видалити індивідуальне сховище %s?</string>
   <string name="custom_repositories_help1">Щоб додати нове індивідуальне сховище, введіть або скопіюйте &amp; вставте тут URL-адресу спеціального сховища.</string>
   <string name="custom_repositories_help2">Ви можете прочитати більше інформації про індивідуальні сховища в %s.</string>
   <string name="custom_repositories_help0">Ви можете встановити ресурси із зовнішніх сховищ, встановивши індивідуальні, особисті сховища.</string>
@@ -1303,9 +1274,6 @@
   <string name="db_bookmarks">Закладки, нотатки, етикетки та блокноти для навчання</string>
   <string name="synchronizing">Синхронізація…</string>
   <string name="notification_finished">Завершено</string>
-  <string name="overrideBackup">
-        Існуюча база даних, з якою цей пристрій не синхронізовано, знаходиться в хмарі. База даних містить %s. Що ви хочете робити?
-    </string>
   <string name="reading_plans_content">Плани читання та їх статуси</string>
   <string name="bookmarks_contents">Закладки, мітки та блокноти для навчання</string>
   <string name="workspaces_contents">Робочі області та вікна</string>
@@ -1325,7 +1293,6 @@
   <string name="reading_progress_calendar">Активність читання</string>
   <string name="reading_progress_cycle">Цикл %d</string>
   <string name="reading_progress_new_cycle">Новий цикл</string>
-  <string name="reading_progress_new_cycle_confirm">Розпочати новий цикл читання? Це почне відстеження прогресу з початку, зберігаючи дані попереднього циклу.</string>
   <string name="reading_progress_previous_cycle">Попередній цикл</string>
   <string name="reading_progress_next_cycle">Наступний цикл</string>
   <string name="cloud_merge_data">Об\'єднати дані</string>
@@ -1335,7 +1302,6 @@
   <string name="cloud_sync_title">Синхронізація пристрою</string>
   <string name="reset_sync">Вийти</string>
   <string name="prefs_reset_sync_summary">Вимкніть синхронізацію та скиньте відповідні налаштування.</string>
-  <string name="sync_confirmation">Ви впевнені, що бажаєте вийти та скинути синхронізацію?</string>
   <string name="cloud_info">Хмарна інформація</string>
   <string name="cloud_info_summary">Дані в хмарному сховищі: %s Мб</string>
   <string name="sync_adapter">Сервер синхронізації</string>
@@ -1351,7 +1317,6 @@
   <string name="webdav_server_url_hint">Адреса теки WebDAV, наприклад https://nas.local/dav/ або https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Для синхронізації потрібна захищена адреса https://.</string>
   <string name="webdav_certificate_title">Сертифікат сервера</string>
-  <string name="webdav_forget_certificate_message">Забути довірений сертифікат сервера? Під час наступного з\'єднання вас попросять підтвердити сертифікат знову.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Недовірений сертифікат сервера</string>
   <string name="webdav_untrusted_certificate_message">Сертифікат %1$s не є довіреним для Android. Довіряйте йому лише якщо ви його впізнаєте, наприклад, якщо ви самі налаштували цей сервер.\n\nСуб\'єкт: %2$s\nВидавець: %3$s\nДійсний: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1368,14 +1333,7 @@
   <string name="synchronization_categories">Категорії синхронізації</string>
   <string name="sync_general_settings">Інформація та загальні налаштування</string>
   <string name="sync_introduction">Вступ</string>
-  <string name="are_you_sure">Ви впевнені?</string>
   <string name="are_you_sure_merge">Буде збережено і дані на цьому пристрої, і %s у хмарі. Якщо один і той самий елемент змінено в обох місцях, зберігається новіша зміна. Дані цього пристрою буде надіслано на ваші інші пристрої.</string>
-  <string name="are_you_sure_reset_local">Це скине вашу локальну базу даних для %s, і замінить контентом який наразі зберігається в хмарній службі.</string>
-  <string name="are_you_sure_reset_cloud">Це скине вашу хмарну базу даних для %s, і замінить контентом який ви маєте на цьому пристрої.</string>
-  <string name="sync_cant_fetch">Версія бази даних або файлу виправлення, що зберігається в хмарі, є вищою за ту, що підтримується цією програмою.</string>
-  <string name="sync_disabling">Наразі синхронізація відключається для %s.</string>
-  <string name="sync_update_app">Оновіть додаток, щоб продовжити синхронізацію.</string>
-  <string name="sign_in_failed">Сталася помилка під час входу в серверну службу синхронізації.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Вимкнення хмарної синхронізації. Ви повинні повторно ввімкнути синхронізацію вручну після відновлення.</string>
   <string name="report">Звіт</string>
@@ -1393,6 +1351,7 @@
   <string name="open_here">Відкрити тут</string>
   <string name="external_link">Зовнішнє посилання</string>
   <string name="external_link_question">Зовнішнє посилання %s відкриється в браузері. Відкрити?</string>
+  <string name="external_link_dont_ask_again">Більше не питати про %s</string>
   <string name="nameless">Назва не визначена</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Дії одним дотиком (Біблії)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Дії одним дотиком (інші)</string>
@@ -1442,8 +1401,6 @@
   <string name="memorize_include_reference_summary">Додати посилання на вірш (наприклад, Ів. 3:16) як останній елемент для завчення</string>
   <string name="reading_progress_settings">Прогрес і завчення</string>
   <string name="reading_progress_settings_summary">Налаштування автоматичного відстеження, завчення та практики введення</string>
-  <string name="memorize_confirm_unmark">Прибрати позначку завчено для %s?</string>
-  <string name="memorize_confirm_remove_target">Видалити ціль завчення %s?</string>
   <string name="memorize_tab_reading">Читання</string>
   <string name="memorize_tab_memorization">Завчення</string>
   <string name="memorize_verses_memorized">Завчено</string>
@@ -1469,7 +1426,6 @@
   <string name="llm_reset_usage_title">Скинути дані використання</string>
   <string name="llm_reset_usage_summary">Очистити накопичені дані про токени та витрати</string>
   <string name="llm_reset_usage_confirm_title">Скинути дані використання?</string>
-  <string name="llm_reset_usage_confirm_message">Це очистить усі накопичені дані про використання.</string>
   <string name="llm_custom_input_price_title">Ціна введення ($/Mтокен)</string>
   <string name="llm_custom_output_price_title">Ціна виведення ($/Mтокен)</string>
   <string name="llm_cost_total">Разом: %1$s</string>
@@ -1485,8 +1441,6 @@
   <string name="llm_parse_error_anthropic">Не вдалося розібрати відповідь Anthropic: %1$s</string>
   <string name="llm_error_unknown">Невідома помилка</string>
   <string name="llm_error_max_iterations">Досягнуто максимальної кількості ітерацій (%1$d) без завершення</string>
-  <string name="llm_continue_iterations_title">Продовжити?</string>
-  <string name="llm_continue_iterations_message">Агент ШІ досяг ліміту %1$d ітерацій без завершення. Продовжити ще %2$d ітерацій?</string>
   <string name="agent_max_iterations_title">Макс. ітерацій агента</string>
   <string name="agent_max_iterations_summary">Максимальна кількість ітерацій перед запитом на продовження (0 = необмежено)</string>
   <string name="ask_model_before_run_title">Запитувати модель перед запуском</string>
@@ -1546,7 +1500,6 @@
   <string name="ai_models_summary_none">Моделей не налаштовано</string>
   <string name="ai_add_provider">Додати постачальника</string>
   <string name="ai_provider_edit">Змінити</string>
-  <string name="ai_provider_delete_confirm">Видалити постачальника \"%1$s\"? Промпти, що використовують цього постачальника, повернуться до стандартного.</string>
   <string name="ai_provider_api_key_not_set">Ключ API не встановлено</string>
   <string name="ai_provider_select_type">Виберіть тип постачальника</string>
   <string name="ai_provider_name">Назва постачальника</string>
@@ -1566,7 +1519,6 @@
   <string name="edit_model_title">Змінити модель</string>
   <string name="model_saved">Модель збережено</string>
   <string name="model_deleted">Модель видалено</string>
-  <string name="model_delete_confirm">Видалити модель \"%1$s\"?</string>
   <string name="model_set_default">Встановити як модель за замовчуванням</string>
   <string name="model_select_provider">Постачальник</string>
   <string name="model_supported_badge">✓ Підтримується</string>
@@ -1606,7 +1558,6 @@
   <string name="ai_disclaimer_point8">Ваші дані надсилаються на сервери обраного вами постачальника ШІ. Використовуючи ключ API, ви погоджуєтесь з умовами та політикою конфіденційності цього постачальника. Самостійно розміщені моделі можливі, але вимагають більших технічних знань і можуть не давати таких хороших результатів, як комерційні моделі.</string>
   <string name="ai_disclaimer_point9">Постачальники ШІ стягують плату за використання API. Оцінки витрат, показані в AndBible, є приблизними — завжди перевіряйте фактичні витрати у платіжній системі свого постачальника.</string>
   <string name="ai_disclaimer_accept_title">Прийняти відмову від відповідальності ШІ</string>
-  <string name="ai_disclaimer_accept_button">Я приймаю та беру повну відповідальність</string>
   <string name="prompt_permission_mode">Режим дозволів</string>
   <string name="prompt_permission_mode_description">Контролює, коли потрібне підтвердження користувача перед виконанням ШІ операцій запису. Налаштування окремих інструментів нижче можуть перевизначити це для окремих інструментів.</string>
   <string name="agent_permission_mode_summary">Контролює, коли потрібне підтвердження користувача перед операціями запису ШІ</string>
@@ -1722,7 +1673,6 @@
   <string name="default_prompt_custom_desc">Виконати власне завдання для вибраного уривку</string>
   <string name="default_prompt_custom_template">Виконайте вказане користувачем завдання для вибраного уривку Біблії.</string>
   <string name="copy">Скопіювати</string>
-  <string name="delete_prompt_confirm_message">Ви впевнені, що хочете видалити цей промпт?</string>
   <string name="ai_hide_prompt">Сховати</string>
   <string name="ai_restore_hidden_prompts">Відновити приховані промпти</string>
   <string name="ai_prompt_hidden">Промпт приховано</string>
@@ -1807,8 +1757,6 @@
   <string name="permission_allow_all_session">Дозволити всі інструменти в цьому сеансі</string>
   <string name="permission_allow_always">Завжди дозволяти \"%1$s\"</string>
   <string name="permission_deny">Заборонити</string>
-  <string name="permission_always_allow_confirm_title">Завжди дозволяти?</string>
-  <string name="permission_always_allow_confirm">Ви впевнені, що хочете постійно дозволити \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Це можна скинути в налаштуваннях ШІ.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Дозволи інструментів</string>
@@ -1913,18 +1861,15 @@
   <string name="my_document_new_name">Ресурс %d</string>
   <string name="my_document_create_title">Створити новий ресурс</string>
   <string name="my_document_rename_title">Перейменувати ресурс</string>
-  <string name="my_document_delete_confirmation">Видалити ресурс \"%s\"?</string>
   <string name="show_secret">Показати</string>
   <string name="hide_secret">Сховати</string>
   <string name="ai_documents_name">Документи ШІ</string>
   <string name="ai_documents_description">Документи, автоматично створені ШІ</string>
-  <string name="my_document_cannot_delete_ai_documents">Ресурси ШІ не можна видалити, якщо вони містять сторінки. Спочатку видаліть сторінки.</string>
   <string name="my_document_save_changes">Зберегти зміни?</string>
   <string name="my_document_no_description">Немає опису</string>
   <string name="my_document_edit_description">Змінити опис</string>
   <string name="my_document_pages_title">%s - Сторінки</string>
   <string name="my_document_page_rename_title">Перейменувати сторінку</string>
-  <string name="my_document_page_delete_confirmation">Видалити сторінку \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Видалити ці сторінки?</string>
   <string name="my_documents_switch_document">Змінити ресурс</string>
   <string name="my_document_new_page_name">Сторінка %1$d</string>
@@ -1992,7 +1937,6 @@
   <string name="cloud_doc_show_removed">Показувати видалені ресурси</string>
   <string name="cloud_doc_status_removed">Видалено з хмари</string>
   <string name="cloud_doc_status_still_installed">досі встановлено тут</string>
-  <string name="cloud_doc_purge_confirm">Остаточно видалити \"%1$s\" з історії хмари? Якщо ресурс досі встановлено на іншому пристрої, той пристрій може знову вивантажити його до хмари під час наступної синхронізації.</string>
   <string name="cloud_doc_action_download">Завантажити</string>
   <string name="cloud_doc_action_push">Вивантажити до хмари</string>
   <string name="cloud_doc_action_remove_cloud">Видалити з хмари</string>
@@ -2003,8 +1947,6 @@
   <string name="cloud_doc_action_dont_sync">Не синхронізувати з хмарою</string>
   <string name="cloud_doc_action_allow_sync">Синхронізувати з хмарою</string>
   <string name="cloud_doc_action_purge">Видалити з історії хмари</string>
-  <string name="cloud_doc_remove_all_confirm">Видалити %1$s з хмари та з усіх ваших пристроїв, включно з цим?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Видалити %1$s з хмари? Копія на цьому пристрої залишиться; пристрої з увімкненою синхронізацією ресурсів також видалять його.</string>
   <string name="cloud_doc_sync_now">Синхронізувати зараз</string>
   <string name="cloud_doc_rescan">Пересканувати з хмари</string>
   <string name="cloud_doc_sync_now_download">Завантажити нові та оновлені ресурси</string>
@@ -2016,6 +1958,18 @@
   <string name="cloud_doc_summary_download">Завантажити %1$d</string>
   <string name="cloud_doc_summary_download_size">Завантажити %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Автоматичне завантаження розпочнеться через Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d ресурс</item>
+    <item quantity="few">%1$d ресурси</item>
+    <item quantity="many">%1$d ресурсів</item>
+    <item quantity="other">%1$d ресурсу</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d ресурс (%2$s)</item>
+    <item quantity="few">%1$d ресурси (%2$s)</item>
+    <item quantity="many">%1$d ресурсів (%2$s)</item>
+    <item quantity="other">%1$d ресурсу (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Немає що передавати</string>
   <string name="cloud_doc_selected_count">%1$d вибрано</string>
   <string name="cloud_doc_bulk_skipped">Пропущено %1$d, не стосується</string>
@@ -2032,8 +1986,6 @@
   <string name="background_image_import">Імпортувати з галереї…</string>
   <string name="background_image_empty">Імпортованих зображень ще немає. Торкніться «Імпортувати з галереї…», щоб додати.</string>
   <string name="background_image_importing">Імпорт…</string>
-  <string name="background_image_delete_title">Видалити зображення?</string>
-  <string name="background_image_delete_confirm">Видалити це фонове зображення? Робочі області, що його ще використовують, повернуться до стану без зображення.</string>
   <string name="background_image_day">Фонове зображення (день)</string>
   <string name="background_image_night">Фонове зображення (ніч)</string>
   <string name="background_image_opacity_day">Непрозорість фонового зображення (день)</string>
@@ -2107,6 +2059,12 @@
   <string name="legacy_notice_icloud">Синхронізація тепер використовує iCloud Drive. Увімкніть її знову в Налаштування → Синхронізація. Цей пристрій зберігає те, що мав; зміни з інших пристроїв надійдуть, коли синхронізацію буде налаштовано знову. Щоб звільнити старі дані iCloud: Налаштування → ваше ім\'я → iCloud → Керування сховищем → AndBible.</string>
   <string name="legacy_notice_nextcloud">Ваше з\'єднання з Nextcloud перенесено, але синхронізація вимкнена. Увімкніть її в Налаштування → Синхронізація та виберіть: отримати з хмари чи створити нову.</string>
   <string name="legacy_notice_nextcloud_unsent">Деякі зміни на цьому пристрої ще не було надіслано до Nextcloud. Їх не надіслано, і вони залишаються лише на цьому пристрої.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d закладку не вдалося надійно розмістити, тому її не імпортовано. Її збережено разом із вашими старими даними на цьому пристрої.</item>
+    <item quantity="few">%1$d закладки не вдалося надійно розмістити, тому їх не імпортовано. Їх збережено разом із вашими старими даними на цьому пристрої.</item>
+    <item quantity="many">%1$d закладок не вдалося надійно розмістити, тому їх не імпортовано. Їх збережено разом із вашими старими даними на цьому пристрої.</item>
+    <item quantity="other">%1$d закладки не вдалося надійно розмістити, тому їх не імпортовано. Їх збережено разом із вашими старими даними на цьому пристрої.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Це потужний, але простий у користуванні застосунок для вивчення Біблії офлайн.</string>
   <string name="webdav_untrusted_certificate_message_device">Сертифікат %1$s не є довіреним для цього пристрою. Довіряйте йому лише якщо ви його впізнаєте, наприклад, якщо ви самі налаштували цей сервер.\n\nСуб\'єкт: %2$s\nВидавець: %3$s\nДійсний: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2158,6 +2116,25 @@
   <string name="recommend_share_link">Поділитися посиланням</string>
   <string name="recommend_qr_caption">Скануйте, щоб отримати AndBible для телефона, планшета або комп\'ютера.</string>
   <string name="desktop_activation_failed">AndBible уже запущено, але його вікно не відповіло. Перейдіть до запущеного екземпляра та спробуйте ще раз. Отримання вхідних файлів не підтверджено.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Цю дію неможливо скасувати.</string>
+  <string name="ai_raw_log_delete_lead">Видалити цей журнал?</string>
+  <string name="ai_provider_delete_lead">Видалити постачальника «%1$s»?</string>
+  <string name="ai_provider_delete_detail">Промпти, що його використовують, повернуться до типового постачальника.</string>
+  <string name="ai_model_delete_lead">Видалити модель «%1$s»?</string>
+  <string name="ai_prompt_delete_named_lead">Видалити промпт «%1$s»?</string>
+  <string name="ai_prompt_delete_lead">Видалити цей промпт?</string>
+  <string name="ai_reset_usage_detail">Підсумки токенів і вартості повернуться до нуля. Цю дію неможливо скасувати.</string>
+  <string name="ai_reset_usage_button">Скинути</string>
+  <string name="ai_disclaimer_accept">Приймаю</string>
+  <string name="llm_continue_iterations_lead">Продовжити ще на %1$d ітерацій?</string>
+  <string name="llm_continue_iterations_detail">Агент ШІ досяг ліміту в %1$d ітерацій і не завершив роботу.</string>
+  <string name="llm_continue_button">Продовжити</string>
+  <string name="permission_always_allow_lead">Завжди дозволяти «%1$s»?</string>
+  <string name="permission_always_allow_button">Завжди дозволяти</string>
+  <string name="ai_bug_report_send_lead">Надіслати звіт про помилку ШІ?</string>
+  <string name="ai_bug_report_send_button">Надіслати</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Початок роботи</string>
   <string name="user_guide_section_reading_workspace">Читання та робочі області</string>
@@ -2235,4 +2212,166 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">ШІ-помічник, частина 3: інструменти, дані та дозволи</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">ШІ-помічник, частина 4: власні промпти, витрати та синхронізація</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Відхилити зміни?</string>
+  <string name="dialog_keep_editing">Продовжити редагування</string>
+  <string name="dialog_label_delete_lead">Видалити мітку «%1$s»?</string>
+  <string name="dialog_label_delete_detail">Її нотатки в блокноті також буде видалено. Цю дію неможливо скасувати.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d закладка не має іншої мітки.</item>
+    <item quantity="few">%1$d закладки не мають іншої мітки.</item>
+    <item quantity="many">%1$d закладок не мають іншої мітки.</item>
+    <item quantity="other">%1$d закладки не мають іншої мітки.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Видалити мітку та %1$d закладку</item>
+    <item quantity="few">Видалити мітку та %1$d закладки</item>
+    <item quantity="many">Видалити мітку та %1$d закладок</item>
+    <item quantity="other">Видалити мітку та %1$d закладки</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Закладки та їхні нотатки буде видалено.</string>
+  <string name="dialog_label_delete_only_consequence">Закладки залишаться без мітки.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Вилучити %1$d закладку?</item>
+    <item quantity="few">Вилучити %1$d закладки?</item>
+    <item quantity="many">Вилучити %1$d закладок?</item>
+    <item quantity="other">Вилучити %1$d закладки?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">Нотатки до них також буде вилучено.</item>
+    <item quantity="few">Їхні нотатки також буде вилучено.</item>
+    <item quantity="many">Їхні нотатки також буде вилучено.</item>
+    <item quantity="other">Їхні нотатки також буде вилучено.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Вилучити всі мітки автопризначення з цієї робочої області?</string>
+  <string name="dialog_labels_reset_hidden_lead">Знову показати всі приховані мітки?</string>
+  <string name="dialog_labels_reset_shown_detail">Мітки, які ви приховали зі списку, буде показано знову.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Встановити «%s»?</string>
+  <string name="install_action">Встановити</string>
+  <string name="install_from_file_question">Встановити ресурси з файлу?</string>
+  <string name="overwrite_files_detail">Ці файли вже існують:%s</string>
+  <string name="import_studypads_question">Імпортувати ці блокноти?</string>
+  <string name="import_action">Імпортувати</string>
+  <string name="restore_backup_question">Відновити ресурси з цієї резервної копії?</string>
+  <string name="restore_backup_detail">Цей файл є резервною копією ресурсів AndBible.</string>
+  <string name="update_document_question">Оновити цей ресурс?</string>
+  <string name="update_action">Оновити</string>
+  <string name="download_documents_question">Завантажити ресурси?</string>
+  <string name="download_persecution_warning">Якщо ви живете в країні, де переслідують християн, можливо, вам слід бути обережними із завантаженням християнських матеріалів через Інтернет. Натомість ви можете отримати zip-файли ресурсів безпечнішим способом і встановити їх через «%1$s». Усі завантаження із серверів ресурсів зашифровані (HTTPS).</string>
+  <string name="download_action">Завантажити</string>
+  <string name="download_dont_ask_again">Завантажити, більше не питати</string>
+  <string name="download_dont_ask_again_consequence">Надалі завантаження починатимуться без цього запитання.</string>
+  <string name="passphrase_did_not_work">Парольна фраза не підійшла.</string>
+  <string name="try_again">Спробувати ще раз</string>
+  <string name="interrupted_downloads_lead">Завантажити ці ресурси знову?</string>
+  <string name="interrupted_downloads_detail">Їх завантаження було перервано, тому їх не встановлено.</string>
+  <string name="external_link_open_question">Відкрити це посилання у браузері?</string>
+  <string name="open_action">Відкрити</string>
+  <string name="notification_permission_question">Дозволити сповіщення?</string>
+  <string name="notification_permission_detail">Сповіщення показують стан завантаження, обробки та озвучення.</string>
+  <string name="allow_action">Дозволити</string>
+  <string name="rate_question">Оцінити та залишити відгук про додаток?</string>
+  <string name="bug_report_email_question">Надіслати звіт про помилку електронною поштою?</string>
+  <string name="continue_action">Продовжити</string>
+  <string name="delete_search_index_question">Видалити пошуковий індекс «%s»?</string>
+  <string name="remove_custom_repository_question">Вилучити індивідуальне сховище «%s»?</string>
+  <string name="download_document_question">Завантажити «%s»?</string>
+  <string name="choose_file_action">Вибрати файл</string>
+  <string name="old_webview_question">Використовувати додаток зі старим WebView?</string>
+  <string name="incomplete_translation_question">Продовжити з неповним перекладом?</string>
+  <string name="rate_action">Оцінити</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Видалити ресурс «%s»?</string>
+  <string name="my_document_page_delete_lead">Видалити сторінку «%s»?</string>
+  <string name="my_document_cannot_delete_ai_lead">Ресурси ШІ не можна видалити, поки вони містять сторінки.</string>
+  <string name="my_document_cannot_delete_ai_detail">Спершу видаліть сторінки.</string>
+  <string name="reading_progress_new_cycle_lead">Почати новий цикл читання?</string>
+  <string name="reading_progress_new_cycle_detail">Ваш прогрес відстежуватиметься з нуля. Дані попереднього циклу буде збережено.</string>
+  <string name="reading_progress_new_cycle_start">Почати</string>
+  <string name="reset_plan_lead">Скинути цей план?</string>
+  <string name="reset_plan_detail">Вашу дату початку та прогрес у цьому плані буде очищено.</string>
+  <string name="set_current_day_lead">Встановити %1$s поточним днем?</string>
+  <string name="set_current_day_detail">Усі попередні дні буде позначено як прочитані.</string>
+  <string name="plan_duplicate_user_plan_lead">Файл плану читання має ту саму назву, що й вбудований план.</string>
+  <string name="plan_duplicate_user_plan_detail">Файл плану не може бути показаний у списку. Перейменуйте файл у теці jsword/readingplan, зберігши розширення .properties.</string>
+  <string name="background_image_delete_lead">Видалити це фонове зображення?</string>
+  <string name="background_image_delete_detail">Робочі області, що його ще використовують, залишаться без зображення.</string>
+  <string name="reset_values_lead">Скинути всі ці значення?</string>
+  <string name="revert_setting_lead">Повернути цьому параметру успадковане значення?</string>
+  <string name="revert_setting_confirm">Повернути</string>
+  <string name="reset_settings_screen_lead">Скинути налаштування на цьому екрані?</string>
+  <string name="reset_settings_screen_detail">Вони повернуться до типових значень.</string>
+  <string name="memorize_unmark_lead">Зняти статус завченого для «%s»?</string>
+  <string name="memorize_remove_target_lead">Вилучити ціль завчення «%s»?</string>
+  <string name="dialog_apply">Застосувати</string>
+  <string name="dialog_dont_apply">Не застосовувати</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">У хмарі вже є ваші %s. Що слід зробити?</string>
+  <string name="cloud_merge_consequence">Обидві сторони зберігаються; якщо елемент змінено на обох, перемагає новіша зміна.</string>
+  <string name="cloud_fetch_consequence">Замінює дані на цьому пристрої копією з хмари.</string>
+  <string name="cloud_create_consequence">Замінює копію в хмарі даними з цього пристрою.</string>
+  <string name="cloud_disable_consequence">Синхронізація для цих даних залишається вимкненою.</string>
+  <string name="cloud_merge_lead">Об’єднати ваші %s із хмарою?</string>
+  <string name="cloud_merge_confirm">Об’єднати</string>
+  <string name="cloud_replace_confirm">Замінити</string>
+  <string name="cloud_replace_local_lead">Замінити %s на цьому пристрої копією з хмари?</string>
+  <string name="cloud_replace_local_detail">Те, що зараз на цьому пристрої, буде перезаписано й не підлягатиме відновленню.</string>
+  <string name="cloud_replace_cloud_lead">Замінити копію %s у хмарі даними з цього пристрою?</string>
+  <string name="cloud_replace_cloud_detail">Те, що зараз у хмарі, буде перезаписано, а інші ваші пристрої отримають дані з цього пристрою.</string>
+  <string name="sign_in_failed_lead">Не вдалося увійти до служби синхронізації.</string>
+  <string name="sync_too_old_lead">Цей додаток надто старий для синхронізації %s.</string>
+  <string name="sync_too_old_detail">Дані в хмарі використовують новішу версію, ніж підтримує цей додаток. Синхронізацію для них поки що вимкнено; оновіть додаток, щоб увімкнути її знову.</string>
+  <string name="backup_replace_lead">Замінити ваші %s резервною копією?</string>
+  <string name="backup_replace_detail">Те, що зараз на цьому пристрої, буде перезаписано й не підлягатиме відновленню.</string>
+  <string name="reset_database_lead">Скинути «%1$s» до початкового стану?</string>
+  <string name="reset_database_detail">Усі дані в ній буде остаточно видалено. Цю дію неможливо скасувати.</string>
+  <string name="reset_database_button">Скинути</string>
+  <string name="restore_all_lead">Замінити ваші примітки, закладки, блокноти, плани читання та робочі області?</string>
+  <string name="restore_or_import_lead">Відновити чи імпортувати %s?</string>
+  <string name="restore_consequence">Замінює те, що є на цьому пристрої, резервною копією.</string>
+  <string name="import_consequence">Додає елементи з резервної копії до того, що є на цьому пристрої.</string>
+  <string name="sync_start_syncing">Почати синхронізацію</string>
+  <string name="sync_reset_lead">Вийти й скинути синхронізацію?</string>
+  <string name="sync_reset_detail">Вам потрібно буде налаштувати синхронізацію знову.</string>
+  <string name="webdav_forget_certificate_lead">Забути довірений сертифікат сервера?</string>
+  <string name="webdav_forget_certificate_detail">Під час наступного підключення вас попросять підтвердити сертифікат знову.</string>
+  <string name="webdav_forget_certificate_confirm">Забути</string>
+  <string name="cloud_doc_remove_all_lead">Вилучити «%1$s» із хмари та всіх ваших пристроїв?</string>
+  <string name="cloud_doc_remove_cloud_lead">Вилучити «%1$s» із хмари?</string>
+  <string name="cloud_doc_purge_lead">Остаточно вилучити «%1$s» з історії хмари?</string>
+  <string name="cloud_doc_remove_all_detail">Це також видаляє копії на цьому пристрої та на кожному іншому пристрої з увімкненою синхронізацією ресурсів.</string>
+  <string name="cloud_doc_remove_cloud_detail">Копії на цьому пристрої зберігаються. Пристрої з увімкненою синхронізацією ресурсів теж їх вилучать.</string>
+  <string name="cloud_doc_purge_detail">Пристрій, який ще має копію, може знову завантажити її під час наступної синхронізації.</string>
+  <string name="cloud_doc_block_confirm_button">Не синхронізувати</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Вилучити %1$d ресурс із хмари та всіх ваших пристроїв?</item>
+    <item quantity="few">Вилучити %1$d ресурси із хмари та всіх ваших пристроїв?</item>
+    <item quantity="many">Вилучити %1$d ресурсів із хмари та всіх ваших пристроїв?</item>
+    <item quantity="other">Вилучити %1$d ресурсу із хмари та всіх ваших пристроїв?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Вилучити %1$d ресурс із хмари?</item>
+    <item quantity="few">Вилучити %1$d ресурси із хмари?</item>
+    <item quantity="many">Вилучити %1$d ресурсів із хмари?</item>
+    <item quantity="other">Вилучити %1$d ресурсу із хмари?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Остаточно вилучити %1$d ресурс з історії хмари?</item>
+    <item quantity="few">Остаточно вилучити %1$d ресурси з історії хмари?</item>
+    <item quantity="many">Остаточно вилучити %1$d ресурсів з історії хмари?</item>
+    <item quantity="other">Остаточно вилучити %1$d ресурсу з історії хмари?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Припинити синхронізацію %1$d ресурсу з хмарою?</item>
+    <item quantity="few">Припинити синхронізацію %1$d ресурсів з хмарою?</item>
+    <item quantity="many">Припинити синхронізацію %1$d ресурсів з хмарою?</item>
+    <item quantity="other">Припинити синхронізацію %1$d ресурсу з хмарою?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Тепер можна синхронізувати більше ваших даних</string>
+  <string name="new_sync_targets_detail">Мої ресурси, налаштування ШІ та прогрес читання теж можуть синхронізуватися. Увімкніть їх у налаштуваннях синхронізації пристроїв.</string>
+  <!--end dialog copy: B3b-->
 </resources>

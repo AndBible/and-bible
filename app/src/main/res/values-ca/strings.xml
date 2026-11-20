@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">El manual d\'usuari complet és a andbible.org. Les pàgines s\'obren al navegador.</string>
   <string name="help_user_guide_home">Inici del manual d\'usuari</string>
   <string name="help_read_in_user_guide">Llegeix-ho a la guia d\'usuari</string>
+  <string name="help_in_user_guide">Ajuda a la guia d\'usuari</string>
+  <string name="help_matching_section">Secció corresponent</string>
   <string name="help_read_page">Llegeix-ho a la guia d\'usuari: %1$s</string>
   <string name="help_tutorial_videos">Vídeos tutorials</string>
   <string name="help_watch_in_order">Mira els vídeos tutorials en ordre</string>
@@ -246,6 +248,9 @@
   <string name="prefs_navigate_to_verse_summary">Tria el verset (i el capítol) quan selecciones un passatge</string>
   <string name="prefs_open_links_in_special_window_title">Finestra d\'enllaços</string>
   <string name="prefs_open_links_in_special_window_summary">Obre els enllaços en una finestra especial, per mostrar ràpidament les referències creuades i els números de Strong</string>
+  <string name="prefs_trusted_link_domains_title">Dominis d\'enllaços de confiança</string>
+  <string name="prefs_trusted_link_domains_summary">Els enllaços d\'aquests dominis s\'obren sense preguntar. Desmarca un domini perquè torni a preguntar.</string>
+  <string name="prefs_trusted_link_domains_empty">Encara cap. Marca «No ho tornis a preguntar» en obrir un enllaç per afegir-ne el domini.</string>
   <string name="prefs_text_size_sample_text">Text d\'exemple</string>
   <string name="prefs_screen_keep_on_title">Mantén la pantalla encesa</string>
   <string name="prefs_screen_keep_on_summary">Evita que la pantalla s\'apagui mentre s\'utilitza aquesta aplicació</string>
@@ -306,7 +311,6 @@
   <string name="line_spacing_title">Interlineat</string>
   <string name="line_spacing_summary">Estableix l\'espai entre línies</string>
   <string name="select_none">No en seleccionis cap</string>
-  <string name="reset_are_you_sure">Estàs segur que vols restablir tots aquests valors?</string>
   <string name="window_pinning_menutitle">Fixació de finestres</string>
   <string name="hide_window_buttons_title">Amaga els botons de finestra</string>
   <string name="hide_window_buttons_summary">Els botons de finestra que es mostren a la dreta de les vistes bíbliques estan ocults. La barra de navegació de finestres a la part inferior continua visible i pots obrir el menú emergent de la finestra prement-los de manera prolongada.</string>
@@ -329,6 +333,7 @@
   <string name="word_not_found_in_dictionaries">No s\'ha trobat la paraula en cap diccionari</string>
   <string name="prefs_top_margin_title_mm">Marge superior (%d mm)</string>
   <string name="font_size_title">Mida del tipus de lletra</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Perquè Déu estimà tant el món, que va donar el seu Fill unigènit, perquè tot aquell qui creu en ell no es perdi, sinó que tingui vida eterna.</string>
   <string name="font_size_title_pt">Mida del tipus de lletra (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ajusta la mida del tipus de lletra del text principal</string>
@@ -346,6 +351,8 @@
   <string name="window_color_settings_title">Configuració de colors (finestra)</string>
   <string name="workspace_color_settings_title">Configuració de colors (espai de treball)</string>
   <string name="color_workspace">Color de l\'espai de treball</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Per defecte</string>
   <string name="color_text">Color del text</string>
   <string name="color_background">Color del fons</string>
   <string name="colors_day_mode_title">Mode diürn</string>
@@ -379,7 +386,6 @@
   <string name="download_source_last_updated">Llistes de documents actualitzades per última vegada: %s.</string>
   <string name="download_refreshing_book_list">S\'està actualitzant la llista de documents disponibles des dels servidors de documents…</string>
   <string name="download_source_message1">Els documents es baixen de les fonts següents:</string>
-  <string name="download_document_confirm_prefix">Baixa</string>
   <string name="error_downloading">S\'ha produït un error en baixar. Comproveu la connexió a Internet.</string>
   <string name="error_downloading_status">El servidor que allotja %1$s ha retornat un error a causa de %2$s (%3$d).</string>
   <string name="storage_space_warning">No hi ha prou espai d\'emmagatzematge local.</string>
@@ -400,9 +406,6 @@
   <string name="activity_title">Activitat en segon pla</string>
   <string name="activity_empty">No hi ha res en execució</string>
   <string name="activity_failed_toast">%1$s — vegeu el menú</string>
-  <string name="download_question_title">Voleu continuar per baixar documents?</string>
-  <string name="download_question_message">Si viviu en un país on hi ha persecució, potser heu de ser prudents en baixar material cristià per Internet. En lloc d\'això, potser preferiu obtenir els fitxers zip dels mòduls de manera més segura i instal·lar-los mitjançant «%1$s». Esteu segur que voleu continuar amb la baixada? Totes les baixades dels servidors de mòduls estan xifrades (HTTPS).</string>
-  <string name="do_not_ask_again">Sí, no tornis a preguntar</string>
   <string name="recommended_document">Recomanat!</string>
   <string name="about_version_history">Historial de versions: %s</string>
   <string name="download_errors">Errors de baixada</string>
@@ -419,11 +422,9 @@
   <string name="checking_zip_file">S\'està comprovant el fitxer indicat…</string>
   <string name="invalid_module">El fitxer no conté un mòdul SWORD vàlid</string>
   <string name="install_zip_title">Espereu. S\'estan carregant mòduls des d\'un fitxer.</string>
-  <string name="overwrite_files">Els fitxers següents ja existeixen: %s. Voleu sobreescriure\'ls?</string>
   <string name="overwrite_files_title">Sobreescriu fitxers?</string>
   <string name="could_not_overwrite_files">No s\'han pogut sobreescriure els fitxers: %s. A part d\'això, la instal·lació ha estat correcta.</string>
   <string name="module_backup_restore">Aquest fitxer és una còpia de seguretat dels documents d\'AndBible. Voleu restaurar-ne els documents?</string>
-  <string name="install_do_you_want">Voleu instal·lar el mòdul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Pla de lectura</string>
   <string name="reading_plans_plural">Plans de lectura</string>
@@ -431,11 +432,8 @@
   <string name="rdg_plan_day">Dia %s</string>
   <string name="rdg_plan_set_start_date">Estableix la data d\'inici…</string>
   <string name="set_current_day">Estableix com a dia actual…</string>
-  <string name="msg_set_current_day_reading_plan">Això establirà %1$s com a dia actual d\'aquest pla i marcarà tots els dies anteriors com a llegits. Vols continuar?</string>
   <string name="done">Fet</string>
-  <string name="reset_plan_question">Esteu segur que voleu restablir aquest pla?</string>
   <string name="import_reading_plan">Importa un pla de lectura…</string>
-  <string name="plan_duplicate_user_plan">Hi ha un pla de lectura d\'usuari a la targeta SD jsword/readingplan amb el mateix nom que un pla intern. No es pot llistar aquí. Canvieu el nom del fitxer per un altre nom, deixant la seva extensió de fitxer com a .properties</string>
   <string name="plan_name_y1ntpspr">NT, Salms i Proverbis en un any</string>
   <string name="plan_description_y1ntpspr">Per cortesia de la revista HEARTLIGHT a Internet, http://www.heartlight.org, permís concedit</string>
   <string name="plan_name_y1ot1nt1_chronological">Bíblia cronològica en 1 any</string>
@@ -455,12 +453,8 @@
   <string name="delete_index">Suprimeix l\'índex de cerca</string>
   <string name="about">Quant a</string>
   <string name="delete_doc">Suprimeix %s?</string>
-  <string name="interrupted_downloads_title">Baixada interrompuda</string>
-  <string name="interrupted_downloads_message">Aquests documents no s\'han instal·lat perquè la seva baixada es va interrompre:</string>
-  <string name="interrupted_downloads_question">Vols tornar-los a baixar?</string>
   <string name="download_again">Torna a baixar</string>
   <string name="delete_docs_confirm">Vols suprimir aquests documents?</string>
-  <string name="delete_search_index_doc">Suprimeix l\'índex de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Notes a peu de pàgina i referències</string>
   <string name="share_verse">Comparteix…</string>
@@ -498,7 +492,6 @@
   <!--can be removed-->
   <string name="bookmark_warning">Hi ha marcadors i/o notes per a aquest document.</string>
   <string name="bookmark_warning2">Si l\'estructura del document ha canviat, actualitzar aquest document podria fer que les ubicacions d\'aquests marcadors/notes es moguin dins del document o desapareguin completament.</string>
-  <string name="bookmark_warning3">Encara voleu actualitzar el mòdul?</string>
   <string name="bookmark_warning4">Es recomana fer una còpia de seguretat del mòdul abans d\'actualitzar-lo.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordre per data</string>
@@ -645,10 +638,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Restaura o importa des de…</string>
   <string name="backup_restore2">Restaura o importa</string>
-  <string name="overwrite_something">Vols sobreescriure %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Restaura el fitxer de base de dades</string>
-  <string name="restore_confirmation">Vols sobreescriure les meves notes, marcadors, blocs d\'estudi, plans de lectura i espais de treball?</string>
   <string name="restore_success">Les meves notes, marcadors, blocs d\'estudi, plans de lectura i espais de treball s\'han restaurat correctament</string>
   <string name="downloading_backup">S\'està baixant el fitxer de còpia de seguretat…</string>
   <string name="loading_backup">S\'està carregant la base de dades des de la còpia de seguretat…</string>
@@ -670,7 +661,6 @@
   <string name="send_export_file">Envia un fitxer d\'exportació</string>
   <string name="backup_modules_title">Selecciona quins mòduls vols guardar a la còpia de seguretat</string>
   <string name="install_zip_canceled">Instal·lació del mòdul cancel·lada</string>
-  <string name="ask_restore_or_import">La base de dades de %s es pot restaurar (és a dir, s\'elimina la base de dades existent i es carrega la seleccionada) o importar (la base de dades seleccionada s\'importa a l\'existent). Què vols fer?</string>
   <string name="restore">Restaura</string>
   <string name="import2">Importa</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -725,7 +715,6 @@
   <string name="settings_editor_back">Enrere</string>
   <string name="settings_editor_close">Tanca</string>
   <string name="settings_editor_apply">Aplica</string>
-  <string name="discard_changes_confirmation">Descarta els canvis no desats?</string>
   <string name="discard">Descarta</string>
   <string name="remove">Elimina</string>
   <string name="overwrite">Sobreescriu</string>
@@ -752,7 +741,8 @@
   <string name="empty_list">No hi ha elements per mostrar</string>
   <string name="error_skip">Omet</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Dades danyades</string>
+  <string name="corrupt_database_headline">L\'AndBible no pot obrir algunes de les teves dades</string>
+  <string name="corrupt_database_files_detail">No s\'han pogut obrir aquests fitxers: %1$s. No s\'ha canviat ni suprimit res. En restablir-los, es tornen a començar buits i cada fitxer danyat es conserva en aquest dispositiu, amb el nom canviat a .corrupt- més la data i l\'hora.</string>
   <string name="corrupt_database_reset">Restableix les dades danyades</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">No s\'han pogut restablir les dades danyades: no s\'ha pogut apartar %1$s. No s\'ha canviat res. Pots tornar-ho a provar, enviar un informe d\'error o utilitzar Còpia de seguretat i restauració.</string>
@@ -760,8 +750,8 @@
   <string name="damaged_data_needs_attention">Les dades de l\'aplicació necessiten atenció. Toca per obrir l\'aplicació.</string>
   <string name="debug_test_error">Error de prova (compilació de depuració)</string>
   <string name="bug_report_prepare_failed">No s\'ha pogut preparar ni compartir l\'informe. Pots tornar-ho a provar, o utilitzar Còpia de seguretat i restauració per desar les teves dades.</string>
-  <string name="bug_report_email_title">Envia l\'informe d\'error per correu electrònic</string>
   <string name="bug_report_desktop_text">A continuació se us demanarà on desar el fitxer de l\'informe d\'error. Després rebreu instruccions per enviar-lo a l\'equip de desenvolupament.</string>
+  <string name="bug_report_email_title">Envia l\'informe d\'error per correu electrònic</string>
   <string name="bug_report_email_text">A continuació, selecciona la teva aplicació de correu electrònic preferida (per exemple, Gmail) per enviar l\'informe a l\'equip de desenvolupadors.</string>
   <string name="bug_report_manual_title">Envia l\'informe per correu electrònic</string>
   <string name="bug_report_manual_text_saved">L\'informe s\'ha desat a <b>%1$s</b>.\n\nEnvieu un correu electrònic a <b>%2$s</b> i adjunteu-hi aquest fitxer; un programa de correu no el pot adjuntar per vosaltres. Assumpte suggerit: <b>%3$s</b>. Al missatge, expliqueu-nos què heu fet i què ha passat.</string>
@@ -832,8 +822,6 @@
   <string name="beta_special_regards">Salutacions cordials, Tuomas</string>
   <string name="beta_special_sponsor">P. D. Podeu donar suport econòmicament al desenvolupament d\'AndBible %s.</string>
   <string name="beta_special_sponsor_link">patrocinant hores de desenvolupament</string>
-  <string name="new_sync_targets_notice_title">Nova configuració de sincronització disponible</string>
-  <string name="new_sync_targets_notice_message">Aquesta versió d\'AndBible introdueix destinacions de sincronització addicionals: Els meus documents, configuració d\'IA i progrés de lectura. Si voleu activar-les, podeu fer-ho a la configuració de sincronització del dispositiu.</string>
   <string name="open_settings">Obre la configuració</string>
   <!--History-->
   <string name="history_for">Historial (%1$s: Finestra %2$d)</string>
@@ -906,7 +894,6 @@
   <string name="give_passphrase_for_module">El document %s està xifrat i necessita una contrasenya per desbloquejar-lo</string>
   <string name="unlock_module">Estableix la contrasenya del mòdul</string>
   <string name="unlock_info">Informació de desbloqueig del mòdul xifrat</string>
-  <string name="try_again_passphrase">La contrasenya no ha funcionat, vols tornar-ho a intentar?</string>
   <string name="show_unlock_info">Mòdul i informació de desbloqueig</string>
   <string name="prefs_experimental_features_title">Funcions experimentals</string>
   <string name="prefs_experimental_features_summary">Selecciona quines funcions experimentals vols activar. Aquestes funcions encara estan en desenvolupament i poden canviar o eliminar-se</string>
@@ -940,9 +927,6 @@
   <string name="active_window_indicator_summary">Ressalta les cantonades de la finestra per ajudar a reconèixer quina finestra està activa</string>
   <string name="app_licence_title">Llicència de codi obert</string>
   <string name="how_to_contribute">Com col·laborar?</string>
-  <string name="confirm_delete_bookmarks">Vols eliminar %d marcadors i les seves notes?</string>
-  <string name="confirm_delete_orphaned_bookmarks">L\'etiqueta seleccionada està associada a %d marcadors que no tenen cap altra etiqueta. Vols suprimir aquests marcadors juntament amb les etiquetes?</string>
-  <string name="delete_label_and_bookmarks">Suprimeix l\'etiqueta i els marcadors</string>
   <string name="delete_label_only">Suprimeix només l\'etiqueta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomanar a un amic</string>
@@ -973,8 +957,6 @@
   <string name="old_webview">El paquet Android WebView és massa antic (%1$s). Has d\'actualitzar el paquet Android WebView almenys a la versió %2$s per usar %3$s. Per a la majoria de dispositius, això es pot fer a través de %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Continua igualment</string>
-  <string name="proceed">Continua</string>
-  <string name="rate_title">Valoració i ressenya de l\'aplicació</string>
   <string name="rate_message5">Les ressenyes positives i detallades ajuden molt al projecte de codi obert AndBible. Gràcies!</string>
   <string name="rate_message6">Abans de fer una ressenya negativa, considera el següent:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -1004,7 +986,6 @@
   <string name="primary_label">Etiqueta principal</string>
   <string name="favourite_label">Etiqueta preferida</string>
   <string name="edit_label">Edita l\'etiqueta</string>
-  <string name="delete_label_confirmation">Vols eliminar l\'etiqueta de marcador «%s»? També s\'eliminaran totes les notes de bloc d\'estudi associades.</string>
   <string name="active_labels">Etiquetes seleccionades</string>
   <string name="recent_labels">Etiquetes recents</string>
   <string name="other_labels">Altres etiquetes</string>
@@ -1014,8 +995,6 @@
   <string name="book_menu_show_progress_bars">Mostra les barres de progrés</string>
   <string name="reset_workspace_labels">Vols restablir la configuració d\'assignació automàtica i preferits per a aquest espai de treball?</string>
   <string name="clear_auto_assign_labels">Esborra les etiquetes d\'assignació automàtica</string>
-  <string name="reset_workspace_auto_assign_labels">Vols eliminar totes les etiquetes d\'assignació automàtica d\'aquest espai de treball?</string>
-  <string name="reset_hide_labels">Vols restablir la configuració per amagar les etiquetes especificades?</string>
   <string name="reorder">Reordena</string>
   <string name="system_items">Accions del sistema</string>
   <string name="system_items1">Més</string>
@@ -1029,7 +1008,6 @@
   <string name="ios_fullscreen_hint">Toca dues vegades o toca el botó per sortir de la pantalla completa.</string>
   <string name="desktop_exit_fullscreen">Surt de la pantalla completa</string>
   <string name="exit_fullscreen">Fes doble toc a la pantalla per sortir de la pantalla completa</string>
-  <string name="reset_app_prefs">Vols restablir totes les preferències globals de l\'aplicació que es mostren en aquesta pantalla als seus valors predeterminats?</string>
   <string name="label_red">Vermell</string>
   <string name="label_green">Verd</string>
   <string name="label_blue">Blau</string>
@@ -1040,7 +1018,6 @@
   <string name="reset_databases_title">Restableix les bases de dades</string>
   <string name="reset_databases_description">Restableix les bases de dades individuals al seu estat inicial buit. Aquesta acció no es pot desfer.</string>
   <string name="last_crash_info_title">Informació de l\'últim error</string>
-  <string name="reset_database_confirm">Això suprimirà permanentment totes les dades de «%1$s» i les restablirà a l\'estat inicial. Aquesta acció no es pot desfer.\n\nEstàs segur?</string>
   <string name="reset_database_success">La base de dades s\'ha restablert correctament</string>
   <string name="reset_something">Restableix: %1$s</string>
   <string name="export">Exporta</string>
@@ -1110,19 +1087,18 @@
   <string name="manage_labels_help_favourite">Mantén l\'etiqueta a les teves preferides per accedir-hi ràpidament.</string>
   <string name="manage_labels_help_styles">Sota el nom, un petit exemple mostra l\'aspecte de l\'etiqueta: Selecció per a un marcador de selecció de text, Verset sencer per a un de verset sencer, i una etiqueta Espai de treball per a un estil que aquest espai de treball substitueix. Un exemple en gris sense decoració vol dir que els marcadors de l\'etiqueta no es dibuixen. Amaga els exemples des del menú ⋮.</string>
   <string name="manage_labels_help_reorder">Reordena la llista des del menú ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">En una pantalla estreta, la llista omet les icones de principal, assignació automàtica i preferit per deixar espai als noms de les etiquetes. Toca una etiqueta per definir-les al seu editor.</string>
   <string name="added_to_bookmark">Assignat a aquest marcador</string>
   <string name="strongs_links">Enllaços</string>
   <string name="strongs_text_and_links">Text i enllaços</string>
   <string name="strongs_hidden_links">Enllaços ocults</string>
   <string name="verse_tip">Per seleccionar versets parcials o múltiples, pots fer una pulsació llarga al text de la Bíblia</string>
-  <string name="permission_required">Cal permís</string>
   <string name="labels_search_hint">Cerca</string>
   <string name="search_mode_name_start">Nom (des del principi)</string>
   <string name="search_mode_name_contains">Nom (conté)</string>
   <string name="search_mode_content">Contingut</string>
   <string name="search_results_matches">%d coincidències</string>
   <string name="search_results_match">1 coincidència</string>
-  <string name="progress_status_permission">Per mostrar notificacions (estat de baixada, processament, estat de la parla), necessitem el teu permís.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Calculadora simple</string>
   <string name="prefs_persecution_cat">Configuració per a perseguits</string>
@@ -1156,7 +1132,6 @@
   <string name="custom_repositories_create_button_label">Afegeix un repositori personalitzat</string>
   <string name="custom_repositories_info_button_label">Informació</string>
   <string name="repository_specification">URL del repositori</string>
-  <string name="delete_custom_repository">Vols eliminar el repositori personalitzat %s?</string>
   <string name="custom_repositories_help1">Per afegir un nou repositori personalitzat, escriu o enganxa l\'URL del repositori personalitzat aquí.</string>
   <string name="custom_repositories_help2">Pots llegir més informació sobre els repositoris personalitzats a %s.</string>
   <string name="custom_repositories_help0">Pots instal·lar documents des de repositoris personalitzats externs instal·lant repositoris personalitzats.</string>
@@ -1176,7 +1151,6 @@
   <string name="db_bookmarks">Marcadors, Les meves notes, Etiquetes i Blocs d\'estudi</string>
   <string name="synchronizing">Sincronitzant…</string>
   <string name="notification_finished">Acabat</string>
-  <string name="overrideBackup">S\'ha trobat al núvol una base de dades existent amb la qual aquest dispositiu no està sincronitzat. La base de dades conté %s. Què vols fer?</string>
   <string name="reading_plans_content">Plans de lectura i els seus estats</string>
   <string name="bookmarks_contents">Marcadors, Etiquetes i Blocs d\'estudi</string>
   <string name="workspaces_contents">Espais de treball i Finestres</string>
@@ -1196,7 +1170,6 @@
   <string name="reading_progress_calendar">Activitat de lectura</string>
   <string name="reading_progress_cycle">Cicle %d</string>
   <string name="reading_progress_new_cycle">Nou cicle</string>
-  <string name="reading_progress_new_cycle_confirm">Vols iniciar un nou cicle de lectura? Això començarà a fer un seguiment del teu progrés des de zero, conservant les dades del cicle anterior.</string>
   <string name="reading_progress_previous_cycle">Cicle anterior</string>
   <string name="reading_progress_next_cycle">Cicle següent</string>
   <string name="cloud_merge_data">Combina les dades</string>
@@ -1206,7 +1179,6 @@
   <string name="cloud_sync_title">Sincronització del dispositiu</string>
   <string name="reset_sync">Tanca la sessió</string>
   <string name="prefs_reset_sync_summary">Desactiva la sincronització i restableix la configuració relacionada.</string>
-  <string name="sync_confirmation">Segur que vols tancar la sessió i restablir la sincronització?</string>
   <string name="cloud_info">Informació del núvol</string>
   <string name="cloud_info_summary">Dades a l\'emmagatzematge al núvol: %s Mb</string>
   <string name="sync_adapter">Servei de sincronització</string>
@@ -1222,7 +1194,6 @@
   <string name="webdav_server_url_hint">Adreça de la carpeta WebDAV, p. ex. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La sincronització requereix una adreça segura https://.</string>
   <string name="webdav_certificate_title">Certificat del servidor</string>
-  <string name="webdav_forget_certificate_message">Vols oblidar el certificat de servidor de confiança? Se\'t demanarà que tornis a confirmar el certificat en la propera connexió.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Certificat de servidor no fiable</string>
   <string name="webdav_untrusted_certificate_message">Android no considera fiable el certificat de %1$s. Confia-hi només si el reconeixes, per exemple perquè has configurat tu mateix aquest servidor.\n\nSubjecte: %2$s\nEmissor: %3$s\nVàlid: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1239,14 +1210,7 @@
   <string name="synchronization_categories">Categories de sincronització</string>
   <string name="sync_general_settings">Informació i configuració general</string>
   <string name="sync_introduction">Introducció</string>
-  <string name="are_you_sure">Segur?</string>
   <string name="are_you_sure_merge">Es conservaran tant les dades d\'aquest dispositiu com les del %s al núvol. Quan un mateix element s\'hagi canviat en tots dos, es conservarà el canvi més recent. Les dades d\'aquest dispositiu s\'enviaran als teus altres dispositius.</string>
-  <string name="are_you_sure_reset_local">Això restablirà la teva base de dades local per a %s amb el contingut emmagatzemat actualment al servei al núvol.</string>
-  <string name="are_you_sure_reset_cloud">Això restablirà la teva base de dades al núvol per a %s amb el contingut que tens en aquest dispositiu.</string>
-  <string name="sync_cant_fetch">La versió de la base de dades o del fitxer de pedaç emmagatzemat al núvol és superior a la que admet aquesta aplicació.</string>
-  <string name="sync_disabling">Desactivant la sincronització per a %s de moment.</string>
-  <string name="sync_update_app">Actualitza l\'aplicació per continuar la sincronització.</string>
-  <string name="sign_in_failed">Ha fallat l\'inici de sessió al servei de sincronització.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Desactivant la sincronització al núvol. Cal tornar a activar-la manualment després de la restauració.</string>
   <string name="report">Informe</string>
@@ -1264,6 +1228,7 @@
   <string name="open_here">Obre aquí</string>
   <string name="external_link">Enllaç extern</string>
   <string name="external_link_question">Això obrirà l\'enllaç extern %s en una aplicació de navegador. Vols continuar?</string>
+  <string name="external_link_dont_ask_again">No ho tornis a preguntar per a %s</string>
   <string name="nameless">Títol no definit</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Accions d\'un sol toc (Bíblies)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Accions d\'un sol toc (Altres)</string>
@@ -1311,8 +1276,6 @@
   <string name="memorize_include_reference_summary">Afegeix la referència del verset (p. ex. Joan 3:16) com a darrer element a memoritzar</string>
   <string name="reading_progress_settings">Progrés i memorització</string>
   <string name="reading_progress_settings_summary">Configuració de seguiment automàtic, memorització i pràctica de tipografia</string>
-  <string name="memorize_confirm_unmark">Vols eliminar l\'estat memoritzat de %s?</string>
-  <string name="memorize_confirm_remove_target">Vols eliminar l\'objectiu de memorització %s?</string>
   <string name="memorize_tab_reading">Lectura</string>
   <string name="memorize_tab_memorization">Memorització</string>
   <string name="memorize_verses_memorized">Memoritzat</string>
@@ -1338,7 +1301,6 @@
   <string name="llm_reset_usage_title">Restableix les dades d\'ús</string>
   <string name="llm_reset_usage_summary">Esborra el seguiment acumulat de tokens i costos</string>
   <string name="llm_reset_usage_confirm_title">Vols restablir les dades d\'ús?</string>
-  <string name="llm_reset_usage_confirm_message">Això esborrarà totes les dades d\'ús acumulades.</string>
   <string name="llm_custom_input_price_title">Preu d\'entrada ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Preu de sortida ($/Mtoken)</string>
   <string name="llm_cost_total">Total: %1$s</string>
@@ -1354,8 +1316,6 @@
   <string name="llm_parse_error_anthropic">Error en analitzar la resposta d\'Anthropic: %1$s</string>
   <string name="llm_error_unknown">Error desconegut</string>
   <string name="llm_error_max_iterations">S\'ha assolit el màxim d\'iteracions (%1$d) sense completar</string>
-  <string name="llm_continue_iterations_title">Vols continuar?</string>
-  <string name="llm_continue_iterations_message">L\'agent d\'IA ha assolit el límit de %1$d iteracions sense completar. Vols continuar durant %2$d iteracions més?</string>
   <string name="agent_max_iterations_title">Màxim d\'iteracions de l\'agent</string>
   <string name="agent_max_iterations_summary">Màxim d\'iteracions abans de demanar confirmació per continuar (0 = il·limitat)</string>
   <string name="ask_model_before_run_title">Demana el model abans d\'executar</string>
@@ -1415,7 +1375,6 @@
   <string name="ai_models_summary_none">Cap model configurat</string>
   <string name="ai_add_provider">Afegeix un proveïdor</string>
   <string name="ai_provider_edit">Edita</string>
-  <string name="ai_provider_delete_confirm">Vols suprimir el proveïdor «%1$s»? Els missatges que utilitzen aquest proveïdor tornaran al valor predeterminat.</string>
   <string name="ai_provider_api_key_not_set">Clau d\'API no establerta</string>
   <string name="ai_provider_select_type">Selecciona el tipus de proveïdor</string>
   <string name="ai_provider_name">Nom del proveïdor</string>
@@ -1435,7 +1394,6 @@
   <string name="edit_model_title">Edita model</string>
   <string name="model_saved">Model desat</string>
   <string name="model_deleted">Model suprimit</string>
-  <string name="model_delete_confirm">Suprimeix el model \"%1$s\"?</string>
   <string name="model_set_default">Estableix com a model predeterminat</string>
   <string name="model_select_provider">Proveïdor</string>
   <string name="model_supported_badge">✓ Compatible</string>
@@ -1475,7 +1433,6 @@
   <string name="ai_disclaimer_point8">Les teves dades s\'envien als servidors del proveïdor d\'IA que hagis triat. En usar una clau d\'API, acceptes els termes i la política de privadesa d\'aquell proveïdor. Els models allotjats localment són possibles però requereixen més coneixements tècnics i poden no donar resultats tan bons com els models comercials.</string>
   <string name="ai_disclaimer_point9">Els proveïdors d\'IA cobren per l\'ús de l\'API. Les estimacions de cost que es mostren a AndBible són aproximades; comprova sempre la facturació del teu proveïdor per als càrrecs reals.</string>
   <string name="ai_disclaimer_accept_title">Accepta l\'avís legal de la IA</string>
-  <string name="ai_disclaimer_accept_button">Accepto i assumeixo tota la responsabilitat</string>
   <string name="prompt_permission_mode">Mode de permisos</string>
   <string name="prompt_permission_mode_description">Controla quan cal la confirmació de l\'usuari abans que la IA realitzi operacions d\'escriptura. La configuració per eina que hi ha a continuació pot substituir-la per a eines individuals.</string>
   <string name="agent_permission_mode_summary">Controla quan cal la confirmació de l\'usuari abans d\'operacions d\'escriptura de la IA</string>
@@ -1591,7 +1548,6 @@
   <string name="default_prompt_custom_desc">Executa una tasca personalitzada sobre el passatge seleccionat</string>
   <string name="default_prompt_custom_template">Segueix l\'especificació de tasca de l\'usuari per al passatge bíblic seleccionat.</string>
   <string name="copy">Copia</string>
-  <string name="delete_prompt_confirm_message">Segur que vols suprimir aquesta indicació?</string>
   <string name="ai_hide_prompt">Amaga</string>
   <string name="ai_restore_hidden_prompts">Restaura les indicacions amagades</string>
   <string name="ai_prompt_hidden">Indicació amagada</string>
@@ -1676,8 +1632,6 @@
   <string name="permission_allow_all_session">Permet totes les eines en aquesta sessió</string>
   <string name="permission_allow_always">Permet sempre \"%1$s\"</string>
   <string name="permission_deny">Denega</string>
-  <string name="permission_always_allow_confirm_title">Permetre sempre?</string>
-  <string name="permission_always_allow_confirm">Segur que vols permetre permanentment \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Pots restablir-ho a la configuració de la IA.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Permisos d\'eines</string>
@@ -1782,18 +1736,15 @@
   <string name="my_document_new_name">Document %d</string>
   <string name="my_document_create_title">Crea un document nou</string>
   <string name="my_document_rename_title">Reanomena el document</string>
-  <string name="my_document_delete_confirmation">Suprimeix el document \"%s\"?</string>
   <string name="show_secret">Mostra</string>
   <string name="hide_secret">Amaga</string>
   <string name="ai_documents_name">Documents d\'IA</string>
   <string name="ai_documents_description">Documents generats automàticament per la IA</string>
-  <string name="my_document_cannot_delete_ai_documents">Els documents de la IA no es poden suprimir mentre contenen pàgines. Suprimeix primer les pàgines.</string>
   <string name="my_document_save_changes">Desa els canvis?</string>
   <string name="my_document_no_description">Sense descripció</string>
   <string name="my_document_edit_description">Edita la descripció</string>
   <string name="my_document_pages_title">%s - Pàgines</string>
   <string name="my_document_page_rename_title">Reanomena la pàgina</string>
-  <string name="my_document_page_delete_confirmation">Suprimeix la pàgina \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Vols suprimir aquestes pàgines?</string>
   <string name="my_documents_switch_document">Canvia de document</string>
   <string name="my_document_new_page_name">Pàgina %1$d</string>
@@ -1861,7 +1812,6 @@
   <string name="cloud_doc_show_removed">Mostra els documents suprimits</string>
   <string name="cloud_doc_status_removed">Suprimit del núvol</string>
   <string name="cloud_doc_status_still_installed">encara instal·lat aquí</string>
-  <string name="cloud_doc_purge_confirm">Voleu suprimir permanentment \"%1$s\" de l\'historial del núvol? Si encara està instal·lat en un altre dispositiu, aquest dispositiu pot tornar-lo a pujar al núvol en la propera sincronització.</string>
   <string name="cloud_doc_action_download">Baixa</string>
   <string name="cloud_doc_action_push">Puja al núvol</string>
   <string name="cloud_doc_action_remove_cloud">Suprimeix del núvol</string>
@@ -1872,8 +1822,6 @@
   <string name="cloud_doc_action_dont_sync">No sincronitzis al núvol</string>
   <string name="cloud_doc_action_allow_sync">Sincronitza al núvol</string>
   <string name="cloud_doc_action_purge">Suprimeix de l\'historial del núvol</string>
-  <string name="cloud_doc_remove_all_confirm">Voleu suprimir %1$s del núvol i de tots els vostres dispositius, inclòs aquest?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Voleu suprimir %1$s del núvol? La còpia d\'aquest dispositiu es conserva; els dispositius amb la sincronització de documents activada també la suprimiran.</string>
   <string name="cloud_doc_sync_now">Sincronitza ara</string>
   <string name="cloud_doc_rescan">Torna a escanejar des del núvol</string>
   <string name="cloud_doc_sync_now_download">Baixa els documents nous i actualitzats</string>
@@ -1885,6 +1833,16 @@
   <string name="cloud_doc_summary_download">Baixa %1$d</string>
   <string name="cloud_doc_summary_download_size">Baixa %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Les baixades automàtiques començaran amb Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d document</item>
+    <item quantity="many">%1$d de documents</item>
+    <item quantity="other">%1$d documents</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d document (%2$s)</item>
+    <item quantity="many">%1$d de documents (%2$s)</item>
+    <item quantity="other">%1$d documents (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Res a transferir</string>
   <string name="cloud_doc_selected_count">%1$d seleccionats</string>
   <string name="cloud_doc_bulk_skipped">%1$d omesos per no ser aplicables</string>
@@ -1901,8 +1859,6 @@
   <string name="background_image_import">Importa de la galeria…</string>
   <string name="background_image_empty">Encara no hi ha imatges importades. Toca \"Importa de la galeria…\" per afegir-ne una.</string>
   <string name="background_image_importing">S\'està important…</string>
-  <string name="background_image_delete_title">Vols suprimir la imatge?</string>
-  <string name="background_image_delete_confirm">Vols suprimir aquesta imatge de fons? Els espais de treball que encara la utilitzen passaran a no tenir cap imatge.</string>
   <string name="background_image_day">Imatge de fons (dia)</string>
   <string name="background_image_night">Imatge de fons (nit)</string>
   <string name="background_image_opacity_day">Opacitat de la imatge de fons (dia)</string>
@@ -1976,6 +1932,11 @@
   <string name="legacy_notice_icloud">Ara la sincronització utilitza iCloud Drive. Torna-la a activar a Configuració → Sincronització. Aquest dispositiu conserva el que tenia; els canvis dels teus altres dispositius arribaran quan la sincronització torni a estar configurada. Per alliberar les dades antigues d\'iCloud: Configuració → el teu nom → iCloud → Gestiona l\'emmagatzematge → AndBible.</string>
   <string name="legacy_notice_nextcloud">La teva connexió a Nextcloud s\'ha conservat, però la sincronització està desactivada. Activa-la a Configuració → Sincronització i tria si vols obtenir les dades del núvol o crear-ne de noves.</string>
   <string name="legacy_notice_nextcloud_unsent">Alguns canvis d\'aquest dispositiu encara no s\'havien enviat a Nextcloud. No s\'han enviat i es queden només en aquest dispositiu.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d marcador no s\'ha pogut col·locar de manera fiable i no s\'ha importat. Es conserva amb les teves dades antigues en aquest dispositiu.</item>
+    <item quantity="many">%1$d de marcadors no s\'han pogut col·locar de manera fiable i no s\'han importat. Es conserven amb les teves dades antigues en aquest dispositiu.</item>
+    <item quantity="other">%1$d marcadors no s\'han pogut col·locar de manera fiable i no s\'han importat. Es conserven amb les teves dades antigues en aquest dispositiu.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">És una aplicació d\'estudi bíblic potent però fàcil d\'utilitzar, que funciona sense connexió.</string>
   <string name="webdav_untrusted_certificate_message_device">Aquest dispositiu no considera fiable el certificat de %1$s. Confia-hi només si el reconeixes, per exemple perquè has configurat tu mateix aquest servidor.\n\nSubjecte: %2$s\nEmissor: %3$s\nVàlid: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2027,6 +1988,25 @@
   <string name="recommend_share_link">Comparteix un enllaç</string>
   <string name="recommend_qr_caption">Escaneja per aconseguir AndBible per al mòbil, la tauleta o l\'ordinador.</string>
   <string name="desktop_activation_failed">AndBible ja s\'està executant, però la seva finestra no ha respost. Canvieu a la instància en execució i torneu-ho a provar. No s\'ha confirmat que s\'hagin lliurat els fitxers entrants.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Això no es pot desfer.</string>
+  <string name="ai_raw_log_delete_lead">Vols suprimir aquest registre?</string>
+  <string name="ai_provider_delete_lead">Vols suprimir el proveïdor «%1$s»?</string>
+  <string name="ai_provider_delete_detail">Les indicacions que l\'usen tornen al proveïdor per defecte.</string>
+  <string name="ai_model_delete_lead">Vols suprimir el model «%1$s»?</string>
+  <string name="ai_prompt_delete_named_lead">Vols suprimir la indicació «%1$s»?</string>
+  <string name="ai_prompt_delete_lead">Vols suprimir aquesta indicació?</string>
+  <string name="ai_reset_usage_detail">Els totals de testimonis i de cost tornen a zero. Això no es pot desfer.</string>
+  <string name="ai_reset_usage_button">Restableix</string>
+  <string name="ai_disclaimer_accept">Accepto</string>
+  <string name="llm_continue_iterations_lead">Vols continuar durant %1$d iteracions més?</string>
+  <string name="llm_continue_iterations_detail">L\'agent d\'IA ha arribat al seu límit de %1$d iteracions sense acabar.</string>
+  <string name="llm_continue_button">Continua</string>
+  <string name="permission_always_allow_lead">Vols permetre sempre «%1$s»?</string>
+  <string name="permission_always_allow_button">Permet sempre</string>
+  <string name="ai_bug_report_send_lead">Vols enviar un informe d\'error de la IA?</string>
+  <string name="ai_bug_report_send_button">Envia</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Primers passos</string>
   <string name="user_guide_section_reading_workspace">Lectura i espai de treball</string>
@@ -2104,4 +2084,158 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Assistent d\'IA, part 3: eines, dades i permisos</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Assistent d\'IA, part 4: preguntes pròpies, costos i sincronització</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Vols descartar els canvis?</string>
+  <string name="dialog_keep_editing">Continua editant</string>
+  <string name="dialog_label_delete_lead">Vols suprimir l\'etiqueta «%1$s»?</string>
+  <string name="dialog_label_delete_detail">Les seves notes del bloc d\'estudi també se suprimeixen. Això no es pot desfer.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d marcador no té cap altra etiqueta.</item>
+    <item quantity="many">%1$d de marcadors no tenen cap altra etiqueta.</item>
+    <item quantity="other">%1$d marcadors no tenen cap altra etiqueta.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Suprimeix l\'etiqueta i %1$d marcador</item>
+    <item quantity="many">Suprimeix l\'etiqueta i %1$d de marcadors</item>
+    <item quantity="other">Suprimeix l\'etiqueta i %1$d marcadors</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Se suprimeixen els marcadors i les seves notes.</string>
+  <string name="dialog_label_delete_only_consequence">Els marcadors es conserven, sense etiqueta.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Vols eliminar aquest marcador?</item>
+    <item quantity="many">Vols eliminar %1$d de marcadors?</item>
+    <item quantity="other">Vols eliminar %1$d marcadors?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">La seva nota també s\'elimina.</item>
+    <item quantity="many">Les seves notes també s\'eliminen.</item>
+    <item quantity="other">Les seves notes també s\'eliminen.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Vols treure totes les etiquetes d\'assignació automàtica d\'aquest espai de treball?</string>
+  <string name="dialog_labels_reset_hidden_lead">Vols tornar a mostrar totes les etiquetes amagades?</string>
+  <string name="dialog_labels_reset_shown_detail">Les etiquetes que has amagat de la llista tornen a mostrar-se.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Vols instal·lar «%s»?</string>
+  <string name="install_action">Instal·la</string>
+  <string name="install_from_file_question">Vols instal·lar documents des d\'un fitxer?</string>
+  <string name="overwrite_files_detail">Aquests fitxers ja existeixen:%s</string>
+  <string name="import_studypads_question">Vols importar aquests blocs d\'estudi?</string>
+  <string name="import_action">Importa</string>
+  <string name="restore_backup_question">Vols restaurar els documents d\'aquesta còpia de seguretat?</string>
+  <string name="restore_backup_detail">Aquest fitxer és una còpia de seguretat de documents de l\'AndBible.</string>
+  <string name="update_document_question">Vols actualitzar aquest document?</string>
+  <string name="update_action">Actualitza</string>
+  <string name="download_documents_question">Vols baixar documents?</string>
+  <string name="download_persecution_warning">Si vius en un país on hi ha persecució, potser has de tenir cura en baixar material cristià per Internet. En lloc d\'això, potser voldries obtenir els fitxers zip dels documents de manera més segura i instal·lar-los mitjançant «%1$s». Totes les baixades dels servidors de documents estan xifrades (HTTPS).</string>
+  <string name="download_action">Baixa</string>
+  <string name="download_dont_ask_again">Baixa i no ho tornis a preguntar</string>
+  <string name="download_dont_ask_again_consequence">En el futur, les baixades començaran sense aquesta pregunta.</string>
+  <string name="passphrase_did_not_work">La frase de contrasenya no ha funcionat.</string>
+  <string name="try_again">Torna-ho a provar</string>
+  <string name="interrupted_downloads_lead">Vols tornar a baixar aquests documents?</string>
+  <string name="interrupted_downloads_detail">La seva baixada es va interrompre, per això no es van instal·lar.</string>
+  <string name="external_link_open_question">Vols obrir aquest enllaç al navegador?</string>
+  <string name="open_action">Obre</string>
+  <string name="notification_permission_question">Vols permetre les notificacions?</string>
+  <string name="notification_permission_detail">Les notificacions mostren l\'estat de les baixades, del processament i de la lectura en veu alta.</string>
+  <string name="allow_action">Permet</string>
+  <string name="rate_question">Vols valorar i opinar sobre l\'aplicació?</string>
+  <string name="bug_report_email_question">Vols enviar l\'informe d\'error per correu electrònic?</string>
+  <string name="continue_action">Continua</string>
+  <string name="delete_search_index_question">Vols suprimir l\'índex de cerca de «%s»?</string>
+  <string name="remove_custom_repository_question">Vols eliminar el repositori personalitzat «%s»?</string>
+  <string name="download_document_question">Vols baixar «%s»?</string>
+  <string name="choose_file_action">Tria un fitxer</string>
+  <string name="old_webview_question">Vols usar l\'aplicació amb un WebView antic?</string>
+  <string name="incomplete_translation_question">Vols continuar amb una traducció parcial?</string>
+  <string name="rate_action">Valora</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Vols suprimir el document «%s»?</string>
+  <string name="my_document_page_delete_lead">Vols suprimir la pàgina «%s»?</string>
+  <string name="my_document_cannot_delete_ai_lead">Els documents d\'IA no es poden suprimir mentre contenen pàgines.</string>
+  <string name="my_document_cannot_delete_ai_detail">Suprimeix primer les pàgines.</string>
+  <string name="reading_progress_new_cycle_lead">Vols començar un nou cicle de lectura?</string>
+  <string name="reading_progress_new_cycle_detail">El teu progrés es registra des de zero. Les dades del cicle anterior es conserven.</string>
+  <string name="reading_progress_new_cycle_start">Comença</string>
+  <string name="reset_plan_lead">Vols restablir aquest pla?</string>
+  <string name="reset_plan_detail">La data d\'inici i el progrés en aquest pla s\'esborren.</string>
+  <string name="set_current_day_lead">Vols establir %1$s com a dia actual?</string>
+  <string name="set_current_day_detail">Tots els dies anteriors es marquen com a llegits.</string>
+  <string name="plan_duplicate_user_plan_lead">Un fitxer de pla de lectura té el mateix nom que un pla integrat.</string>
+  <string name="plan_duplicate_user_plan_detail">El fitxer del pla no es pot mostrar a la llista. Canvia el nom del fitxer a la carpeta jsword/readingplan, mantenint l\'extensió .properties.</string>
+  <string name="background_image_delete_lead">Vols suprimir aquesta imatge de fons?</string>
+  <string name="background_image_delete_detail">Els espais de treball que encara l\'usen es quedaran sense imatge.</string>
+  <string name="reset_values_lead">Vols restablir tots aquests valors?</string>
+  <string name="revert_setting_lead">Vols revertir aquest paràmetre al valor heretat?</string>
+  <string name="revert_setting_confirm">Reverteix</string>
+  <string name="reset_settings_screen_lead">Vols restablir els paràmetres d\'aquesta pantalla?</string>
+  <string name="reset_settings_screen_detail">Tornen als seus valors per defecte.</string>
+  <string name="memorize_unmark_lead">Vols treure l\'estat de memoritzat de «%s»?</string>
+  <string name="memorize_remove_target_lead">Vols eliminar l\'objectiu de memorització «%s»?</string>
+  <string name="dialog_apply">Aplica</string>
+  <string name="dialog_dont_apply">No ho apliquis</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">El núvol ja té els teus %s. Què ha de passar?</string>
+  <string name="cloud_merge_consequence">Es conserven les dues bandes; quan un element ha canviat en totes dues, guanya el canvi més recent.</string>
+  <string name="cloud_fetch_consequence">Substitueix les dades d\'aquest dispositiu per la còpia del núvol.</string>
+  <string name="cloud_create_consequence">Substitueix la còpia del núvol per les dades d\'aquest dispositiu.</string>
+  <string name="cloud_disable_consequence">La sincronització continua desactivada per a aquestes dades.</string>
+  <string name="cloud_merge_lead">Vols combinar els teus %s amb el núvol?</string>
+  <string name="cloud_merge_confirm">Combina</string>
+  <string name="cloud_replace_confirm">Substitueix</string>
+  <string name="cloud_replace_local_lead">Vols substituir els %s d\'aquest dispositiu per la còpia del núvol?</string>
+  <string name="cloud_replace_local_detail">El que hi ha ara en aquest dispositiu se sobreescriu i no es pot recuperar.</string>
+  <string name="cloud_replace_cloud_lead">Vols substituir la còpia del núvol de %s per les dades d\'aquest dispositiu?</string>
+  <string name="cloud_replace_cloud_detail">El que hi ha ara al núvol se sobreescriu, i els teus altres dispositius rebran les dades d\'aquest dispositiu.</string>
+  <string name="sign_in_failed_lead">No s\'ha pogut iniciar la sessió al servei de sincronització.</string>
+  <string name="sync_too_old_lead">Aquesta aplicació és massa antiga per sincronitzar %s.</string>
+  <string name="sync_too_old_detail">Les dades del núvol usen una versió més nova de la que admet aquesta aplicació. La sincronització per a aquestes dades està desactivada de moment; actualitza l\'aplicació per tornar-la a activar.</string>
+  <string name="backup_replace_lead">Vols substituir els teus %s per la còpia de seguretat?</string>
+  <string name="backup_replace_detail">El que hi ha ara en aquest dispositiu se sobreescriu i no es pot recuperar.</string>
+  <string name="reset_database_lead">Vols restablir «%1$s» al seu estat inicial?</string>
+  <string name="reset_database_detail">Totes les dades que conté se suprimeixen de manera permanent. Això no es pot desfer.</string>
+  <string name="reset_database_button">Restableix</string>
+  <string name="restore_all_lead">Vols substituir les teves notes, marcadors, blocs d\'estudi, plans de lectura i espais de treball?</string>
+  <string name="restore_or_import_lead">Vols restaurar o importar els %s?</string>
+  <string name="restore_consequence">Substitueix el que hi ha en aquest dispositiu per la còpia de seguretat.</string>
+  <string name="import_consequence">Afegeix els elements de la còpia de seguretat al que hi ha en aquest dispositiu.</string>
+  <string name="sync_start_syncing">Comença a sincronitzar</string>
+  <string name="sync_reset_lead">Vols tancar la sessió i restablir la sincronització?</string>
+  <string name="sync_reset_detail">Hauràs de configurar la sincronització de nou.</string>
+  <string name="webdav_forget_certificate_lead">Vols oblidar el certificat de servidor de confiança?</string>
+  <string name="webdav_forget_certificate_detail">Se et demanarà que confirmis el certificat de nou en la propera connexió.</string>
+  <string name="webdav_forget_certificate_confirm">Oblida</string>
+  <string name="cloud_doc_remove_all_lead">Vols eliminar «%1$s» del núvol i de tots els teus dispositius?</string>
+  <string name="cloud_doc_remove_cloud_lead">Vols eliminar «%1$s» del núvol?</string>
+  <string name="cloud_doc_purge_lead">Vols eliminar de manera permanent «%1$s» de l\'historial del núvol?</string>
+  <string name="cloud_doc_remove_all_detail">Això també suprimeix les còpies d\'aquest dispositiu i de tots els altres dispositius amb la sincronització de documents activada.</string>
+  <string name="cloud_doc_remove_cloud_detail">Les còpies d\'aquest dispositiu es conserven. Els dispositius amb la sincronització de documents activada també les eliminaran.</string>
+  <string name="cloud_doc_purge_detail">Un dispositiu que encara en tingui una còpia podria tornar-la a pujar en la propera sincronització.</string>
+  <string name="cloud_doc_block_confirm_button">No sincronitzis</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Vols eliminar %1$d document del núvol i de tots els teus dispositius?</item>
+    <item quantity="many">Vols eliminar %1$d de documents del núvol i de tots els teus dispositius?</item>
+    <item quantity="other">Vols eliminar %1$d documents del núvol i de tots els teus dispositius?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Vols eliminar %1$d document del núvol?</item>
+    <item quantity="many">Vols eliminar %1$d de documents del núvol?</item>
+    <item quantity="other">Vols eliminar %1$d documents del núvol?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Vols eliminar de manera permanent %1$d document de l\'historial del núvol?</item>
+    <item quantity="many">Vols eliminar de manera permanent %1$d de documents de l\'historial del núvol?</item>
+    <item quantity="other">Vols eliminar de manera permanent %1$d documents de l\'historial del núvol?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Vols deixar de sincronitzar %1$d document al núvol?</item>
+    <item quantity="many">Vols deixar de sincronitzar %1$d de documents al núvol?</item>
+    <item quantity="other">Vols deixar de sincronitzar %1$d documents al núvol?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Ara es poden sincronitzar més dades teves</string>
+  <string name="new_sync_targets_detail">Els meus documents, la configuració de la IA i el progrés de lectura també es poden sincronitzar. Activa-ho a la configuració de sincronització del dispositiu.</string>
+  <!--end dialog copy: B3b-->
 </resources>

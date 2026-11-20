@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Mwongozo kamili wa mtumiaji uko kwenye andbible.org. Kurasa hufunguka kwenye kivinjari chako.</string>
   <string name="help_user_guide_home">Ukurasa mkuu wa mwongozo wa mtumiaji</string>
   <string name="help_read_in_user_guide">Soma katika mwongozo wa mtumiaji</string>
+  <string name="help_in_user_guide">Msaada katika mwongozo wa mtumiaji</string>
+  <string name="help_matching_section">Sehemu inayolingana</string>
   <string name="help_read_page">Soma katika mwongozo wa mtumiaji: %1$s</string>
   <string name="help_tutorial_videos">Video za mafunzo</string>
   <string name="help_watch_in_order">Tazama video za mafunzo kwa mpangilio</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Chagua mstari (na sura) unapochagua kifungu</string>
   <string name="prefs_open_links_in_special_window_title">Dirisha la viungo</string>
   <string name="prefs_open_links_in_special_window_summary">Fungua viungo katika dirisha maalum, kwa onyesho la haraka la marejeleo ya msalaba na Strong\'s</string>
+  <string name="prefs_trusted_link_domains_title">Vikoa vya viungo vinavyoaminika</string>
+  <string name="prefs_trusted_link_domains_summary">Viungo vya vikoa hivi hufunguka bila kuuliza. Ondoa alama kwenye kikoa ili uulizwe tena.</string>
+  <string name="prefs_trusted_link_domains_empty">Bado hakuna. Weka alama \"Usiulize tena\" unapofungua kiungo ili kuongeza kikoa chake.</string>
   <string name="prefs_text_size_sample_text">Maandishi ya mfano</string>
   <string name="prefs_screen_keep_on_title">Weka skrini iwashwe</string>
   <string name="prefs_screen_keep_on_summary">Zuia skrini kulala unapotumia programu hii</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">Nafasi ya mstari</string>
   <string name="line_spacing_summary">Weka nafasi kati ya mistari</string>
   <string name="select_none">Chagua hakuna</string>
-  <string name="reset_are_you_sure">Je, una uhakika unataka kuweka upya thamani hizi zote?</string>
   <string name="window_pinning_menutitle">Upinzani wa dirisha</string>
   <string name="hide_window_buttons_title">Ficha vitufe vya dirisha</string>
   <string name="hide_window_buttons_summary">Vitufe vya dirisha vinavyoonyeshwa upande wa kulia wa maonyesho ya Biblia vimefichwa. Mwambaa wa uabiri wa dirisha chini bado unaonyeshwa na unaweza kufungua menyu ya ibuko ya dirisha kwa kubonyeza muda mrefu.</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">Neno halipatikani katika kamusi yoyote</string>
   <string name="prefs_top_margin_title_mm">Ukingo wa juu (%d mm)</string>
   <string name="font_size_title">Ukubwa wa fonti</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Maana jinsi hii Mungu aliupenda ulimwengu, hata akamtoa Mwanawe pekee, ili killa mtu amwaminiye asipotee, bali awe na uzima wa milele.</string>
   <string name="font_size_title_pt">Ukubwa wa fonti (%d pt)</string>
   <string name="prefs_font_text_size_summary">Rekebisha ukubwa wa fonti ya maandishi kuu</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">Mipangilio ya rangi (Dirisha)</string>
   <string name="workspace_color_settings_title">Mipangilio ya rangi (Nafasi ya kazi)</string>
   <string name="color_workspace">Rangi ya eneo la kazi</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Chaguo-msingi</string>
   <string name="color_text">Rangi ya maandishi</string>
   <string name="color_background">Rangi ya mandhari</string>
   <string name="colors_day_mode_title">Hali ya mchana</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">Orodha za hati zilisasishwa mara ya mwisho: %s.</string>
   <string name="download_refreshing_book_list">Inasasisha orodha ya hati zinazopatikana kutoka kwa seva za hati…</string>
   <string name="download_source_message1">Hati zinapakuliwa kutoka kwa vyanzo vifuatavyo:</string>
-  <string name="download_document_confirm_prefix">Pakua</string>
   <string name="error_downloading">Hitilafu ilitokea wakati wa kupakua. Tafadhali angalia muunganisho wako wa mtandao.</string>
   <string name="error_downloading_status">Seva inayohifadhi %1$s ilirudisha hitilafu kutokana na %2$s (%3$d).</string>
   <string name="storage_space_warning">Nafasi ya hifadhi ya ndani haitoshi.</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">Shughuli za usuli</string>
   <string name="activity_empty">Hakuna kinachoendelea</string>
   <string name="activity_failed_toast">%1$s — tazama menyu</string>
-  <string name="download_question_title">Je, unataka kuendelea kupakua hati?</string>
-  <string name="download_question_message">Ikiwa unaishi katika nchi yenye mateso ya kidini, huenda ukahitaji kuwa mwangalifu unapopakua nyenzo za Kikristo kupitia Intaneti. Badala yake, unaweza kutaka kupata faili za zip za moduli kwa njia salama zaidi na kuziweka kupitia \"%1$s\". Je, una uhakika unataka kuendelea na upakuaji? Upakuaji wote kutoka kwa seva za moduli husimbwa kwa njia fiche (HTTPS).</string>
-  <string name="do_not_ask_again">Ndiyo, usiulize tena</string>
   <string name="recommended_document">Inapendekezwa!</string>
   <string name="about_version_history">Historia ya toleo: %s</string>
   <string name="download_errors">Hitilafu za upakuaji</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">Inakagua faili iliyotolewa…</string>
   <string name="invalid_module">Faili haihifadhi moduli ya SWORD halali</string>
   <string name="install_zip_title">Tafadhali subiri. Inapakia moduli kutoka kwa faili.</string>
-  <string name="overwrite_files">Faili zifuatazo tayari zipo: %s Ziandike juu?</string>
   <string name="overwrite_files_title">Andika juu ya faili?</string>
   <string name="could_not_overwrite_files">Haikuweza kuandika juu ya faili: %s. Zaidi ya hilo sanikisho ilifanikiwa.</string>
   <string name="module_backup_restore">Faili hii ni nakala rudufu ya hati za AndBible. Je, unataka kurejesha hati zake?</string>
-  <string name="install_do_you_want">Je, unataka kusanikisha moduli (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Mpango wa Kusoma</string>
   <string name="reading_plans_plural">Mipango ya Kusoma</string>
@@ -429,14 +430,8 @@
   <string name="rdg_plan_day">Siku %s</string>
   <string name="rdg_plan_set_start_date">Weka Tarehe ya Kuanza…</string>
   <string name="set_current_day">Weka kama siku ya sasa…</string>
-  <string name="msg_set_current_day_reading_plan">Hii itaweka %1$s kama siku ya sasa katika mpango huu na kuweka alama kwamba siku zote zilizotangulia zimesomwa. Endelea?</string>
   <string name="done">Imekamilika</string>
-  <string name="reset_plan_question">Je, una uhakika unataka kuweka upya mpango huu?</string>
   <string name="import_reading_plan">Ingiza mpango wa kusoma…</string>
-  <string name="plan_duplicate_user_plan">
-Kuna mpango wa kusoma wa mtumiaji katika sdcard 
-sword/readingplan yenye jina sawa na mpango wa ndani. Haiwezi kuorodheshwa hapa.
-Tafadhali ibadilishie jina kwa kitu kingine, ukiacha kiendelezi cha faili chake kama .properties</string>
   <string name="plan_name_y1ntpspr">Agano Jipya, Zaburi na Mithali katika Mwaka Mmoja</string>
   <string name="plan_description_y1ntpspr">
 Kwa heshima ya HEARTLIGHT Internet Magazine, http://www.heartlight.org, ruhusa imetolewa</string>
@@ -461,12 +456,8 @@ Soma Biblia yote kwa miaka 2, ukisoma Agano Jipya na Zaburi mara mbili. Kwa hesh
   <string name="delete_index">Futa faharasa ya utafutaji</string>
   <string name="about">Kuhusu</string>
   <string name="delete_doc">Futa %s?</string>
-  <string name="interrupted_downloads_title">Upakuaji umekatizwa</string>
-  <string name="interrupted_downloads_message">Hati hizi hazikusakinishwa kwa sababu upakuaji wake ulikatizwa:</string>
-  <string name="interrupted_downloads_question">Zipakue tena?</string>
   <string name="download_again">Pakua tena</string>
   <string name="delete_docs_confirm">Futa hati hizi?</string>
-  <string name="delete_search_index_doc">Futa faharasa ya %s?</string>
   <!--Verse context menu-->
   <string name="notes">Maelezo ya chini na marejeleo</string>
   <string name="share_verse">Shiriki…</string>
@@ -506,7 +497,6 @@ Ficha alamisho zilizowekwa alama na lebo maalum</string>
   <string name="bookmark_warning">Kuna alamisho na/au maelezo kwa hati hii.</string>
   <string name="bookmark_warning2">
 Ikiwa muundo wa hati umebadilika, kusasisha hati hii kunaweza kufanya maeneo ya alamisho/maelezo hizi yahamie ndani ya hati au kutoweka kabisa.</string>
-  <string name="bookmark_warning3">Je, bado unataka kusasisha moduli?</string>
   <string name="bookmark_warning4">Inashauriwa kufanya nakala ya hifadhi ya moduli kabla ya kusasisha.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Mpangilio wa tarehe</string>
@@ -671,10 +661,8 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Rejesha au Ingiza kutoka…</string>
   <string name="backup_restore2">Rejesha au Ingiza</string>
-  <string name="overwrite_something">Andika juu ya %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Rejesha Faili la Hifadhidata</string>
-  <string name="restore_confirmation">Andika juu ya Maelezo Yangu, Alamisho, Daftari za Masomo, Mipango ya Kusoma na Maeneo ya Kazi?</string>
   <string name="restore_success">Maelezo Yangu, Alamisho, Daftari za Masomo, Mipango ya Kusoma na Maeneo ya Kazi yamerejesha kwa mafanikio</string>
   <string name="downloading_backup">Inapakua faili la hifadhi…</string>
   <string name="loading_backup">Inapakia hifadhidata kutoka kwa hifadhi…</string>
@@ -696,7 +684,6 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="send_export_file">Tuma faili ya usafirishaji</string>
   <string name="backup_modules_title">Chagua moduli zipi za kuhifadhi</string>
   <string name="install_zip_canceled">Sanikisho la moduli limeghairiwa</string>
-  <string name="ask_restore_or_import">Hifadhidata ya %s inaweza kurejesha (yaani hifadhidata iliyopo inaondolewa na hifadhidata iliyochaguliwa inapakiwa) au kuingizwa (hifadhidata iliyochaguliwa inaingizwa kwenye hifadhidata iliyopo). Unataka kufanya nini?</string>
   <string name="restore">Rejesha</string>
   <string name="import2">Ingiza</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -751,7 +738,6 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="settings_editor_back">Rudi</string>
   <string name="settings_editor_close">Funga</string>
   <string name="settings_editor_apply">Tekeleza</string>
-  <string name="discard_changes_confirmation">Tupa mabadiliko ambayo hayakuhifadhiwa?</string>
   <string name="discard">Tupa</string>
   <string name="remove">Ondoa</string>
   <string name="overwrite">Andika juu</string>
@@ -778,7 +764,8 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="empty_list">Hakuna vitu vya kuonyesha</string>
   <string name="error_skip">Ruka</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Data iliyoharibika</string>
+  <string name="corrupt_database_headline">AndBible haiwezi kufungua baadhi ya data yako</string>
+  <string name="corrupt_database_files_detail">Faili hizi hazikuweza kufunguliwa: %1$s. Hakuna kilichobadilishwa wala kufutwa. Kuweka upya huzianza zikiwa tupu na huhifadhi kila faili iliyoharibika kwenye kifaa hiki, ikipewa jina jipya lenye .corrupt- pamoja na tarehe na saa.</string>
   <string name="corrupt_database_reset">Weka upya data iliyoharibika</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Data iliyoharibika haikuweza kuwekwa upya: %1$s haikuweza kuhamishwa pembeni. Hakuna kilichobadilishwa. Unaweza kujaribu tena, kutuma ripoti ya hitilafu, au kutumia Hifadhi na Urejesho.</string>
@@ -786,8 +773,8 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="damaged_data_needs_attention">Data ya programu inahitaji uangalizi. Gusa ili kufungua programu.</string>
   <string name="debug_test_error">Hitilafu ya majaribio (toleo la utatuzi)</string>
   <string name="bug_report_prepare_failed">Imeshindwa kuandaa au kushiriki ripoti. Unaweza kujaribu tena, au kutumia Hifadhi nakala na Rejesha kuhifadhi data yako.</string>
-  <string name="bug_report_email_title">Tuma ripoti ya hitilafu kupitia barua pepe</string>
   <string name="bug_report_desktop_text">Kisha, utaulizwa mahali pa kuhifadhi faili ya ripoti ya hitilafu. Baada ya hapo utapata maelekezo ya kuituma kwa timu ya wasanidi.</string>
+  <string name="bug_report_email_title">Tuma ripoti ya hitilafu kupitia barua pepe</string>
   <string name="bug_report_email_text">Inayofuata, tafadhali chagua programu yako unayoipenda ya barua pepe (Gmail kwa mfano) kutuma ripoti kwa timu ya wasanidi.</string>
   <string name="bug_report_manual_title">Tuma ripoti kwa barua pepe</string>
   <string name="bug_report_manual_text_saved">Ripoti imehifadhiwa kwenye <b>%1$s</b>.\n\nTafadhali tuma barua pepe kwa <b>%2$s</b> na uambatishe faili hiyo; programu ya barua pepe haiwezi kuiambatisha kwa niaba yako. Mada inayopendekezwa: <b>%3$s</b>. Kwenye ujumbe, tuambie ulichofanya na kilichotokea.</string>
@@ -858,8 +845,6 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="beta_special_regards">Wasalaam, Tuomas</string>
   <string name="beta_special_sponsor">N.B. Unaweza kusaidia ukuzaji wa AndBible kifedha kwa %s.</string>
   <string name="beta_special_sponsor_link">kufadhili saa za usanidi</string>
-  <string name="new_sync_targets_notice_title">Mipangilio mipya ya usawazishaji inapatikana</string>
-  <string name="new_sync_targets_notice_message">Toleo hili la AndBible linaanzisha malengo mapya ya usawazishaji: Hati Zangu, mipangilio ya AI na maendeleo ya kusoma. Ikiwa unataka kuyawezesha, unaweza kufanya hivyo katika mipangilio ya Usawazishaji wa Kifaa.</string>
   <string name="open_settings">Fungua mipangilio</string>
   <!--History-->
   <string name="history_for">Historia (%1$s: Dirisha %2$d)</string>
@@ -937,7 +922,6 @@ Unaweza kuwezesha upinzani wa dirisha kutoka kwenye menyu ya chaguo (nukta tatu,
   <string name="give_passphrase_for_module">Hati %s imesimbwa na inahitaji neno la siri ili ifunguliwe</string>
   <string name="unlock_module">Weka neno la siri la moduli</string>
   <string name="unlock_info">Taarifa ya ufunguzi wa moduli iliyosimbwa</string>
-  <string name="try_again_passphrase">Neno la siri halikufanya kazi, jaribu tena?</string>
   <string name="show_unlock_info">Moduli na taarifa za ufunguzi</string>
   <string name="prefs_experimental_features_title">Vipengele vya majaribio</string>
   <string name="prefs_experimental_features_summary">Chagua vipengele vya majaribio vipi vya kuwezesha. Vipengele hivi bado vipo katika ukuzaji na vinaweza kubadilika au kuondolewa</string>
@@ -971,9 +955,6 @@ Unaweza kuwezesha upinzani wa dirisha kutoka kwenye menyu ya chaguo (nukta tatu,
   <string name="active_window_indicator_summary">Angazia kona za dirisha kusaidia kutambua dirisha linalotumika</string>
   <string name="app_licence_title">Leseni ya Chanzo Huria</string>
   <string name="how_to_contribute">Jinsi ya kuchangia?</string>
-  <string name="confirm_delete_bookmarks">Je, unataka kuondoa alamisho %d na maelezo yake?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Lebo iliyochaguliwa imewekwa kwenye alamisho %d ambazo hazina lebo nyingine. Je, unataka kufuta alamisho hizi pamoja na lebo?</string>
-  <string name="delete_label_and_bookmarks">Futa lebo na alamisho</string>
   <string name="delete_label_only">Futa lebo peke yake</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Pendekeza kwa rafiki</string>
@@ -1004,8 +985,6 @@ Unaweza kuwezesha upinzani wa dirisha kutoka kwenye menyu ya chaguo (nukta tatu,
   <string name="old_webview">Kifurushi cha Android WebView ni cha zamani sana (%1$s). Unahitaji kuboresha kifurushi chako cha Android WebView hadi angalau toleo %2$s kutumia %3$s. Kwa vifaa vingi hii inaweza kufanywa kupitia %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Endelea hata hivyo</string>
-  <string name="proceed">Endelea</string>
-  <string name="rate_title">Kukadiria na kupitia programu</string>
   <string name="rate_message5">
 Mapitio mazuri na ya kina yanasaidia sana Mradi wa Chanzo Huria wa AndBible. Asante!</string>
   <string name="rate_message6">
@@ -1046,7 +1025,6 @@ tafadhali ripoti matatizo kwa wadumishaji wa maandishi</string>
   <string name="primary_label">Lebo kuu</string>
   <string name="favourite_label">Lebo ya kipendwa</string>
   <string name="edit_label">Hariri lebo</string>
-  <string name="delete_label_confirmation">Je, unataka kuondoa lebo ya alamisho \"%s\"? Pia maelezo yote ya Daftari la Masomo yanayohusiana yataondolewa.</string>
   <string name="active_labels">Lebo zilizochaguliwa</string>
   <string name="recent_labels">Lebo za hivi karibuni</string>
   <string name="other_labels">Lebo nyingine</string>
@@ -1056,8 +1034,6 @@ tafadhali ripoti matatizo kwa wadumishaji wa maandishi</string>
   <string name="book_menu_show_progress_bars">Onyesha mwambaa wa maendeleo</string>
   <string name="reset_workspace_labels">Je, unataka kuweka upya mipangilio ya kugawanya kiotomatiki na ya vipendwa kwa eneo hili la kazi?</string>
   <string name="clear_auto_assign_labels">Futa lebo za kukabidhi kiotomatiki</string>
-  <string name="reset_workspace_auto_assign_labels">Je, unataka kuondoa lebo zote za kukabidhi kiotomatiki kutoka nafasi hii ya kazi?</string>
-  <string name="reset_hide_labels">Je, unataka kuweka upya mipangilio ya kuficha lebo maalum?</string>
   <string name="reorder">Panga upya</string>
   <string name="system_items">Vitendo vya mfumo</string>
   <string name="system_items1">Zaidi</string>
@@ -1071,7 +1047,6 @@ tafadhali ripoti matatizo kwa wadumishaji wa maandishi</string>
   <string name="ios_fullscreen_hint">Gusa mara mbili au gusa kitufe ili kutoka kwenye skrini nzima.</string>
   <string name="desktop_exit_fullscreen">Toka kwenye skrini nzima</string>
   <string name="exit_fullscreen">Gonga mara mbili skrini kutoka hali ya skrini nzima</string>
-  <string name="reset_app_prefs">Je, unataka kuweka upya mapendeleo yote ya kimataifa ya programu yanayoonyeshwa kwenye skrini hii hadi thamani zao za chaguo-msingi?</string>
   <string name="label_red">Nyekundu</string>
   <string name="label_green">Kijani</string>
   <string name="label_blue">Bluu</string>
@@ -1082,7 +1057,6 @@ tafadhali ripoti matatizo kwa wadumishaji wa maandishi</string>
   <string name="reset_databases_title">Weka Upya Hifadhidata</string>
   <string name="reset_databases_description">Weka upya hifadhidata binafsi hadi hali yao ya awali tupu. Hii haiwezi kutenduliwa.</string>
   <string name="last_crash_info_title">Taarifa ya mvunjiko wa mwisho</string>
-  <string name="reset_database_confirm">Hii itafuta kwa kudumu data yote katika \"%1$s\" na kuiweka upya hadi hali ya awali. Hii haiwezi kutenduliwa.\n\nUna uhakika?</string>
   <string name="reset_database_success">Hifadhidata imewekwa upya kwa mafanikio</string>
   <string name="reset_something">Weka upya: %1$s</string>
   <string name="export">Safirisha</string>
@@ -1152,19 +1126,18 @@ tafadhali ripoti matatizo kwa wadumishaji wa maandishi</string>
   <string name="manage_labels_help_favourite">Weka lebo kwenye pendwa zako kwa ufikiaji wa haraka.</string>
   <string name="manage_labels_help_styles">Chini ya jina mfano mdogo unaonyesha mwonekano wa lebo: Uteuzi kwa alamisho ya uteuzi wa maandishi, Mstari mzima kwa ya mstari mzima, na lebo ya Nafasi ya kazi kwa mtindo ambao nafasi hii ya kazi inabatilisha. Mfano wa kijivu usio na mapambo unamaanisha alamisho za lebo hazichorwi. Ficha mifano kutoka menyu ya ⋮.</string>
   <string name="manage_labels_help_reorder">Panga upya orodha kutoka menyu ya ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Kwenye skrini nyembamba orodha huacha aikoni za msingi, kukabidhi kiotomatiki na pendwa ili majina ya lebo yapate nafasi. Gusa lebo ili kuziweka katika kihariri chake.</string>
   <string name="added_to_bookmark">Imegawiwa kwa alamisho hii</string>
   <string name="strongs_links">Viungo</string>
   <string name="strongs_text_and_links">Maandishi na Viungo</string>
   <string name="strongs_hidden_links">Viungo Vilivyofichwa</string>
   <string name="verse_tip">Kuchagua mistari ya sehemu au mingi, unaweza kubonyeza muda mrefu maandishi ya Biblia</string>
-  <string name="permission_required">Ruhusa inahitajika</string>
   <string name="labels_search_hint">Tafuta</string>
   <string name="search_mode_name_start">Jina (kutoka mwanzo)</string>
   <string name="search_mode_name_contains">Jina (ina)</string>
   <string name="search_mode_content">Maudhui</string>
   <string name="search_results_matches">Mechi %d</string>
   <string name="search_results_match">Mechi 1</string>
-  <string name="progress_status_permission">Kuonyesha arifa (hali ya upakuaji, usindikaji, hali ya kusoma), tunahitaji ruhusa yako.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Kikokotoo Rahisi</string>
   <string name="prefs_persecution_cat">Mipangilio kwa wanaodhulumiwa</string>
@@ -1204,7 +1177,6 @@ Unaweza kupakua toleo jipya zaidi la toleo la siri kutoka %s.</string>
   <string name="custom_repositories_create_button_label">Ongeza Hazina Maalum</string>
   <string name="custom_repositories_info_button_label">Taarifa</string>
   <string name="repository_specification">URL ya hazina</string>
-  <string name="delete_custom_repository">Je, unataka kuondoa hazina maalum %s?</string>
   <string name="custom_repositories_help1">Kuongeza hazina mpya maalum, andika au nakili na ubandike URL ya hazina maalum hapa.</string>
   <string name="custom_repositories_help2">Unaweza kusoma taarifa zaidi kuhusu hazina maalum katika %s.</string>
   <string name="custom_repositories_help0">Unaweza kusanikisha hati kutoka kwa hazina maalum za nje kwa kusanikisha hazina maalum.</string>
@@ -1226,8 +1198,6 @@ Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili z
   <string name="db_bookmarks">Alamisho, Maelezo Yangu, Lebo na Daftari za Masomo</string>
   <string name="synchronizing">Inasawazisha…</string>
   <string name="notification_finished">Imekamilika</string>
-  <string name="overrideBackup">
-Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika Wingu. Hifadhidata ina %s. Unataka kufanya nini?</string>
   <string name="reading_plans_content">Mipango ya kusoma na hali zao</string>
   <string name="bookmarks_contents">Alamisho, Lebo na Daftari za Masomo</string>
   <string name="workspaces_contents">Maeneo ya Kazi na Madirisha</string>
@@ -1247,7 +1217,6 @@ Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika W
   <string name="reading_progress_calendar">Shughuli ya Usomaji</string>
   <string name="reading_progress_cycle">Mzunguko %d</string>
   <string name="reading_progress_new_cycle">Mzunguko Mpya</string>
-  <string name="reading_progress_new_cycle_confirm">Anza mzunguko mpya wa kusoma? Hii itaanza kufuatilia maendeleo yako kutoka mwanzo, huku ikihifadhi data ya mzunguko wako uliopita.</string>
   <string name="reading_progress_previous_cycle">Mzunguko uliopita</string>
   <string name="reading_progress_next_cycle">Mzunguko unaofuata</string>
   <string name="cloud_merge_data">Unganisha data</string>
@@ -1257,7 +1226,6 @@ Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika W
   <string name="cloud_sync_title">Usawazishaji wa kifaa</string>
   <string name="reset_sync">Toka</string>
   <string name="prefs_reset_sync_summary">Zima usawazishaji na uweke upya mipangilio inayohusiana.</string>
-  <string name="sync_confirmation">Je, una uhakika unataka kutoka na kuweka upya usawazishaji?</string>
   <string name="cloud_info">Taarifa za wingu</string>
   <string name="cloud_info_summary">Data katika hifadhi ya wingu: %s Mb</string>
   <string name="sync_adapter">Nyuma ya Usawazishaji</string>
@@ -1273,7 +1241,6 @@ Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika W
   <string name="webdav_server_url_hint">Anwani ya folda ya WebDAV, k.m. https://nas.local/dav/ au https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Usawazishaji unahitaji anwani salama ya https://.</string>
   <string name="webdav_certificate_title">Cheti cha seva</string>
-  <string name="webdav_forget_certificate_message">Sahau cheti cha seva kinachoaminika? Utaombwa kuthibitisha cheti tena katika muunganisho unaofuata.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Cheti cha seva kisichoaminika</string>
   <string name="webdav_untrusted_certificate_message">Cheti cha %1$s hakiaminiki na Android. Kiamini tu ikiwa unakitambua, kwa mfano kwa sababu uliweka seva hii mwenyewe.\n\nMhusika: %2$s\nMtoaji: %3$s\nHalali: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1290,14 +1257,7 @@ Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika W
   <string name="synchronization_categories">Makundi ya usawazishaji</string>
   <string name="sync_general_settings">Taarifa na mipangilio ya jumla</string>
   <string name="sync_introduction">Utangulizi</string>
-  <string name="are_you_sure">Una uhakika?</string>
   <string name="are_you_sure_merge">Data iliyo kwenye kifaa hiki na %s iliyo kwenye wingu zitahifadhiwa zote mbili. Mahali kipengee kilekile kilibadilishwa pande zote, badiliko jipya zaidi linahifadhiwa. Data ya kifaa hiki itatumwa kwa vifaa vyako vingine.</string>
-  <string name="are_you_sure_reset_local">Hii itaweka upya hifadhidata yako ya ndani ya %s na maudhui yanayohifadhiwa sasa katika huduma ya wingu.</string>
-  <string name="are_you_sure_reset_cloud">Hii itaweka upya hifadhidata yako ya wingu ya %s na maudhui unayoyapo katika kifaa hiki.</string>
-  <string name="sync_cant_fetch">Toleo la hifadhidata au faili la kiraka lililohifadhiwa katika Wingu ni la juu zaidi kuliko linalokubalika na programu hii.</string>
-  <string name="sync_disabling">Inazima usawazishaji wa %s kwa sasa.</string>
-  <string name="sync_update_app">Tafadhali sasisha programu kuendelea na usawazishaji.</string>
-  <string name="sign_in_failed">Kuingia kwa huduma ya nyuma ya usawazishaji kumeshindwa.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Inazima usawazishaji wa wingu. Lazima uuruhusu tena kwa mkono baada ya urejesho.</string>
   <string name="report">Ripoti</string>
@@ -1315,6 +1275,7 @@ Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika W
   <string name="open_here">Fungua hapa</string>
   <string name="external_link">Kiungo cha nje</string>
   <string name="external_link_question">Hii itafungua kiungo cha nje %s katika programu ya kivinjari, je, unataka kuendelea?</string>
+  <string name="external_link_dont_ask_again">Usiulize tena kwa %s</string>
   <string name="nameless">Kichwa hakibainishwi</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Vitendo vya gonga-moja (Biblia)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Vitendo vya gonga-moja (Nyingine)</string>
@@ -1363,8 +1324,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="memorize_include_reference_summary">Ongeza rejeleo la aya (k.m. Yohana 3:16) kama kipengele cha mwisho cha kukariri</string>
   <string name="reading_progress_settings">Maendeleo na ukariri</string>
   <string name="reading_progress_settings_summary">Mipangilio ya ufuatiliaji wa kiotomatiki, ukariri, na mazoezi ya kuandika</string>
-  <string name="memorize_confirm_unmark">Ondoa hali ya ukariri kwa %s?</string>
-  <string name="memorize_confirm_remove_target">Ondoa lengo la ukariri %s?</string>
   <string name="memorize_tab_reading">Kusomaji</string>
   <string name="memorize_tab_memorization">Ukariri</string>
   <string name="memorize_verses_memorized">Imekaririwa</string>
@@ -1390,7 +1349,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="llm_reset_usage_title">Weka upya data ya matumizi</string>
   <string name="llm_reset_usage_summary">Futa ufuatiliaji wa jumla wa tokeni na gharama</string>
   <string name="llm_reset_usage_confirm_title">Weka upya data ya matumizi?</string>
-  <string name="llm_reset_usage_confirm_message">Hii itafuta data yote ya jumla ya matumizi.</string>
   <string name="llm_custom_input_price_title">Bei ya ingizo ($/Mtokeni)</string>
   <string name="llm_custom_output_price_title">Bei ya towe ($/Mtokeni)</string>
   <string name="llm_cost_total">Jumla: %1$s</string>
@@ -1406,8 +1364,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="llm_parse_error_anthropic">Kushindwa kusindika jibu la Anthropic: %1$s</string>
   <string name="llm_error_unknown">Hitilafu isiyojulikana</string>
   <string name="llm_error_max_iterations">Marudio ya juu zaidi (%1$d) yamefikiwa bila kukamilika</string>
-  <string name="llm_continue_iterations_title">Endelea?</string>
-  <string name="llm_continue_iterations_message">Wakala wa AI amefika kikomo chake cha marudio %1$d bila kukamilika. Endelea kwa marudio %2$d zaidi?</string>
   <string name="agent_max_iterations_title">Marudio ya juu zaidi ya wakala</string>
   <string name="agent_max_iterations_summary">Marudio ya juu zaidi kabla ya kuuliza kuendelea (0 = bila kikomo)</string>
   <string name="ask_model_before_run_title">Uliza mfano kabla ya kuendesha</string>
@@ -1467,7 +1423,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="ai_models_summary_none">Hakuna mifano iliyowekwa</string>
   <string name="ai_add_provider">Ongeza mtoa huduma</string>
   <string name="ai_provider_edit">Hariri</string>
-  <string name="ai_provider_delete_confirm">Futa mtoa huduma \"%1$s\"? Maagizo yanayotumia mtoa huduma huu yatarejea kwa chaguo-msingi.</string>
   <string name="ai_provider_api_key_not_set">Ufunguo wa API haujawekwa</string>
   <string name="ai_provider_select_type">Chagua aina ya mtoa huduma</string>
   <string name="ai_provider_name">Jina la mtoa huduma</string>
@@ -1487,7 +1442,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="edit_model_title">Hariri mfano</string>
   <string name="model_saved">Mfano umehifadhiwa</string>
   <string name="model_deleted">Mfano umefutwa</string>
-  <string name="model_delete_confirm">Futa mfano \"%1$s\"?</string>
   <string name="model_set_default">Weka kama mfano wa chaguo-msingi</string>
   <string name="model_select_provider">Mtoa huduma</string>
   <string name="model_supported_badge">✓ Inaauni</string>
@@ -1527,7 +1481,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="ai_disclaimer_point8">Data yako inatumwa kwa seva za mtoa huduma wako wa AI uliyechagua. Kwa kutumia ufunguo wa API, unakubali masharti na sera ya faragha ya mtoa huduma huyo. Mifano inayohifadhiwa binafsi inawezekana lakini inahitaji ujuzi wa kiufundi zaidi, na inaweza kutoa matokeo si mazuri kama mifano ya biashara.</string>
   <string name="ai_disclaimer_point9">Watoa huduma wa AI hutozea matumizi ya API. Makadirio ya gharama yanayoonyeshwa katika AndBible ni ya makadirio — daima angalia bili ya mtoa huduma wako kwa malipo halisi.</string>
   <string name="ai_disclaimer_accept_title">Kubali Kanusho la AI</string>
-  <string name="ai_disclaimer_accept_button">Nakubali na nachukua jukumu kamili</string>
   <string name="prompt_permission_mode">Hali ya ruhusa</string>
   <string name="prompt_permission_mode_description">Inasimamia wakati uthibitishaji wa mtumiaji unahitajika kabla ya AI kufanya shughuli za uandishi. Mipangilio ya kila zana hapa chini inaweza kupindua hii kwa zana za mtu binafsi.</string>
   <string name="agent_permission_mode_summary">Inasimamia wakati uthibitishaji wa mtumiaji unahitajika kabla ya shughuli za uandishi za AI</string>
@@ -1643,7 +1596,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="default_prompt_custom_desc">Endesha kazi maalum kwenye kifungu kilichochaguliwa</string>
   <string name="default_prompt_custom_template">Fuata maelezo ya kazi ya mtumiaji kwa kifungu kilichochaguliwa cha Biblia.</string>
   <string name="copy">Nakili</string>
-  <string name="delete_prompt_confirm_message">Je, una uhakika unataka kufuta agizo hili?</string>
   <string name="ai_hide_prompt">Ficha</string>
   <string name="ai_restore_hidden_prompts">Rejesha maagizo yaliyofichwa</string>
   <string name="ai_prompt_hidden">Agizo limefichwa</string>
@@ -1728,8 +1680,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="permission_allow_all_session">Ruhusu zana zote katika kipindi hiki</string>
   <string name="permission_allow_always">Ruhusu daima \"%1$s\"</string>
   <string name="permission_deny">Kataa</string>
-  <string name="permission_always_allow_confirm_title">Ruhusu daima?</string>
-  <string name="permission_always_allow_confirm">Je, una uhakika unataka kuruhusu kwa kudumu \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Unaweza kuweka upya hii katika Mipangilio ya AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Ruhusa za zana</string>
@@ -1834,18 +1784,15 @@ Usionyeshe ujumbe huu tena</string>
   <string name="my_document_new_name">Hati %d</string>
   <string name="my_document_create_title">Unda hati mpya</string>
   <string name="my_document_rename_title">Badilisha jina la hati</string>
-  <string name="my_document_delete_confirmation">Futa hati \"%s\"?</string>
   <string name="show_secret">Onyesha</string>
   <string name="hide_secret">Ficha</string>
   <string name="ai_documents_name">Hati za AI</string>
   <string name="ai_documents_description">Hati zinazotengenezwa kiotomatiki na AI</string>
-  <string name="my_document_cannot_delete_ai_documents">Hati za AI haziwezi kufutwa wakati zina kurasa. Futa kurasa kwanza.</string>
   <string name="my_document_save_changes">Hifadhi mabadiliko?</string>
   <string name="my_document_no_description">Hakuna maelezo</string>
   <string name="my_document_edit_description">Hariri maelezo</string>
   <string name="my_document_pages_title">%s - Kurasa</string>
   <string name="my_document_page_rename_title">Badilisha jina la ukurasa</string>
-  <string name="my_document_page_delete_confirmation">Futa ukurasa \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Futa kurasa hizi?</string>
   <string name="my_documents_switch_document">Badilisha hati</string>
   <string name="my_document_new_page_name">Ukurasa %1$d</string>
@@ -1913,7 +1860,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="cloud_doc_show_removed">Onyesha hati zilizoondolewa</string>
   <string name="cloud_doc_status_removed">Imeondolewa winguni</string>
   <string name="cloud_doc_status_still_installed">bado imesakinishwa hapa</string>
-  <string name="cloud_doc_purge_confirm">Ondoa kabisa \"%1$s\" kutoka kwenye historia ya wingu? Ikiwa bado imesakinishwa kwenye kifaa kingine, kifaa hicho kinaweza kuipakia tena winguni katika usawazishaji wake unaofuata.</string>
   <string name="cloud_doc_action_download">Pakua</string>
   <string name="cloud_doc_action_push">Pakia winguni</string>
   <string name="cloud_doc_action_remove_cloud">Ondoa kutoka winguni</string>
@@ -1924,8 +1870,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="cloud_doc_action_dont_sync">Usisawazishe na wingu</string>
   <string name="cloud_doc_action_allow_sync">Sawazisha na wingu</string>
   <string name="cloud_doc_action_purge">Ondoa kutoka historia ya wingu</string>
-  <string name="cloud_doc_remove_all_confirm">Ondoa %1$s kutoka winguni na kutoka vifaa vyako vyote, ikiwa ni pamoja na hiki?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Ondoa %1$s kutoka winguni? Nakala iliyo kwenye kifaa hiki itahifadhiwa; vifaa vyenye usawazishaji wa hati pia vitaiondoa.</string>
   <string name="cloud_doc_sync_now">Sawazisha sasa</string>
   <string name="cloud_doc_rescan">Changanua upya kutoka winguni</string>
   <string name="cloud_doc_sync_now_download">Pakua hati mpya na zilizosasishwa</string>
@@ -1937,6 +1881,14 @@ Usionyeshe ujumbe huu tena</string>
   <string name="cloud_doc_summary_download">Pakua %1$d</string>
   <string name="cloud_doc_summary_download_size">Pakua %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Upakuaji kiotomatiki utaanza kwa Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">hati %1$d</item>
+        <item quantity="other">hati %1$d</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">hati %1$d (%2$s)</item>
+        <item quantity="other">hati %1$d (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Hakuna cha kuhamisha</string>
   <string name="cloud_doc_selected_count">%1$d zimechaguliwa</string>
   <string name="cloud_doc_bulk_skipped">Zimerukwa %1$d hazitumiki</string>
@@ -1953,8 +1905,6 @@ Usionyeshe ujumbe huu tena</string>
   <string name="background_image_import">Ingiza kutoka matunzio…</string>
   <string name="background_image_empty">Bado hakuna picha zilizoingizwa. Gusa \"Ingiza kutoka matunzio…\" ili kuongeza.</string>
   <string name="background_image_importing">Inaingiza…</string>
-  <string name="background_image_delete_title">Futa picha?</string>
-  <string name="background_image_delete_confirm">Futa picha hii ya mandharinyuma? Nafasi za kazi zinazoitumia bado zitarudi kwenye hali ya bila picha.</string>
   <string name="background_image_day">Picha ya mandharinyuma (mchana)</string>
   <string name="background_image_night">Picha ya mandharinyuma (usiku)</string>
   <string name="background_image_opacity_day">Uwazi wa picha ya mandharinyuma (mchana)</string>
@@ -2028,6 +1978,10 @@ Usionyeshe ujumbe huu tena</string>
   <string name="legacy_notice_icloud">Usawazishaji sasa unatumia iCloud Drive. Uwashe tena katika Mipangilio → Usawazishaji. Kifaa hiki kinabaki na kile kilichokuwa nacho; mabadiliko kutoka vifaa vyako vingine yatafika usawazishaji ukiwekwa tena. Ili kuongeza nafasi ya data ya zamani ya iCloud: Mipangilio → jina lako → iCloud → Dhibiti Hifadhi → AndBible.</string>
   <string name="legacy_notice_nextcloud">Muunganisho wako wa Nextcloud ulihamishwa, lakini usawazishaji umezimwa. Uwashe katika Mipangilio → Usawazishaji na uchague kupata kutoka wingu au kuunda mpya.</string>
   <string name="legacy_notice_nextcloud_unsent">Baadhi ya mabadiliko kwenye kifaa hiki hayakuwa yametumwa kwa Nextcloud. Hayakutumwa na yanabaki kwenye kifaa hiki pekee.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">Alamisho %1$d haikuweza kuwekwa mahali pake kwa uhakika na haikuingizwa. Imehifadhiwa pamoja na data yako ya zamani kwenye kifaa hiki.</item>
+        <item quantity="other">Alamisho %1$d hazikuweza kuwekwa mahali pake kwa uhakika na hazikuingizwa. Zimehifadhiwa pamoja na data yako ya zamani kwenye kifaa hiki.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Ni programu yenye nguvu, lakini rahisi kutumia, ya masomo ya Biblia bila mtandao.</string>
   <string name="webdav_untrusted_certificate_message_device">Cheti cha %1$s hakiaminiki na kifaa hiki. Kiamini tu ikiwa unakitambua, kwa mfano kwa sababu uliweka seva hii mwenyewe.\n\nMhusika: %2$s\nMtoaji: %3$s\nHalali: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2079,6 +2033,25 @@ Usionyeshe ujumbe huu tena</string>
   <string name="recommend_share_link">Shiriki kiungo</string>
   <string name="recommend_qr_caption">Changanua ili kupata AndBible kwa simu, kompyuta kibao au kompyuta yako.</string>
   <string name="desktop_activation_failed">AndBible tayari inaendeshwa, lakini dirisha lake halikujibu. Badilisha hadi kwenye nakala inayoendeshwa kisha ujaribu tena. Faili zozote zilizoingia hazikuthibitishwa kuwa zimewasilishwa.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Hili haliwezi kutenduliwa.</string>
+  <string name="ai_raw_log_delete_lead">Futa kumbukumbu hii?</string>
+  <string name="ai_provider_delete_lead">Futa mtoa huduma “%1$s”?</string>
+  <string name="ai_provider_delete_detail">Maagizo yanayomtumia hurudi kwa mtoa huduma chaguo-msingi.</string>
+  <string name="ai_model_delete_lead">Futa mfano “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Futa agizo “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Futa agizo hili?</string>
+  <string name="ai_reset_usage_detail">Jumla za tokeni na gharama hurudi kuwa sifuri. Hili haliwezi kutenduliwa.</string>
+  <string name="ai_reset_usage_button">Weka upya</string>
+  <string name="ai_disclaimer_accept">Nakubali</string>
+  <string name="llm_continue_iterations_lead">Endelea kwa marudio %1$d zaidi?</string>
+  <string name="llm_continue_iterations_detail">Wakala wa ai amefikia kikomo chake cha marudio %1$d bila kumaliza.</string>
+  <string name="llm_continue_button">Endelea</string>
+  <string name="permission_always_allow_lead">Ruhusu daima “%1$s”?</string>
+  <string name="permission_always_allow_button">Ruhusu daima</string>
+  <string name="ai_bug_report_send_lead">Tuma ripoti ya hitilafu ya ai?</string>
+  <string name="ai_bug_report_send_button">Tuma</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Kuanza</string>
   <string name="user_guide_section_reading_workspace">Kusoma na eneo la kazi</string>
@@ -2156,4 +2129,150 @@ Usionyeshe ujumbe huu tena</string>
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Msaidizi wa AI, sehemu ya 3: zana, data yako na ruhusa</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Msaidizi wa AI, sehemu ya 4: maagizo yako, gharama na usawazishaji</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Tupa mabadiliko?</string>
+  <string name="dialog_keep_editing">Endelea kuhariri</string>
+  <string name="dialog_label_delete_lead">Futa lebo “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Maelezo yake ya daftari la masomo pia hufutwa. Hili haliwezi kutenduliwa.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">Alamisho %1$d haina lebo nyingine.</item>
+        <item quantity="other">Alamisho %1$d hazina lebo nyingine.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Futa lebo na alamisho %1$d</item>
+        <item quantity="other">Futa lebo na alamisho %1$d</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Alamisho na maelezo yake hufutwa.</string>
+  <string name="dialog_label_delete_only_consequence">Alamisho hubaki, bila lebo.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Ondoa alamisho hii?</item>
+        <item quantity="other">Ondoa alamisho %1$d?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Maelezo yake pia yanaondolewa.</item>
+        <item quantity="other">Maelezo yake pia yanaondolewa.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Ondoa lebo zote za kukabidhi kiotomatiki kutoka nafasi hii ya kazi?</string>
+  <string name="dialog_labels_reset_hidden_lead">Onyesha tena lebo zote zilizofichwa?</string>
+  <string name="dialog_labels_reset_shown_detail">Lebo ulizoficha kwenye orodha zinaonyeshwa tena.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Sakinisha “%s”?</string>
+  <string name="install_action">Sakinisha</string>
+  <string name="install_from_file_question">Sakinisha hati kutoka kwa faili?</string>
+  <string name="overwrite_files_detail">Faili hizi tayari zipo:%s</string>
+  <string name="import_studypads_question">Ingiza daftari hizi za masomo?</string>
+  <string name="import_action">Ingiza</string>
+  <string name="restore_backup_question">Rejesha hati zilizo kwenye hifadhi hii?</string>
+  <string name="restore_backup_detail">Faili hili ni hifadhi ya hati za AndBible.</string>
+  <string name="update_document_question">Sasisha hati hii?</string>
+  <string name="update_action">Sasisha</string>
+  <string name="download_documents_question">Pakua hati?</string>
+  <string name="download_persecution_warning">Ikiwa unaishi katika nchi yenye mateso, huenda ukahitaji kuwa makini kuhusu kupakua vitu vya Kikristo kupitia Mtandao. Badala yake, unaweza kupata faili za zip za hati kwa usalama zaidi na kuzisakinisha kupitia “%1$s”. Upakuaji wote kutoka kwa seva za hati umesimbwa kwa njia fiche (HTTPS).</string>
+  <string name="download_action">Pakua</string>
+  <string name="download_dont_ask_again">Pakua, usiulize tena</string>
+  <string name="download_dont_ask_again_consequence">Upakuaji utaanza bila swali hili siku zijazo.</string>
+  <string name="passphrase_did_not_work">Nenosiri halikufanya kazi.</string>
+  <string name="try_again">Jaribu tena</string>
+  <string name="interrupted_downloads_lead">Pakua hati hizi tena?</string>
+  <string name="interrupted_downloads_detail">Upakuaji wake ulikatizwa, kwa hivyo hazikusakinishwa.</string>
+  <string name="external_link_open_question">Fungua kiungo hiki kwenye kivinjari chako?</string>
+  <string name="open_action">Fungua</string>
+  <string name="notification_permission_question">Ruhusu arifa?</string>
+  <string name="notification_permission_detail">Arifa huonyesha hali ya upakuaji, uchakataji na hali ya usomaji wa sauti.</string>
+  <string name="allow_action">Ruhusu</string>
+  <string name="rate_question">Kadiria na kukagua programu?</string>
+  <string name="bug_report_email_question">Tuma ripoti ya hitilafu kwa barua pepe?</string>
+  <string name="continue_action">Endelea</string>
+  <string name="delete_search_index_question">Futa faharasa ya utafutaji ya “%s”?</string>
+  <string name="remove_custom_repository_question">Ondoa hazina maalum “%s”?</string>
+  <string name="download_document_question">Pakua “%s”?</string>
+  <string name="choose_file_action">Chagua faili</string>
+  <string name="old_webview_question">Tumia programu na WebView ya zamani?</string>
+  <string name="incomplete_translation_question">Endelea na tafsiri isiyokamilika?</string>
+  <string name="rate_action">Kadiria</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Futa hati “%s”?</string>
+  <string name="my_document_page_delete_lead">Futa ukurasa “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">Hati za ai haziwezi kufutwa zikiwa na kurasa.</string>
+  <string name="my_document_cannot_delete_ai_detail">Futa kurasa kwanza.</string>
+  <string name="reading_progress_new_cycle_lead">Anza mzunguko mpya wa usomaji?</string>
+  <string name="reading_progress_new_cycle_detail">Maendeleo yako yanafuatiliwa upya kuanzia mwanzo. Data ya mzunguko wako uliopita inahifadhiwa.</string>
+  <string name="reading_progress_new_cycle_start">Anza</string>
+  <string name="reset_plan_lead">Weka upya mpango huu?</string>
+  <string name="reset_plan_detail">Tarehe yako ya kuanza na maendeleo katika mpango huu vinafutwa.</string>
+  <string name="set_current_day_lead">Weka %1$s kuwa siku ya sasa?</string>
+  <string name="set_current_day_detail">Siku zote za awali zinawekwa alama kuwa zimesomwa.</string>
+  <string name="plan_duplicate_user_plan_lead">Faili ya mpango wa kusoma ina jina sawa na mpango uliojengwa ndani.</string>
+  <string name="plan_duplicate_user_plan_detail">Faili ya mpango haiwezi kuorodheshwa. Badilisha jina la faili kwenye folda ya jsword/readingplan, ukihifadhi kiendelezi chake cha .properties.</string>
+  <string name="background_image_delete_lead">Futa picha hii ya usuli?</string>
+  <string name="background_image_delete_detail">Nafasi za kazi zinazoitumia bado zitarudi kutokuwa na picha.</string>
+  <string name="reset_values_lead">Weka upya thamani hizi zote?</string>
+  <string name="revert_setting_lead">Rudisha mpangilio huu kwenye thamani iliyorithiwa?</string>
+  <string name="revert_setting_confirm">Rudisha</string>
+  <string name="reset_settings_screen_lead">Weka upya mipangilio kwenye skrini hii?</string>
+  <string name="reset_settings_screen_detail">Inarudi kwenye thamani zake chaguo-msingi.</string>
+  <string name="memorize_unmark_lead">Ondoa hali ya kukariri kwa “%s”?</string>
+  <string name="memorize_remove_target_lead">Ondoa lengo la ukariri “%s”?</string>
+  <string name="dialog_apply">Tekeleza</string>
+  <string name="dialog_dont_apply">Usitekeleze</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Wingu tayari lina %s yako. Nini kifanyike?</string>
+  <string name="cloud_merge_consequence">Pande zote mbili zinahifadhiwa; kipengee kilichobadilika kwenye zote mbili, badiliko jipya zaidi hushinda.</string>
+  <string name="cloud_fetch_consequence">Hubadilisha data kwenye kifaa hiki na nakala ya wingu.</string>
+  <string name="cloud_create_consequence">Hubadilisha nakala ya wingu na data kwenye kifaa hiki.</string>
+  <string name="cloud_disable_consequence">Usawazishaji unabaki umezimwa kwa data hii.</string>
+  <string name="cloud_merge_lead">Unganisha %s yako na wingu?</string>
+  <string name="cloud_merge_confirm">Unganisha</string>
+  <string name="cloud_replace_confirm">Badilisha</string>
+  <string name="cloud_replace_local_lead">Badilisha %s ya kifaa hiki na nakala ya wingu?</string>
+  <string name="cloud_replace_local_detail">Kilichopo kwenye kifaa hiki sasa kinaandikwa juu na hakiwezi kurejeshwa.</string>
+  <string name="cloud_replace_cloud_lead">Badilisha nakala ya wingu ya %s na data ya kifaa hiki?</string>
+  <string name="cloud_replace_cloud_detail">Kilichopo kwenye wingu sasa kinaandikwa juu, na vifaa vyako vingine vitapokea data ya kifaa hiki.</string>
+  <string name="sign_in_failed_lead">Imeshindwa kuingia kwenye huduma ya usawazishaji.</string>
+  <string name="sync_too_old_lead">Programu hii ni ya zamani mno kusawazisha %s.</string>
+  <string name="sync_too_old_detail">Data ya wingu inatumia toleo jipya zaidi kuliko programu hii inavyoweza kuunga mkono. Usawazishaji wake umezimwa kwa sasa; sasisha programu ili kuuwasha tena.</string>
+  <string name="backup_replace_lead">Badilisha %s yako na hifadhi?</string>
+  <string name="backup_replace_detail">Kilichopo kwenye kifaa hiki sasa kinaandikwa juu na hakiwezi kurejeshwa.</string>
+  <string name="reset_database_lead">Weka upya “%1$s” katika hali yake ya awali?</string>
+  <string name="reset_database_detail">Data yote ndani yake inafutwa kabisa. Hili haliwezi kutenduliwa.</string>
+  <string name="reset_database_button">Weka upya</string>
+  <string name="restore_all_lead">Badilisha maelezo yako, alamisho, daftari za masomo, mipango ya kusoma na maeneo ya kazi?</string>
+  <string name="restore_or_import_lead">Rejesha au ingiza %s?</string>
+  <string name="restore_consequence">Hubadilisha kilichopo kwenye kifaa hiki na hifadhi.</string>
+  <string name="import_consequence">Huongeza vipengee vya hifadhi kwa vilivyopo kwenye kifaa hiki.</string>
+  <string name="sync_start_syncing">Anza kusawazisha</string>
+  <string name="sync_reset_lead">Toka na uweke upya usawazishaji?</string>
+  <string name="sync_reset_detail">Utahitaji kusanidi usawazishaji tena.</string>
+  <string name="webdav_forget_certificate_lead">Sahau cheti cha seva kinachoaminika?</string>
+  <string name="webdav_forget_certificate_detail">Utaombwa kuthibitisha cheti tena kwenye muunganisho unaofuata.</string>
+  <string name="webdav_forget_certificate_confirm">Sahau</string>
+  <string name="cloud_doc_remove_all_lead">Ondoa “%1$s” kutoka wingu na vifaa vyako vyote?</string>
+  <string name="cloud_doc_remove_cloud_lead">Ondoa “%1$s” kutoka wingu?</string>
+  <string name="cloud_doc_purge_lead">Ondoa “%1$s” kabisa kutoka historia ya wingu?</string>
+  <string name="cloud_doc_remove_all_detail">Hii pia hufuta nakala kwenye kifaa hiki na kwenye kila kifaa kingine chenye usawazishaji wa hati umewashwa.</string>
+  <string name="cloud_doc_remove_cloud_detail">Nakala kwenye kifaa hiki zinahifadhiwa. Vifaa vyenye usawazishaji wa hati umewashwa vitaziondoa pia.</string>
+  <string name="cloud_doc_purge_detail">Kifaa ambacho bado kina nakala kinaweza kuipakia tena kwenye usawazishaji wake unaofuata.</string>
+  <string name="cloud_doc_block_confirm_button">Usisawazishe</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">Ondoa hati %1$d kutoka wingu na vifaa vyako vyote?</item>
+        <item quantity="other">Ondoa hati %1$d kutoka wingu na vifaa vyako vyote?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">Ondoa hati %1$d kutoka wingu?</item>
+        <item quantity="other">Ondoa hati %1$d kutoka wingu?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">Ondoa kabisa hati %1$d kutoka historia ya wingu?</item>
+        <item quantity="other">Ondoa kabisa hati %1$d kutoka historia ya wingu?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">Acha kusawazisha hati %1$d kwenye wingu?</item>
+        <item quantity="other">Acha kusawazisha hati %1$d kwenye wingu?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Data yako zaidi sasa inaweza kusawazishwa</string>
+  <string name="new_sync_targets_detail">Hati Zangu, mipangilio ya ai na maendeleo ya usomaji pia vinaweza kusawazishwa. Viwashe katika mipangilio ya Usawazishaji wa kifaa.</string>
+  <!--end dialog copy: B3b-->
 </resources>

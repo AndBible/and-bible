@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Den fullstendige brukerveiledningen finnes på andbible.org. Sidene åpnes i nettleseren din.</string>
   <string name="help_user_guide_home">Forside for brukerveiledningen</string>
   <string name="help_read_in_user_guide">Les i brukerveiledningen</string>
+  <string name="help_in_user_guide">Hjelp i brukerveiledningen</string>
+  <string name="help_matching_section">Tilsvarende avsnitt</string>
   <string name="help_read_page">Les i brukerveiledningen: %1$s</string>
   <string name="help_tutorial_videos">Opplæringsvideoer</string>
   <string name="help_watch_in_order">Se opplæringsvideoene i rekkefølge</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Velg kapittel og vers når du skal navigere til et nytt bibelsted</string>
   <string name="prefs_open_links_in_special_window_title">Lenkevindu</string>
   <string name="prefs_open_links_in_special_window_summary">Åpne lenker i et spesielt vindu for raskere visning av kryssreferanser og Strong\'s</string>
+  <string name="prefs_trusted_link_domains_title">Pålitelige lenkedomener</string>
+  <string name="prefs_trusted_link_domains_summary">Lenker til disse domenene åpnes uten spørsmål. Fjern avmerkingen for et domene for å bli spurt igjen.</string>
+  <string name="prefs_trusted_link_domains_empty">Ingen ennå. Huk av for \"Ikke spør igjen\" når du åpner en lenke for å legge til domenet.</string>
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
   <string name="prefs_screen_keep_on_title">Hold skjerm påslått</string>
   <string name="prefs_screen_keep_on_summary">La skjerm være påslått når denne applikasjonen benyttes</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">Linjeavstand</string>
   <string name="line_spacing_summary">Sett avstand mellom linjene</string>
   <string name="select_none">Ingen</string>
-  <string name="reset_are_you_sure">Er du sikker på at du vil tilbakestille alle disse verdiene?</string>
   <string name="window_pinning_menutitle">Feste vindu</string>
   <string name="hide_window_buttons_title">Skjul vindusknapper</string>
   <string name="hide_window_buttons_summary">Vindusknapper som vises på høyre side av bibelvisningene er skjult. Vindusnavigasjonslinjen nederst vises fortsatt og du kan åpne vinduets hurtigmeny ved å holde inne knappene.</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">Ordet ble ikke funnet i noen ordbok</string>
   <string name="prefs_top_margin_title_mm">Toppmarg (%dmm)</string>
   <string name="font_size_title">Skriftstørrelse</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">For så høyt har Gud elsket verden at han ga sin Sønn, den enbårne, for at hver den som tror på ham, ikke skal gå fortapt, men ha evig liv.</string>
   <string name="font_size_title_pt">Skriftstørrelse (%dpunkt)</string>
   <string name="prefs_font_text_size_summary">Endre skriftstørrelse på tekst</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">Fargeinnstillinger (vindu)</string>
   <string name="workspace_color_settings_title">Fargeinnstillinger (arbeidsområde)</string>
   <string name="color_workspace">Arbeidsområdefarge</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Standard</string>
   <string name="color_text">Tekstfarge</string>
   <string name="color_background">Bakgrunnsfarge</string>
   <string name="colors_day_mode_title">Dagmodus</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">Dokumentlisten ble sist oppdatert: %s.</string>
   <string name="download_refreshing_book_list">Oppdaterer liste over tilgjengelige dokumenter fra dokumentservere…</string>
   <string name="download_source_message1">Dokumenter lastes ned fra følgende kilder:</string>
-  <string name="download_document_confirm_prefix">Last ned</string>
   <string name="error_downloading">En feil oppstod under nedlasting. Vennligst sjekk internettilkoblingen din.</string>
   <string name="error_downloading_status">Serveren som hoster %1$s returnerte en feil på grunn av %2$s (%3$d).</string>
   <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">Bakgrunnsaktivitet</string>
   <string name="activity_empty">Ingenting pågår</string>
   <string name="activity_failed_toast">%1$s — se menyen</string>
-  <string name="download_question_title">Ønsker du å fortsette å laste ned moduler?</string>
-  <string name="download_question_message">Hvis du bor i et land med forfølgelse, bør du kanskje være forsiktig med å laste ned kristent materiale via Internett. I stedet kan du skaffe modulenes zip-filer på en tryggere måte og installere dem via \"%1$s\". Er du sikker på at du vil fortsette med nedlastingen? Alle nedlastinger fra modulservere er kryptert (HTTPS).</string>
-  <string name="do_not_ask_again">Ja, ikke spør flere ganger</string>
   <string name="recommended_document">Anbefalt!</string>
   <string name="about_version_history">Versjonshistorikk: %s</string>
   <string name="download_errors">Nedlastingsfeil</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">Sjekker fil…</string>
   <string name="invalid_module">Filen inneholder ikke en gyldig SWORD-modul</string>
   <string name="install_zip_title">Vennligst vent. Laster inn moduler fra fil.</string>
-  <string name="overwrite_files">Følgende filer finnes allerede: %s Overskrive?</string>
   <string name="overwrite_files_title">Overskrive filer?</string>
   <string name="could_not_overwrite_files">Kunne ikke overskrive filer: %s. Bortsett fra det var installasjonen vellykket.</string>
   <string name="module_backup_restore">Denne filen er en sikkerhetskopi av AndBible-dokumenter. Vil du gjenopprette dokumentene i den?</string>
-  <string name="install_do_you_want">Ønsker du å installere modulen (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
   <string name="reading_plans_plural">Leseplaner</string>
@@ -429,14 +430,8 @@
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Sett startdato…</string>
   <string name="set_current_day">Sett som gjeldende dag…</string>
-  <string name="msg_set_current_day_reading_plan">Dette setter %1$s som gjeldende dag i denne planen og markerer alle tidligere dager som lest. Fortsette?</string>
   <string name="done">Ferdig</string>
-  <string name="reset_plan_question">Er du sikker på at du vil tilbakestille denne planen?</string>
   <string name="import_reading_plan">Laste inn leseplan…</string>
-  <string name="plan_duplicate_user_plan">
-Det finnes en leseplan på minnekortet
-jsword/readingplan med samme navn som en intern leseplan. Den kan ikke vises her.
-Vennligst endre navn på filen til noe annet mens du bevarer fil-endelsen .properties</string>
   <string name="plan_name_y1ntpspr">NT, Salmene og Ordspråkene på ett år</string>
   <string name="plan_description_y1ntpspr">Courtesy of HEARTLIGHT Internet Magazine, http://www.heartlight.org, permission granted</string>
   <string name="plan_name_y1ot1nt1_chronological">Kronologisk ett år igjennom Bibelen</string>
@@ -464,12 +459,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="delete_index">Slett søkeregister</string>
   <string name="about">Om</string>
   <string name="delete_doc">Slette %s?</string>
-  <string name="interrupted_downloads_title">Nedlasting avbrutt</string>
-  <string name="interrupted_downloads_message">Disse dokumentene ble ikke installert fordi nedlastingen ble avbrutt:</string>
-  <string name="interrupted_downloads_question">Laste dem ned på nytt?</string>
   <string name="download_again">Last ned på nytt</string>
   <string name="delete_docs_confirm">Slette disse dokumentene?</string>
-  <string name="delete_search_index_doc">Slette søkeregister for %s?</string>
   <!--Verse context menu-->
   <string name="notes">Notater og kryssreferanser</string>
   <string name="share_verse">Del…</string>
@@ -507,7 +498,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--can be removed-->
   <string name="bookmark_warning">Det eksisterer bokmerker og/eller notater for dette dokumentet</string>
   <string name="bookmark_warning2">Hvis dokumentstrukturen har endret seg, kan oppdatering av dette dokumentet gjøre at plasseringen av disse bokmerkene/notatene flyttes inne i dokumentet eller forsvinner helt.</string>
-  <string name="bookmark_warning3">Ønsker du fortsatt å oppdatere modulen?</string>
   <string name="bookmark_warning4">Det er anbefalt å ta en sikkerhetskopi av modulen før du oppdaterer.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datorekkefølge</string>
@@ -674,10 +664,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Gjenopprett eller importer fra…</string>
   <string name="backup_restore2">Gjenopprett eller importer</string>
-  <string name="overwrite_something">Overskrive %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Gjenopprett databasefil</string>
-  <string name="restore_confirmation">Skrive over mine notater, bokmerker, studiebrett, leseplaner og arbeidsområder?</string>
   <string name="restore_success">Mine notater, bokmerker, studiebrett, leseplaner  og arbeidsområder er tilbakeført.</string>
   <string name="downloading_backup">Laster ned sikkerhetskopi-fil…</string>
   <string name="loading_backup">Leser database fra sikkerhetskopi…</string>
@@ -699,7 +687,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="send_export_file">Send en eksportfil</string>
   <string name="backup_modules_title">Velg hvilke moduler som skal sikkerhetskopieres</string>
   <string name="install_zip_canceled">Installasjon av modul avbrutt</string>
-  <string name="ask_restore_or_import">Databasen for %s kan enten gjenopprettes (dvs. eksisterende database fjernes og valgt database lastes inn) eller importeres (valgt database importeres til eksisterende database). Hva vil du gjøre?</string>
   <string name="restore">Gjenopprett</string>
   <string name="import2">Importer</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -755,7 +742,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="settings_editor_back">Tilbake</string>
   <string name="settings_editor_close">Lukk</string>
   <string name="settings_editor_apply">Bruk</string>
-  <string name="discard_changes_confirmation">Forkaste ulagrede endringer?</string>
   <string name="discard">Forkast</string>
   <string name="remove">Fjern</string>
   <string name="overwrite">Overskriv</string>
@@ -782,7 +768,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="empty_list">Ingen data å vise</string>
   <string name="error_skip">Hopp over</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Skadede data</string>
+  <string name="corrupt_database_headline">AndBible kan ikke åpne noen av dataene dine</string>
+  <string name="corrupt_database_files_detail">Disse filene kunne ikke åpnes: %1$s. Ingenting er endret eller slettet. Tilbakestilling starter dem tomme og beholder hver skadet fil på denne enheten, omdøpt med .corrupt- pluss dato og klokkeslett.</string>
   <string name="corrupt_database_reset">Tilbakestill skadede data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">De skadede dataene kunne ikke tilbakestilles: %1$s kunne ikke flyttes til side. Ingenting er endret. Du kan prøve igjen, sende en feilrapport eller bruke Sikkerhetskopiering.</string>
@@ -790,8 +777,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="damaged_data_needs_attention">Appens data trenger oppmerksomhet. Trykk for å åpne appen.</string>
   <string name="debug_test_error">Testfeil (feilsøkingsbygg)</string>
   <string name="bug_report_prepare_failed">Kunne ikke forberede eller dele rapporten. Du kan prøve på nytt, eller bruke Sikkerhetskopiering og gjenoppretting for å lagre dataene dine.</string>
-  <string name="bug_report_email_title">Send feilrapport via e-post</string>
   <string name="bug_report_desktop_text">Deretter blir du spurt om hvor feilrapportfilen skal lagres. Så får du instruksjoner for å sende den til utviklerteamet.</string>
+  <string name="bug_report_email_title">Send feilrapport via e-post</string>
   <string name="bug_report_email_text">Vennligst velg din foretrukne e-post app for å sende rapporten til utviklerteamet.</string>
   <string name="bug_report_manual_title">Send rapporten på e-post</string>
   <string name="bug_report_manual_text_saved">Rapporten ble lagret i <b>%1$s</b>.\n\nSend en e-post til <b>%2$s</b> og legg ved filen; et e-postprogram kan ikke legge den ved for deg. Foreslått emne: <b>%3$s</b>. Fortell i meldingen hva du gjorde og hva som skjedde.</string>
@@ -862,8 +849,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="beta_special_regards">Vennlig hilsen Tuomas</string>
   <string name="beta_special_sponsor">P.S. Du kan støtte utviklingen av AndBible økonomisk ved å %s.</string>
   <string name="beta_special_sponsor_link">sponse utviklingstimer</string>
-  <string name="new_sync_targets_notice_title">Nye synkroniseringsinnstillinger tilgjengelig</string>
-  <string name="new_sync_targets_notice_message">Denne versjonen av AndBible introduserer ytterligere synkroniseringsmål: Mine dokumenter, KI-innstillinger og lesefremdrift. Hvis du vil aktivere dem, kan du gjøre det i innstillingene for enhetssynkronisering.</string>
   <string name="open_settings">Åpne innstillinger</string>
   <!--History-->
   <string name="history_for">Historikk (%1$s: Vindu %2$d)</string>
@@ -941,7 +926,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="give_passphrase_for_module">Modul %s er kryptert, og krever passord for å åpnes</string>
   <string name="unlock_module">Sett modulpassord</string>
   <string name="unlock_info">Informasjon om åpning av kryptert modul</string>
-  <string name="try_again_passphrase">Passord fungerte ikke, prøve igjen?</string>
   <string name="show_unlock_info">Modul- og opplåsingsinformasjon</string>
   <string name="prefs_experimental_features_title">Eksperimentelle funksjoner</string>
   <string name="prefs_experimental_features_summary">Velg hvilke eksperimentelle funksjoner som skal aktiveres. Disse funksjonene er fortsatt under utvikling og kan endres eller fjernes</string>
@@ -975,9 +959,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="active_window_indicator_summary">Fremhev vindushjørner for å hjelpe med å gjenkjenne hvilket vindu som er aktivt</string>
   <string name="app_licence_title">Lisens for åpen kildekode</string>
   <string name="how_to_contribute">Hvordan bidra?</string>
-  <string name="confirm_delete_bookmarks">Ønsker du å fjerne %d bokmerker og tilhørende notater?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Den valgte gruppen er tilknyttet %d bokmerker som ikke har andre grupper. Vil du slette disse bokmerkene sammen med gruppene?</string>
-  <string name="delete_label_and_bookmarks">Slett gruppe og bokmerker</string>
   <string name="delete_label_only">Slett bare gruppen</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Anbefal til en venn</string>
@@ -1008,8 +989,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="old_webview">Android WebView-pakken er for gammel (%1$s). Du må oppgradere Android WebView-pakken til minst versjon %2$s for å bruke %3$s. For de fleste enheter kan dette gjøres via %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Fortsett allikevel</string>
-  <string name="proceed">Fortsett</string>
-  <string name="rate_title">Vurdering og anmeldelse av appen</string>
   <string name="rate_message5">Positive og detaljerte anmeldelser hjelper AndBible Open Source Project mye. Takk!</string>
   <string name="rate_message6">
         Før du gir en negativ vurdering, vennligst les følgende:
@@ -1055,7 +1034,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="primary_label">Hovedgruppe</string>
   <string name="favourite_label">Favorittgruppe</string>
   <string name="edit_label">Rediger gruppe</string>
-  <string name="delete_label_confirmation">Ønsker du å slette bokmerket \"%s\"? Alle notater i tilknyttede studiebrett vil også slettes.</string>
   <string name="active_labels">Valgte grupper</string>
   <string name="recent_labels">Nylige grupper</string>
   <string name="other_labels">Andre grupper</string>
@@ -1065,8 +1043,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="book_menu_show_progress_bars">Vis fremdriftslinjer</string>
   <string name="reset_workspace_labels">Vil du tilbakestille innstillingene for auto-tilordning og favoritter for dette arbeidsområdet?</string>
   <string name="clear_auto_assign_labels">Fjern automatisk tildelte grupper</string>
-  <string name="reset_workspace_auto_assign_labels">Vil du fjerne alle automatisk tildelte grupper fra dette arbeidsområdet?</string>
-  <string name="reset_hide_labels">Vil du tilbakestille innstillingen for skjuling av angitte grupper?</string>
   <string name="reorder">Sorter på nytt</string>
   <string name="system_items">Systemhandlinger</string>
   <string name="system_items1">Mer</string>
@@ -1080,7 +1056,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="ios_fullscreen_hint">Dobbelttrykk eller trykk på knappen for å avslutte fullskjerm.</string>
   <string name="desktop_exit_fullscreen">Avslutt fullskjerm</string>
   <string name="exit_fullscreen">Dobbel-tap for å gå ut av fullskjermmodus</string>
-  <string name="reset_app_prefs">Ønsker du å tilbakestille alle globale innstillinger som er vist på denne skjermen til standardverdiene?</string>
   <string name="label_red">Rød</string>
   <string name="label_green">Grønn</string>
   <string name="label_blue">Blå</string>
@@ -1091,7 +1066,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="reset_databases_title">Tilbakestill databaser</string>
   <string name="reset_databases_description">Tilbakestill individuelle databaser til opprinnelig tom tilstand. Dette kan ikke angres.</string>
   <string name="last_crash_info_title">Siste krasjinfo</string>
-  <string name="reset_database_confirm">Dette vil permanent slette alle data i \"%1$s\" og tilbakestille den til opprinnelig tilstand. Dette kan ikke angres.\n\nEr du sikker?</string>
   <string name="reset_database_success">Databasen ble tilbakestilt</string>
   <string name="reset_something">Tilbakestill: %1$s</string>
   <string name="export">Eksporter</string>
@@ -1161,19 +1135,18 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="manage_labels_help_favourite">Behold gruppen blant favorittene dine for rask tilgang.</string>
   <string name="manage_labels_help_styles">Under navnet viser et lite eksempel gruppens utseende: Utvalg for et bokmerke for tekstutvalg, Helt vers for et bokmerke for hele vers, og en Arbeidsområde-merkelapp for en stil som dette arbeidsområdet overstyrer. Et grått eksempel uten dekor betyr at gruppens bokmerker ikke tegnes. Skjul eksemplene fra ⋮-menyen.</string>
   <string name="manage_labels_help_reorder">Endre rekkefølgen på listen fra ⋮-menyen.</string>
+  <string name="manage_labels_help_narrow_toggles">På en smal skjerm utelater listen ikonene for primær, automatisk tildeling og favoritt for å gi gruppenavnene plass. Trykk på en gruppe for å angi dem i redigeringen.</string>
   <string name="added_to_bookmark">Tilordnet til dette bokmerket</string>
   <string name="strongs_links">Lenker</string>
   <string name="strongs_text_and_links">Tekster og lenker</string>
   <string name="strongs_hidden_links">Skjulte lenker</string>
   <string name="verse_tip">For å velge deler av eller mange vers, kan du holde inne bibelteksten</string>
-  <string name="permission_required">Tilgang kreves</string>
   <string name="labels_search_hint">Søk</string>
   <string name="search_mode_name_start">Navn (fra begynnelse)</string>
   <string name="search_mode_name_contains">Navn (inneholder)</string>
   <string name="search_mode_content">Innhold</string>
   <string name="search_results_matches">%d treff</string>
   <string name="search_results_match">1 treff</string>
-  <string name="progress_status_permission">For å vise varsler (nedlastingsstatus, behandling, høytlesingsstatus), trenger vi din tillatelse.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Enkel kalkulator</string>
   <string name="prefs_persecution_cat">Innstillinger for forfulgte</string>
@@ -1207,7 +1180,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="custom_repositories_create_button_label">Legg til egendefinert arkiv</string>
   <string name="custom_repositories_info_button_label">Informasjon</string>
   <string name="repository_specification">Arkiv-URL</string>
-  <string name="delete_custom_repository">Vil du fjerne det egendefinerte arkivet %s?</string>
   <string name="custom_repositories_help1">For å legge til et nytt egendefinert arkiv, skriv eller kopier og lim inn egendefinert arkiv-URL her.</string>
   <string name="custom_repositories_help2">Du kan lese mer informasjon om egendefinerte arkiver i %s.</string>
   <string name="custom_repositories_help0">Du kan installere dokumenter fra eksterne egendefinerte arkiver ved å installere egendefinerte arkiver.</string>
@@ -1227,7 +1199,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="db_bookmarks">Bokmerker, mine notater, grupper og studiebrett</string>
   <string name="synchronizing">Synkroniserer…</string>
   <string name="notification_finished">Fullført</string>
-  <string name="overrideBackup">Eksisterende database som denne enheten ikke er synkronisert til, er funnet i skyen. Databasen inneholder %s. Hva vil du gjøre?</string>
   <string name="reading_plans_content">Leseplaner og deres statuser</string>
   <string name="bookmarks_contents">Bokmerker, grupper og studiebrett</string>
   <string name="workspaces_contents">Arbeidsområder og vinduer</string>
@@ -1247,7 +1218,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="reading_progress_calendar">Leseaktivitet</string>
   <string name="reading_progress_cycle">Syklus %d</string>
   <string name="reading_progress_new_cycle">Ny syklus</string>
-  <string name="reading_progress_new_cycle_confirm">Starte en ny lesesyklus? Dette vil begynne å spore fremdriften din fra bunnen av, mens tidligere syklusdata bevares.</string>
   <string name="reading_progress_previous_cycle">Forrige syklus</string>
   <string name="reading_progress_next_cycle">Neste syklus</string>
   <string name="cloud_merge_data">Slå sammen data</string>
@@ -1257,7 +1227,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_sync_title">Enhetssynkronisering</string>
   <string name="reset_sync">Logg ut</string>
   <string name="prefs_reset_sync_summary">Deaktiver synkronisering og tilbakestill relaterte innstillinger.</string>
-  <string name="sync_confirmation">Er du sikker på at du vil logge ut og tilbakestille synkronisering?</string>
   <string name="cloud_info">Skyinformasjon</string>
   <string name="cloud_info_summary">Data i skylagring: %s Mb</string>
   <string name="sync_adapter">Synkroniseringsbackend</string>
@@ -1273,7 +1242,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="webdav_server_url_hint">Adressen til WebDAV-mappen, f.eks. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronisering krever en sikker https://-adresse.</string>
   <string name="webdav_certificate_title">Serversertifikat</string>
-  <string name="webdav_forget_certificate_message">Glemme det klarerte serversertifikatet? Du blir bedt om å bekrefte sertifikatet på nytt ved neste tilkobling.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Ikke-klarert serversertifikat</string>
   <string name="webdav_untrusted_certificate_message">Sertifikatet til %1$s er ikke klarert av Android. Klarer det bare hvis du kjenner det igjen, for eksempel fordi du har satt opp denne serveren selv.\n\nEmne: %2$s\nUtsteder: %3$s\nGyldig: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1290,14 +1258,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="synchronization_categories">Synkroniseringskategorier</string>
   <string name="sync_general_settings">Info og generelle innstillinger</string>
   <string name="sync_introduction">Innledning</string>
-  <string name="are_you_sure">Er du sikker?</string>
   <string name="are_you_sure_merge">Både dataene på denne enheten og %s i skyen beholdes. Der det samme elementet er endret begge steder, beholdes den nyeste endringen. Denne enhetens data sendes til de andre enhetene dine.</string>
-  <string name="are_you_sure_reset_local">Dette vil tilbakestille den lokale databasen for %s med innholdet som for øyeblikket er lagret i skytjenesten.</string>
-  <string name="are_you_sure_reset_cloud">Dette vil tilbakestille skydatabasen for %s med innholdet du har på denne enheten.</string>
-  <string name="sync_cant_fetch">Versjonen av databasen eller oppdateringsfilen lagret i skyen er høyere enn den som støttes av denne appen.</string>
-  <string name="sync_disabling">Deaktiverer synkronisering for %s for nå.</string>
-  <string name="sync_update_app">Oppdater appen for å fortsette synkronisering.</string>
-  <string name="sign_in_failed">Innlogging til synkroniseringsbackend-tjeneste mislyktes.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Deaktiverer skysynkronisering. Du må aktivere på nytt manuelt etter gjenoppretting.</string>
   <string name="report">Rapport</string>
@@ -1315,6 +1276,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="open_here">Åpne her</string>
   <string name="external_link">Ekstern lenke</string>
   <string name="external_link_question">Dette vil åpne ekstern lenke %s i et nettleserprogram, vil du fortsette?</string>
+  <string name="external_link_dont_ask_again">Ikke spør igjen for %s</string>
   <string name="nameless">Tittel ikke definert</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Éntrykkhandlinger (Bibler)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Éntrykkhandlinger (Annet)</string>
@@ -1362,8 +1324,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="memorize_include_reference_summary">Legg til versreferansen (f.eks. Johannes 3:16) som det siste elementet å memorere</string>
   <string name="reading_progress_settings">Fremdrift og memorering</string>
   <string name="reading_progress_settings_summary">Innstillinger for automatisk sporing, memorering og skriveøvelse</string>
-  <string name="memorize_confirm_unmark">Fjerne memorert status for %s?</string>
-  <string name="memorize_confirm_remove_target">Fjerne memoreringsmål %s?</string>
   <string name="memorize_tab_reading">Lesing</string>
   <string name="memorize_tab_memorization">Memorering</string>
   <string name="memorize_verses_memorized">Memorert</string>
@@ -1389,7 +1349,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="llm_reset_usage_title">Tilbakestill bruksdata</string>
   <string name="llm_reset_usage_summary">Slett kumulativ token- og kostnadssporing</string>
   <string name="llm_reset_usage_confirm_title">Tilbakestille bruksdata?</string>
-  <string name="llm_reset_usage_confirm_message">Dette vil slette alle kumulative bruksdata.</string>
   <string name="llm_custom_input_price_title">Innpris ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Utpris ($/Mtoken)</string>
   <string name="llm_cost_total">Totalt: %1$s</string>
@@ -1405,8 +1364,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="llm_parse_error_anthropic">Kunne ikke analysere Anthropic-svar: %1$s</string>
   <string name="llm_error_unknown">Ukjent feil</string>
   <string name="llm_error_max_iterations">Maksimalt antall iterasjoner (%1$d) nådd uten fullføring</string>
-  <string name="llm_continue_iterations_title">Fortsette?</string>
-  <string name="llm_continue_iterations_message">KI-agenten har nådd grensen på %1$d iterasjoner uten å fullføre. Fortsette med %2$d flere iterasjoner?</string>
   <string name="agent_max_iterations_title">Maks agentiterasjoner</string>
   <string name="agent_max_iterations_summary">Maksimale iterasjoner før man spør om å fortsette (0 = ubegrenset)</string>
   <string name="ask_model_before_run_title">Spør om modell før kjøring</string>
@@ -1466,7 +1423,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="ai_models_summary_none">Ingen modeller konfigurert</string>
   <string name="ai_add_provider">Legg til leverandør</string>
   <string name="ai_provider_edit">Rediger</string>
-  <string name="ai_provider_delete_confirm">Slett leverandøren \"%1$s\"? Prompter som bruker denne leverandøren vil gå tilbake til standard.</string>
   <string name="ai_provider_api_key_not_set">API-nøkkel ikke angitt</string>
   <string name="ai_provider_select_type">Velg leverandørtype</string>
   <string name="ai_provider_name">Leverandørnavn</string>
@@ -1486,7 +1442,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="edit_model_title">Rediger modell</string>
   <string name="model_saved">Modell lagret</string>
   <string name="model_deleted">Modell slettet</string>
-  <string name="model_delete_confirm">Slett modellen \"%1$s\"?</string>
   <string name="model_set_default">Sett som standardmodell</string>
   <string name="model_select_provider">Leverandør</string>
   <string name="model_supported_badge">✓ Støttet</string>
@@ -1526,7 +1481,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="ai_disclaimer_point8">Dataene dine sendes til serverne til den valgte KI-leverandøren. Ved å bruke en API-nøkkel aksepterer du leverandørens vilkår og personvernpolicy. Selvhostede modeller er mulig, men krever mer teknisk ekspertise og gir kanskje ikke like gode resultater som kommersielle modeller.</string>
   <string name="ai_disclaimer_point9">KI-leverandører tar betalt for API-bruk. Kostnadsestimater vist i AndBible er omtrentlige — sjekk alltid leverandørens fakturering for faktiske kostnader.</string>
   <string name="ai_disclaimer_accept_title">Aksepter KI-ansvarsfraskrivelse</string>
-  <string name="ai_disclaimer_accept_button">Jeg aksepterer og tar fullt ansvar</string>
   <string name="prompt_permission_mode">Tillatelsesmodus</string>
   <string name="prompt_permission_mode_description">Kontrollerer når brukerbekreftelse kreves før KI utfører skriveoperasjoner. Innstillingene per verktøy nedenfor kan overstyre dette for individuelle verktøy.</string>
   <string name="agent_permission_mode_summary">Kontrollerer når brukerbekreftelse kreves før KI-skriveoperasjoner</string>
@@ -1642,7 +1596,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="default_prompt_custom_desc">Kjør en egendefinert oppgave på valgt passasje</string>
   <string name="default_prompt_custom_template">Følg brukerens oppgavespesifikasjon for den valgte bibelpassasjen.</string>
   <string name="copy">Kopier</string>
-  <string name="delete_prompt_confirm_message">Er du sikker på at du vil slette denne prompten?</string>
   <string name="ai_hide_prompt">Skjul</string>
   <string name="ai_restore_hidden_prompts">Gjenopprett skjulte prompter</string>
   <string name="ai_prompt_hidden">Prompt skjult</string>
@@ -1727,8 +1680,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="permission_allow_all_session">Tillat alle verktøy denne økten</string>
   <string name="permission_allow_always">Tillat alltid \"%1$s\"</string>
   <string name="permission_deny">Avvis</string>
-  <string name="permission_always_allow_confirm_title">Alltid tillate?</string>
-  <string name="permission_always_allow_confirm">Er du sikker på at du vil permanent tillate \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Du kan tilbakestille dette i KI-innstillinger.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Verktøytillatelser</string>
@@ -1833,18 +1784,15 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Opprett nytt dokument</string>
   <string name="my_document_rename_title">Gi dokumentet nytt navn</string>
-  <string name="my_document_delete_confirmation">Slette dokumentet \"%s\"?</string>
   <string name="show_secret">Vis</string>
   <string name="hide_secret">Skjul</string>
   <string name="ai_documents_name">KI-dokumenter</string>
   <string name="ai_documents_description">Automatisk genererte dokumenter fra KI</string>
-  <string name="my_document_cannot_delete_ai_documents">KI-dokumenter kan ikke slettes mens det inneholder sider. Slett sidene først.</string>
   <string name="my_document_save_changes">Lagre endringer?</string>
   <string name="my_document_no_description">Ingen beskrivelse</string>
   <string name="my_document_edit_description">Rediger beskrivelse</string>
   <string name="my_document_pages_title">%s - Sider</string>
   <string name="my_document_page_rename_title">Gi siden nytt navn</string>
-  <string name="my_document_page_delete_confirmation">Slette siden \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Slette disse sidene?</string>
   <string name="my_documents_switch_document">Bytt dokument</string>
   <string name="my_document_new_page_name">Side %1$d</string>
@@ -1912,7 +1860,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_doc_show_removed">Vis fjernede dokumenter</string>
   <string name="cloud_doc_status_removed">Fjernet fra skyen</string>
   <string name="cloud_doc_status_still_installed">fortsatt installert her</string>
-  <string name="cloud_doc_purge_confirm">Vil du fjerne \"%1$s\" permanent fra skyhistorikken? Hvis det fortsatt er installert på en annen enhet, kan den enheten laste det opp til skyen igjen ved neste synkronisering.</string>
   <string name="cloud_doc_action_download">Last ned</string>
   <string name="cloud_doc_action_push">Last opp til skyen</string>
   <string name="cloud_doc_action_remove_cloud">Fjern fra skyen</string>
@@ -1923,8 +1870,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_doc_action_dont_sync">Ikke synkroniser til skyen</string>
   <string name="cloud_doc_action_allow_sync">Synkroniser til skyen</string>
   <string name="cloud_doc_action_purge">Fjern fra skyhistorikken</string>
-  <string name="cloud_doc_remove_all_confirm">Vil du fjerne %1$s fra skyen og fra alle enhetene dine, inkludert denne?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Vil du fjerne %1$s fra skyen? Kopien på denne enheten beholdes; enheter med dokumentsynkronisering på vil også fjerne det.</string>
   <string name="cloud_doc_sync_now">Synkroniser nå</string>
   <string name="cloud_doc_rescan">Skann på nytt fra skyen</string>
   <string name="cloud_doc_sync_now_download">Last ned nye og oppdaterte dokumenter</string>
@@ -1936,6 +1881,14 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_doc_summary_download">Last ned %1$d</string>
   <string name="cloud_doc_summary_download_size">Last ned %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiske nedlastinger starter på Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d dokument</item>
+    <item quantity="other">%1$d dokumenter</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d dokument (%2$s)</item>
+    <item quantity="other">%1$d dokumenter (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Ingenting å overføre</string>
   <string name="cloud_doc_selected_count">%1$d valgt</string>
   <string name="cloud_doc_bulk_skipped">Hoppet over %1$d ikke aktuelle</string>
@@ -1952,8 +1905,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="background_image_import">Importer fra galleriet …</string>
   <string name="background_image_empty">Ingen importerte bilder ennå. Trykk på \"Importer fra galleriet …\" for å legge til ett.</string>
   <string name="background_image_importing">Importerer …</string>
-  <string name="background_image_delete_title">Slette bildet?</string>
-  <string name="background_image_delete_confirm">Slette dette bakgrunnsbildet? Arbeidsområder som fortsatt bruker det, faller tilbake til ingen bilde.</string>
   <string name="background_image_day">Bakgrunnsbilde (dag)</string>
   <string name="background_image_night">Bakgrunnsbilde (natt)</string>
   <string name="background_image_opacity_day">Bakgrunnsbildets opasitet (dag)</string>
@@ -2027,6 +1978,10 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="legacy_notice_icloud">Synkronisering bruker nå iCloud Drive. Slå den på igjen i Innstillinger → Synkronisering. Denne enheten beholder det den hadde; endringer fra de andre enhetene dine kommer når synkroniseringen er satt opp igjen. For å frigjøre de gamle iCloud-dataene: Innstillinger → navnet ditt → iCloud → Administrer lagring → AndBible.</string>
   <string name="legacy_notice_nextcloud">Nextcloud-tilkoblingen din ble ført videre, men synkroniseringen er av. Slå den på i Innstillinger → Synkronisering og velg å hente fra skyen eller å opprette ny.</string>
   <string name="legacy_notice_nextcloud_unsent">Noen endringer på denne enheten var ikke sendt til Nextcloud ennå. De ble ikke sendt og blir liggende bare på denne enheten.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d bokmerke kunne ikke plasseres pålitelig og ble ikke importert. Det beholdes sammen med de gamle dataene dine på denne enheten.</item>
+    <item quantity="other">%1$d bokmerker kunne ikke plasseres pålitelig og ble ikke importert. De beholdes sammen med de gamle dataene dine på denne enheten.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Det er et kraftig, men likevel lettbrukt bibelstudieprogram som fungerer uten nett.</string>
   <string name="webdav_untrusted_certificate_message_device">Sertifikatet til %1$s er ikke klarert av denne enheten. Klarer det bare hvis du kjenner det igjen, for eksempel fordi du har satt opp denne serveren selv.\n\nEmne: %2$s\nUtsteder: %3$s\nGyldig: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2078,6 +2033,25 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="recommend_share_link">Del en lenke</string>
   <string name="recommend_qr_caption">Skann for å få AndBible til mobilen, nettbrettet eller datamaskinen din.</string>
   <string name="desktop_activation_failed">AndBible kjører allerede, men vinduet svarte ikke. Bytt til den kjørende instansen og prøv igjen. Innkommende filer ble ikke bekreftet levert.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Dette kan ikke angres.</string>
+  <string name="ai_raw_log_delete_lead">Slette denne loggen?</string>
+  <string name="ai_provider_delete_lead">Slette leverandøren «%1$s»?</string>
+  <string name="ai_provider_delete_detail">Prompter som bruker den, går tilbake til standardleverandøren.</string>
+  <string name="ai_model_delete_lead">Slette modellen «%1$s»?</string>
+  <string name="ai_prompt_delete_named_lead">Slette prompten «%1$s»?</string>
+  <string name="ai_prompt_delete_lead">Slette denne prompten?</string>
+  <string name="ai_reset_usage_detail">Token- og kostnadssummer går tilbake til null. Dette kan ikke angres.</string>
+  <string name="ai_reset_usage_button">Tilbakestill</string>
+  <string name="ai_disclaimer_accept">Jeg godtar</string>
+  <string name="llm_continue_iterations_lead">Fortsette i %1$d iterasjoner til?</string>
+  <string name="llm_continue_iterations_detail">KI-agenten nådde grensen på %1$d iterasjoner uten å bli ferdig.</string>
+  <string name="llm_continue_button">Fortsett</string>
+  <string name="permission_always_allow_lead">Tillate «%1$s» alltid?</string>
+  <string name="permission_always_allow_button">Tillat alltid</string>
+  <string name="ai_bug_report_send_lead">Sende en KI-feilrapport?</string>
+  <string name="ai_bug_report_send_button">Send</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Kom i gang</string>
   <string name="user_guide_section_reading_workspace">Lesing og arbeidsområde</string>
@@ -2155,4 +2129,150 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="tutorial_title_31_ai_3_tools_data_permissions">KI-assistent, del 3: verktøy, data og tillatelser</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">KI-assistent, del 4: egne prompter, kostnader og synkronisering</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Forkaste endringer?</string>
+  <string name="dialog_keep_editing">Fortsett redigeringen</string>
+  <string name="dialog_label_delete_lead">Slette gruppen “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Studiebrett-notatene slettes også. Dette kan ikke angres.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d bokmerke har ingen annen gruppe.</item>
+    <item quantity="other">%1$d bokmerker har ingen annen gruppe.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Slett gruppen og %1$d bokmerke</item>
+    <item quantity="other">Slett gruppen og %1$d bokmerker</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Bokmerkene og notatene deres slettes.</string>
+  <string name="dialog_label_delete_only_consequence">Bokmerkene beholdes, uten gruppe.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Fjerne dette bokmerket?</item>
+    <item quantity="other">Fjerne %1$d bokmerker?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">Notatet fjernes også.</item>
+    <item quantity="other">Notatene fjernes også.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Fjerne alle grupper med automatisk tildeling fra dette arbeidsområdet?</string>
+  <string name="dialog_labels_reset_hidden_lead">Vise alle skjulte grupper igjen?</string>
+  <string name="dialog_labels_reset_shown_detail">Grupper du skjulte fra listen, vises igjen.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Installere «%s»?</string>
+  <string name="install_action">Installer</string>
+  <string name="install_from_file_question">Installere dokumenter fra en fil?</string>
+  <string name="overwrite_files_detail">Disse filene finnes allerede:%s</string>
+  <string name="import_studypads_question">Importere disse studiebrettene?</string>
+  <string name="import_action">Importer</string>
+  <string name="restore_backup_question">Gjenopprette dokumentene i denne sikkerhetskopien?</string>
+  <string name="restore_backup_detail">Denne filen er en sikkerhetskopi av AndBible-dokumenter.</string>
+  <string name="update_document_question">Oppdatere dette dokumentet?</string>
+  <string name="update_action">Oppdater</string>
+  <string name="download_documents_question">Laste ned dokumenter?</string>
+  <string name="download_persecution_warning">Hvis du bor i et land med forfølgelse, bør du kanskje være forsiktig med å laste ned kristent materiale via Internett. I stedet kan du skaffe dokumentenes zip-filer på en sikrere måte og installere dem via «%1$s». Alle nedlastinger fra dokumentservere er kryptert (HTTPS).</string>
+  <string name="download_action">Last ned</string>
+  <string name="download_dont_ask_again">Last ned, ikke spør igjen</string>
+  <string name="download_dont_ask_again_consequence">Nedlastinger starter uten dette spørsmålet i fremtiden.</string>
+  <string name="passphrase_did_not_work">Passfrasen fungerte ikke.</string>
+  <string name="try_again">Prøv igjen</string>
+  <string name="interrupted_downloads_lead">Laste ned disse dokumentene på nytt?</string>
+  <string name="interrupted_downloads_detail">Nedlastingen ble avbrutt, så de ble ikke installert.</string>
+  <string name="external_link_open_question">Åpne denne lenken i nettleseren din?</string>
+  <string name="open_action">Åpne</string>
+  <string name="notification_permission_question">Tillate varsler?</string>
+  <string name="notification_permission_detail">Varsler viser nedlastingsstatus, behandling og opplesningsstatus.</string>
+  <string name="allow_action">Tillat</string>
+  <string name="rate_question">Vurdere og anmelde appen?</string>
+  <string name="bug_report_email_question">Sende feilrapporten på e-post?</string>
+  <string name="continue_action">Fortsett</string>
+  <string name="delete_search_index_question">Slette søkeindeksen for «%s»?</string>
+  <string name="remove_custom_repository_question">Fjerne det egendefinerte arkivet «%s»?</string>
+  <string name="download_document_question">Laste ned «%s»?</string>
+  <string name="choose_file_action">Velg fil</string>
+  <string name="old_webview_question">Bruke appen med en gammel WebView?</string>
+  <string name="incomplete_translation_question">Fortsette med en delvis oversettelse?</string>
+  <string name="rate_action">Vurder</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Slette dokumentet «%s»?</string>
+  <string name="my_document_page_delete_lead">Slette siden «%s»?</string>
+  <string name="my_document_cannot_delete_ai_lead">KI-dokumenter kan ikke slettes så lenge de inneholder sider.</string>
+  <string name="my_document_cannot_delete_ai_detail">Slett sidene først.</string>
+  <string name="reading_progress_new_cycle_lead">Starte en ny lesesyklus?</string>
+  <string name="reading_progress_new_cycle_detail">Fremdriften din spores fra bunnen av. Dataene fra forrige syklus beholdes.</string>
+  <string name="reading_progress_new_cycle_start">Start</string>
+  <string name="reset_plan_lead">Tilbakestille denne planen?</string>
+  <string name="reset_plan_detail">Startdatoen og fremdriften din i denne planen fjernes.</string>
+  <string name="set_current_day_lead">Angi %1$s som gjeldende dag?</string>
+  <string name="set_current_day_detail">Alle tidligere dager merkes som lest.</string>
+  <string name="plan_duplicate_user_plan_lead">En leseplanfil har samme navn som en innebygd plan.</string>
+  <string name="plan_duplicate_user_plan_detail">Planfilen kan ikke vises i listen. Gi filen nytt navn i mappen jsword/readingplan, og behold filendelsen .properties.</string>
+  <string name="background_image_delete_lead">Slette dette bakgrunnsbildet?</string>
+  <string name="background_image_delete_detail">Arbeidsområder som fortsatt bruker det, går tilbake til ingen bilde.</string>
+  <string name="reset_values_lead">Tilbakestille alle disse verdiene?</string>
+  <string name="revert_setting_lead">Sette denne innstillingen tilbake til den arvede verdien?</string>
+  <string name="revert_setting_confirm">Sett tilbake</string>
+  <string name="reset_settings_screen_lead">Tilbakestille innstillingene på denne skjermen?</string>
+  <string name="reset_settings_screen_detail">De går tilbake til standardverdiene.</string>
+  <string name="memorize_unmark_lead">Fjerne memorert-status for «%s»?</string>
+  <string name="memorize_remove_target_lead">Fjerne memoreringsmålet «%s»?</string>
+  <string name="dialog_apply">Bruk</string>
+  <string name="dialog_dont_apply">Ikke bruk</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Skyen har allerede %s. Hva skal skje?</string>
+  <string name="cloud_merge_consequence">Begge sider beholdes; der et element er endret på begge, vinner den nyeste endringen.</string>
+  <string name="cloud_fetch_consequence">Erstatter dataene på denne enheten med kopien i skyen.</string>
+  <string name="cloud_create_consequence">Erstatter kopien i skyen med dataene på denne enheten.</string>
+  <string name="cloud_disable_consequence">Synkronisering forblir av for disse dataene.</string>
+  <string name="cloud_merge_lead">Slå sammen %s med skyen?</string>
+  <string name="cloud_merge_confirm">Slå sammen</string>
+  <string name="cloud_replace_confirm">Erstatt</string>
+  <string name="cloud_replace_local_lead">Erstatte %s på denne enheten med kopien i skyen?</string>
+  <string name="cloud_replace_local_detail">Det som er på denne enheten nå, overskrives og kan ikke gjenopprettes.</string>
+  <string name="cloud_replace_cloud_lead">Erstatte kopien av %s i skyen med dataene fra denne enheten?</string>
+  <string name="cloud_replace_cloud_detail">Det som er i skyen nå, overskrives, og de andre enhetene dine mottar dataene fra denne enheten.</string>
+  <string name="sign_in_failed_lead">Kunne ikke logge på synkroniseringstjenesten.</string>
+  <string name="sync_too_old_lead">Denne appen er for gammel til å synkronisere %s.</string>
+  <string name="sync_too_old_detail">Skydataene bruker en nyere versjon enn denne appen støtter. Synkroniseringen for dem er slått av for nå; oppdater appen for å slå den på igjen.</string>
+  <string name="backup_replace_lead">Erstatte %s med sikkerhetskopien?</string>
+  <string name="backup_replace_detail">Det som er på denne enheten nå, overskrives og kan ikke gjenopprettes.</string>
+  <string name="reset_database_lead">Tilbakestille «%1$s» til utgangstilstanden?</string>
+  <string name="reset_database_detail">Alle data i den slettes permanent. Dette kan ikke angres.</string>
+  <string name="reset_database_button">Tilbakestill</string>
+  <string name="restore_all_lead">Erstatte notatene, bokmerkene, studiebrettene, leseplanene og arbeidsområdene dine?</string>
+  <string name="restore_or_import_lead">Gjenopprette eller importere %s?</string>
+  <string name="restore_consequence">Erstatter det som er på denne enheten med sikkerhetskopien.</string>
+  <string name="import_consequence">Legger sikkerhetskopiens elementer til det som er på denne enheten.</string>
+  <string name="sync_start_syncing">Start synkronisering</string>
+  <string name="sync_reset_lead">Logge av og tilbakestille synkronisering?</string>
+  <string name="sync_reset_detail">Du må sette opp synkroniseringen på nytt.</string>
+  <string name="webdav_forget_certificate_lead">Glemme det pålitelige serversertifikatet?</string>
+  <string name="webdav_forget_certificate_detail">Du blir bedt om å bekrefte sertifikatet på nytt ved neste tilkobling.</string>
+  <string name="webdav_forget_certificate_confirm">Glem</string>
+  <string name="cloud_doc_remove_all_lead">Fjerne «%1$s» fra skyen og alle enhetene dine?</string>
+  <string name="cloud_doc_remove_cloud_lead">Fjerne «%1$s» fra skyen?</string>
+  <string name="cloud_doc_purge_lead">Fjerne «%1$s» permanent fra skyhistorikken?</string>
+  <string name="cloud_doc_remove_all_detail">Dette sletter også kopiene på denne enheten og på alle andre enheter med dokumentsynkronisering på.</string>
+  <string name="cloud_doc_remove_cloud_detail">Kopier på denne enheten beholdes. Enheter med dokumentsynkronisering på fjerner dem også.</string>
+  <string name="cloud_doc_purge_detail">En enhet som fortsatt har en kopi, kan laste den opp igjen ved neste synkronisering.</string>
+  <string name="cloud_doc_block_confirm_button">Ikke synkroniser</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Fjerne %1$d dokument fra skyen og alle enhetene dine?</item>
+    <item quantity="other">Fjerne %1$d dokumenter fra skyen og alle enhetene dine?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Fjerne %1$d dokument fra skyen?</item>
+    <item quantity="other">Fjerne %1$d dokumenter fra skyen?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Fjerne %1$d dokument permanent fra skyhistorikken?</item>
+    <item quantity="other">Fjerne %1$d dokumenter permanent fra skyhistorikken?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Slutte å synkronisere %1$d dokument til skyen?</item>
+    <item quantity="other">Slutte å synkronisere %1$d dokumenter til skyen?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Flere av dataene dine kan nå synkroniseres</string>
+  <string name="new_sync_targets_detail">Mine dokumenter, KI-innstillinger og leseframdrift kan også synkroniseres. Slå dem på i innstillingene for enhetssynkronisering.</string>
+  <!--end dialog copy: B3b-->
 </resources>

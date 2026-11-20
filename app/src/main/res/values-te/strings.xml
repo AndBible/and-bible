@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">పూర్తి వినియోగదారు గైడ్ andbible.org లో ఉంది. పేజీలు మీ బ్రౌజర్‌లో తెరవబడతాయి.</string>
   <string name="help_user_guide_home">వినియోగదారు గైడ్ హోమ్</string>
   <string name="help_read_in_user_guide">వినియోగదారు గైడ్‌లో చదవండి</string>
+  <string name="help_in_user_guide">వినియోగదారు మార్గదర్శిలో సహాయం</string>
+  <string name="help_matching_section">సరిపోలే విభాగం</string>
   <string name="help_read_page">వినియోగదారు గైడ్‌లో చదవండి: %1$s</string>
   <string name="help_tutorial_videos">ట్యుటోరియల్ వీడియోలు</string>
   <string name="help_watch_in_order">ట్యుటోరియల్ వీడియోలను క్రమంగా చూడండి</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">వాక్యభాగము ఎంపిక చేసేటప్పుడు వచనాలను (మరియు అధ్యాయాలను) ఎన్నుకోవడం</string>
   <string name="prefs_open_links_in_special_window_title">లింక్స్ విండో</string>
   <string name="prefs_open_links_in_special_window_summary">క్రాస్-రిఫరెన్స్‌లు మరియు స్త్రోంగ్స్ త్వరిత ప్రదర్శన కోసం ప్రత్యేక విండోలో లింక్‌లను తెరవండి</string>
+  <string name="prefs_trusted_link_domains_title">విశ్వసనీయ లింక్ డొమైన్‌లు</string>
+  <string name="prefs_trusted_link_domains_summary">ఈ డొమైన్‌లకు లింక్‌లు అడగకుండానే తెరుచుకుంటాయి. మళ్లీ అడగాలంటే డొమైన్ ఎంపికను తీసివేయండి.</string>
+  <string name="prefs_trusted_link_domains_empty">ఇంకా ఏవీ లేవు. డొమైన్‌ను జోడించడానికి లింక్ తెరిచేటప్పుడు \"మళ్లీ అడగవద్దు\" ఎంచుకోండి.</string>
   <string name="prefs_text_size_sample_text">నమూనా టెక్స్‌టు</string>
   <string name="prefs_screen_keep_on_title">స్క్రీన్ ఆన్‌లో ఉంచండి</string>
   <string name="prefs_screen_keep_on_summary">ఈ యాప్‌ని ఉపయోగిస్తున్నప్పుడు స్క్రీన్ స్లీపింగ్‌ను నిరోధించండి</string>
@@ -305,7 +310,6 @@
   <string name="line_spacing_title">పంక్తుల మధ్య ఖాళీ</string>
   <string name="line_spacing_summary">పంక్తుల మధ్య ఖాళీ నిర్దేశించింది</string>
   <string name="select_none">ఏది కాదు</string>
-  <string name="reset_are_you_sure">మీరు ఖచ్చితంగా ఈ విలువలన్నింటినీ రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="window_pinning_menutitle">విండో పిన్నింగ్</string>
   <string name="hide_window_buttons_title">విండో బటన్లను దాచండి</string>
   <string name="hide_window_buttons_summary">బైబిల్ వీక్షణల కుడి వైపున ప్రదర్శించబడే విండో బటన్‌లు దాచబడ్డాయి. దిగువన విండో నావిగేషన్ బార్ ఇప్పటికీ ప్రదర్శించబడుతుంది మరియు మీరు వాటిని ఎక్కువసేపు క్లిక్ చేయడం ద్వారా విండో పాప్అప్ మెనుని తెరవవచ్చు.</string>
@@ -328,6 +332,7 @@
   <string name="word_not_found_in_dictionaries">ఏ నిఘంటువులో పదం కనుగొనబడలేదు</string>
   <string name="prefs_top_margin_title_mm">ఎగువ అంచు (%dmm)</string>
   <string name="font_size_title">ఫాంట్ పరిమాణం</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">దేవుడు లోకమును ఎంతో ప్రేమించెను; కాగా ఆయన తన అద్వితీయకుమారునిపై విశ్వాసముంచు ప్రతివాడును నశింపక నిత్యజీవము పొందునట్లు ఆయనను అనుగ్రహించెను.</string>
   <string name="font_size_title_pt">ఫాంట్ పరిమాణం (%d pt)</string>
   <string name="prefs_font_text_size_summary">ప్రధాన వచన ఫాంట్ పరిమాణాన్ని సర్దుబాటు చేయండి</string>
@@ -345,6 +350,8 @@
   <string name="window_color_settings_title">రంగు సెట్టింగులు (విండో)</string>
   <string name="workspace_color_settings_title">రంగు సెట్టింగులు (కార్యస్థలం)</string>
   <string name="color_workspace">వర్క్ స్పేస్ రంగు</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">డిఫాల్ట్</string>
   <string name="color_text">వచన రంగు</string>
   <string name="color_background">నేపథ్య రంగు</string>
   <string name="colors_day_mode_title">డే మోడ్</string>
@@ -378,7 +385,6 @@
   <string name="download_source_last_updated">చివరిగా నవీకరించబడిన పత్రాల జాబితాలు: %s.</string>
   <string name="download_refreshing_book_list">డాక్యుమెంట్ సర్వర్‌ల నుండి అందుబాటులో ఉన్న పత్రాల జాబితాను రిఫ్రెష్ చేస్తోంది...</string>
   <string name="download_source_message1">కింది మూలాధారాల నుండి పత్రాలు డౌన్‌లోడ్ చేయబడ్డాయి:</string>
-  <string name="download_document_confirm_prefix">డవున్ లోడ్</string>
   <string name="error_downloading">డౌన్‌లోడ్ చేస్తున్నప్పుడు లోపం సంభవించింది. దయచేసి మీ ఇంటర్నెట్ కనెక్షన్‌ని సరిచూసుకోండి.</string>
   <string name="error_downloading_status">%1$sని హోస్ట్ చేసే సర్వర్ %2$s (%3$d) కారణంగా లోపాన్ని అందించింది.</string>
   <string name="storage_space_warning">స్థానిక నిల్వ సామర్థ్యము లేదు.</string>
@@ -399,9 +405,6 @@
   <string name="activity_title">నేపథ్య కార్యకలాపం</string>
   <string name="activity_empty">ఏదీ నడవడం లేదు</string>
   <string name="activity_failed_toast">%1$s — మెనూ చూడండి</string>
-  <string name="download_question_title">మీరు పత్రాలను డౌన్‌లోడ్ చేయడానికి కొనసాగాలనుకుంటున్నారా?</string>
-  <string name="download_question_message">మీరు హింస ఉన్న దేశంలో నివసిస్తుంటే, ఇంటర్నెట్ ద్వారా క్రైస్తవ సామగ్రిని డౌన్‌లోడ్ చేయడంలో జాగ్రత్త వహించాల్సి ఉండవచ్చు. బదులుగా, మాడ్యూల్ జిప్ ఫైళ్లను మరింత సురక్షితంగా పొంది \"%1$s\" ద్వారా ఇన్‌స్టాల్ చేయాలనుకోవచ్చు. మీరు డౌన్‌లోడ్ కొనసాగించాలనుకుంటున్నారా? మాడ్యూల్ సర్వర్ల నుండి అన్ని డౌన్‌లోడ్‌లు ఎన్‌క్రిప్ట్ చేయబడతాయి (HTTPS).</string>
-  <string name="do_not_ask_again">అవును, మరొకసారి అడగవద్దు</string>
   <string name="recommended_document">సిఫార్సు చేయబడింది!</string>
   <string name="about_version_history">అనువాద చరిత్ర: %s</string>
   <string name="download_errors">లోపాలను డౌన్‌లోడ్ చేయి</string>
@@ -418,11 +421,9 @@
   <string name="checking_zip_file">ఇచ్చిన ఫైల్‌ని తనిఖీ చేస్తోంది...</string>
   <string name="invalid_module">ఫైల్ చెల్లుబాటు అయ్యే SWORD మాడ్యూల్‌ని కలిగి లేదు</string>
   <string name="install_zip_title">దయచేసి వేచి ఉండండి. ఫైల్ నుండి మాడ్యూల్‌లను లోడ్ చేస్తోంది.</string>
-  <string name="overwrite_files">కింది ఫైల్‌లు ఇప్పటికే ఉన్నాయి: %s ఓవర్‌రైట్ చేయాలా?</string>
   <string name="overwrite_files_title">ఫైల్‌లను ఓవర్‌రైట్ చేయాలా?</string>
   <string name="could_not_overwrite_files">%sఫైల్‌లను ఓవర్‌రైట్ చేయడం సాధ్యపడలేదు: . అంతే కానీ ఇన్‌స్టాల్ విజయవంతమైంది.</string>
   <string name="module_backup_restore">ఈ ఫైల్ AndBible పత్రాల బ్యాకప్. దీనిలోని పత్రాలను పునరుద్ధరించాలనుకుంటున్నారా?</string>
-  <string name="install_do_you_want">మీరు మాడ్యూల్ (%s) ని ఇన్‌స్టాల్ చేయాలనుకుంటున్నారా?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">చదవడానికి ప్రణాళిక</string>
   <string name="reading_plans_plural">పఠన ప్రణాళికలు</string>
@@ -430,14 +431,8 @@
   <string name="rdg_plan_day">రోజు %s</string>
   <string name="rdg_plan_set_start_date">ప్రారంభ తేదీని సెట్ చేయండి...</string>
   <string name="set_current_day">ప్రస్తుత రోజుగా సెట్ చేయండి…</string>
-  <string name="msg_set_current_day_reading_plan">ఇది %1$s ను ఈ ప్రణాళికలో ప్రస్తుత రోజుగా సెట్ చేసి, అంతకుముందు రోజులన్నింటినీ చదివినట్లు గుర్తిస్తుంది. కొనసాగించాలా?</string>
   <string name="done">పూర్తి అయింది</string>
-  <string name="reset_plan_question">మీరు ఈ ప్లాన్‌ని రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="import_reading_plan">రీడింగ్ ప్లాన్‌ని దిగుమతి చేయండి...</string>
-  <string name="plan_duplicate_user_plan">
-sdcard లో యూజర్ రీడింగ్ ప్లాన్ ఉంది
-అంతర్గత ప్రణాళిక వలె అదే పేరుతో jsword/readingplan. ఇది ఇక్కడ జాబితా చేయబడదు.
-దయచేసి ఫైల్‌ని వేరొకదానికి పేరు మార్చండి, దాని ఫైల్ ఎక్స్‌టెన్షన్‌ను .properties గా వదిలివేయండి</string>
   <string name="plan_name_y1ntpspr">కొత్త నిబంధన, కీర్తనలు &amp; ఒక సంవత్సరంలో సామెతలు</string>
   <string name="plan_description_y1ntpspr">
 హార్ట్‌లైట్ ఇంటర్నెట్ మ్యాగజైన్ సౌజన్యంతో,
@@ -471,12 +466,8 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="delete_index">విషయ సూచికను తొలగించు</string>
   <string name="about">గురించి</string>
   <string name="delete_doc">%s? తొలగించు</string>
-  <string name="interrupted_downloads_title">డౌన్‌లోడ్ నిలిచిపోయింది</string>
-  <string name="interrupted_downloads_message">డౌన్‌లోడ్ నిలిచిపోయినందున ఈ పత్రాలు ఇన్‌స్టాల్ కాలేదు:</string>
-  <string name="interrupted_downloads_question">వాటిని మళ్లీ డౌన్‌లోడ్ చేయాలా?</string>
   <string name="download_again">మళ్లీ డౌన్‌లోడ్ చేయండి</string>
   <string name="delete_docs_confirm">ఈ పత్రాలను తొలగించాలా?</string>
-  <string name="delete_search_index_doc">%s విషయ సూచికను తొలగించాలి?</string>
   <!--Verse context menu-->
   <string name="notes">పుట్ నోట్స్ మరియు రెపరెన్సులు</string>
   <string name="share_verse">షేర్ చేయండి...</string>
@@ -517,7 +508,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
 పత్రం నిర్మాణం మారినట్లయితే, ఈ పత్రాన్ని నవీకరించడం సాధ్యమవుతుంది
 ఈ బుక్‌మార్క్‌లు/నోట్‌ల స్థానాలు పత్రం లోపలికి కదులుతాయి లేదా పూర్తిగా అదృశ్యమవుతాయి.
 .</string>
-  <string name="bookmark_warning3">మీరు ఇప్పటికీ మాడ్యూల్‌ని నవీకరించాలనుకుంటున్నారా?</string>
   <string name="bookmark_warning4">మీరు అప్‌డేట్ చేయడానికి ముందు మాడ్యూల్‌ను బ్యాకప్ చేయాలని సిఫార్సు చేయబడింది.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">తేది క్రమం</string>
@@ -694,10 +684,8 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">నుండి పునరుద్ధరించు లేదా దిగుమతి చేయండి…</string>
   <string name="backup_restore2">పునరుద్ధరించు లేదా దిగుమతి చేయండి</string>
-  <string name="overwrite_something">%s ఓవర్‌రైట్ చేయాలా?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">డేటాబేస్ ఫైల్‌ని పునరుద్ధరించండి</string>
-  <string name="restore_confirmation">నా నోట్స్, బుక్‌మార్క్‌లు, స్టడీ ప్యాడ్‌లు, రీడింగ్ ప్లాన్‌లు మరియు వర్క్‌స్పేస్‌లను ఓవర్‌రైట్ చేయాలా?</string>
   <string name="restore_success">నా నోట్స్, బుక్‌మార్క్‌లు, స్టడీ ప్యాడ్‌లు, రీడింగ్ ప్లాన్‌లు మరియు వర్క్‌స్పేస్‌లు విజయవంతంగా పునరుద్ధరించబడ్డాయి</string>
   <string name="downloading_backup">బ్యాకప్ ఫైల్‌ని డౌన్‌లోడ్ చేస్తోంది...</string>
   <string name="loading_backup">బ్యాకప్ నుండి డేటాబేస్ లోడ్ అవుతోంది…</string>
@@ -719,7 +707,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="send_export_file">ఎగుమతి ఫైల్‌ను పంపండి</string>
   <string name="backup_modules_title">ఏ మాడ్యూల్‌లను బ్యాకప్ చేయాలో ఎంచుకోండి</string>
   <string name="install_zip_canceled">మాడ్యూల్ ఇన్‌స్టాల్ రద్దు చేయబడింది</string>
-  <string name="ask_restore_or_import">%s కోసం డేటాబేస్‌ను పునరుద్ధరించవచ్చు (అంటే ఉన్న డేటాబేస్ తొలగించి ఎంచుకున్న డేటాబేస్ లోడ్ చేయబడుతుంది) లేదా దిగుమతి చేయవచ్చు (ఎంచుకున్న డేటాబేస్ ఉన్న డేటాబేస్‌లోకి దిగుమతి చేయబడుతుంది). మీరు ఏమి చేయాలనుకుంటున్నారు?</string>
   <string name="restore">పునరుద్ధరించు</string>
   <string name="import2">దిగుమతి</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -774,7 +761,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="settings_editor_back">వెనుకకు</string>
   <string name="settings_editor_close">మూసివేయండి</string>
   <string name="settings_editor_apply">వర్తింపజేయండి</string>
-  <string name="discard_changes_confirmation">సేవ్ చేయని మార్పులను విస్మరించాలా?</string>
   <string name="discard">విస్మరించండి</string>
   <string name="remove">తీసివేయండి</string>
   <string name="overwrite">తిరిగి రాయండి</string>
@@ -801,7 +787,8 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
   <string name="error_skip">దాటవేయండి</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">దెబ్బతిన్న డేటా</string>
+  <string name="corrupt_database_headline">AndBible మీ కొంత డేటాను తెరవలేకపోతోంది</string>
+  <string name="corrupt_database_files_detail">ఈ ఫైళ్లను తెరవడం సాధ్యం కాలేదు: %1$s. ఏదీ మార్చబడలేదు లేదా తొలగించబడలేదు. రీసెట్ చేస్తే అవి ఖాళీగా మొదలవుతాయి, దెబ్బతిన్న ప్రతి ఫైల్ ఈ పరికరంలోనే .corrupt- మరియు తేదీ, సమయంతో పేరు మార్చి ఉంచబడుతుంది.</string>
   <string name="corrupt_database_reset">దెబ్బతిన్న డేటాను రీసెట్ చేయండి</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">దెబ్బతిన్న డేటాను రీసెట్ చేయలేకపోయింది: %1$s ను పక్కకు తరలించలేకపోయింది. ఏదీ మార్చబడలేదు. మళ్లీ ప్రయత్నించవచ్చు, దోష నివేదికను పంపవచ్చు లేదా బ్యాకప్ &amp; పునరుద్ధరించు ఉపయోగించవచ్చు.</string>
@@ -809,8 +796,8 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="damaged_data_needs_attention">యాప్ డేటాకు శ్రద్ధ అవసరం. యాప్‌ను తెరవడానికి నొక్కండి.</string>
   <string name="debug_test_error">పరీక్ష లోపం (డీబగ్ బిల్డ్)</string>
   <string name="bug_report_prepare_failed">నివేదికను సిద్ధం చేయడం లేదా షేర్ చేయడం సాధ్యం కాలేదు. మీరు మళ్లీ ప్రయత్నించవచ్చు, లేదా మీ డేటాను సేవ్ చేయడానికి బ్యాకప్ మరియు పునరుద్ధరణను ఉపయోగించండి.</string>
-  <string name="bug_report_email_title">ఇమెయిల్ ద్వారా బగ్ నివేదికను పంపండి</string>
   <string name="bug_report_desktop_text">తర్వాత, బగ్ నివేదిక ఫైల్‌ను ఎక్కడ సేవ్ చేయాలో అడుగుతారు. ఆపై దానిని డెవలపర్ బృందానికి పంపే సూచనలు లభిస్తాయి.</string>
+  <string name="bug_report_email_title">ఇమెయిల్ ద్వారా బగ్ నివేదికను పంపండి</string>
   <string name="bug_report_email_text">తర్వాత, దయచేసి డెవలపర్ బృందానికి నివేదికను పంపడానికి మీ ప్రాధాన్య ఇమెయిల్ అప్లికేషన్ (ఉదాహరణకు Gmail) ఎంచుకోండి.</string>
   <string name="bug_report_manual_title">నివేదికను ఇమెయిల్ ద్వారా పంపండి</string>
   <string name="bug_report_manual_text_saved">నివేదిక <b>%1$s</b> వద్ద సేవ్ చేయబడింది.\n\nదయచేసి <b>%2$s</b>కు ఇమెయిల్ పంపి ఆ ఫైల్‌ను జతచేయండి; ఇమెయిల్ ప్రోగ్రామ్ దానిని మీ కోసం జతచేయలేదు. సూచించిన సబ్జెక్ట్: <b>%3$s</b>. సందేశంలో మీరు ఏమి చేశారో, ఏమి జరిగిందో చెప్పండి.</string>
@@ -881,8 +868,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="beta_special_regards">శుభాకాంక్షలతో, Tuomas</string>
   <string name="beta_special_sponsor">పి.ఎస్. మీరు %s ద్వారా AndBible అభివృద్ధికి ఆర్థికంగా మద్దతు ఇవ్వవచ్చు.</string>
   <string name="beta_special_sponsor_link">అభివృద్ధి గంటలను స్పాన్సర్ చేయడం</string>
-  <string name="new_sync_targets_notice_title">కొత్త సమకాలీకరణ సెట్టింగ్‌లు అందుబాటులో ఉన్నాయి</string>
-  <string name="new_sync_targets_notice_message">AndBible యొక్క ఈ వెర్షన్ అదనపు సమకాలీకరణ లక్ష్యాలను పరిచయం చేస్తుంది: నా పత్రాలు, AI సెట్టింగ్‌లు మరియు చదవడం పురోగతి. వాటిని ప్రారంభించాలంటే, పరికర సమకాలీకరణ సెట్టింగ్‌లలో చేయవచ్చు.</string>
   <string name="open_settings">సెట్టింగ్‌లు తెరవండి</string>
   <!--History-->
   <string name="history_for">వృత్తాంతము (%1$s: విండో %2$d)</string>
@@ -985,7 +970,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="give_passphrase_for_module">పత్రం %s ఎన్‌క్రిప్ట్ చేయబడింది మరియు అన్‌లాక్ చేయడానికి పాస్‌ఫ్రేజ్ అవసరం</string>
   <string name="unlock_module">మాడ్యూల్ పాస్‌ఫ్రేజ్‌ని సెట్ చేయండి</string>
   <string name="unlock_info">గుప్తీకరించిన మాడ్యూల్ అన్‌లాక్ సమాచారం</string>
-  <string name="try_again_passphrase">పాస్‌ఫ్రేజ్ పని చేయలేదు, మళ్లీ ప్రయత్నించాలా?</string>
   <string name="show_unlock_info">మాడ్యూల్ &amp; సమాచారాన్ని అన్‌లాక్ చేయండి</string>
   <string name="prefs_experimental_features_title">ప్రయోగాత్మక సౌలభ్యాలు</string>
   <string name="prefs_experimental_features_summary">ప్రారంభించాల్సిన ప్రయోగాత్మక సౌలభ్యాలను ఎంచుకోండి. ఈ సౌలభ్యాలు ఇంకా అభివృద్ధిలో ఉన్నాయి మరియు మారవచ్చు లేదా తొలగించబడవచ్చు</string>
@@ -1019,9 +1003,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="active_window_indicator_summary">ఏ విండో సక్రియంగా ఉందో గుర్తించడంలో సహాయపడటానికి విండో మూలలను హైలైట్ చేయండి</string>
   <string name="app_licence_title">ఓపెన్ సోర్స్ లైసెన్స్</string>
   <string name="how_to_contribute">ఎలా సహకరించాలి?</string>
-  <string name="confirm_delete_bookmarks">మీరు %d బుక్‌మార్క్‌లు మరియు వాటి గమనికలను తీసివేయాలనుకుంటున్నారా?</string>
-  <string name="confirm_delete_orphaned_bookmarks">ఎంచుకున్న లేబుల్ %d బుక్‌మార్క్‌లకు జతచేయబడింది, వాటికి ఇతర లేబుల్‌లు లేవు. ఈ బుక్‌మార్క్‌లను లేబుల్‌లతో పాటు తొలగించాలా?</string>
-  <string name="delete_label_and_bookmarks">లేబుల్ మరియు బుక్‌మార్క్‌లను తొలగించు</string>
   <string name="delete_label_only">లేబుల్‌ను మాత్రమే తొలగించు</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">స్నేహితుడికి సిఫార్సు చేయండి</string>
@@ -1052,8 +1033,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="old_webview">మి (%1$s) ఆండ్రోయిడ్ వెబ్ వ్యూ ప్యాకేజీ చాలా పాతది. మీరు మీ ఆండ్రోయిడ్ వెబ్ వ్యూ %3$s ప్యాకేజీని ఉపయోగించడానికి కనీసం %2$s వర్షన్ కు అప్‌గ్రేడ్ చేయాలి. చాలా పరికరాలలో ఇది %4$sద్వారా చేయవచ్చు.</string>
   <string name="play">గూగుల్ ప్లే</string>
   <string name="proceed_anyway">ఎలాగైనా కొనసాగండి</string>
-  <string name="proceed">కొనసాగండి</string>
-  <string name="rate_title">రేటింగ్ మరియు సమీక్ష యాప్</string>
   <string name="rate_message5">
 సానుకూల మరియు వివరణాత్మక సమీక్షలు AndBible ఓపెన్ సోర్స్ ప్రాజెక్ట్‌కి చాలా సహాయపడతాయి. ధన్యవాదాలు!.
 .</string>
@@ -1095,7 +1074,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="primary_label">ప్రధాన లేబుల్</string>
   <string name="favourite_label">ఇష్టమైన లేబుల్</string>
   <string name="edit_label">లేబుల్‌ని సవరించండి</string>
-  <string name="delete_label_confirmation">మీరు బుక్‌మార్క్ లేబుల్ \"%s\"ని తీసివేయాలనుకుంటున్నారా? అలాగే అన్ని అనుబంధిత స్టడీ ప్యాడ్ నోట్‌లు తీసివేయబడతాయి.</string>
   <string name="active_labels">ఎంచుకున్న లేబుల్‌లు</string>
   <string name="recent_labels">ఇటీవలి లేబుల్స్</string>
   <string name="other_labels">ఇతర లేబుల్‌లు</string>
@@ -1105,8 +1083,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="book_menu_show_progress_bars">ప్రోగ్రెస్ బార్లు చూపించు</string>
   <string name="reset_workspace_labels">మీరు ఈ కార్యస్థలం కోసం స్వీయ-అసైన్ మరియు ఇష్టమైన సెట్టింగ్‌లను రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="clear_auto_assign_labels">స్వయంచాలక కేటాయింపు లేబుల్స్‌ను తుడిచివేయండి</string>
-  <string name="reset_workspace_auto_assign_labels">ఈ కార్యస్థలం నుండి అన్ని స్వయంచాలక కేటాయింపు లేబుల్స్‌ను తీసివేయాలనుకుంటున్నారా?</string>
-  <string name="reset_hide_labels">మీరు పేర్కొన్న లేబుల్ సెట్టింగ్‌లను దాచడం కోసం సెట్టింగ్‌ని రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="reorder">తిరిగి క్రమబద్ధీకరించు</string>
   <string name="system_items">సిస్టమ్ చర్యలు</string>
   <string name="system_items1">మరిన్ని</string>
@@ -1120,7 +1096,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="ios_fullscreen_hint">పూర్తి స్క్రీన్ నుండి నిష్క్రమించడానికి డబుల్-ట్యాప్ చేయండి లేదా బటన్‌ను ట్యాప్ చేయండి.</string>
   <string name="desktop_exit_fullscreen">ఫుల్‌స్క్రీన్ నుండి నిష్క్రమించండి</string>
   <string name="exit_fullscreen">పూర్తి స్క్రీన్ నుండి నిష్క్రమించడానికి స్క్రీన్‌పై రెండుసార్లు నొక్కండి</string>
-  <string name="reset_app_prefs">మీరు ఈ స్క్రీన్‌పై ప్రదర్శించబడే అన్ని గ్లోబల్ అప్లికేషన్ ప్రాధాన్యతలను వాటి పూర్వస్థితికి రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="label_red">ఎరుపు</string>
   <string name="label_green">ఆకుపచ్చ</string>
   <string name="label_blue">నీలం</string>
@@ -1131,7 +1106,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="reset_databases_title">డేటాబేస్‌లను రీసెట్ చేయండి</string>
   <string name="reset_databases_description">వ్యక్తిగత డేటాబేస్‌లను వాటి ప్రారంభ ఖాళీ స్థితికి రీసెట్ చేయండి. ఇది రద్దు చేయలేరు.</string>
   <string name="last_crash_info_title">చివరి క్రాష్ సమాచారం</string>
-  <string name="reset_database_confirm">ఇది \"%1$s\" లోని అన్ని డేటాను శాశ్వతంగా తొలగించి ప్రారంభ స్థితికి రీసెట్ చేస్తుంది. ఇది రద్దు చేయలేరు.\n\nమీరు ఖచ్చితంగా ఉన్నారా?</string>
   <string name="reset_database_success">డేటాబేస్ విజయవంతంగా రీసెట్ చేయబడింది</string>
   <string name="reset_something">రీసెట్: %1$s</string>
   <string name="export">ఎగుమతి</string>
@@ -1201,19 +1175,18 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="manage_labels_help_favourite">త్వరగా చేరుకోవడానికి లేబుల్‌ను మీ ఇష్టమైన వాటిలో ఉంచండి.</string>
   <string name="manage_labels_help_styles">పేరు కింద ఒక చిన్న ఉదాహరణ లేబుల్ రూపాన్ని చూపుతుంది: పాఠ్య ఎంపిక బుక్ మార్క్ కోసం ఎంపిక, మొత్తం వచనపు బుక్ మార్క్ కోసం మొత్తం వచనం, మరియు ఈ కార్యస్థలం మార్చిన శైలి కోసం కార్యస్థలం ట్యాగ్. అలంకరణ లేని బూడిద రంగు ఉదాహరణ అంటే ఆ లేబుల్ బుక్ మార్క్‌స్ చూపబడవు. ఉదాహరణలను ⋮ మెనూ నుండి దాచవచ్చు.</string>
   <string name="manage_labels_help_reorder">జాబితా క్రమాన్ని ⋮ మెనూ నుండి మార్చండి.</string>
+  <string name="manage_labels_help_narrow_toggles">ఇరుకైన స్క్రీన్‌లో లేబుల్ పేర్లకు చోటు ఇవ్వడానికి జాబితా ప్రాథమిక, ఆటో-అసైన్, ఇష్టమైన చిహ్నాలను చూపదు. వాటిని సెట్ చేయడానికి లేబుల్‌ను నొక్కి దాని ఎడిటర్‌ను తెరవండి.</string>
   <string name="added_to_bookmark">ఈ బుక్‌మార్క్‌కు కేటాయించబడింది</string>
   <string name="strongs_links">లింకులు</string>
   <string name="strongs_text_and_links">టెక్స్ట్ మరియు లింకులు</string>
   <string name="strongs_hidden_links">దాచిన లింకులు</string>
   <string name="verse_tip">పాక్షిక లేదా అనేక వచనాలను ఎంచుకోవడానికి, మీరు బైబిల్ వచనాన్ని ఎక్కువసేపు నొక్కివుంచండి</string>
-  <string name="permission_required">అవసరమైన అనుమతులు</string>
   <string name="labels_search_hint">వెతకండి</string>
   <string name="search_mode_name_start">పేరు (ప్రారంభం నుండి)</string>
   <string name="search_mode_name_contains">పేరు (కలిగి ఉంటుంది)</string>
   <string name="search_mode_content">కంటెంట్</string>
   <string name="search_results_matches">%d సరిపోలికలు</string>
   <string name="search_results_match">1 సరిపోలిక</string>
-  <string name="progress_status_permission">నోటిఫికేషన్‌లను చూపించడానికి (డౌన్‌లోడ్ స్థితి, ప్రాసెసింగ్, మాట్లాడే స్థితి), మాకు మీ అనుమతి అవసరం.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">సాధారణ కాలిక్యులేటర్</string>
   <string name="prefs_persecution_cat">హింసించబడిన వారి కోసం సెట్టింగ్‌లు</string>
@@ -1262,7 +1235,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="custom_repositories_create_button_label">కస్టమ్ రిపోజిటరీని జోడించండి</string>
   <string name="custom_repositories_info_button_label">సమాచారం</string>
   <string name="repository_specification">రిపోజిటరీ URL</string>
-  <string name="delete_custom_repository">మీరు అనుకూల రిపోజిటరీ %s ని తీసివేయాలనుకుంటున్నారా?</string>
   <string name="custom_repositories_help1">కొత్త అనుకూల రిపోజిటరీని జోడించడానికి, టైప్ చేయండి లేదా కాపీ &amp; అనుకూల రిపోజిటరీ URLని ఇక్కడ అతికించండి.</string>
   <string name="custom_repositories_help2">కస్టమ్ రిపోజిటరీల గురించి మరింత సమాచారాన్ని మీరు %s లో చదవవచ్చు.</string>
   <string name="custom_repositories_help0">మీరు కస్టమ్ రిపోజిటరీలను ఇన్‌స్టాల్ చేయడం ద్వారా బాహ్య అనుకూల రిపోజిటరీల నుండి పత్రాలను ఇన్‌స్టాల్ చేయవచ్చు.</string>
@@ -1286,10 +1258,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="db_bookmarks">బుక్‌మార్క్‌లు, నా నోట్స్, లేబుల్‌లు మరియు స్టడీ ప్యాడ్‌లు</string>
   <string name="synchronizing">సమకాలీకరించడం...</string>
   <string name="notification_finished">పూర్తయింది</string>
-  <string name="overrideBackup">
-ఈ పరికరం సమకాలీకరించబడని ప్రస్తుత డేటాబేస్ క్లౌడ్‌లో కనుగొనబడింది.
-%s డేటాబేస్ కలిగి ఉంది. మీరు ఏమి చేయాలనుకుంటున్నారు?
-.</string>
   <string name="reading_plans_content">పఠన ప్రణాళికలు మరియు వాటి స్థితిగతులు</string>
   <string name="bookmarks_contents">బుక్‌మార్క్‌లు, లేబుల్‌లు మరియు స్టడీ ప్యాడ్‌లు</string>
   <string name="workspaces_contents">కార్యస్థలాలు మరియు విండోస్</string>
@@ -1309,7 +1277,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="reading_progress_calendar">చదవడం కార్యకలాపం</string>
   <string name="reading_progress_cycle">సైకిల్ %d</string>
   <string name="reading_progress_new_cycle">కొత్త సైకిల్</string>
-  <string name="reading_progress_new_cycle_confirm">కొత్త చదివే సైకిల్ ప్రారంభించాలా? ఇది మీ మునుపటి సైకిల్ డేటాను సంరక్షిస్తూ మొదటి నుండి ప్రోగ్రెస్ ట్రాక్ చేయడం ప్రారంభిస్తుంది.</string>
   <string name="reading_progress_previous_cycle">మునుపటి సైకిల్</string>
   <string name="reading_progress_next_cycle">తదుపరి సైకిల్</string>
   <string name="cloud_merge_data">డేటాను విలీనం చేయండి</string>
@@ -1319,7 +1286,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="cloud_sync_title">పరికర సమకాలీకరణ</string>
   <string name="reset_sync">సైన్ అవుట్ చేయండి</string>
   <string name="prefs_reset_sync_summary">సమకాలీకరణను నిలిపివేయండి మరియు సంబంధిత సెట్టింగ్‌లను రీసెట్ చేయండి.</string>
-  <string name="sync_confirmation">మీరు ఖచ్చితంగా సైన్ అవుట్ చేసి, సమకాలీకరణను రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="cloud_info">క్లౌడ్ సమాచారం</string>
   <string name="cloud_info_summary">క్లౌడ్ నిల్వలో డేటా: %s Mb</string>
   <string name="sync_adapter">సమకాలీకరణ బ్యాకెండ్</string>
@@ -1335,7 +1301,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="webdav_server_url_hint">WebDAV ఫోల్డర్ చిరునామా, ఉదా. https://nas.local/dav/ లేదా https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">సింక్ కోసం సురక్షితమైన https:// చిరునామా అవసరం.</string>
   <string name="webdav_certificate_title">సర్వర్ సర్టిఫికెట్</string>
-  <string name="webdav_forget_certificate_message">నమ్మదగిన సర్వర్ సర్టిఫికెట్‌ను మరచిపోవాలా? తదుపరి కనెక్షన్‌లో సర్టిఫికెట్‌ను మళ్లీ నిర్ధారించమని అడగబడుతుంది.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">నమ్మదగని సర్వర్ సర్టిఫికెట్</string>
   <string name="webdav_untrusted_certificate_message">%1$s యొక్క సర్టిఫికెట్‌ను Android నమ్మడం లేదు. మీరు దానిని గుర్తిస్తేనే నమ్మండి, ఉదాహరణకు ఈ సర్వర్‌ను మీరే ఏర్పాటు చేసుకున్నట్లయితే.\n\nవిషయం: %2$s\nజారీ చేసినవారు: %3$s\nచెల్లుబాటు: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1352,14 +1317,7 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="synchronization_categories">సమకాలీకరణ వర్గాలు</string>
   <string name="sync_general_settings">సమాచారం &amp; సాధారణ సెట్టింగులు</string>
   <string name="sync_introduction">పరిచయం</string>
-  <string name="are_you_sure">మీరు ఖచ్చిత్వం తో ఉన్నారా? </string>
   <string name="are_you_sure_merge">ఈ పరికరంలోని డేటా మరియు క్లౌడ్‌లోని %s రెండూ ఉంచబడతాయి. ఒకే అంశం రెండింటిలోనూ మార్చబడిన చోట, కొత్త మార్పు ఉంచబడుతుంది. ఈ పరికరం డేటా మీ ఇతర పరికరాలకు పంపబడుతుంది.</string>
-  <string name="are_you_sure_reset_local">ఇది ప్రస్తుతం క్లౌడ్ సేవలో నిల్వ చేయబడిన %s కంటెంట్‌తో మీ స్థానిక డేటాబేస్‌ని రీసెట్ చేస్తుంది.</string>
-  <string name="are_you_sure_reset_cloud">ఇది మీరు ఈ పరికరంలో కలిగి ఉన్న %s కంటెంట్‌తో మీ క్లౌడ్ డేటాబేస్‌ని రీసెట్ చేస్తుంది.</string>
-  <string name="sync_cant_fetch">క్లౌడ్‌లో నిల్వ చేయబడిన డేటాబేస్ లేదా ప్యాచ్ ఫైల్ వెర్షన్ ఈ యాప్ ద్వారా సపోర్ట్ చేసే దాని కంటే ఎక్కువగా ఉంది.</string>
-  <string name="sync_disabling">ప్రస్తుతానికి %s సమకాలీకరణను నిలిపివేస్తోంది.</string>
-  <string name="sync_update_app">దయచేసి సమకాలీకరణను కొనసాగించడానికి అనువర్తనాన్ని నవీకరించండి.</string>
-  <string name="sign_in_failed">సమకాలీకరణ బ్యాకెండ్ సేవకు సైన్ ఇన్ చేయడం విఫలమైంది.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">క్లౌడ్ సమకాలీకరణను నిలిపివేస్తోంది. మీరు పునరుద్ధరించిన తర్వాత మాన్యువల్‌గా మళ్లీ ప్రారంభించాలి.</string>
   <string name="report">నివేదించండి</string>
@@ -1377,6 +1335,7 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="open_here">ఇక్కడ తెరవండి</string>
   <string name="external_link">బాహ్య లింక్</string>
   <string name="external_link_question">ఇది బ్రౌజర్ అప్లికేషన్‌లో బాహ్య లింక్‌ %s ని తెరుస్తుంది, మీరు కొనసాగించాలనుకుంటున్నారా?</string>
+  <string name="external_link_dont_ask_again">%s కోసం మళ్లీ అడగవద్దు</string>
   <string name="nameless">శీర్షిక నిర్వచించబడలేదు</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">వన్-ట్యాప్ చర్య (బైబిల్)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">వన్-ట్యాప్ చర్యలు (ఇతర)</string>
@@ -1426,8 +1385,6 @@ Don\'t show this message again
   <string name="memorize_include_reference_summary">కంఠస్థం చేయడానికి చివరి అంశంగా వచన సూచనను (ఉదా. యోహాను 3:16) జోడించండి</string>
   <string name="reading_progress_settings">ప్రోగ్రెస్ &amp; కంఠస్థం</string>
   <string name="reading_progress_settings_summary">స్వయంచాలక-ట్రాకింగ్, కంఠస్థం మరియు టైపింగ్ ప్రాక్టీస్ సెట్టింగులు</string>
-  <string name="memorize_confirm_unmark">%s కంఠస్థమైన స్థితిని తొలగించాలా?</string>
-  <string name="memorize_confirm_remove_target">కంఠస్థం లక్ష్యం %s తొలగించాలా?</string>
   <string name="memorize_tab_reading">చదవడం</string>
   <string name="memorize_tab_memorization">కంఠస్థం</string>
   <string name="memorize_verses_memorized">కంఠస్థమైనవి</string>
@@ -1453,7 +1410,6 @@ Don\'t show this message again
   <string name="llm_reset_usage_title">వినియోగ డేటా రీసెట్ చేయండి</string>
   <string name="llm_reset_usage_summary">సంచిత టోకెన్ మరియు ఖర్చు ట్రాకింగ్ క్లియర్ చేయండి</string>
   <string name="llm_reset_usage_confirm_title">వినియోగ డేటా రీసెట్ చేయాలా?</string>
-  <string name="llm_reset_usage_confirm_message">ఇది అన్ని సంచిత వినియోగ డేటాను క్లియర్ చేస్తుంది.</string>
   <string name="llm_custom_input_price_title">ఇన్‌పుట్ ధర ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">అవుట్‌పుట్ ధర ($/Mtoken)</string>
   <string name="llm_cost_total">మొత్తం: %1$s</string>
@@ -1469,8 +1425,6 @@ Don\'t show this message again
   <string name="llm_parse_error_anthropic">Anthropic రెస్పాన్స్ పార్స్ విఫలమైంది: %1$s</string>
   <string name="llm_error_unknown">తెలియని లోపం</string>
   <string name="llm_error_max_iterations">పూర్తి కాకుండా గరిష్ట ఇటరేషన్లు (%1$d) చేరుకున్నాయి</string>
-  <string name="llm_continue_iterations_title">కొనసాగించాలా?</string>
-  <string name="llm_continue_iterations_message">AI ఏజెంట్ పూర్తి కాకుండా దాని %1$d ఇటరేషన్‌ల పరిమితికి చేరుకుంది. %2$d మరిన్ని ఇటరేషన్‌ల కోసం కొనసాగించాలా?</string>
   <string name="agent_max_iterations_title">గరిష్ట ఏజెంట్ ఇటరేషన్లు</string>
   <string name="agent_max_iterations_summary">కొనసాగించమని అడగడానికి ముందు గరిష్ట ఇటరేషన్లు (0 = అపరిమితం)</string>
   <string name="ask_model_before_run_title">రన్ చేసే ముందు మోడల్ అడగండి</string>
@@ -1530,7 +1484,6 @@ Don\'t show this message again
   <string name="ai_models_summary_none">మోడళ్లు కాన్ఫిగర్ చేయబడలేదు</string>
   <string name="ai_add_provider">ప్రొవైడర్ జోడించు</string>
   <string name="ai_provider_edit">సవరించు</string>
-  <string name="ai_provider_delete_confirm">ప్రొవైడర్ \"%1$s\" తొలగించాలా? ఈ ప్రొవైడర్ ఉపయోగించే ప్రాంప్ట్‌లు డిఫాల్ట్‌కు తిరిగి వస్తాయి.</string>
   <string name="ai_provider_api_key_not_set">API కీ సెట్ చేయబడలేదు</string>
   <string name="ai_provider_select_type">ప్రొవైడర్ రకం ఎంచుకోండి</string>
   <string name="ai_provider_name">ప్రొవైడర్ పేరు</string>
@@ -1550,7 +1503,6 @@ Don\'t show this message again
   <string name="edit_model_title">మోడల్ సవరించు</string>
   <string name="model_saved">మోడల్ సేవ్ చేయబడింది</string>
   <string name="model_deleted">మోడల్ తొలగించబడింది</string>
-  <string name="model_delete_confirm">మోడల్ \"%1$s\" తొలగించాలా?</string>
   <string name="model_set_default">డిఫాల్ట్ మోడల్‌గా నిర్ణయించండి</string>
   <string name="model_select_provider">ప్రొవైడర్</string>
   <string name="model_supported_badge">✓ మద్దతు ఇవ్వబడింది</string>
@@ -1590,7 +1542,6 @@ Don\'t show this message again
   <string name="ai_disclaimer_point8">మీ డేటా మీరు ఎంచుకున్న AI ప్రొవైడర్ సర్వర్లకు పంపబడుతుంది. API కీ ఉపయోగించడం ద్వారా, మీరు ఆ ప్రొవైడర్ నిబంధనలు మరియు గోప్యతా విధానాన్ని అంగీకరిస్తారు. స్వయం-హోస్ట్ చేసిన మోడళ్లు సాధ్యమే కానీ మరింత సాంకేతిక నైపుణ్యం అవసరం, మరియు వాణిజ్య మోడళ్లంత మంచి ఫలితాలు ఇవ్వకపోవచ్చు.</string>
   <string name="ai_disclaimer_point9">AI ప్రొవైడర్లు API వినియోగానికి చార్జ్ చేస్తారు. AndBible లో చూపించిన ఖర్చు అంచనాలు సుమారుగా ఉంటాయి — వాస్తవ చార్జ్‌ల కోసం ఎల్లప్పుడూ మీ ప్రొవైడర్ బిల్లింగ్ తనిఖీ చేయండి.</string>
   <string name="ai_disclaimer_accept_title">AI నిరాకరణను అంగీకరించండి</string>
-  <string name="ai_disclaimer_accept_button">నేను అంగీకరిస్తాను మరియు పూర్తి బాధ్యత వహిస్తాను</string>
   <string name="prompt_permission_mode">అనుమతి మోడ్</string>
   <string name="prompt_permission_mode_description">AI రైట్ ఆపరేషన్లు చేసే ముందు వినియోగదారు నిర్ధారణ అవసరమైనప్పుడు నియంత్రిస్తుంది. క్రింది ప్రతి-సాధన సెట్టింగులు వ్యక్తిగత సాధనాల కోసం దీన్ని ఓవర్‌రైడ్ చేయవచ్చు.</string>
   <string name="agent_permission_mode_summary">AI రైట్ ఆపరేషన్లకు ముందు వినియోగదారు నిర్ధారణ అవసరమైనప్పుడు నియంత్రిస్తుంది</string>
@@ -1706,7 +1657,6 @@ Don\'t show this message again
   <string name="default_prompt_custom_desc">ఎంచుకున్న భాగంపై అనుకూల పని అమలు చేయండి</string>
   <string name="default_prompt_custom_template">ఎంచుకున్న బైబిలు భాగానికి వినియోగదారు పని నిర్దేశనను అనుసరించండి.</string>
   <string name="copy">కాపీ</string>
-  <string name="delete_prompt_confirm_message">ఈ ప్రాంప్ట్‌ను తొలగించాలని ఖచ్చితంగా ఉన్నారా?</string>
   <string name="ai_hide_prompt">దాచు</string>
   <string name="ai_restore_hidden_prompts">దాచిన ప్రాంప్ట్‌లు పునరుద్ధరించు</string>
   <string name="ai_prompt_hidden">ప్రాంప్ట్ దాచబడింది</string>
@@ -1791,8 +1741,6 @@ Don\'t show this message again
   <string name="permission_allow_all_session">ఈ సెషన్‌లో అన్ని సాధనాలు అనుమతించు</string>
   <string name="permission_allow_always">ఎల్లప్పుడూ \"%1$s\" అనుమతించు</string>
   <string name="permission_deny">తిరస్కరించు</string>
-  <string name="permission_always_allow_confirm_title">ఎల్లప్పుడూ అనుమతించాలా?</string>
-  <string name="permission_always_allow_confirm">\"%1$s\" ని శాశ్వతంగా అనుమతించాలని ఖచ్చితంగా ఉన్నారా?</string>
   <string name="permission_always_allow_confirm_reset_hint">AI సెట్టింగుల్లో దీన్ని రీసెట్ చేయవచ్చు.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">సాధన అనుమతులు</string>
@@ -1897,18 +1845,15 @@ Don\'t show this message again
   <string name="my_document_new_name">పత్రం %d</string>
   <string name="my_document_create_title">కొత్త పత్రం సృష్టించు</string>
   <string name="my_document_rename_title">పత్రం పేరు మార్చు</string>
-  <string name="my_document_delete_confirmation">పత్రం \"%s\" తొలగించాలా?</string>
   <string name="show_secret">చూపించు</string>
   <string name="hide_secret">దాచు</string>
   <string name="ai_documents_name">AI పత్రాలు</string>
   <string name="ai_documents_description">AI ద్వారా స్వయంచాలకంగా రూపొందించబడిన పత్రాలు</string>
-  <string name="my_document_cannot_delete_ai_documents">AI పత్రాల్లో పేజీలు ఉన్నప్పుడు తొలగించలేరు. ముందు పేజీలు తొలగించండి.</string>
   <string name="my_document_save_changes">మార్పులు సేవ్ చేయాలా?</string>
   <string name="my_document_no_description">వివరణ లేదు</string>
   <string name="my_document_edit_description">వివరణ సవరించు</string>
   <string name="my_document_pages_title">%s - పేజీలు</string>
   <string name="my_document_page_rename_title">పేజీ పేరు మార్చు</string>
-  <string name="my_document_page_delete_confirmation">పేజీ \"%s\" తొలగించాలా?</string>
   <string name="my_document_pages_delete_confirmation">ఈ పేజీలను తొలగించాలా?</string>
   <string name="my_documents_switch_document">పత్రాన్ని మార్చండి</string>
   <string name="my_document_new_page_name">పేజీ %1$d</string>
@@ -1976,7 +1921,6 @@ Don\'t show this message again
   <string name="cloud_doc_show_removed">తొలగించిన పత్రాలను చూపు</string>
   <string name="cloud_doc_status_removed">క్లౌడ్ నుండి తొలగించబడింది</string>
   <string name="cloud_doc_status_still_installed">ఇక్కడ ఇంకా ఇన్‌స్టాల్ చేయబడింది</string>
-  <string name="cloud_doc_purge_confirm">క్లౌడ్ చరిత్ర నుండి \"%1$s\"ని శాశ్వతంగా తొలగించాలా? ఇది మరో పరికరంలో ఇంకా ఇన్‌స్టాల్ చేయబడి ఉంటే, ఆ పరికరం తదుపరి సింక్‌లో దాన్ని తిరిగి క్లౌడ్‌కు అప్‌లోడ్ చేయవచ్చు.</string>
   <string name="cloud_doc_action_download">డవున్‌లోడ్</string>
   <string name="cloud_doc_action_push">క్లౌడ్‌కు అప్‌లోడ్ చేయి</string>
   <string name="cloud_doc_action_remove_cloud">క్లౌడ్ నుండి తొలగించు</string>
@@ -1987,8 +1931,6 @@ Don\'t show this message again
   <string name="cloud_doc_action_dont_sync">క్లౌడ్‌కు సింక్ చేయవద్దు</string>
   <string name="cloud_doc_action_allow_sync">క్లౌడ్‌కు సింక్ చేయి</string>
   <string name="cloud_doc_action_purge">క్లౌడ్ చరిత్ర నుండి తొలగించు</string>
-  <string name="cloud_doc_remove_all_confirm">%1$sని క్లౌడ్ నుండి మరియు ఈ పరికరంతో సహా మీ అన్ని పరికరాల నుండి తొలగించాలా?</string>
-  <string name="cloud_doc_remove_cloud_confirm">%1$sని క్లౌడ్ నుండి తొలగించాలా? ఈ పరికరంలోని కాపీ ఉంచబడుతుంది; పత్రాల సింక్ ఆన్‌లో ఉన్న పరికరాలు కూడా దాన్ని తొలగిస్తాయి.</string>
   <string name="cloud_doc_sync_now">ఇప్పుడు సింక్ చేయి</string>
   <string name="cloud_doc_rescan">క్లౌడ్ నుండి మళ్లీ స్కాన్ చేయి</string>
   <string name="cloud_doc_sync_now_download">కొత్త మరియు నవీకరించిన పత్రాలను డవున్‌లోడ్ చేయి</string>
@@ -2000,6 +1942,14 @@ Don\'t show this message again
   <string name="cloud_doc_summary_download">డవున్‌లోడ్ %1$d</string>
   <string name="cloud_doc_summary_download_size">డవున్‌లోడ్ %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">స్వయంచాలక డవున్‌లోడ్‌లు Wi-Fiలో ప్రారంభమవుతాయి.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d పత్రం</item>
+        <item quantity="other">%1$d పత్రాలు</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d పత్రం (%2$s)</item>
+        <item quantity="other">%1$d పత్రాలు (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">బదిలీ చేయడానికి ఏమీ లేదు</string>
   <string name="cloud_doc_selected_count">%1$d ఎంచుకోబడ్డాయి</string>
   <string name="cloud_doc_bulk_skipped">%1$d వర్తించనివి దాటవేయబడ్డాయి</string>
@@ -2016,8 +1966,6 @@ Don\'t show this message again
   <string name="background_image_import">గ్యాలరీ నుండి దిగుమతి చేయండి…</string>
   <string name="background_image_empty">ఇంకా దిగుమతి చేసిన చిత్రాలు లేవు. ఒకదాన్ని జోడించడానికి \"గ్యాలరీ నుండి దిగుమతి చేయండి…\"ను నొక్కండి.</string>
   <string name="background_image_importing">దిగుమతి అవుతోంది…</string>
-  <string name="background_image_delete_title">చిత్రాన్ని తొలగించాలా?</string>
-  <string name="background_image_delete_confirm">ఈ నేపథ్య చిత్రాన్ని తొలగించాలా? దీన్ని ఇంకా ఉపయోగిస్తున్న కార్యస్థలాలకు చిత్రం ఉండదు.</string>
   <string name="background_image_day">నేపథ్య చిత్రం (పగలు)</string>
   <string name="background_image_night">నేపథ్య చిత్రం (రాత్రి)</string>
   <string name="background_image_opacity_day">నేపథ్య చిత్రం అపారదర్శకత (పగలు)</string>
@@ -2091,6 +2039,10 @@ Don\'t show this message again
   <string name="legacy_notice_icloud">సింక్ ఇప్పుడు iCloud Driveను ఉపయోగిస్తుంది. సెట్టింగ్‌లు → సింక్‌లో దాన్ని మళ్లీ ఆన్ చేయండి. ఈ పరికరం తన వద్ద ఉన్నదాన్ని ఉంచుకుంటుంది; సింక్ మళ్లీ ఏర్పాటు చేసిన తర్వాత మీ ఇతర పరికరాల నుండి మార్పులు వస్తాయి. పాత iCloud డేటాను ఖాళీ చేయడానికి: సెట్టింగ్‌లు → మీ పేరు → iCloud → నిల్వను నిర్వహించండి → AndBible.</string>
   <string name="legacy_notice_nextcloud">మీ Nextcloud కనెక్షన్ తీసుకురాబడింది, కానీ సింక్ ఆఫ్‌లో ఉంది. సెట్టింగ్‌లు → సింక్‌లో దాన్ని ఆన్ చేసి, క్లౌడ్ నుండి తెచ్చుకోవడం లేదా కొత్తది సృష్టించడం ఎంచుకోండి.</string>
   <string name="legacy_notice_nextcloud_unsent">ఈ పరికరంలోని కొన్ని మార్పులు ఇంకా Nextcloudకు పంపబడలేదు. అవి పంపబడలేదు మరియు ఈ పరికరంలో మాత్రమే ఉంటాయి.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d బుక్‌మార్క్‌ను విశ్వసనీయంగా ఉంచలేకపోయాము, కాబట్టి దిగుమతి కాలేదు. ఇది ఈ పరికరంలోని మీ పాత డేటాతో పాటు ఉంచబడింది.</item>
+        <item quantity="other">%1$d బుక్‌మార్క్‌లను విశ్వసనీయంగా ఉంచలేకపోయాము, కాబట్టి దిగుమతి కాలేదు. అవి ఈ పరికరంలోని మీ పాత డేటాతో పాటు ఉంచబడ్డాయి.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">ఇది శక్తివంతమైన, అయినా ఉపయోగించడానికి సులభమైన, ఆఫ్‌లైన్ బైబిల్ అధ్యయన యాప్.</string>
   <string name="webdav_untrusted_certificate_message_device">%1$s యొక్క సర్టిఫికెట్‌ను ఈ పరికరం నమ్మడం లేదు. మీరు దానిని గుర్తిస్తేనే నమ్మండి, ఉదాహరణకు ఈ సర్వర్‌ను మీరే ఏర్పాటు చేసుకున్నట్లయితే.\n\nవిషయం: %2$s\nజారీ చేసినవారు: %3$s\nచెల్లుబాటు: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2142,6 +2094,25 @@ Don\'t show this message again
   <string name="recommend_share_link">లింక్‌ను పంచుకోండి</string>
   <string name="recommend_qr_caption">మీ ఫోన్, టాబ్లెట్ లేదా కంప్యూటర్ కోసం AndBible పొందడానికి స్కాన్ చేయండి.</string>
   <string name="desktop_activation_failed">AndBible ఇప్పటికే నడుస్తోంది, కానీ దాని విండో స్పందించలేదు. నడుస్తున్న ఇన్‌స్టెన్స్‌కు మారి మళ్లీ ప్రయత్నించండి. వచ్చిన ఫైళ్లు అందజేయబడినట్లు నిర్ధారణ కాలేదు.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">దీన్ని రద్దు చేయలేరు.</string>
+  <string name="ai_raw_log_delete_lead">ఈ లాగ్‌ను తొలగించాలా?</string>
+  <string name="ai_provider_delete_lead">“%1$s” ప్రొవైడర్‌ను తొలగించాలా?</string>
+  <string name="ai_provider_delete_detail">దీన్ని ఉపయోగించే ప్రాంప్ట్‌లు డిఫాల్ట్ ప్రొవైడర్‌కు తిరిగి వెళ్తాయి.</string>
+  <string name="ai_model_delete_lead">“%1$s” మోడల్‌ను తొలగించాలా?</string>
+  <string name="ai_prompt_delete_named_lead">“%1$s” ప్రాంప్ట్‌ను తొలగించాలా?</string>
+  <string name="ai_prompt_delete_lead">ఈ ప్రాంప్ట్‌ను తొలగించాలా?</string>
+  <string name="ai_reset_usage_detail">టోకెన్ మరియు ఖర్చు మొత్తాలు సున్నాకు తిరిగి వెళ్తాయి. దీన్ని రద్దు చేయలేరు.</string>
+  <string name="ai_reset_usage_button">రీసెట్</string>
+  <string name="ai_disclaimer_accept">నేను అంగీకరిస్తున్నాను</string>
+  <string name="llm_continue_iterations_lead">మరో %1$d ఇటరేషన్‌లు కొనసాగించాలా?</string>
+  <string name="llm_continue_iterations_detail">AI ఏజెంట్ పూర్తి చేయకుండానే %1$d ఇటరేషన్‌ల పరిమితిని చేరుకుంది.</string>
+  <string name="llm_continue_button">కొనసాగించు</string>
+  <string name="permission_always_allow_lead">“%1$s”ను ఎల్లప్పుడూ అనుమతించాలా?</string>
+  <string name="permission_always_allow_button">ఎల్లప్పుడూ అనుమతించు</string>
+  <string name="ai_bug_report_send_lead">AI బగ్ నివేదికను పంపాలా?</string>
+  <string name="ai_bug_report_send_button">పంపు</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">ప్రారంభించడం</string>
   <string name="user_guide_section_reading_workspace">పఠనం మరియు కార్యస్థలాలు</string>
@@ -2219,4 +2190,150 @@ Don\'t show this message again
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI సహాయకుడు, భాగం 3: సాధనాలు, మీ డేటా మరియు అనుమతులు</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI సహాయకుడు, భాగం 4: సొంత ప్రాంప్ట్‌లు, ఖర్చులు మరియు సమకాలీకరణ</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">మార్పులను విస్మరించాలా?</string>
+  <string name="dialog_keep_editing">సవరణ కొనసాగించు</string>
+  <string name="dialog_label_delete_lead">“%1$s” లేబుల్‌ను తొలగించాలా?</string>
+  <string name="dialog_label_delete_detail">దాని స్టడీ ప్యాడ్ గమనికలు కూడా తొలగించబడతాయి. దీన్ని రద్దు చేయలేరు.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d బుక్‌మార్క్‌కు వేరే లేబుల్ లేదు.</item>
+        <item quantity="other">%1$d బుక్‌మార్క్‌లకు వేరే లేబుల్ లేదు.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">లేబుల్‌ను మరియు %1$d బుక్‌మార్క్‌ను తొలగించు</item>
+        <item quantity="other">లేబుల్‌ను మరియు %1$d బుక్‌మార్క్‌లను తొలగించు</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">బుక్‌మార్క్‌లు మరియు వాటి గమనికలు తొలగించబడతాయి.</string>
+  <string name="dialog_label_delete_only_consequence">బుక్‌మార్క్‌లు లేబుల్ లేకుండా ఉంటాయి.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">ఈ బుక్‌మార్క్‌ను తీసివేయాలా?</item>
+        <item quantity="other">%1$d బుక్‌మార్క్‌లను తీసివేయాలా?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">దాని గమనిక కూడా తీసివేయబడుతుంది.</item>
+        <item quantity="other">వాటి గమనికలు కూడా తీసివేయబడతాయి.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">ఈ వర్క్‌స్పేస్ నుండి అన్ని ఆటో-అసైన్ లేబుల్‌లను తీసివేయాలా?</string>
+  <string name="dialog_labels_reset_hidden_lead">దాచిన అన్ని లేబుల్‌లను మళ్లీ చూపాలా?</string>
+  <string name="dialog_labels_reset_shown_detail">మీరు జాబితా నుండి దాచిన లేబుల్‌లు మళ్లీ చూపబడతాయి.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">“%s” ఇన్‌స్టాల్ చేయాలా?</string>
+  <string name="install_action">ఇన్‌స్టాల్</string>
+  <string name="install_from_file_question">ఫైల్ నుండి పత్రాలను ఇన్‌స్టాల్ చేయాలా?</string>
+  <string name="overwrite_files_detail">ఈ ఫైళ్లు ఇప్పటికే ఉన్నాయి:%s</string>
+  <string name="import_studypads_question">ఈ స్టడీ ప్యాడ్‌లను దిగుమతి చేయాలా?</string>
+  <string name="import_action">దిగుమతి</string>
+  <string name="restore_backup_question">ఈ బ్యాకప్‌లోని పత్రాలను పునరుద్ధరించాలా?</string>
+  <string name="restore_backup_detail">ఈ ఫైల్ AndBible పత్రాల బ్యాకప్.</string>
+  <string name="update_document_question">ఈ పత్రాన్ని అప్‌డేట్ చేయాలా?</string>
+  <string name="update_action">అప్‌డేట్</string>
+  <string name="download_documents_question">పత్రాలను డౌన్‌లోడ్ చేయాలా?</string>
+  <string name="download_persecution_warning">మీరు హింస ఉన్న దేశంలో నివసిస్తుంటే, ఇంటర్నెట్ ద్వారా క్రైస్తవ సామగ్రిని డౌన్‌లోడ్ చేసేటప్పుడు జాగ్రత్తగా ఉండాల్సి రావచ్చు. బదులుగా, పత్రాల జిప్ ఫైళ్లను మరింత సురక్షితంగా పొంది “%1$s” ద్వారా ఇన్‌స్టాల్ చేయవచ్చు. పత్రాల సర్వర్‌ల నుండి అన్ని డౌన్‌లోడ్‌లు గుప్తీకరించబడతాయి (HTTPS).</string>
+  <string name="download_action">డౌన్‌లోడ్</string>
+  <string name="download_dont_ask_again">డౌన్‌లోడ్, మళ్లీ అడగవద్దు</string>
+  <string name="download_dont_ask_again_consequence">భవిష్యత్తులో డౌన్‌లోడ్‌లు ఈ ప్రశ్న లేకుండానే మొదలవుతాయి.</string>
+  <string name="passphrase_did_not_work">పాస్‌ఫ్రేజ్ పని చేయలేదు.</string>
+  <string name="try_again">మళ్లీ ప్రయత్నించండి</string>
+  <string name="interrupted_downloads_lead">ఈ పత్రాలను మళ్లీ డౌన్‌లోడ్ చేయాలా?</string>
+  <string name="interrupted_downloads_detail">వాటి డౌన్‌లోడ్ అంతరాయం పొందింది, కాబట్టి అవి ఇన్‌స్టాల్ కాలేదు.</string>
+  <string name="external_link_open_question">ఈ లింక్‌ను మీ బ్రౌజర్‌లో తెరవాలా?</string>
+  <string name="open_action">తెరువు</string>
+  <string name="notification_permission_question">నోటిఫికేషన్‌లను అనుమతించాలా?</string>
+  <string name="notification_permission_detail">నోటిఫికేషన్‌లు డౌన్‌లోడ్ స్థితి, ప్రాసెసింగ్ మరియు చదివి వినిపించే స్థితిని చూపుతాయి.</string>
+  <string name="allow_action">అనుమతించు</string>
+  <string name="rate_question">యాప్‌కు రేటింగ్ ఇచ్చి సమీక్షించాలా?</string>
+  <string name="bug_report_email_question">బగ్ నివేదికను ఇమెయిల్ ద్వారా పంపాలా?</string>
+  <string name="continue_action">కొనసాగించు</string>
+  <string name="delete_search_index_question">“%s” శోధన సూచికను తొలగించాలా?</string>
+  <string name="remove_custom_repository_question">కస్టమ్ రిపాజిటరీ “%s”ను తీసివేయాలా?</string>
+  <string name="download_document_question">“%s” డౌన్‌లోడ్ చేయాలా?</string>
+  <string name="choose_file_action">ఫైల్ ఎంచుకోండి</string>
+  <string name="old_webview_question">పాత WebViewతో యాప్‌ను ఉపయోగించాలా?</string>
+  <string name="incomplete_translation_question">పాక్షిక అనువాదంతో కొనసాగాలా?</string>
+  <string name="rate_action">రేట్ చేయండి</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">“%s” పత్రాన్ని తొలగించాలా?</string>
+  <string name="my_document_page_delete_lead">“%s” పేజీని తొలగించాలా?</string>
+  <string name="my_document_cannot_delete_ai_lead">పేజీలు ఉన్నంత వరకు AI పత్రాలను తొలగించలేరు.</string>
+  <string name="my_document_cannot_delete_ai_detail">ముందుగా పేజీలను తొలగించండి.</string>
+  <string name="reading_progress_new_cycle_lead">కొత్త పఠన చక్రాన్ని ప్రారంభించాలా?</string>
+  <string name="reading_progress_new_cycle_detail">మీ పురోగతి మొదటి నుండి ట్రాక్ చేయబడుతుంది. మీ మునుపటి చక్రం డేటా ఉంచబడుతుంది.</string>
+  <string name="reading_progress_new_cycle_start">ప్రారంభించు</string>
+  <string name="reset_plan_lead">ఈ ప్రణాళికను రీసెట్ చేయాలా?</string>
+  <string name="reset_plan_detail">ఈ ప్రణాళికలో మీ ప్రారంభ తేదీ మరియు పురోగతి తొలగించబడతాయి.</string>
+  <string name="set_current_day_lead">%1$sను ప్రస్తుత రోజుగా సెట్ చేయాలా?</string>
+  <string name="set_current_day_detail">మునుపటి అన్ని రోజులు చదివినవిగా గుర్తించబడతాయి.</string>
+  <string name="plan_duplicate_user_plan_lead">ఒక పఠన ప్రణాళిక ఫైల్‌కు అంతర్నిర్మిత ప్రణాళికతో సమాన పేరు ఉంది.</string>
+  <string name="plan_duplicate_user_plan_detail">ఆ ప్రణాళిక ఫైల్‌ను జాబితాలో చూపలేము. jsword/readingplan ఫోల్డర్‌లో ఫైల్ పేరు మార్చండి, దాని .properties పొడిగింపును ఉంచండి.</string>
+  <string name="background_image_delete_lead">ఈ నేపథ్య చిత్రాన్ని తొలగించాలా?</string>
+  <string name="background_image_delete_detail">దీన్ని ఇంకా ఉపయోగిస్తున్న వర్క్‌స్పేస్‌లు చిత్రం లేకుండా మారిపోతాయి.</string>
+  <string name="reset_values_lead">ఈ విలువలన్నింటినీ రీసెట్ చేయాలా?</string>
+  <string name="revert_setting_lead">ఈ సెట్టింగ్‌ను వారసత్వంగా వచ్చిన విలువకు తిరిగి మార్చాలా?</string>
+  <string name="revert_setting_confirm">తిరిగి మార్చు</string>
+  <string name="reset_settings_screen_lead">ఈ స్క్రీన్‌లోని సెట్టింగ్‌లను రీసెట్ చేయాలా?</string>
+  <string name="reset_settings_screen_detail">అవి వాటి డిఫాల్ట్ విలువలకు తిరిగి వెళ్తాయి.</string>
+  <string name="memorize_unmark_lead">“%s” కోసం కంఠస్థ స్థితిని తీసివేయాలా?</string>
+  <string name="memorize_remove_target_lead">“%s” కంఠస్థ లక్ష్యాన్ని తీసివేయాలా?</string>
+  <string name="dialog_apply">వర్తింపజేయి</string>
+  <string name="dialog_dont_apply">వర్తింపజేయవద్దు</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">క్లౌడ్‌లో ఇప్పటికే మీ %s ఉన్నాయి. ఏమి జరగాలి?</string>
+  <string name="cloud_merge_consequence">రెండు వైపులా ఉంచబడతాయి; ఒక అంశం రెండింటిలోనూ మారితే, కొత్త మార్పు నెగ్గుతుంది.</string>
+  <string name="cloud_fetch_consequence">ఈ పరికరంలోని డేటాను క్లౌడ్ కాపీతో భర్తీ చేస్తుంది.</string>
+  <string name="cloud_create_consequence">క్లౌడ్ కాపీని ఈ పరికరంలోని డేటాతో భర్తీ చేస్తుంది.</string>
+  <string name="cloud_disable_consequence">ఈ డేటాకు సింక్ ఆఫ్‌లోనే ఉంటుంది.</string>
+  <string name="cloud_merge_lead">మీ %sను క్లౌడ్‌తో విలీనం చేయాలా?</string>
+  <string name="cloud_merge_confirm">విలీనం చేయి</string>
+  <string name="cloud_replace_confirm">భర్తీ చేయి</string>
+  <string name="cloud_replace_local_lead">ఈ పరికరంలోని %sను క్లౌడ్ కాపీతో భర్తీ చేయాలా?</string>
+  <string name="cloud_replace_local_detail">ఈ పరికరంలో ఇప్పుడు ఉన్నది ఓవర్‌రైట్ చేయబడుతుంది మరియు తిరిగి పొందలేరు.</string>
+  <string name="cloud_replace_cloud_lead">%s యొక్క క్లౌడ్ కాపీని ఈ పరికరంలోని డేటాతో భర్తీ చేయాలా?</string>
+  <string name="cloud_replace_cloud_detail">క్లౌడ్‌లో ఇప్పుడు ఉన్నది ఓవర్‌రైట్ చేయబడుతుంది, మీ ఇతర పరికరాలు ఈ పరికరం డేటాను అందుకుంటాయి.</string>
+  <string name="sign_in_failed_lead">సింక్ సేవకు సైన్ ఇన్ చేయలేకపోయాము.</string>
+  <string name="sync_too_old_lead">%sను సింక్ చేయడానికి ఈ యాప్ చాలా పాతది.</string>
+  <string name="sync_too_old_detail">క్లౌడ్ డేటా ఈ యాప్ మద్దతిచ్చే దానికంటే కొత్త వెర్షన్‌ను ఉపయోగిస్తోంది. దాని సింక్ ప్రస్తుతానికి ఆఫ్ చేయబడింది; మళ్లీ ఆన్ చేయడానికి యాప్‌ను అప్‌డేట్ చేయండి.</string>
+  <string name="backup_replace_lead">మీ %sను బ్యాకప్‌తో భర్తీ చేయాలా?</string>
+  <string name="backup_replace_detail">ఈ పరికరంలో ఇప్పుడు ఉన్నది ఓవర్‌రైట్ చేయబడుతుంది మరియు తిరిగి పొందలేరు.</string>
+  <string name="reset_database_lead">“%1$s”ను దాని ప్రారంభ స్థితికి రీసెట్ చేయాలా?</string>
+  <string name="reset_database_detail">దానిలోని మొత్తం డేటా శాశ్వతంగా తొలగించబడుతుంది. దీన్ని రద్దు చేయలేరు.</string>
+  <string name="reset_database_button">రీసెట్</string>
+  <string name="restore_all_lead">మీ గమనికలు, బుక్‌మార్క్‌లు, స్టడీ ప్యాడ్‌లు, పఠన ప్రణాళికలు మరియు వర్క్‌స్పేస్‌లను భర్తీ చేయాలా?</string>
+  <string name="restore_or_import_lead">%sను పునరుద్ధరించాలా లేదా దిగుమతి చేయాలా?</string>
+  <string name="restore_consequence">ఈ పరికరంలో ఉన్నదాన్ని బ్యాకప్‌తో భర్తీ చేస్తుంది.</string>
+  <string name="import_consequence">బ్యాకప్‌లోని అంశాలను ఈ పరికరంలో ఉన్నదానికి జోడిస్తుంది.</string>
+  <string name="sync_start_syncing">సింక్ ప్రారంభించు</string>
+  <string name="sync_reset_lead">సైన్ అవుట్ చేసి సింక్రనైజేషన్‌ను రీసెట్ చేయాలా?</string>
+  <string name="sync_reset_detail">మీరు సింక్రనైజేషన్‌ను మళ్లీ సెటప్ చేయాల్సి ఉంటుంది.</string>
+  <string name="webdav_forget_certificate_lead">విశ్వసనీయ సర్వర్ సర్టిఫికెట్‌ను మర్చిపోవాలా?</string>
+  <string name="webdav_forget_certificate_detail">తదుపరి కనెక్షన్‌లో సర్టిఫికెట్‌ను మళ్లీ నిర్ధారించమని అడగబడతారు.</string>
+  <string name="webdav_forget_certificate_confirm">మర్చిపో</string>
+  <string name="cloud_doc_remove_all_lead">“%1$s”ను క్లౌడ్ నుండి మరియు మీ అన్ని పరికరాల నుండి తీసివేయాలా?</string>
+  <string name="cloud_doc_remove_cloud_lead">“%1$s”ను క్లౌడ్ నుండి తీసివేయాలా?</string>
+  <string name="cloud_doc_purge_lead">“%1$s”ను క్లౌడ్ చరిత్ర నుండి శాశ్వతంగా తీసివేయాలా?</string>
+  <string name="cloud_doc_remove_all_detail">ఇది ఈ పరికరంలోని మరియు పత్రాల సింక్ ఆన్‌లో ఉన్న ప్రతి ఇతర పరికరంలోని కాపీలను కూడా తొలగిస్తుంది.</string>
+  <string name="cloud_doc_remove_cloud_detail">ఈ పరికరంలోని కాపీలు ఉంచబడతాయి. పత్రాల సింక్ ఆన్‌లో ఉన్న పరికరాలు వాటిని కూడా తీసివేస్తాయి.</string>
+  <string name="cloud_doc_purge_detail">ఇంకా కాపీ ఉన్న పరికరం తన తదుపరి సింక్‌లో దాన్ని మళ్లీ అప్‌లోడ్ చేయవచ్చు.</string>
+  <string name="cloud_doc_block_confirm_button">సింక్ చేయవద్దు</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">%1$d పత్రాన్ని క్లౌడ్ నుండి మరియు మీ అన్ని పరికరాల నుండి తీసివేయాలా?</item>
+        <item quantity="other">%1$d పత్రాలను క్లౌడ్ నుండి మరియు మీ అన్ని పరికరాల నుండి తీసివేయాలా?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">%1$d పత్రాన్ని క్లౌడ్ నుండి తీసివేయాలా?</item>
+        <item quantity="other">%1$d పత్రాలను క్లౌడ్ నుండి తీసివేయాలా?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">%1$d పత్రాన్ని క్లౌడ్ చరిత్ర నుండి శాశ్వతంగా తీసివేయాలా?</item>
+        <item quantity="other">%1$d పత్రాలను క్లౌడ్ చరిత్ర నుండి శాశ్వతంగా తీసివేయాలా?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">%1$d పత్రాన్ని క్లౌడ్‌కు సింక్ చేయడం ఆపాలా?</item>
+        <item quantity="other">%1$d పత్రాలను క్లౌడ్‌కు సింక్ చేయడం ఆపాలా?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">మీ మరింత డేటా ఇప్పుడు సింక్ కావచ్చు</string>
+  <string name="new_sync_targets_detail">నా పత్రాలు, AI సెట్టింగ్‌లు మరియు పఠన పురోగతి కూడా సింక్ కావచ్చు. వాటిని పరికర సింక్రనైజేషన్ సెట్టింగ్‌లలో ఆన్ చేయండి.</string>
+  <!--end dialog copy: B3b-->
 </resources>

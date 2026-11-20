@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Den fulde brugervejledning findes på andbible.org. Siderne åbnes i din browser.</string>
   <string name="help_user_guide_home">Forside for brugervejledningen</string>
   <string name="help_read_in_user_guide">Læs i brugervejledningen</string>
+  <string name="help_in_user_guide">Hjælp i brugervejledningen</string>
+  <string name="help_matching_section">Tilhørende afsnit</string>
   <string name="help_read_page">Læs i brugervejledningen: %1$s</string>
   <string name="help_tutorial_videos">Instruktionsvideoer</string>
   <string name="help_watch_in_order">Se undervisningsvideoerne i rækkefølge</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Vælg vers (og kapitel) når du vælger et tekststed</string>
   <string name="prefs_open_links_in_special_window_title">Linksvindue</string>
   <string name="prefs_open_links_in_special_window_summary">Åbn links i særligt vindue for hurtigere visning af krydshenvisninger og Strongs</string>
+  <string name="prefs_trusted_link_domains_title">Betroede linkdomæner</string>
+  <string name="prefs_trusted_link_domains_summary">Links til disse domæner åbnes uden at spørge. Fjern markeringen af et domæne for at blive spurgt igen.</string>
+  <string name="prefs_trusted_link_domains_empty">Ingen endnu. Markér \"Spørg ikke igen\", når du åbner et link, for at tilføje dets domæne.</string>
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
   <string name="prefs_screen_keep_on_title">Hold skærm tændt</string>
   <string name="prefs_screen_keep_on_summary">Undgå at skærmen slukker, mens appen bruges</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">Linjeafstand</string>
   <string name="line_spacing_summary">Indstil afstanden mellem linjer</string>
   <string name="select_none">Vælg ingen</string>
-  <string name="reset_are_you_sure">Er du sikker på, at du vil nulstille alle disse værdier?</string>
   <string name="window_pinning_menutitle">Fastgøring af vindue</string>
   <string name="hide_window_buttons_title">Skjul vinduesknapper</string>
   <string name="hide_window_buttons_summary">Vinduesknapper, der vises i højre side af Bibelvisningerne, skjules. Vinduesnavigationslinjen i bunden vises stadig, og du kan åbne vindues-pop-up-menuen ved at trykke længe på dem.</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">Ordet blev ikke fundet i nogen ordbog</string>
   <string name="prefs_top_margin_title_mm">Øverste margen (%d mm)</string>
   <string name="font_size_title">Skriftstørrelse</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Thi så højt har Gud elsket verden, at han gav sin enbårne Søn, for at hver den, som tror på ham, ikke skal fortabes, men have evigt liv.</string>
   <string name="font_size_title_pt">Skriftstørrelse (%d pt)</string>
   <string name="prefs_font_text_size_summary">Justér skriftstørrelsen for hovedteksten</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">Farveindstillinger (vindue)</string>
   <string name="workspace_color_settings_title">Farveindstillinger (arbejdsområde)</string>
   <string name="color_workspace">Arbejdsområdefarve</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Standard</string>
   <string name="color_text">Tekstfarve</string>
   <string name="color_background">Baggrundsfarve</string>
   <string name="colors_day_mode_title">Dagstilstand</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">Dokumentlister sidst opdateret: %s.</string>
   <string name="download_refreshing_book_list">Opdaterer liste over tilgængelige dokumenter fra dokumentservere…</string>
   <string name="download_source_message1">Dokumenter hentes fra følgende kilder:</string>
-  <string name="download_document_confirm_prefix">Hent</string>
   <string name="error_downloading">Der opstod en fejl under hentning. Tjek venligst din internetforbindelse.</string>
   <string name="error_downloading_status">Serveren som er vært for %1$s returnerede en fejl på grund af %2$s (%3$d).</string>
   <string name="storage_space_warning">Utilstrækkelig lokal lagerplads.</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">Baggrundsaktivitet</string>
   <string name="activity_empty">Intet kører</string>
   <string name="activity_failed_toast">%1$s — se menuen</string>
-  <string name="download_question_title">Vil du fortsætte med at hente dokumenter?</string>
-  <string name="download_question_message">Hvis du bor i et land med kristenforfølgelse, bør du være forsigtig med at downloade kristent materiale via internettet. I stedet kan du hente modulernes zip-filer på en mere sikker måde og installere dem via \"%1$s\". Er du sikker på, at du vil fortsætte med at downloade? Alle downloads fra modulservere er krypterede (HTTPS).</string>
-  <string name="do_not_ask_again">Ja, spørg ikke mere</string>
   <string name="recommended_document">Anbefalet!</string>
   <string name="about_version_history">Versionshistorik: %s</string>
   <string name="download_errors">Hentefejl</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">Tjekker den angivne fil…</string>
   <string name="invalid_module">Filen indeholder ikke et gyldigt SWORD-modul</string>
   <string name="install_zip_title">Vent venligst. Indlæser moduler fra en fil.</string>
-  <string name="overwrite_files">Følgende filer eksisterer allerede: %s Overskriv?</string>
   <string name="overwrite_files_title">Overskriv filer?</string>
   <string name="could_not_overwrite_files">Kunne ikke overskrive filer: %s. Bortset fra det lykkedes installationen.</string>
   <string name="module_backup_restore">Denne fil er en sikkerhedskopi af AndBible-dokumenter. Vil du gendanne dokumenterne?</string>
-  <string name="install_do_you_want">Vil du installere modulet (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Læseplan</string>
   <string name="reading_plans_plural">Læseplaner</string>
@@ -429,11 +430,8 @@
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Angiv startdato…</string>
   <string name="set_current_day">Sæt som aktuel dag…</string>
-  <string name="msg_set_current_day_reading_plan">Dette indstiller %1$s som den aktuelle dag i denne plan og markerer alle tidligere dage som læst. Fortsæt?</string>
   <string name="done">Færdig</string>
-  <string name="reset_plan_question">Er du sikker på, at du vil nulstille denne plan?</string>
   <string name="import_reading_plan">Importér læseplan…</string>
-  <string name="plan_duplicate_user_plan">Der er en brugerdefineret læseplan på sdcard jsword/readingplan med samme navn som en intern plan. Den kan ikke vises her. Omdøb venligst filen til noget andet, og behold filendelsen .properties</string>
   <string name="plan_name_y1ntpspr">NT, Salmer og Ordsprog på et år</string>
   <string name="plan_description_y1ntpspr">Venligst stillet til rådighed af HEARTLIGHT Internet Magazine, http://www.heartlight.org, med tilladelse</string>
   <string name="plan_name_y1ot1nt1_chronological">Kronologisk gennemlæsning af Bibelen på 1 år</string>
@@ -453,12 +451,8 @@
   <string name="delete_index">Slet søgeindeks</string>
   <string name="about">Om</string>
   <string name="delete_doc">Slet %s?</string>
-  <string name="interrupted_downloads_title">Download afbrudt</string>
-  <string name="interrupted_downloads_message">Disse dokumenter blev ikke installeret, fordi deres download blev afbrudt:</string>
-  <string name="interrupted_downloads_question">Vil du hente dem igen?</string>
   <string name="download_again">Hent igen</string>
   <string name="delete_docs_confirm">Slet disse dokumenter?</string>
-  <string name="delete_search_index_doc">Slet indeks for %s?</string>
   <!--Verse context menu-->
   <string name="notes">Fodnoter og referencer</string>
   <string name="share_verse">Del…</string>
@@ -496,7 +490,6 @@
   <!--can be removed-->
   <string name="bookmark_warning">Der er bogmærker og/eller noter for dette dokument.</string>
   <string name="bookmark_warning2">Hvis dokumentstrukturen er ændret, kan en opdatering af dette dokument flytte placeringen af disse bogmærker/noter i dokumentet eller få dem til at forsvinde helt.</string>
-  <string name="bookmark_warning3">Vil du stadig opdatere modulet?</string>
   <string name="bookmark_warning4">Det anbefales, at du tager en sikkerhedskopi af modulet inden opdatering.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datoorden</string>
@@ -643,10 +636,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Gendan eller importér fra…</string>
   <string name="backup_restore2">Gendan eller importér</string>
-  <string name="overwrite_something">Overskriv %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Gendan databasefil</string>
-  <string name="restore_confirmation">Overskriv Mine noter, Bogmærker, Studieblokke, Læseplaner og Arbejdsområder?</string>
   <string name="restore_success">Mine noter, Bogmærker, Studieblokke, Læseplaner og Arbejdsområder gendannet</string>
   <string name="downloading_backup">Henter sikkerhedskopifil…</string>
   <string name="loading_backup">Indlæser database fra sikkerhedskopi…</string>
@@ -668,7 +659,6 @@
   <string name="send_export_file">Send en eksportfil</string>
   <string name="backup_modules_title">Vælg hvilke moduler der skal sikkerhedskopieres</string>
   <string name="install_zip_canceled">Modulinstallation annulleret</string>
-  <string name="ask_restore_or_import">Database for %s kan enten gendannes (dvs. eksisterende database fjernes og den valgte database indlæses) eller importeres (den valgte database importeres til den eksisterende database). Hvad vil du gøre?</string>
   <string name="restore">Gendan</string>
   <string name="import2">Importér</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -723,7 +713,6 @@
   <string name="settings_editor_back">Tilbage</string>
   <string name="settings_editor_close">Luk</string>
   <string name="settings_editor_apply">Anvend</string>
-  <string name="discard_changes_confirmation">Kassér ikke-gemte ændringer?</string>
   <string name="discard">Kassér</string>
   <string name="remove">Fjern</string>
   <string name="overwrite">Overskriv</string>
@@ -750,7 +739,8 @@
   <string name="empty_list">Ingen elementer at vise</string>
   <string name="error_skip">Spring over</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Beskadigede data</string>
+  <string name="corrupt_database_headline">AndBible kan ikke åbne nogle af dine data</string>
+  <string name="corrupt_database_files_detail">Disse filer kunne ikke åbnes: %1$s. Intet er blevet ændret eller slettet. Nulstilling starter dem tomme og beholder hver beskadiget fil på denne enhed, omdøbt med .corrupt- plus dato og klokkeslæt.</string>
   <string name="corrupt_database_reset">Nulstil beskadigede data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">De beskadigede data kunne ikke nulstilles: %1$s kunne ikke flyttes til side. Intet er blevet ændret. Du kan prøve igen, sende en fejlrapport eller bruge Sikkerhedskopi og gendannelse.</string>
@@ -758,8 +748,8 @@
   <string name="damaged_data_needs_attention">Appens data kræver opmærksomhed. Tryk for at åbne appen.</string>
   <string name="debug_test_error">Testfejl (debug-build)</string>
   <string name="bug_report_prepare_failed">Rapporten kunne ikke forberedes eller deles. Du kan prøve igen eller bruge Sikkerhedskopiér og gendan til at gemme dine data.</string>
-  <string name="bug_report_email_title">Send fejlrapport via e-mail</string>
   <string name="bug_report_desktop_text">Dernæst bliver du spurgt, hvor fejlrapportfilen skal gemmes. Derefter får du instruktioner til at sende den til udviklerholdet.</string>
+  <string name="bug_report_email_title">Send fejlrapport via e-mail</string>
   <string name="bug_report_email_text">Vælg venligst dit foretrukne e-mailprogram (f.eks. Gmail) for at sende rapporten til udviklerteamet.</string>
   <string name="bug_report_manual_title">Send rapporten med e-mail</string>
   <string name="bug_report_manual_text_saved">Rapporten blev gemt i <b>%1$s</b>.\n\nSend en e-mail til <b>%2$s</b>, og vedhæft den fil; et e-mailprogram kan ikke vedhæfte den for dig. Foreslået emne: <b>%3$s</b>. Skriv i beskeden, hvad du gjorde, og hvad der skete.</string>
@@ -830,8 +820,6 @@
   <string name="beta_special_regards">Venlig hilsen Tuomas</string>
   <string name="beta_special_sponsor">P.S. Du kan støtte udviklingen af AndBible økonomisk ved at %s.</string>
   <string name="beta_special_sponsor_link">sponsorere udviklingstimer</string>
-  <string name="new_sync_targets_notice_title">Nye synkroniseringsindstillinger tilgængelige</string>
-  <string name="new_sync_targets_notice_message">Denne version af AndBible introducerer yderligere synkroniseringsmål: Mine dokumenter, AI-indstillinger og læsefremskridt. Hvis du ønsker at aktivere dem, kan du gøre det i indstillingerne for enhedssynkronisering.</string>
   <string name="open_settings">Åbn indstillinger</string>
   <!--History-->
   <string name="history_for">Historik (%1$s: Vindue %2$d)</string>
@@ -904,7 +892,6 @@
   <string name="give_passphrase_for_module">Dokumentet %s er krypteret og kræver adgangskode for at blive låst op</string>
   <string name="unlock_module">Angiv moduladgangskode</string>
   <string name="unlock_info">Info om oplåsning af krypteret modul</string>
-  <string name="try_again_passphrase">Adgangskoden virkede ikke, prøv igen?</string>
   <string name="show_unlock_info">Modul og oplåsningsinfo</string>
   <string name="prefs_experimental_features_title">Eksperimentelle funktioner</string>
   <string name="prefs_experimental_features_summary">Vælg hvilke eksperimentelle funktioner der skal aktiveres. Disse funktioner er stadig under udvikling og kan ændres eller fjernes</string>
@@ -938,9 +925,6 @@
   <string name="active_window_indicator_summary">Fremhæv vindueshjørner for at hjælpe med at genkende hvilket vindue der er aktivt</string>
   <string name="app_licence_title">Open Source-licens</string>
   <string name="how_to_contribute">Hvordan bidrager man?</string>
-  <string name="confirm_delete_bookmarks">Vil du fjerne %d bogmærker og deres noter?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Den valgte etiket er tilknyttet %d bogmærker der ikke har andre etiketter. Vil du slette disse bogmærker sammen med etiketterne?</string>
-  <string name="delete_label_and_bookmarks">Slet etiket og bogmærker</string>
   <string name="delete_label_only">Slet kun etiket</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Anbefal til en ven</string>
@@ -971,8 +955,6 @@
   <string name="old_webview">Android WebView-pakken er for gammel (%1$s). Du skal opgradere din Android WebView-pakke til mindst version %2$s for at bruge %3$s. For de fleste enheder kan dette gøres via %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Fortsæt alligevel</string>
-  <string name="proceed">Fortsæt</string>
-  <string name="rate_title">Bedøm og anmeld appen</string>
   <string name="rate_message5">Positive og detaljerede anmeldelser hjælper AndBible Open Source-projektet meget. Tak!</string>
   <string name="rate_message6">Inden du skriver en negativ anmeldelse, bedes du overveje følgende:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -1002,7 +984,6 @@
   <string name="primary_label">Primær etiket</string>
   <string name="favourite_label">Favoritetetiket</string>
   <string name="edit_label">Redigér etiket</string>
-  <string name="delete_label_confirmation">Vil du fjerne bogmærkeetiketten \"%s\"? Alle tilknyttede Studieblok-noter vil også blive fjernet.</string>
   <string name="active_labels">Valgte etiketter</string>
   <string name="recent_labels">Seneste etiketter</string>
   <string name="other_labels">Andre etiketter</string>
@@ -1012,8 +993,6 @@
   <string name="book_menu_show_progress_bars">Vis fremskridtslinjer</string>
   <string name="reset_workspace_labels">Vil du nulstille automatisk tildeling og favorit-indstillinger for dette arbejdsområde?</string>
   <string name="clear_auto_assign_labels">Ryd automatisk tildelte etiketter</string>
-  <string name="reset_workspace_auto_assign_labels">Vil du fjerne alle automatisk tildelte etiketter fra dette arbejdsområde?</string>
-  <string name="reset_hide_labels">Vil du nulstille indstillingen for skjulning af bestemte etiketter?</string>
   <string name="reorder">Sorter</string>
   <string name="system_items">Systemhandlinger</string>
   <string name="system_items1">Mere</string>
@@ -1027,7 +1006,6 @@
   <string name="ios_fullscreen_hint">Dobbelttryk eller tryk på knappen for at forlade fuldskærm.</string>
   <string name="desktop_exit_fullscreen">Forlad fuldskærm</string>
   <string name="exit_fullscreen">Dobbelttryk på skærmen for at afslutte fuldskærm</string>
-  <string name="reset_app_prefs">Vil du nulstille alle globale programindstillinger på denne skærm til deres standardværdier?</string>
   <string name="label_red">Rød</string>
   <string name="label_green">Grøn</string>
   <string name="label_blue">Blå</string>
@@ -1038,7 +1016,6 @@
   <string name="reset_databases_title">Nulstil databaser</string>
   <string name="reset_databases_description">Nulstil individuelle databaser til deres oprindelige tomme tilstand. Dette kan ikke fortrydes.</string>
   <string name="last_crash_info_title">Seneste nedbrud-info</string>
-  <string name="reset_database_confirm">Dette vil permanent slette alle data i \"%1$s\" og nulstille den til den oprindelige tilstand. Dette kan ikke fortrydes.\n\nEr du sikker?</string>
   <string name="reset_database_success">Databasen er blevet nulstillet</string>
   <string name="reset_something">Nulstil: %1$s</string>
   <string name="export">Eksportér</string>
@@ -1108,19 +1085,18 @@
   <string name="manage_labels_help_favourite">Behold etiketten blandt dine favoritter for hurtig adgang.</string>
   <string name="manage_labels_help_styles">Under navnet viser et lille eksempel etikettens udseende: Markering for et bogmærke for tekstmarkering, Helt vers for et bogmærke for et helt vers og et Arbejdsområde-mærke for en stil, som dette arbejdsområde tilsidesætter. Et nedtonet eksempel uden pynt betyder, at etikettens bogmærker ikke tegnes. Skjul eksemplerne fra ⋮-menuen.</string>
   <string name="manage_labels_help_reorder">Sortér listen igen fra ⋮-menuen.</string>
+  <string name="manage_labels_help_narrow_toggles">På en smal skærm udelader listen ikonerne for primær, automatisk tildeling og favorit for at give etiketnavnene plads. Tryk på en etiket for at indstille dem i dens editor.</string>
   <string name="added_to_bookmark">Tildelt dette bogmærke</string>
   <string name="strongs_links">Links</string>
   <string name="strongs_text_and_links">Tekst og links</string>
   <string name="strongs_hidden_links">Skjulte links</string>
   <string name="verse_tip">For at vælge delvise eller mange vers kan du trykke længe på bibelteksten</string>
-  <string name="permission_required">Tilladelse nødvendig</string>
   <string name="labels_search_hint">Søg</string>
   <string name="search_mode_name_start">Navn (fra start)</string>
   <string name="search_mode_name_contains">Navn (indeholder)</string>
   <string name="search_mode_content">Indhold</string>
   <string name="search_results_matches">%d resultater</string>
   <string name="search_results_match">1 resultat</string>
-  <string name="progress_status_permission">For at vise notifikationer (downloadstatus, behandling, oplæsningsstatus) har vi brug for din tilladelse.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simpel lommeregner</string>
   <string name="prefs_persecution_cat">Indstillinger for forfulgte</string>
@@ -1154,7 +1130,6 @@
   <string name="custom_repositories_create_button_label">Tilføj tilpasset arkiv</string>
   <string name="custom_repositories_info_button_label">Information</string>
   <string name="repository_specification">Arkiv-URL</string>
-  <string name="delete_custom_repository">Vil du fjerne det tilpassede arkiv %s?</string>
   <string name="custom_repositories_help1">For at tilføje et nyt tilpasset arkiv skal du skrive eller kopiere og indsætte den tilpassede arkiv-URL her.</string>
   <string name="custom_repositories_help2">Du kan læse mere om tilpassede arkiver på %s.</string>
   <string name="custom_repositories_help0">Du kan installere dokumenter fra eksterne tilpassede arkiver ved at installere tilpassede arkiver.</string>
@@ -1174,7 +1149,6 @@
   <string name="db_bookmarks">Bogmærker, Mine noter, Etiketter og Studiblokke</string>
   <string name="synchronizing">Synkroniserer…</string>
   <string name="notification_finished">Færdig</string>
-  <string name="overrideBackup">En eksisterende database, som denne enhed ikke er synkroniseret til, er fundet i Cloud. Databasen indeholder %s. Hvad vil du gøre?</string>
   <string name="reading_plans_content">Læseplaner og deres statusser</string>
   <string name="bookmarks_contents">Bogmærker, Etiketter og Studiblokke</string>
   <string name="workspaces_contents">Arbejdsområder og Vinduer</string>
@@ -1194,7 +1168,6 @@
   <string name="reading_progress_calendar">Læseaktivitet</string>
   <string name="reading_progress_cycle">Cyklus %d</string>
   <string name="reading_progress_new_cycle">Ny cyklus</string>
-  <string name="reading_progress_new_cycle_confirm">Start en ny læsecyklus? Dette begynder at spore dit fremskridt fra bunden, mens dine tidligere cyklusdata bevares.</string>
   <string name="reading_progress_previous_cycle">Forrige cyklus</string>
   <string name="reading_progress_next_cycle">Næste cyklus</string>
   <string name="cloud_merge_data">Flet data</string>
@@ -1204,7 +1177,6 @@
   <string name="cloud_sync_title">Enhedssynkronisering</string>
   <string name="reset_sync">Log ud</string>
   <string name="prefs_reset_sync_summary">Deaktivér synkronisering og nulstil relaterede indstillinger.</string>
-  <string name="sync_confirmation">Er du sikker på, at du vil logge ud og nulstille synkroniseringen?</string>
   <string name="cloud_info">Cloud-oplysninger</string>
   <string name="cloud_info_summary">Data i cloud-lagring: %s Mb</string>
   <string name="sync_adapter">Synkroniseringsbackend</string>
@@ -1220,7 +1192,6 @@
   <string name="webdav_server_url_hint">Adressen på WebDAV-mappen, f.eks. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronisering kræver en sikker https://-adresse.</string>
   <string name="webdav_certificate_title">Servercertifikat</string>
-  <string name="webdav_forget_certificate_message">Glem det betroede servercertifikat? Du bliver bedt om at bekræfte certifikatet igen ved næste forbindelse.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Ikke-betroet servercertifikat</string>
   <string name="webdav_untrusted_certificate_message">Certifikatet for %1$s er ikke betroet af Android. Betro det kun, hvis du genkender det, for eksempel fordi du selv har oprettet denne server.\n\nEmne: %2$s\nUdsteder: %3$s\nGyldigt: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1237,14 +1208,7 @@
   <string name="synchronization_categories">Synkroniseringskategorier</string>
   <string name="sync_general_settings">Info og generelle indstillinger</string>
   <string name="sync_introduction">Introduktion</string>
-  <string name="are_you_sure">Er du sikker?</string>
   <string name="are_you_sure_merge">Både dataene på denne enhed og %s i skyen beholdes. Hvor det samme element er ændret begge steder, beholdes den nyeste ændring. Denne enheds data sendes til dine andre enheder.</string>
-  <string name="are_you_sure_reset_local">Dette vil nulstille din lokale database for %s med det indhold, der aktuelt er gemt i cloud-tjenesten.</string>
-  <string name="are_you_sure_reset_cloud">Dette vil nulstille din cloud-database for %s med det indhold, du har på denne enhed.</string>
-  <string name="sync_cant_fetch">Versionen af databasen eller patch-filen, der er gemt i Cloud, er højere end den, der understøttes af denne app.</string>
-  <string name="sync_disabling">Deaktiverer synkronisering for %s midlertidigt.</string>
-  <string name="sync_update_app">Opdatér venligst appen for at fortsætte synkroniseringen.</string>
-  <string name="sign_in_failed">Log ind på synkroniseringsbackend-tjenesten mislykkedes.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Deaktiverer cloud-synkronisering. Du skal genaktivere manuelt efter gendannelse.</string>
   <string name="report">Rapport</string>
@@ -1262,6 +1226,7 @@
   <string name="open_here">Åbn her</string>
   <string name="external_link">Eksternt link</string>
   <string name="external_link_question">Dette vil åbne det eksterne link %s i en browserapplikation. Vil du fortsætte?</string>
+  <string name="external_link_dont_ask_again">Spørg ikke igen for %s</string>
   <string name="nameless">Titel ikke defineret</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Enkelttrykhandlinger (Bibler)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Enkelttrykhandlinger (Andet)</string>
@@ -1309,8 +1274,6 @@
   <string name="memorize_include_reference_summary">Tilføj versreferencen (f.eks. Joh 3:16) som det sidste element at memorére</string>
   <string name="reading_progress_settings">Fremskridt og memorering</string>
   <string name="reading_progress_settings_summary">Indstillinger for automatisk sporing, memorering og skriveøvelse</string>
-  <string name="memorize_confirm_unmark">Fjern memoreret status for %s?</string>
-  <string name="memorize_confirm_remove_target">Fjern memoreringsmål %s?</string>
   <string name="memorize_tab_reading">Læsning</string>
   <string name="memorize_tab_memorization">Memorering</string>
   <string name="memorize_verses_memorized">Memoreret</string>
@@ -1336,7 +1299,6 @@
   <string name="llm_reset_usage_title">Nulstil forbrugsdata</string>
   <string name="llm_reset_usage_summary">Ryd akkumuleret token- og prissporing</string>
   <string name="llm_reset_usage_confirm_title">Nulstil forbrugsdata?</string>
-  <string name="llm_reset_usage_confirm_message">Dette vil rydde alle akkumulerede forbrugsdata.</string>
   <string name="llm_custom_input_price_title">Inputpris ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Outputpris ($/Mtoken)</string>
   <string name="llm_cost_total">I alt: %1$s</string>
@@ -1352,8 +1314,6 @@
   <string name="llm_parse_error_anthropic">Kunne ikke fortolke Anthropic-svar: %1$s</string>
   <string name="llm_error_unknown">Ukendt fejl</string>
   <string name="llm_error_max_iterations">Maksimalt antal iterationer (%1$d) nået uden fuldførelse</string>
-  <string name="llm_continue_iterations_title">Fortsæt?</string>
-  <string name="llm_continue_iterations_message">AI-agenten har nået sin grænse på %1$d iterationer uden at fuldføre. Fortsæt med %2$d flere iterationer?</string>
   <string name="agent_max_iterations_title">Maks. agentiterationer</string>
   <string name="agent_max_iterations_summary">Maksimalt antal iterationer før der spørges om at fortsætte (0 = ubegrænset)</string>
   <string name="ask_model_before_run_title">Spørg om model før kørsel</string>
@@ -1413,7 +1373,6 @@
   <string name="ai_models_summary_none">Ingen modeller konfigureret</string>
   <string name="ai_add_provider">Tilføj udbyder</string>
   <string name="ai_provider_edit">Redigér</string>
-  <string name="ai_provider_delete_confirm">Slet udbyder \"%1$s\"? Prompts der bruger denne udbyder vender tilbage til standard.</string>
   <string name="ai_provider_api_key_not_set">API-nøgle ikke angivet</string>
   <string name="ai_provider_select_type">Vælg udbydertype</string>
   <string name="ai_provider_name">Udbyderens navn</string>
@@ -1433,7 +1392,6 @@
   <string name="edit_model_title">Redigér model</string>
   <string name="model_saved">Model gemt</string>
   <string name="model_deleted">Model slettet</string>
-  <string name="model_delete_confirm">Slet modellen \"%1$s\"?</string>
   <string name="model_set_default">Angiv som standardmodel</string>
   <string name="model_select_provider">Udbyder</string>
   <string name="model_supported_badge">✓ Understøttet</string>
@@ -1473,7 +1431,6 @@
   <string name="ai_disclaimer_point8">Dine data sendes til din valgte AI-udbyders servere. Ved at bruge en API-nøgle accepterer du den pågældende udbyders vilkår og privatlivspolitik. Selvhostede modeller er mulige, men kræver mere teknisk ekspertise og giver måske ikke lige så gode resultater som kommercielle modeller.</string>
   <string name="ai_disclaimer_point9">AI-udbydere opkræver betaling for API-brug. Omkostningsestimater vist i AndBible er omtrentlige — tjek altid din udbyders fakturering for de faktiske omkostninger.</string>
   <string name="ai_disclaimer_accept_title">Acceptér AI-ansvarsfraskrivelse</string>
-  <string name="ai_disclaimer_accept_button">Jeg accepterer og tager fuldt ansvar</string>
   <string name="prompt_permission_mode">Tilladelsestilstand</string>
   <string name="prompt_permission_mode_description">Styrer, hvornår brugerbekræftelse kræves, før AI udfører skriveoperationer. Indstillingerne pr. værktøj nedenfor kan tilsidesætte dette for individuelle værktøjer.</string>
   <string name="agent_permission_mode_summary">Styrer, hvornår brugerbekræftelse kræves før AI-skriveoperationer</string>
@@ -1589,7 +1546,6 @@
   <string name="default_prompt_custom_desc">Udfør en brugerdefineret opgave på det valgte tekststed</string>
   <string name="default_prompt_custom_template">Følg brugerens opgavespecifikation for det valgte bibelsted.</string>
   <string name="copy">Kopiér</string>
-  <string name="delete_prompt_confirm_message">Er du sikker på, at du vil slette denne prompt?</string>
   <string name="ai_hide_prompt">Skjul</string>
   <string name="ai_restore_hidden_prompts">Gendan skjulte prompter</string>
   <string name="ai_prompt_hidden">Prompt skjult</string>
@@ -1674,8 +1630,6 @@
   <string name="permission_allow_all_session">Tillad alle værktøjer denne session</string>
   <string name="permission_allow_always">Tillad altid \"%1$s\"</string>
   <string name="permission_deny">Afvis</string>
-  <string name="permission_always_allow_confirm_title">Tillad altid?</string>
-  <string name="permission_always_allow_confirm">Er du sikker på, at du permanent vil tillade \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Du kan nulstille dette i AI-indstillinger.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Værktøjstilladelser</string>
@@ -1780,18 +1734,15 @@
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Opret nyt dokument</string>
   <string name="my_document_rename_title">Omdøb dokument</string>
-  <string name="my_document_delete_confirmation">Slet dokument \"%s\"?</string>
   <string name="show_secret">Vis</string>
   <string name="hide_secret">Skjul</string>
   <string name="ai_documents_name">AI-dokumenter</string>
   <string name="ai_documents_description">Automatisk genererede dokumenter fra AI</string>
-  <string name="my_document_cannot_delete_ai_documents">AI-dokumenter kan ikke slettes, så længe de indeholder sider. Slet siderne først.</string>
   <string name="my_document_save_changes">Gem ændringer?</string>
   <string name="my_document_no_description">Ingen beskrivelse</string>
   <string name="my_document_edit_description">Redigér beskrivelse</string>
   <string name="my_document_pages_title">%s - Sider</string>
   <string name="my_document_page_rename_title">Omdøb side</string>
-  <string name="my_document_page_delete_confirmation">Slet side \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Slet disse sider?</string>
   <string name="my_documents_switch_document">Skift dokument</string>
   <string name="my_document_new_page_name">Side %1$d</string>
@@ -1859,7 +1810,6 @@
   <string name="cloud_doc_show_removed">Vis fjernede dokumenter</string>
   <string name="cloud_doc_status_removed">Fjernet fra skyen</string>
   <string name="cloud_doc_status_still_installed">stadig installeret her</string>
-  <string name="cloud_doc_purge_confirm">Fjern permanent \"%1$s\" fra skyens historik? Hvis det stadig er installeret på en anden enhed, kan den enhed uploade det tilbage til skyen ved sin næste synkronisering.</string>
   <string name="cloud_doc_action_download">Hent</string>
   <string name="cloud_doc_action_push">Upload til skyen</string>
   <string name="cloud_doc_action_remove_cloud">Fjern fra skyen</string>
@@ -1870,8 +1820,6 @@
   <string name="cloud_doc_action_dont_sync">Synkronisér ikke til skyen</string>
   <string name="cloud_doc_action_allow_sync">Synkronisér til skyen</string>
   <string name="cloud_doc_action_purge">Fjern fra skyens historik</string>
-  <string name="cloud_doc_remove_all_confirm">Fjern %1$s fra skyen og fra alle dine enheder, inklusive denne?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Fjern %1$s fra skyen? Kopien på denne enhed bevares; enheder med dokumentsynkronisering slået til vil også fjerne det.</string>
   <string name="cloud_doc_sync_now">Synkronisér nu</string>
   <string name="cloud_doc_rescan">Scan igen fra skyen</string>
   <string name="cloud_doc_sync_now_download">Hent nye og opdaterede dokumenter</string>
@@ -1883,6 +1831,14 @@
   <string name="cloud_doc_summary_download">Hent %1$d</string>
   <string name="cloud_doc_summary_download_size">Hent %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiske hentninger starter via Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d dokument</item>
+    <item quantity="other">%1$d dokumenter</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d dokument (%2$s)</item>
+    <item quantity="other">%1$d dokumenter (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Intet at overføre</string>
   <string name="cloud_doc_selected_count">%1$d valgt</string>
   <string name="cloud_doc_bulk_skipped">Sprang %1$d ikke relevante over</string>
@@ -1899,8 +1855,6 @@
   <string name="background_image_import">Importér fra galleri…</string>
   <string name="background_image_empty">Ingen importerede billeder endnu. Tryk på \"Importér fra galleri…\" for at tilføje et.</string>
   <string name="background_image_importing">Importerer…</string>
-  <string name="background_image_delete_title">Slet billede?</string>
-  <string name="background_image_delete_confirm">Slet dette baggrundsbillede? Arbejdsområder, der stadig bruger det, vil falde tilbage til intet billede.</string>
   <string name="background_image_day">Baggrundsbillede (dag)</string>
   <string name="background_image_night">Baggrundsbillede (nat)</string>
   <string name="background_image_opacity_day">Baggrundsbilledets uigennemsigtighed (dag)</string>
@@ -1974,6 +1928,10 @@
   <string name="legacy_notice_icloud">Synkronisering bruger nu iCloud Drive. Slå den til igen i Indstillinger → Synkronisering. Denne enhed beholder det, den havde; ændringer fra dine andre enheder ankommer, når synkroniseringen er sat op igen. Sådan frigør du de gamle iCloud-data: Indstillinger → dit navn → iCloud → Administrer lager → AndBible.</string>
   <string name="legacy_notice_nextcloud">Din Nextcloud-forbindelse blev overført, men synkroniseringen er slået fra. Slå den til i Indstillinger → Synkronisering, og vælg at hente fra skyen eller oprette ny.</string>
   <string name="legacy_notice_nextcloud_unsent">Nogle ændringer på denne enhed var endnu ikke sendt til Nextcloud. De blev ikke sendt og findes kun på denne enhed.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d bogmærke kunne ikke placeres pålideligt og blev ikke importeret. Det opbevares sammen med dine gamle data på denne enhed.</item>
+    <item quantity="other">%1$d bogmærker kunne ikke placeres pålideligt og blev ikke importeret. De opbevares sammen med dine gamle data på denne enhed.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Det er et kraftfuldt, men alligevel let at bruge, offline bibelstudieprogram.</string>
   <string name="webdav_untrusted_certificate_message_device">Certifikatet for %1$s er ikke betroet af denne enhed. Betro det kun, hvis du genkender det, for eksempel fordi du selv har oprettet denne server.\n\nEmne: %2$s\nUdsteder: %3$s\nGyldigt: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2025,6 +1983,25 @@
   <string name="recommend_share_link">Del et link</string>
   <string name="recommend_qr_caption">Scan for at hente AndBible til din telefon, tablet eller computer.</string>
   <string name="desktop_activation_failed">AndBible kører allerede, men vinduet svarede ikke. Skift til den kørende instans, og prøv igen. Det blev ikke bekræftet, at indkommende filer blev afleveret.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Dette kan ikke fortrydes.</string>
+  <string name="ai_raw_log_delete_lead">Slet denne log?</string>
+  <string name="ai_provider_delete_lead">Slet udbyderen »%1$s«?</string>
+  <string name="ai_provider_delete_detail">Prompter, der bruger den, går tilbage til standardudbyderen.</string>
+  <string name="ai_model_delete_lead">Slet modellen »%1$s«?</string>
+  <string name="ai_prompt_delete_named_lead">Slet prompten »%1$s«?</string>
+  <string name="ai_prompt_delete_lead">Slet denne prompt?</string>
+  <string name="ai_reset_usage_detail">Token- og omkostningstotaler går tilbage til nul. Dette kan ikke fortrydes.</string>
+  <string name="ai_reset_usage_button">Nulstil</string>
+  <string name="ai_disclaimer_accept">Jeg accepterer</string>
+  <string name="llm_continue_iterations_lead">Fortsæt i %1$d iterationer mere?</string>
+  <string name="llm_continue_iterations_detail">AI-agenten nåede sin grænse på %1$d iterationer uden at blive færdig.</string>
+  <string name="llm_continue_button">Fortsæt</string>
+  <string name="permission_always_allow_lead">Tillad altid »%1$s«?</string>
+  <string name="permission_always_allow_button">Tillad altid</string>
+  <string name="ai_bug_report_send_lead">Send en AI-fejlrapport?</string>
+  <string name="ai_bug_report_send_button">Send</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Kom godt i gang</string>
   <string name="user_guide_section_reading_workspace">Læsning og arbejdsområde</string>
@@ -2102,4 +2079,150 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI-assistent, del 3: værktøjer, dine data og tilladelser</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI-assistent, del 4: egne prompts, omkostninger og synkronisering</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Kassér ændringer?</string>
+  <string name="dialog_keep_editing">Fortsæt redigering</string>
+  <string name="dialog_label_delete_lead">Slet etiketten »%1$s«?</string>
+  <string name="dialog_label_delete_detail">Dens studieblok-noter slettes også. Dette kan ikke fortrydes.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d bogmærke har ingen anden etiket.</item>
+    <item quantity="other">%1$d bogmærker har ingen anden etiket.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Slet etiket og %1$d bogmærke</item>
+    <item quantity="other">Slet etiket og %1$d bogmærker</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Bogmærkerne og deres noter slettes.</string>
+  <string name="dialog_label_delete_only_consequence">Bogmærkerne bevares, uden etiket.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Fjern dette bogmærke?</item>
+    <item quantity="other">Fjern %1$d bogmærker?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">Dets note fjernes også.</item>
+    <item quantity="other">Deres noter fjernes også.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Fjern alle etiketter til automatisk tildeling fra dette arbejdsområde?</string>
+  <string name="dialog_labels_reset_hidden_lead">Vis alle skjulte etiketter igen?</string>
+  <string name="dialog_labels_reset_shown_detail">Etiketter, du skjulte fra listen, vises igen.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Installér »%s«?</string>
+  <string name="install_action">Installér</string>
+  <string name="install_from_file_question">Installér dokumenter fra en fil?</string>
+  <string name="overwrite_files_detail">Disse filer findes allerede:%s</string>
+  <string name="import_studypads_question">Importér disse studieblokke?</string>
+  <string name="import_action">Importér</string>
+  <string name="restore_backup_question">Gendan dokumenterne i denne sikkerhedskopi?</string>
+  <string name="restore_backup_detail">Denne fil er en sikkerhedskopi af AndBible-dokumenter.</string>
+  <string name="update_document_question">Opdatér dette dokument?</string>
+  <string name="update_action">Opdatér</string>
+  <string name="download_documents_question">Download dokumenter?</string>
+  <string name="download_persecution_warning">Hvis du bor i et land med forfølgelse, bør du måske være forsigtig med at downloade kristent materiale via internettet. I stedet kan du skaffe zip-filer med dokumenter på en mere sikker måde og installere dem via »%1$s«. Alle downloads fra dokumentservere er krypterede (HTTPS).</string>
+  <string name="download_action">Download</string>
+  <string name="download_dont_ask_again">Download, spørg ikke igen</string>
+  <string name="download_dont_ask_again_consequence">Downloads starter fremover uden dette spørgsmål.</string>
+  <string name="passphrase_did_not_work">Adgangssætningen virkede ikke.</string>
+  <string name="try_again">Prøv igen</string>
+  <string name="interrupted_downloads_lead">Download disse dokumenter igen?</string>
+  <string name="interrupted_downloads_detail">Deres download blev afbrudt, så de blev ikke installeret.</string>
+  <string name="external_link_open_question">Åbn dette link i din browser?</string>
+  <string name="open_action">Åbn</string>
+  <string name="notification_permission_question">Tillad notifikationer?</string>
+  <string name="notification_permission_detail">Notifikationer viser status for download, behandling og oplæsning.</string>
+  <string name="allow_action">Tillad</string>
+  <string name="rate_question">Bedøm og anmeld appen?</string>
+  <string name="bug_report_email_question">Send fejlrapporten via e-mail?</string>
+  <string name="continue_action">Fortsæt</string>
+  <string name="delete_search_index_question">Slet søgeindekset for »%s«?</string>
+  <string name="remove_custom_repository_question">Fjern det brugerdefinerede lager »%s«?</string>
+  <string name="download_document_question">Download »%s«?</string>
+  <string name="choose_file_action">Vælg fil</string>
+  <string name="old_webview_question">Brug appen med en gammel WebView?</string>
+  <string name="incomplete_translation_question">Fortsæt med en delvis oversættelse?</string>
+  <string name="rate_action">Bedøm</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Slet dokumentet »%s«?</string>
+  <string name="my_document_page_delete_lead">Slet siden »%s«?</string>
+  <string name="my_document_cannot_delete_ai_lead">AI-dokumenter kan ikke slettes, mens de indeholder sider.</string>
+  <string name="my_document_cannot_delete_ai_detail">Slet siderne først.</string>
+  <string name="reading_progress_new_cycle_lead">Start en ny læsecyklus?</string>
+  <string name="reading_progress_new_cycle_detail">Dine fremskridt registreres forfra. Data fra din forrige cyklus bevares.</string>
+  <string name="reading_progress_new_cycle_start">Start</string>
+  <string name="reset_plan_lead">Nulstil denne plan?</string>
+  <string name="reset_plan_detail">Din startdato og dine fremskridt i denne plan ryddes.</string>
+  <string name="set_current_day_lead">Sæt %1$s som den aktuelle dag?</string>
+  <string name="set_current_day_detail">Alle tidligere dage markeres som læst.</string>
+  <string name="plan_duplicate_user_plan_lead">En læseplansfil har samme navn som en indbygget plan.</string>
+  <string name="plan_duplicate_user_plan_detail">Planfilen kan ikke vises på listen. Omdøb filen i mappen jsword/readingplan, og behold dens .properties-filendelse.</string>
+  <string name="background_image_delete_lead">Slet dette baggrundsbillede?</string>
+  <string name="background_image_delete_detail">Arbejdsområder, der stadig bruger det, falder tilbage til intet billede.</string>
+  <string name="reset_values_lead">Nulstil alle disse værdier?</string>
+  <string name="revert_setting_lead">Gendan denne indstilling til den nedarvede værdi?</string>
+  <string name="revert_setting_confirm">Gendan</string>
+  <string name="reset_settings_screen_lead">Nulstil indstillingerne på denne skærm?</string>
+  <string name="reset_settings_screen_detail">De vender tilbage til deres standardværdier.</string>
+  <string name="memorize_unmark_lead">Fjern memoreret-status for »%s«?</string>
+  <string name="memorize_remove_target_lead">Fjern memoreringsmålet »%s«?</string>
+  <string name="dialog_apply">Anvend</string>
+  <string name="dialog_dont_apply">Anvend ikke</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Skyen har allerede dine %s. Hvad skal der ske?</string>
+  <string name="cloud_merge_consequence">Begge sider bevares; hvor et element er ændret på begge, vinder den nyeste ændring.</string>
+  <string name="cloud_fetch_consequence">Erstatter dataene på denne enhed med kopien i skyen.</string>
+  <string name="cloud_create_consequence">Erstatter kopien i skyen med dataene på denne enhed.</string>
+  <string name="cloud_disable_consequence">Synkronisering forbliver slået fra for disse data.</string>
+  <string name="cloud_merge_lead">Flet dine %s med skyen?</string>
+  <string name="cloud_merge_confirm">Flet</string>
+  <string name="cloud_replace_confirm">Erstat</string>
+  <string name="cloud_replace_local_lead">Erstat denne enheds %s med kopien i skyen?</string>
+  <string name="cloud_replace_local_detail">Det, der er på denne enhed nu, overskrives og kan ikke gendannes.</string>
+  <string name="cloud_replace_cloud_lead">Erstat kopien af %s i skyen med denne enheds data?</string>
+  <string name="cloud_replace_cloud_detail">Det, der er i skyen nu, overskrives, og dine andre enheder modtager denne enheds data.</string>
+  <string name="sign_in_failed_lead">Kunne ikke logge ind på synkroniseringstjenesten.</string>
+  <string name="sync_too_old_lead">Denne app er for gammel til at synkronisere %s.</string>
+  <string name="sync_too_old_detail">Skydataene bruger en nyere version, end denne app understøtter. Synkronisering af dem er slået fra for nu; opdatér appen for at slå den til igen.</string>
+  <string name="backup_replace_lead">Erstat dine %s med sikkerhedskopien?</string>
+  <string name="backup_replace_detail">Det, der er på denne enhed nu, overskrives og kan ikke gendannes.</string>
+  <string name="reset_database_lead">Nulstil »%1$s« til dens oprindelige tilstand?</string>
+  <string name="reset_database_detail">Alle data i den slettes permanent. Dette kan ikke fortrydes.</string>
+  <string name="reset_database_button">Nulstil</string>
+  <string name="restore_all_lead">Erstat dine noter, bogmærker, studieblokke, læseplaner og arbejdsområder?</string>
+  <string name="restore_or_import_lead">Gendan eller importér %s?</string>
+  <string name="restore_consequence">Erstatter det, der er på denne enhed, med sikkerhedskopien.</string>
+  <string name="import_consequence">Føjer sikkerhedskopiens elementer til det, der er på denne enhed.</string>
+  <string name="sync_start_syncing">Start synkronisering</string>
+  <string name="sync_reset_lead">Log ud og nulstil synkronisering?</string>
+  <string name="sync_reset_detail">Du skal konfigurere synkronisering igen.</string>
+  <string name="webdav_forget_certificate_lead">Glem det betroede servercertifikat?</string>
+  <string name="webdav_forget_certificate_detail">Du bliver bedt om at bekræfte certifikatet igen ved næste forbindelse.</string>
+  <string name="webdav_forget_certificate_confirm">Glem</string>
+  <string name="cloud_doc_remove_all_lead">Fjern »%1$s« fra skyen og alle dine enheder?</string>
+  <string name="cloud_doc_remove_cloud_lead">Fjern »%1$s« fra skyen?</string>
+  <string name="cloud_doc_purge_lead">Fjern »%1$s« permanent fra skyens historik?</string>
+  <string name="cloud_doc_remove_all_detail">Dette sletter også kopierne på denne enhed og på alle andre enheder med dokumentsynkronisering slået til.</string>
+  <string name="cloud_doc_remove_cloud_detail">Kopier på denne enhed bevares. Enheder med dokumentsynkronisering slået til fjerner dem også.</string>
+  <string name="cloud_doc_purge_detail">En enhed, der stadig har en kopi, kan uploade den igen ved næste synkronisering.</string>
+  <string name="cloud_doc_block_confirm_button">Synkronisér ikke</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Fjern %1$d dokument fra skyen og alle dine enheder?</item>
+    <item quantity="other">Fjern %1$d dokumenter fra skyen og alle dine enheder?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Fjern %1$d dokument fra skyen?</item>
+    <item quantity="other">Fjern %1$d dokumenter fra skyen?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Fjern %1$d dokument permanent fra skyens historik?</item>
+    <item quantity="other">Fjern %1$d dokumenter permanent fra skyens historik?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Stop synkronisering af %1$d dokument til skyen?</item>
+    <item quantity="other">Stop synkronisering af %1$d dokumenter til skyen?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Flere af dine data kan nu synkroniseres</string>
+  <string name="new_sync_targets_detail">Mine dokumenter, AI-indstillinger og læsefremskridt kan også synkroniseres. Slå dem til i indstillingerne for enhedssynkronisering.</string>
+  <!--end dialog copy: B3b-->
 </resources>

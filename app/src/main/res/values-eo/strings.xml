@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">La plena uzantogvidilo troviĝas en andbible.org. La paĝoj malfermiĝas en via retumilo.</string>
   <string name="help_user_guide_home">Hejmpaĝo de la uzantogvidilo</string>
   <string name="help_read_in_user_guide">Legi en la uzantgvidilo</string>
+  <string name="help_in_user_guide">Helpo en la uzantogvidilo</string>
+  <string name="help_matching_section">Respondanta sekcio</string>
   <string name="help_read_page">Legi en la uzantgvidilo: %1$s</string>
   <string name="help_tutorial_videos">Lernvideoj</string>
   <string name="help_watch_in_order">Spekti lernvideojn laŭorde</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
   <string name="prefs_open_links_in_special_window_title">Fenestro de ligiloj</string>
   <string name="prefs_open_links_in_special_window_summary">Malfermi ligilojn en aparta fenestro por pli rapide vidigi internajn referencojn kaj numeroj de Strong</string>
+  <string name="prefs_trusted_link_domains_title">Fidindaj ligilaj domajnoj</string>
+  <string name="prefs_trusted_link_domains_summary">Ligiloj al tiuj ĉi domajnoj malfermiĝas sen demando. Malmarku domajnon por esti denove demandita.</string>
+  <string name="prefs_trusted_link_domains_empty">Ankoraŭ neniu. Markobu \"Ne demandu denove\" dum malfermo de ligilo por aldoni ĝian domajnon.</string>
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
   <string name="prefs_screen_keep_on_title">Teni ekranon enŝaltita</string>
   <string name="prefs_screen_keep_on_summary">Ne permesi malŝalti ekranon dum uzi tiun ĉi aplikaĵon</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">Interlinia distanco</string>
   <string name="line_spacing_summary">Alĝustigi spacon inter linioj de teksto</string>
   <string name="select_none">Elekti neniun</string>
-  <string name="reset_are_you_sure">Ĉu vi certe volas reagordi ĉiujn tiujn valorojn al implicitaj valoroj?</string>
   <string name="window_pinning_menutitle">Alpingli fenestron</string>
   <string name="hide_window_buttons_title">Kaŝi butonojn de fenestroj</string>
   <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de la biblia vido estas nun kaŝitaj. Fenestra navigadstrio ĉe sube estas plue montrata kaj vi povas malfermi la menuon de fenestro per frapetadi ĝin.</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">Vorto ne trovita en iu ajn vortaro</string>
   <string name="prefs_top_margin_title_mm">Supra marĝeno (%d mm)</string>
   <string name="font_size_title">Grando de tiparo</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Ĉar tiel multe Dio amis la mondon, ke Li donis Sian solenaskitan Filon, por ke ĉiu, kiu en Lin kredas, ne pereu, sed havu eternan vivon.</string>
   <string name="font_size_title_pt">Grando de tiparo (%d p.)</string>
   <string name="prefs_font_text_size_summary">Alĝustigi grandon de tiparo</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">Agordoj pri koloroj (Fenestro)</string>
   <string name="workspace_color_settings_title">Agordoj pri koloroj (Laborspaco)</string>
   <string name="color_workspace">Koloro de laborspaco</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Implicita</string>
   <string name="color_text">Koloro de teksto</string>
   <string name="color_background">Koloro de fono</string>
   <string name="colors_day_mode_title">Taga reĝimo</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">Listo de dokumentoj ĝisdatigita je %s.</string>
   <string name="download_refreshing_book_list">Ĝisdatigado de listo de elŝuteblaj dokumentoj el la serviloj…</string>
   <string name="download_source_message1">Elŝutado de dokumentoj el la jenaj fontoj:</string>
-  <string name="download_document_confirm_prefix">Elŝuti</string>
   <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
   <string name="error_downloading_status">La servilo enhavanta la dosieron %1$s liveris eraron: %2$s (%3$d).</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">Fona agado</string>
   <string name="activity_empty">Nenio funkcias</string>
   <string name="activity_failed_toast">%1$s — vidu la menuon</string>
-  <string name="download_question_title">Ĉu vi vere volas elŝuti dokumentojn?</string>
-  <string name="download_question_message">Se vi loĝas en persekutata lando, vi eble devas esti singarda pri elŝutado de kristana materialo per Interreto. Anstataŭe, vi eble volas akiri modulajn zip-dosierojn pli sekure kaj instali ilin per \"%1$s\". Ĉu vi certe volas daŭrigi la elŝutadon? Ĉiuj elŝutoj de modulaj serviloj estas ĉifritaj (HTTPS).</string>
-  <string name="do_not_ask_again">Jes, ne demandi denove</string>
   <string name="recommended_document">Konsilinda!</string>
   <string name="about_version_history">Historio de versio: %s</string>
   <string name="download_errors">Eraroj dum elŝuti</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">Kontrolado de dosiero…</string>
   <string name="invalid_module">Dosiero ne enhavas ĝustan SWORD-modulon</string>
   <string name="install_zip_title">Bonvolu atendi. Daŭras enlegado de moduloj el dosiero.</string>
-  <string name="overwrite_files">La jenaj dosieroj jam ekzistas: %s Ĉu anstataŭigi ilin?</string>
   <string name="overwrite_files_title">Ĉu anstataŭigi dosierojn?</string>
   <string name="could_not_overwrite_files">Ne povas superskribi dosierojn: %s. Malgraŭ tio, la instalado sukcesis.</string>
   <string name="module_backup_restore">Ĉi tiu dosiero estas rezerva kopio de dokumentoj de AndBible. Ĉu vi volas restaŭri ĝiajn dokumentojn?</string>
-  <string name="install_do_you_want">Ĉu instali la modulon %s?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Legplano</string>
   <string name="reading_plans_plural">Legplanoj</string>
@@ -429,12 +430,8 @@
   <string name="rdg_plan_day">%s-a tago</string>
   <string name="rdg_plan_set_start_date">Agordi daton de komenco…</string>
   <string name="set_current_day">Agordi kiel nunan tagon…</string>
-  <string name="msg_set_current_day_reading_plan">Ĉi tio agordos %1$s kiel la nunan tagon en ĉi tiu plano kaj markos ĉiujn antaŭajn tagojn kiel legitajn. Ĉu daŭrigi?</string>
   <string name="done">Farita</string>
-  <string name="reset_plan_question">Ĉu vi certe volas rekomenci tiun ĉi planon?</string>
   <string name="import_reading_plan">Enportado de legplano…</string>
-  <string name="plan_duplicate_user_plan">
-Estas legplano de uzanto en la dosierujo “jsword/readingplan” kun la samo nomo kiel interna plano. Ĝi ne montriĝas tie ĉi. Alinomu la dosieron kaj lasu ĝian dosiersufikson kiel “.properties”.</string>
   <string name="plan_name_y1ntpspr">NT, Psalmaro kaj Sentencoj jare</string>
   <string name="plan_description_y1ntpspr">
 Danke al la interreta revuo Heartlight,
@@ -469,12 +466,8 @@ laŭ ilia permeso.</string>
   <string name="delete_index">Forigi serĉ-indekson</string>
   <string name="about">Pri</string>
   <string name="delete_doc">Ĉu forigi %s?</string>
-  <string name="interrupted_downloads_title">Elŝuto interrompita</string>
-  <string name="interrupted_downloads_message">Ĉi tiuj dokumentoj ne estis instalitaj, ĉar ilia elŝuto estis interrompita:</string>
-  <string name="interrupted_downloads_question">Ĉu elŝuti ilin denove?</string>
   <string name="download_again">Elŝuti denove</string>
   <string name="delete_docs_confirm">Ĉu forigi ĉi tiujn dokumentojn?</string>
-  <string name="delete_search_index_doc">Ĉu forigi indekson de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Piednotoj kaj referencoj</string>
   <string name="share_verse">Kunhavigi…</string>
@@ -512,7 +505,6 @@ laŭ ilia permeso.</string>
   <!--can be removed-->
   <string name="bookmark_warning">Estas legosignoj aŭ notoj por tiu ĉi dokumento.</string>
   <string name="bookmark_warning2">Se strukturo de dokumento ŝanĝiĝos, ĝisdatigo de la dokumento povos movi legosignojn/notojn ene la dokumento aŭ eĉ tute malaperigi ilin.</string>
-  <string name="bookmark_warning3">Ĉu vi certe volas ĝisdatigi la modulon?</string>
   <string name="bookmark_warning4">Estas konsilinde fari sekurkopion de modulo antaŭ ol ĝisdatigi ĝin.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Laŭ tempa ordo</string>
@@ -677,10 +669,8 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Restarigi aŭ enporti el…</string>
   <string name="backup_restore2">Restarigi aŭ enporti</string>
-  <string name="overwrite_something">Ĉu anstataŭigi %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Dosiero de datumbazo</string>
-  <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn?</string>
   <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn</string>
   <string name="downloading_backup">Elŝutado de dosiero de sekurkopio…</string>
   <string name="loading_backup">Enlegado de datumbazo el sekurkopio…</string>
@@ -702,7 +692,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="send_export_file">Sendi elportan dosieron</string>
   <string name="backup_modules_title">Elekti modulojn por sekurkopii</string>
   <string name="install_zip_canceled">Rezignis instali modulon</string>
-  <string name="ask_restore_or_import">Datumbazo de %s povas esti restarigita (la ekzista datumbazo foriĝos kaj estos anstataŭigita per la elektata datumbazo) aŭ enportita (la elektata datumbazo estos enportita al la ekzista datumbazo). Kion vi volas fari?</string>
   <string name="restore">Restarigi</string>
   <string name="import2">Enporti</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -757,7 +746,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="settings_editor_back">Reen</string>
   <string name="settings_editor_close">Fermi</string>
   <string name="settings_editor_apply">Apliki</string>
-  <string name="discard_changes_confirmation">Ĉu forĵeti nekonservitajn ŝanĝojn?</string>
   <string name="discard">Forĵeti</string>
   <string name="remove">Forigi</string>
   <string name="overwrite">Anstataŭigi</string>
@@ -784,7 +772,8 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="empty_list">Neniu elemento por montri</string>
   <string name="error_skip">Preterlasi</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Difektitaj datumoj</string>
+  <string name="corrupt_database_headline">AndBible ne povas malfermi iujn el viaj datumoj</string>
+  <string name="corrupt_database_files_detail">Tiuj ĉi dosieroj ne povis esti malfermitaj: %1$s. Nenio estis ŝanĝita aŭ forigita. Reagordo komencas ilin malplenaj kaj konservas ĉiun difektitan dosieron en ĉi tiu aparato, renomitan per .corrupt- plus la dato kaj horo.</string>
   <string name="corrupt_database_reset">Reagordi difektitajn datumojn</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">La difektitaj datumoj ne povis esti reagorditaj: %1$s ne povis esti flankenmovita. Nenio estis ŝanĝita. Vi povas reprovi, sendi erarraporton aŭ uzi Sekurkopion.</string>
@@ -792,8 +781,8 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="damaged_data_needs_attention">La datumoj de la apliko bezonas atenton. Tuŝetu por malfermi la aplikon.</string>
   <string name="debug_test_error">Provo-eraro (sencimiga versio)</string>
   <string name="bug_report_prepare_failed">Ne eblis prepari aŭ kunhavigi la raporton. Vi povas reprovi, aŭ uzi Sekurkopio kaj restarigo por konservi viajn datumojn.</string>
-  <string name="bug_report_email_title">Sendi erar-raporton per retpoŝto</string>
   <string name="bug_report_desktop_text">Poste oni demandos vin, kie konservi la dosieron de la cimraporto. Tiam vi ricevos instrukciojn por sendi ĝin al la disvolva teamo.</string>
+  <string name="bug_report_email_title">Sendi erar-raporton per retpoŝto</string>
   <string name="bug_report_email_text">Sekve elektu vian preferatan retpoŝtilon (ekzemple Gmail) por sendi raporton al la programistoj.</string>
   <string name="bug_report_manual_title">Sendi la raporton retpoŝte</string>
   <string name="bug_report_manual_text_saved">La raporto estis konservita en <b>%1$s</b>.\n\nBonvolu sendi retmesaĝon al <b>%2$s</b> kaj aldoni tiun dosieron; retpoŝta programo ne povas aldoni ĝin por vi. Proponata temo: <b>%3$s</b>. En la mesaĝo, diru al ni, kion vi faris kaj kio okazis.</string>
@@ -864,8 +853,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="beta_special_regards">Kun salutoj, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Vi povas subteni la disvolvon de AndBible finance per %s.</string>
   <string name="beta_special_sponsor_link">sponsorado de disvolvaj horoj</string>
-  <string name="new_sync_targets_notice_title">Novaj agordoj pri samtempigo haveblaj</string>
-  <string name="new_sync_targets_notice_message">Tiu ĉi versio de AndBible aldonas novajn kategoriojn de samtempigo: miajn dokumentojn, agordojn pri AI kaj legan progreson. Se vi volas aktivigi ilin, vi povas fari tion en la agordoj pri samtempigo de via aparato.</string>
   <string name="open_settings">Malfermi agordojn</string>
   <!--History-->
   <string name="history_for">Historio (%1$s: fenestro %2$d)</string>
@@ -952,7 +939,6 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="give_passphrase_for_module">La dokumento %s estas ĉifrita kaj pasvorto estas necesa por malfermi ĝin</string>
   <string name="unlock_module">Agordi pasvorton por modulo</string>
   <string name="unlock_info">Informoj pri malfermi ĉifritan modulon</string>
-  <string name="try_again_passphrase">Erara pasvorto; ĉu reprovi?</string>
   <string name="show_unlock_info">Pri ĉifrita modulo</string>
   <string name="prefs_experimental_features_title">Eksperimentaj ebloj</string>
   <string name="prefs_experimental_features_summary">Elekti eksperimentajn eblojn por aktivigi. Tiuj ĉi ebloj plue estas prilaborataj kaj povas esti ŝanĝitaj aŭ forigitaj.</string>
@@ -986,9 +972,6 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="active_window_indicator_summary">Emfazi angulojn de la la aktiva fenestro</string>
   <string name="app_licence_title">Permesilo</string>
   <string name="how_to_contribute">Kontribui</string>
-  <string name="confirm_delete_bookmarks">Ĉu vi certe volas forigi %d legosignojn kaj iliajn notojn?</string>
-  <string name="confirm_delete_orphaned_bookmarks">La elektita etikedo estas ligita al %d legosignojn, kiuj ne havas aliajn etikedojn. Ĉu vi volas forigi tiujn ĉi legosignojn kun la etikedo?</string>
-  <string name="delete_label_and_bookmarks">Forigi etikedon kaj legosignojn</string>
   <string name="delete_label_only">Forigi nur etikedon</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomendi al amiko</string>
@@ -1019,8 +1002,6 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="old_webview">La pakaĵo Android WebView estas tro malnova (%1$s). Necesas ĝisdatigi la pakaĵon almenaŭ al la versio %2$s por uzi %3$s. Por plejparto da aparatoj tio eblas per la vendejo %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Pluigi malgraŭe</string>
-  <string name="proceed">Sekva</string>
-  <string name="rate_title">Taksi kaj recenzi la aplikaĵon</string>
   <string name="rate_message5">
 Detalaj favoraj recenzoj multe helpas al la malfermkoda projekto AndBible. Dankon!</string>
   <string name="rate_message6">
@@ -1061,7 +1042,6 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="primary_label">Ĉefa etikedo</string>
   <string name="favourite_label">Ŝatata etikedo</string>
   <string name="edit_label">Redakti etikedon</string>
-  <string name="delete_label_confirmation">Ĉu vi volas forigi la legosignan etikedon “%s”? Ĉiuj rilataj notblokoj perdiĝos.</string>
   <string name="active_labels">Elektitaj etikedoj</string>
   <string name="recent_labels">Antaŭaj etikedoj</string>
   <string name="other_labels">Aliaj etikedoj</string>
@@ -1071,8 +1051,6 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="book_menu_show_progress_bars">Montri progres-striojn</string>
   <string name="reset_workspace_labels">Ĉu vi volas nuligi agordojn pri aŭtomata atribuo kaj ŝatataj etikedoj por tiu ĉi laborspaco?</string>
   <string name="clear_auto_assign_labels">Forigi aŭtomate asignatajn etikedojn</string>
-  <string name="reset_workspace_auto_assign_labels">Ĉu vi volas forigi ĉiujn aŭtomate asignatajn etikedojn el ĉi tiu laborspaco?</string>
-  <string name="reset_hide_labels">Ĉu vi volas nuligi agordojn pri kaŝi specifajn etikedojn?</string>
   <string name="reorder">Reordigi</string>
   <string name="system_items">Agoj de operaciumo</string>
   <string name="system_items1">Pli</string>
@@ -1086,7 +1064,6 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="ios_fullscreen_hint">Duoble tuŝetu aŭ tuŝu la butonon por eliri el plena ekrano.</string>
   <string name="desktop_exit_fullscreen">Eliri el plenekrana reĝimo</string>
   <string name="exit_fullscreen">Duoble frapetu por eliri plenekranan reĝimon</string>
-  <string name="reset_app_prefs">Ĉu vi volas reagordi ĉiujn aplikaĵajn agordojn montratajn sur tiu ĉi ekrano al implicitaj valoroj?</string>
   <string name="label_red">Ruĝa</string>
   <string name="label_green">Verda</string>
   <string name="label_blue">Blua</string>
@@ -1097,7 +1074,6 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="reset_databases_title">Reagordi datumbazojn</string>
   <string name="reset_databases_description">Reagordi individuajn datumbazojn al sia komenca malplena stato. Tio ĉi ne povas esti malfarita.</string>
   <string name="last_crash_info_title">Informoj pri antaŭa paneo</string>
-  <string name="reset_database_confirm">Tio ĉi neinversigeble forigos ĉiujn datumojn en \"%1$s\" kaj reagordos ilin al la komenca stato. Tio ĉi ne povas esti malfarita.\n\nĈu vi certas?</string>
   <string name="reset_database_success">Datumbazo reagordita sukcese</string>
   <string name="reset_something">Reagordi: %1$s</string>
   <string name="export">Elporti</string>
@@ -1167,19 +1143,18 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="manage_labels_help_favourite">Konservi la etikedon en viaj ŝatataĵoj por rapida aliro.</string>
   <string name="manage_labels_help_styles">Sub la nomo malgranda ekzemplo montras la aspekton de la etikedo: Elekto por legosigno de teksta elekto, Tuta verso por tiu de tuta verso, kaj Laborspaco-marko por stilo, kiun ĉi tiu laborspaco superregas. Griza ekzemplo sen ornamo signifas, ke la legosignoj de la etikedo ne estas desegnataj. Kaŝu la ekzemplojn per la menuo ⋮.</string>
   <string name="manage_labels_help_reorder">Reordigu la liston per la menuo ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Sur mallarĝa ekrano la listo preterlasas la ĉefan, aŭtomate-asignan kaj ŝatatan piktogramojn por lasi lokon por la nomoj de etikedoj. Tuŝetu etikedon por agordi ilin en ĝia redaktilo.</string>
   <string name="added_to_bookmark">Asignita al tiu ĉi legosigno</string>
   <string name="strongs_links">Ligiloj</string>
   <string name="strongs_text_and_links">Tekstoj kaj ligiloj</string>
   <string name="strongs_hidden_links">Kaŝitaj ligiloj</string>
   <string name="verse_tip">Por elekti parton aŭ plurajn versojn, frapetadu la tekston de Biblio</string>
-  <string name="permission_required">Permeso postulata</string>
   <string name="labels_search_hint">Serĉi</string>
   <string name="search_mode_name_start">Nomo (komenciĝas per)</string>
   <string name="search_mode_name_contains">Nomo (enhavas)</string>
   <string name="search_mode_content">Enhavo</string>
   <string name="search_results_matches">%d serĉrezultoj</string>
   <string name="search_results_match">1 serĉrezulto</string>
-  <string name="progress_status_permission">Por montri sciigojn (stato de elŝuto, prilaborado, stato de aŭskultado) la aplikaĵo bezonas vian rajtigon.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simpla Kalkulilo</string>
   <string name="prefs_persecution_cat">Agordoj por persekutataj</string>
@@ -1219,7 +1194,6 @@ Vi povas elŝuti la plej aktualan diskretan version el %s.</string>
   <string name="custom_repositories_create_button_label">Aldoni propran deponejon</string>
   <string name="custom_repositories_info_button_label">Informoj</string>
   <string name="repository_specification">Retadreso de deponejo</string>
-  <string name="delete_custom_repository">Ĉu forigi la propran deponejon %s?</string>
   <string name="custom_repositories_help1">Por aldoni novan deponejon, enigu aŭ kopiu-kaj-algluu ligilon de propra deponejo tie ĉi.</string>
   <string name="custom_repositories_help2">Pliaj informoj pri propraj deponejoj troviĝas sur la %s.</string>
   <string name="custom_repositories_help0">Vi povas instali dokumentojn el eksteraj deponejoj per instali proprajn deponejojn.</string>
@@ -1241,9 +1215,6 @@ Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu priva
   <string name="db_bookmarks">Legosignoj, miaj notoj, etikedoj kaj notblokoj</string>
   <string name="synchronizing">Samtempigado…</string>
   <string name="notification_finished">Finite</string>
-  <string name="overrideBackup">
-Ekzistas datumbazo en la nubo, al kiu tiu ĉi aparato ne estas samtempigita.
-En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="reading_plans_content">legplanoj kun iliaj progresoj</string>
   <string name="bookmarks_contents">legosignoj, etikedoj, notblokoj</string>
   <string name="workspaces_contents">laborspacoj kaj fenestroj</string>
@@ -1263,7 +1234,6 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="reading_progress_calendar">Lega agado</string>
   <string name="reading_progress_cycle">Ciklo %d</string>
   <string name="reading_progress_new_cycle">Nova ciklo</string>
-  <string name="reading_progress_new_cycle_confirm">Ĉu komenci novan ciklon de legado? Tio ĉi ekspuros vian progreson de la komenco, konservante la datumojn de via antaŭa ciklo.</string>
   <string name="reading_progress_previous_cycle">Antaŭa ciklo</string>
   <string name="reading_progress_next_cycle">Sekva ciklo</string>
   <string name="cloud_merge_data">Kunfandi datumojn</string>
@@ -1273,7 +1243,6 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="cloud_sync_title">Samtempigo</string>
   <string name="reset_sync">Elsaluti</string>
   <string name="prefs_reset_sync_summary">Malaktivigi samtempigon kaj nuligi rilatajn agordojn</string>
-  <string name="sync_confirmation">Ĉu vi certe volas elsaluti kaj rezigni samtempigon?</string>
   <string name="cloud_info">Informoj pri nubo</string>
   <string name="cloud_info_summary">Datumoj konservitaj en nubo: %s MB</string>
   <string name="sync_adapter">Servo de samtempigo</string>
@@ -1289,7 +1258,6 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="webdav_server_url_hint">Adreso de la WebDAV-dosierujo, ekz. https://nas.local/dav/ aŭ https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinkronigo postulas sekuran https:// adreson.</string>
   <string name="webdav_certificate_title">Servila atestilo</string>
-  <string name="webdav_forget_certificate_message">Ĉu forgesi la fidatan servilan atestilon? Oni petos vin konfirmi la atestilon denove ĉe la sekva konekto.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nefidata servila atestilo</string>
   <string name="webdav_untrusted_certificate_message">La atestilo de %1$s ne estas fidata de Android. Fidu ĝin nur se vi rekonas ĝin, ekzemple ĉar vi mem starigis ĉi tiun servilon.\n\nSubjekto: %2$s\nEldonanto: %3$s\nValida: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1306,14 +1274,7 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="synchronization_categories">Kategorioj de samtempigo</string>
   <string name="sync_general_settings">Informoj kaj agordoj</string>
   <string name="sync_introduction">Enkonduko</string>
-  <string name="are_you_sure">Ĉu vi certas?</string>
   <string name="are_you_sure_merge">Kaj la datumoj en ĉi tiu aparato kaj la %s en la nubo estos konservitaj. Kie la sama ero ŝanĝiĝis ambaŭflanke, la pli nova ŝanĝo estas konservata. La datumoj de ĉi tiu aparato estos senditaj al viaj aliaj aparatoj.</string>
-  <string name="are_you_sure_reset_local">Tio ĉi anstataŭigos vian lokan datumbazon de %s per enhavo, kiu nune troviĝas en la nuba servo.</string>
-  <string name="are_you_sure_reset_cloud">Tio ĉi anstataŭigos vian nuban datumbazon de %s per enhavo, kiu nune troviĝas en tiu ĉi aparato.</string>
-  <string name="sync_cant_fetch">La versio de datumbazo aŭ dosiero konservita en la nubo estas pli alta ol versio subtenata per tiu ĉi aplikaĵo.</string>
-  <string name="sync_disabling">Malaktivigos samtempigon de %s provizore.</string>
-  <string name="sync_update_app">Ĝisdatigu la aplikaĵon por pluigi samtempigon.</string>
-  <string name="sign_in_failed">Ensaluto al samtempiga servo malsukcesis.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Malaktivigas nuban samtempigon. Vi devas permane reaktivigi ĝin post restarigo.</string>
   <string name="report">Raporti</string>
@@ -1331,6 +1292,7 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="open_here">Malfermi tie ĉi</string>
   <string name="external_link">Ekstera ligilo</string>
   <string name="external_link_question">Tio ĉi malfermos la eksteran ligilon %s per aplikaĵo de retfoliumilo, ĉu pluigi?</string>
+  <string name="external_link_dont_ask_again">Ne demandu denove por %s</string>
   <string name="nameless">Neniu titolo</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Agoj je unufoja frapeto (Biblioj)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Agoj je unufoja frapeto (aliaj)</string>
@@ -1379,8 +1341,6 @@ Ne montri tion ĉi denove</string>
   <string name="memorize_include_reference_summary">Aldoni la biblian referencon (ekz. Johano 3:16) kiel la lastan elementon por parkerigi</string>
   <string name="reading_progress_settings">Progreso kaj parkerigo</string>
   <string name="reading_progress_settings_summary">Agordoj pri aŭtomata spurado, parkerigo kaj tajpaj ekzercoj</string>
-  <string name="memorize_confirm_unmark">Ĉu forigi staton de parkerigo por %s?</string>
-  <string name="memorize_confirm_remove_target">Ĉu forigi parkerigan celon por %s?</string>
   <string name="memorize_tab_reading">Legado</string>
   <string name="memorize_tab_memorization">Parkerigo</string>
   <string name="memorize_verses_memorized">parkerigataj</string>
@@ -1406,7 +1366,6 @@ Ne montri tion ĉi denove</string>
   <string name="llm_reset_usage_title">Forviŝi datumojn pri uzado</string>
   <string name="llm_reset_usage_summary">Forviŝi historiojn de uzitaj ĵetonoj kaj kostoj</string>
   <string name="llm_reset_usage_confirm_title">Ĉu forviŝi datumojn pri uzado?</string>
-  <string name="llm_reset_usage_confirm_message">Tio ĉi forviŝos ĉiujn kolektitajn datumojn pri uzado.</string>
   <string name="llm_custom_input_price_title">Eniga prezo ($/megaĵetono)</string>
   <string name="llm_custom_output_price_title">Eliga prezo ($/megaĵetono)</string>
   <string name="llm_cost_total">Sumo: %1$s</string>
@@ -1422,8 +1381,6 @@ Ne montri tion ĉi denove</string>
   <string name="llm_parse_error_anthropic">Malsukcesis pritrakti respondon de Anthropic: %1$s</string>
   <string name="llm_error_unknown">Nekonata eraro</string>
   <string name="llm_error_max_iterations">Maksimuma ripetkvanto (%1$d) atingita sen kompletigo</string>
-  <string name="llm_continue_iterations_title">Ĉu pluigi?</string>
-  <string name="llm_continue_iterations_message">La AI-agento atingis sian limon de %1$d ripetoj sen kompletigo. Ĉu provi plenumi %2$d pliajn ripetojn?</string>
   <string name="agent_max_iterations_title">Maksimuma ripetkvanto</string>
   <string name="agent_max_iterations_summary">Maksimuma nombro da ripetoj (iteracioj) antaŭ ol montri demandon ĉu pluigi (0 = senlima)</string>
   <string name="ask_model_before_run_title">Demandi pri modelo antaŭ ol plenumi</string>
@@ -1483,7 +1440,6 @@ Ne montri tion ĉi denove</string>
   <string name="ai_models_summary_none">Neniu modelo agordita</string>
   <string name="ai_add_provider">Aldoni liveranton</string>
   <string name="ai_provider_edit">Redakti</string>
-  <string name="ai_provider_delete_confirm">Ĉu forigi la liveranton “%1$s”? Demandoj, kiuj uzas tiun ĉi liveranton revenos al implicita stato.</string>
   <string name="ai_provider_api_key_not_set">API-ŝlosilo ne agordita</string>
   <string name="ai_provider_select_type">Elekti specon de liveranto</string>
   <string name="ai_provider_name">Nomo de liveranto</string>
@@ -1503,7 +1459,6 @@ Ne montri tion ĉi denove</string>
   <string name="edit_model_title">Redakti modelon</string>
   <string name="model_saved">Konservis modelon</string>
   <string name="model_deleted">Forigis modelon</string>
-  <string name="model_delete_confirm">Ĉu forigi la modelon “%1$s”?</string>
   <string name="model_set_default">Agordi kiel implicitan modelon</string>
   <string name="model_select_provider">Liveranto</string>
   <string name="model_supported_badge">✓ Subtenata</string>
@@ -1543,7 +1498,6 @@ Ne montri tion ĉi denove</string>
   <string name="ai_disclaimer_point8">Viaj datumoj estos senditaj al la serviloj de via elektita liveranto de artefarita intelekto. Uzante API-ŝlosilon, vi akceptas la kondiĉojn kaj privatecan politikon de tiu liveranto. Memgastigitaj modeloj estas eblaj sed postulas pli da teĥnika scio, kaj probable ne eligas same bonajn rezultojn kiel komercaj modeloj.</string>
   <string name="ai_disclaimer_point9">Liverantoj de artefarita intelekto enkasigas monon por uzo de API. Kostoj montrataj en AndBible estas proksimumaj – ĉiam kontrolu la fakturon de via liveranto por realaj ŝarĝoj.</string>
   <string name="ai_disclaimer_accept_title">Akcepti malgarantion</string>
-  <string name="ai_disclaimer_accept_button">Mi akceptas kaj plene respondumas</string>
   <string name="prompt_permission_mode">Reĝimo de permesoj</string>
   <string name="prompt_permission_mode_description">Agordi kiam uzant-konfirmo estas postulata antaŭ ol AI plenumas skriboperaciojn. La agordoj por ĉiu ilo sube povas anstataŭi tion ĉi por individuaj iloj.</string>
   <string name="agent_permission_mode_summary">Agordi kiam uzant-konfirmo estas postulata antaŭ AI-skriboperacioj</string>
@@ -1659,7 +1613,6 @@ Ne montri tion ĉi denove</string>
   <string name="default_prompt_custom_desc">Plenumi propran taskon sur la elektita fragmento</string>
   <string name="default_prompt_custom_template">Sekvu la specifan taskon de la uzanto por la elektita fragmento de Biblio.</string>
   <string name="copy">Kopii</string>
-  <string name="delete_prompt_confirm_message">Ĉu vi certe volas forigi tiun ĉi demandon?</string>
   <string name="ai_hide_prompt">Kaŝi</string>
   <string name="ai_restore_hidden_prompts">Restarigi kaŝitajn demandojn</string>
   <string name="ai_prompt_hidden">Kaŝita demando</string>
@@ -1744,8 +1697,6 @@ Ne montri tion ĉi denove</string>
   <string name="permission_allow_all_session">Permesi ĉiujn ilojn en tiu ĉi salutaĵo</string>
   <string name="permission_allow_always">Ĉiam permesi “%1$s”</string>
   <string name="permission_deny">Malpermesi</string>
-  <string name="permission_always_allow_confirm_title">Ĉu ĉiam permesi?</string>
-  <string name="permission_always_allow_confirm">Ĉu vi certe volas porĉiame permesi “%1$s”?</string>
   <string name="permission_always_allow_confirm_reset_hint">Vi povas reagordi tion ĉi per la menuo “Agordoj pri AI”.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Permesoj de iloj</string>
@@ -1850,18 +1801,15 @@ Ne montri tion ĉi denove</string>
   <string name="my_document_new_name">Dokumento %d</string>
   <string name="my_document_create_title">Krei novan dokumenton</string>
   <string name="my_document_rename_title">Renomi dokumenton</string>
-  <string name="my_document_delete_confirmation">Ĉu forigi la dokumenton “%s”?</string>
   <string name="show_secret">Montri</string>
   <string name="hide_secret">Kaŝi</string>
   <string name="ai_documents_name">AI-dokumentoj</string>
   <string name="ai_documents_description">Aŭtomate generitaj dokumentoj de AI</string>
-  <string name="my_document_cannot_delete_ai_documents">Ne eblas forigi AI-dokumentojn, kiuj enhavas paĝojn.. Unue forigu la paĝojn.</string>
   <string name="my_document_save_changes">Ĉu konservi ŝanĝojn?</string>
   <string name="my_document_no_description">Neniu priskribo</string>
   <string name="my_document_edit_description">Redakti priskribon</string>
   <string name="my_document_pages_title">%s - paĝoj</string>
   <string name="my_document_page_rename_title">Renomi paĝon</string>
-  <string name="my_document_page_delete_confirmation">Ĉu forigi la paĝon “%s”?</string>
   <string name="my_document_pages_delete_confirmation">Ĉu forigi ĉi tiujn paĝojn?</string>
   <string name="my_documents_switch_document">Ŝanĝi dokumenton</string>
   <string name="my_document_new_page_name">Paĝo %1$d</string>
@@ -1929,7 +1877,6 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_show_removed">Montri forigitajn dokumentojn</string>
   <string name="cloud_doc_status_removed">Forigita el la nubo</string>
   <string name="cloud_doc_status_still_installed">ankoraŭ instalita tie ĉi</string>
-  <string name="cloud_doc_purge_confirm">Ĉu porĉiame forigi “%1$s” el la nuba historio? Se ĝi ankoraŭ estas instalita sur alia aparato, tiu aparato povos realŝuti ĝin al la nubo dum sia sekva samtempigo.</string>
   <string name="cloud_doc_action_download">Elŝuti</string>
   <string name="cloud_doc_action_push">Alŝuti al la nubo</string>
   <string name="cloud_doc_action_remove_cloud">Forigi el la nubo</string>
@@ -1940,8 +1887,6 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_action_dont_sync">Ne samtempigi al la nubo</string>
   <string name="cloud_doc_action_allow_sync">Samtempigi al la nubo</string>
   <string name="cloud_doc_action_purge">Forigi el la nuba historio</string>
-  <string name="cloud_doc_remove_all_confirm">Ĉu forigi “%1$s” el la nubo kaj el ĉiuj viaj aparatoj, ankoraŭ el tiu ĉi aparato?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Ĉu forigi “%1$s” el la nubo? La kopio sur tiu ĉi aparato konserviĝos; sed aparatoj kun ŝaltita dokumenta samtempigo ankaŭ forigos ĝin.</string>
   <string name="cloud_doc_sync_now">Samtempigi nun</string>
   <string name="cloud_doc_rescan">Reskani el la nubo</string>
   <string name="cloud_doc_sync_now_download">Elŝuti novajn kaj ĝisdatigitajn dokumentojn</string>
@@ -1953,6 +1898,14 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_summary_download">Elŝuti %1$d</string>
   <string name="cloud_doc_summary_download_size">Elŝuti %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Aŭtomataj elŝutoj komenciĝos per vifio.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d dokumento</item>
+        <item quantity="other">%1$d dokumentoj</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d dokumento (%2$s)</item>
+        <item quantity="other">%1$d dokumentoj (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Nenio por transigi</string>
   <string name="cloud_doc_selected_count">%1$d elektita(j)</string>
   <string name="cloud_doc_bulk_skipped">Preterlasita(j) %1$d ne-aplikebla(j)</string>
@@ -1969,8 +1922,6 @@ Ne montri tion ĉi denove</string>
   <string name="background_image_import">Enporti el galerio…</string>
   <string name="background_image_empty">Ankoraŭ neniuj enportitaj bildoj. Tuŝu \"Enporti el galerio…\" por aldoni unu.</string>
   <string name="background_image_importing">Enportado…</string>
-  <string name="background_image_delete_title">Ĉu forigi bildon?</string>
-  <string name="background_image_delete_confirm">Ĉu forigi ĉi tiun fonan bildon? Laborspacoj, kiuj ankoraŭ uzas ĝin, revenos al neniu bildo.</string>
   <string name="background_image_day">Fona bildo (tago)</string>
   <string name="background_image_night">Fona bildo (nokto)</string>
   <string name="background_image_opacity_day">Maldiafaneco de fona bildo (tago)</string>
@@ -2044,6 +1995,10 @@ Ne montri tion ĉi denove</string>
   <string name="legacy_notice_icloud">Sinkronigo nun uzas iCloud Drive. Ŝaltu ĝin denove en Agordoj → Sinkronigo. Ĉi tiu aparato konservas tion, kion ĝi havis; ŝanĝoj de viaj aliaj aparatoj alvenos kiam sinkronigo estos denove agordita. Por liberigi la malnovajn iCloud-datumojn: Agordoj → via nomo → iCloud → Administri stokadon → AndBible.</string>
   <string name="legacy_notice_nextcloud">Via Nextcloud-konekto estis transportita, sed sinkronigo estas malŝaltita. Ŝaltu ĝin en Agordoj → Sinkronigo kaj elektu ĉu preni el la nubo aŭ krei novan.</string>
   <string name="legacy_notice_nextcloud_unsent">Kelkaj ŝanĝoj en ĉi tiu aparato ankoraŭ ne estis senditaj al Nextcloud. Ili ne estis senditaj kaj restas nur en ĉi tiu aparato.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d legosigno ne povis esti metita fidinde kaj ne estis enportita. Ĝi restas kun viaj malnovaj datumoj en ĉi tiu aparato.</item>
+        <item quantity="other">%1$d legosignoj ne povis esti metitaj fidinde kaj ne estis enportitaj. Ili restas kun viaj malnovaj datumoj en ĉi tiu aparato.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Ĝi estas potenca, tamen facile uzebla, senreta Biblia studa aplikaĵo.</string>
   <string name="webdav_untrusted_certificate_message_device">La atestilo de %1$s ne estas fidata de ĉi tiu aparato. Fidu ĝin nur se vi rekonas ĝin, ekzemple ĉar vi mem starigis ĉi tiun servilon.\n\nSubjekto: %2$s\nEldonanto: %3$s\nValida: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2095,6 +2050,25 @@ Ne montri tion ĉi denove</string>
   <string name="recommend_share_link">Kunhavigi ligilon</string>
   <string name="recommend_qr_caption">Skanu por akiri AndBible por via telefono, tabulkomputilo aŭ komputilo.</string>
   <string name="desktop_activation_failed">AndBible jam funkcias, sed ĝia fenestro ne respondis. Ŝanĝu al la funkcianta kopio kaj reprovu. Envenintaj dosieroj ne estis konfirmitaj kiel liveritaj.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Tio ne povas esti malfarita.</string>
+  <string name="ai_raw_log_delete_lead">Ĉu forigi ĉi tiun protokolon?</string>
+  <string name="ai_provider_delete_lead">Ĉu forigi la liveranton “%1$s”?</string>
+  <string name="ai_provider_delete_detail">Demandoj, kiuj uzas ĝin, revenas al la implicita liveranto.</string>
+  <string name="ai_model_delete_lead">Ĉu forigi la modelon “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Ĉu forigi la demandon “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Ĉu forigi ĉi tiun demandon?</string>
+  <string name="ai_reset_usage_detail">Sumoj de ĵetonoj kaj kostoj revenas al nulo. Tio ne povas esti malfarita.</string>
+  <string name="ai_reset_usage_button">Reagordi</string>
+  <string name="ai_disclaimer_accept">Mi akceptas</string>
+  <string name="llm_continue_iterations_lead">Ĉu daŭrigi por pliaj %1$d iteracioj?</string>
+  <string name="llm_continue_iterations_detail">La AI-agento atingis sian limon de %1$d iteracioj sen finiĝi.</string>
+  <string name="llm_continue_button">Daŭrigi</string>
+  <string name="permission_always_allow_lead">Ĉu ĉiam permesi “%1$s”?</string>
+  <string name="permission_always_allow_button">Ĉiam permesi</string>
+  <string name="ai_bug_report_send_lead">Ĉu sendi AI-raporton pri eraro?</string>
+  <string name="ai_bug_report_send_button">Sendi</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Unuaj paŝoj</string>
   <string name="user_guide_section_reading_workspace">Legado kaj laborspaco</string>
@@ -2172,4 +2146,150 @@ Ne montri tion ĉi denove</string>
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI-asistanto, parto 3: iloj, viaj datumoj kaj permesoj</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI-asistanto, parto 4: propraj demandoj, kostoj kaj sinkronigo</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Ĉu forĵeti ŝanĝojn?</string>
+  <string name="dialog_keep_editing">Daŭrigi redaktadon</string>
+  <string name="dialog_label_delete_lead">Ĉu forigi la etikedon “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Ĝiaj notoj de notblokoj ankaŭ estas forigitaj. Tio ne povas esti malfarita.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d legosigno ne havas alian etikedon.</item>
+        <item quantity="other">%1$d legosignoj ne havas alian etikedon.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Forigi etikedon kaj %1$d legosignon</item>
+        <item quantity="other">Forigi etikedon kaj %1$d legosignojn</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">La legosignoj kaj iliaj notoj estas forigitaj.</string>
+  <string name="dialog_label_delete_only_consequence">La legosignoj restas, sen etikedo.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Ĉu forigi ĉi tiun legosignon?</item>
+        <item quantity="other">Ĉu forigi %1$d legosignojn?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Ĝia noto ankaŭ estas forigita.</item>
+        <item quantity="other">Iliaj notoj ankaŭ estas forigitaj.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Ĉu forigi ĉiujn aŭtomate-asignajn etikedojn de ĉi tiu laborspaco?</string>
+  <string name="dialog_labels_reset_hidden_lead">Ĉu montri denove ĉiujn kaŝitajn etikedojn?</string>
+  <string name="dialog_labels_reset_shown_detail">Etikedoj, kiujn vi kaŝis el la listo, estas montrataj denove.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Ĉu instali “%s”?</string>
+  <string name="install_action">Instali</string>
+  <string name="install_from_file_question">Ĉu instali dokumentojn el dosiero?</string>
+  <string name="overwrite_files_detail">Tiuj ĉi dosieroj jam ekzistas:%s</string>
+  <string name="import_studypads_question">Ĉu enporti ĉi tiujn notblokojn?</string>
+  <string name="import_action">Enporti</string>
+  <string name="restore_backup_question">Ĉu restarigi la dokumentojn en ĉi tiu savkopio?</string>
+  <string name="restore_backup_detail">Ĉi tiu dosiero estas savkopio de dokumentoj de AndBible.</string>
+  <string name="update_document_question">Ĉu ĝisdatigi ĉi tiun dokumenton?</string>
+  <string name="update_action">Ĝisdatigi</string>
+  <string name="download_documents_question">Ĉu elŝuti dokumentojn?</string>
+  <string name="download_persecution_warning">Se vi vivas en persekutata lando, vi eble devas esti singarda pri elŝuto de kristana materialo per la Interreto. Anstataŭe vi eble volas akiri zip-dosierojn de dokumentoj pli sekure kaj instali ilin per “%1$s”. Ĉiuj elŝutoj de dokumentaj serviloj estas ĉifritaj (HTTPS).</string>
+  <string name="download_action">Elŝuti</string>
+  <string name="download_dont_ask_again">Elŝuti, ne demandi denove</string>
+  <string name="download_dont_ask_again_consequence">Elŝutoj komenciĝos estonte sen ĉi tiu demando.</string>
+  <string name="passphrase_did_not_work">La pasfrazo ne funkciis.</string>
+  <string name="try_again">Reprovi</string>
+  <string name="interrupted_downloads_lead">Ĉu elŝuti ĉi tiujn dokumentojn denove?</string>
+  <string name="interrupted_downloads_detail">Ilia elŝuto estis interrompita, do ili ne estis instalitaj.</string>
+  <string name="external_link_open_question">Ĉu malfermi ĉi tiun ligilon en via retumilo?</string>
+  <string name="open_action">Malfermi</string>
+  <string name="notification_permission_question">Ĉu permesi sciigojn?</string>
+  <string name="notification_permission_detail">Sciigoj montras staton de elŝutoj, pretigon kaj staton de parolado.</string>
+  <string name="allow_action">Permesi</string>
+  <string name="rate_question">Ĉu taksi kaj recenzi la aplikaĵon?</string>
+  <string name="bug_report_email_question">Ĉu sendi la raporton pri eraro per retpoŝto?</string>
+  <string name="continue_action">Daŭrigi</string>
+  <string name="delete_search_index_question">Ĉu forigi la serĉindekson de “%s”?</string>
+  <string name="remove_custom_repository_question">Ĉu forigi la propran deponejon “%s”?</string>
+  <string name="download_document_question">Ĉu elŝuti “%s”?</string>
+  <string name="choose_file_action">Elekti dosieron</string>
+  <string name="old_webview_question">Ĉu uzi la aplikaĵon kun malnova WebView?</string>
+  <string name="incomplete_translation_question">Ĉu daŭrigi per nekompleta traduko?</string>
+  <string name="rate_action">Taksi</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Ĉu forigi la dokumenton “%s”?</string>
+  <string name="my_document_page_delete_lead">Ĉu forigi la paĝon “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">AI-dokumentoj ne povas esti forigitaj dum ili enhavas paĝojn.</string>
+  <string name="my_document_cannot_delete_ai_detail">Forigu unue la paĝojn.</string>
+  <string name="reading_progress_new_cycle_lead">Ĉu komenci novan legociklon?</string>
+  <string name="reading_progress_new_cycle_detail">Via progreso estas sekvata de nulo. La datumoj de via antaŭa ciklo restas konservitaj.</string>
+  <string name="reading_progress_new_cycle_start">Komenci</string>
+  <string name="reset_plan_lead">Ĉu reagordi ĉi tiun planon?</string>
+  <string name="reset_plan_detail">Via komenca dato kaj progreso en ĉi tiu plano estas viŝitaj.</string>
+  <string name="set_current_day_lead">Ĉu agordi %1$s kiel la nunan tagon?</string>
+  <string name="set_current_day_detail">Ĉiuj antaŭaj tagoj estas markitaj kiel legitaj.</string>
+  <string name="plan_duplicate_user_plan_lead">Dosiero de legplano havas la saman nomon kiel enkonstruita plano.</string>
+  <string name="plan_duplicate_user_plan_detail">La plana dosiero ne povas esti listigita. Renomu la dosieron en la dosierujo jsword/readingplan, konservante ĝian finaĵon .properties.</string>
+  <string name="background_image_delete_lead">Ĉu forigi ĉi tiun fonbildon?</string>
+  <string name="background_image_delete_detail">Laborspacoj, kiuj ankoraŭ uzas ĝin, revenos al neniu bildo.</string>
+  <string name="reset_values_lead">Ĉu reagordi ĉiujn el ĉi tiuj valoroj?</string>
+  <string name="revert_setting_lead">Ĉu restarigi ĉi tiun agordon al la heredita valoro?</string>
+  <string name="revert_setting_confirm">Restarigi</string>
+  <string name="reset_settings_screen_lead">Ĉu reagordi la agordojn sur ĉi tiu ekrano?</string>
+  <string name="reset_settings_screen_detail">Ili revenas al siaj implicitaj valoroj.</string>
+  <string name="memorize_unmark_lead">Ĉu forigi la parkerigitan staton de “%s”?</string>
+  <string name="memorize_remove_target_lead">Ĉu forigi la parkerigan celon “%s”?</string>
+  <string name="dialog_apply">Apliki</string>
+  <string name="dialog_dont_apply">Ne apliki</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">La nubo jam havas viajn %s. Kio devus okazi?</string>
+  <string name="cloud_merge_consequence">Ambaŭ flankoj estas konservitaj; kie ero ŝanĝiĝis ambaŭflanke, la pli nova ŝanĝo venkas.</string>
+  <string name="cloud_fetch_consequence">Anstataŭigas la datumojn en ĉi tiu aparato per la nuba kopio.</string>
+  <string name="cloud_create_consequence">Anstataŭigas la nuban kopion per la datumoj en ĉi tiu aparato.</string>
+  <string name="cloud_disable_consequence">Sinkronigo restas malŝaltita por ĉi tiuj datumoj.</string>
+  <string name="cloud_merge_lead">Ĉu kunfandi viajn %s kun la nubo?</string>
+  <string name="cloud_merge_confirm">Kunfandi</string>
+  <string name="cloud_replace_confirm">Anstataŭigi</string>
+  <string name="cloud_replace_local_lead">Ĉu anstataŭigi la %s de ĉi tiu aparato per la nuba kopio?</string>
+  <string name="cloud_replace_local_detail">Kio nun estas en ĉi tiu aparato, estas surskribita kaj ne povas esti reakirita.</string>
+  <string name="cloud_replace_cloud_lead">Ĉu anstataŭigi la nuban kopion de %s per la datumoj de ĉi tiu aparato?</string>
+  <string name="cloud_replace_cloud_detail">Kio nun estas en la nubo, estas surskribita, kaj viaj aliaj aparatoj ricevos la datumojn de ĉi tiu aparato.</string>
+  <string name="sign_in_failed_lead">Ne eblis ensaluti al la sinkroniga servo.</string>
+  <string name="sync_too_old_lead">Ĉi tiu aplikaĵo estas tro malnova por sinkronigi %s.</string>
+  <string name="sync_too_old_detail">La nubaj datumoj uzas pli novan version ol ĉi tiu aplikaĵo subtenas. Sinkronigo por ili estas malŝaltita nuntempe; ĝisdatigu la aplikaĵon por ŝalti ĝin denove.</string>
+  <string name="backup_replace_lead">Ĉu anstataŭigi viajn %s per la savkopio?</string>
+  <string name="backup_replace_detail">Kio nun estas en ĉi tiu aparato, estas surskribita kaj ne povas esti reakirita.</string>
+  <string name="reset_database_lead">Ĉu reagordi “%1$s” al ĝia komenca stato?</string>
+  <string name="reset_database_detail">Ĉiuj datumoj en ĝi estas porĉiame forigitaj. Tio ne povas esti malfarita.</string>
+  <string name="reset_database_button">Reagordi</string>
+  <string name="restore_all_lead">Ĉu anstataŭigi viajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn?</string>
+  <string name="restore_or_import_lead">Ĉu restarigi aŭ enporti la %s?</string>
+  <string name="restore_consequence">Anstataŭigas tion, kio estas en ĉi tiu aparato, per la savkopio.</string>
+  <string name="import_consequence">Aldonas la erojn de la savkopio al tio, kio estas en ĉi tiu aparato.</string>
+  <string name="sync_start_syncing">Komenci sinkronigon</string>
+  <string name="sync_reset_lead">Ĉu elsaluti kaj reagordi sinkronigon?</string>
+  <string name="sync_reset_detail">Vi devos denove agordi sinkronigon.</string>
+  <string name="webdav_forget_certificate_lead">Ĉu forgesi la fidindan servilan atestilon?</string>
+  <string name="webdav_forget_certificate_detail">Vi estos demandita konfirmi la atestilon denove ĉe la sekva konekto.</string>
+  <string name="webdav_forget_certificate_confirm">Forgesi</string>
+  <string name="cloud_doc_remove_all_lead">Ĉu forigi “%1$s” el la nubo kaj ĉiuj viaj aparatoj?</string>
+  <string name="cloud_doc_remove_cloud_lead">Ĉu forigi “%1$s” el la nubo?</string>
+  <string name="cloud_doc_purge_lead">Ĉu porĉiame forigi “%1$s” el la nuba historio?</string>
+  <string name="cloud_doc_remove_all_detail">Ĉi tio ankaŭ forigas la kopiojn en ĉi tiu aparato kaj en ĉiu alia aparato kun ŝaltita dokumenta sinkronigo.</string>
+  <string name="cloud_doc_remove_cloud_detail">Kopioj en ĉi tiu aparato restas. Aparatoj kun ŝaltita dokumenta sinkronigo forigos ilin ankaŭ.</string>
+  <string name="cloud_doc_purge_detail">Aparato, kiu ankoraŭ havas kopion, povas alŝuti ĝin denove ĉe sia sekva sinkronigo.</string>
+  <string name="cloud_doc_block_confirm_button">Ne sinkronigi</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">Ĉu forigi %1$d dokumenton el la nubo kaj ĉiuj viaj aparatoj?</item>
+        <item quantity="other">Ĉu forigi %1$d dokumentojn el la nubo kaj ĉiuj viaj aparatoj?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">Ĉu forigi %1$d dokumenton el la nubo?</item>
+        <item quantity="other">Ĉu forigi %1$d dokumentojn el la nubo?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">Ĉu porĉiame forigi %1$d dokumenton el la nuba historio?</item>
+        <item quantity="other">Ĉu porĉiame forigi %1$d dokumentojn el la nuba historio?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">Ĉu ĉesi sinkronigi %1$d dokumenton al la nubo?</item>
+        <item quantity="other">Ĉu ĉesi sinkronigi %1$d dokumentojn al la nubo?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Pli da viaj datumoj nun povas sinkroniĝi</string>
+  <string name="new_sync_targets_detail">Miaj dokumentoj, AI-agordoj kaj legprogreso ankaŭ povas sinkroniĝi. Ŝaltu ilin en la agordoj de Aparata sinkronigo.</string>
+  <!--end dialog copy: B3b-->
 </resources>

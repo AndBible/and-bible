@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">完全なユーザーガイドはandbible.orgにあります。ページはブラウザで開きます。</string>
   <string name="help_user_guide_home">ユーザーガイドのホーム</string>
   <string name="help_read_in_user_guide">ユーザーガイドで読む</string>
+  <string name="help_in_user_guide">ユーザーガイドのヘルプ</string>
+  <string name="help_matching_section">該当するセクション</string>
   <string name="help_read_page">ユーザーガイドで読む：%1$s</string>
   <string name="help_tutorial_videos">チュートリアル動画</string>
   <string name="help_watch_in_order">チュートリアル動画を順番に見る</string>
@@ -242,6 +244,9 @@
   <string name="prefs_navigate_to_verse_summary">聖句を選択する際に節（と章）を選びます</string>
   <string name="prefs_open_links_in_special_window_title">リンクウィンドウ</string>
   <string name="prefs_open_links_in_special_window_summary">特別なウィンドウでリンクを開き、相互参照とストロングスをすばやく表示します</string>
+  <string name="prefs_trusted_link_domains_title">信頼するリンクのドメイン</string>
+  <string name="prefs_trusted_link_domains_summary">これらのドメインへのリンクは確認なしで開きます。再び確認するには、ドメインのチェックを外してください。</string>
+  <string name="prefs_trusted_link_domains_empty">まだありません。リンクを開くときに「今後確認しない」にチェックを入れると、そのドメインが追加されます。</string>
   <string name="prefs_text_size_sample_text">サンプルテキスト</string>
   <string name="prefs_screen_keep_on_title">画面をオンに保つ</string>
   <string name="prefs_screen_keep_on_summary">このアプリの使用中に画面がスリープするのを防ぎます</string>
@@ -302,7 +307,6 @@
   <string name="line_spacing_title">行間</string>
   <string name="line_spacing_summary">行間のスペースを設定します</string>
   <string name="select_none">なし</string>
-  <string name="reset_are_you_sure">これらの値をすべてリセットしてよろしいですか？</string>
   <string name="window_pinning_menutitle">ウィンドウのピン留め</string>
   <string name="hide_window_buttons_title">ウィンドウボタンを非表示</string>
   <string name="hide_window_buttons_summary">聖書ビューの右側に表示されているウィンドウボタンを非表示にします。下部のウィンドウナビゲーションバーは引き続き表示され、長押しでウィンドウのポップアップメニューを開くことができます。</string>
@@ -325,6 +329,7 @@
   <string name="word_not_found_in_dictionaries">どの辞書にも単語が見つかりません</string>
   <string name="prefs_top_margin_title_mm">上部余白（%d mm）</string>
   <string name="font_size_title">フォントサイズ</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">神はそのひとり子を賜わったほどに、この世を愛してくださった。それは御子を信じる者がひとりも滅びないで、永遠の命を得るためである。</string>
   <string name="font_size_title_pt">フォントサイズ（%d pt）</string>
   <string name="prefs_font_text_size_summary">本文のフォントサイズを調整します</string>
@@ -342,6 +347,8 @@
   <string name="window_color_settings_title">色の設定（ウィンドウ）</string>
   <string name="workspace_color_settings_title">色の設定（ワークスペース）</string>
   <string name="color_workspace">ワークスペースの色</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">既定</string>
   <string name="color_text">テキストの色</string>
   <string name="color_background">背景色</string>
   <string name="colors_day_mode_title">デイモード</string>
@@ -375,7 +382,6 @@
   <string name="download_source_last_updated">ドキュメントリストの最終更新：%s</string>
   <string name="download_refreshing_book_list">ドキュメントサーバーから利用可能なドキュメントのリストを更新しています…</string>
   <string name="download_source_message1">ドキュメントは以下のソースからダウンロードされます：</string>
-  <string name="download_document_confirm_prefix">ダウンロード</string>
   <string name="error_downloading">ダウンロード中にエラーが発生しました。インターネット接続を確認してください。</string>
   <string name="error_downloading_status">%1$s をホストするサーバーが %2$s (%3$d) によるエラーを返しました。</string>
   <string name="storage_space_warning">ローカルストレージの空き容量が不足しています。</string>
@@ -396,9 +402,6 @@
   <string name="activity_title">バックグラウンドの動作</string>
   <string name="activity_empty">実行中のものはありません</string>
   <string name="activity_failed_toast">%1$s — メニューを確認してください</string>
-  <string name="download_question_title">ドキュメントのダウンロードを続けますか？</string>
-  <string name="download_question_message">迫害されている国にお住まいの場合、インターネット経由でキリスト教の資料をダウンロードする際には注意が必要かもしれません。代わりに、モジュールのzipファイルをより安全な方法で入手し、「%1$s」からインストールすることをお勧めします。このままダウンロードを続けてもよろしいですか？モジュールサーバーからのダウンロードはすべて暗号化(HTTPS)されています。</string>
-  <string name="do_not_ask_again">はい、今後は確認しない</string>
   <string name="recommended_document">おすすめ！</string>
   <string name="about_version_history">バージョン履歴：%s</string>
   <string name="download_errors">ダウンロードエラー</string>
@@ -415,11 +418,9 @@
   <string name="checking_zip_file">ファイルを確認しています…</string>
   <string name="invalid_module">このファイルには有効なSWORDモジュールが含まれていません</string>
   <string name="install_zip_title">しばらくお待ちください。ファイルからモジュールを読み込んでいます。</string>
-  <string name="overwrite_files">以下のファイルが既に存在します：%s 上書きしますか？</string>
   <string name="overwrite_files_title">ファイルを上書きしますか？</string>
   <string name="could_not_overwrite_files">以下のファイルを上書きできませんでした：%s。それ以外のインストールは正常に完了しました。</string>
   <string name="module_backup_restore">このファイルはAndBibleのドキュメントのバックアップです。ドキュメントを復元しますか？</string>
-  <string name="install_do_you_want">モジュール（%s）をインストールしますか？</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">読書プラン</string>
   <string name="reading_plans_plural">読書プラン</string>
@@ -427,11 +428,8 @@
   <string name="rdg_plan_day">%s 日目</string>
   <string name="rdg_plan_set_start_date">開始日を設定…</string>
   <string name="set_current_day">今日に設定…</string>
-  <string name="msg_set_current_day_reading_plan">このプランの現在の日を%1$sに設定し、それ以前の日をすべて既読にします。続行しますか？</string>
   <string name="done">完了</string>
-  <string name="reset_plan_question">このプランをリセットしてよろしいですか？</string>
   <string name="import_reading_plan">読書プランをインポート…</string>
-  <string name="plan_duplicate_user_plan">sdcard の jsword/readingplan に、内部プランと同名のユーザー読書プランがあります。ここには表示できません。 ファイルの拡張子を .properties のまま、別の名前に変更してください。</string>
   <string name="plan_name_y1ntpspr">新約聖書・詩篇・箴言を1年で</string>
   <string name="plan_description_y1ntpspr">HEARTLIGHT インターネットマガジン（http://www.heartlight.org）のご好意により、許可を得て掲載。</string>
   <string name="plan_name_y1ot1nt1_chronological">時系列で聖書を1年で</string>
@@ -451,12 +449,8 @@
   <string name="delete_index">検索インデックスを削除</string>
   <string name="about">情報</string>
   <string name="delete_doc">%s を削除しますか？</string>
-  <string name="interrupted_downloads_title">ダウンロードが中断されました</string>
-  <string name="interrupted_downloads_message">ダウンロードが中断されたため、次の文書はインストールされませんでした:</string>
-  <string name="interrupted_downloads_question">もう一度ダウンロードしますか？</string>
   <string name="download_again">もう一度ダウンロード</string>
   <string name="delete_docs_confirm">これらの文書を削除しますか？</string>
-  <string name="delete_search_index_doc">%s のインデックスを削除しますか？</string>
   <!--Verse context menu-->
   <string name="notes">脚注と参照</string>
   <string name="share_verse">共有…</string>
@@ -494,7 +488,6 @@
   <!--can be removed-->
   <string name="bookmark_warning">このドキュメントにはブックマークやノートがあります。</string>
   <string name="bookmark_warning2">ドキュメントの構造が変更されている場合、このドキュメントを更新すると ブックマークやノートの位置がドキュメント内で移動したり、完全に消えたりする可能性があります。</string>
-  <string name="bookmark_warning3">それでもモジュールを更新しますか？</string>
   <string name="bookmark_warning4">更新する前にモジュールをバックアップすることをお勧めします。</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日付順</string>
@@ -641,10 +634,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">復元またはインポート元…</string>
   <string name="backup_restore2">復元またはインポート</string>
-  <string name="overwrite_something">%s を上書きしますか？</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">データベースファイルを復元</string>
-  <string name="restore_confirmation">マイノート、ブックマーク、スタディパッド、読書プラン、ワークスペースを上書きしますか？</string>
   <string name="restore_success">マイノート、ブックマーク、スタディパッド、読書プラン、ワークスペースの復元が完了しました</string>
   <string name="downloading_backup">バックアップファイルをダウンロードしています…</string>
   <string name="loading_backup">バックアップからデータベースを読み込んでいます…</string>
@@ -666,7 +657,6 @@
   <string name="send_export_file">エクスポートファイルを送信</string>
   <string name="backup_modules_title">バックアップするモジュールを選択</string>
   <string name="install_zip_canceled">モジュールのインストールがキャンセルされました</string>
-  <string name="ask_restore_or_import">%s のデータベースは、復元（既存のデータベースを削除して選択したデータベースを読み込む）またはインポート（選択したデータベースを既存のデータベースにインポート）のどちらかを選択できます。どうしますか？</string>
   <string name="restore">復元</string>
   <string name="import2">インポート</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -721,7 +711,6 @@
   <string name="settings_editor_back">戻る</string>
   <string name="settings_editor_close">閉じる</string>
   <string name="settings_editor_apply">適用</string>
-  <string name="discard_changes_confirmation">未保存の変更を破棄しますか？</string>
   <string name="discard">破棄</string>
   <string name="remove">削除</string>
   <string name="overwrite">上書き</string>
@@ -748,7 +737,8 @@
   <string name="empty_list">表示するアイテムがありません</string>
   <string name="error_skip">スキップ</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">破損したデータ</string>
+  <string name="corrupt_database_headline">AndBibleで一部のデータを開けません</string>
+  <string name="corrupt_database_files_detail">次のファイルを開けませんでした: %1$s。変更や削除は行われていません。リセットすると空の状態で開始し、破損した各ファイルは、.corrupt- と日時を付けた名前に変更してこの端末に保管されます。</string>
   <string name="corrupt_database_reset">破損したデータをリセット</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">破損したデータをリセットできませんでした: %1$sを移動できませんでした。何も変更されていません。もう一度試すか、エラーレポートを送信するか、「バックアップと復元」をご利用ください。</string>
@@ -756,8 +746,8 @@
   <string name="damaged_data_needs_attention">アプリのデータに対応が必要です。タップしてアプリを開いてください。</string>
   <string name="debug_test_error">テストエラー（デバッグビルド）</string>
   <string name="bug_report_prepare_failed">レポートを準備または共有できませんでした。再試行するか、「バックアップと復元」を使ってデータを保存してください。</string>
-  <string name="bug_report_email_title">メールでバグ報告を送信</string>
   <string name="bug_report_desktop_text">次に、バグ報告ファイルの保存先を指定します。その後、開発チームへの送り方が表示されます。</string>
+  <string name="bug_report_email_title">メールでバグ報告を送信</string>
   <string name="bug_report_email_text">次に、レポートを開発チームに送信するためのメールアプリ（Gmailなど）を選択してください。</string>
   <string name="bug_report_manual_title">レポートをメールで送信</string>
   <string name="bug_report_manual_text_saved">報告は <b>%1$s</b> に保存されました。\n\n<b>%2$s</b> 宛てにメールを送り、そのファイルを添付してください。メールソフトからは自動で添付できません。件名の例: <b>%3$s</b>。本文には、行った操作と起きたことを書いてください。</string>
@@ -828,8 +818,6 @@
   <string name="beta_special_regards">どうぞよろしくお願いします。Tuomasより</string>
   <string name="beta_special_sponsor">追伸: %sによって、AndBibleの開発を資金面で支援していただけます。</string>
   <string name="beta_special_sponsor_link">開発時間のスポンサーになること</string>
-  <string name="new_sync_targets_notice_title">新しい同期設定が利用可能です</string>
-  <string name="new_sync_targets_notice_message">このバージョンのAndBibleでは、追加の同期対象が導入されました：マイドキュメント、AI設定、読書進捗。有効にするには、デバイス同期設定から行えます。</string>
   <string name="open_settings">設定を開く</string>
   <!--History-->
   <string name="history_for">履歴（%1$s：ウィンドウ %2$d）</string>
@@ -902,7 +890,6 @@
   <string name="give_passphrase_for_module">文書 %s は暗号化されています。解除するにはパスフレーズが必要です</string>
   <string name="unlock_module">モジュールのパスフレーズを設定</string>
   <string name="unlock_info">暗号化モジュールの解除情報</string>
-  <string name="try_again_passphrase">パスフレーズが正しくありませんでした。もう一度試しますか？</string>
   <string name="show_unlock_info">モジュールと解除情報</string>
   <string name="prefs_experimental_features_title">試験的機能</string>
   <string name="prefs_experimental_features_summary">有効にする試験的機能を選択してください。これらの機能はまだ開発中であり、変更または削除される場合があります</string>
@@ -936,9 +923,6 @@
   <string name="active_window_indicator_summary">アクティブなウィンドウを識別しやすくするため、ウィンドウの角をハイライト表示します</string>
   <string name="app_licence_title">オープンソースライセンス</string>
   <string name="how_to_contribute">貢献するには？</string>
-  <string name="confirm_delete_bookmarks">%d 件のブックマークとそのノートを削除しますか？</string>
-  <string name="confirm_delete_orphaned_bookmarks">選択したラベルは、他にラベルが付いていない %d 件のブックマークに関連付けられています。ラベルとともにこれらのブックマークも削除しますか？</string>
-  <string name="delete_label_and_bookmarks">ラベルとブックマークを削除</string>
   <string name="delete_label_only">ラベルのみ削除</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">友達に勧める</string>
@@ -969,8 +953,6 @@
   <string name="old_webview">Android WebViewパッケージが古すぎます（%1$s）。%3$s を使用するには、Android WebViewパッケージをバージョン %2$s 以降にアップグレードしてください。ほとんどのデバイスでは %4$s から行えます。</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">このまま続行</string>
-  <string name="proceed">続行</string>
-  <string name="rate_title">アプリの評価とレビュー</string>
   <string name="rate_message5">肯定的で詳しいレビューは、AndBibleオープンソースプロジェクトにとって大変役立ちます。ありがとうございます！</string>
   <string name="rate_message6">否定的なレビューを書く前に、以下の点をご検討ください：</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -1000,7 +982,6 @@
   <string name="primary_label">メインラベル</string>
   <string name="favourite_label">お気に入りラベル</string>
   <string name="edit_label">ラベルを編集</string>
-  <string name="delete_label_confirmation">ブックマークラベル「%s」を削除しますか？関連するすべてのスタディパッドのノートも削除されます。</string>
   <string name="active_labels">選択中のラベル</string>
   <string name="recent_labels">最近のラベル</string>
   <string name="other_labels">その他のラベル</string>
@@ -1010,8 +991,6 @@
   <string name="book_menu_show_progress_bars">進捗バーを表示</string>
   <string name="reset_workspace_labels">このワークスペースの自動割り当てとお気に入り設定をリセットしますか？</string>
   <string name="clear_auto_assign_labels">自動割り当てラベルをクリア</string>
-  <string name="reset_workspace_auto_assign_labels">このワークスペースからすべての自動割り当てラベルを削除しますか？</string>
-  <string name="reset_hide_labels">指定したラベルを非表示にする設定をリセットしますか？</string>
   <string name="reorder">並び替え</string>
   <string name="system_items">システム操作</string>
   <string name="system_items1">もっと見る</string>
@@ -1025,7 +1004,6 @@
   <string name="ios_fullscreen_hint">ダブルタップするか、ボタンをタップすると全画面表示を終了します。</string>
   <string name="desktop_exit_fullscreen">全画面表示を終了</string>
   <string name="exit_fullscreen">画面をダブルタップして全画面表示を終了</string>
-  <string name="reset_app_prefs">この画面に表示されているすべてのアプリ全体の設定をデフォルト値にリセットしますか？</string>
   <string name="label_red">赤</string>
   <string name="label_green">緑</string>
   <string name="label_blue">青</string>
@@ -1036,7 +1014,6 @@
   <string name="reset_databases_title">データベースをリセット</string>
   <string name="reset_databases_description">個々のデータベースを初期の空の状態にリセットします。この操作は元に戻せません。</string>
   <string name="last_crash_info_title">最後のクラッシュ情報</string>
-  <string name="reset_database_confirm">「%1$s」内のすべてのデータが完全に削除され、初期状態にリセットされます。この操作は元に戻せません。\n\nよろしいですか？</string>
   <string name="reset_database_success">データベースが正常にリセットされました</string>
   <string name="reset_something">リセット: %1$s</string>
   <string name="export">エクスポート</string>
@@ -1106,19 +1083,18 @@
   <string name="manage_labels_help_favourite">すばやくアクセスできるよう、ラベルをお気に入りに保持します。</string>
   <string name="manage_labels_help_styles">名前の下に、ラベルの見た目を示す小さな例が表示されます。「選択」はテキスト選択ブックマーク、「節全体」は節全体のブックマーク、「ワークスペース」タグはこのワークスペースで上書きされているスタイルを表します。装飾のないグレーの例は、そのラベルのブックマークが描画されないことを意味します。例は⋮メニューから非表示にできます。</string>
   <string name="manage_labels_help_reorder">リストの並べ替えは⋮メニューから行えます。</string>
+  <string name="manage_labels_help_narrow_toggles">画面が狭い場合、ラベル名の表示領域を確保するため、一覧では主ラベル、自動割り当て、お気に入りのアイコンを省略します。ラベルをタップすると、編集画面でこれらを設定できます。</string>
   <string name="added_to_bookmark">このブックマークに割り当て済み</string>
   <string name="strongs_links">リンク</string>
   <string name="strongs_text_and_links">テキストとリンク</string>
   <string name="strongs_hidden_links">非表示リンク</string>
   <string name="verse_tip">一部の節や複数の節を選択するには、聖書テキストを長押ししてください</string>
-  <string name="permission_required">許可が必要です</string>
   <string name="labels_search_hint">検索</string>
   <string name="search_mode_name_start">名前（先頭から）</string>
   <string name="search_mode_name_contains">名前（含む）</string>
   <string name="search_mode_content">内容</string>
   <string name="search_results_matches">%d 件一致</string>
   <string name="search_results_match">1件一致</string>
-  <string name="progress_status_permission">通知（ダウンロード状態、処理状況、読み上げ状態）を表示するには、許可が必要です。</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">シンプル電卓</string>
   <string name="prefs_persecution_cat">迫害下にある方向けの設定</string>
@@ -1152,7 +1128,6 @@
   <string name="custom_repositories_create_button_label">カスタムリポジトリを追加</string>
   <string name="custom_repositories_info_button_label">情報</string>
   <string name="repository_specification">リポジトリのURL</string>
-  <string name="delete_custom_repository">カスタムリポジトリ %s を削除しますか？</string>
   <string name="custom_repositories_help1">新しいカスタムリポジトリを追加するには、カスタムリポジトリのURLを入力またはコピー &amp; ペーストしてください。</string>
   <string name="custom_repositories_help2">カスタムリポジトリの詳細については %s をご覧ください。</string>
   <string name="custom_repositories_help0">カスタムリポジトリをインストールすることで、外部のカスタムリポジトリからドキュメントをインストールできます。</string>
@@ -1172,7 +1147,6 @@
   <string name="db_bookmarks">ブックマーク、マイノート、ラベル、スタディパッド</string>
   <string name="synchronizing">同期中…</string>
   <string name="notification_finished">完了</string>
-  <string name="overrideBackup">このデバイスが同期していないデータベースがクラウドに見つかりました。 データベースには%sが含まれています。どうしますか？</string>
   <string name="reading_plans_content">読書プランとその進捗状況</string>
   <string name="bookmarks_contents">ブックマーク、ラベル、スタディパッド</string>
   <string name="workspaces_contents">ワークスペースとウィンドウ</string>
@@ -1192,7 +1166,6 @@
   <string name="reading_progress_calendar">読書の活動記録</string>
   <string name="reading_progress_cycle">サイクル %d</string>
   <string name="reading_progress_new_cycle">新しいサイクル</string>
-  <string name="reading_progress_new_cycle_confirm">新しい読書サイクルを開始しますか？以前のサイクルのデータを保持したまま、最初から進捗を記録します。</string>
   <string name="reading_progress_previous_cycle">前のサイクル</string>
   <string name="reading_progress_next_cycle">次のサイクル</string>
   <string name="cloud_merge_data">データを統合</string>
@@ -1202,7 +1175,6 @@
   <string name="cloud_sync_title">デバイスの同期</string>
   <string name="reset_sync">サインアウト</string>
   <string name="prefs_reset_sync_summary">同期を無効化して関連設定をリセットします。</string>
-  <string name="sync_confirmation">サインアウトして同期をリセットしてもよろしいですか？</string>
   <string name="cloud_info">クラウド情報</string>
   <string name="cloud_info_summary">クラウドストレージのデータ: %s MB</string>
   <string name="sync_adapter">同期バックエンド</string>
@@ -1218,7 +1190,6 @@
   <string name="webdav_server_url_hint">WebDAVフォルダーのアドレス。例: https://nas.local/dav/ または https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">同期には安全なhttps://アドレスが必要です。</string>
   <string name="webdav_certificate_title">サーバー証明書</string>
-  <string name="webdav_forget_certificate_message">信頼済みのサーバー証明書を削除しますか？次回の接続時に、もう一度証明書の確認を求められます。</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">信頼されていないサーバー証明書</string>
   <string name="webdav_untrusted_certificate_message">%1$sの証明書はAndroidに信頼されていません。たとえばご自身でこのサーバーを設定した場合など、心当たりがある場合にのみ信頼してください。\n\nサブジェクト: %2$s\n発行者: %3$s\n有効期間: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1235,14 +1206,7 @@
   <string name="synchronization_categories">同期カテゴリー</string>
   <string name="sync_general_settings">情報と一般設定</string>
   <string name="sync_introduction">はじめに</string>
-  <string name="are_you_sure">よろしいですか？</string>
   <string name="are_you_sure_merge">このデバイスのデータとクラウド上の%sの両方が保持されます。同じ項目が両方で変更されている場合は、新しい変更が保持されます。このデバイスのデータは他のデバイスに送信されます。</string>
-  <string name="are_you_sure_reset_local">%sのローカルデータベースを、クラウドサービスに現在保存されている内容でリセットします。</string>
-  <string name="are_you_sure_reset_cloud">%sのクラウドデータベースを、このデバイスの内容でリセットします。</string>
-  <string name="sync_cant_fetch">クラウドに保存されているデータベースまたはパッチファイルのバージョンが、このアプリでサポートされているバージョンより新しいです。</string>
-  <string name="sync_disabling">%sの同期を一時的に無効化しています。</string>
-  <string name="sync_update_app">同期を継続するにはアプリを更新してください。</string>
-  <string name="sign_in_failed">同期バックエンドサービスへのサインインに失敗しました。</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">クラウド同期を無効化しています。復元後に手動で再度有効化する必要があります。</string>
   <string name="report">レポート</string>
@@ -1260,6 +1224,7 @@
   <string name="open_here">ここで開く</string>
   <string name="external_link">外部リンク</string>
   <string name="external_link_question">外部リンク %s をブラウザアプリで開きます。続けますか？</string>
+  <string name="external_link_dont_ask_again">%s については今後確認しない</string>
   <string name="nameless">タイトルが未定義です</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ワンタップ操作（聖書）</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">ワンタップ操作（その他）</string>
@@ -1307,8 +1272,6 @@
   <string name="memorize_include_reference_summary">節の参照（例：ヨハネ3:16）を暗記する最後の項目として追加します</string>
   <string name="reading_progress_settings">進捗と暗記</string>
   <string name="reading_progress_settings_summary">自動追跡、暗記、タイピング練習の設定</string>
-  <string name="memorize_confirm_unmark">%sの暗記済みステータスを解除しますか？</string>
-  <string name="memorize_confirm_remove_target">暗記の目標 %s を削除しますか？</string>
   <string name="memorize_tab_reading">読書</string>
   <string name="memorize_tab_memorization">暗記</string>
   <string name="memorize_verses_memorized">暗記済み</string>
@@ -1334,7 +1297,6 @@
   <string name="llm_reset_usage_title">使用データをリセット</string>
   <string name="llm_reset_usage_summary">累積トークンおよびコストの記録をクリア</string>
   <string name="llm_reset_usage_confirm_title">使用データをリセットしますか？</string>
-  <string name="llm_reset_usage_confirm_message">すべての累積使用データがクリアされます。</string>
   <string name="llm_custom_input_price_title">入力価格（$/Mトークン）</string>
   <string name="llm_custom_output_price_title">出力価格（$/Mトークン）</string>
   <string name="llm_cost_total">合計: %1$s</string>
@@ -1350,8 +1312,6 @@
   <string name="llm_parse_error_anthropic">Anthropic応答の解析に失敗しました: %1$s</string>
   <string name="llm_error_unknown">不明なエラー</string>
   <string name="llm_error_max_iterations">完了せずに最大反復回数（%1$d回）に達しました</string>
-  <string name="llm_continue_iterations_title">続行しますか？</string>
-  <string name="llm_continue_iterations_message">AIエージェントが%1$d回の反復制限に達しましたが、完了していません。さらに%2$d回続行しますか？</string>
   <string name="agent_max_iterations_title">エージェントの最大反復回数</string>
   <string name="agent_max_iterations_summary">続行確認を求めるまでの最大反復回数（0＝無制限）</string>
   <string name="ask_model_before_run_title">実行前にモデルを確認</string>
@@ -1411,7 +1371,6 @@
   <string name="ai_models_summary_none">モデルが設定されていません</string>
   <string name="ai_add_provider">プロバイダーを追加</string>
   <string name="ai_provider_edit">編集</string>
-  <string name="ai_provider_delete_confirm">プロバイダー「%1$s」を削除しますか？このプロバイダーを使用しているプロンプトはデフォルトに戻ります。</string>
   <string name="ai_provider_api_key_not_set">APIキーが設定されていません</string>
   <string name="ai_provider_select_type">プロバイダーの種類を選択</string>
   <string name="ai_provider_name">プロバイダー名</string>
@@ -1431,7 +1390,6 @@
   <string name="edit_model_title">モデルを編集</string>
   <string name="model_saved">モデルを保存しました</string>
   <string name="model_deleted">モデルを削除しました</string>
-  <string name="model_delete_confirm">モデル \"%1$s\" を削除しますか？</string>
   <string name="model_set_default">デフォルトモデルに設定</string>
   <string name="model_select_provider">プロバイダー</string>
   <string name="model_supported_badge">✓ 対応済み</string>
@@ -1471,7 +1429,6 @@
   <string name="ai_disclaimer_point8">お客様のデータは、選択されたAIプロバイダーのサーバーに送信されます。APIキーを使用することで、そのプロバイダーの利用規約とプライバシーポリシーに同意したことになります。セルフホスト型モデルも可能ですが、より高度な技術的知識が必要で、商用モデルほどの品質が得られない場合があります。</string>
   <string name="ai_disclaimer_point9">AIプロバイダーはAPI使用に対して料金を請求します。AndBibleに表示されるコスト見積もりは概算です。実際の請求額はプロバイダーの請求情報でご確認ください。</string>
   <string name="ai_disclaimer_accept_title">AI免責事項に同意する</string>
-  <string name="ai_disclaimer_accept_button">同意し、全責任を負います</string>
   <string name="prompt_permission_mode">許可モード</string>
   <string name="prompt_permission_mode_description">AIが書き込み操作を実行する前にユーザーの確認が必要なタイミングを制御します。以下のツールごとの設定で、個々のツールに対して上書きできます。</string>
   <string name="agent_permission_mode_summary">AI書き込み操作前にユーザー確認が必要なタイミングを制御します</string>
@@ -1587,7 +1544,6 @@
   <string name="default_prompt_custom_desc">選択した箇所にカスタムタスクを実行します</string>
   <string name="default_prompt_custom_template">選択した聖書の箇所に対して、ユーザーのタスク仕様に従ってください。</string>
   <string name="copy">コピー</string>
-  <string name="delete_prompt_confirm_message">このプロンプトを削除してもよろしいですか？</string>
   <string name="ai_hide_prompt">非表示</string>
   <string name="ai_restore_hidden_prompts">非表示のプロンプトを復元</string>
   <string name="ai_prompt_hidden">プロンプトを非表示にしました</string>
@@ -1672,8 +1628,6 @@
   <string name="permission_allow_all_session">このセッションですべてのツールを許可</string>
   <string name="permission_allow_always">「%1$s」を常に許可</string>
   <string name="permission_deny">拒否</string>
-  <string name="permission_always_allow_confirm_title">常に許可しますか？</string>
-  <string name="permission_always_allow_confirm">「%1$s」を永続的に許可してよろしいですか？</string>
   <string name="permission_always_allow_confirm_reset_hint">AI設定でリセットできます。</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">ツールの権限</string>
@@ -1778,18 +1732,15 @@
   <string name="my_document_new_name">ドキュメント %d</string>
   <string name="my_document_create_title">新しいドキュメントを作成</string>
   <string name="my_document_rename_title">ドキュメント名を変更</string>
-  <string name="my_document_delete_confirmation">ドキュメント\"%s\"を削除しますか？</string>
   <string name="show_secret">表示</string>
   <string name="hide_secret">非表示</string>
   <string name="ai_documents_name">AIドキュメント</string>
   <string name="ai_documents_description">AIによって自動生成されたドキュメント</string>
-  <string name="my_document_cannot_delete_ai_documents">AIドキュメントにページが含まれている間は削除できません。先にページを削除してください。</string>
   <string name="my_document_save_changes">変更を保存しますか？</string>
   <string name="my_document_no_description">説明なし</string>
   <string name="my_document_edit_description">説明を編集</string>
   <string name="my_document_pages_title">%s - ページ</string>
   <string name="my_document_page_rename_title">ページ名を変更</string>
-  <string name="my_document_page_delete_confirmation">ページ\"%s\"を削除しますか？</string>
   <string name="my_document_pages_delete_confirmation">これらのページを削除しますか？</string>
   <string name="my_documents_switch_document">文書を切り替え</string>
   <string name="my_document_new_page_name">ページ %1$d</string>
@@ -1857,7 +1808,6 @@
   <string name="cloud_doc_show_removed">削除済みドキュメントを表示</string>
   <string name="cloud_doc_status_removed">クラウドから削除済み</string>
   <string name="cloud_doc_status_still_installed">ここにまだインストール済み</string>
-  <string name="cloud_doc_purge_confirm">\"%1$s\" をクラウド履歴から完全に削除しますか？他のデバイスにまだインストールされている場合、そのデバイスは次回の同期時にこれを再びクラウドへアップロードする可能性があります。</string>
   <string name="cloud_doc_action_download">ダウンロード</string>
   <string name="cloud_doc_action_push">クラウドへアップロード</string>
   <string name="cloud_doc_action_remove_cloud">クラウドから削除</string>
@@ -1868,8 +1818,6 @@
   <string name="cloud_doc_action_dont_sync">クラウドに同期しない</string>
   <string name="cloud_doc_action_allow_sync">クラウドに同期する</string>
   <string name="cloud_doc_action_purge">クラウド履歴から削除</string>
-  <string name="cloud_doc_remove_all_confirm">%1$s をクラウドおよびこのデバイスを含むすべてのデバイスから削除しますか？</string>
-  <string name="cloud_doc_remove_cloud_confirm">%1$s をクラウドから削除しますか？このデバイス上のコピーは保持されます。ドキュメント同期が有効なデバイスでも削除されます。</string>
   <string name="cloud_doc_sync_now">今すぐ同期</string>
   <string name="cloud_doc_rescan">クラウドから再スキャン</string>
   <string name="cloud_doc_sync_now_download">新しいドキュメントや更新されたドキュメントをダウンロード</string>
@@ -1881,6 +1829,12 @@
   <string name="cloud_doc_summary_download">ダウンロード %1$d件</string>
   <string name="cloud_doc_summary_download_size">ダウンロード %1$d件 (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">自動ダウンロードはWi-Fi接続時に開始されます。</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="other">%1$d件のドキュメント</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="other">%1$d件のドキュメント（%2$s）</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">転送するものはありません</string>
   <string name="cloud_doc_selected_count">%1$d件選択中</string>
   <string name="cloud_doc_bulk_skipped">対象外のため%1$d件をスキップしました</string>
@@ -1897,8 +1851,6 @@
   <string name="background_image_import">ギャラリーからインポート…</string>
   <string name="background_image_empty">インポートした画像はまだありません。「ギャラリーからインポート…」をタップして追加してください。</string>
   <string name="background_image_importing">インポート中…</string>
-  <string name="background_image_delete_title">画像を削除しますか？</string>
-  <string name="background_image_delete_confirm">この背景画像を削除しますか？まだこの画像を使用しているワークスペースは、画像なしに戻ります。</string>
   <string name="background_image_day">背景画像（昼）</string>
   <string name="background_image_night">背景画像（夜）</string>
   <string name="background_image_opacity_day">背景画像の不透明度（昼）</string>
@@ -1972,6 +1924,9 @@
   <string name="legacy_notice_icloud">同期はiCloud Driveを使用するようになりました。「設定」→「同期」でもう一度オンにしてください。このデバイスは現在のデータを保持します。他のデバイスでの変更は、同期を再設定すると反映されます。古いiCloudデータを解放するには、「設定」→ 自分の名前 →「iCloud」→「ストレージを管理」→「AndBible」の順に進んでください。</string>
   <string name="legacy_notice_nextcloud">Nextcloudの接続は引き継がれましたが、同期はオフです。「設定」→「同期」でオンにし、クラウドから取得するか新規作成するかを選択してください。</string>
   <string name="legacy_notice_nextcloud_unsent">このデバイスでの一部の変更は、まだNextcloudに送信されていませんでした。それらは送信されず、このデバイスにのみ残ります。</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="other">%1$d件のブックマークは正確な位置を特定できなかったため、インポートされませんでした。これらはこの端末の古いデータとともに保管されています。</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">強力でありながら使いやすい、オフライン対応の聖書研究アプリです。</string>
   <string name="webdav_untrusted_certificate_message_device">%1$sの証明書はこのデバイスに信頼されていません。たとえばご自身でこのサーバーを設定した場合など、心当たりがある場合にのみ信頼してください。\n\nサブジェクト: %2$s\n発行者: %3$s\n有効期間: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2023,6 +1978,25 @@
   <string name="recommend_share_link">リンクを共有</string>
   <string name="recommend_qr_caption">スキャンして、スマートフォン、タブレット、パソコン向けの AndBible を入手できます。</string>
   <string name="desktop_activation_failed">AndBibleはすでに実行中ですが、そのウィンドウが応答しませんでした。実行中のインスタンスに切り替えて、もう一度お試しください。受信したファイルが配信されたかどうかは確認されていません。</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">この操作は元に戻せません。</string>
+  <string name="ai_raw_log_delete_lead">このログを削除しますか？</string>
+  <string name="ai_provider_delete_lead">プロバイダー「%1$s」を削除しますか？</string>
+  <string name="ai_provider_delete_detail">これを使用しているプロンプトは既定のプロバイダーに戻ります。</string>
+  <string name="ai_model_delete_lead">モデル「%1$s」を削除しますか？</string>
+  <string name="ai_prompt_delete_named_lead">プロンプト「%1$s」を削除しますか？</string>
+  <string name="ai_prompt_delete_lead">このプロンプトを削除しますか？</string>
+  <string name="ai_reset_usage_detail">トークンとコストの合計がゼロに戻ります。この操作は元に戻せません。</string>
+  <string name="ai_reset_usage_button">リセット</string>
+  <string name="ai_disclaimer_accept">同意する</string>
+  <string name="llm_continue_iterations_lead">あと%1$d回の反復を続行しますか？</string>
+  <string name="llm_continue_iterations_detail">aiエージェントは、完了しないまま反復回数の上限（%1$d回）に達しました。</string>
+  <string name="llm_continue_button">続行</string>
+  <string name="permission_always_allow_lead">「%1$s」を常に許可しますか？</string>
+  <string name="permission_always_allow_button">常に許可</string>
+  <string name="ai_bug_report_send_lead">aiのバグレポートを送信しますか？</string>
+  <string name="ai_bug_report_send_button">送信</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">はじめに</string>
   <string name="user_guide_section_reading_workspace">読書とワークスペース</string>
@@ -2100,4 +2074,142 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AIアシスタント第3回：ツール、データ、権限</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AIアシスタント第4回：独自のプロンプト、費用、同期</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">変更を破棄しますか？</string>
+  <string name="dialog_keep_editing">編集を続ける</string>
+  <string name="dialog_label_delete_lead">ラベル「%1$s」を削除しますか？</string>
+  <string name="dialog_label_delete_detail">スタディパッドのノートも削除されます。この操作は元に戻せません。</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="other">%1$d件のブックマークには他のラベルがありません。</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="other">ラベルと%1$d件のブックマークを削除</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">ブックマークとそのノートが削除されます。</string>
+  <string name="dialog_label_delete_only_consequence">ブックマークはラベルなしで残ります。</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="other">%1$d件のブックマークを削除しますか？</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="other">ノートも削除されます。</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">このワークスペースの自動割り当てラベルをすべて解除しますか？</string>
+  <string name="dialog_labels_reset_hidden_lead">非表示のラベルをすべて再表示しますか？</string>
+  <string name="dialog_labels_reset_shown_detail">一覧から非表示にしたラベルが再び表示されます。</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">「%s」をインストールしますか？</string>
+  <string name="install_action">インストール</string>
+  <string name="install_from_file_question">ファイルからドキュメントをインストールしますか？</string>
+  <string name="overwrite_files_detail">次のファイルは既に存在します:%s</string>
+  <string name="import_studypads_question">これらのスタディパッドをインポートしますか？</string>
+  <string name="import_action">インポート</string>
+  <string name="restore_backup_question">このバックアップのドキュメントを復元しますか？</string>
+  <string name="restore_backup_detail">このファイルはAndBibleのドキュメントのバックアップです。</string>
+  <string name="update_document_question">このドキュメントを更新しますか？</string>
+  <string name="update_action">更新</string>
+  <string name="download_documents_question">ドキュメントをダウンロードしますか？</string>
+  <string name="download_persecution_warning">迫害のある国にお住まいの場合、インターネット経由でキリスト教の資料をダウンロードする際は注意が必要かもしれません。その場合は、ドキュメントのzipファイルをより安全な方法で入手し、「%1$s」からインストールすることをお勧めします。ドキュメントサーバーからのダウンロードはすべて暗号化（HTTPS）されています。</string>
+  <string name="download_action">ダウンロード</string>
+  <string name="download_dont_ask_again">ダウンロードして今後確認しない</string>
+  <string name="download_dont_ask_again_consequence">今後は、この確認なしでダウンロードが始まります。</string>
+  <string name="passphrase_did_not_work">パスフレーズが正しくありません。</string>
+  <string name="try_again">もう一度試す</string>
+  <string name="interrupted_downloads_lead">これらのドキュメントをもう一度ダウンロードしますか？</string>
+  <string name="interrupted_downloads_detail">ダウンロードが中断されたため、インストールされませんでした。</string>
+  <string name="external_link_open_question">このリンクをブラウザで開きますか？</string>
+  <string name="open_action">開く</string>
+  <string name="notification_permission_question">通知を許可しますか？</string>
+  <string name="notification_permission_detail">通知では、ダウンロード状況、処理状況、読み上げ状況が表示されます。</string>
+  <string name="allow_action">許可</string>
+  <string name="rate_question">アプリを評価してレビューしますか？</string>
+  <string name="bug_report_email_question">バグレポートをメールで送信しますか？</string>
+  <string name="continue_action">続行</string>
+  <string name="delete_search_index_question">「%s」の検索インデックスを削除しますか？</string>
+  <string name="remove_custom_repository_question">カスタムリポジトリ「%s」を削除しますか？</string>
+  <string name="download_document_question">「%s」をダウンロードしますか？</string>
+  <string name="choose_file_action">ファイルを選択</string>
+  <string name="old_webview_question">古いWebViewのままアプリを使用しますか？</string>
+  <string name="incomplete_translation_question">一部のみの翻訳で続行しますか？</string>
+  <string name="rate_action">評価</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">ドキュメント「%s」を削除しますか？</string>
+  <string name="my_document_page_delete_lead">ページ「%s」を削除しますか？</string>
+  <string name="my_document_cannot_delete_ai_lead">aiドキュメントは、ページが含まれている間は削除できません。</string>
+  <string name="my_document_cannot_delete_ai_detail">先にページを削除してください。</string>
+  <string name="reading_progress_new_cycle_lead">新しい読書サイクルを開始しますか？</string>
+  <string name="reading_progress_new_cycle_detail">進捗は最初から記録されます。前のサイクルのデータは保持されます。</string>
+  <string name="reading_progress_new_cycle_start">開始</string>
+  <string name="reset_plan_lead">このプランをリセットしますか？</string>
+  <string name="reset_plan_detail">このプランの開始日と進捗が消去されます。</string>
+  <string name="set_current_day_lead">%1$sを現在の日に設定しますか？</string>
+  <string name="set_current_day_detail">それ以前の日はすべて既読になります。</string>
+  <string name="plan_duplicate_user_plan_lead">読書プランのファイルが、組み込みプランと同じ名前です。</string>
+  <string name="plan_duplicate_user_plan_detail">このプランのファイルは一覧に表示できません。jsword/readingplanフォルダー内でファイル名を変更してください。拡張子 .properties は残してください。</string>
+  <string name="background_image_delete_lead">この背景画像を削除しますか？</string>
+  <string name="background_image_delete_detail">これを使用しているワークスペースは、画像なしに戻ります。</string>
+  <string name="reset_values_lead">これらの値をすべてリセットしますか？</string>
+  <string name="revert_setting_lead">この設定を継承された値に戻しますか？</string>
+  <string name="revert_setting_confirm">元に戻す</string>
+  <string name="reset_settings_screen_lead">この画面の設定をリセットしますか？</string>
+  <string name="reset_settings_screen_detail">既定値に戻ります。</string>
+  <string name="memorize_unmark_lead">「%s」の暗記済みの状態を解除しますか？</string>
+  <string name="memorize_remove_target_lead">暗記の目標「%s」を削除しますか？</string>
+  <string name="dialog_apply">適用</string>
+  <string name="dialog_dont_apply">適用しない</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">クラウドには既に%sがあります。どうしますか？</string>
+  <string name="cloud_merge_consequence">両方が保持されます。両側で変更された項目は、新しい方の変更が優先されます。</string>
+  <string name="cloud_fetch_consequence">この端末のデータをクラウドのコピーで置き換えます。</string>
+  <string name="cloud_create_consequence">クラウドのコピーをこの端末のデータで置き換えます。</string>
+  <string name="cloud_disable_consequence">このデータの同期はオフのままになります。</string>
+  <string name="cloud_merge_lead">%sをクラウドと統合しますか？</string>
+  <string name="cloud_merge_confirm">統合</string>
+  <string name="cloud_replace_confirm">置き換え</string>
+  <string name="cloud_replace_local_lead">この端末の%sをクラウドのコピーで置き換えますか？</string>
+  <string name="cloud_replace_local_detail">この端末の現在のデータは上書きされ、復元できません。</string>
+  <string name="cloud_replace_cloud_lead">クラウド上の%sのコピーをこの端末のデータで置き換えますか？</string>
+  <string name="cloud_replace_cloud_detail">クラウド上の現在のデータは上書きされ、他の端末にはこの端末のデータが届きます。</string>
+  <string name="sign_in_failed_lead">同期サービスにサインインできませんでした。</string>
+  <string name="sync_too_old_lead">このアプリは古いため、%sを同期できません。</string>
+  <string name="sync_too_old_detail">クラウドのデータは、このアプリが対応しているより新しいバージョンを使用しています。このデータの同期は現在オフになっています。再びオンにするには、アプリを更新してください。</string>
+  <string name="backup_replace_lead">%sをバックアップで置き換えますか？</string>
+  <string name="backup_replace_detail">この端末の現在のデータは上書きされ、復元できません。</string>
+  <string name="reset_database_lead">「%1$s」を初期状態にリセットしますか？</string>
+  <string name="reset_database_detail">この中のデータはすべて完全に削除されます。この操作は元に戻せません。</string>
+  <string name="reset_database_button">リセット</string>
+  <string name="restore_all_lead">ノート、ブックマーク、スタディパッド、読書プラン、ワークスペースを置き換えますか？</string>
+  <string name="restore_or_import_lead">%sを復元またはインポートしますか？</string>
+  <string name="restore_consequence">この端末のデータをバックアップで置き換えます。</string>
+  <string name="import_consequence">バックアップの項目をこの端末のデータに追加します。</string>
+  <string name="sync_start_syncing">同期を開始</string>
+  <string name="sync_reset_lead">サインアウトして同期をリセットしますか？</string>
+  <string name="sync_reset_detail">同期を再度設定する必要があります。</string>
+  <string name="webdav_forget_certificate_lead">信頼済みのサーバー証明書を削除しますか？</string>
+  <string name="webdav_forget_certificate_detail">次回の接続時に、再び証明書の確認を求められます。</string>
+  <string name="webdav_forget_certificate_confirm">削除</string>
+  <string name="cloud_doc_remove_all_lead">「%1$s」をクラウドとすべての端末から削除しますか？</string>
+  <string name="cloud_doc_remove_cloud_lead">「%1$s」をクラウドから削除しますか？</string>
+  <string name="cloud_doc_purge_lead">「%1$s」をクラウドの履歴から完全に削除しますか？</string>
+  <string name="cloud_doc_remove_all_detail">この端末と、ドキュメント同期がオンの他のすべての端末にあるコピーも削除されます。</string>
+  <string name="cloud_doc_remove_cloud_detail">この端末のコピーは保持されます。ドキュメント同期がオンの端末ではコピーが削除されます。</string>
+  <string name="cloud_doc_purge_detail">コピーを持つ端末が、次回の同期で再度アップロードする場合があります。</string>
+  <string name="cloud_doc_block_confirm_button">同期しない</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="other">%1$d件のドキュメントをクラウドとすべての端末から削除しますか？</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="other">%1$d件のドキュメントをクラウドから削除しますか？</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="other">%1$d件のドキュメントをクラウドの履歴から完全に削除しますか？</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="other">%1$d件のドキュメントのクラウドへの同期を停止しますか？</item>
+    </plurals>
+  <string name="new_sync_targets_lead">さらに多くのデータを同期できるようになりました</string>
+  <string name="new_sync_targets_detail">マイドキュメント、ai設定、読書の進捗も同期できます。端末間の同期の設定でオンにしてください。</string>
+  <!--end dialog copy: B3b-->
 </resources>

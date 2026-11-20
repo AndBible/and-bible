@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">De volledige gebruikershandleiding staat op andbible.org. Pagina\'s openen in je browser.</string>
   <string name="help_user_guide_home">Startpagina van de handleiding</string>
   <string name="help_read_in_user_guide">Lees in de gebruikershandleiding</string>
+  <string name="help_in_user_guide">Hulp in de gebruikershandleiding</string>
+  <string name="help_matching_section">Bijbehorende sectie</string>
   <string name="help_read_page">Lees in de gebruikershandleiding: %1$s</string>
   <string name="help_tutorial_videos">Instructievideo\'s</string>
   <string name="help_watch_in_order">Bekijk de instructievideo\'s op volgorde</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Kies een vers (en hoofdstuk) bij het selecteren van een passage</string>
   <string name="prefs_open_links_in_special_window_title">Koppelingenscherm</string>
   <string name="prefs_open_links_in_special_window_summary">Open koppelingen in speciaal venster voor snellere weergave van kruisverwijzingen en Strong\'s</string>
+  <string name="prefs_trusted_link_domains_title">Vertrouwde linkdomeinen</string>
+  <string name="prefs_trusted_link_domains_summary">Links naar deze domeinen worden zonder vragen geopend. Schakel een domein uit om er weer om gevraagd te worden.</string>
+  <string name="prefs_trusted_link_domains_empty">Nog geen. Vink \"Niet meer vragen\" aan bij het openen van een link om het domein toe te voegen.</string>
   <string name="prefs_text_size_sample_text">Voorbeeldtekst</string>
   <string name="prefs_screen_keep_on_title">Scherm ingeschakeld houden</string>
   <string name="prefs_screen_keep_on_summary">Voorkomen dat het scherm uitgaat tijdens het gebruiken van de app</string>
@@ -305,7 +310,6 @@
   <string name="line_spacing_title">Regelafstand</string>
   <string name="line_spacing_summary">Stel de regelafstand in</string>
   <string name="select_none">Selecteer niets</string>
-  <string name="reset_are_you_sure">Weet u zeker dat u al deze waarden wilt terugzetten?</string>
   <string name="window_pinning_menutitle">Vensters vastzetten</string>
   <string name="hide_window_buttons_title">Vensterknoppen verbergen</string>
   <string name="hide_window_buttons_summary">Vensterknoppen aan de rechterzijde van het leesscherm zijn verborgen. Vensternavigatie aan de onderkant wordt weergegeven; u kunt het venster popup-menu openen door hier lang op te drukken.</string>
@@ -328,6 +332,7 @@
   <string name="word_not_found_in_dictionaries">Woord niet gevonden in een woordenboek</string>
   <string name="prefs_top_margin_title_mm">Bovenmarge (%dmm)</string>
   <string name="font_size_title">Lettergrootte</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Want alzo lief heeft God de wereld gehad, dat Hij Zijn eniggeboren Zoon gegeven heeft, opdat een iegelijk, die in Hem gelooft, niet verderve, maar het eeuwige leven hebbe.</string>
   <string name="font_size_title_pt">Lettergrootte (%d pt)</string>
   <string name="prefs_font_text_size_summary">Pas de lettergrootte van de tekst aan</string>
@@ -345,6 +350,8 @@
   <string name="window_color_settings_title">Kleurinstellingen (venster)</string>
   <string name="workspace_color_settings_title">Kleurinstellingen (werkblad)</string>
   <string name="color_workspace">Werkblad kleur</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Standaard</string>
   <string name="color_text">Tekstkleur</string>
   <string name="color_background">Achtergrondkleur</string>
   <string name="colors_day_mode_title">Dagweergave</string>
@@ -378,7 +385,6 @@
   <string name="download_source_last_updated">Document lijsten voor het laatst ververst: %s.</string>
   <string name="download_refreshing_book_list">Lijst van beschikbare documenten op document servers verversen...</string>
   <string name="download_source_message1">Documenten worden gedownload van de volgende bronnen:</string>
-  <string name="download_document_confirm_prefix">Downloaden</string>
   <string name="error_downloading">Fout tijdens downloaden. Controleer uw internet verbinding svp.</string>
   <string name="error_downloading_status">De server die %1$s bevat, geeft een foutmelding vanwege%2$s (%3$d).</string>
   <string name="storage_space_warning">Onvoldoende lokale opslagruimte.</string>
@@ -399,9 +405,6 @@
   <string name="activity_title">Achtergrondactiviteit</string>
   <string name="activity_empty">Niets actief</string>
   <string name="activity_failed_toast">%1$s — zie menu</string>
-  <string name="download_question_title">Wilt u verder gaan met documenten downloaden?</string>
-  <string name="download_question_message">Als je in een land woont waar christenen vervolgd worden, moet je misschien voorzichtig zijn met het downloaden van christelijk materiaal via internet. Misschien wil je modulebestanden (zip) op een veiligere manier verkrijgen en installeren via "%1$s". Weet je zeker dat je wilt doorgaan met downloaden? Alle downloads van moduleservers zijn versleuteld (HTTPS).</string>
-  <string name="do_not_ask_again">Ja, niet meer vragen</string>
   <string name="recommended_document">Aanbevolen!</string>
   <string name="about_version_history">Versiegeschiedenis: %s</string>
   <string name="download_errors">Downloadfouten</string>
@@ -418,11 +421,9 @@
   <string name="checking_zip_file">Bezig met controleren van opgegeven bestand...</string>
   <string name="invalid_module">Het bestand bevat geen geldige SWORD-module</string>
   <string name="install_zip_title">Even geduld. Modules worden geladen uit het bestand.</string>
-  <string name="overwrite_files">De volgende bestanden bestaan al: %s. Overschrijven?</string>
   <string name="overwrite_files_title">Bestanden overschrijven?</string>
   <string name="could_not_overwrite_files">Kan bestanden niet overschrijven: %s. Afgezien hiervan was de installatie succesvol.</string>
   <string name="module_backup_restore">Dit bestand is een back-up van AndBible-documenten. Wil je de documenten daaruit terugzetten?</string>
-  <string name="install_do_you_want">Wil je module (%s) installeren?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leesplan</string>
   <string name="reading_plans_plural">Leesplannen</string>
@@ -430,14 +431,8 @@
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel startdatum in...</string>
   <string name="set_current_day">Stel huidige dag in...</string>
-  <string name="msg_set_current_day_reading_plan">Hiermee wordt %1$s als huidige dag in dit plan ingesteld en worden alle voorgaande dagen als gelezen gemarkeerd. Doorgaan?</string>
   <string name="done">Klaar</string>
-  <string name="reset_plan_question">Weet u zeker dat u dit plan wilt terugzetten?</string>
   <string name="import_reading_plan">Importeer leesplan</string>
-  <string name="plan_duplicate_user_plan">
-Er staat een gebruikers leesplan op de SD-kaart
-jsword/readingplan met dezelfde naam als het interne leesplan. Het kan hier niet in de lijst gezet worden . 
-Verander de naam van het bestand naar iets anders, maar laat de bestandsextensie hetzelfde als .properties</string>
   <string name="plan_name_y1ntpspr">NT, Psalmen en Spreuken in een jaar</string>
   <string name="plan_description_y1ntpspr">
 Met dank aan HEARTLIGHT Internet Magazine,
@@ -470,12 +465,8 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="delete_index">Zoekindex verwijderen</string>
   <string name="about">Over</string>
   <string name="delete_doc">%s verwijderen?</string>
-  <string name="interrupted_downloads_title">Download onderbroken</string>
-  <string name="interrupted_downloads_message">Deze documenten zijn niet geïnstalleerd omdat de download werd onderbroken:</string>
-  <string name="interrupted_downloads_question">Opnieuw downloaden?</string>
   <string name="download_again">Opnieuw downloaden</string>
   <string name="delete_docs_confirm">Deze documenten verwijderen?</string>
-  <string name="delete_search_index_doc">Index van %s verwijderen?</string>
   <!--Verse context menu-->
   <string name="notes">Voetnoten en verwijzingen</string>
   <string name="share_verse">Delen...</string>
@@ -514,7 +505,6 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="bookmark_warning">Er zijn bladwijzers en/of notities voor dit document</string>
   <string name="bookmark_warning2">
 Als de indeling van het document is veranderd, kan het bijwerken van het document de bladwijzers/notities van plek laten veranderen of zelfs compleet laten verdwijnen uit het document </string>
-  <string name="bookmark_warning3">Wil je nog steeds de module updaten?</string>
   <string name="bookmark_warning4">Het wordt aanbevolen om een reservekopie te maken van de module voordat je hem bijwerkt.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datumvolgorde</string>
@@ -693,10 +683,8 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Herstellen of importeren van...</string>
   <string name="backup_restore2">Herstellen of Importeren</string>
-  <string name="overwrite_something">Overschrijf %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Terugzetten Database bestand</string>
-  <string name="restore_confirmation">Overschrijf Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen?</string>
   <string name="restore_success">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol teruggezet</string>
   <string name="downloading_backup">Downloaden back-up bestand...</string>
   <string name="loading_backup">Database laadt vanuit backup...</string>
@@ -718,7 +706,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="send_export_file">Exportbestand verzenden</string>
   <string name="backup_modules_title">Selecteer welke modules geback-upt moeten worden</string>
   <string name="install_zip_canceled">Module installatie afgebroken</string>
-  <string name="ask_restore_or_import">Database voor %s kan hersteld worden (huidige database wordt verwijderd en geselecteerde database wordt ingeladen) of geïmporteerd (geselecteerde database wordt geïmporteerd in de bestaande database). Wat wil je doen?</string>
   <string name="restore">Herstellen</string>
   <string name="import2">Import</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -773,7 +760,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="settings_editor_back">Terug</string>
   <string name="settings_editor_close">Sluiten</string>
   <string name="settings_editor_apply">Toepassen</string>
-  <string name="discard_changes_confirmation">Niet-opgeslagen wijzigingen verwijderen?</string>
   <string name="discard">Verwerpen</string>
   <string name="remove">Verwijderen</string>
   <string name="overwrite">Overschrijven</string>
@@ -800,7 +786,8 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="empty_list">Geen te tonen items</string>
   <string name="error_skip">Overslaan</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Beschadigde gegevens</string>
+  <string name="corrupt_database_headline">AndBible kan een deel van je gegevens niet openen</string>
+  <string name="corrupt_database_files_detail">Deze bestanden konden niet worden geopend: %1$s. Er is niets gewijzigd of verwijderd. Bij het resetten beginnen ze leeg en blijft elk beschadigd bestand op dit apparaat bewaard, hernoemd met .corrupt- plus de datum en tijd.</string>
   <string name="corrupt_database_reset">Beschadigde gegevens opnieuw instellen</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">De beschadigde gegevens konden niet opnieuw worden ingesteld: %1$s kon niet opzij worden gezet. Er is niets gewijzigd. Je kunt het opnieuw proberen, een foutrapport sturen of Back-up en herstel gebruiken.</string>
@@ -808,8 +795,8 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="damaged_data_needs_attention">De gegevens van de app hebben aandacht nodig. Tik om de app te openen.</string>
   <string name="debug_test_error">Testfout (debugbuild)</string>
   <string name="bug_report_prepare_failed">Het rapport kon niet worden voorbereid of gedeeld. U kunt het opnieuw proberen, of Back-up en herstel gebruiken om uw gegevens op te slaan.</string>
-  <string name="bug_report_email_title">Stuur bug rapport via email</string>
   <string name="bug_report_desktop_text">Straks wordt gevraagd waar het bugrapport moet worden opgeslagen. Daarna krijg je instructies om het naar het ontwikkelteam te sturen.</string>
+  <string name="bug_report_email_title">Stuur bug rapport via email</string>
   <string name="bug_report_email_text">Selecteer uw email programma (bijvoorbeeld Gmail) om het rapport aan het team van ontwikkelaars te sturen.</string>
   <string name="bug_report_manual_title">Rapport per e-mail verzenden</string>
   <string name="bug_report_manual_text_saved">Het rapport is opgeslagen in <b>%1$s</b>.\n\nStuur een e-mail naar <b>%2$s</b> en voeg dat bestand als bijlage toe; een e-mailprogramma kan het niet voor je bijvoegen. Voorgesteld onderwerp: <b>%3$s</b>. Vertel in het bericht wat je hebt gedaan en wat er gebeurde.</string>
@@ -880,8 +867,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="beta_special_regards">Met vriendelijke groet, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Je kunt de ontwikkeling van AndBible financieel steunen door %s.</string>
   <string name="beta_special_sponsor_link">ontwikkeluren te sponsoren</string>
-  <string name="new_sync_targets_notice_title">Nieuwe synchronisatie-instellingen beschikbaar</string>
-  <string name="new_sync_targets_notice_message">Deze versie van AndBible introduceert aanvullende synchronisatiedoelen: Mijn documenten, AI-instellingen en leesvoortgang. Als u deze wilt inschakelen, kunt u dit doen in de instellingen voor apparaatsynchronisatie.</string>
   <string name="open_settings">Instellingen openen</string>
   <!--History-->
   <string name="history_for">Geschiedenis (%1$s: Venster %2$d)</string>
@@ -977,7 +962,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="give_passphrase_for_module">Document %s is versleuteld en heeft een wachtwoordzin nodig om te ontgrendelen</string>
   <string name="unlock_module">Instellen module wachtwoordzin</string>
   <string name="unlock_info">Versleutelde module ontgrendel info</string>
-  <string name="try_again_passphrase">Wachtwoordzin werkte niet, nog eens proberen?</string>
   <string name="show_unlock_info">Module &amp; ontgrendel info</string>
   <string name="prefs_experimental_features_title">Experimentele functies</string>
   <string name="prefs_experimental_features_summary">Selecteer welke experimentele functies u wilt inschakelen. Deze functies zijn nog in ontwikkeling en kunnen worden gewijzigd of verwijderd</string>
@@ -1011,9 +995,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="active_window_indicator_summary">De vensterhoeken markeren om aan te geven welk venster actief is.</string>
   <string name="app_licence_title">Open-source-licentie</string>
   <string name="how_to_contribute">Hoe bijdragen?</string>
-  <string name="confirm_delete_bookmarks">Wilt u %d bladwijzers, inclusief bijbehorende notities, verwijderen?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Het geselecteerde label is gekoppeld aan %d bladwijzers die geen andere labels hebben. Wilt u deze bladwijzers samen met de labels verwijderen?</string>
-  <string name="delete_label_and_bookmarks">Label en bladwijzers verwijderen</string>
   <string name="delete_label_only">Alleen label verwijderen</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Aanbevelen bij een vriend</string>
@@ -1044,8 +1025,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="old_webview">Het pakket Android WebView is te oud (%1$s). U dient uw Android WebView-pakket te updaten naar version %2$s of hoger, om %3$s te kunnen gebruiken. Voor de meeste apparaten kunt u dit doen via %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Toch doorgaan</string>
-  <string name="proceed">Doorgaan</string>
-  <string name="rate_title">App beoordelen en reviewen</string>
   <string name="rate_message5">
   Positieve en gedetailleerde recensies helpen het AndBible Open Source Project enorm. Hartelijk bedankt!</string>
   <string name="rate_message6">
@@ -1095,7 +1074,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="primary_label">Hoofdlabel</string>
   <string name="favourite_label">Favouriet label</string>
   <string name="edit_label">Label bewerken</string>
-  <string name="delete_label_confirmation">Wilt u bladwijzer label \"%s\" verwijderen? Ook alle gekoppelde Studeermap notities worden verwijderd.</string>
   <string name="active_labels">Geselecteerde labels</string>
   <string name="recent_labels">Recente labels</string>
   <string name="other_labels">Overige labels</string>
@@ -1105,8 +1083,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="book_menu_show_progress_bars">Voortgangsbalken tonen</string>
   <string name="reset_workspace_labels">Wilt u auto-toewijzen en favouriet instelling resetten voor dit werkblad?</string>
   <string name="clear_auto_assign_labels">Automatisch toegewezen labels wissen</string>
-  <string name="reset_workspace_auto_assign_labels">Wilt u alle automatisch toegewezen labels van dit werkblad verwijderen?</string>
-  <string name="reset_hide_labels">Wilt u de instelling resetten voor het automatisch verbergen van genoemde label instellingen?</string>
   <string name="reorder">Herschikken</string>
   <string name="system_items">Systeem acties</string>
   <string name="system_items1">Meer</string>
@@ -1120,7 +1096,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="ios_fullscreen_hint">Dubbeltik of tik op de knop om volledig scherm te verlaten.</string>
   <string name="desktop_exit_fullscreen">Volledig scherm verlaten</string>
   <string name="exit_fullscreen">Dubbeltikken om volledig scherm te verlaten</string>
-  <string name="reset_app_prefs">Wilt u alle globale applicatievoorkeuren die in dit scherm getoond worden resetten naar hun standaard waarden?</string>
   <string name="label_red">Rood</string>
   <string name="label_green">Groen</string>
   <string name="label_blue">Blauw</string>
@@ -1131,7 +1106,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="reset_databases_title">Databases opnieuw instellen</string>
   <string name="reset_databases_description">Afzonderlijke databases opnieuw instellen naar hun initiële lege staat. Dit kan niet ongedaan worden gemaakt.</string>
   <string name="last_crash_info_title">Laatste crashinformatie</string>
-  <string name="reset_database_confirm">Dit zal alle gegevens in \"%1$s\" permanent verwijderen en terugzetten naar de beginstand. Dit kan niet ongedaan worden gemaakt.\n\nWeet u het zeker?</string>
   <string name="reset_database_success">Database is succesvol opnieuw ingesteld</string>
   <string name="reset_something">Opnieuw instellen: %1$s</string>
   <string name="export">Export</string>
@@ -1201,19 +1175,18 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="manage_labels_help_favourite">Bewaar het label in uw favorieten voor snelle toegang.</string>
   <string name="manage_labels_help_styles">Onder de naam toont een klein voorbeeld het uiterlijk van het label: Selectie voor een bladwijzer van een tekstselectie, Heel vers voor een bladwijzer van een heel vers, en een Werkblad-tag voor een stijl die dit werkblad overschrijft. Een grijs voorbeeld zonder opmaak betekent dat de bladwijzers van het label niet worden getekend. Verberg de voorbeelden via het ⋮-menu.</string>
   <string name="manage_labels_help_reorder">Wijzig de volgorde van de lijst via het ⋮-menu.</string>
+  <string name="manage_labels_help_narrow_toggles">Op een smal scherm laat de lijst de pictogrammen voor primair, automatisch toewijzen en favoriet weg, zodat de labelnamen ruimte krijgen. Tik op een label om ze in de editor in te stellen.</string>
   <string name="added_to_bookmark">Toewijzen aan deze bladwijzer</string>
   <string name="strongs_links">Links</string>
   <string name="strongs_text_and_links">Tekst en links</string>
   <string name="strongs_hidden_links">Verborgen Links</string>
   <string name="verse_tip">Om gedeeltes of meerdere versen te selecteerd, kunt u lang drukken op Bijbel tekst</string>
-  <string name="permission_required">Permissie nodig</string>
   <string name="labels_search_hint">Zoeken</string>
   <string name="search_mode_name_start">Naam (vanaf begin)</string>
   <string name="search_mode_name_contains">Naam (bevat)</string>
   <string name="search_mode_content">Inhoud</string>
   <string name="search_results_matches">%d overeenkomsten</string>
   <string name="search_results_match">1 overeenkomst</string>
-  <string name="progress_status_permission">We hebben uw toestemming nodig om meldingen (voortgang van de download, verwerking, status van het voorlezen) te laten zien.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simpele Rekenmachine</string>
   <string name="prefs_persecution_cat">Instellingen voor vervolgden</string>
@@ -1256,7 +1229,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="custom_repositories_create_button_label">Voeg aangepaste documentopslagplaats toe</string>
   <string name="custom_repositories_info_button_label">Informatie</string>
   <string name="repository_specification">documentopslagplaatsen URL</string>
-  <string name="delete_custom_repository">Wilt u de aangepaste documentopslagplaats %s verwijderen?</string>
   <string name="custom_repositories_help1">Type of plak de aangepaste documentopslagplaats URL hier om hem toe te voegen.</string>
   <string name="custom_repositories_help2">U kunt meer informatie vinden over aangepaste documentopslagplaatsen in %s.</string>
   <string name="custom_repositories_help0">U kunt documenten van documentopslagplaatsen van derden installeren door die aangepaste documentopslagplaatsen te installeren.</string>
@@ -1278,9 +1250,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="db_bookmarks">Bladwijzers, Mijn notities, Labels en Studiepaden</string>
   <string name="synchronizing">Synchroniseren…</string>
   <string name="notification_finished">Voltooid</string>
-  <string name="overrideBackup">
-        Er is een bestaande database in Cloud waarmee dit apparaat niet is gesynchroniseerd.
-        De database bevat %s. Wat wilt u doen? </string>
   <string name="reading_plans_content">Leesplannen en hun statussen</string>
   <string name="bookmarks_contents">Bladwijzers, Labels en Studiepaden</string>
   <string name="workspaces_contents">Werkplek en Vensters</string>
@@ -1300,7 +1269,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="reading_progress_calendar">Leesactiviteit</string>
   <string name="reading_progress_cycle">Cyclus %d</string>
   <string name="reading_progress_new_cycle">Nieuwe cyclus</string>
-  <string name="reading_progress_new_cycle_confirm">Een nieuwe leescyclus starten? Dit begint de voortgang opnieuw bij te houden, terwijl de gegevens van de vorige cyclus bewaard blijven.</string>
   <string name="reading_progress_previous_cycle">Vorige cyclus</string>
   <string name="reading_progress_next_cycle">Volgende cyclus</string>
   <string name="cloud_merge_data">Gegevens samenvoegen</string>
@@ -1310,7 +1278,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="cloud_sync_title">Apparaat synchronisatie</string>
   <string name="reset_sync">Uitloggen</string>
   <string name="prefs_reset_sync_summary">Schakel synchronisatie uit en reset de bijbehorende instellingen.</string>
-  <string name="sync_confirmation">Weet u zeker dat u uit wilt loggen en de synchronisatie resetten?</string>
   <string name="cloud_info">Cloud informatie</string>
   <string name="cloud_info_summary">Data in cloud opslag: %s Mb</string>
   <string name="sync_adapter">Synchronization Backend</string>
@@ -1326,7 +1293,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="webdav_server_url_hint">Adres van de WebDAV-map, bijv. https://nas.local/dav/ of https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synchronisatie vereist een beveiligd https://-adres.</string>
   <string name="webdav_certificate_title">Servercertificaat</string>
-  <string name="webdav_forget_certificate_message">Het vertrouwde servercertificaat vergeten? U wordt bij de volgende verbinding opnieuw gevraagd het certificaat te bevestigen.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Niet-vertrouwd servercertificaat</string>
   <string name="webdav_untrusted_certificate_message">Het certificaat van %1$s wordt niet vertrouwd door Android. Vertrouw het alleen als u het herkent, bijvoorbeeld omdat u deze server zelf heeft ingesteld.\n\nOnderwerp: %2$s\nUitgever: %3$s\nGeldig: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1343,14 +1309,7 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="synchronization_categories">Synchronisatie categorieën</string>
   <string name="sync_general_settings">Info &amp; algemene instellingen</string>
   <string name="sync_introduction">Introductie</string>
-  <string name="are_you_sure">Weet je het zeker?</string>
   <string name="are_you_sure_merge">Zowel de gegevens op dit apparaat als de %s in de cloud blijven behouden. Als hetzelfde item op beide plaatsen is gewijzigd, blijft de nieuwste wijziging behouden. De gegevens van dit apparaat worden naar uw andere apparaten verzonden.</string>
-  <string name="are_you_sure_reset_local">Dit zal uw lokale database voor %s resetten met de inhoud die nu in de cloud service opgeslagen is.</string>
-  <string name="are_you_sure_reset_cloud">Dit zal uw cloud database voor %s resetten met de inhoud die nu op dit apparaat staat.</string>
-  <string name="sync_cant_fetch">De Cloud-versie van de database of het patch bestand is hoger dan deze app ondersteund.</string>
-  <string name="sync_disabling">Uitzetten synchronisatie voor %s voor dit moment.</string>
-  <string name="sync_update_app">Graag de app updaten om synchronisatie voort te zetten. </string>
-  <string name="sign_in_failed">Inloggen bij synchronisatie dienst mislukt.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Cloud synchronisatie wordt uitgeschakeld. Schakel dit handmatig in na het terugzetten.</string>
   <string name="report">Rapport</string>
@@ -1368,6 +1327,7 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="open_here">Hier openen</string>
   <string name="external_link">Externe link</string>
   <string name="external_link_question">Externe link %s wordt geopend in een browser, wil je verder gaan?</string>
+  <string name="external_link_dont_ask_again">Niet meer vragen voor %s</string>
   <string name="nameless">Titel niet gedefinieerd</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acties met één klik (Bijbels)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Acties met één klik (Overige)</string>
@@ -1417,8 +1377,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="memorize_include_reference_summary">Voeg de versverwijzing (bijv. Johannes 3:16) toe als laatste item om te memoriseren</string>
   <string name="reading_progress_settings">Voortgang en memorisatie</string>
   <string name="reading_progress_settings_summary">Instellingen voor automatische tracking, memorisatie en typoefeningen</string>
-  <string name="memorize_confirm_unmark">Gememoriseerde status verwijderen voor %s?</string>
-  <string name="memorize_confirm_remove_target">Memorisatiedoel %s verwijderen?</string>
   <string name="memorize_tab_reading">Lezen</string>
   <string name="memorize_tab_memorization">Memorisatie</string>
   <string name="memorize_verses_memorized">Gememoriseerd</string>
@@ -1444,7 +1402,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="llm_reset_usage_title">Gebruiksgegevens resetten</string>
   <string name="llm_reset_usage_summary">Cumulatieve token- en kostenregistratie wissen</string>
   <string name="llm_reset_usage_confirm_title">Gebruiksgegevens resetten?</string>
-  <string name="llm_reset_usage_confirm_message">Hiermee worden alle cumulatieve gebruiksgegevens gewist.</string>
   <string name="llm_custom_input_price_title">Invoerprijs ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Uitvoerprijs ($/Mtoken)</string>
   <string name="llm_cost_total">Totaal: %1$s</string>
@@ -1460,8 +1417,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="llm_parse_error_anthropic">Verwerken van Anthropic-antwoord mislukt: %1$s</string>
   <string name="llm_error_unknown">Onbekende fout</string>
   <string name="llm_error_max_iterations">Maximum aantal iteraties (%1$d) bereikt zonder voltooiing</string>
-  <string name="llm_continue_iterations_title">Doorgaan?</string>
-  <string name="llm_continue_iterations_message">De AI-agent heeft zijn limiet van %1$d iteraties bereikt zonder te voltooien. Doorgaan voor %2$d meer iteraties?</string>
   <string name="agent_max_iterations_title">Max. agent-iteraties</string>
   <string name="agent_max_iterations_summary">Maximum aantal iteraties voordat om verdere instructies gevraagd wordt (0 = onbeperkt)</string>
   <string name="ask_model_before_run_title">Model vragen voor uitvoering</string>
@@ -1521,7 +1476,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="ai_models_summary_none">Geen modellen geconfigureerd</string>
   <string name="ai_add_provider">Provider toevoegen</string>
   <string name="ai_provider_edit">Bewerken</string>
-  <string name="ai_provider_delete_confirm">Provider \"%1$s\" verwijderen? Prompts die deze provider gebruiken, worden teruggezet naar de standaard.</string>
   <string name="ai_provider_api_key_not_set">API-sleutel niet ingesteld</string>
   <string name="ai_provider_select_type">Providertype selecteren</string>
   <string name="ai_provider_name">Providernaam</string>
@@ -1541,7 +1495,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="edit_model_title">Model bewerken</string>
   <string name="model_saved">Model opgeslagen</string>
   <string name="model_deleted">Model verwijderd</string>
-  <string name="model_delete_confirm">Model \"%1$s\" verwijderen?</string>
   <string name="model_set_default">Als standaardmodel instellen</string>
   <string name="model_select_provider">Provider</string>
   <string name="model_supported_badge">✓ Ondersteund</string>
@@ -1581,7 +1534,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="ai_disclaimer_point8">Uw gegevens worden verzonden naar de servers van uw gekozen AI-provider. Door een API-sleutel te gebruiken, accepteert u de gebruiksvoorwaarden en het privacybeleid van die provider. Zelf gehoste modellen zijn mogelijk, maar vereisen meer technische expertise en produceren mogelijk niet zo goede resultaten als commerciële modellen.</string>
   <string name="ai_disclaimer_point9">AI-providers rekenen voor API-gebruik. Kostenschattingen weergegeven in AndBible zijn bij benadering — controleer altijd de facturering van uw provider voor werkelijke kosten.</string>
   <string name="ai_disclaimer_accept_title">AI-disclaimer accepteren</string>
-  <string name="ai_disclaimer_accept_button">Ik accepteer en neem volledige verantwoordelijkheid</string>
   <string name="prompt_permission_mode">Toestemmingsmodus</string>
   <string name="prompt_permission_mode_description">Bepaalt wanneer gebruikersbevestiging vereist is voordat de AI schrijfbewerkingen uitvoert. De onderstaande per-tool-instellingen kunnen dit voor afzonderlijke tools overschrijven.</string>
   <string name="agent_permission_mode_summary">Bepaalt wanneer gebruikersbevestiging vereist is voor AI-schrijfbewerkingen</string>
@@ -1697,7 +1649,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="default_prompt_custom_desc">Voer een aangepaste taak uit op de geselecteerde passage</string>
   <string name="default_prompt_custom_template">Volg de taakomschrijving van de gebruiker voor de geselecteerde Bijbelpassage.</string>
   <string name="copy">Kopiëren</string>
-  <string name="delete_prompt_confirm_message">Weet u zeker dat u deze prompt wilt verwijderen?</string>
   <string name="ai_hide_prompt">Verbergen</string>
   <string name="ai_restore_hidden_prompts">Verborgen prompts herstellen</string>
   <string name="ai_prompt_hidden">Prompt verborgen</string>
@@ -1782,8 +1733,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="permission_allow_all_session">Alle hulpmiddelen toestaan voor deze sessie</string>
   <string name="permission_allow_always">Altijd \"%1$s\" toestaan</string>
   <string name="permission_deny">Weigeren</string>
-  <string name="permission_always_allow_confirm_title">Altijd toestaan?</string>
-  <string name="permission_always_allow_confirm">Weet u zeker dat u \"%1$s\" permanent wilt toestaan?</string>
   <string name="permission_always_allow_confirm_reset_hint">U kunt dit opnieuw instellen in AI-instellingen.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Hulpmiddelenmachtigingen</string>
@@ -1888,18 +1837,15 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="my_document_new_name">Document %d</string>
   <string name="my_document_create_title">Nieuw document aanmaken</string>
   <string name="my_document_rename_title">Document hernoemen</string>
-  <string name="my_document_delete_confirmation">Document \"%s\" verwijderen?</string>
   <string name="show_secret">Tonen</string>
   <string name="hide_secret">Verbergen</string>
   <string name="ai_documents_name">AI-documenten</string>
   <string name="ai_documents_description">Automatisch door AI gegenereerde documenten</string>
-  <string name="my_document_cannot_delete_ai_documents">AI-documenten kunnen niet worden verwijderd zolang ze pagina\'s bevatten. Verwijder eerst de pagina\'s.</string>
   <string name="my_document_save_changes">Wijzigingen opslaan?</string>
   <string name="my_document_no_description">Geen beschrijving</string>
   <string name="my_document_edit_description">Beschrijving bewerken</string>
   <string name="my_document_pages_title">%s - Pagina\'s</string>
   <string name="my_document_page_rename_title">Pagina hernoemen</string>
-  <string name="my_document_page_delete_confirmation">Pagina \"%s\" verwijderen?</string>
   <string name="my_document_pages_delete_confirmation">Deze pagina\'s verwijderen?</string>
   <string name="my_documents_switch_document">Van document wisselen</string>
   <string name="my_document_new_page_name">Pagina %1$d</string>
@@ -1967,7 +1913,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="cloud_doc_show_removed">Verwijderde documenten tonen</string>
   <string name="cloud_doc_status_removed">Verwijderd uit de cloud</string>
   <string name="cloud_doc_status_still_installed">hier nog geïnstalleerd</string>
-  <string name="cloud_doc_purge_confirm">\"%1$s\" definitief uit de cloudgeschiedenis verwijderen? Als het nog op een ander apparaat is geïnstalleerd, kan dat apparaat het bij de volgende synchronisatie weer naar de cloud uploaden.</string>
   <string name="cloud_doc_action_download">Downloaden</string>
   <string name="cloud_doc_action_push">Naar cloud uploaden</string>
   <string name="cloud_doc_action_remove_cloud">Verwijderen uit cloud</string>
@@ -1978,8 +1923,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="cloud_doc_action_dont_sync">Niet synchroniseren naar cloud</string>
   <string name="cloud_doc_action_allow_sync">Synchroniseren naar cloud</string>
   <string name="cloud_doc_action_purge">Verwijderen uit cloudgeschiedenis</string>
-  <string name="cloud_doc_remove_all_confirm">%1$s verwijderen uit de cloud en van al uw apparaten, inclusief dit apparaat?</string>
-  <string name="cloud_doc_remove_cloud_confirm">%1$s verwijderen uit de cloud? De kopie op dit apparaat blijft behouden; apparaten met documentsynchronisatie aan verwijderen het ook.</string>
   <string name="cloud_doc_sync_now">Nu synchroniseren</string>
   <string name="cloud_doc_rescan">Opnieuw scannen vanuit cloud</string>
   <string name="cloud_doc_sync_now_download">Nieuwe en bijgewerkte documenten downloaden</string>
@@ -1991,6 +1934,14 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="cloud_doc_summary_download">%1$d downloaden</string>
   <string name="cloud_doc_summary_download_size">%1$d downloaden (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatische downloads starten zodra er wifi is.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d document</item>
+        <item quantity="other">%1$d documenten</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d document (%2$s)</item>
+        <item quantity="other">%1$d documenten (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Niets over te dragen</string>
   <string name="cloud_doc_selected_count">%1$d geselecteerd</string>
   <string name="cloud_doc_bulk_skipped">%1$d overgeslagen (niet van toepassing)</string>
@@ -2007,8 +1958,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="background_image_import">Importeren uit galerij…</string>
   <string name="background_image_empty">Nog geen afbeeldingen geïmporteerd. Tik op \"Importeren uit galerij…\" om er een toe te voegen.</string>
   <string name="background_image_importing">Importeren…</string>
-  <string name="background_image_delete_title">Afbeelding verwijderen?</string>
-  <string name="background_image_delete_confirm">Deze achtergrondafbeelding verwijderen? Werkbladen die haar nog gebruiken vallen terug op geen afbeelding.</string>
   <string name="background_image_day">Achtergrondafbeelding (dag)</string>
   <string name="background_image_night">Achtergrondafbeelding (nacht)</string>
   <string name="background_image_opacity_day">Dekking achtergrondafbeelding (dag)</string>
@@ -2082,6 +2031,10 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="legacy_notice_icloud">Synchronisatie gebruikt nu iCloud Drive. Schakel het opnieuw in via Instellingen → Synchronisatie. Dit apparaat behoudt wat het had; wijzigingen van uw andere apparaten komen binnen zodra synchronisatie weer is ingesteld. Om de oude iCloud-gegevens vrij te maken: Instellingen → uw naam → iCloud → Opslag beheren → AndBible.</string>
   <string name="legacy_notice_nextcloud">Uw Nextcloud-verbinding is overgenomen, maar synchronisatie staat uit. Schakel het in via Instellingen → Synchronisatie en kies of u wilt ophalen uit de cloud of een nieuwe wilt aanmaken.</string>
   <string name="legacy_notice_nextcloud_unsent">Sommige wijzigingen op dit apparaat waren nog niet naar Nextcloud verzonden. Ze zijn niet verzonden en blijven alleen op dit apparaat staan.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d bladwijzer kon niet betrouwbaar worden geplaatst en is niet geïmporteerd. Hij blijft bewaard bij je oude gegevens op dit apparaat.</item>
+        <item quantity="other">%1$d bladwijzers konden niet betrouwbaar worden geplaatst en zijn niet geïmporteerd. Ze blijven bewaard bij je oude gegevens op dit apparaat.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Het is een krachtige, maar gemakkelijk te gebruiken offline bijbelstudie-app.</string>
   <string name="webdav_untrusted_certificate_message_device">Het certificaat van %1$s wordt niet vertrouwd door dit apparaat. Vertrouw het alleen als u het herkent, bijvoorbeeld omdat u deze server zelf heeft ingesteld.\n\nOnderwerp: %2$s\nUitgever: %3$s\nGeldig: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2133,6 +2086,25 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="recommend_share_link">Een link delen</string>
   <string name="recommend_qr_caption">Scan om AndBible te krijgen voor je telefoon, tablet of computer.</string>
   <string name="desktop_activation_failed">AndBible draait al, maar het venster reageerde niet. Schakel over naar de actieve instantie en probeer het opnieuw. Binnenkomende bestanden zijn niet als afgeleverd bevestigd.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Dit kan niet ongedaan worden gemaakt.</string>
+  <string name="ai_raw_log_delete_lead">Dit logboek verwijderen?</string>
+  <string name="ai_provider_delete_lead">De provider “%1$s” verwijderen?</string>
+  <string name="ai_provider_delete_detail">Prompts die deze gebruiken, vallen terug op de standaardprovider.</string>
+  <string name="ai_model_delete_lead">Het model “%1$s” verwijderen?</string>
+  <string name="ai_prompt_delete_named_lead">De prompt “%1$s” verwijderen?</string>
+  <string name="ai_prompt_delete_lead">Deze prompt verwijderen?</string>
+  <string name="ai_reset_usage_detail">De totalen voor tokens en kosten gaan terug naar nul. Dit kan niet ongedaan worden gemaakt.</string>
+  <string name="ai_reset_usage_button">Resetten</string>
+  <string name="ai_disclaimer_accept">Ik accepteer</string>
+  <string name="llm_continue_iterations_lead">Nog %1$d iteraties doorgaan?</string>
+  <string name="llm_continue_iterations_detail">De AI-agent heeft zijn limiet van %1$d iteraties bereikt zonder klaar te zijn.</string>
+  <string name="llm_continue_button">Doorgaan</string>
+  <string name="permission_always_allow_lead">“%1$s” altijd toestaan?</string>
+  <string name="permission_always_allow_button">Altijd toestaan</string>
+  <string name="ai_bug_report_send_lead">Een AI-bugrapport versturen?</string>
+  <string name="ai_bug_report_send_button">Versturen</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Aan de slag</string>
   <string name="user_guide_section_reading_workspace">Lezen en werkblad</string>
@@ -2210,4 +2182,150 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI-assistent, deel 3: hulpmiddelen, je gegevens en machtigingen</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI-assistent, deel 4: eigen prompts, kosten en synchronisatie</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Wijzigingen negeren?</string>
+  <string name="dialog_keep_editing">Blijven bewerken</string>
+  <string name="dialog_label_delete_lead">Het label “%1$s” verwijderen?</string>
+  <string name="dialog_label_delete_detail">De notities in het studiepad worden ook verwijderd. Dit kan niet ongedaan worden gemaakt.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d bladwijzer heeft geen ander label.</item>
+        <item quantity="other">%1$d bladwijzers hebben geen ander label.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Label en %1$d bladwijzer verwijderen</item>
+        <item quantity="other">Label en %1$d bladwijzers verwijderen</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">De bladwijzers en hun notities worden verwijderd.</string>
+  <string name="dialog_label_delete_only_consequence">De bladwijzers blijven bestaan, zonder label.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Deze bladwijzer verwijderen?</item>
+        <item quantity="other">%1$d bladwijzers verwijderen?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">De notitie ervan wordt ook verwijderd.</item>
+        <item quantity="other">Hun notities worden ook verwijderd.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Alle labels voor automatisch toewijzen van dit werkblad verwijderen?</string>
+  <string name="dialog_labels_reset_hidden_lead">Alle verborgen labels weer tonen?</string>
+  <string name="dialog_labels_reset_shown_detail">Labels die je uit de lijst hebt verborgen, worden weer getoond.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">“%s” installeren?</string>
+  <string name="install_action">Installeren</string>
+  <string name="install_from_file_question">Documenten uit een bestand installeren?</string>
+  <string name="overwrite_files_detail">Deze bestanden bestaan al:%s</string>
+  <string name="import_studypads_question">Deze studiemappen importeren?</string>
+  <string name="import_action">Importeren</string>
+  <string name="restore_backup_question">De documenten in deze back-up herstellen?</string>
+  <string name="restore_backup_detail">Dit bestand is een AndBible-documentenback-up.</string>
+  <string name="update_document_question">Dit document bijwerken?</string>
+  <string name="update_action">Bijwerken</string>
+  <string name="download_documents_question">Documenten downloaden?</string>
+  <string name="download_persecution_warning">Als je in een land woont waar christenen worden vervolgd, moet je misschien voorzichtig zijn met het downloaden van christelijk materiaal via internet. Misschien wil je liever zip-bestanden van documenten op een veiligere manier verkrijgen en installeren via “%1$s”. Alle downloads van documentservers zijn versleuteld (HTTPS).</string>
+  <string name="download_action">Downloaden</string>
+  <string name="download_dont_ask_again">Downloaden, niet meer vragen</string>
+  <string name="download_dont_ask_again_consequence">Downloads starten voortaan zonder deze vraag.</string>
+  <string name="passphrase_did_not_work">De wachtzin werkte niet.</string>
+  <string name="try_again">Opnieuw proberen</string>
+  <string name="interrupted_downloads_lead">Deze documenten opnieuw downloaden?</string>
+  <string name="interrupted_downloads_detail">Hun download is onderbroken, dus ze zijn niet geïnstalleerd.</string>
+  <string name="external_link_open_question">Deze link in je browser openen?</string>
+  <string name="open_action">Openen</string>
+  <string name="notification_permission_question">Meldingen toestaan?</string>
+  <string name="notification_permission_detail">Meldingen tonen de downloadstatus, de verwerking en de status van het voorlezen.</string>
+  <string name="allow_action">Toestaan</string>
+  <string name="rate_question">De app beoordelen en een recensie schrijven?</string>
+  <string name="bug_report_email_question">Het bugrapport per e-mail versturen?</string>
+  <string name="continue_action">Doorgaan</string>
+  <string name="delete_search_index_question">De zoekindex van “%s” verwijderen?</string>
+  <string name="remove_custom_repository_question">De aangepaste documentopslagplaats “%s” verwijderen?</string>
+  <string name="download_document_question">“%s” downloaden?</string>
+  <string name="choose_file_action">Bestand kiezen</string>
+  <string name="old_webview_question">De app gebruiken met een oude WebView?</string>
+  <string name="incomplete_translation_question">Doorgaan met een gedeeltelijke vertaling?</string>
+  <string name="rate_action">Beoordelen</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Het document “%s” verwijderen?</string>
+  <string name="my_document_page_delete_lead">De pagina “%s” verwijderen?</string>
+  <string name="my_document_cannot_delete_ai_lead">AI-documenten kunnen niet worden verwijderd zolang ze pagina’s bevatten.</string>
+  <string name="my_document_cannot_delete_ai_detail">Verwijder eerst de pagina’s.</string>
+  <string name="reading_progress_new_cycle_lead">Een nieuwe leescyclus starten?</string>
+  <string name="reading_progress_new_cycle_detail">Je voortgang wordt opnieuw bijgehouden. De gegevens van je vorige cyclus blijven bewaard.</string>
+  <string name="reading_progress_new_cycle_start">Starten</string>
+  <string name="reset_plan_lead">Dit plan resetten?</string>
+  <string name="reset_plan_detail">Je startdatum en voortgang in dit plan worden gewist.</string>
+  <string name="set_current_day_lead">%1$s instellen als huidige dag?</string>
+  <string name="set_current_day_detail">Alle voorgaande dagen worden als gelezen gemarkeerd.</string>
+  <string name="plan_duplicate_user_plan_lead">Een leesplanbestand heeft dezelfde naam als een ingebouwd plan.</string>
+  <string name="plan_duplicate_user_plan_detail">Het planbestand kan niet worden getoond. Hernoem het bestand in de map jsword/readingplan en behoud de extensie .properties.</string>
+  <string name="background_image_delete_lead">Deze achtergrondafbeelding verwijderen?</string>
+  <string name="background_image_delete_detail">Werkbladen die haar nog gebruiken, vallen terug op geen afbeelding.</string>
+  <string name="reset_values_lead">Al deze waarden resetten?</string>
+  <string name="revert_setting_lead">Deze instelling terugzetten naar de overgenomen waarde?</string>
+  <string name="revert_setting_confirm">Terugzetten</string>
+  <string name="reset_settings_screen_lead">De instellingen op dit scherm resetten?</string>
+  <string name="reset_settings_screen_detail">Ze keren terug naar hun standaardwaarden.</string>
+  <string name="memorize_unmark_lead">De memorisatiestatus van “%s” verwijderen?</string>
+  <string name="memorize_remove_target_lead">Het memorisatiedoel “%s” verwijderen?</string>
+  <string name="dialog_apply">Toepassen</string>
+  <string name="dialog_dont_apply">Niet toepassen</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">De cloud bevat al je %s. Wat moet er gebeuren?</string>
+  <string name="cloud_merge_consequence">Beide kanten blijven behouden; als een item aan beide kanten is gewijzigd, wint de nieuwste wijziging.</string>
+  <string name="cloud_fetch_consequence">Vervangt de gegevens op dit apparaat door de kopie uit de cloud.</string>
+  <string name="cloud_create_consequence">Vervangt de kopie in de cloud door de gegevens op dit apparaat.</string>
+  <string name="cloud_disable_consequence">Synchronisatie blijft uit voor deze gegevens.</string>
+  <string name="cloud_merge_lead">Je %s samenvoegen met de cloud?</string>
+  <string name="cloud_merge_confirm">Samenvoegen</string>
+  <string name="cloud_replace_confirm">Vervangen</string>
+  <string name="cloud_replace_local_lead">De %s van dit apparaat vervangen door de kopie uit de cloud?</string>
+  <string name="cloud_replace_local_detail">Wat nu op dit apparaat staat, wordt overschreven en kan niet worden hersteld.</string>
+  <string name="cloud_replace_cloud_lead">De kopie van %s in de cloud vervangen door de gegevens van dit apparaat?</string>
+  <string name="cloud_replace_cloud_detail">Wat nu in de cloud staat, wordt overschreven en je andere apparaten ontvangen de gegevens van dit apparaat.</string>
+  <string name="sign_in_failed_lead">Kan niet inloggen bij de synchronisatieservice.</string>
+  <string name="sync_too_old_lead">Deze app is te oud om %s te synchroniseren.</string>
+  <string name="sync_too_old_detail">De clouddata gebruiken een nieuwere versie dan deze app ondersteunt. Synchronisatie ervan is voorlopig uitgeschakeld; werk de app bij om het weer in te schakelen.</string>
+  <string name="backup_replace_lead">Je %s vervangen door de back-up?</string>
+  <string name="backup_replace_detail">Wat nu op dit apparaat staat, wordt overschreven en kan niet worden hersteld.</string>
+  <string name="reset_database_lead">“%1$s” terugzetten naar de beginstatus?</string>
+  <string name="reset_database_detail">Alle gegevens erin worden definitief verwijderd. Dit kan niet ongedaan worden gemaakt.</string>
+  <string name="reset_database_button">Resetten</string>
+  <string name="restore_all_lead">Je notities, bladwijzers, studiemappen, leesplannen en werkbladen vervangen?</string>
+  <string name="restore_or_import_lead">De %s herstellen of importeren?</string>
+  <string name="restore_consequence">Vervangt wat op dit apparaat staat door de back-up.</string>
+  <string name="import_consequence">Voegt de items uit de back-up toe aan wat op dit apparaat staat.</string>
+  <string name="sync_start_syncing">Synchronisatie starten</string>
+  <string name="sync_reset_lead">Uitloggen en synchronisatie resetten?</string>
+  <string name="sync_reset_detail">Je moet de synchronisatie opnieuw instellen.</string>
+  <string name="webdav_forget_certificate_lead">Het vertrouwde servercertificaat vergeten?</string>
+  <string name="webdav_forget_certificate_detail">Bij de volgende verbinding word je opnieuw gevraagd het certificaat te bevestigen.</string>
+  <string name="webdav_forget_certificate_confirm">Vergeten</string>
+  <string name="cloud_doc_remove_all_lead">“%1$s” verwijderen uit de cloud en van al je apparaten?</string>
+  <string name="cloud_doc_remove_cloud_lead">“%1$s” uit de cloud verwijderen?</string>
+  <string name="cloud_doc_purge_lead">“%1$s” definitief uit de cloudgeschiedenis verwijderen?</string>
+  <string name="cloud_doc_remove_all_detail">Dit verwijdert ook de kopieën op dit apparaat en op elk ander apparaat waarop documentsynchronisatie aan staat.</string>
+  <string name="cloud_doc_remove_cloud_detail">Kopieën op dit apparaat blijven behouden. Apparaten waarop documentsynchronisatie aan staat, verwijderen ze ook.</string>
+  <string name="cloud_doc_purge_detail">Een apparaat dat nog een kopie heeft, kan die bij de volgende synchronisatie opnieuw uploaden.</string>
+  <string name="cloud_doc_block_confirm_button">Niet synchroniseren</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">%1$d document verwijderen uit de cloud en van al je apparaten?</item>
+        <item quantity="other">%1$d documenten verwijderen uit de cloud en van al je apparaten?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">%1$d document uit de cloud verwijderen?</item>
+        <item quantity="other">%1$d documenten uit de cloud verwijderen?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">%1$d document definitief uit de cloudgeschiedenis verwijderen?</item>
+        <item quantity="other">%1$d documenten definitief uit de cloudgeschiedenis verwijderen?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">Stoppen met het synchroniseren van %1$d document naar de cloud?</item>
+        <item quantity="other">Stoppen met het synchroniseren van %1$d documenten naar de cloud?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Meer van je gegevens kunnen nu synchroniseren</string>
+  <string name="new_sync_targets_detail">Mijn documenten, AI-instellingen en leesvoortgang kunnen ook synchroniseren. Schakel ze in bij de instellingen voor apparaatsynchronisatie.</string>
+  <!--end dialog copy: B3b-->
 </resources>
