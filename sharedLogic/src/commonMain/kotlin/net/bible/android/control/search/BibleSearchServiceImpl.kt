@@ -21,6 +21,8 @@ import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.BookException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.sword.SwordContentFacade
@@ -85,9 +87,9 @@ class BibleSearchServiceImpl(
         // Result previews read the hit books: a restored results route must not read an enciphered book locked
         // (an empty/garbage preview, cached by readOsisFragment and by the results controller).
         net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
+        if (request.isRegex) return@withContext searchRegex(request, regexBudget)
         // Section-decorated query drives the Lucene search (unchanged from the classic path); the
         // section-less variant supplies the words/lemmas that are actually highlighted in previews.
-        if (request.isRegex) return@withContext searchRegex(request, regexBudget)
         val decorated = decorate(request)
         val highlightString = searchControl.highlightSearchString(request.query, request.searchType.toClassic())
 
@@ -126,9 +128,10 @@ class BibleSearchServiceImpl(
         val dto = searchControl.getMultiRegexResults(
             request.translationIds, regex, request.bibleSection.toClassic(), request.currentBookName, budget,
         )
+        currentCoroutineContext().ensureActive()
         val previews = PreviewReader(emptyList(), emptyList())
-        val main = dto.mainSearchResults.map { it.toRow(previews, regex) }
-        val other = dto.otherSearchResults.map { it.toRow(previews, regex) }
+        val main = dto.mainSearchResults.map { currentCoroutineContext().ensureActive(); it.toRow(previews, regex) }
+        val other = dto.otherSearchResults.map { currentCoroutineContext().ensureActive(); it.toRow(previews, regex) }
         return MultiSearchResults(main = main, other = other, total = dto.size, truncatedByTime = dto.truncatedByTime)
     }
 

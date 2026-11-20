@@ -42,6 +42,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.fts.SearchFields
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 
 /** Data classes for multi-translation search results */
@@ -214,16 +215,20 @@ class SearchControl constructor(
             val book = SwordDocumentFacade.getDocumentByInitials(initials) as? SwordBook ?: continue
             if (book.indexStatus != IndexStatus.DONE) continue
             val index = IndexManagerFactory.getIndexManager().getIndex(book) as? RegexSearchableIndex ?: continue
-            val restriction = when (bibleSection) {
-                SearchBibleSection.ALL -> null
-                SearchBibleSection.OT -> book.getKey(SEARCH_OT_RANGE)
-                SearchBibleSection.NT -> book.getKey(SEARCH_NT_RANGE)
-                SearchBibleSection.CURRENT_BOOK -> currentBookName?.let { book.getKey(it) }
-            }
             val result = try {
+                val restriction = when (bibleSection) {
+                    SearchBibleSection.ALL -> null
+                    SearchBibleSection.OT -> book.getKey(SEARCH_OT_RANGE)
+                    SearchBibleSection.NT -> book.getKey(SEARCH_NT_RANGE)
+                    SearchBibleSection.CURRENT_BOOK -> currentBookName?.let { book.getKey(it) }
+                }
                 index.findRegex(regex, restriction, MAX_SEARCH_RESULTS + 1, budget)
             } catch (e: BookException) {
                 Log.e(TAG, "Error regex-searching ${book.initials}: ${e.message}")
+                continue
+            } catch (e: NoSuchKeyException) {
+                // The section does not exist in this book's versification (or the book name is unknown): skip it.
+                Log.e(TAG, "No such section in ${book.initials}: ${e.message}")
                 continue
             }
             if (result.truncated) searchResults.truncatedByTime = true
@@ -341,7 +346,7 @@ class SearchControl constructor(
         private const val SEARCH_OT_RANGE = "Gen-Mal"
         private const val SEARCH_NT_RANGE = "Mat-Rev"
         /** Wall-clock limit of one regex search over all selected translations. */
-        val REGEX_SEARCH_BUDGET: Duration = 20.seconds
+        val REGEX_SEARCH_BUDGET: Duration = 3.seconds
         const val SEARCH_TEXT = "SearchText"
         /** Section-less decorated query passed to the classic result adapter for highlighting. */
         const val SEARCH_HIGHLIGHT_TEXT = "SearchHighlightText"
