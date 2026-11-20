@@ -18,6 +18,9 @@
 package net.bible.sharedui.components.dialog
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -121,7 +124,15 @@ fun AbDialogShell(
         usePlatformDefaultWidth = false,
     )) {
         if (mono) NoDialogDim()
-        BoxWithConstraints(contentAlignment = Alignment.Center) {
+        // The box fills the dialog window. A platform dialog window wraps its content, and a wrapped window feeds
+        // its own previous height back as `maxHeight`: the screen margin below was then subtracted again on every
+        // measure pass, the passes alternated between two heights, and the middle area was clipped without a scroll
+        // divider (D1, seen on a real Android Dialog at a large font scale). With a window that always fills the screen
+        // the bound is stable. The tap-to-dismiss scrim is ours, because a full-size window has no "outside".
+        BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (properties.dismissOnClickOutside) {
+                Box(Modifier.fillMaxSize().testTag("dialog-scrim").pointerInput(Unit) { detectTapGestures { onDismissRequest() } })
+            }
             // Short windows (landscape phones) use a compact frame: smaller margin above/below and tighter padding,
             // so that three AX5 buttons plus the middle minimum still fit.
             val compact = maxHeight.value.isFinite() && maxHeight < CompactWindowHeight
@@ -135,7 +146,8 @@ fun AbDialogShell(
                 modifier = modifier
                     .widthIn(min = minDialogWidth, max = maxDialogWidth)
                     .heightIn(max = available)
-                    .monoBorder(shape),
+                    .monoBorder(shape)
+                    .pointerInput(Unit) { detectTapGestures { } },
                 shape = shape,
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = if (mono) 0.dp else 6.dp,
@@ -208,12 +220,15 @@ fun AbDialogShell(
                     //    height, at most the 40% cap) but never less than its reserve; the lead then takes whatever the
                     //    middle did not use (so an unused part of the reserve goes back to the lead), up to its caps.
                     val leadM = slot(ShellSlot.Lead)
-                    val gapMiddle = if (leadM != null && middleM != null) gapLead else 0
+                    // The lead-to-middle gap is held back while the middle is measured; it is dropped again when the
+                    // middle turns out to be empty (a body-less dialog), so that no empty band is left above the buttons.
+                    val gapMiddleHeld = if (leadM != null && middleM != null) gapLead else 0
                     val leadFraction = leadCapFraction.roundToPx()
                     val leadWanted = leadM?.let { minOf(leadFraction, it.maxIntrinsicHeight(width)) } ?: 0
-                    val room = (total - used - gapMiddle).coerceAtLeast(0)
+                    val room = (total - used - gapMiddleHeld).coerceAtLeast(0)
                     val middleP = middleM?.measure(loose.copy(maxHeight = maxOf(room - leadWanted, minOf(middleReserve, room))))
-                    val leadCap = minOf(leadFraction, room - (middleP?.height ?: 0)).coerceAtLeast(0)
+                    val gapMiddle = if (leadM != null && (middleP?.height ?: 0) > 0) gapLead else 0
+                    val leadCap = minOf(leadFraction, room + gapMiddleHeld - gapMiddle - (middleP?.height ?: 0)).coerceAtLeast(0)
                     val leadP = leadM?.measure(loose.copy(maxHeight = leadCap))
                     if (leadP != null) used += leadP.height + gapMiddle
                     val h = used + (middleP?.height ?: 0)
