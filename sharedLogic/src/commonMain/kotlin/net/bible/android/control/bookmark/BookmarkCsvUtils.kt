@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.bookmarks.isAddonId
 import net.bible.android.database.bookmarks.defaultLabelColor
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -200,7 +201,10 @@ object BookmarkCsvUtils {
                         
                         if (bookmarkData != null) {
                             val (bookmark, labelNames) = bookmarkData
-                            
+                            // A row exported from an add-on collection becomes the user's own bookmark (new id): the
+                            // collection itself is read-only and comes only from its module.
+                            if (bookmark.id.isAddonId) bookmark.id = IdType()
+
                             // Check if bookmark exists (by ID if provided, or by verse range)
                             val existingBookmark = if (bookmark.id.toString().isNotEmpty()) {
                                 bookmarkControl.bibleBookmarkById(bookmark.id)
@@ -253,7 +257,9 @@ object BookmarkCsvUtils {
         bookmarkControl: BookmarkControl
     ) {
         try {
-            val allLabels = bookmarkControl.allLabels().associateBy { it.name.trim() }
+            // Own labels only: an add-on collection label is never put on the user's bookmarks, so a CSV label of the
+            // same name becomes (or matches) an own label.
+            val allLabels = bookmarkControl.allLabels().filterNot { it.id.isAddonId }.associateBy { it.name.trim() }
             val labelIds = mutableListOf<IdType>()
 
             for (labelName in labelNames) {

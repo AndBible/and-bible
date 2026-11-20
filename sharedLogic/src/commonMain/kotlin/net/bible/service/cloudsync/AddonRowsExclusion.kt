@@ -54,19 +54,22 @@ fun addonRowTriggerCondition(category: SyncableDatabaseDefinition, table: Syncab
 fun addonRowExclusion(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table): String =
     if (!category.hasAddonRows) "" else " AND NOT (${isAddonIdSql(table.idField1)})"
 
+/** What a strip statement removes: an add-on row (or its log entry), a per-device add-on table row, or a user row's reference. */
+private enum class StripKind { ADDON_ROW, LOCAL_STATE, USER_REF }
+
 /**
  * The strip statements for the tables that exist in [schema] ([existing]: a downloaded file may be empty or of an older
  * schema; it is migrated later).
  */
-private fun stripStatements(category: SyncableDatabaseDefinition, schema: String, wholeDatabase: Boolean, existing: Set<String>): List<String> = buildList {
+private fun stripStatements(category: SyncableDatabaseDefinition, schema: String, wholeDatabase: Boolean, existing: Set<String>): List<Pair<String, StripKind>> = buildList {
     val tables = category.tables.filter { it.tableName in existing }
     for (table in tables.reversed()) {
-        add("DELETE FROM $schema.${table.tableName} WHERE ${isAddonIdSql(table.idField1)}")
+        add("DELETE FROM $schema.${table.tableName} WHERE ${isAddonIdSql(table.idField1)}" to StripKind.ADDON_ROW)
     }
     val names = tables.joinToString(",") { "'${it.tableName}'" }
-    if ("LogEntry" in existing && tables.isNotEmpty()) add("DELETE FROM $schema.LogEntry WHERE tableName IN ($names) AND ${isAddonIdSql("entityId1")}")
-    addAll(userRefsToAddonRowsStatements(schema, existing))
-    if (wholeDatabase) ADDON_LOCAL_TABLES.filter { it in existing }.forEach { add("DELETE FROM $schema.$it") }
+    if ("LogEntry" in existing && tables.isNotEmpty()) add("DELETE FROM $schema.LogEntry WHERE tableName IN ($names) AND ${isAddonIdSql("entityId1")}" to StripKind.ADDON_ROW)
+    userRefsToAddonRowsStatements(schema, existing).forEach { add(it to StripKind.USER_REF) }
+    if (wholeDatabase) ADDON_LOCAL_TABLES.filter { it in existing }.forEach { add("DELETE FROM $schema.$it" to StripKind.LOCAL_STATE) }
 }
 
 /**
@@ -98,18 +101,22 @@ private fun userRefsToAddonRowsStatements(schema: String, existing: Set<String>)
 private const val TABLE_NAMES_SQL = "SELECT name FROM %s.sqlite_master WHERE type = 'table'"
 
 /**
- * Deletes add-on rows and their log entries from the database attached as [schema] on [conn] (an incoming patch, a
- * merge snapshot). With [wholeDatabase] the per-device add-on tables are emptied too. Returns the number of rows
- * removed from the synced tables and the log. No-op for categories without add-on rows.
+ * Deletes add-on rows and their log entries, and user rows' references to add-on rows
+ * ([userRefsToAddonRowsStatements]), from the database attached as [schema] on [conn] (a patch, a merge snapshot, a
+ * file being imported). With [wholeDatabase] the per-device add-on tables are emptied too. Returns the number of
+ * add-on rows removed from the synced tables and the log. No-op for categories without add-on rows.
  */
 suspend fun stripAddonRows(conn: PooledConnection, category: SyncableDatabaseDefinition, schema: String, wholeDatabase: Boolean = false): Long {
     if (!category.hasAddonRows) return 0
     var removed = 0L
+    var refs = 0L
     val existing = conn.queryRows(TABLE_NAMES_SQL.replace("%s", schema)) { it.getText(0) }.toSet()
-    for (sql in stripStatements(category, schema, wholeDatabase, existing)) {
+    for ((sql, kind) in stripStatements(category, schema, wholeDatabase, existing)) {
         conn.exec(sql)
-        if (!sql.contains(".Addon")) removed += conn.queryLong("SELECT changes()") ?: 0L
+        val changed = conn.queryLong("SELECT changes()") ?: 0L
+        when (kind) { StripKind.ADDON_ROW -> removed += changed; StripKind.USER_REF -> refs += changed; StripKind.LOCAL_STATE -> {} }
     }
+    if (refs > 0) net.bible.sharedcore.log.Log.w(EXCLUSION_TAG, "Removed $refs user rows' references to add-on rows from $schema")
     return removed
 }
 
@@ -117,13 +124,16 @@ suspend fun stripAddonRows(conn: PooledConnection, category: SyncableDatabaseDef
 fun stripAddonRows(conn: SQLiteConnection, category: SyncableDatabaseDefinition, wholeDatabase: Boolean = true): Long {
     if (!category.hasAddonRows) return 0
     var removed = 0L
+    var refs = 0L
     val existing = conn.queryRows(TABLE_NAMES_SQL.replace("%s", "main")) { it.getText(0) }.toSet()
     conn.exec("PRAGMA foreign_keys=OFF")
-    for (sql in stripStatements(category, "main", wholeDatabase, existing)) {
+    for ((sql, kind) in stripStatements(category, "main", wholeDatabase, existing)) {
         conn.exec(sql)
-        if (!sql.contains(".Addon")) removed += conn.queryLong("SELECT changes()") ?: 0L
+        val changed = conn.queryLong("SELECT changes()") ?: 0L
+        when (kind) { StripKind.ADDON_ROW -> removed += changed; StripKind.USER_REF -> refs += changed; StripKind.LOCAL_STATE -> {} }
     }
     if (removed > 0) net.bible.sharedcore.log.Log.w(EXCLUSION_TAG, "Removed $removed add-on rows from a ${category.name} database file")
+    if (refs > 0) net.bible.sharedcore.log.Log.w(EXCLUSION_TAG, "Removed $refs user rows' references to add-on rows from a ${category.name} database file")
     return removed
 }
 

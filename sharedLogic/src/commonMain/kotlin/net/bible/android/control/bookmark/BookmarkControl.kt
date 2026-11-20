@@ -65,7 +65,6 @@ import net.bible.android.database.bookmarks.AI_LABEL_ID
 import net.bible.android.database.bookmarks.AI_LABEL_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.exec
 import net.bible.service.db.inTransaction
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.sword.BookAndKey
@@ -1064,8 +1063,9 @@ open class BookmarkControl constructor(
     }
 
     private suspend fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int, newStudyPadTextEntry: StudyPadTextEntryWithText? = null) {
-        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
-        val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+        // Add-on links (to the device's paragraph-break label) are read-only, as in [sanitizeStudyPadOrder].
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder && !it.bookmarkId.isAddonId }.onEach { it.orderNumber++ }
+        val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder && !it.bookmarkId.isAddonId }.onEach { it.orderNumber++ }
         val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId)
             .filter { it.orderNumber >= fromOrder && it.id != newStudyPadTextEntry?.id }
             .onEach { it.orderNumber++ }
@@ -1301,7 +1301,7 @@ open class BookmarkControl constructor(
         dao.bibleBookmarkById(addonBookmarkId)?.let { addon ->
             return addon.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, primaryLabelId = null, notes = null,
                 playbackSettings = null, customIcon = null, editAction = null, sourcePromptId = null,
-                notesContentType = null, notesSourcePromptId = null, new = true)
+                notesContentType = null, notesSourcePromptId = null, type = null, new = true)
         }
         dao.genericBookmarkById(addonBookmarkId)?.let { addon ->
             return addon.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, primaryLabelId = null, notes = null,

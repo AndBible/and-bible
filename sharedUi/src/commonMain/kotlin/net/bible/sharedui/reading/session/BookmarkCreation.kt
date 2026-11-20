@@ -79,7 +79,7 @@ class BookmarkCreation(
 
         // Write in this window's order on the application scope; the click event follows the write.
         bookmarkJsActions.launch(session.window.id) {
-            if (primaryLabelId != null) {
+            if (primaryLabelId != null && !primaryLabelId.isAddonId) {
                 val label = bookmarkControl.labelById(primaryLabelId)
                 if (label != null) {
                     bookmark.primaryLabelId = primaryLabelId
@@ -129,7 +129,7 @@ class BookmarkCreation(
         )
 
         bookmarkJsActions.launch(session.window.id) {
-            if (primaryLabelId != null) {
+            if (primaryLabelId != null && !primaryLabelId.isAddonId) {
                 val label = bookmarkControl.labelById(primaryLabelId)
                 if (label != null) {
                     bookmark.primaryLabelId = primaryLabelId

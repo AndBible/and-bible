@@ -22,6 +22,7 @@ import {defineComponent, h, provide, reactive, ref, nextTick} from "vue";
 import {describe, it, expect, vi} from "vitest";
 import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import LabelList from "@/components/LabelList.vue";
+import MyNoteRow from "@/components/MyNoteRow.vue";
 import StudyPadRow from "@/components/StudyPadRow.vue";
 import StudyPadDocument from "@/components/documents/StudyPadDocument.vue";
 import {useGlobalBookmarks, } from "@/composables/bookmarks";
@@ -155,6 +156,36 @@ describe("LabelList of an add-on bookmark", () => {
 });
 
 const ButtonIcon = {props: ["icon"], template: "<i :class=\"'icon-' + icon\"/>"};
+
+describe("MyNoteRow of an add-on bookmark", () => {
+    function mountNoteRow(b) {
+        return mount(MyNoteRow, {
+            props: {bookmark: b},
+            global: {
+                provide: {[androidKey]: {}, [exportModeKey]: ref(false)},
+                stubs: {FontAwesomeIcon: ButtonIcon, LabelList: true, BookmarkText: true, AreYouSure: true,
+                    EditableText: {props: ["readOnly"], template: "<div class=\"editable\" :data-read-only=\"String(readOnly)\"/>"}},
+            },
+        });
+    }
+
+    it("offers no note edit or delete, and its note is read-only", async () => {
+        const w = mountNoteRow(bookmark("b1", {addonModule: "MyAddon"}));
+        await w.find(".menu > div").trigger("click");
+        expect(w.find(".icon-info-circle").exists()).toBe(true);
+        expect(w.find(".icon-edit").exists()).toBe(false);
+        expect(w.find(".icon-trash").exists()).toBe(false);
+        expect(w.find(".editable").attributes("data-read-only")).toBe("true");
+    });
+
+    it("keeps note edit and delete for an own bookmark", async () => {
+        const w = mountNoteRow(bookmark("b2"));
+        await w.find(".menu > div").trigger("click");
+        expect(w.find(".icon-edit").exists()).toBe(true);
+        expect(w.find(".icon-trash").exists()).toBe(true);
+        expect(w.find(".editable").attributes("data-read-only")).toBe("false");
+    });
+});
 
 async function mountRow(entry, label) {
     const w = mount(StudyPadRow, {
