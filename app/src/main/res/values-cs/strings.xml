@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Úplná uživatelská příručka je na andbible.org. Stránky se otevírají v prohlížeči.</string>
   <string name="help_user_guide_home">Úvodní stránka příručky</string>
   <string name="help_read_in_user_guide">Přečíst v uživatelské příručce</string>
+  <string name="help_in_user_guide">Nápověda v uživatelské příručce</string>
+  <string name="help_matching_section">Odpovídající část</string>
   <string name="help_read_page">Přečíst v uživatelské příručce: %1$s</string>
   <string name="help_tutorial_videos">Výuková videa</string>
   <string name="help_watch_in_order">Sledujte výuková videa popořadě</string>
@@ -248,6 +250,9 @@
   <string name="prefs_navigate_to_verse_summary">Zadávat i verš při výběru pasáže</string>
   <string name="prefs_open_links_in_special_window_title">Okno odkazů</string>
   <string name="prefs_open_links_in_special_window_summary">Otevřít odkazy ve zvláštním okně pro rychlejší vyhledání křížových referencí a Strogových čísel</string>
+  <string name="prefs_trusted_link_domains_title">Důvěryhodné domény odkazů</string>
+  <string name="prefs_trusted_link_domains_summary">Odkazy na tyto domény se otevřou bez dotazu. Zrušením zaškrtnutí domény se opět zobrazí dotaz.</string>
+  <string name="prefs_trusted_link_domains_empty">Zatím žádné. Při otevření odkazu zaškrtněte „Příště se neptat“, aby se jeho doména přidala.</string>
   <string name="prefs_text_size_sample_text">Příklad textu</string>
   <string name="prefs_screen_keep_on_title">Nechat obrazovku zapnutou</string>
   <string name="prefs_screen_keep_on_summary">Nevypínat displej během používání aplikace</string>
@@ -308,7 +313,6 @@
   <string name="line_spacing_title">Řádkování</string>
   <string name="line_spacing_summary">Nastavení vzdálenosti mezi řádky</string>
   <string name="select_none">Zrušit výběr</string>
-  <string name="reset_are_you_sure">Opravdu chcete všechny tyto hodnoty resetovat?</string>
   <string name="window_pinning_menutitle">Připínání oken</string>
   <string name="hide_window_buttons_title">Skrýt tlačítka okna</string>
   <string name="hide_window_buttons_summary">Tlačítka oken, která se zobrazují na pravé straně Bible, jsou skrytá. Navigační lišta oken naspodu je stále zobrazená a vyskakovací menu oken můžete otevřít dlouhým stiskem.</string>
@@ -331,6 +335,7 @@
   <string name="word_not_found_in_dictionaries">Slovo nebylo nalezeno v žádném slovníku</string>
   <string name="prefs_top_margin_title_mm">Horní okraj (%d mm)</string>
   <string name="font_size_title">Velikost písma</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Neboť tak Bůh miloval svět, že dal svého jednorozeného Syna, aby žádný, kdo v něho věří, nezahynul, ale měl život věčný.</string>
   <string name="font_size_title_pt">Velikost písma (%d bodů)</string>
   <string name="prefs_font_text_size_summary">Nastavení velikosti hlavního písma</string>
@@ -348,6 +353,8 @@
   <string name="window_color_settings_title">Nastavení barev (okno)</string>
   <string name="workspace_color_settings_title">Nastavení barev (pracovní plocha)</string>
   <string name="color_workspace">Barva pracovní plochy</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Výchozí</string>
   <string name="color_text">Barva textu</string>
   <string name="color_background">Barva pozadí</string>
   <string name="colors_day_mode_title">Denní režim</string>
@@ -381,7 +388,6 @@
   <string name="download_source_last_updated">Seznam dokumentů aktualizován: %s.</string>
   <string name="download_refreshing_book_list">Obnovuji seznam dostupných dokumentů ze serverů…</string>
   <string name="download_source_message1">Dokumenty jsou staženy z následujícího zdroje:</string>
-  <string name="download_document_confirm_prefix">Stáhnout </string>
   <string name="error_downloading">Chyba při stahování dokumentu. Prosím zkontrolujte připojení k Internetu.</string>
   <string name="error_downloading_status">Server zpřístupňující %1$s odpověděl chybou %2$s (%3$d).</string>
   <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
@@ -402,9 +408,6 @@
   <string name="activity_title">Aktivita na pozadí</string>
   <string name="activity_empty">Nic neprobíhá</string>
   <string name="activity_failed_toast">%1$s — viz nabídka</string>
-  <string name="download_question_title">Chcete přistoupit ke stažení dokumentů?</string>
-  <string name="download_question_message">Pokud žijete v zemi, kde jsou křesťané pronásledováni, možná byste měli být opatrní při stahování křesťanských materiálů přes internet. Místo toho můžete získat zip soubory modulů bezpečnějším způsobem a nainstalovat je pomocí \"%1$s\". Opravdu chcete pokračovat ve stahování? Všechna stahování ze serverů modulů jsou šifrována (HTTPS).</string>
-  <string name="do_not_ask_again">Ano, již se nedotazovat</string>
   <string name="recommended_document">Doporučujeme!</string>
   <string name="about_version_history">Přehled změn: %s</string>
   <string name="download_errors">Chyby stahování</string>
@@ -421,11 +424,9 @@
   <string name="checking_zip_file">Kontroluji příslušný soubor…</string>
   <string name="invalid_module">Soubor neobsahuje platný modul SWORD</string>
   <string name="install_zip_title">Čekejte prosím. Načítám moduly ze souboru.</string>
-  <string name="overwrite_files">Následující soubory již existují: %s Přepsat?</string>
   <string name="overwrite_files_title">Přepsat soubory?</string>
   <string name="could_not_overwrite_files">Nelze přesat soubory: %s. Kromě toho byla instalace úspěšná.</string>
   <string name="module_backup_restore">Tento soubor je záloha dokumentů AndBible. Chcete obnovit její dokumenty?</string>
-  <string name="install_do_you_want">Chcete instalovat modul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čtení</string>
   <string name="reading_plans_plural">Plány čtení</string>
@@ -433,15 +434,8 @@
   <string name="rdg_plan_day">Den %s</string>
   <string name="rdg_plan_set_start_date">Nastavit datum začátku...</string>
   <string name="set_current_day">Nastavit aktuální den…</string>
-  <string name="msg_set_current_day_reading_plan">Tím se %1$s nastaví jako aktuální den tohoto plánu a všechny předchozí dny se označí jako přečtené. Pokračovat?</string>
   <string name="done">Hotovo</string>
-  <string name="reset_plan_question">Jste si jisti, že chcete tento plán resetovat?</string>
   <string name="import_reading_plan">Importovat plán čtení…</string>
-  <string name="plan_duplicate_user_plan">
-        Na SD kartě je uživatelský plán čtení
-        jsword/readingplan se stejným jménem jako interní plán. Nelze ho zde zobrazit.
-        Prosím přejmenujte soubor na něco jiného a příponu souboru ponechte .properties
-    </string>
   <string name="plan_name_y1ntpspr">NZ, Žalmy a Přísloví za rok</string>
   <string name="plan_description_y1ntpspr">
         Se svolením internetového časopisu HEARTLIGHT,
@@ -481,12 +475,8 @@
   <string name="delete_index">Smazat vyhledávací index</string>
   <string name="about">O dokumentu</string>
   <string name="delete_doc">Smazat %s?</string>
-  <string name="interrupted_downloads_title">Stahování bylo přerušeno</string>
-  <string name="interrupted_downloads_message">Tyto dokumenty nebyly nainstalovány, protože jejich stahování bylo přerušeno:</string>
-  <string name="interrupted_downloads_question">Stáhnout je znovu?</string>
   <string name="download_again">Stáhnout znovu</string>
   <string name="delete_docs_confirm">Smazat tyto dokumenty?</string>
-  <string name="delete_search_index_doc">Smazat index k %s?</string>
   <!--Verse context menu-->
   <string name="notes">Poznámky a odkazy</string>
   <string name="share_verse">Sdílet…</string>
@@ -527,7 +517,6 @@
         Jestliže se struktura dokumentu změní, aktualizace dokumentu může způsobit,
         že umístění těchto záložek/poznámek se v dokumentu změní nebo bude ztraceno.
     </string>
-  <string name="bookmark_warning3">Opravdu chcete aktualizovat modul?</string>
   <string name="bookmark_warning4">Je doporučeno zálohovat tento modul před jeho aktualizací.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Řadit dle data</string>
@@ -705,10 +694,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Obnova nebo import z...</string>
   <string name="backup_restore2">Obnova nebo import</string>
-  <string name="overwrite_something">Přepsat %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Obnovit databázový soubor</string>
-  <string name="restore_confirmation">Přepsat poznámky, záložky, studijní složky, plány čtení a pracovní plochy?</string>
   <string name="restore_success">Poznámky, záložky, studijní složky, plány čtení a pracovní plochy úspěšně obnoveny.</string>
   <string name="downloading_backup">Stahování souboru zálohy ...</string>
   <string name="loading_backup">Načítání databáze ze zálohy...</string>
@@ -730,7 +717,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="send_export_file">Odeslat soubor exportu</string>
   <string name="backup_modules_title">Vyberte, které moduly zálohovat</string>
   <string name="install_zip_canceled">Instalace modulu zrušena</string>
-  <string name="ask_restore_or_import">Databázi pro %s lze buď obnovit (tj. stávající databáze je odstraněna a načtena vybraná databáze), nebo importovat (vybraná databáze je importována do stávající databáze). Co chcete udělat?</string>
   <string name="restore">Obnovit</string>
   <string name="import2">Import</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -785,7 +771,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="settings_editor_back">Zpět</string>
   <string name="settings_editor_close">Zavřít</string>
   <string name="settings_editor_apply">Použít</string>
-  <string name="discard_changes_confirmation">Zahodit neuložené změny?</string>
   <string name="discard">Zahodit</string>
   <string name="remove">Odebrat</string>
   <string name="overwrite">Přepsat</string>
@@ -812,7 +797,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="empty_list">Žádné položky k zobrazení</string>
   <string name="error_skip">Přeskočit</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Poškozená data</string>
+  <string name="corrupt_database_headline">AndBible nemůže otevřít některá vaše data</string>
+  <string name="corrupt_database_files_detail">Tyto soubory se nepodařilo otevřít: %1$s. Nic nebylo změněno ani smazáno. Resetováním se vytvoří prázdné a každý poškozený soubor zůstane v tomto zařízení, přejmenovaný příponou .corrupt- s datem a časem.</string>
   <string name="corrupt_database_reset">Resetovat poškozená data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Poškozená data se nepodařilo resetovat: soubor %1$s nešlo přesunout stranou. Nic nebylo změněno. Můžete to zkusit znovu, odeslat hlášení o chybě nebo použít Zálohu a obnovu.</string>
@@ -820,8 +806,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="damaged_data_needs_attention">Data aplikace vyžadují pozornost. Klepnutím aplikaci otevřete.</string>
   <string name="debug_test_error">Testovací chyba (ladicí sestavení)</string>
   <string name="bug_report_prepare_failed">Hlášení se nepodařilo připravit nebo sdílet. Můžete to zkusit znovu nebo použít Zálohu a obnovení k uložení svých dat.</string>
-  <string name="bug_report_email_title">Nahlášení chyby emailem</string>
   <string name="bug_report_desktop_text">Dále budete vyzváni, kam uložit soubor s hlášením o chybě. Poté dostanete pokyny, jak jej odeslat vývojářskému týmu.</string>
+  <string name="bug_report_email_title">Nahlášení chyby emailem</string>
   <string name="bug_report_email_text">Dále prosím vyberte preferovanou mailovou aplikaci (například Gmail) pro poslání hlášení chyby vývojovému týmu.</string>
   <string name="bug_report_manual_title">Odeslat hlášení e-mailem</string>
   <string name="bug_report_manual_text_saved">Hlášení bylo uloženo do <b>%1$s</b>.\n\nPošlete prosím e-mail na adresu <b>%2$s</b> a přiložte tento soubor; e-mailový program jej za vás přiložit nedokáže. Navrhovaný předmět: <b>%3$s</b>. Ve zprávě nám napište, co jste dělali a co se stalo.</string>
@@ -892,8 +878,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="beta_special_regards">S pozdravem, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Vývoj AndBible můžete finančně podpořit %s.</string>
   <string name="beta_special_sponsor_link">sponzorováním vývojářských hodin</string>
-  <string name="new_sync_targets_notice_title">K dispozici jsou nová nastavení synchronizace</string>
-  <string name="new_sync_targets_notice_message">Tato verze AndBible zavádí další cíle synchronizace: Moje dokumenty, nastavení AI a průběh čtení. Pokud je chcete povolit, můžete tak učinit v nastavení synchronizace zařízení.</string>
   <string name="open_settings">Otevřít nastavení</string>
   <!--History-->
   <string name="history_for">Historie (%1$s: Okno %2$d)</string>
@@ -1002,7 +986,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="give_passphrase_for_module">Dokument %s je šifrován a k jeho otevření je třeba heslo</string>
   <string name="unlock_module">Nastavit heslo modulu</string>
   <string name="unlock_info">Informace o zabezpečení modulu</string>
-  <string name="try_again_passphrase">Heslo je nefunkční, zkustt znovu?</string>
   <string name="show_unlock_info">Informace o modulu a zabezpečení</string>
   <string name="prefs_experimental_features_title">Experimentální funkce</string>
   <string name="prefs_experimental_features_summary">Vyberte, které experimentální funkce chcete povolit. Tyto funkce jsou stále ve vývoji a mohou být změněny nebo odstraněny.</string>
@@ -1036,9 +1019,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="active_window_indicator_summary">Zvýrazní okraj právě aktivního</string>
   <string name="app_licence_title">Licence otevřeného softwaru</string>
   <string name="how_to_contribute">Jak se zapojit a přispět?</string>
-  <string name="confirm_delete_bookmarks">Opravdu smazat záložku %d včetně přidružených poznámek?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Vybraný štítek je přiřazen k %d záložkám, které nemají žádné jiné štítky. Chcete tyto záložky smazat spolu se štítky?</string>
-  <string name="delete_label_and_bookmarks">Smazat štítek a záložky</string>
   <string name="delete_label_only">Smazat pouze štítek</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Doporučit</string>
@@ -1069,8 +1049,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="old_webview">Používáte starou verzi balíčku Android WebView (%1$s). Musíte aktualizovat Android WebView minimálně na verzi %2$s, kterou vyžaduje %3$s. Na většině zařízení je to možné provést pomocí %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Přesto pokračovat</string>
-  <string name="proceed">Pokračovat</string>
-  <string name="rate_title">Ohodnotit aplikaci</string>
   <string name="rate_message5">
         Pozitivní a detailní hodnocení Open Source projektu And Bible velmi pomůže. Moc díky!
     </string>
@@ -1122,7 +1100,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="primary_label">Hlavní štítek</string>
   <string name="favourite_label">Oblíbený štítek</string>
   <string name="edit_label">Upravit štítek</string>
-  <string name="delete_label_confirmation">Opravdu smazat štítek \"%s\"? Přidružené studijní složky budou také odstraněny.</string>
   <string name="active_labels">Vybrané štítky</string>
   <string name="recent_labels">Poslední štíky</string>
   <string name="other_labels">Ostatní štítky</string>
@@ -1132,8 +1109,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="book_menu_show_progress_bars">Zobrazit ukazatele průběhu</string>
   <string name="reset_workspace_labels">Vymazat nastavení automaticky přiřazovaných a oblíbených štítků této pracovní plochy?</string>
   <string name="clear_auto_assign_labels">Vymazat automaticky přiřazované štítky</string>
-  <string name="reset_workspace_auto_assign_labels">Chcete z této pracovní plochy odebrat všechny automaticky přiřazované štítky?</string>
-  <string name="reset_hide_labels">Vymazat nastavení skrývání konkrétních štítků?</string>
   <string name="reorder">Znovu setřídit</string>
   <string name="system_items">Systémové akce</string>
   <string name="system_items1">Více</string>
@@ -1147,7 +1122,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ios_fullscreen_hint">Režim celé obrazovky ukončíte dvojitým klepnutím nebo klepnutím na tlačítko.</string>
   <string name="desktop_exit_fullscreen">Ukončit režim celé obrazovky</string>
   <string name="exit_fullscreen">Dvojklik ukončí režim celé obrazovky</string>
-  <string name="reset_app_prefs">Opravdu vrátit globální nastavení aplikace zobrazené zde na výchozí hodnoty?</string>
   <string name="label_red">Červená</string>
   <string name="label_green">Zelená</string>
   <string name="label_blue">Modrá</string>
@@ -1158,7 +1132,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="reset_databases_title">Resetovat databáze</string>
   <string name="reset_databases_description">Resetovat jednotlivé databáze do jejich počátečního prázdného stavu. Tuto akci nelze vrátit zpět.</string>
   <string name="last_crash_info_title">Informace o posledním pádu</string>
-  <string name="reset_database_confirm">Tímto trvale smažete veškerá data v \"%1$s\" a resetujete databázi do počátečního stavu. Tuto akci nelze vrátit zpět.\n\nOpravdu chcete pokračovat?</string>
   <string name="reset_database_success">Databáze byla úspěšně resetována</string>
   <string name="reset_something">Resetovat: %1$s</string>
   <string name="export">Export</string>
@@ -1228,19 +1201,18 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="manage_labels_help_favourite">Ponechat štítek v oblíbených pro rychlý přístup.</string>
   <string name="manage_labels_help_styles">Pod názvem se zobrazuje malá ukázka vzhledu štítku: Výběr pro záložku výběru textu, Celý verš pro záložku celého verše a značka Pracovní plocha pro styl, který tato pracovní plocha přepisuje. Zašedlá ukázka bez dekorace znamená, že záložky tohoto štítku se nevykreslují. Ukázky můžete skrýt v nabídce ⋮.</string>
   <string name="manage_labels_help_reorder">Změňte pořadí seznamu v nabídce ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Na úzké obrazovce seznam vynechává ikony primárního, automaticky přiřazovaného a oblíbeného štítku, aby se vešly názvy štítků. Klepnutím na štítek je nastavíte v jeho editoru.</string>
   <string name="added_to_bookmark">Přiřazeno k této záložce</string>
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Text a odkazy</string>
   <string name="strongs_hidden_links">Skryté odkazy</string>
   <string name="verse_tip">Pasáž textu označíte přidržením textu na delší dobu.</string>
-  <string name="permission_required">Je potřeba oprávnění</string>
   <string name="labels_search_hint">Hledat</string>
   <string name="search_mode_name_start">Název (od začátku)</string>
   <string name="search_mode_name_contains">Název (obsahuje)</string>
   <string name="search_mode_content">Obsah</string>
   <string name="search_results_matches">%d shod</string>
   <string name="search_results_match">1 shoda</string>
-  <string name="progress_status_permission">Pro zobrazení upozornění (stav stahování, zpracování, stav předčítání), potřebujeme schválení oprávnění. </string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Jednoduchá kalkulačka</string>
   <string name="prefs_persecution_cat">Nastavení pro pronásledované</string>
@@ -1289,7 +1261,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="custom_repositories_create_button_label">Přidat vlastní repozitář</string>
   <string name="custom_repositories_info_button_label">Informace</string>
   <string name="repository_specification">Adresa/URL repozitáře</string>
-  <string name="delete_custom_repository">Chcete odstranit tento vlastní repozitář %s?</string>
   <string name="custom_repositories_help1">Pro přidání vlastního repozitáře zde zadejte nebo zkopírujte adresu/URL repozitáře.</string>
   <string name="custom_repositories_help2">Více informací o vlastních repozitářích najdete: %s.</string>
   <string name="custom_repositories_help0">Instalací vlastního repozitáře získáte možnost instalovat dokumenty z externího zdroje.</string>
@@ -1313,10 +1284,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="db_bookmarks">Záložky, poznámky, štítky a studijní složky</string>
   <string name="synchronizing">Synchronizace...</string>
   <string name="notification_finished">Dokončeno</string>
-  <string name="overrideBackup">
-        V síťovém uložišti existuje databáze, která dosud nebyla synchronizována na toto zařízení.
-        Databáze obsahuje %s. Co chcete udělat?
-    </string>
   <string name="reading_plans_content">Plány čtení a jejich stav</string>
   <string name="bookmarks_contents">Záložky, štítky a studijní složky</string>
   <string name="workspaces_contents">Pracovní prochy a okna</string>
@@ -1336,7 +1303,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="reading_progress_calendar">Aktivita čtení</string>
   <string name="reading_progress_cycle">Cyklus %d</string>
   <string name="reading_progress_new_cycle">Nový cyklus</string>
-  <string name="reading_progress_new_cycle_confirm">Zahájit nový cyklus čtení? Sledování vašeho pokroku začne znovu od začátku, přičemž data předchozího cyklu budou zachována.</string>
   <string name="reading_progress_previous_cycle">Předchozí cyklus</string>
   <string name="reading_progress_next_cycle">Další cyklus</string>
   <string name="cloud_merge_data">Sloučit data</string>
@@ -1346,7 +1312,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_sync_title">Synchronizace</string>
   <string name="reset_sync">Odhlášení</string>
   <string name="prefs_reset_sync_summary">Zakázat synchronizaci a resetovat související nastavení.</string>
-  <string name="sync_confirmation">Opravdu zakázat synchronizaci a resetovat související nastavení?</string>
   <string name="cloud_info">Informace o Cloudu</string>
   <string name="cloud_info_summary">Data v síťovém uložišti: %s Mb</string>
   <string name="sync_adapter">Synchronizační služba</string>
@@ -1362,7 +1327,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="webdav_server_url_hint">Adresa složky WebDAV, např. https://nas.local/dav/ nebo https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synchronizace vyžaduje zabezpečenou adresu https://.</string>
   <string name="webdav_certificate_title">Certifikát serveru</string>
-  <string name="webdav_forget_certificate_message">Zapomenout důvěryhodný certifikát serveru? Při příštím připojení budete znovu požádáni o potvrzení certifikátu.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nedůvěryhodný certifikát serveru</string>
   <string name="webdav_untrusted_certificate_message">Certifikát serveru %1$s není pro Android důvěryhodný. Důvěřujte mu, pouze pokud jej poznáváte, například proto, že jste tento server sami nastavili.\n\nSubjekt: %2$s\nVydavatel: %3$s\nPlatnost: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1379,14 +1343,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="synchronization_categories">Kategorie synchronizace</string>
   <string name="sync_general_settings">Informace a obecné nastavení</string>
   <string name="sync_introduction">Úvod</string>
-  <string name="are_you_sure">Opravdu?</string>
   <string name="are_you_sure_merge">Data na tomto zařízení i %s v cloudu budou zachována. Pokud byla stejná položka změněna na obou místech, zůstane novější změna. Data tohoto zařízení budou odeslána do vašich dalších zařízení.</string>
-  <string name="are_you_sure_reset_local">Místní databáze bude resetována pro  %s obsahem ze síťové sluby.</string>
-  <string name="are_you_sure_reset_cloud">Toto přepíše vaši databázi v síťovém uložišti pro  %s obsahem, který máte v tomto zařízení.</string>
-  <string name="sync_cant_fetch">Verze databáze nebo souboru opravy uložená na síti je vyšší než verze podporovaná touto aplikací.</string>
-  <string name="sync_disabling">Prozatím vypínám synchronizaci pro %s .</string>
-  <string name="sync_update_app">K pokračování synchronizace si prosím aktualizujte aplikaci.</string>
-  <string name="sign_in_failed">Přihlášení k synchronizační službě selhalo.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Vypínám synchronizaci se síťovým uložištěm. Je potřeba ji po obnově znovu zapnout manuálně.</string>
   <string name="report">Hlášení</string>
@@ -1404,6 +1361,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="open_here">Otevřít zde</string>
   <string name="external_link">Externí odkaz</string>
   <string name="external_link_question">V prohlížeči bude otevřen externí odkaz %s, chcete pokračovat?</string>
+  <string name="external_link_dont_ask_again">Příště se neptat pro %s</string>
   <string name="nameless">Titulek není definován</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akce na jedno kliknutí (Bible)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Akce na jedno kliknutí (Jinde)</string>
@@ -1453,8 +1411,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="memorize_include_reference_summary">Přidat odkaz na verš (např. Jan 3:16) jako poslední položku k zapamatování</string>
   <string name="reading_progress_settings">Pokrok a memorování</string>
   <string name="reading_progress_settings_summary">Nastavení automatického sledování, memorování a cvičení psaní</string>
-  <string name="memorize_confirm_unmark">Odebrat stav zapamatování pro %s?</string>
-  <string name="memorize_confirm_remove_target">Odebrat cíl memorování %s?</string>
   <string name="memorize_tab_reading">Čtení</string>
   <string name="memorize_tab_memorization">Memorování</string>
   <string name="memorize_verses_memorized">Zapamatováno</string>
@@ -1480,7 +1436,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="llm_reset_usage_title">Resetovat data o využití</string>
   <string name="llm_reset_usage_summary">Vymazat kumulativní sledování tokenů a nákladů</string>
   <string name="llm_reset_usage_confirm_title">Resetovat data o využití?</string>
-  <string name="llm_reset_usage_confirm_message">Tím se vymažou všechna kumulativní data o využití.</string>
   <string name="llm_custom_input_price_title">Cena vstupu ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Cena výstupu ($/Mtoken)</string>
   <string name="llm_cost_total">Celkem: %1$s</string>
@@ -1496,8 +1451,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="llm_parse_error_anthropic">Nepodařilo se zpracovat odpověď Anthropic: %1$s</string>
   <string name="llm_error_unknown">Neznámá chyba</string>
   <string name="llm_error_max_iterations">Bylo dosaženo maximálního počtu iterací (%1$d) bez dokončení</string>
-  <string name="llm_continue_iterations_title">Pokračovat?</string>
-  <string name="llm_continue_iterations_message">Agent AI dosáhl svého limitu %1$d iterací bez dokončení. Pokračovat o dalších %2$d iterací?</string>
   <string name="agent_max_iterations_title">Maximální počet iterací agenta</string>
   <string name="agent_max_iterations_summary">Maximální počet iterací před dotazem na pokračování (0 = neomezeno)</string>
   <string name="ask_model_before_run_title">Dotázat se na model před spuštěním</string>
@@ -1557,7 +1510,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ai_models_summary_none">Žádné modely nejsou nakonfigurovány</string>
   <string name="ai_add_provider">Přidat poskytovatele</string>
   <string name="ai_provider_edit">Upravit</string>
-  <string name="ai_provider_delete_confirm">Smazat poskytovatele \"%1$s\"? Výzvy používající tohoto poskytovatele se vrátí na výchozí hodnotu.</string>
   <string name="ai_provider_api_key_not_set">API klíč není nastaven</string>
   <string name="ai_provider_select_type">Vybrat typ poskytovatele</string>
   <string name="ai_provider_name">Název poskytovatele</string>
@@ -1577,7 +1529,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="edit_model_title">Upravit model</string>
   <string name="model_saved">Model uložen</string>
   <string name="model_deleted">Model smazán</string>
-  <string name="model_delete_confirm">Smazat model \"%1$s\"?</string>
   <string name="model_set_default">Nastavit jako výchozí model</string>
   <string name="model_select_provider">Poskytovatel</string>
   <string name="model_supported_badge">✓ Podporováno</string>
@@ -1617,7 +1568,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ai_disclaimer_point8">Vaše data jsou odesílána na servery vámi zvoleného poskytovatele AI. Použitím API klíče přijímáte podmínky a zásady ochrany soukromí tohoto poskytovatele. Lokálně hostované modely jsou možné, ale vyžadují větší technické znalosti a nemusí dosahovat tak dobrých výsledků jako komerční modely.</string>
   <string name="ai_disclaimer_point9">Poskytovatelé AI účtují poplatky za používání API. Odhady nákladů zobrazené v AndBible jsou přibližné — vždy zkontrolujte fakturaci u svého poskytovatele pro skutečné poplatky.</string>
   <string name="ai_disclaimer_accept_title">Přijmout prohlášení o AI</string>
-  <string name="ai_disclaimer_accept_button">Přijímám a přebírám plnou odpovědnost</string>
   <string name="prompt_permission_mode">Režim oprávnění</string>
   <string name="prompt_permission_mode_description">Určuje, kdy je vyžadováno potvrzení uživatele před tím, než AI provede operace zápisu. Nastavení jednotlivých nástrojů níže mohou toto přepsat pro konkrétní nástroje.</string>
   <string name="agent_permission_mode_summary">Určuje, kdy je vyžadováno potvrzení uživatele před operacemi zápisu AI</string>
@@ -1733,7 +1683,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="default_prompt_custom_desc">Spustí vlastní výzvu na vybrané pasáži</string>
   <string name="default_prompt_custom_template">Proveďte uživatelovo zadání úkolu pro vybranou biblickou pasáž.</string>
   <string name="copy">Kopírovat</string>
-  <string name="delete_prompt_confirm_message">Opravdu chcete smazat tuto výzvu?</string>
   <string name="ai_hide_prompt">Skrýt</string>
   <string name="ai_restore_hidden_prompts">Obnovit skryté výzvy</string>
   <string name="ai_prompt_hidden">Výzva skryta</string>
@@ -1818,8 +1767,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="permission_allow_all_session">Povolit všechny nástroje v této relaci</string>
   <string name="permission_allow_always">Vždy povolit \"%1$s\"</string>
   <string name="permission_deny">Zamítnout</string>
-  <string name="permission_always_allow_confirm_title">Vždy povolit?</string>
-  <string name="permission_always_allow_confirm">Opravdu chcete trvale povolit \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Toto můžete resetovat v nastavení AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Oprávnění nástrojů</string>
@@ -1924,18 +1871,15 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Vytvořit nový dokument</string>
   <string name="my_document_rename_title">Přejmenovat dokument</string>
-  <string name="my_document_delete_confirmation">Smazat dokument \"%s\"?</string>
   <string name="show_secret">Zobrazit</string>
   <string name="hide_secret">Skrýt</string>
   <string name="ai_documents_name">AI dokumenty</string>
   <string name="ai_documents_description">Automaticky generované dokumenty od AI</string>
-  <string name="my_document_cannot_delete_ai_documents">Dokumenty AI nelze smazat, pokud obsahují stránky. Nejprve smažte stránky.</string>
   <string name="my_document_save_changes">Uložit změny?</string>
   <string name="my_document_no_description">Bez popisu</string>
   <string name="my_document_edit_description">Upravit popis</string>
   <string name="my_document_pages_title">%s – Stránky</string>
   <string name="my_document_page_rename_title">Přejmenovat stránku</string>
-  <string name="my_document_page_delete_confirmation">Smazat stránku \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Smazat tyto stránky?</string>
   <string name="my_documents_switch_document">Přepnout dokument</string>
   <string name="my_document_new_page_name">Stránka %1$d</string>
@@ -2003,7 +1947,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_doc_show_removed">Zobrazit odstraněné dokumenty</string>
   <string name="cloud_doc_status_removed">Odstraněno z cloudu</string>
   <string name="cloud_doc_status_still_installed">stále nainstalováno zde</string>
-  <string name="cloud_doc_purge_confirm">Trvale odstranit \"%1$s\" z historie cloudu? Pokud je stále nainstalován na jiném zařízení, může jej toto zařízení při příští synchronizaci znovu nahrát do cloudu.</string>
   <string name="cloud_doc_action_download">Stáhnout</string>
   <string name="cloud_doc_action_push">Nahrát do cloudu</string>
   <string name="cloud_doc_action_remove_cloud">Odstranit z cloudu</string>
@@ -2014,8 +1957,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_doc_action_dont_sync">Nesynchronizovat do cloudu</string>
   <string name="cloud_doc_action_allow_sync">Synchronizovat do cloudu</string>
   <string name="cloud_doc_action_purge">Odstranit z historie cloudu</string>
-  <string name="cloud_doc_remove_all_confirm">Odstranit %1$s z cloudu a ze všech vašich zařízení, včetně tohoto?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Odstranit %1$s z cloudu? Kopie na tomto zařízení zůstane zachována; zařízení se zapnutou synchronizací dokumentů jej rovněž odstraní.</string>
   <string name="cloud_doc_sync_now">Synchronizovat nyní</string>
   <string name="cloud_doc_rescan">Znovu prohledat z cloudu</string>
   <string name="cloud_doc_sync_now_download">Stáhnout nové a aktualizované dokumenty</string>
@@ -2027,6 +1968,18 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_doc_summary_download">Stáhnout %1$d</string>
   <string name="cloud_doc_summary_download_size">Stáhnout %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatické stahování se spustí přes Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d dokument</item>
+    <item quantity="few">%1$d dokumenty</item>
+    <item quantity="many">%1$d dokumentu</item>
+    <item quantity="other">%1$d dokumentů</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d dokument (%2$s)</item>
+    <item quantity="few">%1$d dokumenty (%2$s)</item>
+    <item quantity="many">%1$d dokumentu (%2$s)</item>
+    <item quantity="other">%1$d dokumentů (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Není co přenést</string>
   <string name="cloud_doc_selected_count">Vybráno: %1$d</string>
   <string name="cloud_doc_bulk_skipped">Přeskočeno %1$d nepoužitelných</string>
@@ -2043,8 +1996,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="background_image_import">Importovat z galerie…</string>
   <string name="background_image_empty">Zatím žádné importované obrázky. Klepnutím na \"Importovat z galerie…\" nějaký přidáte.</string>
   <string name="background_image_importing">Importuje se…</string>
-  <string name="background_image_delete_title">Smazat obrázek?</string>
-  <string name="background_image_delete_confirm">Smazat tento obrázek na pozadí? Pracovní plochy, které jej stále používají, se vrátí k žádnému obrázku.</string>
   <string name="background_image_day">Obrázek na pozadí (den)</string>
   <string name="background_image_night">Obrázek na pozadí (noc)</string>
   <string name="background_image_opacity_day">Průhlednost obrázku na pozadí (den)</string>
@@ -2118,6 +2069,12 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="legacy_notice_icloud">Synchronizace nyní používá iCloud Drive. Znovu ji zapněte v Nastavení → Synchronizace. Toto zařízení si ponechá, co mělo; změny z vašich dalších zařízení dorazí po opětovném nastavení synchronizace. Uvolnění starých dat iCloudu: Nastavení → vaše jméno → iCloud → Spravovat úložiště → AndBible.</string>
   <string name="legacy_notice_nextcloud">Vaše připojení k Nextcloudu bylo převzato, ale synchronizace je vypnutá. Zapněte ji v Nastavení → Synchronizace a zvolte stažení z cloudu nebo vytvoření nových dat.</string>
   <string name="legacy_notice_nextcloud_unsent">Některé změny na tomto zařízení ještě nebyly odeslány do Nextcloudu. Nebyly odeslány a zůstávají pouze na tomto zařízení.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d záložku se nepodařilo spolehlivě umístit a nebyla importována. Zůstává ve vašich starých datech v tomto zařízení.</item>
+    <item quantity="few">%1$d záložky se nepodařilo spolehlivě umístit a nebyly importovány. Zůstávají ve vašich starých datech v tomto zařízení.</item>
+    <item quantity="many">%1$d záložky se nepodařilo spolehlivě umístit a nebyly importovány. Zůstávají ve vašich starých datech v tomto zařízení.</item>
+    <item quantity="other">%1$d záložek se nepodařilo spolehlivě umístit a nebyly importovány. Zůstávají ve vašich starých datech v tomto zařízení.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Je to výkonná, a přesto snadno použitelná offline aplikace pro studium Bible.</string>
   <string name="webdav_untrusted_certificate_message_device">Certifikát serveru %1$s není pro toto zařízení důvěryhodný. Důvěřujte mu, pouze pokud jej poznáváte, například proto, že jste tento server sami nastavili.\n\nSubjekt: %2$s\nVydavatel: %3$s\nPlatnost: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2169,6 +2126,25 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="recommend_share_link">Sdílet odkaz</string>
   <string name="recommend_qr_caption">Naskenujte a získejte AndBible pro telefon, tablet nebo počítač.</string>
   <string name="desktop_activation_failed">AndBible již běží, ale jeho okno nereagovalo. Přepněte se na běžící instanci a zkuste to znovu. Příchozí soubory nebyly potvrzeny jako doručené.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Toto nelze vrátit zpět.</string>
+  <string name="ai_raw_log_delete_lead">Smazat tento protokol?</string>
+  <string name="ai_provider_delete_lead">Smazat poskytovatele „%1$s“?</string>
+  <string name="ai_provider_delete_detail">Prompty, které ho používají, se vrátí k výchozímu poskytovateli.</string>
+  <string name="ai_model_delete_lead">Smazat model „%1$s“?</string>
+  <string name="ai_prompt_delete_named_lead">Smazat prompt „%1$s“?</string>
+  <string name="ai_prompt_delete_lead">Smazat tento prompt?</string>
+  <string name="ai_reset_usage_detail">Součty tokenů a nákladů se vrátí na nulu. Toto nelze vrátit zpět.</string>
+  <string name="ai_reset_usage_button">Resetovat</string>
+  <string name="ai_disclaimer_accept">Přijímám</string>
+  <string name="llm_continue_iterations_lead">Pokračovat dalšími %1$d iteracemi?</string>
+  <string name="llm_continue_iterations_detail">Agent ai dosáhl limitu %1$d iterací, aniž by skončil.</string>
+  <string name="llm_continue_button">Pokračovat</string>
+  <string name="permission_always_allow_lead">Vždy povolit „%1$s“?</string>
+  <string name="permission_always_allow_button">Vždy povolit</string>
+  <string name="ai_bug_report_send_lead">Odeslat hlášení chyby ai?</string>
+  <string name="ai_bug_report_send_button">Odeslat</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Začínáme</string>
   <string name="user_guide_section_reading_workspace">Čtení a pracovní prostory</string>
@@ -2246,4 +2222,166 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI asistent, část 3: nástroje, vaše data a oprávnění</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI asistent, část 4: vlastní prompty, náklady a synchronizace</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Zahodit změny?</string>
+  <string name="dialog_keep_editing">Pokračovat v úpravách</string>
+  <string name="dialog_label_delete_lead">Smazat štítek „%1$s“?</string>
+  <string name="dialog_label_delete_detail">Smažou se také jeho poznámky ve studijní složce. Toto nelze vrátit zpět.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d záložka nemá žádný jiný štítek.</item>
+    <item quantity="few">%1$d záložky nemají žádný jiný štítek.</item>
+    <item quantity="many">%1$d záložky nemá žádný jiný štítek.</item>
+    <item quantity="other">%1$d záložek nemá žádný jiný štítek.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Smazat štítek a %1$d záložku</item>
+    <item quantity="few">Smazat štítek a %1$d záložky</item>
+    <item quantity="many">Smazat štítek a %1$d záložky</item>
+    <item quantity="other">Smazat štítek a %1$d záložek</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Záložky a jejich poznámky se smažou.</string>
+  <string name="dialog_label_delete_only_consequence">Záložky zůstanou, bez štítku.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Odebrat tuto záložku?</item>
+    <item quantity="few">Odebrat %1$d záložky?</item>
+    <item quantity="many">Odebrat %1$d záložky?</item>
+    <item quantity="other">Odebrat %1$d záložek?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">Odebere se také její poznámka.</item>
+    <item quantity="few">Odeberou se také jejich poznámky.</item>
+    <item quantity="many">Odeberou se také jejich poznámky.</item>
+    <item quantity="other">Odeberou se také jejich poznámky.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Odebrat všechny automaticky přiřazované štítky z této pracovní plochy?</string>
+  <string name="dialog_labels_reset_hidden_lead">Znovu zobrazit všechny skryté štítky?</string>
+  <string name="dialog_labels_reset_shown_detail">Štítky, které jste v seznamu skryli, se znovu zobrazí.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Nainstalovat „%s“?</string>
+  <string name="install_action">Nainstalovat</string>
+  <string name="install_from_file_question">Načíst dokumenty ze souboru?</string>
+  <string name="overwrite_files_detail">Tyto soubory již existují:%s</string>
+  <string name="import_studypads_question">Importovat tyto studijní složky?</string>
+  <string name="import_action">Importovat</string>
+  <string name="restore_backup_question">Obnovit dokumenty z této zálohy?</string>
+  <string name="restore_backup_detail">Tento soubor je záloha dokumentů AndBible.</string>
+  <string name="update_document_question">Aktualizovat tento dokument?</string>
+  <string name="update_action">Aktualizovat</string>
+  <string name="download_documents_question">Stáhnout dokumenty?</string>
+  <string name="download_persecution_warning">Pokud žijete v zemi, kde jsou křesťané pronásledováni, možná budete muset být opatrní při stahování křesťanských materiálů přes internet. Místo toho můžete zip soubory dokumentů získat bezpečnějším způsobem a nainstalovat je přes „%1$s“. Všechna stahování ze serverů dokumentů jsou šifrována (HTTPS).</string>
+  <string name="download_action">Stáhnout</string>
+  <string name="download_dont_ask_again">Stáhnout a příště se neptat</string>
+  <string name="download_dont_ask_again_consequence">Stahování se v budoucnu spustí bez této otázky.</string>
+  <string name="passphrase_did_not_work">Přístupová fráze nefungovala.</string>
+  <string name="try_again">Zkusit znovu</string>
+  <string name="interrupted_downloads_lead">Stáhnout tyto dokumenty znovu?</string>
+  <string name="interrupted_downloads_detail">Jejich stahování bylo přerušeno, a proto nebyly nainstalovány.</string>
+  <string name="external_link_open_question">Otevřít tento odkaz v prohlížeči?</string>
+  <string name="open_action">Otevřít</string>
+  <string name="notification_permission_question">Povolit oznámení?</string>
+  <string name="notification_permission_detail">Oznámení zobrazují stav stahování, zpracování a čtení nahlas.</string>
+  <string name="allow_action">Povolit</string>
+  <string name="rate_question">Ohodnotit aplikaci a napsat recenzi?</string>
+  <string name="bug_report_email_question">Odeslat hlášení chyby e-mailem?</string>
+  <string name="continue_action">Pokračovat</string>
+  <string name="delete_search_index_question">Smazat vyhledávací index „%s“?</string>
+  <string name="remove_custom_repository_question">Odebrat vlastní repozitář „%s“?</string>
+  <string name="download_document_question">Stáhnout „%s“?</string>
+  <string name="choose_file_action">Vybrat soubor</string>
+  <string name="old_webview_question">Používat aplikaci se starým WebView?</string>
+  <string name="incomplete_translation_question">Pokračovat s částečným překladem?</string>
+  <string name="rate_action">Ohodnotit</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Smazat dokument „%s“?</string>
+  <string name="my_document_page_delete_lead">Smazat stránku „%s“?</string>
+  <string name="my_document_cannot_delete_ai_lead">Dokumenty ai nelze smazat, dokud obsahují stránky.</string>
+  <string name="my_document_cannot_delete_ai_detail">Nejprve smažte stránky.</string>
+  <string name="reading_progress_new_cycle_lead">Zahájit nový cyklus čtení?</string>
+  <string name="reading_progress_new_cycle_detail">Váš postup se bude sledovat od začátku. Data předchozího cyklu zůstanou zachována.</string>
+  <string name="reading_progress_new_cycle_start">Zahájit</string>
+  <string name="reset_plan_lead">Resetovat tento plán?</string>
+  <string name="reset_plan_detail">Datum zahájení a postup v tomto plánu se vymažou.</string>
+  <string name="set_current_day_lead">Nastavit %1$s jako aktuální den?</string>
+  <string name="set_current_day_detail">Všechny předchozí dny se označí jako přečtené.</string>
+  <string name="plan_duplicate_user_plan_lead">Soubor plánu čtení má stejný název jako vestavěný plán.</string>
+  <string name="plan_duplicate_user_plan_detail">Soubor plánu nelze zobrazit v seznamu. Přejmenujte soubor ve složce jsword/readingplan a ponechte příponu .properties.</string>
+  <string name="background_image_delete_lead">Smazat tento obrázek na pozadí?</string>
+  <string name="background_image_delete_detail">Pracovní plochy, které ho stále používají, přejdou na žádný obrázek.</string>
+  <string name="reset_values_lead">Resetovat všechny tyto hodnoty?</string>
+  <string name="revert_setting_lead">Vrátit toto nastavení na zděděnou hodnotu?</string>
+  <string name="revert_setting_confirm">Vrátit</string>
+  <string name="reset_settings_screen_lead">Resetovat nastavení na této obrazovce?</string>
+  <string name="reset_settings_screen_detail">Vrátí se na výchozí hodnoty.</string>
+  <string name="memorize_unmark_lead">Odebrat stav zapamatování pro „%s“?</string>
+  <string name="memorize_remove_target_lead">Odebrat cíl memorování „%s“?</string>
+  <string name="dialog_apply">Použít</string>
+  <string name="dialog_dont_apply">Nepoužít</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Cloud již obsahuje vaše %s. Co se má stát?</string>
+  <string name="cloud_merge_consequence">Obě strany se zachovají; u položky změněné na obou stranách zvítězí novější změna.</string>
+  <string name="cloud_fetch_consequence">Nahradí data v tomto zařízení kopií z cloudu.</string>
+  <string name="cloud_create_consequence">Nahradí kopii v cloudu daty z tohoto zařízení.</string>
+  <string name="cloud_disable_consequence">Synchronizace pro tato data zůstane vypnutá.</string>
+  <string name="cloud_merge_lead">Sloučit vaše %s s cloudem?</string>
+  <string name="cloud_merge_confirm">Sloučit</string>
+  <string name="cloud_replace_confirm">Nahradit</string>
+  <string name="cloud_replace_local_lead">Nahradit %s v tomto zařízení kopií z cloudu?</string>
+  <string name="cloud_replace_local_detail">Co je nyní v tomto zařízení, bude přepsáno a nelze to obnovit.</string>
+  <string name="cloud_replace_cloud_lead">Nahradit kopii %s v cloudu daty z tohoto zařízení?</string>
+  <string name="cloud_replace_cloud_detail">Co je nyní v cloudu, bude přepsáno a vaše další zařízení obdrží data z tohoto zařízení.</string>
+  <string name="sign_in_failed_lead">Přihlášení ke službě synchronizace se nezdařilo.</string>
+  <string name="sync_too_old_lead">Tato aplikace je příliš stará na synchronizaci: %s.</string>
+  <string name="sync_too_old_detail">Data v cloudu používají novější verzi, než tato aplikace podporuje. Synchronizace je prozatím vypnuta; pro její opětovné zapnutí aplikaci aktualizujte.</string>
+  <string name="backup_replace_lead">Nahradit %s zálohou?</string>
+  <string name="backup_replace_detail">Co je nyní v tomto zařízení, bude přepsáno a nelze to obnovit.</string>
+  <string name="reset_database_lead">Resetovat „%1$s“ do výchozího stavu?</string>
+  <string name="reset_database_detail">Všechna data v ní budou trvale smazána. Toto nelze vrátit zpět.</string>
+  <string name="reset_database_button">Resetovat</string>
+  <string name="restore_all_lead">Nahradit vaše poznámky, záložky, studijní složky, plány čtení a pracovní plochy?</string>
+  <string name="restore_or_import_lead">Obnovit nebo importovat: %s?</string>
+  <string name="restore_consequence">Nahradí to, co je v tomto zařízení, zálohou.</string>
+  <string name="import_consequence">Přidá položky ze zálohy k tomu, co je v tomto zařízení.</string>
+  <string name="sync_start_syncing">Zahájit synchronizaci</string>
+  <string name="sync_reset_lead">Odhlásit se a resetovat synchronizaci?</string>
+  <string name="sync_reset_detail">Synchronizaci budete muset nastavit znovu.</string>
+  <string name="webdav_forget_certificate_lead">Zapomenout důvěryhodný certifikát serveru?</string>
+  <string name="webdav_forget_certificate_detail">Při dalším připojení budete znovu požádáni o potvrzení certifikátu.</string>
+  <string name="webdav_forget_certificate_confirm">Zapomenout</string>
+  <string name="cloud_doc_remove_all_lead">Odebrat „%1$s“ z cloudu a ze všech vašich zařízení?</string>
+  <string name="cloud_doc_remove_cloud_lead">Odebrat „%1$s“ z cloudu?</string>
+  <string name="cloud_doc_purge_lead">Trvale odebrat „%1$s“ z historie cloudu?</string>
+  <string name="cloud_doc_remove_all_detail">Smažou se také kopie v tomto zařízení a ve všech ostatních zařízeních se zapnutou synchronizací dokumentů.</string>
+  <string name="cloud_doc_remove_cloud_detail">Kopie v tomto zařízení zůstanou. Zařízení se zapnutou synchronizací dokumentů je odeberou také.</string>
+  <string name="cloud_doc_purge_detail">Zařízení, které ještě má kopii, ji může při další synchronizaci nahrát znovu.</string>
+  <string name="cloud_doc_block_confirm_button">Nesynchronizovat</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Odebrat %1$d dokument z cloudu a ze všech vašich zařízení?</item>
+    <item quantity="few">Odebrat %1$d dokumenty z cloudu a ze všech vašich zařízení?</item>
+    <item quantity="many">Odebrat %1$d dokumentu z cloudu a ze všech vašich zařízení?</item>
+    <item quantity="other">Odebrat %1$d dokumentů z cloudu a ze všech vašich zařízení?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Odebrat %1$d dokument z cloudu?</item>
+    <item quantity="few">Odebrat %1$d dokumenty z cloudu?</item>
+    <item quantity="many">Odebrat %1$d dokumentu z cloudu?</item>
+    <item quantity="other">Odebrat %1$d dokumentů z cloudu?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Trvale odebrat %1$d dokument z historie cloudu?</item>
+    <item quantity="few">Trvale odebrat %1$d dokumenty z historie cloudu?</item>
+    <item quantity="many">Trvale odebrat %1$d dokumentu z historie cloudu?</item>
+    <item quantity="other">Trvale odebrat %1$d dokumentů z historie cloudu?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Přestat synchronizovat %1$d dokument do cloudu?</item>
+    <item quantity="few">Přestat synchronizovat %1$d dokumenty do cloudu?</item>
+    <item quantity="many">Přestat synchronizovat %1$d dokumentu do cloudu?</item>
+    <item quantity="other">Přestat synchronizovat %1$d dokumentů do cloudu?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Nyní lze synchronizovat více vašich dat</string>
+  <string name="new_sync_targets_detail">Synchronizovat lze i Moje dokumenty, nastavení ai a postup čtení. Zapněte je v nastavení synchronizace zařízení.</string>
+  <!--end dialog copy: B3b-->
 </resources>

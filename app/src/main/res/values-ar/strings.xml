@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">دليل المستخدم الكامل متوفر على andbible.org. تُفتح الصفحات في المتصفح.</string>
   <string name="help_user_guide_home">الصفحة الرئيسية لدليل المستخدم</string>
   <string name="help_read_in_user_guide">القراءة في دليل المستخدم</string>
+  <string name="help_in_user_guide">المساعدة في دليل المستخدم</string>
+  <string name="help_matching_section">القسم المطابق</string>
   <string name="help_read_page">اقرأ في دليل المستخدم: %1$s</string>
   <string name="help_tutorial_videos">فيديوهات تعليمية</string>
   <string name="help_watch_in_order">شاهد الفيديوهات التعليمية بالترتيب</string>
@@ -252,6 +254,9 @@
   <string name="prefs_navigate_to_verse_summary">اختار الآية ( او الاصحاح) للاختيار</string>
   <string name="prefs_open_links_in_special_window_title">نافذة الروابط</string>
   <string name="prefs_open_links_in_special_window_summary">افتح الروابط في نافذة خاصة، لعرض أسرع للمراجع التبادلية و Strongs</string>
+  <string name="prefs_trusted_link_domains_title">نطاقات الروابط الموثوقة</string>
+  <string name="prefs_trusted_link_domains_summary">تُفتح الروابط إلى هذه النطاقات دون سؤال. ألغِ تحديد نطاق ليُطلب منك التأكيد مرة أخرى.</string>
+  <string name="prefs_trusted_link_domains_empty">لا يوجد شيء بعد. حدّد \"عدم السؤال مرة أخرى\" عند فتح رابط لإضافة نطاقه.</string>
   <string name="prefs_text_size_sample_text">نموذج من الكتابة</string>
   <string name="prefs_screen_keep_on_title">لا تطفئ الشاشة</string>
   <string name="prefs_screen_keep_on_summary">امنع الشاشة من الاغلاق اثناء استخدام التطبيق</string>
@@ -313,7 +318,6 @@
   <string name="line_spacing_title">تباعد الأسطر</string>
   <string name="line_spacing_summary">ضع المسافة بين السطور</string>
   <string name="select_none">اختر لا شيء</string>
-  <string name="reset_are_you_sure">هل أنت متأكد أنك تريد إعادة تعيين كل هذه القيم؟</string>
   <string name="window_pinning_menutitle">تثبيت النافذة</string>
   <string name="hide_window_buttons_title">إخفاء أزرار النافذة</string>
   <string name="hide_window_buttons_summary">أزرار النافذة التي يتم عرضها على الجانب الأيمن من عروض الكتاب المقدس مخفية. لا يزال شريط تنقل النافذة في الجزء السفلي معروضًا ويمكنك فتح قائمة منبثقة من خلال النقر عليها مطولاً.</string>
@@ -336,6 +340,7 @@
   <string name="word_not_found_in_dictionaries">الكلمة غير موجودة في أي قاموس</string>
   <string name="prefs_top_margin_title_mm">الهامش العلوي (%d مم)</string>
   <string name="font_size_title">حجم الخط</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">لأَنَّهُ هكَذَا أَحَبَّ اللهُ الْعَالَمَ حَتَّى بَذَلَ ابْنَهُ الْوَحِيدَ، لِكَيْ لاَ يَهْلِكَ كُلُّ مَنْ يُؤْمِنُ بِهِ، بَلْ تَكُونُ لَهُ الْحَيَاةُ الأَبَدِيَّةُ.</string>
   <string name="font_size_title_pt">حجم الخط (%d نقطة)</string>
   <string name="prefs_font_text_size_summary">ضبط حجم خط النص الرئيسي</string>
@@ -353,6 +358,8 @@
   <string name="window_color_settings_title">إعدادات الألوان (النافذة)</string>
   <string name="workspace_color_settings_title">إعدادات الألوان (مساحة العمل)</string>
   <string name="color_workspace">لَون مساحة العمل</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">افتراضي</string>
   <string name="color_text">لون الخط</string>
   <string name="color_background">لون الخلفية</string>
   <string name="colors_day_mode_title">الوضع النهاري</string>
@@ -386,7 +393,6 @@
   <string name="download_source_last_updated">آخر تحديث لقوائم المستندات: %s.</string>
   <string name="download_refreshing_book_list">جارٍ تحديث قائمة المستندات المتاحة من خوادم المستندات...</string>
   <string name="download_source_message1">تنزيل المستندات من المصادر التالية:</string>
-  <string name="download_document_confirm_prefix">تحميل</string>
   <string name="error_downloading">حدث خطأ أثناء التنزيل. الرجاء التحقق من اتصال الانترنت الخاص بك.</string>
   <string name="error_downloading_status">الخادم الذي يستضيف %1$s أعاد خطأ بسبب %2$s (%3$d).</string>
   <string name="storage_space_warning">لا يوجد مساحة مناسبة على الجهاز</string>
@@ -407,9 +413,6 @@
   <string name="activity_title">النشاط في الخلفية</string>
   <string name="activity_empty">لا شيء قيد التشغيل</string>
   <string name="activity_failed_toast">%1$s — انظر القائمة</string>
-  <string name="download_question_title">هل تريد المتابعة لتنزيل المستندات؟</string>
-  <string name="download_question_message">إذا كنت تعيش في بلد يضطهد المسيحيين، فقد تحتاج إلى الحذر عند تنزيل المواد المسيحية عبر الإنترنت. قد تفضّل الحصول على ملفات zip الخاصة بالوحدات بطريقة أكثر أماناً وتثبيتها عبر \"%1$s\". هل أنت متأكد من رغبتك في متابعة التنزيل؟ جميع التنزيلات من خوادم الوحدات مشفّرة (HTTPS).</string>
-  <string name="do_not_ask_again">نعم، لا تسأل مجدداً </string>
   <string name="recommended_document">مُستَحسَن!</string>
   <string name="about_version_history">تاريخ الإصدار: %s</string>
   <string name="download_errors">أخطاء التنزيل</string>
@@ -426,11 +429,9 @@
   <string name="checking_zip_file">جارٍ فحص الملف المحدد...</string>
   <string name="invalid_module">لا يحتوي الملف على وحدة SWORD نمطية صالحة</string>
   <string name="install_zip_title">الرجاء الانتظار، يتم تحميل الوحدات من الملف</string>
-  <string name="overwrite_files">الملفات التالية موجودة بالفعل: %s هل تريد الكتابة فوقها؟</string>
   <string name="overwrite_files_title">الكتابة فوق الملفات؟</string>
   <string name="could_not_overwrite_files">لم نتمكن من استبدال الملفات: %s. عدا عن ذلك فقد كان التثبيت ناجحاً</string>
   <string name="module_backup_restore">هذا الملف نسخة احتياطية لمستندات AndBible. هل تريد استعادة مستنداتها؟</string>
-  <string name="install_do_you_want">هل تريد تثبيت الوحدة (%s)؟ </string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">خطة القراءة</string>
   <string name="reading_plans_plural">خطط القراءة</string>
@@ -438,15 +439,8 @@
   <string name="rdg_plan_day">يوم %s</string>
   <string name="rdg_plan_set_start_date">تعيين تاريخ البدء...</string>
   <string name="set_current_day">تعيين كاليوم الحالي...</string>
-  <string name="msg_set_current_day_reading_plan">سيؤدي هذا إلى تعيين %1$s كاليوم الحالي في هذه الخطة ووضع علامة \"مقروء\" على جميع الأيام السابقة. هل تريد المتابعة؟</string>
   <string name="done">تم</string>
-  <string name="reset_plan_question">هل أنت متأكد أنك تريد إعادة تعيين هذه الخطة؟</string>
   <string name="import_reading_plan">استيراد خطة قراءة…</string>
-  <string name="plan_duplicate_user_plan">
-       يوجد خطة قراءة للمستخدم على كرت الذاكرة
-       jsword/readingplan مع نفس الاسم الخاص بالخطة المضمنة. لا يمكن اظهارها هنا.
-        رجاءً اعد تسمية الملف لشئ آخر، مع الحفاظ على لاحقة الملف كخصائص
-    </string>
   <string name="plan_name_y1ntpspr">العهد الجديد، المزامير و الامثال في سنة.</string>
   <string name="plan_description_y1ntpspr">بإذن من مجلة HEARTLIGHT الإنترنتية، http://www.heartlight.org</string>
   <string name="plan_name_y1ot1nt1_chronological">الكتاب المقدس كاملاً بترتيب زمني في سنة واحدة</string>
@@ -475,12 +469,8 @@
   <string name="delete_index">حذف  فهرس البحث.</string>
   <string name="about">عن البرنامج</string>
   <string name="delete_doc">حذف %s ؟</string>
-  <string name="interrupted_downloads_title">انقطع التحميل</string>
-  <string name="interrupted_downloads_message">لم يتم تثبيت هذه المستندات لأن تحميلها انقطع:</string>
-  <string name="interrupted_downloads_question">هل تريد تحميلها مرة أخرى؟</string>
   <string name="download_again">تحميل مرة أخرى</string>
   <string name="delete_docs_confirm">هل تريد حذف هذه المستندات؟</string>
-  <string name="delete_search_index_doc">حذف فهرس من %s ؟</string>
   <!--Verse context menu-->
   <string name="notes">التذييل و المراجع</string>
   <string name="share_verse">مشاركة...</string>
@@ -521,7 +511,6 @@
          اذا تغيرت بنية المستند، قد يؤدي تحديث هذا المستند الى
         تغير موقع العلامات المرجعية/الملاحظات داخل المستند او اختفاءها كلياً.
     </string>
-  <string name="bookmark_warning3">هل ما زلت تريد تحديث الوحدة؟</string>
   <string name="bookmark_warning4">يُنصح بأخذ نسخة احتياطية من الوحدة قبل التحديث.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">ترتيب التاريخ</string>
@@ -696,10 +685,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">استعادة أو استيراد من…</string>
   <string name="backup_restore2">استعادة أو استيراد</string>
-  <string name="overwrite_something">الكتابة فوق %s؟</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">استعادة ملف قاعدة البيانات</string>
-  <string name="restore_confirmation">الكتابة فوق ملاحظاتي، والإشارات المرجعية، واللوحات الدراسية، وخطط القراءة ومساحات العمل؟</string>
   <string name="restore_success">تمت استعادة ملاحظاتي والإشارات المرجعية واللوحات الدراسية وخطط القراءة ومساحات العمل الخاصة بي بنجاح</string>
   <string name="downloading_backup">تحميل ملف النسخة الاحتياطية...</string>
   <string name="loading_backup">تحميل قاعدة البيانات من النسخة الاحتياطية...</string>
@@ -721,7 +708,6 @@
   <string name="send_export_file">إرسال ملف تصدير</string>
   <string name="backup_modules_title">حدد الوحدات لنسخها احتياطياً.</string>
   <string name="install_zip_canceled">تثبيت الوحدة تم إلغائه.</string>
-  <string name="ask_restore_or_import">يمكن استعادة قاعدة بيانات %s (أي إزالة قاعدة البيانات الحالية وتحميل القاعدة المحددة) أو استيرادها (استيراد قاعدة البيانات المحددة في قاعدة البيانات الحالية). ماذا تريد أن تفعل؟</string>
   <string name="restore">إستعادة</string>
   <string name="import2">استيراد</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -777,7 +763,6 @@
   <string name="settings_editor_back">رجوع</string>
   <string name="settings_editor_close">إغلاق</string>
   <string name="settings_editor_apply">تطبيق</string>
-  <string name="discard_changes_confirmation">تجاهل التغييرات غير المحفوظة؟</string>
   <string name="discard">تجاهل</string>
   <string name="remove">إزالة</string>
   <string name="overwrite">استبدال</string>
@@ -804,7 +789,8 @@
   <string name="empty_list">لا يوجد مواد للعرض</string>
   <string name="error_skip">تخطي</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">بيانات تالفة</string>
+  <string name="corrupt_database_headline">لا يستطيع AndBible فتح بعض بياناتك</string>
+  <string name="corrupt_database_files_detail">تعذّر فتح هذه الملفات: %1$s. لم يتم تغيير أو حذف أي شيء. تؤدي إعادة التعيين إلى بدء هذه الملفات فارغة، مع الاحتفاظ بكل ملف تالف على هذا الجهاز، وقد أُعيدت تسميته بإضافة .corrupt- متبوعة بالتاريخ والوقت.</string>
   <string name="corrupt_database_reset">إعادة تعيين البيانات التالفة</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">تعذّرت إعادة تعيين البيانات التالفة: لم يمكن نقل %1$s جانبًا. لم يتم تغيير أي شيء. يمكنك المحاولة مرة أخرى أو إرسال تقرير خطأ أو استخدام النسخ الاحتياطي والاستعادة.</string>
@@ -812,8 +798,8 @@
   <string name="damaged_data_needs_attention">بيانات التطبيق تحتاج إلى اهتمام. اضغط لفتح التطبيق.</string>
   <string name="debug_test_error">خطأ تجريبي (إصدار تصحيح)</string>
   <string name="bug_report_prepare_failed">تعذّر إعداد التقرير أو مشاركته. يمكنك إعادة المحاولة، أو استخدام النسخ الاحتياطي والاستعادة لحفظ بياناتك.</string>
-  <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
   <string name="bug_report_desktop_text">بعد ذلك، سيُطلب منك تحديد مكان حفظ ملف تقرير الخطأ. ثم ستحصل على تعليمات لإرساله إلى فريق المطورين.</string>
+  <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
   <string name="bug_report_email_text">تالياً، الرجاء تحديد تطبيق البريد الإلكتروني المفضل (Gmail مثلا) لإرسال التقرير لفريق التطوير.</string>
   <string name="bug_report_manual_title">إرسال التقرير بالبريد الإلكتروني</string>
   <string name="bug_report_manual_text_saved">تم حفظ التقرير في <b>%1$s</b>.\n\nيرجى إرسال رسالة بريد إلكتروني إلى <b>%2$s</b> وإرفاق هذا الملف؛ فبرنامج البريد الإلكتروني لا يستطيع إرفاقه نيابةً عنك. الموضوع المقترح: <b>%3$s</b>. في الرسالة، أخبرنا بما فعلته وبما حدث.</string>
@@ -884,8 +870,6 @@
   <string name="beta_special_regards">مع أطيب التحيات، Tuomas</string>
   <string name="beta_special_sponsor">ملاحظة: يمكنك دعم تطوير AndBible ماليًا عبر %s.</string>
   <string name="beta_special_sponsor_link">رعاية ساعات التطوير</string>
-  <string name="new_sync_targets_notice_title">إعدادات مزامنة جديدة متاحة</string>
-  <string name="new_sync_targets_notice_message">يُقدّم هذا الإصدار من AndBible أهدافاً إضافية للمزامنة: مستنداتي وإعدادات الذكاء الاصطناعي وتقدم القراءة. إذا كنت تريد تفعيلها، يمكنك القيام بذلك في إعدادات مزامنة الأجهزة.</string>
   <string name="open_settings">فتح الإعدادات</string>
   <!--History-->
   <string name="history_for">تاريخ (%1$s: نافذة %2$d)</string>
@@ -962,7 +946,6 @@
   <string name="give_passphrase_for_module">المستند %s مشفر و يحتاج لكلمة مرور ليتم فتحه</string>
   <string name="unlock_module">حدد كلمة مرور للوحدة</string>
   <string name="unlock_info">معلومات فتح الوحدة المشفرة</string>
-  <string name="try_again_passphrase">كلمة المرور لم تعمل، جرب مجدداً؟</string>
   <string name="show_unlock_info">الوحدة و معلومات الفتح</string>
   <string name="prefs_experimental_features_title">الميزات التجريبية</string>
   <string name="prefs_experimental_features_summary">اختر الميزات التجريبية التي تريد تفعيلها. هذه الميزات لا تزال قيد التطوير وقد تتغير أو تُزال</string>
@@ -996,9 +979,6 @@
   <string name="active_window_indicator_summary">إبراز زوايا النافذة للمساعدة في التعرف على النافذة النشطة</string>
   <string name="app_licence_title">رخصة مفتوحة المصدر</string>
   <string name="how_to_contribute">كيف تساهم؟</string>
-  <string name="confirm_delete_bookmarks">هل تريد إزالة %d إشارات مرجعية وملاحظاتها؟</string>
-  <string name="confirm_delete_orphaned_bookmarks">التسمية المحددة مرتبطة بـ %d إشارة مرجعية لا تحتوي على تسميات أخرى. هل تريد حذف هذه الإشارات المرجعية مع التسميات؟</string>
-  <string name="delete_label_and_bookmarks">حذف التسمية والإشارات المرجعية</string>
   <string name="delete_label_only">حذف التسمية فقط</string>
   <string name="module_size_megabytes">%.1f ميجابايت</string>
   <string name="tell_friend_title">أوصي به لصديق</string>
@@ -1029,8 +1009,6 @@
   <string name="old_webview">حزمة Android WebView قديمة جداً (%1$s). يجب ترقية حزمة Android WebView إلى الإصدار %2$s على الأقل لاستخدام %3$s. يمكن إجراء ذلك على معظم الأجهزة عبر %4$s.</string>
   <string name="play">متجر جوجل</string>
   <string name="proceed_anyway">المتابعة على أية حال</string>
-  <string name="proceed">تابع</string>
-  <string name="rate_title">تقييم ومراجعة التطبيق</string>
   <string name="rate_message5">
         المراجعات الإيجابية و المفصلة تساعد مشروع Andbible المفتوح المصدر كثيراً. شكراً لك!
     </string>
@@ -1079,7 +1057,6 @@
   <string name="primary_label">تسمية رئيسية</string>
   <string name="favourite_label">ملصق مفضل</string>
   <string name="edit_label">تحرير ملصق</string>
-  <string name="delete_label_confirmation">هل تريد إزالة تسمية الإشارة المرجعية \"%s\"؟ ستُزال أيضاً جميع ملاحظات لوحة الدراسة المرتبطة بها.</string>
   <string name="active_labels">التسميات المحددة</string>
   <string name="recent_labels">التسميات الأخيرة</string>
   <string name="other_labels">تسميات أخرى</string>
@@ -1089,8 +1066,6 @@
   <string name="book_menu_show_progress_bars">إظهار أشرطة التقدم</string>
   <string name="reset_workspace_labels">هل تريد إعادة تعيين الإعدادات التلقائية والمفضلة لهذه مساحة العمل؟</string>
   <string name="clear_auto_assign_labels">مسح تسميات التعيين التلقائي</string>
-  <string name="reset_workspace_auto_assign_labels">هل تريد إزالة جميع تسميات التعيين التلقائي من مساحة العمل هذه؟</string>
-  <string name="reset_hide_labels">هل تريد إعادة تعيين إعداد إخفاء التسميات المحددة؟</string>
   <string name="reorder">إعادة ترتيب</string>
   <string name="system_items">إجراءات النظام</string>
   <string name="system_items1">المزيد</string>
@@ -1104,7 +1079,6 @@
   <string name="ios_fullscreen_hint">انقر نقرًا مزدوجًا أو اضغط الزر للخروج من ملء الشاشة.</string>
   <string name="desktop_exit_fullscreen">الخروج من ملء الشاشة</string>
   <string name="exit_fullscreen">نقراً مزدوجاً على الشاشة للخروج من وضع ملء الشاشة</string>
-  <string name="reset_app_prefs">هل تريد إعادة تعيين جميع تفضيلات التطبيق العامة المعروضة على هذه الشاشة إلى قيمها الافتراضية؟</string>
   <string name="label_red">أحمر</string>
   <string name="label_green">أخضر</string>
   <string name="label_blue">أزرق</string>
@@ -1115,7 +1089,6 @@
   <string name="reset_databases_title">إعادة تعيين قواعد البيانات</string>
   <string name="reset_databases_description">إعادة تعيين قواعد البيانات الفردية إلى حالتها الفارغة الأولية. لا يمكن التراجع عن هذا الإجراء.</string>
   <string name="last_crash_info_title">معلومات آخر عطل</string>
-  <string name="reset_database_confirm">سيؤدي هذا إلى حذف جميع البيانات في \"%1$s\" وإعادة تعيينها إلى الحالة الأولية. لا يمكن التراجع عن هذا الإجراء.\n\nهل أنت متأكد؟</string>
   <string name="reset_database_success">تمت إعادة تعيين قاعدة البيانات بنجاح</string>
   <string name="reset_something">إعادة تعيين: %1$s</string>
   <string name="export">تصدير</string>
@@ -1185,19 +1158,18 @@
   <string name="manage_labels_help_favourite">إبقاء التسمية في مفضلتك للوصول السريع.</string>
   <string name="manage_labels_help_styles">تحت الاسم يظهر مثال صغير لشكل التسمية: تحديد لإشارة تحديد نص، وآية كاملة لإشارة آية كاملة، ووسم مساحة العمل لنمط تتجاوزه مساحة العمل هذه. المثال الرمادي بلا زخرفة يعني أن إشارات التسمية المرجعية لا تُرسم. أخفِ الأمثلة من القائمة ⋮.</string>
   <string name="manage_labels_help_reorder">أعد ترتيب القائمة من القائمة ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">على الشاشة الضيقة تحذف القائمة أيقونات الأساسي والتعيين التلقائي والمفضلة لإفساح المجال لأسماء التسميات. اضغط على تسمية لضبطها في محررها.</string>
   <string name="added_to_bookmark">مخصص لهذه الإشارة المرجعية</string>
   <string name="strongs_links">الروابط</string>
   <string name="strongs_text_and_links">النص والروابط</string>
   <string name="strongs_hidden_links">روابط مخفية</string>
   <string name="verse_tip">لتحديد آيات جزئية أو عدة آيات، يمكنك الضغط مطولاً على نص الكتاب المقدس</string>
-  <string name="permission_required">الإذن مطلوب</string>
   <string name="labels_search_hint">بحث</string>
   <string name="search_mode_name_start">الاسم (من البداية)</string>
   <string name="search_mode_name_contains">الاسم (يحتوي على)</string>
   <string name="search_mode_content">المحتوى</string>
   <string name="search_results_matches">%d نتيجة</string>
   <string name="search_results_match">نتيجة واحدة</string>
-  <string name="progress_status_permission">لعرض الإشعارات (حالة التنزيل، المعالجة، حالة التشغيل)، نحتاج إلى إذنك.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">آلة حاسبة بسيطة</string>
   <string name="prefs_persecution_cat">إعدادات للمضطهَدين</string>
@@ -1231,7 +1203,6 @@
   <string name="custom_repositories_create_button_label">أضف مستودعات مخصصة</string>
   <string name="custom_repositories_info_button_label">معلومات</string>
   <string name="repository_specification">رابط URL للمستودع</string>
-  <string name="delete_custom_repository">هل تريد إزالة المستودع المخصص %s؟</string>
   <string name="custom_repositories_help1">لإضافة مستودع مخصص جديد، اكتب أو انسخ و الصق رابط المستودع هنا.</string>
   <string name="custom_repositories_help2">يمكنك قراءة المزيد من المعلومات عن المستودعات المخصصة في %s.</string>
   <string name="custom_repositories_help0">يمكنك تثبيت المستندات من مستودعات مخصصة خارجية عن طريق تثبيت مستودعات مخصصة </string>
@@ -1253,10 +1224,6 @@
   <string name="db_bookmarks">الإشارات المرجعية وملاحظاتي والتسميات ولوحات الدراسة</string>
   <string name="synchronizing">مزامنة...</string>
   <string name="notification_finished">اكتمل</string>
-  <string name="overrideBackup">
-        يوجد قاعدة بيانات لم تتم مزامنة هذا الجهاز معها في السحابة.
-        قاعدة البيانات تحوي %s. ماذا تريد ان تفعل؟
-    </string>
   <string name="reading_plans_content">خطط القراءة وحالاتها</string>
   <string name="bookmarks_contents">الإشارات المرجعية والتسميات ولوحات الدراسة</string>
   <string name="workspaces_contents">مساحات العمل والنوافذ</string>
@@ -1276,7 +1243,6 @@
   <string name="reading_progress_calendar">نشاط القراءة</string>
   <string name="reading_progress_cycle">الدورة %d</string>
   <string name="reading_progress_new_cycle">دورة جديدة</string>
-  <string name="reading_progress_new_cycle_confirm">هل تريد بدء دورة قراءة جديدة؟ سيبدأ هذا تتبع تقدمك من الصفر مع الحفاظ على بيانات دورتك السابقة.</string>
   <string name="reading_progress_previous_cycle">الدورة السابقة</string>
   <string name="reading_progress_next_cycle">الدورة التالية</string>
   <string name="cloud_merge_data">دمج البيانات</string>
@@ -1286,7 +1252,6 @@
   <string name="cloud_sync_title">مزامنة الأجهزة </string>
   <string name="reset_sync">تسجيل الخروج</string>
   <string name="prefs_reset_sync_summary">إيقاف المزامنة و إعادة تعيين الإعدادات المتعلقة بها.</string>
-  <string name="sync_confirmation">هل أنت متأكد أنك تريد تسجيل الخروج و إعادة تعيين المزامنة؟</string>
   <string name="cloud_info">معلومات السحابة</string>
   <string name="cloud_info_summary">البيانات في التخزين السحابي: %s ميجابايت</string>
   <string name="sync_adapter">مزوّد المزامنة</string>
@@ -1302,7 +1267,6 @@
   <string name="webdav_server_url_hint">عنوان مجلد WebDAV، مثل https://nas.local/dav/ أو https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">تتطلب المزامنة عنوان https:// آمنًا.</string>
   <string name="webdav_certificate_title">شهادة الخادم</string>
-  <string name="webdav_forget_certificate_message">هل تريد نسيان شهادة الخادم الموثوقة؟ سيُطلب منك تأكيد الشهادة مرة أخرى عند الاتصال التالي.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">شهادة خادم غير موثوقة</string>
   <string name="webdav_untrusted_certificate_message">شهادة %1$s غير موثوقة لدى Android. لا تثق بها إلا إذا كنت تعرفها، مثلًا لأنك أنت من أعدّ هذا الخادم.\n\nالموضوع: %2$s\nالمُصدر: %3$s\nصالحة: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1319,14 +1283,7 @@
   <string name="synchronization_categories">فئات المزامنة</string>
   <string name="sync_general_settings">المعلومات والإعدادات العامة</string>
   <string name="sync_introduction">مقدمة</string>
-  <string name="are_you_sure">هل أنت متأكد؟</string>
   <string name="are_you_sure_merge">سيتم الاحتفاظ بكل من البيانات على هذا الجهاز و%s في السحابة. وإذا تغيّر العنصر نفسه في الاثنين، يُحتفظ بالتغيير الأحدث. وستُرسل بيانات هذا الجهاز إلى أجهزتك الأخرى.</string>
-  <string name="are_you_sure_reset_local">سيؤدي هذا إلى إعادة تعيين قاعدة بياناتك المحلية لـ %s بالمحتوى المخزّن حالياً في الخدمة السحابية.</string>
-  <string name="are_you_sure_reset_cloud">سيؤدي هذا إلى إعادة تعيين قاعدة بياناتك السحابية لـ %s بالمحتوى الموجود على هذا الجهاز.</string>
-  <string name="sync_cant_fetch">إصدار قاعدة البيانات أو ملف التصحيح المخزّن في السحابة أعلى مما يدعمه هذا التطبيق.</string>
-  <string name="sync_disabling">إيقاف مزامنة %s في الوقت الراهن.</string>
-  <string name="sync_update_app">الرجاء تحديث التطبيق لمتابعة المزامنة.</string>
-  <string name="sign_in_failed">تسجيل الدخول لمزوّد خدمة المزامنة قد فشل.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">إيقاف تشغيل المزامنة السحابية. يجب عليك إعادة تشغيلها يدوياً بعد الاستعادة.</string>
   <string name="report">تقرير</string>
@@ -1344,6 +1301,7 @@
   <string name="open_here">فتح هنا</string>
   <string name="external_link">رابط خارجي</string>
   <string name="external_link_question">سيفتح هذا الرابط الخارجي %s في متصفح، هل تريد المتابعة؟</string>
+  <string name="external_link_dont_ask_again">عدم السؤال مرة أخرى عن %s</string>
   <string name="nameless">العنوان غير محدد</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">الإجراءات بنقرة واحدة (الأسفار)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">الإجراءات بنقرة واحدة (أخرى)</string>
@@ -1391,8 +1349,6 @@
   <string name="memorize_include_reference_summary">أضف مرجع الآية (مثل يوحنا 3:16) كآخر عنصر للحفظ</string>
   <string name="reading_progress_settings">التقدم والحفظ</string>
   <string name="reading_progress_settings_summary">إعدادات التتبع التلقائي والحفظ وممارسة الكتابة</string>
-  <string name="memorize_confirm_unmark">إزالة حالة الحفظ لـ %s؟</string>
-  <string name="memorize_confirm_remove_target">إزالة هدف الحفظ %s؟</string>
   <string name="memorize_tab_reading">القراءة</string>
   <string name="memorize_tab_memorization">الحفظ</string>
   <string name="memorize_verses_memorized">محفوظ</string>
@@ -1418,7 +1374,6 @@
   <string name="llm_reset_usage_title">إعادة تعيين بيانات الاستخدام</string>
   <string name="llm_reset_usage_summary">مسح تتبع الرموز والتكلفة التراكمي</string>
   <string name="llm_reset_usage_confirm_title">إعادة تعيين بيانات الاستخدام؟</string>
-  <string name="llm_reset_usage_confirm_message">سيؤدي هذا إلى مسح جميع بيانات الاستخدام التراكمية.</string>
   <string name="llm_custom_input_price_title">سعر الإدخال ($/مليون رمز)</string>
   <string name="llm_custom_output_price_title">سعر الإخراج ($/مليون رمز)</string>
   <string name="llm_cost_total">الإجمالي: %1$s</string>
@@ -1434,8 +1389,6 @@
   <string name="llm_parse_error_anthropic">فشل تحليل رد Anthropic: %1$s</string>
   <string name="llm_error_unknown">خطأ غير معروف</string>
   <string name="llm_error_max_iterations">تم الوصول إلى الحد الأقصى من التكرارات (%1$d) دون إتمام</string>
-  <string name="llm_continue_iterations_title">متابعة؟</string>
-  <string name="llm_continue_iterations_message">وصل وكيل الذكاء الاصطناعي إلى حد %1$d تكرار دون إتمام. هل تريد المتابعة لـ %2$d تكرار إضافي؟</string>
   <string name="agent_max_iterations_title">الحد الأقصى لتكرارات الوكيل</string>
   <string name="agent_max_iterations_summary">الحد الأقصى للتكرارات قبل طلب المتابعة (0 = غير محدود)</string>
   <string name="ask_model_before_run_title">سؤال عن النموذج قبل التشغيل</string>
@@ -1495,7 +1448,6 @@
   <string name="ai_models_summary_none">لم يتم تكوين نماذج</string>
   <string name="ai_add_provider">إضافة موفر</string>
   <string name="ai_provider_edit">تعديل</string>
-  <string name="ai_provider_delete_confirm">حذف الموفر \"%1$s\"؟ ستعود الموجّهات التي تستخدم هذا الموفر إلى الافتراضي.</string>
   <string name="ai_provider_api_key_not_set">لم يتم تعيين مفتاح API</string>
   <string name="ai_provider_select_type">اختر نوع الموفر</string>
   <string name="ai_provider_name">اسم الموفر</string>
@@ -1515,7 +1467,6 @@
   <string name="edit_model_title">تعديل نموذج</string>
   <string name="model_saved">تم حفظ النموذج</string>
   <string name="model_deleted">تم حذف النموذج</string>
-  <string name="model_delete_confirm">حذف النموذج \"%1$s\"؟</string>
   <string name="model_set_default">تعيين كنموذج افتراضي</string>
   <string name="model_select_provider">الموفر</string>
   <string name="model_supported_badge">✓ مدعوم</string>
@@ -1555,7 +1506,6 @@
   <string name="ai_disclaimer_point8">يُرسل بياناتك إلى خوادم موفر الذكاء الاصطناعي الذي اخترته. باستخدام مفتاح API، فإنك توافق على شروط وسياسة خصوصية ذلك الموفر. النماذج المستضافة ذاتياً ممكنة لكنها تتطلب خبرة تقنية أكبر وقد لا تنتج نتائج بجودة النماذج التجارية.</string>
   <string name="ai_disclaimer_point9">يتقاضى موفرو الذكاء الاصطناعي مقابل استخدام API. تقديرات التكلفة المعروضة في AndBible تقريبية — تحقق دائماً من الفواتير لدى موفرك للاطلاع على الرسوم الفعلية.</string>
   <string name="ai_disclaimer_accept_title">قبول إخلاء مسؤولية الذكاء الاصطناعي</string>
-  <string name="ai_disclaimer_accept_button">أقبل وأتحمل المسؤولية الكاملة</string>
   <string name="prompt_permission_mode">وضع الأذونات</string>
   <string name="prompt_permission_mode_description">يتحكم في وقت الحاجة إلى تأكيد المستخدم قبل إجراء الذكاء الاصطناعي لعمليات الكتابة. يمكن لإعدادات الأدوات الفردية أدناه تجاوز هذا لأدوات بعينها.</string>
   <string name="agent_permission_mode_summary">يتحكم في وقت الحاجة إلى تأكيد المستخدم قبل عمليات الكتابة بالذكاء الاصطناعي</string>
@@ -1671,7 +1621,6 @@
   <string name="default_prompt_custom_desc">تنفيذ مهمة مخصصة على المقطع المحدد</string>
   <string name="default_prompt_custom_template">اتبع مواصفات مهمة المستخدم للمقطع الكتابي المحدد.</string>
   <string name="copy">نسخ</string>
-  <string name="delete_prompt_confirm_message">هل أنت متأكد أنك تريد حذف هذا الموجّه؟</string>
   <string name="ai_hide_prompt">إخفاء</string>
   <string name="ai_restore_hidden_prompts">استعادة الموجّهات المخفية</string>
   <string name="ai_prompt_hidden">تم إخفاء الموجّه</string>
@@ -1756,8 +1705,6 @@
   <string name="permission_allow_all_session">السماح بجميع الأدوات في هذه الجلسة</string>
   <string name="permission_allow_always">السماح دائماً بـ \"%1$s\"</string>
   <string name="permission_deny">رفض</string>
-  <string name="permission_always_allow_confirm_title">السماح دائماً؟</string>
-  <string name="permission_always_allow_confirm">هل أنت متأكد أنك تريد السماح دائماً بـ \"%1$s\"؟</string>
   <string name="permission_always_allow_confirm_reset_hint">يمكنك إعادة تعيين هذا في إعدادات الذكاء الاصطناعي.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">أذونات الأدوات</string>
@@ -1862,18 +1809,15 @@
   <string name="my_document_new_name">مستند %d</string>
   <string name="my_document_create_title">إنشاء مستند جديد</string>
   <string name="my_document_rename_title">إعادة تسمية المستند</string>
-  <string name="my_document_delete_confirmation">حذف المستند \"%s\"؟</string>
   <string name="show_secret">إظهار</string>
   <string name="hide_secret">إخفاء</string>
   <string name="ai_documents_name">مستندات الذكاء الاصطناعي</string>
   <string name="ai_documents_description">مستندات يتم إنشاؤها تلقائيًا بواسطة الذكاء الاصطناعي</string>
-  <string name="my_document_cannot_delete_ai_documents">لا يمكن حذف مستندات الذكاء الاصطناعي بينما تحتوي على صفحات. احذف الصفحات أولاً.</string>
   <string name="my_document_save_changes">حفظ التغييرات؟</string>
   <string name="my_document_no_description">بدون وصف</string>
   <string name="my_document_edit_description">تعديل الوصف</string>
   <string name="my_document_pages_title">%s - الصفحات</string>
   <string name="my_document_page_rename_title">إعادة تسمية الصفحة</string>
-  <string name="my_document_page_delete_confirmation">حذف الصفحة \"%s\"؟</string>
   <string name="my_document_pages_delete_confirmation">هل تريد حذف هذه الصفحات؟</string>
   <string name="my_documents_switch_document">تبديل المستند</string>
   <string name="my_document_new_page_name">صفحة %1$d</string>
@@ -1941,7 +1885,6 @@
   <string name="cloud_doc_show_removed">إظهار المستندات المُزالة</string>
   <string name="cloud_doc_status_removed">مُزال من السحابة</string>
   <string name="cloud_doc_status_still_installed">لا يزال مثبَّتاً هنا</string>
-  <string name="cloud_doc_purge_confirm">هل تريد إزالة \"%1$s\" نهائياً من سجل السحابة؟ إذا كان لا يزال مثبَّتاً على جهاز آخر، فقد يقوم ذلك الجهاز برفعه مرة أخرى إلى السحابة عند المزامنة التالية.</string>
   <string name="cloud_doc_action_download">تحميل</string>
   <string name="cloud_doc_action_push">رفع إلى السحابة</string>
   <string name="cloud_doc_action_remove_cloud">إزالة من السحابة</string>
@@ -1952,8 +1895,6 @@
   <string name="cloud_doc_action_dont_sync">عدم المزامنة إلى السحابة</string>
   <string name="cloud_doc_action_allow_sync">المزامنة إلى السحابة</string>
   <string name="cloud_doc_action_purge">إزالة من سجل السحابة</string>
-  <string name="cloud_doc_remove_all_confirm">هل تريد إزالة %1$s من السحابة ومن جميع أجهزتك، بما في ذلك هذا الجهاز؟</string>
-  <string name="cloud_doc_remove_cloud_confirm">هل تريد إزالة %1$s من السحابة؟ سيتم الاحتفاظ بالنسخة الموجودة على هذا الجهاز؛ كما ستقوم الأجهزة التي تعمل عليها مزامنة المستندات بإزالته أيضاً.</string>
   <string name="cloud_doc_sync_now">المزامنة الآن</string>
   <string name="cloud_doc_rescan">إعادة الفحص من السحابة</string>
   <string name="cloud_doc_sync_now_download">تحميل المستندات الجديدة والمحدَّثة</string>
@@ -1965,6 +1906,22 @@
   <string name="cloud_doc_summary_download">تحميل %1$d</string>
   <string name="cloud_doc_summary_download_size">تحميل %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">ستبدأ عمليات التحميل التلقائية عند الاتصال بشبكة Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="zero">%1$d وثيقة</item>
+    <item quantity="one">%1$d وثيقة</item>
+    <item quantity="two">%1$d وثيقتان</item>
+    <item quantity="few">%1$d وثائق</item>
+    <item quantity="many">%1$d وثيقة</item>
+    <item quantity="other">%1$d وثيقة</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="zero">%1$d وثيقة (%2$s)</item>
+    <item quantity="one">%1$d وثيقة (%2$s)</item>
+    <item quantity="two">%1$d وثيقتان (%2$s)</item>
+    <item quantity="few">%1$d وثائق (%2$s)</item>
+    <item quantity="many">%1$d وثيقة (%2$s)</item>
+    <item quantity="other">%1$d وثيقة (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">لا يوجد شيء لنقله</string>
   <string name="cloud_doc_selected_count">%1$d محدد</string>
   <string name="cloud_doc_bulk_skipped">تم تخطي %1$d غير قابل للتطبيق</string>
@@ -1981,8 +1938,6 @@
   <string name="background_image_import">استيراد من المعرض…</string>
   <string name="background_image_empty">لا توجد صور مستوردة بعد. اضغط \"استيراد من المعرض…\" لإضافة صورة.</string>
   <string name="background_image_importing">جارٍ الاستيراد…</string>
-  <string name="background_image_delete_title">حذف الصورة؟</string>
-  <string name="background_image_delete_confirm">هل تريد حذف صورة الخلفية هذه؟ ستعود مساحات العمل التي لا تزال تستخدمها إلى عدم وجود صورة.</string>
   <string name="background_image_day">صورة الخلفية (نهار)</string>
   <string name="background_image_night">صورة الخلفية (ليل)</string>
   <string name="background_image_opacity_day">عتامة صورة الخلفية (نهار)</string>
@@ -2056,6 +2011,14 @@
   <string name="legacy_notice_icloud">تستخدم المزامنة الآن iCloud Drive. فعّلها مرة أخرى في الإعدادات ← المزامنة. يحتفظ هذا الجهاز بما لديه؛ وستصل التغييرات من أجهزتك الأخرى بعد إعداد المزامنة من جديد. لتحرير بيانات iCloud القديمة: الإعدادات ← اسمك ← iCloud ← إدارة المساحة ← AndBible.</string>
   <string name="legacy_notice_nextcloud">تم نقل اتصال Nextcloud الخاص بك، لكن المزامنة متوقفة. فعّلها في الإعدادات ← المزامنة واختر الجلب من السحابة أو إنشاء جديد.</string>
   <string name="legacy_notice_nextcloud_unsent">لم تُرسل بعض التغييرات على هذا الجهاز إلى Nextcloud بعد. لم يتم إرسالها وتبقى على هذا الجهاز فقط.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="zero">تعذّر وضع %1$d إشارة مرجعية بشكل موثوق ولم يتم استيرادها. يُحتفظ بها مع بياناتك القديمة على هذا الجهاز.</item>
+    <item quantity="one">تعذّر وضع إشارة مرجعية واحدة بشكل موثوق ولم يتم استيرادها. يُحتفظ بها مع بياناتك القديمة على هذا الجهاز.</item>
+    <item quantity="two">تعذّر وضع إشارتين مرجعيتين بشكل موثوق ولم يتم استيرادهما. يُحتفظ بهما مع بياناتك القديمة على هذا الجهاز.</item>
+    <item quantity="few">تعذّر وضع %1$d إشارات مرجعية بشكل موثوق ولم يتم استيرادها. يُحتفظ بها مع بياناتك القديمة على هذا الجهاز.</item>
+    <item quantity="many">تعذّر وضع %1$d إشارة مرجعية بشكل موثوق ولم يتم استيرادها. يُحتفظ بها مع بياناتك القديمة على هذا الجهاز.</item>
+    <item quantity="other">تعذّر وضع %1$d إشارة مرجعية بشكل موثوق ولم يتم استيرادها. يُحتفظ بها مع بياناتك القديمة على هذا الجهاز.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">إنه تطبيق قوي وسهل الاستخدام لدراسة الكتاب المقدس دون اتصال بالإنترنت.</string>
   <string name="webdav_untrusted_certificate_message_device">شهادة %1$s غير موثوقة لدى هذا الجهاز. لا تثق بها إلا إذا كنت تعرفها، مثلًا لأنك أنت من أعدّ هذا الخادم.\n\nالموضوع: %2$s\nالمُصدر: %3$s\nصالحة: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2107,6 +2070,25 @@
   <string name="recommend_share_link">مشاركة رابط</string>
   <string name="recommend_qr_caption">امسح الرمز للحصول على AndBible لهاتفك أو لوحك أو حاسوبك.</string>
   <string name="desktop_activation_failed">AndBible قيد التشغيل بالفعل، لكن نافذته لم تستجب. انتقل إلى النسخة العاملة وحاول مرة أخرى. لم يتم تأكيد تسليم أي ملفات واردة.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">لا يمكن التراجع عن هذا.</string>
+  <string name="ai_raw_log_delete_lead">حذف هذا السجل؟</string>
+  <string name="ai_provider_delete_lead">حذف المزوّد “%1$s”؟</string>
+  <string name="ai_provider_delete_detail">ستعود الموجّهات التي تستخدمه إلى المزوّد الافتراضي.</string>
+  <string name="ai_model_delete_lead">حذف النموذج “%1$s”؟</string>
+  <string name="ai_prompt_delete_named_lead">حذف الموجّه “%1$s”؟</string>
+  <string name="ai_prompt_delete_lead">حذف هذا الموجّه؟</string>
+  <string name="ai_reset_usage_detail">تعود إجماليات الرموز والتكلفة إلى الصفر. لا يمكن التراجع عن هذا.</string>
+  <string name="ai_reset_usage_button">إعادة تعيين</string>
+  <string name="ai_disclaimer_accept">أوافق</string>
+  <string name="llm_continue_iterations_lead">المتابعة لـ %1$d تكرارات أخرى؟</string>
+  <string name="llm_continue_iterations_detail">وصل وكيل الذكاء الاصطناعي إلى حده الأقصى البالغ %1$d تكرارًا دون أن ينتهي.</string>
+  <string name="llm_continue_button">متابعة</string>
+  <string name="permission_always_allow_lead">السماح دائمًا بـ “%1$s”؟</string>
+  <string name="permission_always_allow_button">السماح دائمًا</string>
+  <string name="ai_bug_report_send_lead">إرسال تقرير خطأ للذكاء الاصطناعي؟</string>
+  <string name="ai_bug_report_send_button">إرسال</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">البدء</string>
   <string name="user_guide_section_reading_workspace">القراءة ومساحات العمل</string>
@@ -2184,4 +2166,182 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">مساعد الذكاء الاصطناعي، الجزء الثالث: الأدوات وبياناتك والأذونات</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">مساعد الذكاء الاصطناعي، الجزء الرابع: موجّهاتك والتكاليف والمزامنة</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">تجاهل التغييرات؟</string>
+  <string name="dialog_keep_editing">متابعة التحرير</string>
+  <string name="dialog_label_delete_lead">حذف التسمية “%1$s”؟</string>
+  <string name="dialog_label_delete_detail">تُحذف أيضًا ملاحظات لوحة الدراسة الخاصة بها. لا يمكن التراجع عن هذا.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="zero">لا توجد تسمية أخرى لـ %1$d إشارة مرجعية.</item>
+    <item quantity="one">لا توجد تسمية أخرى لإشارة مرجعية واحدة.</item>
+    <item quantity="two">لا توجد تسمية أخرى لإشارتين مرجعيتين.</item>
+    <item quantity="few">لا توجد تسمية أخرى لـ %1$d إشارات مرجعية.</item>
+    <item quantity="many">لا توجد تسمية أخرى لـ %1$d إشارة مرجعية.</item>
+    <item quantity="other">لا توجد تسمية أخرى لـ %1$d إشارة مرجعية.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="zero">حذف التسمية و%1$d إشارة مرجعية</item>
+    <item quantity="one">حذف التسمية وإشارة مرجعية واحدة</item>
+    <item quantity="two">حذف التسمية وإشارتين مرجعيتين</item>
+    <item quantity="few">حذف التسمية و%1$d إشارات مرجعية</item>
+    <item quantity="many">حذف التسمية و%1$d إشارة مرجعية</item>
+    <item quantity="other">حذف التسمية و%1$d إشارة مرجعية</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">تُحذف الإشارات المرجعية وملاحظاتها.</string>
+  <string name="dialog_label_delete_only_consequence">تبقى الإشارات المرجعية بدون تسمية.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="zero">إزالة %1$d إشارة مرجعية؟</item>
+    <item quantity="one">إزالة هذه الإشارة المرجعية؟</item>
+    <item quantity="two">إزالة هاتين الإشارتين المرجعيتين؟</item>
+    <item quantity="few">إزالة %1$d إشارات مرجعية؟</item>
+    <item quantity="many">إزالة %1$d إشارة مرجعية؟</item>
+    <item quantity="other">إزالة %1$d إشارة مرجعية؟</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="zero">تُزال ملاحظاتها أيضًا.</item>
+    <item quantity="one">تُزال ملاحظتها أيضًا.</item>
+    <item quantity="two">تُزال ملاحظتاهما أيضًا.</item>
+    <item quantity="few">تُزال ملاحظاتها أيضًا.</item>
+    <item quantity="many">تُزال ملاحظاتها أيضًا.</item>
+    <item quantity="other">تُزال ملاحظاتها أيضًا.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">إزالة جميع تسميات التعيين التلقائي من مساحة العمل هذه؟</string>
+  <string name="dialog_labels_reset_hidden_lead">إظهار جميع التسميات المخفية مرة أخرى؟</string>
+  <string name="dialog_labels_reset_shown_detail">تظهر مرة أخرى التسميات التي أخفيتها من القائمة.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">تثبيت “%s”؟</string>
+  <string name="install_action">تثبيت</string>
+  <string name="install_from_file_question">تثبيت وثائق من ملف؟</string>
+  <string name="overwrite_files_detail">هذه الملفات موجودة بالفعل:%s</string>
+  <string name="import_studypads_question">استيراد لوحات الدراسة هذه؟</string>
+  <string name="import_action">استيراد</string>
+  <string name="restore_backup_question">استعادة الوثائق الموجودة في هذه النسخة الاحتياطية؟</string>
+  <string name="restore_backup_detail">هذا الملف نسخة احتياطية لوثائق AndBible.</string>
+  <string name="update_document_question">تحديث هذه الوثيقة؟</string>
+  <string name="update_action">تحديث</string>
+  <string name="download_documents_question">تنزيل الوثائق؟</string>
+  <string name="download_persecution_warning">إذا كنت تعيش في بلد يضطهد المسيحيين، فقد تحتاج إلى توخي الحذر عند تنزيل المواد المسيحية عبر الإنترنت. بدلًا من ذلك، يمكنك الحصول على ملفات zip للوثائق بطريقة أكثر أمانًا وتثبيتها عبر “%1$s”. جميع التنزيلات من خوادم الوثائق مشفّرة (HTTPS).</string>
+  <string name="download_action">تنزيل</string>
+  <string name="download_dont_ask_again">تنزيل، وعدم السؤال مرة أخرى</string>
+  <string name="download_dont_ask_again_consequence">ستبدأ التنزيلات في المستقبل دون هذا السؤال.</string>
+  <string name="passphrase_did_not_work">لم تنجح عبارة المرور.</string>
+  <string name="try_again">حاول مرة أخرى</string>
+  <string name="interrupted_downloads_lead">تنزيل هذه الوثائق مرة أخرى؟</string>
+  <string name="interrupted_downloads_detail">انقطع تنزيلها، لذا لم يتم تثبيتها.</string>
+  <string name="external_link_open_question">فتح هذا الرابط في المتصفح؟</string>
+  <string name="open_action">فتح</string>
+  <string name="notification_permission_question">السماح بالإشعارات؟</string>
+  <string name="notification_permission_detail">تعرض الإشعارات حالة التنزيل والمعالجة وحالة القراءة الصوتية.</string>
+  <string name="allow_action">سماح</string>
+  <string name="rate_question">تقييم التطبيق ومراجعته؟</string>
+  <string name="bug_report_email_question">إرسال تقرير الخطأ بالبريد الإلكتروني؟</string>
+  <string name="continue_action">متابعة</string>
+  <string name="delete_search_index_question">حذف فهرس البحث الخاص بـ “%s”؟</string>
+  <string name="remove_custom_repository_question">إزالة المستودع المخصص “%s”؟</string>
+  <string name="download_document_question">تنزيل “%s”؟</string>
+  <string name="choose_file_action">اختيار ملف</string>
+  <string name="old_webview_question">استخدام التطبيق مع WebView قديم؟</string>
+  <string name="incomplete_translation_question">المتابعة بترجمة جزئية؟</string>
+  <string name="rate_action">تقييم</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">حذف الوثيقة “%s”؟</string>
+  <string name="my_document_page_delete_lead">حذف الصفحة “%s”؟</string>
+  <string name="my_document_cannot_delete_ai_lead">لا يمكن حذف وثائق الذكاء الاصطناعي ما دامت تحتوي على صفحات.</string>
+  <string name="my_document_cannot_delete_ai_detail">احذف الصفحات أولًا.</string>
+  <string name="reading_progress_new_cycle_lead">بدء دورة قراءة جديدة؟</string>
+  <string name="reading_progress_new_cycle_detail">يُتتبَّع تقدمك من الصفر. تُحفظ بيانات دورتك السابقة.</string>
+  <string name="reading_progress_new_cycle_start">بدء</string>
+  <string name="reset_plan_lead">إعادة تعيين هذه الخطة؟</string>
+  <string name="reset_plan_detail">يُمسح تاريخ البدء والتقدم في هذه الخطة.</string>
+  <string name="set_current_day_lead">تعيين %1$s كاليوم الحالي؟</string>
+  <string name="set_current_day_detail">تُعلَّم جميع الأيام السابقة كمقروءة.</string>
+  <string name="plan_duplicate_user_plan_lead">يحمل ملف خطة قراءة الاسم نفسه الذي تحمله خطة مدمجة.</string>
+  <string name="plan_duplicate_user_plan_detail">لا يمكن إدراج ملف الخطة. أعد تسمية الملف في المجلد jsword/readingplan مع إبقاء الامتداد .properties.</string>
+  <string name="background_image_delete_lead">حذف صورة الخلفية هذه؟</string>
+  <string name="background_image_delete_detail">مساحات العمل التي لا تزال تستخدمها ستعود إلى عدم وجود صورة.</string>
+  <string name="reset_values_lead">إعادة تعيين جميع هذه القيم؟</string>
+  <string name="revert_setting_lead">إرجاع هذا الإعداد إلى القيمة الموروثة؟</string>
+  <string name="revert_setting_confirm">إرجاع</string>
+  <string name="reset_settings_screen_lead">إعادة تعيين الإعدادات في هذه الشاشة؟</string>
+  <string name="reset_settings_screen_detail">تعود إلى قيمها الافتراضية.</string>
+  <string name="memorize_unmark_lead">إزالة حالة الحفظ لـ “%s”؟</string>
+  <string name="memorize_remove_target_lead">إزالة هدف الحفظ “%s”؟</string>
+  <string name="dialog_apply">تطبيق</string>
+  <string name="dialog_dont_apply">عدم التطبيق</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">توجد في السحابة بالفعل بيانات %s الخاصة بك. ماذا يجب أن يحدث؟</string>
+  <string name="cloud_merge_consequence">يُحتفظ بالجانبين؛ وحيث تغيّر عنصر في كليهما، يفوز التغيير الأحدث.</string>
+  <string name="cloud_fetch_consequence">يستبدل البيانات الموجودة على هذا الجهاز بنسخة السحابة.</string>
+  <string name="cloud_create_consequence">يستبدل نسخة السحابة بالبيانات الموجودة على هذا الجهاز.</string>
+  <string name="cloud_disable_consequence">تبقى المزامنة متوقفة لهذه البيانات.</string>
+  <string name="cloud_merge_lead">دمج %s الخاصة بك مع السحابة؟</string>
+  <string name="cloud_merge_confirm">دمج</string>
+  <string name="cloud_replace_confirm">استبدال</string>
+  <string name="cloud_replace_local_lead">استبدال %s الخاصة بهذا الجهاز بنسخة السحابة؟</string>
+  <string name="cloud_replace_local_detail">ما هو موجود على هذا الجهاز الآن سيُستبدل ولا يمكن استرجاعه.</string>
+  <string name="cloud_replace_cloud_lead">استبدال نسخة السحابة من %s ببيانات هذا الجهاز؟</string>
+  <string name="cloud_replace_cloud_detail">ما هو موجود في السحابة الآن سيُستبدل، وستتلقى أجهزتك الأخرى بيانات هذا الجهاز.</string>
+  <string name="sign_in_failed_lead">تعذّر تسجيل الدخول إلى خدمة المزامنة.</string>
+  <string name="sync_too_old_lead">هذا التطبيق قديم جدًا لمزامنة %s.</string>
+  <string name="sync_too_old_detail">تستخدم بيانات السحابة إصدارًا أحدث مما يدعمه هذا التطبيق. أُوقفت مزامنتها مؤقتًا؛ حدّث التطبيق لتشغيلها مرة أخرى.</string>
+  <string name="backup_replace_lead">استبدال %s الخاصة بك بالنسخة الاحتياطية؟</string>
+  <string name="backup_replace_detail">ما هو موجود على هذا الجهاز الآن سيُستبدل ولا يمكن استرجاعه.</string>
+  <string name="reset_database_lead">إعادة تعيين “%1$s” إلى حالتها الأولية؟</string>
+  <string name="reset_database_detail">تُحذف جميع البيانات الموجودة فيها نهائيًا. لا يمكن التراجع عن هذا.</string>
+  <string name="reset_database_button">إعادة تعيين</string>
+  <string name="restore_all_lead">استبدال ملاحظاتك وإشاراتك المرجعية ولوحات الدراسة وخطط القراءة ومساحات العمل؟</string>
+  <string name="restore_or_import_lead">استعادة %s أو استيرادها؟</string>
+  <string name="restore_consequence">يستبدل ما هو موجود على هذا الجهاز بالنسخة الاحتياطية.</string>
+  <string name="import_consequence">يضيف عناصر النسخة الاحتياطية إلى ما هو موجود على هذا الجهاز.</string>
+  <string name="sync_start_syncing">بدء المزامنة</string>
+  <string name="sync_reset_lead">تسجيل الخروج وإعادة تعيين المزامنة؟</string>
+  <string name="sync_reset_detail">ستحتاج إلى إعداد المزامنة مرة أخرى.</string>
+  <string name="webdav_forget_certificate_lead">نسيان شهادة الخادم الموثوقة؟</string>
+  <string name="webdav_forget_certificate_detail">سيُطلب منك تأكيد الشهادة مرة أخرى عند الاتصال التالي.</string>
+  <string name="webdav_forget_certificate_confirm">نسيان</string>
+  <string name="cloud_doc_remove_all_lead">إزالة “%1$s” من السحابة ومن جميع أجهزتك؟</string>
+  <string name="cloud_doc_remove_cloud_lead">إزالة “%1$s” من السحابة؟</string>
+  <string name="cloud_doc_purge_lead">إزالة “%1$s” نهائيًا من سجل السحابة؟</string>
+  <string name="cloud_doc_remove_all_detail">يحذف هذا أيضًا النسخ الموجودة على هذا الجهاز وعلى كل جهاز آخر تكون مزامنة الوثائق مفعّلة عليه.</string>
+  <string name="cloud_doc_remove_cloud_detail">يُحتفظ بالنسخ الموجودة على هذا الجهاز. وستزيلها الأجهزة التي تكون مزامنة الوثائق مفعّلة عليها أيضًا.</string>
+  <string name="cloud_doc_purge_detail">قد يعيد جهاز لا تزال لديه نسخة رفعها عند مزامنته التالية.</string>
+  <string name="cloud_doc_block_confirm_button">عدم المزامنة</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="zero">إزالة %1$d وثيقة من السحابة ومن جميع أجهزتك؟</item>
+    <item quantity="one">إزالة وثيقة واحدة من السحابة ومن جميع أجهزتك؟</item>
+    <item quantity="two">إزالة وثيقتين من السحابة ومن جميع أجهزتك؟</item>
+    <item quantity="few">إزالة %1$d وثائق من السحابة ومن جميع أجهزتك؟</item>
+    <item quantity="many">إزالة %1$d وثيقة من السحابة ومن جميع أجهزتك؟</item>
+    <item quantity="other">إزالة %1$d وثيقة من السحابة ومن جميع أجهزتك؟</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="zero">إزالة %1$d وثيقة من السحابة؟</item>
+    <item quantity="one">إزالة وثيقة واحدة من السحابة؟</item>
+    <item quantity="two">إزالة وثيقتين من السحابة؟</item>
+    <item quantity="few">إزالة %1$d وثائق من السحابة؟</item>
+    <item quantity="many">إزالة %1$d وثيقة من السحابة؟</item>
+    <item quantity="other">إزالة %1$d وثيقة من السحابة؟</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="zero">إزالة %1$d وثيقة نهائيًا من سجل السحابة؟</item>
+    <item quantity="one">إزالة وثيقة واحدة نهائيًا من سجل السحابة؟</item>
+    <item quantity="two">إزالة وثيقتين نهائيًا من سجل السحابة؟</item>
+    <item quantity="few">إزالة %1$d وثائق نهائيًا من سجل السحابة؟</item>
+    <item quantity="many">إزالة %1$d وثيقة نهائيًا من سجل السحابة؟</item>
+    <item quantity="other">إزالة %1$d وثيقة نهائيًا من سجل السحابة؟</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="zero">إيقاف مزامنة %1$d وثيقة إلى السحابة؟</item>
+    <item quantity="one">إيقاف مزامنة وثيقة واحدة إلى السحابة؟</item>
+    <item quantity="two">إيقاف مزامنة وثيقتين إلى السحابة؟</item>
+    <item quantity="few">إيقاف مزامنة %1$d وثائق إلى السحابة؟</item>
+    <item quantity="many">إيقاف مزامنة %1$d وثيقة إلى السحابة؟</item>
+    <item quantity="other">إيقاف مزامنة %1$d وثيقة إلى السحابة؟</item>
+  </plurals>
+  <string name="new_sync_targets_lead">يمكن الآن مزامنة المزيد من بياناتك</string>
+  <string name="new_sync_targets_detail">يمكن مزامنة مستنداتي وإعدادات الذكاء الاصطناعي وتقدم القراءة أيضًا. فعّلها في إعدادات مزامنة الأجهزة.</string>
+  <!--end dialog copy: B3b-->
 </resources>
