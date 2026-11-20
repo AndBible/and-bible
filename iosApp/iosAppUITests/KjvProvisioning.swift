@@ -184,7 +184,7 @@ extension RealAppUITestCase {
             harnessTapLabel(app, "Restore or Import from\u{2026}")
             harnessRequire(harnessLabel(app, "Install documents from a file?").waitForExistence(timeout: 30), app,
                     "HARNESS: real local KJV InstallZip prelude")
-            harnessTapLabel(app, "Proceed")
+            harnessTapLabel(app, "Choose file")
             pick(app, folderName: "H2 Fixtures", filename: "h2-kjv.zip")
             awaitLocalModuleInstall(app)
             // Bootstrap only: the acceptance restore below must inspect immediate state before relaunch.
