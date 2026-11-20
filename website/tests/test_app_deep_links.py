@@ -10,6 +10,8 @@ CATALOG = paths.REPO / "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/do
 DOCS_DIR = CATALOG.parent
 GENERATED_TOC = DOCS_DIR / "UserGuideToc.kt"
 BASE_URL_ALLOWLIST = {
+    # Fallback for a help link with an unknown topic: the guide's home (#4159).
+    paths.REPO / "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/HelpLinks.kt",
     paths.REPO / "sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/ports/DocumentDialogsCore.kt",
     paths.REPO / "sharedUi/src/commonMain/kotlin/net/bible/sharedui/help/HelpScreen.kt",
 }
