@@ -636,9 +636,10 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         if (showDiscardConfirm) {
             AbConfirmDialog(
                 title = null,
-                message = strings.discardChangesConfirmation,
+                message = strings.dialogDiscardChangesLead,
                 confirmText = strings.discard,
-                dismissText = strings.cancel,
+                dismissText = strings.dialogKeepEditing,
+                destructive = true,
                 onConfirm = {
                     showDiscardConfirm = false
                     deps.repositoryEditorResults.deliver(navController, backStackEntry, controller.buildCancelResult())

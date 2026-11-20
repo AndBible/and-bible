@@ -515,9 +515,10 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         if (showDiscardConfirm) {
             AbConfirmDialog(
                 title = null,
-                message = strings.discardChangesConfirmation,
+                message = strings.dialogDiscardChangesLead,
                 confirmText = strings.discard,
-                dismissText = strings.cancel,
+                dismissText = strings.dialogKeepEditing,
+                destructive = true,
                 onConfirm = { showDiscardConfirm = false; navController.popOrExit(entry, deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )
@@ -554,9 +555,10 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         if (showDiscardConfirm) {
             AbConfirmDialog(
                 title = null,
-                message = strings.discardChangesConfirmation,
+                message = strings.dialogDiscardChangesLead,
                 confirmText = strings.discard,
-                dismissText = strings.cancel,
+                dismissText = strings.dialogKeepEditing,
+                destructive = true,
                 onConfirm = { showDiscardConfirm = false; navController.popOrExit(entry, deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )
@@ -1104,9 +1106,10 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         if (showDiscardConfirm) {
             AbConfirmDialog(
                 title = null,
-                message = strings.discardChangesConfirmation,
+                message = strings.dialogDiscardChangesLead,
                 confirmText = strings.discard,
-                dismissText = strings.cancel,
+                dismissText = strings.dialogKeepEditing,
+                destructive = true,
                 onConfirm = { showDiscardConfirm = false; navController.popOrExit(backStackEntry, deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )
