@@ -182,7 +182,7 @@ extension RealAppUITestCase {
             openBackup(app)
             configure(app, restore: true, database: false)
             harnessTapLabel(app, "Restore or Import from\u{2026}")
-            harnessRequire(harnessLabel(app, "Load Documents From Files").waitForExistence(timeout: 30), app,
+            harnessRequire(harnessLabel(app, "Install documents from a file?").waitForExistence(timeout: 30), app,
                     "HARNESS: real local KJV InstallZip prelude")
             harnessTapLabel(app, "Proceed")
             pick(app, folderName: "H2 Fixtures", filename: "h2-kjv.zip")
@@ -209,7 +209,7 @@ extension RealAppUITestCase {
             harnessRequire(!error.firstMatch.exists, app, "HARNESS: local module install error")
             let backup = app.buttons["Restore or Import from\u{2026}"].firstMatch
             if !localRoot(app).exists && backup.exists && backup.isHittable
-                && !app.staticTexts["Load Documents From Files"].exists && !overwrite.exists {
+                && !app.staticTexts["Install documents from a file?"].exists && !overwrite.exists {
                 attachTree(app, "h2-local-module-install-returned-backup")
                 shot(app, "h2-local-module-install-returned-backup")
                 return // Termination only; the chooser and exact KJV text prove installation.
