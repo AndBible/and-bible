@@ -195,7 +195,7 @@ class DownloadRecreationStateTest {
         // Back while dirty asks to discard; confirming leaves the editor and writes no repository.
         recreated.onBackPressedDispatcher.onBackPressed()
         awaitHostCondition("dirty draft asks to discard", ::advance) {
-            compose.onAllNodes(hasText("Discard unsaved changes?", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodes(hasText(recreated.getString(R.string.dialog_discard_changes_lead), substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithText("Discard").performClick()
         awaitHostRoute(recreated, NavRoutes.DOWNLOAD_PATTERN, ::advance)
