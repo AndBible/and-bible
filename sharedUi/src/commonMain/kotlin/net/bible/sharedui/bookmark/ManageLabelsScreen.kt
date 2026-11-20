@@ -336,6 +336,8 @@ private fun LabelItemRow(
     strings: Strings,
 ) {
     val label = row.label
+    // An add-on collection label reads "Name · Module" and is read-only: no auto-assign, and not newly assignable.
+    val displayName = label.addonModuleName?.let { strings.addonLabelWithModule(label.name, it) } ?: label.name
     // Identity and preview markers share the editor resolver: ink in MONO, legacy accent otherwise.
     val glyphTint = bookmarkMarkerTint(label.color)
     val markerGlyph: @Composable () -> Unit = { iconSlot(label.customIcon, glyphTint) }
@@ -346,7 +348,7 @@ private fun LabelItemRow(
                 onClick = { onRowClick(label.id) },
                 onLongClick = { onRowLongClick(label.id) },
             )
-            .semantics { contentDescription = label.name }
+            .semantics { contentDescription = displayName }
             // 48dp, not classic's 40dp: the row carries up to four tappable controls and 48dp is
             // the Material minimum touch target. The old 40dp icon Box plus 8dp vertical padding
             // made this ~56dp with a mostly empty leading column.
@@ -364,6 +366,8 @@ private fun LabelItemRow(
                 Checkbox(
                     checked = row.checked,
                     onCheckedChange = { onToggleChecked(label.id) },
+                    // BookmarkControl refuses adding an add-on label to an own bookmark; removing it stays possible.
+                    enabled = !(mode == ManageLabelsMode.ASSIGN && label.isAddon && !row.checked),
                     // The row's own tap opens the label, so the checkbox cannot merge into it:
                     // it keeps its own node and takes the label's name.
                     modifier = Modifier.semantics { contentDescription = label.name },
@@ -381,7 +385,7 @@ private fun LabelItemRow(
         // tap -- so the name absorbs any shortage and the tag and controls keep intrinsic width.
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = label.name,
+                text = displayName,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
                 // Two lines, not one (issue #4153): long names (Myanmar script especially) were
@@ -406,6 +410,7 @@ private fun LabelItemRow(
             if (label.isUnlabeled) {
                 Spacer(Modifier.width(TrailingSlotSize * 2))
             } else {
+                if (label.isAddon) Spacer(Modifier.size(TrailingSlotSize)) else
                 // Filled vs HOLLOW, not filled vs Material's "outlined" bolt -- Icons.Outlined.Bolt
                 // is the same solid silhouette, so the off state was a tint change and read as no
                 // state at all (AbIcons.BoltOutline exists for exactly this).

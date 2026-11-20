@@ -94,6 +94,7 @@ type TranslatedStrings = {
     doYouWantToDeleteEntry: string
     removeStudyPadConfirmationTitle: string
     dragHelp: string
+    addonReadOnly: string
     openAll: string
     editBookmarkPlaceholder: string
     onlyLabel: string

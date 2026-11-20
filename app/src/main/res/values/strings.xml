@@ -862,9 +862,25 @@
     <string name="restore">Restore</string>
     <string name="import2">Import</string>
 
-    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
     <!-- Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name. -->
     <string name="addon_label_copy_name">%1$s (copy)</string>
+
+    <!-- Add-on bookmark collections (read-only labels installed as add-on modules) -->
+    <!-- Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name. -->
+    <string name="addon_label_with_module">%1$s · %2$s</string>
+    <!-- Info line in the label editor of a read-only add-on label. %1$s: the module name. -->
+    <string name="addon_label_from_module">From add-on %1$s</string>
+    <string name="addon_label_from_module_hint">Open the add-on in the document manager</string>
+    <string name="addon_label_read_only_note">This label, its bookmarks and its StudyPad belong to the add-on and cannot be edited. You can mark it as a favourite, choose how this workspace shows it, and add your own labels and notes to its verses.</string>
+    <string name="addon_copy_to_my_labels">Copy to my labels</string>
+    <!-- %1$s: name of the new, editable label. -->
+    <string name="addon_label_copied">Copied to your label \"%1$s\"</string>
+    <!-- Toast when a change to add-on collection content is refused. %1$s: the module name or initials. -->
+    <string name="addon_read_only">This content comes from the add-on %1$s and cannot be changed. Use \"Copy to my labels\" to get an editable copy.</string>
+    <!-- After a backup restore or StudyPad import. %1$d: the number of skipped items. -->
+    <string name="addon_items_skipped">%1$d add-on collection items were skipped. Use \"Copy to my labels\" on the label to get your own copy.</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
     <string name="bookmarks_db_stats">\"%1$s\" and %2$s other Label(s) / StudyPad/(s) and %3$s Bookmarks</string>
 
     <!-- About -->

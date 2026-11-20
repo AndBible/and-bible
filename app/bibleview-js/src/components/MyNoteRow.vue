@@ -30,7 +30,7 @@
       <div v-if="!bookmark.notes" class="journal-button" @click="setEditMode(true)">
         <FontAwesomeIcon icon="edit"/>
       </div>
-      <div class="journal-button" @click="deleteEntry">
+      <div v-if="!isAddonBookmark(bookmark)" class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
     </ButtonRow>
@@ -68,6 +68,7 @@ import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {formatExportLink, isBottomHalfClicked} from "@/utils";
 import {androidKey, exportModeKey} from "@/types/constants";
 import {BibleBookmark} from "@/types/client-objects";
+import {isAddonBookmark} from "@/composables/addon";
 
 const props = defineProps<{ bookmark: BibleBookmark }>()
 

@@ -106,6 +106,8 @@ export type BaseBookmark = {
     customIcon: Nullable<string>
     editAction: EditAction
     readonly sourcePromptId: Nullable<IdType>
+    /** Add-on module initials when this bookmark belongs to a read-only add-on collection; null otherwise. */
+    readonly addonModule?: Nullable<string>
 }
 
 export type BibleBookmark = BaseBookmark & {
@@ -200,6 +202,8 @@ export type Label = Readonly<{
     name: string
     style: BookmarkStyle
     isRealLabel: boolean
+    /** Add-on module initials when this label is a read-only add-on collection; null otherwise. */
+    addonModule?: Nullable<string>
 }>
 
 export type LabelAndStyle = Label & BookmarkStyle

@@ -906,4 +906,46 @@ class ManageLabelsControllerTest {
         assertEquals(BookmarkDisplayStyle.MARKER, styleOf("A"))
         assertEquals(1, service.assignableCalls)
     }
+
+    private fun addonLabel(id: String, name: String) = label(id, name).copy(addonModuleName = "Memory verses")
+
+    private fun checkedIds(c: ManageLabelsController) = c.resultSelected()
+
+    @Test fun assign_mode_cannot_newly_check_an_addon_label_but_can_uncheck_it() {
+        val c = controller(ManageLabelsMode.ASSIGN, labels = listOf(addonLabel("A", "Comfort"), label("B", "Own")), initialSelected = setOf("A"))
+        c.toggleChecked("A")      // already on the bookmark: removing is allowed
+        assertFalse("A" in checkedIds(c))
+        c.toggleChecked("A")      // adding an add-on label to an own bookmark is refused by the core: not offered
+        assertFalse("A" in checkedIds(c))
+        c.toggleChecked("B")
+        assertTrue("B" in checkedIds(c))
+    }
+
+    @Test fun hide_labels_mode_can_still_tick_an_addon_label() {
+        // Hiding a label per workspace is a display setting, not a write to the collection.
+        val c = controller(ManageLabelsMode.HIDELABELS, labels = listOf(addonLabel("A", "Comfort")))
+        c.toggleChecked("A")
+        assertTrue("A" in checkedIds(c))
+    }
+
+    @Test fun workspace_mode_cannot_auto_assign_an_addon_label() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(addonLabel("A", "Comfort"), label("B", "Own")))
+        c.toggleAutoAssign("A")
+        assertFalse("A" in c.resultAutoAssign())
+        c.toggleAutoAssign("B")
+        assertTrue("B" in c.resultAutoAssign())
+    }
+
+    @Test fun favourite_toggle_stays_for_an_addon_label() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(addonLabel("A", "Comfort")))
+        c.toggleFavourite("A")
+        assertTrue(c.currentLabelItems().single().favourite)
+        assertTrue("A" in c.resultChanged())
+    }
+
+    @Test fun an_edited_addon_label_keeps_its_module_in_the_list() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(addonLabel("A", "Comfort")))
+        c.applyLabelChanged(label("A", "Comfort", favourite = true), false, false, false, false) // the host's item has no module
+        assertEquals("Memory verses", c.currentLabelItems().single().addonModuleName)
+    }
 }

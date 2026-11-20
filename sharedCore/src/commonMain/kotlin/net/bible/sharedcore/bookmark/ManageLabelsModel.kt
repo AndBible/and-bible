@@ -68,7 +68,12 @@ data class LabelItem(
      *  axes (`BookmarkEntities.Label.withStyleOverrides`), so this single value is what the reader
      *  draws for this label here, whatever [selectionStyle] and [wholeVerseStyle] say. */
     val overrideStyle: BookmarkDisplayStyle? = null,
-)
+    /** The display name of the add-on module providing this label (an add-on collection label is read-only and
+     *  listed as "Name · Module"), or `null` for the user's own labels. */
+    val addonModuleName: String? = null,
+) {
+    val isAddon: Boolean get() = addonModuleName != null
+}
 
 sealed interface ManageLabelsRow {
     data class Header(val category: LabelCategory) : ManageLabelsRow

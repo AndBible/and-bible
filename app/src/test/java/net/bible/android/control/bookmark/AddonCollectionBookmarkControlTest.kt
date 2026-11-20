@@ -15,6 +15,9 @@ import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
 import net.bible.android.database.bookmarks.BookmarkEntities.EditActionMode
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.LabelType
+import net.bible.android.control.page.ClientBibleBookmark
+import net.bible.android.control.page.ClientBookmarkLabel
+import net.bible.android.view.activity.bookmark.assignableLabelItems
 import net.bible.android.database.bookmarks.ADDON_ROW_NO_ID2_SQL
 import net.bible.android.database.bookmarks.isAddonId
 import net.bible.service.addons.collections.AddonCollectionImporter
@@ -491,5 +494,74 @@ class AddonCollectionBookmarkControlTest {
         assertTrue(seen.filterIsInstance<BookmarkChange.LabelUpserted>().any { it.label.id == pb })
         assertTrue(log().any { it.tableName == "Label" && it.entityId1 == pb })
         assertTrue(log().none { it.entityId1.isAddonId })
+    }
+
+    // --- UI contract (Task 9) ---------------------------------------------------------------------------------------
+
+    @Test
+    fun addonLabelsAreListedWithTheirModuleName() = run {
+        val own = ownLabel()
+        assertEquals(mapOf(l to "Manna"), control.addonLabelModuleNames()) // not an installed book: the initials
+        assertFalse(own.id in control.addonLabelModuleNames())
+        assertEquals("Manna", control.addonModuleName("Manna"))
+        // assignableLabels keeps the add-on label (a copy keeps L) and the label manager marks it from the module map.
+        val items = control.assignableLabels().assignableLabelItems(control.addonLabelModuleNames())
+        assertEquals("Manna", items.single { it.id == l.toString() }.addonModuleName)
+        assertEquals(null, items.single { it.id == own.id.toString() }.addonModuleName)
+    }
+
+    @Test
+    fun readerObjectsMarkAddonRowsAndOwnRowsAreUnmarked() = run {
+        val own = ownLabel()
+        val ownBookmark = control.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(range(5), null, true, null), setOf(own.id))
+        assertEquals("", ClientBookmarkLabel(dao.labelById(l)!!).addonModule)
+        assertEquals(null, ClientBookmarkLabel(own).addonModule)
+        val addonBookmark = control.getBibleBookmarksWithLabel(dao.labelById(l)!!, addData = true).single { it.id == b1 }
+        val ownLoaded = control.getBibleBookmarksWithLabel(own, addData = true).single { it.id == ownBookmark.id }
+        assertNotEquals("null", ClientBibleBookmark(addonBookmark).asHashMap["addonModule"])
+        assertEquals("null", ClientBibleBookmark(ownLoaded).asHashMap["addonModule"])
+    }
+
+    @Test
+    fun aRefusedJsWriteToAddonContentToastsInsteadOfFailingSilently() = run {
+        val toasts = mutableListOf<String?>()
+        val sub = net.bible.android.control.event.UserMessages.messages.subscribe { (it as? net.bible.android.control.event.UserMessage.Toast)?.let { t -> toasts += t.text } }
+        try {
+            val actions = BookmarkJsActions(OrderedLauncher(scope), control)
+            actions.deleteBibleBookmarks("w", listOf(b1)).join()
+            assertEquals(1, toasts.size)
+            assertTrue(toasts.single()!!.contains("Manna"))
+            assertTrue("the bookmark is still there", dao.bibleBookmarkById(b1) != null)
+        } finally { sub.cancel() }
+    }
+
+    private fun widgetSources() = net.bible.android.control.widget.ControlVerseWidgetSources(
+        control, mock(WindowControl::class.java), org.koin.core.context.GlobalContext.get().get<net.bible.android.control.readingplan.ReadingPlanControl>(),
+        testCoreStrings(), net.bible.android.platform.androidSaxTextPolicy(), net.bible.android.platform.AndroidLocalCalendar(),
+        mock(net.bible.android.control.widget.WidgetStrings::class.java),
+    )
+
+    @Test
+    fun addonLabelsAreVerseWidgetSourcesShownWithTheirModuleAndAnOwnCopyIsNotDoubled() = run {
+        val sources = widgetSources()
+        assertEquals("Comfort · Manna", sources.labels().single { it.first == l }.second)
+        val before = sources.label(l)!!
+        assertEquals("Comfort · Manna", before.name)
+        assertEquals(2, before.refs.size)
+
+        // An own bookmark of exactly Ps 119:1 that keeps the collection label stands in for the original (same verse, once).
+        control.ownCopyOf(b1)
+        val after = sources.label(l)!!
+        assertEquals(2, after.refs.size)
+    }
+
+    @Test
+    fun savingTheLabelsOfAnOwnCopyKeepsItsAddonLabelAndFavouriteShowsInTheAssignableList() = run {
+        val copy = control.ownCopyOf(b1)
+        val own = ownLabel()
+        control.changeLabelsForBookmarks(listOf(copy), listOf(l, own.id)) // the chooser keeps L ticked: not a new add-on label
+        assertTrue(dao.labelsForBookmark(dao.bibleBookmarkById(copy.id)!!).map { it.id }.containsAll(listOf(l, own.id)))
+        control.insertOrUpdateLabel(control.labelById(l)!!.copy(favourite = true))
+        assertTrue(control.assignableLabels().single { it.id == l }.favourite)
     }
 }

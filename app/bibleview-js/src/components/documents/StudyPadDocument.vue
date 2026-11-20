@@ -22,12 +22,13 @@
     </div>
     <div v-if="journalEntries.length === 0 && !exportMode">
       {{ strings.emptyStudyPad }}
-      <span class="journal-button" v-if="!exportMode" @click="addNewEntry">
+      <span class="journal-button" v-if="!exportMode && !padReadOnly" @click="addNewEntry">
         <FontAwesomeIcon icon="plus-circle"/>
       </span>
     </div>
     <draggable
         v-model="journalEntries"
+        :disabled="padReadOnly"
         handle=".drag-handle"
         group="journal-entries"
         ghost-class="drag-ghost"
@@ -73,8 +74,8 @@
           @click="moveCursorTo(journalEntries.length)"
       />
     </div>
-    <div v-if="journalEntries.length > 0 && !exportMode">
-      <span v-if="isStudyPadBookmark(lastEntry) && !lastEntry.hasNote" class="journal-button"
+    <div v-if="journalEntries.length > 0 && !exportMode && !padReadOnly">
+      <span v-if="isStudyPadBookmark(lastEntry) && !lastEntry.hasNote && !isAddonBookmark(lastEntry)" class="journal-button"
             @click="editLastNote">
         <FontAwesomeIcon icon="edit"/>
       </span>
@@ -95,6 +96,7 @@ import {androidKey, exportModeKey, globalBookmarksKey, scrollKey, journalKey} fr
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 import {useStudyPad} from "@/composables/journal";
+import {isAddonBookmark, readOnlyStudyPad} from "@/composables/addon";
 import {StudyPadDocument} from "@/types/documents";
 import {
     BaseBookmarkToLabel,
@@ -184,6 +186,11 @@ const journalEntries: Ref<StudyPadItem[]> = computed({
             return entries;
         },
     set(values: StudyPadItem[]) {
+        if (padReadOnly.value) {
+            // A drag/drop into or within an add-on StudyPad must not change it; tell the user instead of a silent no-op.
+            android.toast(strings.addonReadOnly);
+            return;
+        }
         let count = 0;
         const changed: StudyPadItem[] = [];
         for (const v of values) {
@@ -205,6 +212,7 @@ const journalEntries: Ref<StudyPadItem[]> = computed({
     }
 });
 const adding = ref(false);
+const padReadOnly = computed(() => readOnlyStudyPad(liveLabel.value));
 
 const lastEntry = computed<StudyPadItem>(() => journalEntries.value[journalEntries.value.length - 1]);
 

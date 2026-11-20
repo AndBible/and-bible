@@ -136,6 +136,12 @@ interface CoreStrings {
     fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String // R.string.bookmarks_db_stats
     /** The name of the user's copy of an add-on collection label [name] when [name] is taken. */
     fun addonLabelCopyName(name: String): String
+    /** An add-on collection label shown with the module it comes from, e.g. "Comfort · Memory verses". */
+    fun addonLabelWithModule(label: String, module: String): String
+    /** The toast for a refused write to add-on collection content of [module]. */
+    fun addonReadOnly(module: String): String
+    /** After an import: [count] add-on collection items were not imported. */
+    fun addonItemsSkipped(count: Int): String
     val exportedStudypadsSubject: String // R.string.exported_studypads_subject
     fun exportedStudypadsMessage(appName: String): String // R.string.exported_studypads_message
     val sendExportFile: String // R.string.send_export_file

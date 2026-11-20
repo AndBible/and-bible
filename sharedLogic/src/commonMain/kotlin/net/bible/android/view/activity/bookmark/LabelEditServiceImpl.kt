@@ -25,4 +25,13 @@ class LabelEditServiceImpl(private val bookmarkControl: BookmarkControl) : Label
     override suspend fun orphanedBookmarkCount(labelId: String): Int =
         if (labelId.isEmpty()) 0
         else bookmarkControl.findOrphanedBookmarks(listOf(IdType(labelId))).size
+
+    override suspend fun copyAddonLabel(labelId: String): String? = try {
+        bookmarkControl.copyAddonLabel(IdType(labelId)).name
+    } catch (e: kotlinx.coroutines.CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        net.bible.sharedcore.log.Log.e("LabelEditService", "Could not copy add-on label $labelId", e)
+        null
+    }
 }

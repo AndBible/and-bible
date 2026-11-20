@@ -37,7 +37,10 @@ class BookmarkJsActions(
     private val bookmarkControl: BookmarkControl,
 ) {
     /** Runs a compound write (read, modify, write, follow-up) in this window's order. */
-    fun launch(windowId: Any, block: suspend () -> Unit): Job = launcher.launch(windowId, block)
+    fun launch(windowId: Any, block: suspend () -> Unit): Job = launcher.launch(windowId) {
+        // A refused write to add-on content is told to the user, never a silent no-op.
+        try { block() } catch (e: AddonReadOnlyException) { bookmarkControl.reportAddonReadOnly(e) }
+    }
 
     /**
      * Runs [after] in [callerScope] once every write already queued for [windowId] has finished, e.g.

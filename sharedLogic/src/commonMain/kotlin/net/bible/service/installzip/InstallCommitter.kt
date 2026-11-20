@@ -187,7 +187,9 @@ class DefaultInstallCommitter(
 
     override suspend fun commitStudyPad(unzipFolder: Path) {
         val file = unzipFolder / "db/${BookmarkDatabase.dbFileName}"
-        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file)
+        val skipped = importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file)
+        // A StudyPad of an add-on collection belongs to its module: none of its rows are imported (add-on rows are read-only).
+        if (skipped > 0) net.bible.android.control.event.UserMessages.toast(strings.addonItemsSkipped(skipped.toInt()), long = true)
         runCatching { fileSystem.deleteRecursively(unzipFolder, mustExist = false) } // best-effort cleanup, as File.deleteRecursively was
     }
 }

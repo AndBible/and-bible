@@ -24,19 +24,19 @@
   </AreYouSure>
   <div class="entry" :class="{editMode}">
     <div class="menu" :class="{isText: journalEntry.type === 'journal'}">
-      <ButtonRow show-drag-handle v-if="!exportMode">
-        <div class="journal-button" @click="addNewEntryAfter">
+      <ButtonRow :show-drag-handle="!padReadOnly" v-if="!exportMode">
+        <div v-if="!padReadOnly" class="journal-button" @click="addNewEntryAfter">
           <FontAwesomeIcon icon="plus-circle"/>
         </div>
-        <div  v-if="!journalText || props.disableClickToEdit" class="journal-button" @click="editMode = true">
+        <div  v-if="!entryReadOnly && (!journalText || props.disableClickToEdit)" class="journal-button" @click="editMode = true">
           <FontAwesomeIcon icon="edit"/>
         </div>
 
-        <div v-if="journalEntry.indentLevel > 0" class="journal-button" @click.stop="indent(-1)">
+        <div v-if="!padReadOnly && journalEntry.indentLevel > 0" class="journal-button" @click.stop="indent(-1)">
           <FontAwesomeIcon icon="outdent"/>
         </div>
 
-        <div v-if="journalEntry.indentLevel < 2" class="journal-button" @click.stop="indent(1)">
+        <div v-if="!padReadOnly && journalEntry.indentLevel < 2" class="journal-button" @click.stop="indent(1)">
           <FontAwesomeIcon icon="indent"/>
         </div>
 
@@ -44,7 +44,7 @@
              @click="changeExpanded(!bookmarkEntry.expandContent)">
           <FontAwesomeIcon :icon="bookmarkEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
-        <div class="journal-button" @click="deleteEntry">
+        <div v-if="!deleteHidden" class="journal-button" @click="deleteEntry">
           <FontAwesomeIcon icon="trash"/>
         </div>
         <div v-if="isBookmark(journalEntry)" class="journal-button" @click.stop="editBookmark">
@@ -73,6 +73,7 @@
           :content-type="journalContentType"
           :note-editor-context="studyPadNoteEditorContext"
           :disable-click-to-edit="props.disableClickToEdit"
+          :read-only="entryReadOnly"
           @opened="$emit('edit-opened')"
           @save="journalTextChanged"
       />
@@ -100,6 +101,7 @@ import {
     StudyPadTextItem
 } from "@/types/client-objects";
 import {AreYouSureButton} from "@/types/common";
+import {isAddonBookmark, readOnlyStudyPad} from "@/composables/addon";
 
 const emit = defineEmits(['edit-opened', 'add'])
 const props = withDefaults(defineProps<{
@@ -113,6 +115,13 @@ const props = withDefaults(defineProps<{
 const bookmarkEntry = computed(() => props.journalEntry as StudyPadBibleBookmarkItem)
 const genericBookmarkEntry = computed(() => props.journalEntry as StudyPadGenericBookmarkItem)
 const textEntry = computed(() => props.journalEntry as StudyPadTextItem)
+
+// Add-on StudyPad: layout and text entries are locked. Add-on bookmark rows are read-only too, while the
+// user's own copies (addonModule null) stay editable and deletable. Expand/collapse is per-device state and stays.
+const padReadOnly = computed(() => readOnlyStudyPad(props.label));
+const entryReadOnly = computed(() =>
+    props.journalEntry.type === "journal" ? padReadOnly.value : isAddonBookmark(props.journalEntry));
+const deleteHidden = computed(() => entryReadOnly.value);
 
 const android = inject(androidKey)!;
 const areYouSureDelete = ref<InstanceType<typeof AreYouSure> | null>(null);

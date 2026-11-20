@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -111,6 +112,10 @@ fun LabelEditScreen(
     onToggleAutoAssignPrimary: () -> Unit,
     onOverrideMode: (OverrideMode) -> Unit,
     onUp: () -> Unit,
+    /** "Copy to my labels" of a read-only add-on collection label ([LabelEditState.addonModule]). */
+    onCopyToMyLabels: () -> Unit = {},
+    /** Opens the add-on module in the document manager; `null` shows the "From add-on" line without a link. */
+    onOpenAddonModule: (() -> Unit)? = null,
     iconKeys: List<String?>,
     iconSlot: @Composable (String?, Color) -> Unit,
     actions: @Composable RowScope.() -> Unit,
@@ -151,7 +156,11 @@ fun LabelEditScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .clickable(onClickLabel = strings.editLabelTitle) { identitySheetOpen = true }
+                    .then(
+                        // An add-on collection label has no name, colour or icon to edit.
+                        if (state.styleEditable) Modifier.clickable(onClickLabel = strings.editLabelTitle) { identitySheetOpen = true }
+                        else Modifier,
+                    )
                     .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -191,6 +200,11 @@ fun LabelEditScreen(
                 }
             }
 
+            state.addonModule?.let { module ->
+                AddonLabelInfo(module, onOpenAddonModule, onCopyToMyLabels)
+            }
+
+            if (state.styleEditable) {
             SectionTitle(strings.bookmarkStyleSectionTitle)
             AbChoiceGroup(
                 heading = strings.bookmarkStyleSelectionHeading,
@@ -225,8 +239,9 @@ fun LabelEditScreen(
                 checked = state.wholeVerseStyle != null,
                 onCheckedChange = { on -> onWholeVerseStyle(if (on) state.selectionStyle else null) },
             )
+            }
             val wholeVerseStyle = state.wholeVerseStyle
-            if (wholeVerseStyle != null) {
+            if (state.styleEditable && wholeVerseStyle != null) {
                 AbChoiceGroup(
                     heading = strings.bookmarkStyleWholeVerseHeading,
                     options = BookmarkDisplayStyle.entries,
@@ -331,7 +346,7 @@ fun LabelEditScreen(
                     },
                 ) {
                     Column(Modifier.padding(horizontal = 16.dp)) {
-                        AbSwitchRow(
+                        if (state.autoAssignVisible) AbSwitchRow(
                             strings.autoAssignLabelSwitchLabel,
                             state.autoAssign,
                             { onToggleAutoAssign() },
@@ -344,7 +359,7 @@ fun LabelEditScreen(
                                 )
                             },
                         )
-                        AbSwitchRow(
+                        if (state.autoAssignVisible) AbSwitchRow(
                             strings.autoAssignPrimaryLabelSwitchLabel,
                             state.autoAssignPrimary,
                             { onToggleAutoAssignPrimary() },
@@ -417,6 +432,33 @@ fun LabelEditScreen(
             onConfirm = onConfirmDiscard,
             onDismiss = onDismissDiscard,
         )
+    }
+}
+
+/**
+ * The read-only notice of an add-on collection label: where it comes from (a link to the module when [onOpenModule] is
+ * given), what stays editable, and the "Copy to my labels" action that makes an editable copy.
+ */
+@Composable
+private fun AddonLabelInfo(module: String, onOpenModule: (() -> Unit)?, onCopy: () -> Unit) {
+    val strings = LocalStrings.current
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text(
+            strings.addonLabelFromModule(module),
+            style = MaterialTheme.typography.titleSmall,
+            color = if (onOpenModule != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .then(if (onOpenModule != null) Modifier.clickable(onClickLabel = strings.addonLabelFromModuleHint) { onOpenModule() } else Modifier)
+                .padding(vertical = 8.dp),
+        )
+        Text(
+            strings.addonLabelReadOnlyNote,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        OutlinedButton(onClick = onCopy, modifier = Modifier.padding(top = 12.dp)) {
+            Text(strings.addonCopyToMyLabels)
+        }
     }
 }
 

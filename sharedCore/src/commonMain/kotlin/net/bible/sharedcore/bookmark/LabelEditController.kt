@@ -11,6 +11,8 @@ sealed interface LabelEditResult {
     data class Save(val state: LabelEditState) : LabelEditResult
     data class Delete(val state: LabelEditState, val deleteOrphaned: Boolean) : LabelEditResult
     data object Cancel : LabelEditResult
+    /** "Copy to my labels" made the editable copy [name]; the editor closes without saving the label itself. */
+    data class Copied(val name: String) : LabelEditResult
 }
 
 /** Delete UX the host must show: a plain confirm, or the 3-way orphaned-bookmarks dialog. */
@@ -44,23 +46,25 @@ class LabelEditController(
     val discardPrompt: StateFlow<Boolean> = _discardPrompt.asStateFlow()
 
     fun setName(v: String) { if (_state.value.nameEditable) _state.value = _state.value.copy(name = v) }
-    fun setColor(argb: Int) { _state.value = _state.value.copy(color = argb) }
-    fun setCustomIcon(name: String?) { _state.value = _state.value.copy(customIcon = name) }
+    fun setColor(argb: Int) { if (_state.value.styleEditable) _state.value = _state.value.copy(color = argb) }
+    fun setCustomIcon(name: String?) { if (_state.value.styleEditable) _state.value = _state.value.copy(customIcon = name) }
 
-    fun setSelectionStyle(style: BookmarkDisplayStyle) { _state.value = _state.value.copy(selectionStyle = style) }
-    fun setWholeVerseStyle(style: BookmarkDisplayStyle?) { _state.value = _state.value.copy(wholeVerseStyle = style) }
+    fun setSelectionStyle(style: BookmarkDisplayStyle) { if (_state.value.styleEditable) _state.value = _state.value.copy(selectionStyle = style) }
+    fun setWholeVerseStyle(style: BookmarkDisplayStyle?) { if (_state.value.styleEditable) _state.value = _state.value.copy(wholeVerseStyle = style) }
     fun toggleFavourite() { _state.value = _state.value.copy(favourite = !_state.value.favourite) }
 
     fun toggleThisBookmarkSelected() {
+        if (_state.value.isAddon) return
         val selected = !_state.value.thisBookmarkSelected
         _state.value = _state.value.copy(thisBookmarkSelected = selected, thisBookmarkPrimary = if (!selected) false else _state.value.thisBookmarkPrimary)
     }
-    fun toggleThisBookmarkPrimary() = with(_state.value) { if (thisBookmarkPrimaryEnabled) _state.value = copy(thisBookmarkPrimary = !thisBookmarkPrimary) }
+    fun toggleThisBookmarkPrimary() = with(_state.value) { if (!isAddon && thisBookmarkPrimaryEnabled) _state.value = copy(thisBookmarkPrimary = !thisBookmarkPrimary) }
     fun toggleAutoAssign() {
+        if (_state.value.isAddon) return
         val on = !_state.value.autoAssign
         _state.value = _state.value.copy(autoAssign = on, autoAssignPrimary = if (!on) false else _state.value.autoAssignPrimary)
     }
-    fun toggleAutoAssignPrimary() = with(_state.value) { if (autoAssignPrimaryEnabled) _state.value = copy(autoAssignPrimary = !autoAssignPrimary) }
+    fun toggleAutoAssignPrimary() = with(_state.value) { if (!isAddon && autoAssignPrimaryEnabled) _state.value = copy(autoAssignPrimary = !autoAssignPrimary) }
     fun setOverrideMode(mode: OverrideMode) { _state.value = _state.value.copy(overrideMode = mode) }
 
     fun isDirty(): Boolean = _state.value != initialState
@@ -80,7 +84,20 @@ class LabelEditController(
     }
     fun dismissDiscardPrompt() { _discardPrompt.value = false }
 
+    /** "Copy to my labels" (add-on labels only): copies the label through the service, then closes with [LabelEditResult.Copied]. */
+    fun copyToMyLabels() {
+        val labelId = _state.value.labelId
+        if (!_state.value.isAddon || copying) return // a second tap while the copy runs must not make a second label
+        copying = true
+        scope.launch {
+            val name = try { service.copyAddonLabel(labelId) } finally { copying = false }
+            if (name != null) onFinish(LabelEditResult.Copied(name))
+        }
+    }
+    private var copying = false
+
     fun requestDelete() {
+        if (!_state.value.deleteVisible) return
         val labelId = _state.value.labelId
         scope.launch {
             val count = service.orphanedBookmarkCount(labelId)
@@ -90,6 +107,7 @@ class LabelEditController(
     fun dismissDeletePrompt() { _deletePrompt.value = null }
     fun confirmDelete(deleteOrphaned: Boolean) {
         _deletePrompt.value = null
+        if (!_state.value.deleteVisible) return
         onFinish(LabelEditResult.Delete(_state.value, deleteOrphaned))
     }
 }

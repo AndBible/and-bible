@@ -28,6 +28,8 @@ import net.bible.android.view.activity.bookmark.BookmarkRecreationState
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.BookmarksValue
 import net.bible.android.view.activity.bookmark.LabelDraftValue
+import net.bible.android.control.bookmark.AddonReadOnlyException
+import net.bible.android.control.event.UserMessages
 import net.bible.android.view.activity.bookmark.LabelEditContract
 import net.bible.android.view.activity.bookmark.LabelEditMapper
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
@@ -558,7 +560,11 @@ class BookmarkHost(
                     bookmarkControl.bibleBookmarkById(IdType(id)) ?: bookmarkControl.genericBookmarkById(IdType(id))
                 }
                 // The owner hydrates each bookmark and announces the batch once (F54).
-                bookmarkControl.changeLabelsForBookmarks(targets, resultData.selectedLabels.toList())
+                try {
+                    bookmarkControl.changeLabelsForBookmarks(targets, resultData.selectedLabels.toList())
+                } catch (e: AddonReadOnlyException) {
+                    bookmarkControl.reportAddonReadOnly(e) // an add-on collection row: told to the user, never a silent no-op
+                }
                 // The workspace half on Main, where the repository's state lives and its first load may apply.
                 withContext(Dispatchers.Main) {
                     val settings = loadedWorkspaceSettings()
@@ -584,7 +590,8 @@ class BookmarkHost(
         // The delete must complete even if this screen closes at once (app scope); the refresh follows it.
         val write = appScope.launch {
             for (bookmark in bookmarks) {
-                bookmarkControl.deleteBookmark(bookmark)
+                // An add-on collection bookmark is read-only: the others of the selection are still deleted.
+                try { bookmarkControl.deleteBookmark(bookmark) } catch (e: AddonReadOnlyException) { bookmarkControl.reportAddonReadOnly(e) }
             }
         }
         shell.hostScope.launch {
@@ -669,7 +676,7 @@ class BookmarkHost(
             override suspend fun assignableLabels(): List<LabelItem> {
                 val all = withContext(Dispatchers.IO) { bookmarkControl.assignableLabels() }
                 all.forEach { session.labelsById.getOrPut(it.id.toString()) { it } }
-                return all.assignableLabelItems()
+                return all.assignableLabelItems(withContext(Dispatchers.IO) { bookmarkControl.addonLabelModuleNames() })
             }
         }
         // Only STUDYPAD reads the active window: other modes are opened from hosts whose window repository may not
@@ -749,6 +756,7 @@ class BookmarkHost(
             suggestedName = suggestedName,
             workspaceOverride = workspaceOverride,
             hasWorkspaceContext = workspaceContext,
+            addonModuleName = if (isNew) null else bookmarkControl.addonModuleOfLabel(label.id)?.let(bookmarkControl::addonModuleName),
         )
         if (isNew) {
             ManageLabelsMapper.newLabelPresets(session.data.mode).let {
@@ -1119,7 +1127,9 @@ class BookmarkHost(
         onResult: (NavLabelEditResult) -> Unit,
     ): LabelEditController {
         val labelData = LabelEditContract.LabelData.fromJSON(data)
+        // The saved draft knows nothing of the add-on marking, which is part of the payload.
         val restoredDraft = restoredBookmarks?.takeIf { it.editorKey == data }?.editorDraft?.toState()
+            ?.copy(addonModule = labelData.addonModuleName)
         return LabelEditController(
             LabelEditMapper.toState(labelData),
             labelEditService,
@@ -1137,6 +1147,14 @@ class BookmarkHost(
                     onResult(NavLabelEditResult.Saved(LabelEditMapper.applyToData(labelData, result.state).toJSON()))
                 }
                 ControllerLabelEditResult.Cancel -> onResult(NavLabelEditResult.Cancelled)
+                is ControllerLabelEditResult.Copied -> {
+                    // The editable copy is a new label: the open list reloads, then the editor closes unsaved.
+                    shell.hostScope.launch {
+                        manageLabelsSession?.second?.controller?.reloadLabels()
+                        UserMessages.toast(strings.addonLabelCopied(result.name))
+                    }
+                    onResult(NavLabelEditResult.Cancelled)
+                }
             }
         }.also { labelEditSession = data to it }
     }
@@ -1169,12 +1187,13 @@ class BookmarkHost(
         IconButton(onClick = onSave) {
             icons.ActionIcon(BookmarkActionIcon.CHECK, strings.okay, Modifier.size(AbActionIconSize))
         }
-        if (!state.isSpecialLabel) {
+        if (state.deleteVisible) {
             IconButton(onClick = onDelete) {
                 icons.ActionIcon(BookmarkActionIcon.DELETE, strings.deleteLabel, Modifier.size(AbActionIconSize))
             }
         }
-        AbOverflowMenu(contentDescription = null) { close ->
+        // An add-on StudyPad is not exported: its rows belong to the module and import nowhere else.
+        if (!state.isAddon) AbOverflowMenu(contentDescription = null) { close ->
             AbMenuItem(
                 text = strings.export,
                 onClick = { close(); shareLabel(data, state) },

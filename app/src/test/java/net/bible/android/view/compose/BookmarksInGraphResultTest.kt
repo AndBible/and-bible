@@ -267,6 +267,7 @@ class BookmarksInGraphResultTest {
                     initial = labelEditState(),
                     service = object : LabelEditService {
                         override suspend fun orphanedBookmarkCount(labelId: String): Int = 0
+                        override suspend fun copyAddonLabel(labelId: String): String? = null
                     },
                     scope = scope,
                     onFinish = { outcome ->
@@ -274,7 +275,7 @@ class BookmarksInGraphResultTest {
                             when (outcome) {
                                 is CoreLabelEditResult.Save -> LabelEditResult.Saved("saved")
                                 is CoreLabelEditResult.Delete -> LabelEditResult.Saved("deleted")
-                                CoreLabelEditResult.Cancel -> LabelEditResult.Cancelled
+                                CoreLabelEditResult.Cancel, is CoreLabelEditResult.Copied -> LabelEditResult.Cancelled
                             },
                         )
                     },

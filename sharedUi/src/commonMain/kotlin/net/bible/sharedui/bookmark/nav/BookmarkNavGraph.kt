@@ -738,6 +738,10 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             onToggleAutoAssignPrimary = controller::toggleAutoAssignPrimary,
             onOverrideMode = controller::setOverrideMode,
             onUp = { controller.requestUp() },
+            onCopyToMyLabels = controller::copyToMyLabels,
+            // The document manager has no deep link to one installed module: the download list, searched for the
+            // module's name, shows it with its state (installed, update available).
+            onOpenAddonModule = state.addonModule?.let { module -> { navController.navigate(NavRoutes.download(search = module)) } },
             iconKeys = d.iconKeys,
             iconSlot = d.iconSlot,
             // `this` is the top bar's RowScope; the two callbacks are the graph-owned controller's,

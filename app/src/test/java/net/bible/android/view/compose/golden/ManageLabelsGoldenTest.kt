@@ -570,4 +570,24 @@ class ManageLabelsGoldenTest {
             "ManageLabels", "assign_narrowLongNames", heightDp = 600,
             content = screen(ManageLabelsMode.ASSIGN, rows = narrowLongNameRows()),
         )
+
+    /** An add-on collection label in the workspace label list: "Name · Module", favourite kept, no auto-assign bolt (its
+     *  slot stays empty so the heart column lines up), beside an own label that still has both toggles. */
+    private fun addonRows(): List<ManageLabelsRow> = listOf(
+        ManageLabelsRow.Item(
+            label = label("A1", "Comfort", color = AbColor.palette[5], favourite = true).copy(addonModuleName = "Memory verses"),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label("L1", "Study", favourite = true),
+            checked = false, isAutoAssign = true, isPrimary = false, highlighted = false,
+        ),
+    )
+
+    @Test fun manageLabels_addon_workspace() =
+        captureMatrix("ManageLabels", "addon_workspace", content = screen(ManageLabelsMode.WORKSPACE, rows = addonRows()))
+
+    /** ASSIGN mode: an add-on label that is not on the bookmark cannot be newly ticked (its checkbox is disabled). */
+    @Test fun manageLabels_addon_assign() =
+        captureGolden("ManageLabels", "addon_assign", EDGE_MODE, content = screen(ManageLabelsMode.ASSIGN, rows = addonRows()))
 }

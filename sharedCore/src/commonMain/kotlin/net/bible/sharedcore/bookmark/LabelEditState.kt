@@ -53,12 +53,20 @@ data class LabelEditState(
     val overrideMode: OverrideMode,
     val isSpecialLabel: Boolean,         // disables name + hides favourite/autoAssign
     val isSpeakLabel: Boolean,           // additionally hides customIcon
+    /** The display name of the add-on module providing this label, or `null` for an own label. An add-on collection
+     *  label is read-only (name, style, colour, icon, delete, auto-assign, "this bookmark"); favourite and the
+     *  workspace override stay, and "Copy to my labels" makes an editable copy. */
+    val addonModule: String? = null,
 ) {
-    val nameEditable: Boolean get() = !isSpecialLabel
+    val isAddon: Boolean get() = addonModule != null
+    val nameEditable: Boolean get() = !isSpecialLabel && !isAddon
+    val styleEditable: Boolean get() = !isAddon
+    val deleteVisible: Boolean get() = !isSpecialLabel && !isAddon
+    val autoAssignVisible: Boolean get() = !isAddon
     val favouriteVisible: Boolean get() = !isSpecialLabel
     val workspaceGroupVisible: Boolean get() = hasWorkspaceContext && !isSpecialLabel
     val customIconVisible: Boolean get() = !isSpeakLabel
-    val thisBookmarkGroupVisible: Boolean get() = isAssigning
+    val thisBookmarkGroupVisible: Boolean get() = isAssigning && !isAddon
 
     val thisBookmarkPrimaryEnabled: Boolean get() = thisBookmarkSelected
     val autoAssignPrimaryEnabled: Boolean get() = autoAssign
