@@ -51,7 +51,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import net.bible.sharedui.components.DialogSystemBarIcons
+import net.bible.sharedui.components.DialogEdgeToEdge
 import net.bible.sharedui.components.NoDialogDim
 import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.strings.LocalStrings
@@ -98,14 +98,11 @@ fun AbTextPage(
             dismissOnBackPress = cancellable || onBack != null,
             dismissOnClickOutside = false,
             usePlatformDefaultWidth = false,
-            // Edge-to-edge: the window (and its surface) also covers the status and navigation bar areas;
-            // the content keeps clear of them with the safeDrawing padding below.
-            decorFitsSystemWindows = false,
         ),
     ) {
         // The page is opaque and full-screen, so the platform dim would only tint the bars' areas.
         NoDialogDim()
-        DialogSystemBarIcons(darkIcons = MaterialTheme.colorScheme.surface.luminance() > 0.5f)
+        DialogEdgeToEdge(darkIcons = MaterialTheme.colorScheme.surface.luminance() > 0.5f)
         val rule = if (mono) monoInk(LocalIsDarkTheme.current) else MaterialTheme.colorScheme.outlineVariant
         Surface(
             modifier = modifier.fillMaxSize().testTag("text-page"),
