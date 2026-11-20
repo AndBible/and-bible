@@ -30,6 +30,7 @@ internal class FakeWidgetStrings(private val tag: String = "") : WidgetStrings {
     override val listeningListEmptyTitle = "No speak bookmarks yet$tag"
     override val listeningListEmptyText = "Bookmarks with the Speak label appear here.$tag"
     override val openAppToLoad = "Open AndBible to load verses$tag"
+    override val openApp = "Open AndBible$tag"
     override val toggleSleepTimer = "Toggle sleep timer$tag"
     override fun sleepMinutes(minutes: Int) = "$minutes min$tag"
     override fun verseUnavailable(reason: VerseWidgetContent.Unavailable.Reason) = "unavailable ${reason.name}$tag"

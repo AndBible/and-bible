@@ -47,7 +47,7 @@ struct SpeakWidgetView: View {
                 default: SpeakSmall(snap: snap, p: p)
                 }
             } else {
-                OpenAppView(text: entry.load.snapshot?.text("app_name", "AndBible") ?? "Open AndBible", palette: p)
+                OpenAppView(text: WidgetSnapshot.openAppText(entry.load.snapshot), palette: p)
             }
         }
         .widgetContentPadding()

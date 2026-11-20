@@ -29,7 +29,8 @@ struct WidgetControl<Label: View>: View {
             if #available(iOS 17.0, *) {
                 Button(intent: VerseShuffleIntent(key: key)) { label() }.buttonStyle(.plain)
             } else {
-                label().opacity(0.35)
+                // iOS 16 has no intent to run: a button that cannot act is hidden.
+                EmptyView()
             }
         case let .link(url):
             Link(destination: url) { label() }

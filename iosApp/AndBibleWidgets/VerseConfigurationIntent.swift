@@ -83,6 +83,36 @@ struct VerseConfigurationIntent: WidgetConfigurationIntent {
     @Parameter(title: "Show shuffle and speak buttons", default: true) var showButtons: Bool
     @Parameter(title: "Show source and date", default: true) var showSource: Bool
 
+    /// A label source asks for the label right in the summary, so a widget never ends up with "A label" and no label.
+    static var parameterSummary: some ParameterSummary {
+        Switch(\.$sourceKind) {
+            Case(.label) {
+                Summary("\(\.$sourceKind): \(\.$label)") {
+                    \.$bible
+                    \.$frequency
+                    \.$showButtons
+                    \.$showSource
+                }
+            }
+            Case(.random) {
+                Summary("\(\.$sourceKind): \(\.$randomPart)") {
+                    \.$bible
+                    \.$frequency
+                    \.$showButtons
+                    \.$showSource
+                }
+            }
+            DefaultCase {
+                Summary("\(\.$sourceKind)") {
+                    \.$bible
+                    \.$frequency
+                    \.$showButtons
+                    \.$showSource
+                }
+            }
+        }
+    }
+
     var config: VerseConfig {
         var c = VerseConfig()
         switch sourceKind {

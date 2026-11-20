@@ -7,6 +7,28 @@ final class VerseTimelineTests: XCTestCase {
     /// 2026-11-20 10:30 UTC = 12:30 local.
     private let now = Date(timeIntervalSince1970: 1_763_634_600)
 
+    private var suiteName = ""
+
+    /// A throwaway defaults suite: the shuffle counters never touch the real App Group defaults.
+    override func setUp() {
+        super.setUp()
+        suiteName = "VerseTimelineTests-\(UUID().uuidString)"
+        SnapshotStore.defaultsOverride = UserDefaults(suiteName: suiteName)
+    }
+
+    override func tearDown() {
+        UserDefaults().removePersistentDomain(forName: suiteName)
+        SnapshotStore.defaultsOverride = nil
+        super.tearDown()
+    }
+
+    func testShuffleCounterLivesInTheOverrideSuite() {
+        XCTAssertEqual(SnapshotStore.shuffleCount(for: "k"), 0)
+        SnapshotStore.bumpShuffle(for: "k")
+        XCTAssertEqual(SnapshotStore.shuffleCount(for: "k"), 1)
+        XCTAssertEqual(SnapshotStore.defaults?.integer(forKey: "shuffle.k"), 1)
+    }
+
     private func verses(_ n: Int) -> [PooledVerse] {
         (0..<n).map { PooledVerse(reference: "Ref \($0)", text: "verse \($0)", link: "https://read.andbible.org/Gen.1.\($0 + 1)") }
     }

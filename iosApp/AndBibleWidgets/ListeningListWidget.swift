@@ -27,7 +27,7 @@ struct ListeningListView: View {
             if let snap = entry.load.snapshot, snap.hasBibles {
                 content(snap, p)
             } else {
-                OpenAppView(text: entry.load.snapshot?.text("app_name", "AndBible") ?? "Open AndBible", palette: p)
+                OpenAppView(text: WidgetSnapshot.openAppText(entry.load.snapshot), palette: p)
             }
         }
         .widgetContentPadding()

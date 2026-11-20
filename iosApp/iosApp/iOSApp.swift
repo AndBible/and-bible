@@ -17,7 +17,7 @@ struct iOSApp: App {
         IosPlatformBootstrap.shared.installNotificationDelegate()
         IosPlatformBootstrap.shared.registerBackgroundTasks()
         // The snapshot writer asks WidgetKit to reload the widget timelines after each write.
-        IosPlatformBootstrap.shared.setWidgetReloader { WidgetCenter.shared.reloadAllTimelines() }
+        WidgetReloader.install()
         #if DEBUG
         IosPlatformBootstrap.shared.prepareFilesPortTestLaunch()
         ReadingAccessibilityProbe.installIfRequested()

@@ -38,6 +38,9 @@ interface WidgetStrings {
     val listeningListEmptyTitle: String
     val listeningListEmptyText: String
     val openAppToLoad: String
+
+    /** "Open AndBible": the card a widget shows when there is nothing to act on (no Bible installed yet). */
+    val openApp: String get() = appName
     val toggleSleepTimer: String
     fun sleepMinutes(minutes: Int): String
 
@@ -59,6 +62,7 @@ object WidgetStringKeys {
     const val LISTENING_LIST_EMPTY_TITLE = "widget_listening_list_empty_title"
     const val LISTENING_LIST_EMPTY_TEXT = "widget_listening_list_empty_text"
     const val OPEN_APP_TO_LOAD = "widget_open_app_to_load"
+    const val OPEN_APP = "widget_open_app"
     const val TOGGLE_SLEEP_TIMER = "widget_toggle_sleep_timer"
     const val READING_PLAN_SOURCE = "widget_verse_source_reading_plan"
     const val UNAVAILABLE_PREFIX = "widget_verse_unavailable_"
@@ -68,7 +72,7 @@ object WidgetStringKeys {
     val all: List<String> by lazy {
         listOf(
             APP_NAME, SPEAK_NAME, SPEAK_TEXT_NAME, LISTENING_LIST_NAME, VERSE_NAME, CONTINUE_LISTENING, PAUSED,
-            LISTENING_LIST_EMPTY_TITLE, LISTENING_LIST_EMPTY_TEXT, OPEN_APP_TO_LOAD, TOGGLE_SLEEP_TIMER,
+            LISTENING_LIST_EMPTY_TITLE, LISTENING_LIST_EMPTY_TEXT, OPEN_APP_TO_LOAD, OPEN_APP, TOGGLE_SLEEP_TIMER,
             READING_PLAN_SOURCE,
         ) + VerseWidgetContent.Unavailable.Reason.entries.map { UNAVAILABLE_PREFIX + it.name.lowercase() } +
             VerseSource.RandomPart.entries.map { RANDOM_PREFIX + it.name.lowercase() }
@@ -87,6 +91,7 @@ fun WidgetStrings.asMap(): Map<String, String> = buildMap {
     put(WidgetStringKeys.LISTENING_LIST_EMPTY_TITLE, listeningListEmptyTitle)
     put(WidgetStringKeys.LISTENING_LIST_EMPTY_TEXT, listeningListEmptyText)
     put(WidgetStringKeys.OPEN_APP_TO_LOAD, openAppToLoad)
+    put(WidgetStringKeys.OPEN_APP, openApp)
     put(WidgetStringKeys.TOGGLE_SLEEP_TIMER, toggleSleepTimer)
     put(WidgetStringKeys.READING_PLAN_SOURCE, readingPlanSourceName)
     VerseWidgetContent.Unavailable.Reason.entries.forEach {

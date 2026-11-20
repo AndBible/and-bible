@@ -28,17 +28,10 @@ struct SpeakLockView: View {
             case .accessoryInline:
                 Text(inlineText(snap, s)).widgetLink(WidgetLinks.speak("toggle"))
             default:
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(s.reference ?? snap.text("widget_continue_listening", "Continue listening"))
-                        .font(.system(size: 12, weight: .bold)).lineLimit(1)
-                    Text(detail(snap, s)).font(.system(size: 11)).opacity(0.75).lineLimit(1)
-                    Gauge(value: Double(s.percent ?? 0), in: 0...100) { EmptyView() }.gaugeStyle(.accessoryLinearCapacity)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .widgetLink(WidgetLinks.speak("toggle"))
+                rectangular(snap, s)
             }
         } else {
-            Text("AndBible").widgetURL(WidgetLinks.openApp)
+            Text(WidgetSnapshot.openAppText(entry.load.snapshot)).widgetURL(WidgetLinks.openApp)
         }
     }
 
@@ -59,15 +52,26 @@ struct SpeakLockView: View {
         }
     }
 
-    private func inlineText(_ snap: WidgetSnapshot, _ s: SpeakSnapshot) -> String {
-        guard let ref = s.reference else { return snap.text("app_name", "AndBible") }
-        return s.percent.map { "\(ref) · \($0) %" } ?? ref
+    /// Rectangular: the toggle is an intent on iOS 17 (acts without opening the app), a link on iOS 16.
+    @ViewBuilder private func rectangular(_ snap: WidgetSnapshot, _ s: SpeakSnapshot) -> some View {
+        let face = VStack(alignment: .leading, spacing: 2) {
+            Text(s.title ?? s.reference ?? snap.text("widget_continue_listening", "Continue listening"))
+                .font(.system(size: 12, weight: .bold)).lineLimit(1)
+            Text(s.statusLine).font(.system(size: 11)).opacity(0.75).lineLimit(1)
+            Gauge(value: Double(s.percent ?? 0), in: 0...100) { EmptyView() }.gaugeStyle(.accessoryLinearCapacity)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        if #available(iOS 17.0, *) {
+            WidgetControl(kind: .speak(WidgetLinks.speak("toggle"))) { face }
+        } else {
+            face.widgetLink(WidgetLinks.speak("toggle"))
+        }
     }
 
-    private func detail(_ snap: WidgetSnapshot, _ s: SpeakSnapshot) -> String {
-        let tr = s.translation ?? ""
-        if s.isSpeaking, let pct = s.percent { return "\(pct) % · \(tr)" }
-        return "\(snap.text("widget_paused", "Paused")) · \(tr)"
+    /// The snapshot's own status line ("Psalm 23:1 · 34 % · WEB", already in the app language): the percent format is
+    /// the app's, not hard-coded here.
+    private func inlineText(_ snap: WidgetSnapshot, _ s: SpeakSnapshot) -> String {
+        s.reference == nil ? snap.text("app_name", "AndBible") : s.statusLine
     }
 }
 

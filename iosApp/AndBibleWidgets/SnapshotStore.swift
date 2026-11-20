@@ -4,6 +4,7 @@ import Foundation
 /// App Group container (`AppGroupIdentifier` in Info.plist, set per configuration by project.yml).
 enum SnapshotStore {
     static let snapshotFile = "widget-snapshot.json"
+    static let poolsFile = "widget-pools.json"
     static let requestsFile = "widget-requests.json"
     static let maxRequestedBibles = 6
 
@@ -14,9 +15,9 @@ enum SnapshotStore {
     }
 
     static func load() -> SnapshotLoad {
-        guard let url = containerURL?.appendingPathComponent(snapshotFile),
-              let data = try? Data(contentsOf: url) else { return .missing }
-        return SnapshotLoad.decode(data)
+        guard let dir = containerURL,
+              let data = try? Data(contentsOf: dir.appendingPathComponent(snapshotFile)) else { return .missing }
+        return SnapshotLoad.decode(data, poolsData: try? Data(contentsOf: dir.appendingPathComponent(poolsFile)))
     }
 
     /// Asks the app to build pools in `initials` too (it reads `widget-requests.json` when it rewrites the snapshot,
@@ -32,7 +33,10 @@ enum SnapshotStore {
     }
 
     /// Shuffle counters of the Verse widgets, by configuration key (see `VerseConfig.shuffleKey`).
-    static var defaults: UserDefaults? { groupId.flatMap { UserDefaults(suiteName: $0) } }
+    /// Unit tests set this to a throwaway suite so they never touch the real App Group defaults.
+    static var defaultsOverride: UserDefaults?
+
+    static var defaults: UserDefaults? { defaultsOverride ?? groupId.flatMap { UserDefaults(suiteName: $0) } }
 
     static func shuffleCount(for key: String) -> Int { defaults?.integer(forKey: "shuffle.\(key)") ?? 0 }
     static func bumpShuffle(for key: String) { defaults?.set(shuffleCount(for: key) + 1, forKey: "shuffle.\(key)") }

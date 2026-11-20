@@ -15,6 +15,8 @@ enum WidgetIntentBridge {
 @available(iOS 17.0, *)
 struct SpeakWidgetIntent: AudioPlaybackIntent {
     static var title: LocalizedStringResource = "Speak"
+    /// A widget button, not an action for Shortcuts or Siri.
+    static var isDiscoverable: Bool = false
 
     @Parameter(title: "URL") var url: String
 
@@ -31,6 +33,7 @@ struct SpeakWidgetIntent: AudioPlaybackIntent {
 @available(iOS 17.0, *)
 struct VerseShuffleIntent: AppIntent {
     static var title: LocalizedStringResource = "Shuffle verse"
+    static var isDiscoverable: Bool = false
 
     @Parameter(title: "Key") var key: String
 

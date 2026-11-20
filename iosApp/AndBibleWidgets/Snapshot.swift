@@ -12,8 +12,13 @@ struct WidgetSnapshot: Codable, Equatable {
     var labels: [LabelOption]
     var bibles: [BibleOption]
     var defaultBible: String?
-    var pools: [VersePool]
+    /// Not part of the snapshot file: the verse pools are a second file (`widget-pools.json`), merged in by `SnapshotLoad.decode`.
+    var pools: [VersePool] = []
     var strings: [String: String]
+
+    private enum CodingKeys: String, CodingKey {
+        case version, generatedAt, speak, listening, labels, bibles, defaultBible, strings
+    }
 
     /// A pre-localised text; `fallback` (English) when the key is missing.
     func text(_ key: String, _ fallback: String) -> String { strings[key] ?? fallback }
@@ -25,6 +30,9 @@ struct WidgetSnapshot: Codable, Equatable {
     }
 
     var hasBibles: Bool { !bibles.isEmpty }
+
+    /// The "Open AndBible" card text; English when there is no snapshot or it predates the key.
+    static func openAppText(_ snap: WidgetSnapshot?) -> String { snap?.text("widget_open_app", "Open AndBible") ?? "Open AndBible" }
 }
 
 struct SpeakSnapshot: Codable, Equatable {
@@ -82,11 +90,23 @@ enum SnapshotLoad: Equatable {
     /// Written by a newer app than this extension understands: show the placeholder, not wrong data.
     case unknownVersion
 
-    static func decode(_ data: Data) -> SnapshotLoad {
+    /// The pools file the snapshot goes with (`widget-pools.json`).
+    struct PoolsFile: Codable, Equatable {
+        var version: Int
+        var pools: [VersePool]
+    }
+
+    /// `poolsData` is the pools file; without it (or when unreadable or of an unknown version) the pools are empty,
+    /// which the Verse widget shows as "Open AndBible to load verses".
+    static func decode(_ data: Data, poolsData: Data? = nil) -> SnapshotLoad {
         struct VersionOnly: Decodable { var version: Int }
         guard let v = try? JSONDecoder().decode(VersionOnly.self, from: data) else { return .missing }
         guard v.version == WidgetSnapshot.supportedVersion else { return .unknownVersion }
-        guard let snap = try? JSONDecoder().decode(WidgetSnapshot.self, from: data) else { return .missing }
+        guard var snap = try? JSONDecoder().decode(WidgetSnapshot.self, from: data) else { return .missing }
+        if let poolsData, let file = try? JSONDecoder().decode(PoolsFile.self, from: poolsData),
+           file.version == WidgetSnapshot.supportedVersion {
+            snap.pools = file.pools
+        }
         return .snapshot(snap)
     }
 

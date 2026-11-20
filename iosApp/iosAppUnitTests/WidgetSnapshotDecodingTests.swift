@@ -14,13 +14,19 @@ final class WidgetSnapshotDecodingTests: XCTestCase {
          "labels":[{"id":"L1","name":"Memory"}],
          "bibles":[{"initials":"WEB","abbreviation":"WEB"}],
          "defaultBible":"WEB",
-         "pools":[{"sourceKey":"label:L1","bible":"WEB","verses":[{"reference":"John 3:16","text":"For God so loved","link":"https://read.andbible.org/John.3.16?document=WEB"}]}],
          "strings":{"widget_speak_name":"Speak"}}
         """.data(using: .utf8)!
     }
 
+    /// The pools file as `WidgetPools` serializes it.
+    private func poolsJson(version: Int = 1) -> Data {
+        """
+        {"version":\(version),"pools":[{"sourceKey":"label:L1","bible":"WEB","verses":[{"reference":"John 3:16","text":"For God so loved","link":"https://read.andbible.org/John.3.16?document=WEB"}]}]}
+        """.data(using: .utf8)!
+    }
+
     func testDecodesVersion1Snapshot() throws {
-        guard case let .snapshot(s) = SnapshotLoad.decode(json(version: 1)) else { return XCTFail("not a snapshot") }
+        guard case let .snapshot(s) = SnapshotLoad.decode(json(version: 1), poolsData: poolsJson()) else { return XCTFail("not a snapshot") }
         XCTAssertEqual(s.speak.phase, "PAUSED")
         XCTAssertNil(s.speak.title)
         XCTAssertEqual(s.speak.percent, 34)
@@ -30,6 +36,30 @@ final class WidgetSnapshotDecodingTests: XCTestCase {
         XCTAssertNil(s.pool(sourceKey: "label:L1", bible: "KJV"))
         XCTAssertEqual(s.text("widget_speak_name", "x"), "Speak")
         XCTAssertEqual(s.text("missing", "fallback"), "fallback")
+    }
+
+    func testSnapshotWithoutPoolsFileHasNoPools() throws {
+        let s = try XCTUnwrap(SnapshotLoad.decode(json(version: 1)).snapshot)
+        XCTAssertEqual(s.speak.phase, "PAUSED")
+        XCTAssertTrue(s.pools.isEmpty)
+    }
+
+    func testPoolsFileOfUnknownVersionOrGarbageIsIgnored() throws {
+        XCTAssertTrue(try XCTUnwrap(SnapshotLoad.decode(json(version: 1), poolsData: poolsJson(version: 2)).snapshot).pools.isEmpty)
+        XCTAssertTrue(try XCTUnwrap(SnapshotLoad.decode(json(version: 1), poolsData: Data("nope".utf8)).snapshot).pools.isEmpty)
+    }
+
+    func testSnapshotNeverWritesPools() throws {
+        let data = try JSONEncoder().encode(WidgetSnapshot.sample)
+        XCTAssertFalse(String(decoding: data, as: UTF8.self).contains("pools"))
+    }
+
+    func testOpenAppTextComesFromSnapshotStrings() {
+        var s = WidgetSnapshot.sample
+        XCTAssertEqual(WidgetSnapshot.openAppText(s), "Open AndBible")
+        s.strings["widget_open_app"] = "Avaa AndBible"
+        XCTAssertEqual(WidgetSnapshot.openAppText(s), "Avaa AndBible")
+        XCTAssertEqual(WidgetSnapshot.openAppText(nil), "Open AndBible")
     }
 
     func testUnknownVersionGivesPlaceholder() {
