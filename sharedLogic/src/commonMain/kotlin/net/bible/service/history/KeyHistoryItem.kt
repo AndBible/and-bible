@@ -28,6 +28,7 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.service.common.titleName
 import net.bible.android.database.DbDate
 import net.bible.sharedlogic.util.currentTimeMillis
+import net.bible.service.sword.mydocument.isMyDocument
 
 /**
  * A normal item in the history list that relates to a document being shown in the main activity view
@@ -55,11 +56,28 @@ class KeyHistoryItem(
             return desc.toString()
         }
 
-    /* (non-Javadoc)
-	 * @see net.bible.service.history.HistoryItem#revertTo()
-	 */
+    // Use the refreshed backend's exact key, not getKey(), which also accepts partial matches.
+    internal val isAvailable: Boolean
+        get() {
+            if (!document.isMyDocument) return true
+            return try {
+                document.contains(key)
+            } catch (e: Exception) {
+                // A transient read failure is not proof of deletion.
+                Log.e(TAG, "Could not check history page in ${document.initials}", e)
+                true
+            }
+        }
+
     override fun revertTo() {
+        tryRevertTo()
+    }
+
+    override fun tryRevertTo(): Boolean {
+        // A sheet may hold this item after the page was deleted; validate at replay too.
+        if (!isAvailable) return false
         window.pageManager.setCurrentDocumentAndKey(document, key, anchorOrdinal=anchorOrdinal)
+        return true
     }
 
     override fun toString(): String {

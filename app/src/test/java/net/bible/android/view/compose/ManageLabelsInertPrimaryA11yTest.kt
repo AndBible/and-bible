@@ -23,6 +23,10 @@ import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertContentDescriptionContains
+import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertEquals
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -58,7 +62,8 @@ import org.robolectric.annotation.GraphicsMode
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [TEST_SDK], application = android.app.Application::class)
+// w600dp: since issue #4153 a narrow (<480dp) ASSIGN list draws no primary column at all.
+@Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w600dp")
 class ManageLabelsInertPrimaryA11yTest {
     @get:Rule val compose = createComposeRule()
 
@@ -72,7 +77,7 @@ class ManageLabelsInertPrimaryA11yTest {
     /** ASSIGN mode: `mode.primaryShown` is true, and a single unchecked, non-primary row puts the
      *  indicator into its inert (not the live IconButton) branch -- the exact case the finding is
      *  about. */
-    private fun setScreen() {
+    private fun setScreen(onRowClick: (String) -> Unit = {}) {
         val row = ManageLabelsRow.Item(
             label = LabelItem(
                 id = "L1", name = "Sermon notes", color = 1, favourite = false, isUnlabeled = false,
@@ -96,7 +101,7 @@ class ManageLabelsInertPrimaryA11yTest {
                         onToggleFilter = {},
                         searchModeActive = false,
                         onCloseSearch = {},
-                        onRowClick = {},
+                        onRowClick = onRowClick,
                         onRowLongClick = {},
                         onToggleChecked = {},
                         onToggleFavourite = {},
@@ -118,6 +123,20 @@ class ManageLabelsInertPrimaryA11yTest {
         // Found by the label's own name, which the row merges into ITS node -- this is the row-level
         // merged semantics, the thing that must NOT carry the indicator's Disabled.
         compose.onNodeWithText("Sermon notes").assertIsEnabled()
+    }
+
+    @Test
+    @Config(qualifiers = "w320dp")
+    fun narrow_assign_row_announces_its_name_and_opens_the_editor() {
+        var editedLabel: String? = null
+        setScreen(onRowClick = { editedLabel = it })
+        // Query the merged row by its text, not the independent checkbox with the same description.
+        compose.onNodeWithText("Sermon notes")
+            .assertIsEnabled()
+            .assertHasClickAction()
+            .assertContentDescriptionContains("Sermon notes")
+            .performClick()
+        compose.runOnIdle { assertEquals("L1", editedLabel) }
     }
 
     @Test

@@ -1,0 +1,21 @@
+11-20 01:13:26.038  4020  4084 E CurrentPage: Error getting bible text
+11-20 01:13:26.038  4020  4084 E CurrentPage: fm2: John 3:16 was not found in document Kretzmann.
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at t58.j(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:234)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at q32.u(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:238)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at q32.t(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:1)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at q32.j(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:162)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at a32.E(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:721)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at a32.j(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:3)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at ra7.invokeSuspend(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:530)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at ra7.invoke(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:123)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at uz6.K(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:19)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at ja2.q0(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:80)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at o59.c(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:13)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at m59.invokeSuspend(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:177)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at gl0.resumeWith(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:8)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at yh2.run(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:114)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at nb.a(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:6)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at nb.run(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:325)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at tc8.run(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:3)
+11-20 01:13:26.038  4020  4084 E CurrentPage: 	at a12.run(r8-map-id-a2ce5146482e6c1fea67ebc0f86b412fce8873df34e9ae05d65183f4bdb639a9:88)
+11-20 01:13:26.047  4020  4020 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=jt5@362ffd2

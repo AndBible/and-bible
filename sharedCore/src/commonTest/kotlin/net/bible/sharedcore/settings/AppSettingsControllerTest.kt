@@ -35,6 +35,8 @@ class AppSettingsControllerTest {
         systemNotificationsVisible: Boolean = false,
         useSystemColors: Boolean = false,
         systemColorsAvailable: Boolean = false,
+        trustedLinkDomains: Set<String> = emptySet(),
+        trustedLinkDomainsVisible: Boolean = true,
     ) = AppSettingsSnapshot(
         greekDicts = emptySet(), hebrewDicts = emptySet(), greekMorph = emptySet(),
         enabledWordLookupDicts = emptySet(),
@@ -65,6 +67,8 @@ class AppSettingsControllerTest {
         systemNotificationsVisible = systemNotificationsVisible,
         useSystemColors = useSystemColors,
         systemColorsAvailable = systemColorsAvailable,
+        trustedLinkDomains = trustedLinkDomains,
+        trustedLinkDomainsVisible = trustedLinkDomainsVisible,
     )
 
     private fun controller(s: AppSettingsService) =
@@ -151,6 +155,28 @@ class AppSettingsControllerTest {
         assertTrue(keys.contains("calculator_pin"))
         assertFalse(keys.contains("discrete_mode"))
         assertFalse(keys.contains("show_calculator"))
+    }
+
+    /** #4155: the trusted link hosts are listed sorted and all checked; unchecking one writes the rest. */
+    @Test fun trustedLinkDomainsRowListsHostsAndWritesTheRemainingSet() {
+        val service = FakeAppSettingsService(snap(trustedLinkDomains = setOf("www.youtube.com", "andbible.org")))
+        val c = controller(service)
+        val row = c.state.value.visibleItems.single { it.key == TRUSTED_LINK_DOMAINS_KEY } as SettingsItem.MultiSelectRow
+        assertEquals(listOf("andbible.org", "www.youtube.com"), row.options.map { it.value })
+        assertEquals(setOf("andbible.org", "www.youtube.com"), row.selectedValues)
+        assertTrue(row.enabled)
+        assertEquals(AppSettingsLabels.forTest().trustedLinkDomainsSummary, row.summary)
+        c.onMultiSelectChange(TRUSTED_LINK_DOMAINS_KEY, setOf("andbible.org"))
+        assertEquals(listOf(TRUSTED_LINK_DOMAINS_KEY to setOf("andbible.org")), service.setWrites)
+    }
+
+    @Test fun trustedLinkDomainsRowIsDisabledWhenEmptyAndHiddenInDiscreteBuilds() {
+        val empty = controller(FakeAppSettingsService(snap()))
+        val row = empty.state.value.visibleItems.single { it.key == TRUSTED_LINK_DOMAINS_KEY } as SettingsItem.MultiSelectRow
+        assertFalse(row.enabled)
+        assertEquals(AppSettingsLabels.forTest().trustedLinkDomainsEmpty, row.summary)
+        val discrete = controller(FakeAppSettingsService(snap(trustedLinkDomains = setOf("a.org"), trustedLinkDomainsVisible = false)))
+        assertFalse(discrete.state.value.visibleItems.any { it.key == TRUSTED_LINK_DOMAINS_KEY })
     }
 
     @Test fun discreteTogglesShownWhenVisible() {
@@ -257,8 +283,8 @@ class AppSettingsControllerTest {
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        // 45 classic icon rows + "use_system_colors" (Compose-only, Material You).
-        assertEquals(46, items.count { it.iconKeyOrNull() != null })
+        // 45 classic icon rows + "use_system_colors" (Compose-only, Material You) + "trusted_link_domains" (#4155).
+        assertEquals(47, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -281,6 +307,7 @@ class AppSettingsControllerTest {
             "behavior_category",
             "navigate_to_verse_pref",
             "open_links_in_special_window_pref",
+            "trusted_link_domains",
             "screen_keep_on_pref",
             "double_tap_to_fullscreen",
             "auto_fullscreen_pref",

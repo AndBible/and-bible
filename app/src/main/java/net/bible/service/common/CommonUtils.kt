@@ -104,7 +104,7 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
 import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.TutorialVideos.Episode
@@ -118,7 +118,6 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
-import org.koin.java.KoinJavaComponent
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.isAvailable
 import net.bible.android.view.activity.page.Selection
@@ -187,6 +186,7 @@ import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.java.KoinJavaComponent
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
 @Suppress("DEPRECATION")
@@ -775,6 +775,7 @@ object CommonUtils : CommonUtilsBase() {
         "module_about_repository" to R.string.module_about_repository,
         "module_about_osisId" to R.string.module_about_osisId,
         "help_read_more_link" to R.string.help_read_more_link,
+        "help_in_user_guide" to R.string.help_in_user_guide,
         "bookmark_warning" to R.string.bookmark_warning,
         "bookmark_warning2" to R.string.bookmark_warning2,
         "bookmark_warning4" to R.string.bookmark_warning4,
@@ -805,14 +806,11 @@ object CommonUtils : CommonUtilsBase() {
      */
     fun showTipDialog(item: net.bible.sharedui.app.ports.HelpAndTips.Item) {
         val app = application
-        val lang = appLanguageTag(app)
         dialogs.post(documentDialogsCore(app).helpNotice(
             listOf(net.bible.sharedui.app.ports.DocumentDialogsCore.HelpItem(
                 app.getString(helpTipStringIds.getValue(item.titleKey)),
                 app.getString(helpTipStringIds.getValue(item.textKey)),
-                net.bible.sharedui.app.ports.HelpAndTips.videoUrl(item, lang),
-                net.bible.sharedui.app.ports.HelpAndTips.docUrl(item.docPage),
-                net.bible.sharedui.app.ports.HelpAndTips.plainVideoLabel(item, lang),
+                item.docPage,
             )),
             okText = app.getString(android.R.string.ok),
         ))
@@ -844,28 +842,21 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     /**
-     * Show a help dialog with a short blurb and a clickable "Read more in the manual" link.
-     *
-     * The link opens [helpUrl], normally taken from [DocsLink.url].
+     * Show a help dialog with a short blurb and a "Help in the user guide" link (#4159), which opens Help & tips at
+     * [topic]'s guide page (with its tutorial videos), e.g. `DocsLink.AI_SETTING_PERMISSIONS`.
      *
      * @param activity Activity used to launch the dialog.
      * @param titleResId String resource for the dialog title.
      * @param messageResId String resource for the short blurb shown above the link.
-     * @param helpUrl Full docs URL, e.g. `DocsLink.AI_SETTING_PERMISSIONS.url`.
-     * @param videoEpisode Optional tutorial video; shown as a second link that opens with captions in the app language when available.
      */
     fun showHelpDialog(
         activity: Activity,
         titleResId: Int,
         messageResId: Int,
-        helpUrl: String,
-        videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode? = null,
+        topic: net.bible.sharedcore.docs.DocsLink,
     ) {
-        val lang = appLanguageTag(activity)
         dialogs.post(documentDialogsCore(activity).helpDialog(
-            activity.getString(titleResId), activity.getString(messageResId), helpUrl,
-            videoEpisode?.let { net.bible.sharedcore.docs.TutorialVideos.url(it, lang) },
-            videoEpisode?.let { net.bible.sharedcore.docs.TutorialVideos.hasPlainLabel(it, lang) } ?: false,
+            activity.getString(titleResId), activity.getString(messageResId), topic,
         ))
     }
 
@@ -877,7 +868,7 @@ object CommonUtils : CommonUtilsBase() {
      * Opens [link] in a browser immediately, no question asked -- classic `openLink`'s own `else`
      * branch, extracted (C1 fix) so a Compose caller that has ALREADY asked its own "open external
      * link?" question (`AbLinkRouting`, driven by [isDiscrete]) does not ask a SECOND time through
-     * [openLink]'s `Dialogs.simpleQuestion` FIFO -- which would also queue behind, and so be hidden
+     * [openLink]'s `AppDialogController` FIFO -- which would also queue behind, and so be hidden
      * by, whatever dialog contains the link.
      */
     fun openLinkNow(link: String) {
@@ -892,24 +883,18 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    /** Non-Compose callers only (a WebView link, …): asks first in discrete mode through the
-     *  platform `Dialogs.simpleQuestion` FIFO, same as before C1. A Compose dialog body's link goes
-     *  through `AbLinkRouting`/[openLinkNow] instead -- see [openLinkNow]'s kdoc for why. */
+    /** Non-Compose callers only (a WebView link, …): asks first in discrete mode (or with [forceAsk]) through the
+     *  shared `AppDialogController` FIFO, same as before C1. A Compose dialog body's link goes through
+     *  `AbLinkRouting`/[openLinkNow] instead -- see [openLinkNow]'s kdoc for why. The question itself and the
+     *  trusted-host skip (#4155) are the shared `ExternalLinks.confirmAndOpen` ones. */
     fun openLink(link: String, forceAsk: Boolean = false) {
+        if (!isDiscrete && !forceAsk) return openLinkNow(link)
         val activity = CurrentActivityHolder.currentActivity!!
-        if (isDiscrete || forceAsk) {
-            activity.lifecycleScope.launch(Dispatchers.Main) {
-                if(Dialogs.simpleQuestion(activity,
-                        detail = link,
-                        title = net.bible.android.view.activity.page.application.getString(R.string.external_link_open_question),
-                        confirmText = net.bible.android.view.activity.page.application.getString(R.string.open_action),
-                    )
-                ) {
-                    openLinkNow(link)
-                }
+        activity.lifecycleScope.launch(Dispatchers.Main) {
+            AndroidExternalLinks().confirmAndOpen(link, KoinJavaComponent.get(AppDialogController::class.java)) {
+                // The current activity's (localized) context, resolved when shown: not captured until answered.
+                net.bible.sharedui.strings.AndroidStrings(CurrentActivityHolder.currentActivity ?: application)
             }
-        } else {
-            openLinkNow(link)
         }
     }
 

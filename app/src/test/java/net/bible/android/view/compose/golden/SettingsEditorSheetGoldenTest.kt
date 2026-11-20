@@ -97,6 +97,22 @@ class SettingsEditorSheetGoldenTest {
             Column { AbTextInputContent(initial = "https://example.com", onValueChange = {}) }
         }
 
+    /** #4155: the trusted link domains editor page: every trusted host checked, unchecking removes it. */
+    @Test fun trustedLinkDomains_matrix() =
+        captureMatrix("SettingsEditorSheet", "trustedLinkDomains") {
+            Column {
+                AbMultiSelectContent(
+                    options = listOf(SettingsItem.Choice("andbible.org", "andbible.org"), SettingsItem.Choice("www.youtube.com", "www.youtube.com")),
+                    selectedIds = listOf("andbible.org", "www.youtube.com"),
+                    idOf = { it.value },
+                    labelOf = { it.label },
+                    onCheckedChange = {},
+                    selectAllText = "Select all",
+                    selectNoneText = "Select none",
+                )
+            }
+        }
+
     @Test fun multiSelect_matrix() =
         captureMatrix("SettingsEditorSheet", "multiSelect") {
             Column {

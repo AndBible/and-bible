@@ -64,7 +64,12 @@ fun AppDialogHost(
     draftFor: (Long) -> String? = { null },
     onDraftChange: (Long, String) -> Unit = { _, _ -> },
 ) {
-    AbLinkRouting(askFirst = askBeforeOpeningLink, onOpenExternal = onOpenExternal) {
+    // A help link (#4159) answers the dialog first, so Help & tips is not left under it.
+    AbLinkRouting(
+        askFirst = askBeforeOpeningLink,
+        onOpenExternal = onOpenExternal,
+        onInAppHelp = { shown?.let { onRespond(it.id, AppDialogResult.Cancel) } },
+    ) {
         if (permission != null) {
             AgentPermissionDialog(request = permission, onChoice = onPermissionChoice, onDismiss = onPermissionDismiss)
         }

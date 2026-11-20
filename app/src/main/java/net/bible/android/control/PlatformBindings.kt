@@ -52,8 +52,8 @@ fun buildPlatformBindings() = module {
 
     single<net.bible.sharedcore.platform.NotificationPermission> { net.bible.sharedcore.platform.NoNotificationPermission }
     single<AppSettings> { CommonUtils.settings }
-    // Discrete users need in-app activity status when system notifications are hidden; explicit choices still win.
-    single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { CommonUtils.isDiscrete } }
+    // In-app activity status is on by default on every flavor (#4157); explicit choices still win.
+    single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { true } }
     single<MarkdownRenderer> { MarkdownToXhtml }
     single<net.bible.sharedcore.platform.secrets.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
     single<net.bible.service.llm.agent.AgentPlatform> { net.bible.android.platform.AndroidAgentPlatform() }

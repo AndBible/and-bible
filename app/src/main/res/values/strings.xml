@@ -83,6 +83,8 @@
     <string name="help_user_guide_intro">The full user guide is on andbible.org. Pages open in your browser.</string>
     <string name="help_user_guide_home">User guide home</string>
     <string name="help_read_in_user_guide">Read in the user guide</string>
+    <string name="help_in_user_guide">Help in the user guide</string>
+    <string name="help_matching_section">Matching section</string>
     <string name="help_read_page">Read in the user guide: %1$s</string>
     <string name="help_tutorial_videos">Tutorial videos</string>
     <string name="help_watch_in_order">Watch the tutorial videos in order</string>
@@ -286,6 +288,9 @@
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
     <string name="prefs_open_links_in_special_window_title">Links window</string>
     <string name="prefs_open_links_in_special_window_summary">Open links in special window, for quicker display of cross-references and Strongs</string>
+    <string name="prefs_trusted_link_domains_title">Trusted link domains</string>
+    <string name="prefs_trusted_link_domains_summary">Links to these domains open without asking. Uncheck a domain to be asked again.</string>
+    <string name="prefs_trusted_link_domains_empty">None yet. Tick \"Don\'t ask again\" when opening a link to add its domain.</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
     <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
@@ -1326,6 +1331,7 @@
     <string name="manage_labels_help_favourite">Keep the label in your favourites for quick access.</string>
     <string name="manage_labels_help_styles">Under the name a small example shows the label\'s look: Selection for a text-selection bookmark, Whole verse for a whole-verse one, and a Workspace tag for a style this workspace overrides. A greyed example with no decoration means the label\'s bookmarks are not drawn. Hide the examples from the ⋮ menu.</string>
     <string name="manage_labels_help_reorder">Re-order the list from the ⋮ menu.</string>
+    <string name="manage_labels_help_narrow_toggles">On a narrow screen the list leaves out the primary, auto-assign and favourite icons to give the label names room. Tap a label to set them in its editor.</string>
     <string name="added_to_bookmark">Assigned to this bookmark</string>
     <string name="strongs_links">Links</string>
     <string name="strongs_text_and_links">Text and Links</string>
@@ -1495,6 +1501,9 @@
     <!-- Other / uncategorized -->
     <string name="app_opened_elsewhere">App opened elsewhere</string>
     <string name="open_here">Open here</string>
+    <string name="external_link">External link</string>
+    <string name="external_link_question">This will open external link %s in a browser application, do you wish to continue?</string>
+    <string name="external_link_dont_ask_again">Don\'t ask again for %s</string>
     <string name="nameless">Title not defined</string>
     <string name="prefs_in_window_bible_bookmark_modal_buttons_title">One-tap actions (Bibles)</string>
     <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>

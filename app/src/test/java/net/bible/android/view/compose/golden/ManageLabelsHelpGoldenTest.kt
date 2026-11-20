@@ -37,6 +37,10 @@ import org.robolectric.annotation.GraphicsMode
 class ManageLabelsHelpGoldenTest {
 
     /**
+     * Since issue #4153 this 320dp capture is the NARROW legend: the primary/auto-assign/favourite rows
+     * are replaced by one sentence saying where those toggles went, and all rows fit. The text below
+     * describes the wide (480dp and up) legend.
+     *
      * ASSIGN, six legend rows -- of which this image shows FIVE. The sixth (re-order, the ⋮ glyph)
      * sits below the scroll fold, and no viewport height fixes that: [AbInfoDialog] caps its content
      * at its own max height and scrolls inside it, deliberately (round 15a Task 6 moved that bound
@@ -52,9 +56,10 @@ class ManageLabelsHelpGoldenTest {
     @Test fun help_assign() = captureMatrix("ManageLabelsHelp", "assign", heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.ASSIGN,
+            rowTogglesShown = false,
             title = "Assign labels",
             scopeSentence = null,
-            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+            helpTopic = net.bible.sharedcore.docs.DocsLink.LABELS,
             onDismiss = {},
         )
     }
@@ -75,9 +80,10 @@ class ManageLabelsHelpGoldenTest {
     @Test fun help_workspace() = captureMatrix("ManageLabelsHelp", "workspace", heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.WORKSPACE,
+            rowTogglesShown = true,
             title = "Labels",
             scopeSentence = "This setting applies to this workspace.",
-            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+            helpTopic = net.bible.sharedcore.docs.DocsLink.LABELS,
             onDismiss = {},
         )
     }
@@ -85,9 +91,10 @@ class ManageLabelsHelpGoldenTest {
     @Test fun help_hide() = captureGolden("ManageLabelsHelp", "hide", GoldenMode.LIGHT, heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.HIDELABELS,
+            rowTogglesShown = true,
             title = "Hide specified labels",
             scopeSentence = "This setting applies to this workspace.",
-            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+            helpTopic = net.bible.sharedcore.docs.DocsLink.LABELS,
             onDismiss = {},
         )
     }
@@ -95,9 +102,10 @@ class ManageLabelsHelpGoldenTest {
     @Test fun help_studypad() = captureGolden("ManageLabelsHelp", "studypad", GoldenMode.LIGHT, heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.STUDYPAD,
+            rowTogglesShown = true,
             title = "Study pads",
             scopeSentence = null,
-            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+            helpTopic = net.bible.sharedcore.docs.DocsLink.LABELS,
             onDismiss = {},
         )
     }

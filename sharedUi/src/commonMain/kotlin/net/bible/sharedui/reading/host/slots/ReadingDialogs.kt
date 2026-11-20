@@ -43,6 +43,7 @@ internal fun ReadingDialogContent(hostState: ReadingHostState, strings: Strings,
         is ReadingDialog.Help -> AbLinkRouting(
             askFirst = externalLinks.askBeforeOpening,
             onOpenExternal = { externalLinks.open(it) },
+            onInAppHelp = hostState::dismissReadingDialog,
         ) {
             AbMessageDialog(
                 title = dialog.title,

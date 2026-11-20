@@ -36,4 +36,10 @@ interface HistoryItem {
     // do back to the state at this point
     fun revertTo()
 
+    /** Attempts replay; false lets Back fall through when a destination has disappeared. */
+    fun tryRevertTo(): Boolean {
+        revertTo()
+        return true
+    }
+
 }

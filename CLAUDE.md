@@ -43,6 +43,9 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 - **Appearance dimension**: `standard` (normal) vs `discrete` (calculator disguise for persecution-sensitive areas)
 - **Distribution dimension**: `googleplay`, `fdroid`, `github`, `samsung`, `huawei`, `amazon`, `accrescent`
 
+Release builds are R8-obfuscated (all flavours but `fdroid`): keep rules for reflective code, where each release's
+`mapping.txt` goes and how to retrace a crash (`scripts/retrace-crash.sh`) are in [docs/r8-obfuscation.md](docs/r8-obfuscation.md).
+
 ### Common Build Commands
 
 **Vue.js Development (works offline after initial setup)**
@@ -416,13 +419,17 @@ echo $ANDROID_SDK_ROOT
 
 ## Git Conventions
 
-- When fixing a GitHub issue, start the commit message with `Fixes #NNN (short bug description)` so GitHub auto-closes the issue. Additional details go on subsequent lines. Example:
+- When fixing a GitHub issue, start the commit message with `Fixes #NNN (short bug description)`. Additional details go on subsequent lines. Example:
   ```
   Fixes #3626 (popup menu search returning 0 results)
 
   SearchResults now falls back to SEARCH_DOCUMENT when
   SELECTED_TRANSLATIONS is not provided.
   ```
+- `Fixes #NNN` does not close the issue in practice: GitHub auto-closes only when the commit reaches the default
+  branch `current-stable`, long after it lands on `develop`/`ios`. Whoever merges the fix into the development
+  branch assigns, comments and closes the issue (`issue-management` skill, Flow 4 "Close the loop").
+- External contributors' pull requests target `develop` (see `CONTRIBUTING.md`).
 
 ## Notes
 

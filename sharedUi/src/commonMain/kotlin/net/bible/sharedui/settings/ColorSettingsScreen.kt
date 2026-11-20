@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.settings
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpOverflowMenu
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,6 +62,7 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.volumeVerticalScroll
 import net.bible.sharedui.theme.LocalIsDarkTheme
+import net.bible.sharedui.theme.LocalUseSystemColors
 import net.bible.sharedui.theme.WorkspaceColorCircle
 import net.bible.sharedui.theme.WorkspaceColorCircleStyle
 import net.bible.sharedui.theme.keepsDefaultWorkspaceColor
@@ -114,6 +117,7 @@ fun ColorSettingsScreen(
             IconButton(onClick = { showResetConfirm = true }) {
                 Icon(Icons.Filled.Refresh, contentDescription = labels.reset)
             }
+            AbHelpOverflowMenu(DocsLink.LOOK_AND_FEEL)
         },
     ) { padding ->
         ColorSettingsContent(
@@ -144,7 +148,7 @@ fun ColorSettingsScreen(
     if (workspaceDialogOpen) {
         // #4149: an unset colour opens on the theme colour it stands for; confirming that unchanged
         // keeps "follow the theme" instead of storing the theme colour as a chosen one.
-        val shown = workspacePickerStartArgb(colors.workspaceColor, LocalIsDarkTheme.current)
+        val shown = workspacePickerStartArgb(colors.workspaceColor, LocalIsDarkTheme.current, LocalUseSystemColors.current)
         AbColorPickerDialog(
             initialColor = shown,
             onConfirm = {

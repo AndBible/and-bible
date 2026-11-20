@@ -25,6 +25,24 @@ class FailClosedLinkRoutingTest {
         readMoreLabel = "Read more", readMoreUrl = "https://example.org/x",
     )
 
+    @Test fun discreteQuestionShowsLiteralUrlAndOpensTheOriginal() = runComposeUiTest {
+        val url = "https://example.org/<b>other.org</b>?x=&amp;"
+        val strings = iosStrings("en")
+        val links = Links(askBeforeOpening = true)
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                FailClosedLinkRouting(links) {
+                    AbInfoDialog(title = "Help", body = "Body", onDismiss = {}, confirmLabel = "Close help",
+                        readMoreLabel = "Read more", readMoreUrl = url)
+                }
+            }
+        }
+        onNodeWithText("Read more").performClick()
+        onNodeWithText(strings.externalLinkQuestion(url)).assertExists()
+        onNodeWithText(strings.okay).performClick()
+        kotlin.test.assertEquals(listOf(url), links.opened)
+    }
+
     @Test
     fun asksFirstWhenDiscrete() = runComposeUiTest {
         val links = Links(askBeforeOpening = true)

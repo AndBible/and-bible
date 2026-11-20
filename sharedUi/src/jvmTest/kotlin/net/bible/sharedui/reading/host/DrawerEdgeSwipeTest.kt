@@ -256,6 +256,45 @@ class DrawerEdgeSwipeTest {
     }
 
     @Test
+    fun aDiagonalFlickFromTheEdgeOpensLikeClassicDrawerLayout() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val h = setHarness()
+        // The first thumb-arc move has dy/dx = 1.5: the old 1:1 rule cancels it, ViewDragHelper's 2:1 accepts it.
+        onNodeWithTag("root").performTouchInput {
+            down(Offset(5f, 200f))
+            moveBy(Offset(20f, 30f), delayMillis = 8)
+            moveBy(Offset(130f, 70f), delayMillis = 8)
+            up()
+        }
+        settle()
+        assertEquals(DrawerValue.Open, h.drawerState.currentValue)
+    }
+
+    @Test
+    fun aTouchTheWidthOfTheBezelRejectionMarginInsideStillOpens() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val h = setHarness()
+        onNodeWithTag("root").performTouchInput {
+            // A fixed 28dp start is outside the old 20dp strip but inside the widened 32dp strip.
+            down(Offset(28f, midY))
+            slowMove(300f)
+            up()
+        }
+        settle()
+        assertEquals(DrawerValue.Open, h.drawerState.currentValue)
+    }
+
+    @Test
+    fun edgeDragStepFollowsViewDragHelperRatio() {
+        val slop = 8f
+        assertEquals(EdgeDragStep.Pending, edgeDragStep(dx = 5f, dy = 5f, slop = slop))
+        assertEquals(EdgeDragStep.Start, edgeDragStep(dx = 20f, dy = 30f, slop = slop))
+        assertEquals(EdgeDragStep.Start, edgeDragStep(dx = 20f, dy = 40f, slop = slop))
+        assertEquals(EdgeDragStep.Cancel, edgeDragStep(dx = 10f, dy = 40f, slop = slop))
+        assertEquals(EdgeDragStep.Cancel, edgeDragStep(dx = -20f, dy = 0f, slop = slop))
+    }
+
+    @Test
     fun verticalDragAtTheEdgeIsNotTaken() = runComposeUiTest {
         mainClock.autoAdvance = false
         val h = setHarness()
@@ -519,7 +558,7 @@ class DrawerEdgeSwipeTest {
         setSplitHarness(leadingInset = 48f)
         val strip = onNodeWithTag("strip0", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         assertEquals(0f, strip.left)
-        assertEquals(68f, strip.right)
+        assertEquals(48f + DrawerEdgeSwipeWidth.value, strip.right)
         assertEquals(height, strip.height)
         assertEquals(0f, onNodeWithTag("strip1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.width)
     }
@@ -530,7 +569,7 @@ class DrawerEdgeSwipeTest {
         // The Row lays the first (leading) pane out on the right.
         assertEquals(0f, onNodeWithTag("strip1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.width)
         val strip = onNodeWithTag("strip0", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-        assertEquals(width - 20f, strip.left)
+        assertEquals(width - DrawerEdgeSwipeWidth.value, strip.left)
         assertEquals(width, strip.right)
     }
 

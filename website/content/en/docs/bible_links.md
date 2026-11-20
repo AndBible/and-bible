@@ -54,8 +54,24 @@ registration exists for them, so tapping such a link in another app does not ope
 
 When you tap an external web link in Bible text, a commentary, or another document,
 *AndBible* asks for confirmation before opening it in your browser. This applies
-on Android, iOS, and desktop. The dialog asks *Open this link in your browser?*. Choose **Open** to open the link or **Cancel** to stay
-in *AndBible* without opening it.
+on Android, iOS, and desktop. The dialog asks *Open this link in your browser?*. Choose **Open** to open the link
+or **Cancel** to stay in *AndBible* without opening it. Links in *Help & tips* ask the same way.
+
+### Trusted link domains {#trusted-link-domains}
+
+The question has a **Don't ask again for** *domain* checkbox, for example
+*Don't ask again for www.youtube.com*. Tick it and choose **Open**: the link opens, and later
+links to exactly that domain open without asking. Other domains, including other forms of
+the same site (such as `youtube.com` without `www.`), still ask. No domain is trusted
+until you tick the box.
+
+To see or remove trusted domains, open `Application preferences` > `Application behavior` >
+`Trusted link domains`. Uncheck a domain and apply: links to it ask again. The row is
+greyed out until you have trusted a domain.
+
+Discrete builds and discrete mode always ask before opening an external link and do
+not offer the checkbox. The `Trusted link domains` row is hidden while discrete mode
+is on; your saved domains are kept and become available again when you turn it off.
 
 Other web links, including help and homepage links in the app's interface, keep
 their usual behavior; discrete mode still asks before opening external links.

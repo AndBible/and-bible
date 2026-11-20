@@ -22,8 +22,8 @@ Starting Speak in discrete mode does not ask for notification permission. Speech
 can continue in the background without this permission, but Android 13 and later
 hide its notification when permission has not been granted.
 
-In the discrete build, **Show background activity in the menu** is on by default.
-Use the main menu to check ongoing activity while notifications are hidden. You
+**Show background activity in the menu** is on by default (as in the standard build).
+In the discrete build, use the main menu to check ongoing activity while notifications are hidden. You
 can turn this preference off in Application Preferences. Leaving the app still
 locks it behind the calculator as usual.
 

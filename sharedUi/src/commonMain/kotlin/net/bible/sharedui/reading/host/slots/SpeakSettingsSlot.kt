@@ -27,7 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import net.bible.android.view.activity.navigation.GridPassageControllerFactory
-import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedcore.docs.HelpLinks
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingOverlayExclusion
 import net.bible.sharedcore.speak.AdvancedSpeakSettingsController
@@ -64,7 +65,6 @@ internal class SpeakSettingsState(
     private val hostState: ReadingHostState,
     service: SpeakSettingsService,
     private val strings: () -> Strings,
-    private val appLanguage: () -> String,
     private val externalLinks: ExternalLinks,
     private val platform: SpeakSettingsPlatform,
     private val gridPassages: GridPassageControllerFactory,
@@ -108,17 +108,13 @@ internal class SpeakSettingsState(
         sheet.open(SpeakSheetPage.Settings)
     }
 
-    /** The Speak tutorial link in the app language: with captions when there are some, "(English)" only when not. */
-    private fun speakVideoLink(s: Strings): String {
-        val lang = appLanguage()
-        val episode = TutorialVideos.Episode.TUTORIAL_14_SPEAK
-        val label = if (TutorialVideos.hasPlainLabel(episode, lang)) s.watchTutorialVideoPlain else s.watchTutorialVideo
-        return "<b><a href=\"${TutorialVideos.url(episode, lang)}\">$label</a></b>"
-    }
+    /** The Speak help link (#4159): the in-app user guide at the Speak page, where the tutorial video is too. */
+    private fun speakHelpLink(s: Strings): String =
+        "<b><a href=\"${HelpLinks.url(DocsLink.SPEAK)}\">${s.helpInUserGuide}</a></b>"
 
     fun showHelp() {
         val s = strings()
-        help.value = "<b>${s.speakTitle}</b><br><br>" + speakVideoLink(s)
+        help.value = "<b>${s.speakTitle}</b><br><br>" + speakHelpLink(s)
     }
 
     /**
@@ -128,7 +124,7 @@ internal class SpeakSettingsState(
     fun showAdvancedHelp() {
         val s = strings()
         help.value = "<b>${s.confSpeakAutoBookmark}</b><br><br>" +
-            speakVideoLink(s) + "<br><br>" +
+            speakHelpLink(s) + "<br><br>" +
             s.speakHelpAutoBookmark +
             "<br><br><b>${s.confSavePlaybackSettingsToBookmarks}</b><br><br>" +
             s.speakHelpPlaybackSettings +
@@ -242,6 +238,7 @@ internal class SpeakSettingsState(
             AbLinkRouting(
                 askFirst = externalLinks.askBeforeOpening,
                 onOpenExternal = { externalLinks.open(it) },
+                onInAppHelp = { help.value = null },
             ) {
                 AbMessageDialog(
                     title = null,

@@ -49,7 +49,7 @@ class HelpScreenTest {
         videos: List<VideoRowUi> = listOf(VideoRowUi("Episode one", "https://video/e1")),
         opened: MutableList<String> = mutableListOf(),
         onUp: () -> Unit = {},
-        initialTab: Int = 0,
+        initialTab: HelpTab? = null,
         appLanguage: String = "en",
         guideSections: List<UserGuideToc.Section> = sections,
         guideStrings: net.bible.sharedui.strings.keyed.KeyedUserGuideStrings = net.bible.sharedui.strings.keyed.KeyedUserGuideStrings.english(),
@@ -57,10 +57,17 @@ class HelpScreenTest {
     ) = setContent {
         CompositionLocalProvider(LocalStrings provides uiStrings) {
             AbTheme(darkTheme = false) {
-                HelpScreen(
-                    tips = tips, sections = guideSections, tutorialVideos = videos, versionText = "Version 9.9",
-                    guideStrings = guideStrings, appLanguage = appLanguage, initialTab = initialTab, onOpenUrl = { opened += it }, onUp = onUp,
-                )
+                if (initialTab == null) {
+                    HelpScreen(
+                        tips = tips, sections = guideSections, tutorialVideos = videos, versionText = "Version 9.9",
+                        guideStrings = guideStrings, appLanguage = appLanguage, onOpenUrl = { opened += it }, onUp = onUp,
+                    )
+                } else {
+                    HelpScreen(
+                        tips = tips, sections = guideSections, tutorialVideos = videos, versionText = "Version 9.9",
+                        guideStrings = guideStrings, appLanguage = appLanguage, initialTab = initialTab, onOpenUrl = { opened += it }, onUp = onUp,
+                    )
+                }
             }
         }
     }
@@ -73,15 +80,34 @@ class HelpScreenTest {
         val guideStrings = net.bible.sharedui.strings.keyed.KeyedUserGuideStrings(table)
         val deps = net.bible.sharedui.help.nav.HelpNavDeps({}, {}, { emptyList() }, { "Version" }, {}, guideStrings = guideStrings)
         assertEquals("2. Translated video", deps.tutorialVideos("fi")[Episode.entries.indexOf(episode)].title)
-        show(videos = emptyList(), initialTab = 1, guideStrings = guideStrings)
+        show(videos = emptyList(), initialTab = HelpTab.UserGuide, guideStrings = guideStrings)
         onNodeWithText("Translated section").assertExists()
         onNodeWithText("Translated page").assertExists()
         onNodeWithText("Translated video").assertExists()
         onNodeWithText("2. Translated video").assertDoesNotExist()
     }
 
-    @Test fun tipsShownOnFirstTab() = runComposeUiTest {
+    @Test fun userGuideIsTheDefaultTab() = runComposeUiTest {
         show()
+        onNodeWithText("Section One").assertExists()
+        onNodeWithText("Tip title").assertDoesNotExist()
+    }
+
+    @Test fun tipsTabIsSecondAfterTheUserGuide() = runComposeUiTest {
+        show()
+        val guide = onNodeWithText(strings.helpTabUserGuide).getBoundsInRoot()
+        val tipsTab = onNodeWithText(strings.helpTabTips).getBoundsInRoot()
+        assertTrue(guide.left < tipsTab.left, "User guide tab must precede Tips")
+    }
+
+    @Test fun tipsCanBeOpenedExplicitly() = runComposeUiTest {
+        show(initialTab = HelpTab.Tips)
+        onNodeWithText("Tip title").assertExists()
+        onNodeWithText("Section One").assertDoesNotExist()
+    }
+
+    @Test fun tipsShownOnTipsTab() = runComposeUiTest {
+        show(initialTab = HelpTab.Tips)
         onNodeWithText("Tip title").assertExists()
         onNodeWithText("Plain tip").assertExists()
         onNodeWithText("Version 9.9").assertExists()
@@ -90,21 +116,21 @@ class HelpScreenTest {
 
     @Test fun tipLinksOpenTheirUrls() = runComposeUiTest {
         val opened = mutableListOf<String>()
-        show(opened = opened)
+        show(opened = opened, initialTab = HelpTab.Tips)
         onNodeWithText(strings.helpReadMoreLink).performClick()
         assertEquals(listOf("https://docs/1"), opened)
     }
 
     @Test fun tipsTabHasTheSponsorLink() = runComposeUiTest {
         val opened = mutableListOf<String>()
-        show(opened = opened)
+        show(opened = opened, initialTab = HelpTab.Tips)
         onNodeWithText("${strings.buyDevelopment2}: ${strings.buyDevelopment}").performClick()
         assertEquals(listOf(net.bible.sharedcore.docs.SiteLinks.SHOP_URL), opened)
     }
 
     @Test fun userGuideTabShowsSectionsAndOpensPages() = runComposeUiTest {
         val opened = mutableListOf<String>()
-        show(opened = opened)
+        show(opened = opened, initialTab = HelpTab.Tips)
         onNodeWithText(strings.helpTabUserGuide).performClick()
         onNodeWithText("Section One").assertExists()
         onNodeWithText("Tip title").assertDoesNotExist()
@@ -114,7 +140,7 @@ class HelpScreenTest {
 
     @Test fun guidePageHasSupportingTextAndAccessibleClick() = runComposeUiTest {
         val opened = mutableListOf<String>()
-        show(videos = emptyList(), opened = opened, initialTab = 1)
+        show(videos = emptyList(), opened = opened, initialTab = HelpTab.UserGuide)
         val page = onNodeWithText("Navigation page")
         onAllNodesWithText("Read in the user guide").assertCountEquals(3)
         val click = page.fetchSemanticsNode().config.getOrNull(SemanticsActions.OnClick)
@@ -127,7 +153,7 @@ class HelpScreenTest {
         val localized = object : net.bible.sharedui.strings.Strings by strings {
             override fun helpReadPage(title: String) = "<$title> / open guide"
         }
-        show(videos = emptyList(), initialTab = 1, uiStrings = localized)
+        show(videos = emptyList(), initialTab = HelpTab.UserGuide, uiStrings = localized)
         val click = onNodeWithText("Navigation page").fetchSemanticsNode().config.getOrNull(SemanticsActions.OnClick)
         assertEquals("<Navigation page> / open guide", click?.label)
     }
@@ -135,7 +161,7 @@ class HelpScreenTest {
     @Test fun guidePageAndEpisodesAreOrderedAndAligned() = runComposeUiTest {
         val first = withVideo.copy(episodes = listOf(Episode.TUTORIAL_02_FINDING_YOUR_WAY, Episode.TUTORIAL_03_VERSE_MENU))
         val second = noVideo.copy(episodes = emptyList())
-        show(videos = emptyList(), initialTab = 1, guideSections = listOf(UserGuideToc.Section("Section One", "section_key", listOf(first, second))))
+        show(videos = emptyList(), initialTab = HelpTab.UserGuide, guideSections = listOf(UserGuideToc.Section("Section One", "section_key", listOf(first, second))))
         val page = onNodeWithText("Navigation page", useUnmergedTree = true).getBoundsInRoot()
         val episode1 = onNodeWithText(episodeTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY), useUnmergedTree = true).getBoundsInRoot()
         val episode2 = onNodeWithText(episodeTitle(Episode.TUTORIAL_03_VERSE_MENU), useUnmergedTree = true).getBoundsInRoot()
@@ -168,7 +194,7 @@ class HelpScreenTest {
     }
 
     @Test fun videoRowWithoutCaptionsCarriesTheEnglishQualifier() = runComposeUiTest {
-        show(videos = listOf(VideoRowUi("Episode one", "https://video/e1", plainLabel = false)), initialTab = 1, guideSections = emptyList())
+        show(videos = listOf(VideoRowUi("Episode one", "https://video/e1", plainLabel = false)), initialTab = HelpTab.UserGuide, guideSections = emptyList())
         onNodeWithText(strings.helpWatchInOrder).performClick()
         onAllNodesWithText(strings.watchTutorialVideo).assertCountEquals(1)
     }
@@ -179,7 +205,7 @@ class HelpScreenTest {
     }
 
     @Test fun inOrderRowIsFirstAndTheTocHasNoTrailingCatalog() = runComposeUiTest {
-        show(initialTab = 1)
+        show(initialTab = HelpTab.UserGuide)
         val inOrder = onNodeWithText(strings.helpWatchInOrder, useUnmergedTree = true).getBoundsInRoot()
         val home = onNodeWithText(strings.helpUserGuideHome, useUnmergedTree = true).getBoundsInRoot()
         val firstSection = onNodeWithText("Section One", useUnmergedTree = true).getBoundsInRoot()
@@ -189,20 +215,20 @@ class HelpScreenTest {
     }
 
     @Test fun inOrderRowIsHiddenWhenThereAreNoTutorialVideos() = runComposeUiTest {
-        show(videos = emptyList(), initialTab = 1)
+        show(videos = emptyList(), initialTab = HelpTab.UserGuide)
         onNodeWithText(strings.helpUserGuideHome).assertExists()
         onNodeWithText(strings.helpWatchInOrder).assertDoesNotExist()
     }
 
     @Test fun tocEpisodeRowsAreUnnumbered() = runComposeUiTest {
-        show(initialTab = 1)
+        show(initialTab = HelpTab.UserGuide)
         onNodeWithText(episodeTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY)).assertExists()
         onNodeWithText(numberedTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY)).assertDoesNotExist()
     }
 
     @Test fun inOrderRowOpensTheSeriesSubViewAndUpReturnsToToc() = runComposeUiTest {
         var up = 0
-        show(onUp = { up++ }, initialTab = 1)
+        show(onUp = { up++ }, initialTab = HelpTab.UserGuide)
         onNodeWithText(strings.helpWatchInOrder).performClick()
         onNodeWithText("Episode one").assertExists()
         onNodeWithText("Section One").assertDoesNotExist()
@@ -249,7 +275,7 @@ class HelpScreenTest {
         val url = "https://www.youtube.com/watch?v=RlLkpKZZwTg"
         show(
             videos = listOf(VideoRowUi("Episode one", url), VideoRowUi("Episode two", url)),
-            opened = opened, initialTab = 1, guideSections = emptyList(),
+            opened = opened, initialTab = HelpTab.UserGuide, guideSections = emptyList(),
         )
         onNodeWithText(strings.helpWatchInOrder).performClick()
         onNodeWithText("Episode one").assertExists()
@@ -274,7 +300,7 @@ class HelpScreenTest {
 
     @Test fun systemBackInTheSubViewReturnsToTheTocWithoutLeavingTheScreen() = runComposeUiTest {
         var up = 0
-        show(onUp = { up++ }, initialTab = 1)
+        show(onUp = { up++ }, initialTab = HelpTab.UserGuide)
         onNodeWithText(strings.helpWatchInOrder).performClick()
         onNodeWithText("Episode one").assertExists()
         runOnIdle { assertTrue(DesktopBackDispatcher.back()) }
@@ -287,7 +313,7 @@ class HelpScreenTest {
 
     @Test fun systemBackOutsideTheSubViewIsNotConsumedByTheScreen() = runComposeUiTest {
         var up = 0
-        show(onUp = { up++ }, initialTab = 1)
+        show(onUp = { up++ }, initialTab = HelpTab.UserGuide)
         runOnIdle { assertFalse(DesktopBackDispatcher.back()) }
         onNodeWithText(strings.helpWatchInOrder).assertExists()
         assertEquals(0, up)
@@ -307,7 +333,7 @@ class HelpScreenTest {
                             tutorialVideos = listOf(VideoRowUi("Episode one", "https://video/e1")),
                             versionText = "Version 9.9",
                             guideStrings = net.bible.sharedui.strings.keyed.KeyedUserGuideStrings.english(),
-                            appLanguage = "en", initialTab = 1, onOpenUrl = {}, onUp = {},
+                            appLanguage = "en", initialTab = HelpTab.UserGuide, onOpenUrl = {}, onUp = {},
                         )
                     }
                 }

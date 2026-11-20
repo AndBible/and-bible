@@ -20,6 +20,7 @@ import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.android.control.activity.SystemNotificationsPreference
 import net.bible.sharedcore.platform.USE_SYSTEM_COLORS_KEY
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.links.TrustedLinkDomains
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.settings.SettingsPlatformFlags
@@ -231,6 +232,8 @@ class AppSettingsServiceImpl(
             // Behavior
             navigateToVerse = readBool("navigate_to_verse_pref", false),
             openLinksInSpecialWindow = readBool("open_links_in_special_window_pref", true),
+            trustedLinkDomains = TrustedLinkDomains(settings).domains(),
+            trustedLinkDomainsVisible = !platform.isDiscreteBuild && !readBool("discrete_mode", false),
             screenKeepOn = readBool("screen_keep_on_pref", false),
             doubleTapToFullscreen = settings.doubleTapToFullscreen(),
             doubleTapFullscreenAvailable = platform.doubleTapFullscreenAvailable,

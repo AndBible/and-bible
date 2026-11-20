@@ -418,6 +418,14 @@ interface Strings {
     val okay: String
     // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing
     // R.string.external_link_open_question words `CommonUtils.openLink` already asks.
+    // R.string.external_link / external_link_question words `CommonUtils.openLink` already asks.
+    val externalLink: String
+    fun externalLinkQuestion(link: String): String
+    // #4155: the question's "Don't ask again for <host>" checkbox and the Application preferences row.
+    fun externalLinkDontAskAgain(host: String): String
+    val prefsTrustedLinkDomainsTitle: String
+    val prefsTrustedLinkDomainsSummary: String
+    val prefsTrustedLinkDomainsEmpty: String
     val indexingWaitMsg: String
     val noTasksRunning: String
     val doInBackground: String
@@ -1150,6 +1158,7 @@ interface Strings {
     val manageLabelsHelpFavourite: String             // R.string.manage_labels_help_favourite
     val manageLabelsHelpStyles: String                // R.string.manage_labels_help_styles
     val manageLabelsHelpReorder: String               // R.string.manage_labels_help_reorder
+    val manageLabelsHelpNarrowToggles: String         // R.string.manage_labels_help_narrow_toggles
     // Reused, already translated — see the spec §4.6: these paragraphs did NOT go stale.
     val assignLabelsHelpIntro: String                 // R.string.assing_labels_help1
     val autoAssignLabelsHelpIntro: String             // R.string.auto_assing_labels_help1
@@ -1169,6 +1178,8 @@ interface Strings {
     val helpUserGuideIntro: String                    // R.string.help_user_guide_intro
     val helpUserGuideHome: String                     // R.string.help_user_guide_home
     val helpReadInUserGuide: String                   // R.string.help_read_in_user_guide
+    val helpInUserGuide: String                       // R.string.help_in_user_guide
+    val helpMatchingSection: String                   // R.string.help_matching_section
     val buyDevelopment: String                        // R.string.buy_development
     val buyDevelopment2: String                 // R.string.buy_development2
     val helpTutorialVideos: String                    // R.string.help_tutorial_videos

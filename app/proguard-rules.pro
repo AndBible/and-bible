@@ -7,8 +7,13 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# used during initial config debug
--dontobfuscate
+# Obfuscation is on (#4160; Play Console requires >= 25 % obfuscated DEX code). Scope, measurement and the keep
+# rules it needs: docs/r8-obfuscation.md. Crash stack traces need the build's mapping.txt to be readable.
+
+# JSword (org.crosswire.**, in-tree Kotlin) still derives names from classes (MsgBase resource bundles named after
+# this::class.simpleName, ResourceUtil/CallContext lookups, Convert/ReflectionUtil): keep all its names.
+# Members may still be shrunk away when unused.
+-keepnames class org.crosswire.** { *; }
 
 # Add any project specific keep options here:
 

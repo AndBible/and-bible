@@ -64,7 +64,10 @@ not repeated.
 ## Commits
 
 - Small commits; each message names the model, e.g. `(Claude Sonnet)`. GitHub issue fix:
-  `Fixes #NNN (short description)` as the first line. Never amend, force or push.
+  `Fixes #NNN (short description)` as the first line (`Refs #NNN` for partial work). Never amend, force or push.
+- Every issue your commits fix goes under "Issues" in `done`, also one fixed as a side effect of another task: the
+  orchestrator closes them at merge (issue-management Flow 4). Why: 2026-11-20, fixed issues stayed open because
+  nobody listed them at merge.
 - Submodules (`app/src/test/roborazzi` goldens, `docs/superpowers`): commit inside the submodule first, then the
   gitlink bump in and-bible right after. An uncommitted pointer does not reach the host.
 - Goldens: a moved golden is re-recorded in the same branch, inspected zoomed, and explained in `done`; a new
@@ -92,6 +95,7 @@ Send with `--wait` (base skill). Use these headings; write "none" rather than dr
 ```text
 Branch / HEAD: <branch> <sha>
 Commits: <sha> <subject>   (one line each)
+Issues: <#n fixed (Fixes) / #n partly (Refs) / #n found already fixed (commit); a one-line user-facing summary each>
 Root cause and fix: <bugs only; what was wrong, where, how fixed>
 Tests added: <test names; red-first evidence: the failing assertion before the fix>
 Goldens: <moved (why, inspected) / added / none>

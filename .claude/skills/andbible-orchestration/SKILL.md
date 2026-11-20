@@ -48,6 +48,8 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
   bare `--new`: it branches from origin's default `current-stable` (classic tree, no shared modules).
   Why: 2026-11-14, three children started on `current-stable`. A child reporting a classic tree gets
   `update --ref <sha>` (have it `git -C docs/superpowers clean -fd` first if a stale untracked tree blocks).
+- **Issue work:** a child whose task is a GitHub issue (any kind: bug, feature, docs, video) gets its issue
+  assigned and set In progress in the same turn as the spawn (issue-management Flow 4, step 1).
 - **Commits outside HEAD** (local branches, other imports): send with spawn/update `--ref`; submodule
   commits do not travel that way, so put a `git bundle` in `.local/` for the child to fetch.
 - **Runner:** what the maintainer says at the start of the session (it changes with quota); otherwise omit
@@ -136,6 +138,12 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 - **Submodule conflicts** (`docs/superpowers`, goldens): resolve inside the submodule (merge or cherry-pick
   the child's submodule commits there, commit), then stage the resulting gitlink explicitly and confirm it
   with `git ls-tree`.
+- **Close the loop in the same turn as the merge** (issue-management Flow 4 owns the steps): for every issue the
+  child's `done` lists under "Issues" as fixed, and every issue the merged range names
+  (`git log --format=%B HEAD^1..HEAD | grep -oE '#[0-9]+' | sort -u`; #4149's commits said `#4149:`, not `Fixes`), stage the closing comment + close
+  (`Refs` only: a comment if useful, stays open) and publish it when the grant allows. This holds for every round,
+  not only bug rounds, and for issues fixed by your own commits. Why: 2026-11-20, #4149 merged on 2026-11-18 in a
+  non-bug round stayed open and unassigned for a day.
 - A green merge can still break tests (removed APIs, unrun test classes): memory
   `parallel-stream-merge-breaks-tests-without-conflict`.
 
@@ -171,4 +179,7 @@ Gates are tiered (`docs/superpowers/CLAUDE.md`, "Gate selection"): children run 
 - The maintainer usually merges their own branches without a PR: report the branch, HEAD and what to push
   (including `docs/superpowers` / goldens submodule commits) instead of staging `jailbee pr source`, unless
   asked (memory `maintainer-own-work-no-pr-by-default`).
+- Before reporting the session finished: every issue the session's merges fix is closed or its close is staged
+  and listed under host actions (`git log --format=%B <session BASE>..HEAD | grep -oE '#[0-9]+' | sort -u`,
+  then `gh issue view <n> --json state`).
 - Notify (see above), then clean up: no emulator, no idle own Gradle daemons, own `.local/` scratch removed.

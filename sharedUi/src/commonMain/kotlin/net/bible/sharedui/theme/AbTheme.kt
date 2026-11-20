@@ -43,6 +43,11 @@ val LocalDisplayColorMode = staticCompositionLocalOf { DisplayColorMode.NORMAL }
  *  without re-deriving it from a colour. Defaults to `false` outside an [AbTheme]. */
 val LocalIsDarkTheme = staticCompositionLocalOf { false }
 
+/** The host's system-colour opt-in, also used to resolve unset colours of non-active workspaces. */
+@OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@kotlin.native.HiddenFromObjC
+val LocalUseSystemColors = staticCompositionLocalOf { false }
+
 /**
  * Whether the host already disables Compose motion through its recomposer (Android, including goldens).
  * Set `true` only when the host's recomposer context carries the app motion-duration scale (Android's
@@ -102,6 +107,7 @@ fun AbTheme(
         LocalDisableAnimations provides disableAnimations,
         LocalDisplayColorMode provides colorMode,
         LocalIsDarkTheme provides darkTheme,
+        LocalUseSystemColors provides useSystemColors,
     ) {
         MaterialTheme(colorScheme = scheme) {
             if (mono) {

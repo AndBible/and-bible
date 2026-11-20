@@ -27,6 +27,21 @@ class AppSettingsServiceImplTest {
     } as CoreStrings
     private fun service() = AppSettingsServiceImpl(dictionaries, db, local, strings, flags)
 
+    @Test fun trustedDomainsVisibilityFollowsBuildAndRuntimeDiscreteMode() {
+        db.setStringSet("trusted_link_domains", setOf("example.org"))
+        for (discreteBuild in listOf(false, true)) {
+            flags.isDiscreteBuild = discreteBuild
+            local.setBoolean("discrete_mode", false)
+            val s = service()
+            assertEquals(!discreteBuild, s.snapshot.value.trustedLinkDomainsVisible)
+            s.setBool("discrete_mode", true)
+            assertFalse(s.snapshot.value.trustedLinkDomainsVisible)
+            assertEquals(setOf("example.org"), s.snapshot.value.trustedLinkDomains)
+            s.setBool("discrete_mode", false)
+            assertEquals(!discreteBuild, s.snapshot.value.trustedLinkDomainsVisible)
+        }
+    }
+
     @Test fun restoredPaletteStyleDoesNotReturnToTheSettingsScreen() = kotlinx.coroutines.test.runTest {
         db.setString("theme_palette_style", "fidelity")
         val s = service()
@@ -277,6 +292,7 @@ class AppSettingsServiceImplTest {
             "google_drive_sync", "disable_bible_bookmark_modal_buttons", "disable_gen_bookmark_modal_buttons",
             "display_color_mode", "use_system_colors", "theme_palette_style", "disable_animations", "disable_click_to_edit",
             "font_size_multiplier", "bible_view_swipe_mode", "experimental_features", "notes_content_type",
+            "trusted_link_domains",
         )
         for (key in cleared + preserved) {
             db.setString(key, "stored")
@@ -300,6 +316,7 @@ class AppSettingsServiceImplTest {
     }
 
     private class Flags : SettingsPlatformFlags {
+        override var isDiscreteBuild = false
         override val sdcardPermissionVisible = false
         override val openLinksVisible = false
         override val debugToolsVisible = false

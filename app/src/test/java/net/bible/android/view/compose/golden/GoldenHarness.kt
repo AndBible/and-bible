@@ -76,7 +76,9 @@ private fun capture(
     // is captured at the harness's default 320dp, the narrowest mainstream phone width. A capture
     // already exercises the tightest layout case; a per-test `qualifiers = "w320dp"` changes
     // nothing and only looks like it does (round-10a Task 6, fix round 5 -- a whole extra golden
-    // was recorded on that false premise before this comment existed).
+    // was recorded on that false premise before this comment existed). The one deliberate exception
+    // is a caller that passes a RoborazziComposeSizeOption in captureOptions because the layout it
+    // pins only exists ABOVE 320dp (ManageLabels iconGrid: issue #4153 drops that grid on narrow lists).
     //
     // Re-arm Compose's JVM-static UI dispatcher first. An earlier test in the same JVM that ended
     // with a trampoline/frame dispatch pending leaves it stuck (see resetComposeUiDispatcher's kdoc),

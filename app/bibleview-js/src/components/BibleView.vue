@@ -592,6 +592,11 @@ $borderDistance: 0;
 // keep it crisp, since gradients dither badly on e-ink, and smaller, since a hard edge reads larger.
 $cornerRadius: 32px;
 $cornerRadiusCrisp: 16px;
+// Night only (#4154): the tone-30 primary container on a dark (often coloured) workspace is barely
+// distinguishable from the page, and on a dense tablet 32 CSS px is a small share of the screen. Night
+// therefore uses the brighter primary and larger corners; the light theme keeps its size (bigger
+// would distract there).
+$cornerRadiusNight: 48px;
 $cornerSoftness: 1.4;
 
 .active-window-corner {
@@ -602,11 +607,12 @@ $cornerSoftness: 1.4;
   --corner-radius: #{$cornerRadius};
   --corner-softness: #{$cornerSoftness};
 
-  // Night: the theme's primary is a pale tone-80 colour that reads as white once the gradient fades to
-  // transparent; the primary container is the darker accent of the same palette. Without theme colours
-  // (grey-base modes) the old pale fallback stays.
+  // Night: the theme's primary (pale tone-80) keeps contrast against a dark or coloured workspace; the
+  // primary container (tone-30) nearly vanished there (#4154). Without theme colours (grey-base modes)
+  // the pale fallback stays. The monochrome rules below come later and win for radius and colour.
   .night & {
-    color: var(--ab-primary-container, rgba(196, 196, 255, 0.8));
+    color: var(--ab-primary, rgba(196, 196, 255, 0.8));
+    --corner-radius: #{$cornerRadiusNight};
   }
 
   color: var(--ab-primary, rgba(0, 0, 255, 0.6));

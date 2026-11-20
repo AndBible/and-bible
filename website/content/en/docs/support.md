@@ -22,16 +22,25 @@ group) open the support and contribution pages in your browser; `Help & tips` op
 
 ### Help & tips
 
-`Help & tips` is a full screen with two tabs:
+`Help & tips` is a full screen with two tabs. It opens on the **User guide** tab:
 
-- **Tips** has short help topics, each with a link to its tutorial video and to the matching page of this
-  manual, and a link to the full documentation.
 - **User guide** is the table of contents of this manual. Its first row, **Watch the tutorial videos in
   order**, opens the whole series as a numbered list; Up or Back returns to the table of contents. Select a
   page row (document icon, *Read in the user guide*) to open it in your browser. Where tutorial episodes are
   available, their video rows appear alongside the page link. Section,
   page, and episode titles are localized, but the manual pages and videos themselves are in English.
   Unpublished episodes open the "Videos coming soon" placeholder; published episodes open their own videos.
+- **Tips** has short help topics, each with a link to its tutorial video and to the matching page of this
+  manual, and a link to the full documentation.
+
+### Help in the user guide {#help-in-the-user-guide}
+
+Many screens, menus and help dialogs have a **Help in the user guide** item (in the screen's ⋮ menu, or as a
+link in a help dialog). It opens `Help & tips` on the **User guide** tab, scrolled to the page that covers that
+screen, with the page and its tutorial videos highlighted (a tinted background and a bar at the start edge; in
+monochrome mode only the bar). From there, open the page in your browser or play its video. Up or Back returns
+to the screen you came from. These items stay inside the app, so the discrete build does not ask before
+opening them; the guide page and the video still ask, as any external link does.
 
 Tutorial videos open on YouTube. When an episode has subtitles in the language of the app, they are turned
 on for you; otherwise the video is in English and the link says so. Unpublished episodes use the placeholder

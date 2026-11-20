@@ -28,7 +28,7 @@ import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.IdType
-import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.HelpLinks
 import net.bible.service.common.displayName
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
@@ -137,13 +137,14 @@ internal class ContentBridgeFamily(
 
     /**
      * Shows a help dialog for a Vue-side view. The [scopeKey] string is resolved here to a
-     * (title, message, helpUrl) triple so that the JS side cannot inject arbitrary URLs.
+     * (title, message, help topic) triple so that the JS side cannot inject arbitrary URLs. The link opens the in-app
+     * user guide at the topic's page (#4159).
      */
     fun showHelpDialog(scopeKey: String) {
         if (session.isDisposed) return
         val s = strings()
-        val (title, message, helpUrl) = when (scopeKey) {
-            "memorize" -> Triple(s.help, s.helpMemorizeText, DocsLink.MEMORIZE.url)
+        val (title, message, topic) = when (scopeKey) {
+            "memorize" -> Triple(s.help, s.helpMemorizeText, DocsLink.MEMORIZE)
             else -> {
                 Log.w(TAG, "Unknown help scope: $scopeKey")
                 return
@@ -151,7 +152,7 @@ internal class ContentBridgeFamily(
         }
         session.scope.launch(Dispatchers.Main) {
             if (session.isDisposed) return@launch
-            val messageHtml = message + "<br><br><i><a href=\"$helpUrl\">${s.helpReadMoreLink}</a></i>"
+            val messageHtml = message + "<br><br><i><a href=\"${HelpLinks.url(topic)}\">${s.helpInUserGuide}</a></i>"
             dialogs().post(
                 AppDialogRequest.Message(
                     title = title,
@@ -172,9 +173,8 @@ internal class ContentBridgeFamily(
     fun helpBookmarks() {
         if (session.isDisposed) return
         val s = strings()
-        val lang = s.languageTag
-        val videoLabel = if (TutorialVideos.hasPlainLabel(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS, lang)) s.watchTutorialVideoPlain else s.watchTutorialVideo
-        val message = "<i><a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS, lang)}\">${videoLabel}</a></i>" +
+        // #4159: the guide's Bookmarks page (with its tutorial video) rather than the video directly.
+        val message = "<i><a href=\"${HelpLinks.url(DocsLink.BOOKMARKS)}\">${s.helpInUserGuide}</a></i>" +
             "<br><br><b>${s.verseTip}</b><br><br>${s.helpBookmarksText}"
         session.hostSheets?.showHelp(s.bookmarksAndMyNotesTitle, message)
     }

@@ -123,14 +123,15 @@ fun ActivityOverflowButton(
 }
 
 /**
- * Thin ring drawn around the icon. [percent] null = indeterminate (a rotating arc, or a static arc when
- * animations are off or in inspection mode so captures are deterministic).
+ * Thin ring drawn around the icon. [percent] null = indeterminate: a rotating arc, a static arc in inspection mode
+ * (deterministic captures), or a static full circle when animations are disabled (#4156).
  */
 @Composable
 private fun ActivityRing(percent: Int?, description: String) {
     // The toolbar's own content colour, so the ring shows on workspace-coloured toolbars and in monochrome.
     val color = LocalContentColor.current
-    val animate = !LocalDisableAnimations.current && !LocalInspectionMode.current
+    val animationsDisabled = LocalDisableAnimations.current
+    val animate = !animationsDisabled && !LocalInspectionMode.current
     // The animated value is a State read only inside the draw lambda, so the ring redraws each frame without
     // recomposing (a recomposition would re-create the semantics block every frame).
     val rotation: State<Float>? = if (percent == null && animate) {
@@ -157,7 +158,10 @@ private fun ActivityRing(percent: Int?, description: String) {
         val inset = stroke / 2
         val arcSize = Size(size.width - stroke, size.height - stroke)
         val style = Stroke(width = stroke, cap = StrokeCap.Round)
-        if (percent == null) {
+        if (percent == null && animationsDisabled) {
+            // A frozen arc looks broken; with animations off the busy state is a plain full circle (#4156).
+            drawArc(color, 0f, 360f, false, Offset(inset, inset), arcSize, style = style)
+        } else if (percent == null) {
             drawArc(color, startAngle = -90f + (rotation?.value ?: 0f), sweepAngle = IndeterminateSweep, useCenter = false,
                 topLeft = Offset(inset, inset), size = arcSize, style = style)
         } else {

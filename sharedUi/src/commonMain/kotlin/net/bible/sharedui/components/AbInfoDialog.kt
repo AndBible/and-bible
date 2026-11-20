@@ -32,8 +32,6 @@ import net.bible.sharedui.components.dialog.AbDialogButton
 import net.bible.sharedui.components.dialog.AbDialogShell
 import net.bible.sharedui.components.dialog.DialogButtonRole
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.strings.tutorialVideoLabel
-import net.bible.sharedui.strings.tutorialVideoUrl
 
 /**
  * Scrollable, height-bounded informational dialog on [AbDialogShell]: [title] as the lead line, a plain-text
@@ -65,11 +63,11 @@ fun AbInfoDialog(
     confirmLabel: String = LocalStrings.current.okay,
     readMoreLabel: String? = null,
     readMoreUrl: String? = null,
-    videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode? = null,
+    /** The help topic of the "Help in the user guide" link (#4159): opens Help & tips at the topic's guide page. */
+    helpTopic: net.bible.sharedcore.docs.DocsLink? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
-    val uriHandler = LocalUriHandler.current
-    val linkOpener = LocalAbLinkOpener.current
+    val open = rememberLinkOpener()
     AbDialogShell(
         onDismissRequest = onDismiss,
         lead = { Text(title) },
@@ -84,17 +82,20 @@ fun AbInfoDialog(
                     text = readMoreLabel,
                     color = MaterialTheme.colorScheme.primary,
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { linkOpener?.open(readMoreUrl) ?: uriHandler.openUri(readMoreUrl) },
+                    // A help link (#4159) closes this dialog first: Help & tips opens under the dialog otherwise.
+                    modifier = Modifier.clickable {
+                        if (net.bible.sharedcore.docs.HelpLinks.isHelpUrl(readMoreUrl)) onDismiss()
+                        open(readMoreUrl)
+                    },
                 )
             }
-            if (videoEpisode != null) {
-                val videoUrl = tutorialVideoUrl(videoEpisode)
+            if (helpTopic != null) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = tutorialVideoLabel(videoEpisode),
+                    text = LocalStrings.current.helpInUserGuide,
                     color = MaterialTheme.colorScheme.primary,
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { linkOpener?.open(videoUrl) ?: uriHandler.openUri(videoUrl) },
+                    modifier = Modifier.clickable { onDismiss(); open(net.bible.sharedcore.docs.HelpLinks.url(helpTopic)) },
                 )
             }
         },
