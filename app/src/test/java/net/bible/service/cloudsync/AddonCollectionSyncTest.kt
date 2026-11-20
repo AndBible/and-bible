@@ -190,8 +190,8 @@ class AddonCollectionSyncTest {
     private suspend fun addOwnBookmark(db: BookmarkDatabase): IdType {
         val own = IdType()
         db.useWriterConnectionMarked { c ->
-            c.exec("INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (${hex(own)}, 100, 100, 100, 100, 'KJV', 5, ${hex(mineLabel)})")
             c.exec("INSERT INTO Label (id, name) VALUES (${hex(mineLabel)}, 'Mine')")
+            c.exec("INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (${hex(own)}, 100, 100, 100, 100, 'KJV', 5, ${hex(mineLabel)})")
             c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(own)}, ${hex(mineLabel)})")
         }
         return own
