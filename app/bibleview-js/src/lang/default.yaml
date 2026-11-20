@@ -50,6 +50,7 @@ emptyStudyPad: >
 doYouWantToDeleteEntry: Delete this study pad entry?
 removeStudyPadConfirmationTitle: Remove study pad entry?
 dragHelp: Drag to reorder
+addonReadOnly: This content comes from an add-on collection and is read-only. Use “Copy to my labels” to get an editable copy.
 openAll: Open all references
 editBookmarkPlaceholder: Tap to edit My Notes for this bookmark
 onlyLabel: Only label

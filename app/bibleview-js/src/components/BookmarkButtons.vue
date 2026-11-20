@@ -49,6 +49,7 @@
           <FontAwesomeIcon icon="share-alt"/>
         </div>
         <div
+            v-if="!readOnly"
             class="bookmark-button"
             @click.stop="toggleWholeVerse"
             :style="buttonColor(primaryLabel.color)"
@@ -61,6 +62,7 @@
           </template>
         </div>
         <div
+            v-if="!readOnly"
             class="bookmark-button"
             @click.stop="configureBookmarkSettings"
             :style="buttonColor(primaryLabel.color)"
@@ -80,7 +82,7 @@
         </template>
       </div>
       <div class="bookmark-buttons" style="align-self: end;">
-        <div class="bookmark-button end" @click.stop="removeBookmark">
+        <div v-if="!readOnly" class="bookmark-button end" @click.stop="removeBookmark">
           <FontAwesomeIcon icon="trash"/>
         </div>
       </div>
@@ -108,6 +110,7 @@ import {androidKey, globalBookmarksKey} from "@/types/constants";
 import {ColorParam} from "@/types/common";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
 import {isBibleBookmark} from "@/composables/bookmarks";
+import {isAddonBookmark} from "@/composables/addon";
 import {faIcons} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{
@@ -123,6 +126,8 @@ const emit = defineEmits(["close-bookmark", "edit-clicked", 'info-clicked']);
 
 const areYouSure = ref<InstanceType<typeof AreYouSure> | null>(null);
 const bookmark = computed(() => props.bookmark);
+// Add-on collection bookmarks are read-only: no delete, no row-writing settings.
+const readOnly = computed(() => isAddonBookmark(props.bookmark));
 const android = inject(androidKey)!;
 
 function toggleWholeVerse() {

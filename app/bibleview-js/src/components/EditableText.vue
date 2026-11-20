@@ -66,6 +66,8 @@ const props = withDefaults(defineProps<{
     maxEditorHeight?: string
     constraintDisplayHeight?: boolean
     disableClickToEdit?: boolean
+    /** Read-only content (add-on collections): never enters edit mode by click. */
+    readOnly?: boolean
     noteEditorContext?: NoteEditorContext | null
 }>(), {
     editDirectly: false,
@@ -75,6 +77,7 @@ const props = withDefaults(defineProps<{
     maxEditorHeight: "inherit",
     constraintDisplayHeight: false,
     disableClickToEdit: false,
+    readOnly: false,
     noteEditorContext: null
 })
 
@@ -150,7 +153,7 @@ function handleClicks(event: MouseEvent) {
         }
         return;
     }
-    if (!props.disableClickToEdit) {
+    if (!props.disableClickToEdit && !props.readOnly) {
         editMode.value = true;
     }
 }
