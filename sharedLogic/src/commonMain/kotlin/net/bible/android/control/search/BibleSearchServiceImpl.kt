@@ -46,6 +46,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import net.bible.sharedcore.search.SearchType as SharedSearchType
 import net.bible.sharedcore.search.SearchBibleSection as SharedSearchBibleSection
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
@@ -131,9 +132,22 @@ class BibleSearchServiceImpl(
         val ctx = currentCoroutineContext()
         ctx.ensureActive()
         val previews = PreviewReader(emptyList(), emptyList())
-        val main = dto.mainSearchResults.map { ctx.ensureActive(); it.toRow(previews, regex) }
-        val other = dto.otherSearchResults.map { ctx.ensureActive(); it.toRow(previews, regex) }
-        return MultiSearchResults(main = main, other = other, total = dto.size, truncatedByTime = dto.truncatedByTime)
+        val main = dto.mainSearchResults.map { ctx.ensureActive(); it.toRow(previews) }
+        val other = dto.otherSearchResults.map { ctx.ensureActive(); it.toRow(previews) }
+        // One abandonable pass with its own allowance: a pattern the engine cannot be interrupted in leaves the rest of
+        // the rows unhighlighted instead of holding the search.
+        val rows = main + other
+        val highlighted = highlightWithinAllowance(rows.flatMap { row -> row.matches.map { it.preview } }, REGEX_HIGHLIGHT_ALLOWANCE) { text, b ->
+            highlightRegexMatches(text, regex, b)
+        }.iterator()
+        val withHighlights = rows.map { row ->
+            val matches = row.matches.map { it.copy(preview = highlighted.next()) }
+            row.copy(matches = matches, primaryPreview = matches.firstOrNull()?.preview ?: row.primaryPreview)
+        }
+        return MultiSearchResults(
+            main = withHighlights.take(main.size), other = withHighlights.drop(main.size),
+            total = dto.size, truncatedByTime = dto.truncatedByTime,
+        )
     }
 
     override fun containsNonScripture(): Boolean = searchControl.currentDocumentContainsNonScripture()
@@ -182,12 +196,12 @@ class BibleSearchServiceImpl(
         return book !is SwordBook || book.isEpub || hasUsableSearchIndex(book)
     }
 
-    private fun GroupedSearchResult.toRow(previews: PreviewReader, regex: Regex? = null): SwordResultRow {
+    private fun GroupedSearchResult.toRow(previews: PreviewReader): SwordResultRow {
         val matches = translationMatches.map { tm ->
             TranslationMatchVd(
                 translationId = tm.book.initials,
                 abbreviation = tm.book.abbreviation,
-                preview = previews.previewFor(tm.book, tm.key).let { if (regex != null) highlightRegexMatches(it, regex) else it },
+                preview = previews.previewFor(tm.book, tm.key),
             )
         }
         return SwordResultRow(
@@ -259,6 +273,8 @@ class BibleSearchServiceImpl(
 
     companion object {
         private const val TAG = "BibleSearchService"
+        /** Wall-clock limit of highlighting the matches in the previews of one regex search. */
+        val REGEX_HIGHLIGHT_ALLOWANCE: Duration = 1.seconds
     }
 }
 

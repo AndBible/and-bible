@@ -19,14 +19,12 @@ package net.bible.android.control.search
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeSource
 import org.crosswire.jsword.index.IndexManagerFactory
 import org.crosswire.jsword.index.RegexSearchBudget
+import org.crosswire.jsword.index.RegexSearchResult
 import org.crosswire.jsword.index.RegexSearchableIndex
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
@@ -195,9 +193,14 @@ class SearchControl constructor(
     }
 
     /**
-     * Regex search over the stored verse texts of [documentInitials], grouped like [getMultiSearchResults]. One
-     * [budget] is shared by every translation, so the whole search stops at [REGEX_SEARCH_BUDGET] (or when the
+     * Regex search over the stored verse texts of the Bibles among [documentInitials], grouped like
+     * [getMultiSearchResults]. Other documents (commentaries, dictionaries, ...) are skipped: regex search is for Bible
+     * texts. One budget is shared by every translation, so the whole search stops at [budgetDuration] (or when the
      * calling coroutine is cancelled); [MultiSearchResultsDto.truncatedByTime] then says the list is partial.
+     *
+     * Each translation is scanned on an abandonable worker ([scanWithinBudget]): a pattern the regex engine cannot be
+     * interrupted in (Android's ICU engine) ends the search [REGEX_ABANDON_GRACE] after the budget, as truncated, with
+     * the results of the translations scanned before it. [bookLookup] is injectable for tests.
      */
     suspend fun getMultiRegexResults(
         documentInitials: List<String>,
@@ -205,33 +208,17 @@ class SearchControl constructor(
         bibleSection: SearchBibleSection,
         currentBookName: String?,
         budgetDuration: Duration = REGEX_SEARCH_BUDGET,
+        bookLookup: (String) -> Book? = { SwordDocumentFacade.getDocumentByInitials(it) },
     ): MultiSearchResultsDto = withContext(Dispatchers.IO) {
         val searchResults = MultiSearchResultsDto()
-        val context = currentCoroutineContext()
-        val budget = RegexSearchBudget(TimeSource.Monotonic.markNow() + budgetDuration, isCancelled = { !context.isActive })
-        val groupedResults = mutableMapOf<String, MutableList<TranslationMatch>>()
+        val books = documentInitials.mapNotNull { initials ->
+            (bookLookup(initials) as? SwordBook)?.takeIf { it.indexStatus == IndexStatus.DONE && it.bookCategory == BookCategory.BIBLE }
+        }
+        val outcome = scanWithinBudget(books, budgetDuration) { book, budget -> regexScanOf(book, regex, bibleSection, currentBookName, budget) }
+        searchResults.truncatedByTime = outcome.timedOut || outcome.results.any { (_, result) -> result.truncated }
 
-        for (initials in documentInitials) {
-            val book = SwordDocumentFacade.getDocumentByInitials(initials) as? SwordBook ?: continue
-            if (book.indexStatus != IndexStatus.DONE) continue
-            val index = IndexManagerFactory.getIndexManager().getIndex(book) as? RegexSearchableIndex ?: continue
-            val result = try {
-                val restriction = when (bibleSection) {
-                    SearchBibleSection.ALL -> null
-                    SearchBibleSection.OT -> book.getKey(SEARCH_OT_RANGE)
-                    SearchBibleSection.NT -> book.getKey(SEARCH_NT_RANGE)
-                    SearchBibleSection.CURRENT_BOOK -> currentBookName?.let { book.getKey(it) }
-                }
-                index.findRegex(regex, restriction, MAX_SEARCH_RESULTS + 1, budget)
-            } catch (e: BookException) {
-                Log.e(TAG, "Error regex-searching ${book.initials}: ${e.message}")
-                continue
-            } catch (e: NoSuchKeyException) {
-                // The section does not exist in this book's versification (or the book name is unknown): skip it.
-                Log.e(TAG, "No such section in ${book.initials}: ${e.message}")
-                continue
-            }
-            if (result.truncated) searchResults.truncatedByTime = true
+        val groupedResults = mutableMapOf<String, MutableList<TranslationMatch>>()
+        for ((book, result) in outcome.results) {
             val count = minOf(result.keys.getCardinality(), MAX_SEARCH_RESULTS + 1)
             val keyIterator = result.keys.iterator()
             for (i in 0 until count) {
@@ -245,6 +232,29 @@ class SearchControl constructor(
         groupAndSort(groupedResults, searchResults)
         Log.i(TAG, "Regex search found ${searchResults.size} unique verses, truncatedByTime=${searchResults.truncatedByTime}")
         searchResults
+    }
+
+    /** One translation's regex scan, or null (logged) when its index cannot be opened or searched or the section does not exist in it. */
+    private fun regexScanOf(
+        book: SwordBook, regex: Regex, bibleSection: SearchBibleSection, currentBookName: String?, budget: RegexSearchBudget,
+    ): RegexSearchResult? = try {
+        val index = IndexManagerFactory.getIndexManager().getIndex(book) as? RegexSearchableIndex
+        if (index == null) null else {
+            val restriction = when (bibleSection) {
+                SearchBibleSection.ALL -> null
+                SearchBibleSection.OT -> book.getKey(SEARCH_OT_RANGE)
+                SearchBibleSection.NT -> book.getKey(SEARCH_NT_RANGE)
+                SearchBibleSection.CURRENT_BOOK -> currentBookName?.let { book.getKey(it) }
+            }
+            index.findRegex(regex, restriction, MAX_SEARCH_RESULTS + 1, budget)
+        }
+    } catch (e: BookException) {
+        Log.e(TAG, "Error regex-searching ${book.initials}: ${e.message}")
+        null
+    } catch (e: NoSuchKeyException) {
+        // The section does not exist in this book's versification (or the book name is unknown): skip it.
+        Log.e(TAG, "No such section in ${book.initials}: ${e.message}")
+        null
     }
 
     /** Splits the per-verse matches into Scripture and other rows and sorts both in canonical order. */

@@ -31,7 +31,11 @@ import net.bible.sharedcore.search.MultiSearchResults
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchType
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -159,6 +163,26 @@ class BibleSearchServiceImplRegexTest {
         }
         assertTrue("the scan must still be running when it is cancelled", outcome.first)
         assertEquals("cancelling must end the scan within the bound", true, outcome.second)
+    }
+
+    /** KJV under another category: the same searchable index, so only the category decides. */
+    private fun kjvAs(category: BookCategory): Book {
+        val k = kjv as SwordBook
+        return object : SwordBook(k.bookMetaData as SwordBookMetaData, k.backend) {
+            override val bookCategory: BookCategory get() = category
+        }
+    }
+
+    private fun regexScanOf(book: Book) = runBlocking {
+        GlobalContext.get().get<SearchControl>().getMultiRegexResults(
+            listOf("X"), Regex("said:"), SearchControl.SearchBibleSection.ALL, null, bookLookup = { book },
+        )
+    }
+
+    @Test fun onlyBiblesAreRegexSearched() {
+        assertTrue("the stand-in Bible must be searchable", regexScanOf(kjvAs(BookCategory.BIBLE)).size > 1)
+        assertEquals(0, regexScanOf(kjvAs(BookCategory.COMMENTARY)).size)
+        assertEquals(0, regexScanOf(kjvAs(BookCategory.GENERAL_BOOK)).size)
     }
 
     @Test fun exhaustedBudgetReportsTruncation() {

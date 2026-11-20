@@ -18,15 +18,28 @@ package net.bible.android.control.search
 
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
+import org.crosswire.jsword.index.RegexSearchBudget
 
 /**
  * [text] with every non-empty match of [regex] in its plain text highlighted. Runs are split at the match
  * boundaries; `bold` is kept. Zero-length matches are skipped, so a pattern such as `x*` neither loops nor
  * highlights anything.
+ *
+ * With a [budget], an engine that reads its input through `get` (the JVM's, Kotlin/Native's) stops once the budget is
+ * exhausted, and [text] is returned unhighlighted; so is it when the match overflows the stack. Android's ICU engine
+ * cannot be stopped this way: run the highlighting through [highlightWithinAllowance].
  */
-fun highlightRegexMatches(text: StyledText, regex: Regex): StyledText {
+fun highlightRegexMatches(text: StyledText, regex: Regex, budget: RegexSearchBudget? = null): StyledText {
     val plain = text.plainText()
-    val spans = regex.findAll(plain).map { it.range }.filter { !it.isEmpty() }.toList()
+    val input: CharSequence = if (budget == null) plain else BudgetPollingText(plain, budget)
+    val spans = try {
+        regex.findAll(input).map { it.range }.filter { !it.isEmpty() }.toList()
+    } catch (_: HighlightBudgetExhausted) {
+        return text
+    } catch (e: Throwable) {
+        if (e::class.simpleName != "StackOverflowError") throw e
+        return text
+    }
     if (spans.isEmpty()) return text
 
     val out = ArrayList<StyledRun>()
@@ -56,4 +69,20 @@ fun highlightRegexMatches(text: StyledText, regex: Regex): StyledText {
         runStart = runEnd
     }
     return StyledText(out)
+}
+
+private class HighlightBudgetExhausted : RuntimeException()
+
+/** [text] that checks [budget] on the first and then every [CHECK_INTERVAL]th character read. */
+private class BudgetPollingText(private val text: String, private val budget: RegexSearchBudget) : CharSequence {
+    private var reads = 0
+    override val length: Int get() = text.length
+    override fun get(index: Int): Char {
+        if (reads++ % CHECK_INTERVAL == 0 && budget.exhausted) throw HighlightBudgetExhausted()
+        return text[index]
+    }
+    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence = text.subSequence(startIndex, endIndex)
+    override fun toString(): String = text
+
+    private companion object { const val CHECK_INTERVAL = 1024 }
 }
