@@ -2203,12 +2203,12 @@ Ne prikazuj ovu poruku ponovno.
   <string name="dialog_label_delete_both_consequence">Straničnici i njihove bilješke se brišu.</string>
   <string name="dialog_label_delete_only_consequence">Straničnici ostaju, bez oznake.</string>
   <plurals name="dialog_bookmarks_remove_lead">
-    <item quantity="one">Ukloniti ovaj straničnik?</item>
+    <item quantity="one">Ukloniti %1$d straničnik?</item>
     <item quantity="few">Ukloniti %1$d straničnika?</item>
     <item quantity="other">Ukloniti %1$d straničnika?</item>
   </plurals>
   <plurals name="dialog_bookmarks_remove_detail">
-    <item quantity="one">Njegova bilješka također se uklanja.</item>
+    <item quantity="one">Bilješke se također uklanjaju.</item>
     <item quantity="few">Njihove bilješke također se uklanjaju.</item>
     <item quantity="other">Njihove bilješke također se uklanjaju.</item>
   </plurals>

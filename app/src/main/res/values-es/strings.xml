@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">La guía del usuario completa está en andbible.org. Las páginas se abren en tu navegador.</string>
   <string name="help_user_guide_home">Inicio de la guía del usuario</string>
   <string name="help_read_in_user_guide">Leer en la guía del usuario</string>
+  <string name="help_in_user_guide">Ayuda en la guía del usuario</string>
+  <string name="help_matching_section">Sección correspondiente</string>
   <string name="help_read_page">Leer en la guía del usuario: %1$s</string>
   <string name="help_tutorial_videos">Videos tutoriales</string>
   <string name="help_watch_in_order">Ver los videos tutoriales en orden</string>
@@ -246,6 +248,9 @@
   <string name="prefs_navigate_to_verse_summary">Escoger versículo (y capítulo) al seleccionar un pasaje</string>
   <string name="prefs_open_links_in_special_window_title">Ventana de enlaces</string>
   <string name="prefs_open_links_in_special_window_summary">Abrir enlaces en una ventana especial, para una visualización más rápida de referencias cruzadas y Strongs</string>
+  <string name="prefs_trusted_link_domains_title">Dominios de enlaces de confianza</string>
+  <string name="prefs_trusted_link_domains_summary">Los enlaces a estos dominios se abren sin preguntar. Desmarca un dominio para que se vuelva a preguntar.</string>
+  <string name="prefs_trusted_link_domains_empty">Aún ninguno. Marca \"No volver a preguntar\" al abrir un enlace para añadir su dominio.</string>
   <string name="prefs_text_size_sample_text">Texto de ejemplo</string>
   <string name="prefs_screen_keep_on_title">Mantener encendida la pantalla</string>
   <string name="prefs_screen_keep_on_summary">Evita que la pantalla se apague mientras se está usando esta aplicación</string>
@@ -308,7 +313,6 @@
   <string name="line_spacing_title">Espaciado entre líneas</string>
   <string name="line_spacing_summary">Establecer el espacio entre líneas</string>
   <string name="select_none">Seleccionar ninguno</string>
-  <string name="reset_are_you_sure">¿Seguro que quiere restablecer todos estos valores?</string>
   <string name="window_pinning_menutitle">Fijación de ventanas</string>
   <string name="hide_window_buttons_title">Ocultar botones de ventana</string>
   <string name="hide_window_buttons_summary">Los botones de ventana que se muestran en el lado derecho de las vistas de la Biblia están ocultos. La barra de navegación de la ventana en la parte inferior todavía se muestra y puede abrir el menú emergente de la ventana haciendo clic largo en ellas.</string>
@@ -331,6 +335,7 @@
   <string name="word_not_found_in_dictionaries">Palabra no encontrada en ningún diccionario</string>
   <string name="prefs_top_margin_title_mm">Margen superior (%d mm)</string>
   <string name="font_size_title">Tamaño de tipografía</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.</string>
   <string name="font_size_title_pt">Tamaño de letra (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ajustar el tamaño del texto principal</string>
@@ -348,6 +353,8 @@
   <string name="window_color_settings_title">Ajustes de color (ventana)</string>
   <string name="workspace_color_settings_title">Ajustes de color (espacio de trabajo)</string>
   <string name="color_workspace">Color del Espacio</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Predeterminado</string>
   <string name="color_text">Color de texto</string>
   <string name="color_background">Color de fondo</string>
   <string name="colors_day_mode_title">Modo día</string>
@@ -381,7 +388,6 @@
   <string name="download_source_last_updated">Última actualización de listas de documentos: %s.</string>
   <string name="download_refreshing_book_list">Actualizando la lista de documentos disponibles desde los servidores de documentos…</string>
   <string name="download_source_message1">Los documentos se descargan de las siguientes fuentes:</string>
-  <string name="download_document_confirm_prefix">Descarga</string>
   <string name="error_downloading">Ocurrió un error durante la descarga. Por favor compruebe la conexión a internet.</string>
   <string name="error_downloading_status">El servidor que aloja %1$s devolvió un error debido a %2$s (%3$d).</string>
   <string name="storage_space_warning">No hay suficiente espacio local de almacenamiento.</string>
@@ -402,9 +408,6 @@
   <string name="activity_title">Actividad en segundo plano</string>
   <string name="activity_empty">Nada en curso</string>
   <string name="activity_failed_toast">%1$s — ver menú</string>
-  <string name="download_question_title">¿Desea proceder a descargar documentos?</string>
-  <string name="download_question_message">Si vives en un país donde los cristianos son perseguidos, puede que debas tener cuidado al descargar material cristiano por Internet. En su lugar, quizá prefieras obtener archivos zip de módulos de forma más segura e instalarlos mediante \"%1$s\". ¿Seguro que quieres continuar con la descarga? Todas las descargas desde los servidores de módulos están cifradas (HTTPS).</string>
-  <string name="do_not_ask_again">Si, no preguntes de nuevo</string>
   <string name="recommended_document">Recomendada!</string>
   <string name="about_version_history">Historial de versiones: %s</string>
   <string name="download_errors">Descargar errores</string>
@@ -421,11 +424,9 @@
   <string name="checking_zip_file">Comprobando el archivo...</string>
   <string name="invalid_module">El archivo no contiene un módulo SWORD válido</string>
   <string name="install_zip_title">Por favor, espere. Cargando modulos desde un archivo.</string>
-  <string name="overwrite_files">Los siguientes archivos ya existen: %s ¿Sobrescribir?</string>
   <string name="overwrite_files_title">¿Sobrescribir archivos?</string>
   <string name="could_not_overwrite_files">No se pudieron sobrescribir archivos: %s. Aparte de eso, la instalación fue exitosa.</string>
   <string name="module_backup_restore">Este archivo es una copia de seguridad de documentos de AndBible. ¿Quieres restaurar sus documentos?</string>
-  <string name="install_do_you_want">¿Quieres instalar el módulo (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lectura</string>
   <string name="reading_plans_plural">Planes de lectura</string>
@@ -433,15 +434,8 @@
   <string name="rdg_plan_day">Día %s</string>
   <string name="rdg_plan_set_start_date">Seleccione Fecha de Inicio...</string>
   <string name="set_current_day">Establecer como día actual…</string>
-  <string name="msg_set_current_day_reading_plan">Esto establecerá %1$s como el día actual de este plan y marcará como leídos todos los días anteriores. ¿Continuar?</string>
   <string name="done">Hecho</string>
-  <string name="reset_plan_question">¿Seguro que quiere restablecer este plan?</string>
   <string name="import_reading_plan">Importar plan de lectura…</string>
-  <string name="plan_duplicate_user_plan">
-Hay un plan de lectura de usuario en la tarjeta SD
-jsword/readingplan con el mismo nombre que un plan interno. No se puede enumerar aquí.
-Cambie el nombre del archivo a otra cosa, dejando su extensión de archivo como .properties
-</string>
   <string name="plan_name_y1ntpspr">NT, Salmos y Proverbios en un año</string>
   <string name="plan_description_y1ntpspr">
 Cortesía de HEARTLIGHT Internet Magazine,
@@ -481,12 +475,8 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="delete_index">Borrar indice de búsqueda</string>
   <string name="about">Acerca de</string>
   <string name="delete_doc">¿Borrar %s?</string>
-  <string name="interrupted_downloads_title">Descarga interrumpida</string>
-  <string name="interrupted_downloads_message">Estos documentos no se instalaron porque se interrumpió su descarga:</string>
-  <string name="interrupted_downloads_question">¿Descargarlos de nuevo?</string>
   <string name="download_again">Descargar de nuevo</string>
   <string name="delete_docs_confirm">¿Borrar estos documentos?</string>
-  <string name="delete_search_index_doc">¿Borrar índice de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Pies de página y referencias</string>
   <string name="share_verse">Compartir …</string>
@@ -526,7 +516,6 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="bookmark_warning2">
        Si la estructura del documento ha cambiado, actualizar este documento podría hacer
        las ubicaciones de estos marcadores/notas se mueven dentro del documento o desaparecen por completo.</string>
-  <string name="bookmark_warning3">¿Aún quieres actualizar el módulo?</string>
   <string name="bookmark_warning4">Se recomienda hacer una copia de seguridad del módulo antes de actualizar.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
@@ -703,10 +692,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Restaurar o importar desde...</string>
   <string name="backup_restore2">Restaurar o Importar</string>
-  <string name="overwrite_something">¿Sobrescribir %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Restaurar archivo de la base de datos desde...</string>
-  <string name="restore_confirmation">¿Sobreescribir Mis Notas, Marcadores, Pizarras de Estudio, Planes de Lectura y Espacios?</string>
   <string name="restore_success">Mis notas, marcadores, pizarras de estudio, planes de lectura y espacios restaurados con éxito</string>
   <string name="downloading_backup">Descargando archivo de copia de seguridad…</string>
   <string name="loading_backup">Cargando base de datos desde la copia de seguridad...</string>
@@ -728,7 +715,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="send_export_file">Enviar un archivo de exportación</string>
   <string name="backup_modules_title">Seleccione qué módulos desea guardar</string>
   <string name="install_zip_canceled">La instalación del módulo fue cancelada</string>
-  <string name="ask_restore_or_import">La base de datos para %s  puede restaurarse (es decir, se elimina la base de datos existente y se carga la base de datos seleccionada) o importarse (la base de datos seleccionada se importa en la base de datos existente). ¿Qué desea hacer?</string>
   <string name="restore">Resturar</string>
   <string name="import2">Importar</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -783,7 +769,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="settings_editor_back">Atrás</string>
   <string name="settings_editor_close">Cerrar</string>
   <string name="settings_editor_apply">Aplicar</string>
-  <string name="discard_changes_confirmation">¿Descartar cambios sin guardar?</string>
   <string name="discard">Descartar</string>
   <string name="remove">Quitar</string>
   <string name="overwrite">Sobrescribir</string>
@@ -810,7 +795,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="empty_list">No hay ítems para mostrar</string>
   <string name="error_skip">Saltar</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Datos dañados</string>
+  <string name="corrupt_database_headline">AndBible no puede abrir algunos de tus datos</string>
+  <string name="corrupt_database_files_detail">No se pudieron abrir estos archivos: %1$s. No se ha cambiado ni borrado nada. Al restablecer, se empieza con ellos vacíos y cada archivo dañado se conserva en este dispositivo, renombrado con .corrupt- más la fecha y la hora.</string>
   <string name="corrupt_database_reset">Restablecer datos dañados</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">No se pudieron restablecer los datos dañados: no se pudo apartar %1$s. No se ha cambiado nada. Puedes intentarlo de nuevo, enviar un informe de error o usar Copia de seguridad y restauración.</string>
@@ -818,8 +804,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="damaged_data_needs_attention">Los datos de la aplicación necesitan atención. Toca para abrir la aplicación.</string>
   <string name="debug_test_error">Error de prueba (versión de depuración)</string>
   <string name="bug_report_prepare_failed">No se pudo preparar o compartir el informe. Puedes reintentarlo, o usar Copia de seguridad y restauración para guardar tus datos.</string>
-  <string name="bug_report_email_title">Enviar informe de fallo por correo electrónico</string>
   <string name="bug_report_desktop_text">A continuación se te pedirá dónde guardar el archivo del informe de error. Después recibirás instrucciones para enviarlo al equipo de desarrollo.</string>
+  <string name="bug_report_email_title">Enviar informe de fallo por correo electrónico</string>
   <string name="bug_report_email_text">A continuación, por favor seleccione su aplicación de correo preferida (por ejemplo Gmail) para enviar el informe al equipo de desarrollo.</string>
   <string name="bug_report_manual_title">Enviar el informe por correo electrónico</string>
   <string name="bug_report_manual_text_saved">El informe se guardó en <b>%1$s</b>.\n\nEnvía un correo electrónico a <b>%2$s</b> y adjunta ese archivo; un programa de correo no puede adjuntarlo por ti. Asunto sugerido: <b>%3$s</b>. En el mensaje, cuéntanos qué hiciste y qué ocurrió.</string>
@@ -890,8 +876,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="beta_special_regards">Un cordial saludo, Tuomas</string>
   <string name="beta_special_sponsor">P. D.: Puedes apoyar económicamente el desarrollo de AndBible %s.</string>
   <string name="beta_special_sponsor_link">patrocinando horas de desarrollo</string>
-  <string name="new_sync_targets_notice_title">Nuevas configuraciones de sincronización disponibles</string>
-  <string name="new_sync_targets_notice_message">Esta versión de AndBible incorpora destinos de sincronización adicionales: Mis documentos, configuración de IA y progreso de lectura. Si desea activarlos, puede hacerlo en la configuración de Sincronización de dispositivos.</string>
   <string name="open_settings">Abrir ajustes</string>
   <!--History-->
   <string name="history_for">Historia (%1$s: Ventana %2$d)</string>
@@ -1000,7 +984,6 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
   <string name="give_passphrase_for_module">El documento %s está cifrado y se necesita una contraseña para desbloquearlo</string>
   <string name="unlock_module">Establecer contraseña del módulo</string>
   <string name="unlock_info">Información de desbloqueo de módulo cifrado</string>
-  <string name="try_again_passphrase">La contraseña no funcionó, ¿intentar de nuevo?</string>
   <string name="show_unlock_info">Módulo e información de desbloqueo</string>
   <string name="prefs_experimental_features_title">Funciones experimentales</string>
   <string name="prefs_experimental_features_summary">Seleccione las funciones experimentales que desea habilitar. Estas funciones aún se encuentran en desarrollo y pueden cambiar o eliminarse</string>
@@ -1034,9 +1017,6 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
   <string name="active_window_indicator_summary">Resaltar las esquinas de la ventana para ayudar a reconocer qué ventana está activa</string>
   <string name="app_licence_title">Licencia de software libre</string>
   <string name="how_to_contribute">¿Cómo contribuir?</string>
-  <string name="confirm_delete_bookmarks">¿Desea eliminar %d marcadores y sus notas?</string>
-  <string name="confirm_delete_orphaned_bookmarks">La etiqueta seleccionada se adjunta a %d marcadores que no tienen otras etiquetas. ¿Desea eliminar estos marcadores junto con las etiquetas?</string>
-  <string name="delete_label_and_bookmarks">Eliminar etiqueta y marcadores</string>
   <string name="delete_label_only">Eliminar solo la etiqueta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomendar a las amistades</string>
@@ -1067,8 +1047,6 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
   <string name="old_webview">El paquete WebView de Android es demasiado antiguo (%1$s). Necesita actualizar su paquete WebView de Android al menos a la versión %2$s para usar %3$s. Para la mayoría de los dispositivos, esto se puede hacer a través de %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Proceda seguro</string>
-  <string name="proceed">Proceder</string>
-  <string name="rate_title">Calificar y revisar la aplicación</string>
   <string name="rate_message5">
 Las reseñas positivas y detalladas ayudan mucho a Proyecto de Código Abierto AndBible. ¡Gracias!
 </string>
@@ -1120,7 +1098,6 @@ informe los problemas a los mantenedores de texto
   <string name="primary_label">Etiqueta principal</string>
   <string name="favourite_label">Etiqueta favorita</string>
   <string name="edit_label">Editar etiqueta</string>
-  <string name="delete_label_confirmation">¿Quieres eliminar la etiqueta de marcador \"%s\"? Además, se eliminarán todas las notas de la pizarra de estudio asociadas.</string>
   <string name="active_labels">Etiquetas seleccionadas</string>
   <string name="recent_labels">Etiquetas recientes</string>
   <string name="other_labels">Otras etiquetas</string>
@@ -1130,8 +1107,6 @@ informe los problemas a los mantenedores de texto
   <string name="book_menu_show_progress_bars">Mostrar barras de progreso</string>
   <string name="reset_workspace_labels">¿Desea restablecer la configuración de asignación automática y favorita para este espacio?</string>
   <string name="clear_auto_assign_labels">Borrar etiquetas de asignación automática</string>
-  <string name="reset_workspace_auto_assign_labels">¿Quieres quitar todas las etiquetas de asignación automática de este espacio de trabajo?</string>
-  <string name="reset_hide_labels">¿Desea restablecer la configuración para ocultar la configuración de etiquetas especificadas?</string>
   <string name="reorder">Reordenar</string>
   <string name="system_items">Acciones sistema</string>
   <string name="system_items1">Más</string>
@@ -1145,7 +1120,6 @@ informe los problemas a los mantenedores de texto
   <string name="ios_fullscreen_hint">Toca dos veces o toca el botón para salir de la pantalla completa.</string>
   <string name="desktop_exit_fullscreen">Salir de la pantalla completa</string>
   <string name="exit_fullscreen">Toca dos veces la pantalla para salir de la pantalla completa</string>
-  <string name="reset_app_prefs">¿Desea restablecer todas las preferencias de la aplicación global que se muestran en esta pantalla a sus valores predeterminados?</string>
   <string name="label_red">Rojo</string>
   <string name="label_green">Verde</string>
   <string name="label_blue">Azul</string>
@@ -1156,7 +1130,6 @@ informe los problemas a los mantenedores de texto
   <string name="reset_databases_title">Restablecer bases de datos</string>
   <string name="reset_databases_description">Restablecer bases de datos individuales a su estado inicial vacío. Esta acción no se puede deshacer.</string>
   <string name="last_crash_info_title">Información del último fallo</string>
-  <string name="reset_database_confirm">Esto eliminará permanentemente todos los datos de \"%1$s\" y lo restablecerá al estado inicial. Esta acción no se puede deshacer.\n\n¿Está seguro?</string>
   <string name="reset_database_success">La base de datos se ha restablecido correctamente</string>
   <string name="reset_something">Restablecer: %1$s</string>
   <string name="export">Exportar</string>
@@ -1226,19 +1199,18 @@ informe los problemas a los mantenedores de texto
   <string name="manage_labels_help_favourite">Mantén la etiqueta en tus favoritas para acceder rápidamente.</string>
   <string name="manage_labels_help_styles">Bajo el nombre, un pequeño ejemplo muestra el aspecto de la etiqueta: Selección para un marcador de selección de texto, Versículo completo para uno de versículo completo, y una marca de Espacio de trabajo para un estilo que este espacio de trabajo modifica. Un ejemplo en gris sin decoración significa que los marcadores de la etiqueta no se dibujan. Oculta los ejemplos desde el menú ⋮.</string>
   <string name="manage_labels_help_reorder">Reordena la lista desde el menú ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">En una pantalla estrecha, la lista omite los iconos de principal, asignación automática y favorita para dar espacio a los nombres de las etiquetas. Toca una etiqueta para configurarlos en su editor.</string>
   <string name="added_to_bookmark">Asignado a este marcador</string>
   <string name="strongs_links">Enlaces</string>
   <string name="strongs_text_and_links">Texto y Enlaces</string>
   <string name="strongs_hidden_links">Enlaces ocultos</string>
   <string name="verse_tip">Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia</string>
-  <string name="permission_required">Se necesita permiso</string>
   <string name="labels_search_hint">Búsqueda</string>
   <string name="search_mode_name_start">Nombre (desde el principio)</string>
   <string name="search_mode_name_contains">Nombre (contiene)</string>
   <string name="search_mode_content">Contenido</string>
   <string name="search_results_matches">%d resultados</string>
   <string name="search_results_match">1 resultado</string>
-  <string name="progress_status_permission">Para mostrar notificaciones (estado de descarga, procesamiento, estado de voz), necesitamos su permiso.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Calculadora Sencilla</string>
   <string name="prefs_persecution_cat">Ambientes para los perseguidos</string>
@@ -1287,7 +1259,6 @@ informe los problemas a los mantenedores de texto
   <string name="custom_repositories_create_button_label">Agregar repositorio personalizado</string>
   <string name="custom_repositories_info_button_label">Información</string>
   <string name="repository_specification">URL del repositorio</string>
-  <string name="delete_custom_repository">¿Desea eliminar el repositorio personalizado %s?</string>
   <string name="custom_repositories_help1">Para agregar un nuevo repositorio personalizado, teclee o copie y pegue la URL del repositorio aquí.</string>
   <string name="custom_repositories_help2">Puede leer más información sobre repositorios personalizados en %s.</string>
   <string name="custom_repositories_help0">Puede instalar documentos de repositorios personalizados externos al instalar repositorios personalizados.</string>
@@ -1311,10 +1282,6 @@ informe los problemas a los mantenedores de texto
   <string name="db_bookmarks">Marcadores, Mis Notas, Etiquetas y Pizarras de Estudio</string>
   <string name="synchronizing">Sincronizando...</string>
   <string name="notification_finished">Finalizado</string>
-  <string name="overrideBackup">
-        Se ha encontrado en la nube una base de datos existente para la cual este dispositivo no está sincronizado.
-        La base de datos contiene %s. ¿Qué desea hacer?
-    </string>
   <string name="reading_plans_content">Planes de lectura y sus estados</string>
   <string name="bookmarks_contents">Marcadores, Etiquetas y Pizarras de Estudio</string>
   <string name="workspaces_contents">Espacios de trabajo y Ventanas</string>
@@ -1334,7 +1301,6 @@ informe los problemas a los mantenedores de texto
   <string name="reading_progress_calendar">Actividad de lectura</string>
   <string name="reading_progress_cycle">Ciclo %d</string>
   <string name="reading_progress_new_cycle">Nuevo ciclo</string>
-  <string name="reading_progress_new_cycle_confirm">¿Iniciar un nuevo ciclo de lectura? Esto comenzará a registrar su progreso desde cero, conservando los datos del ciclo anterior.</string>
   <string name="reading_progress_previous_cycle">Ciclo anterior</string>
   <string name="reading_progress_next_cycle">Ciclo siguiente</string>
   <string name="cloud_merge_data">Combinar datos</string>
@@ -1344,7 +1310,6 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_sync_title">Sincronización de dispositivo</string>
   <string name="reset_sync">Cerrar sesión</string>
   <string name="prefs_reset_sync_summary">Deshabilitar sincronización y restablecer los ajustes relacionados.</string>
-  <string name="sync_confirmation">¿Está seguro/a de que desea cerrar sesión y restablecer la sincronización?</string>
   <string name="cloud_info">Información de la nube</string>
   <string name="cloud_info_summary">Datos en almacenamiento de la nube: %s Mb</string>
   <string name="sync_adapter">Servicio de sincronización</string>
@@ -1360,7 +1325,6 @@ informe los problemas a los mantenedores de texto
   <string name="webdav_server_url_hint">Dirección de la carpeta WebDAV, p. ej. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La sincronización requiere una dirección segura https://.</string>
   <string name="webdav_certificate_title">Certificado del servidor</string>
-  <string name="webdav_forget_certificate_message">¿Olvidar el certificado de servidor de confianza? Se te pedirá confirmar de nuevo el certificado en la próxima conexión.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Certificado de servidor no confiable</string>
   <string name="webdav_untrusted_certificate_message">Android no confía en el certificado de %1$s. Confía en él solo si lo reconoces, por ejemplo porque configuraste este servidor tú mismo.\n\nSujeto: %2$s\nEmisor: %3$s\nVálido: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1377,14 +1341,7 @@ informe los problemas a los mantenedores de texto
   <string name="synchronization_categories">Categorías de sincronización</string>
   <string name="sync_general_settings">Info y ajustes generales</string>
   <string name="sync_introduction">Introducción</string>
-  <string name="are_you_sure">¿Está seguro/a?</string>
   <string name="are_you_sure_merge">Se conservarán tanto los datos de este dispositivo como los de %s en la nube. Donde un mismo elemento se haya cambiado en ambos, se conserva el cambio más reciente. Los datos de este dispositivo se enviarán a tus otros dispositivos.</string>
-  <string name="are_you_sure_reset_local">Esto restablecerá su base de datos local para %s con el contenido que está actualmente almacenado en el servicio de nube.</string>
-  <string name="are_you_sure_reset_cloud">Esto restablecerá su base de datos en la nube para %s con el contenido que hay en este dispositivo.</string>
-  <string name="sync_cant_fetch">La versión de base de datos o archivo almacenado en la nube es más alta que la que soporta esta aplicación.</string>
-  <string name="sync_disabling">Deshabilitando la sincronización para %s por ahora.</string>
-  <string name="sync_update_app">Por favor actualice la aplicación para continuar con la sincronización.</string>
-  <string name="sign_in_failed">El inicio de sesión para la sincronización con el servicio de nube ha fallado.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Deshabilitando la sincronización con la nube. Debe habilitarla de nuevo manualmente tras restaurar.</string>
   <string name="report">Informe</string>
@@ -1402,6 +1359,7 @@ informe los problemas a los mantenedores de texto
   <string name="open_here">Abrir aquí</string>
   <string name="external_link">Enlace externo</string>
   <string name="external_link_question">Esto abrirá el enlace externo %s en una aplicación de navegador, ¿desea continuar?</string>
+  <string name="external_link_dont_ask_again">No volver a preguntar por %s</string>
   <string name="nameless">Título no definido</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acciones de un toque (Biblias)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Acciones de un toque (Otros)</string>
@@ -1451,8 +1409,6 @@ informe los problemas a los mantenedores de texto
   <string name="memorize_include_reference_summary">Agregar la referencia del versículo (p. ej. Juan 3:16) como el último elemento a memorizar</string>
   <string name="reading_progress_settings">Progreso y memorización</string>
   <string name="reading_progress_settings_summary">Ajustes de seguimiento automático, memorización y práctica de escritura</string>
-  <string name="memorize_confirm_unmark">¿Eliminar el estado de memorizado para %s?</string>
-  <string name="memorize_confirm_remove_target">¿Eliminar la meta de memorización %s?</string>
   <string name="memorize_tab_reading">Lectura</string>
   <string name="memorize_tab_memorization">Memorización</string>
   <string name="memorize_verses_memorized">Memorizado</string>
@@ -1478,7 +1434,6 @@ informe los problemas a los mantenedores de texto
   <string name="llm_reset_usage_title">Restablecer datos de uso</string>
   <string name="llm_reset_usage_summary">Borrar el seguimiento acumulado de tokens y costos</string>
   <string name="llm_reset_usage_confirm_title">¿Restablecer datos de uso?</string>
-  <string name="llm_reset_usage_confirm_message">Esto borrará todos los datos de uso acumulados.</string>
   <string name="llm_custom_input_price_title">Precio de entrada ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Precio de salida ($/Mtoken)</string>
   <string name="llm_cost_total">Total: %1$s</string>
@@ -1494,8 +1449,6 @@ informe los problemas a los mantenedores de texto
   <string name="llm_parse_error_anthropic">Error al analizar la respuesta de Anthropic: %1$s</string>
   <string name="llm_error_unknown">Error desconocido</string>
   <string name="llm_error_max_iterations">Se alcanzó el máximo de iteraciones (%1$d) sin completar</string>
-  <string name="llm_continue_iterations_title">¿Continuar?</string>
-  <string name="llm_continue_iterations_message">El agente de IA ha alcanzado su límite de %1$d iteraciones sin completar. ¿Continuar por %2$d iteraciones más?</string>
   <string name="agent_max_iterations_title">Máximo de iteraciones del agente</string>
   <string name="agent_max_iterations_summary">Máximo de iteraciones antes de preguntar si continuar (0 = ilimitado)</string>
   <string name="ask_model_before_run_title">Preguntar modelo antes de ejecutar</string>
@@ -1555,7 +1508,6 @@ informe los problemas a los mantenedores de texto
   <string name="ai_models_summary_none">No hay modelos configurados</string>
   <string name="ai_add_provider">Agregar proveedor</string>
   <string name="ai_provider_edit">Editar</string>
-  <string name="ai_provider_delete_confirm">¿Eliminar el proveedor \"%1$s\"? Las indicaciones que usen este proveedor volverán al predeterminado.</string>
   <string name="ai_provider_api_key_not_set">Clave API no configurada</string>
   <string name="ai_provider_select_type">Seleccionar tipo de proveedor</string>
   <string name="ai_provider_name">Nombre del proveedor</string>
@@ -1575,7 +1527,6 @@ informe los problemas a los mantenedores de texto
   <string name="edit_model_title">Editar modelo</string>
   <string name="model_saved">Modelo guardado</string>
   <string name="model_deleted">Modelo eliminado</string>
-  <string name="model_delete_confirm">¿Eliminar el modelo \"%1$s\"?</string>
   <string name="model_set_default">Establecer como modelo predeterminado</string>
   <string name="model_select_provider">Proveedor</string>
   <string name="model_supported_badge">✓ Compatible</string>
@@ -1615,7 +1566,6 @@ informe los problemas a los mantenedores de texto
   <string name="ai_disclaimer_point8">Tus datos se envían a los servidores del proveedor de IA que elijas. Al usar una clave API, aceptas los términos y la política de privacidad de ese proveedor. Los modelos alojados localmente son posibles pero requieren más experiencia técnica y pueden no producir resultados tan buenos como los modelos comerciales.</string>
   <string name="ai_disclaimer_point9">Los proveedores de IA cobran por el uso de la API. Las estimaciones de costes mostradas en AndBible son aproximadas — consulta siempre la facturación de tu proveedor para ver los cargos reales.</string>
   <string name="ai_disclaimer_accept_title">Aceptar el descargo de responsabilidad de IA</string>
-  <string name="ai_disclaimer_accept_button">Acepto y asumo plena responsabilidad</string>
   <string name="prompt_permission_mode">Modo de permisos</string>
   <string name="prompt_permission_mode_description">Controla cuándo se requiere confirmación del usuario antes de que la IA realice operaciones de escritura. Los ajustes por herramienta que aparecen a continuación pueden anular esto para herramientas individuales.</string>
   <string name="agent_permission_mode_summary">Controla cuándo se requiere confirmación del usuario antes de las operaciones de escritura de la IA</string>
@@ -1731,7 +1681,6 @@ informe los problemas a los mantenedores de texto
   <string name="default_prompt_custom_desc">Ejecuta una tarea personalizada sobre el pasaje seleccionado</string>
   <string name="default_prompt_custom_template">Sigue las instrucciones del usuario para el pasaje bíblico seleccionado.</string>
   <string name="copy">Copiar</string>
-  <string name="delete_prompt_confirm_message">¿Estás seguro de que deseas eliminar esta indicación?</string>
   <string name="ai_hide_prompt">Ocultar</string>
   <string name="ai_restore_hidden_prompts">Restaurar indicaciones ocultas</string>
   <string name="ai_prompt_hidden">Indicación oculta</string>
@@ -1816,8 +1765,6 @@ informe los problemas a los mantenedores de texto
   <string name="permission_allow_all_session">Permitir todas las herramientas en esta sesión</string>
   <string name="permission_allow_always">Permitir siempre \"%1$s\"</string>
   <string name="permission_deny">Denegar</string>
-  <string name="permission_always_allow_confirm_title">¿Permitir siempre?</string>
-  <string name="permission_always_allow_confirm">¿Estás seguro de que deseas permitir permanentemente \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Puedes restablecer esto en Ajustes de IA.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Permisos de herramientas</string>
@@ -1922,18 +1869,15 @@ informe los problemas a los mantenedores de texto
   <string name="my_document_new_name">Documento %d</string>
   <string name="my_document_create_title">Crear nuevo documento</string>
   <string name="my_document_rename_title">Renombrar documento</string>
-  <string name="my_document_delete_confirmation">¿Eliminar el documento \"%s\"?</string>
   <string name="show_secret">Mostrar</string>
   <string name="hide_secret">Ocultar</string>
   <string name="ai_documents_name">Documentos de IA</string>
   <string name="ai_documents_description">Documentos generados automáticamente por IA</string>
-  <string name="my_document_cannot_delete_ai_documents">Los documentos de IA no se pueden eliminar mientras contengan páginas. Elimina primero las páginas.</string>
   <string name="my_document_save_changes">¿Guardar cambios?</string>
   <string name="my_document_no_description">Sin descripción</string>
   <string name="my_document_edit_description">Editar descripción</string>
   <string name="my_document_pages_title">%s - Páginas</string>
   <string name="my_document_page_rename_title">Renombrar página</string>
-  <string name="my_document_page_delete_confirmation">¿Eliminar la página \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">¿Borrar estas páginas?</string>
   <string name="my_documents_switch_document">Cambiar de documento</string>
   <string name="my_document_new_page_name">Página %1$d</string>
@@ -2001,7 +1945,6 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_show_removed">Mostrar documentos eliminados</string>
   <string name="cloud_doc_status_removed">Eliminado de la nube</string>
   <string name="cloud_doc_status_still_installed">aún instalado aquí</string>
-  <string name="cloud_doc_purge_confirm">¿Eliminar permanentemente \"%1$s\" del historial de la nube? Si todavía está instalado en otro dispositivo, ese dispositivo podría volver a subirlo a la nube en su próxima sincronización.</string>
   <string name="cloud_doc_action_download">Descargar</string>
   <string name="cloud_doc_action_push">Subir a la nube</string>
   <string name="cloud_doc_action_remove_cloud">Eliminar de la nube</string>
@@ -2012,8 +1955,6 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_action_dont_sync">No sincronizar con la nube</string>
   <string name="cloud_doc_action_allow_sync">Sincronizar con la nube</string>
   <string name="cloud_doc_action_purge">Eliminar del historial de la nube</string>
-  <string name="cloud_doc_remove_all_confirm">¿Eliminar %1$s de la nube y de todos tus dispositivos, incluido este?</string>
-  <string name="cloud_doc_remove_cloud_confirm">¿Eliminar %1$s de la nube? Se conserva la copia de este dispositivo; los dispositivos con la sincronización de documentos activada también la eliminarán.</string>
   <string name="cloud_doc_sync_now">Sincronizar ahora</string>
   <string name="cloud_doc_rescan">Volver a escanear desde la nube</string>
   <string name="cloud_doc_sync_now_download">Descargar documentos nuevos y actualizados</string>
@@ -2025,6 +1966,16 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_summary_download">Descargar %1$d</string>
   <string name="cloud_doc_summary_download_size">Descargar %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Las descargas automáticas empezarán cuando haya Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d documento</item>
+        <item quantity="many">%1$d de documentos</item>
+        <item quantity="other">%1$d documentos</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d documento (%2$s)</item>
+        <item quantity="many">%1$d de documentos (%2$s)</item>
+        <item quantity="other">%1$d documentos (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Nada que transferir</string>
   <string name="cloud_doc_selected_count">%1$d seleccionado(s)</string>
   <string name="cloud_doc_bulk_skipped">%1$d omitido(s) por no aplicable</string>
@@ -2041,8 +1992,6 @@ informe los problemas a los mantenedores de texto
   <string name="background_image_import">Importar desde la galería…</string>
   <string name="background_image_empty">Aún no hay imágenes importadas. Toca \"Importar desde la galería…\" para añadir una.</string>
   <string name="background_image_importing">Importando…</string>
-  <string name="background_image_delete_title">¿Borrar imagen?</string>
-  <string name="background_image_delete_confirm">¿Borrar esta imagen de fondo? Los espacios de trabajo que aún la usen volverán a no tener imagen.</string>
   <string name="background_image_day">Imagen de fondo (día)</string>
   <string name="background_image_night">Imagen de fondo (noche)</string>
   <string name="background_image_opacity_day">Opacidad de la imagen de fondo (día)</string>
@@ -2116,6 +2065,11 @@ informe los problemas a los mantenedores de texto
   <string name="legacy_notice_icloud">La sincronización ahora usa iCloud Drive. Vuelve a activarla en Ajustes → Sincronización. Este dispositivo conserva lo que tenía; los cambios de tus otros dispositivos llegarán cuando la sincronización se configure de nuevo. Para liberar los datos antiguos de iCloud: Ajustes → tu nombre → iCloud → Gestionar almacenamiento → AndBible.</string>
   <string name="legacy_notice_nextcloud">Tu conexión con Nextcloud se ha conservado, pero la sincronización está desactivada. Actívala en Ajustes → Sincronización y elige si quieres obtener los datos de la nube o crear nuevos.</string>
   <string name="legacy_notice_nextcloud_unsent">Algunos cambios de este dispositivo aún no se habían enviado a Nextcloud. No se enviaron y se quedan solo en este dispositivo.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d marcador no se pudo ubicar de forma fiable y no se importó. Se conserva con tus datos antiguos en este dispositivo.</item>
+        <item quantity="many">%1$d de marcadores no se pudieron ubicar de forma fiable y no se importaron. Se conservan con tus datos antiguos en este dispositivo.</item>
+        <item quantity="other">%1$d marcadores no se pudieron ubicar de forma fiable y no se importaron. Se conservan con tus datos antiguos en este dispositivo.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Es una aplicación de estudio bíblico potente pero fácil de usar, que funciona sin conexión.</string>
   <string name="webdav_untrusted_certificate_message_device">Este dispositivo no confía en el certificado de %1$s. Confía en él solo si lo reconoces, por ejemplo porque configuraste este servidor tú mismo.\n\nSujeto: %2$s\nEmisor: %3$s\nVálido: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2167,6 +2121,25 @@ informe los problemas a los mantenedores de texto
   <string name="recommend_share_link">Compartir un enlace</string>
   <string name="recommend_qr_caption">Escanea para conseguir AndBible en tu teléfono, tableta u ordenador.</string>
   <string name="desktop_activation_failed">AndBible ya se está ejecutando, pero su ventana no respondió. Cambia a la instancia en ejecución e inténtalo de nuevo. No se confirmó la entrega de los archivos entrantes.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Esto no se puede deshacer.</string>
+  <string name="ai_raw_log_delete_lead">¿Borrar este registro?</string>
+  <string name="ai_provider_delete_lead">¿Borrar el proveedor “%1$s”?</string>
+  <string name="ai_provider_delete_detail">Las indicaciones que lo usan vuelven al proveedor predeterminado.</string>
+  <string name="ai_model_delete_lead">¿Borrar el modelo “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">¿Borrar la indicación “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">¿Borrar esta indicación?</string>
+  <string name="ai_reset_usage_detail">Los totales de tokens y de coste vuelven a cero. Esto no se puede deshacer.</string>
+  <string name="ai_reset_usage_button">Restablecer</string>
+  <string name="ai_disclaimer_accept">Acepto</string>
+  <string name="llm_continue_iterations_lead">¿Continuar con %1$d iteraciones más?</string>
+  <string name="llm_continue_iterations_detail">El agente de IA alcanzó su límite de %1$d iteraciones sin terminar.</string>
+  <string name="llm_continue_button">Continuar</string>
+  <string name="permission_always_allow_lead">¿Permitir siempre “%1$s”?</string>
+  <string name="permission_always_allow_button">Permitir siempre</string>
+  <string name="ai_bug_report_send_lead">¿Enviar un informe de error de IA?</string>
+  <string name="ai_bug_report_send_button">Enviar</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Primeros pasos</string>
   <string name="user_guide_section_reading_workspace">Lectura y espacios de trabajo</string>
@@ -2244,4 +2217,158 @@ informe los problemas a los mantenedores de texto
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Asistente de IA, parte 3: herramientas, datos y permisos</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Asistente de IA, parte 4: indicaciones propias, costes y sincronización</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">¿Descartar los cambios?</string>
+  <string name="dialog_keep_editing">Seguir editando</string>
+  <string name="dialog_label_delete_lead">¿Borrar la etiqueta “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Sus notas de las pizarras de estudio también se borran. Esto no se puede deshacer.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d marcador no tiene otra etiqueta.</item>
+        <item quantity="many">%1$d de marcadores no tienen otra etiqueta.</item>
+        <item quantity="other">%1$d marcadores no tienen otra etiqueta.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Borrar la etiqueta y %1$d marcador</item>
+        <item quantity="many">Borrar la etiqueta y %1$d de marcadores</item>
+        <item quantity="other">Borrar la etiqueta y %1$d marcadores</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Los marcadores y sus notas se borran.</string>
+  <string name="dialog_label_delete_only_consequence">Los marcadores se conservan, sin etiqueta.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">¿Quitar este marcador?</item>
+        <item quantity="many">¿Quitar %1$d de marcadores?</item>
+        <item quantity="other">¿Quitar %1$d marcadores?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Su nota también se quita.</item>
+        <item quantity="many">Sus notas también se quitan.</item>
+        <item quantity="other">Sus notas también se quitan.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">¿Quitar todas las etiquetas de asignación automática de este espacio de trabajo?</string>
+  <string name="dialog_labels_reset_hidden_lead">¿Volver a mostrar todas las etiquetas ocultas?</string>
+  <string name="dialog_labels_reset_shown_detail">Las etiquetas que ocultaste de la lista se muestran de nuevo.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">¿Instalar “%s”?</string>
+  <string name="install_action">Instalar</string>
+  <string name="install_from_file_question">¿Instalar documentos desde un archivo?</string>
+  <string name="overwrite_files_detail">Estos archivos ya existen:%s</string>
+  <string name="import_studypads_question">¿Importar estas pizarras de estudio?</string>
+  <string name="import_action">Importar</string>
+  <string name="restore_backup_question">¿Restaurar los documentos de esta copia de seguridad?</string>
+  <string name="restore_backup_detail">Este archivo es una copia de seguridad de documentos de AndBible.</string>
+  <string name="update_document_question">¿Actualizar este documento?</string>
+  <string name="update_action">Actualizar</string>
+  <string name="download_documents_question">¿Descargar documentos?</string>
+  <string name="download_persecution_warning">Si vives en un país donde hay persecución, quizá debas tener cuidado al descargar material cristiano a través de Internet. En su lugar, puede que prefieras obtener los archivos zip de documentos de forma más segura e instalarlos mediante “%1$s”. Todas las descargas desde los servidores de documentos están cifradas (HTTPS).</string>
+  <string name="download_action">Descargar</string>
+  <string name="download_dont_ask_again">Descargar y no volver a preguntar</string>
+  <string name="download_dont_ask_again_consequence">En el futuro las descargas empezarán sin esta pregunta.</string>
+  <string name="passphrase_did_not_work">La frase de contraseña no funcionó.</string>
+  <string name="try_again">Reintentar</string>
+  <string name="interrupted_downloads_lead">¿Descargar de nuevo estos documentos?</string>
+  <string name="interrupted_downloads_detail">Su descarga se interrumpió, por lo que no se instalaron.</string>
+  <string name="external_link_open_question">¿Abrir este enlace en tu navegador?</string>
+  <string name="open_action">Abrir</string>
+  <string name="notification_permission_question">¿Permitir notificaciones?</string>
+  <string name="notification_permission_detail">Las notificaciones muestran el estado de las descargas, del procesamiento y de la lectura en voz alta.</string>
+  <string name="allow_action">Permitir</string>
+  <string name="rate_question">¿Valorar y reseñar la aplicación?</string>
+  <string name="bug_report_email_question">¿Enviar el informe de error por correo electrónico?</string>
+  <string name="continue_action">Continuar</string>
+  <string name="delete_search_index_question">¿Borrar el índice de búsqueda de “%s”?</string>
+  <string name="remove_custom_repository_question">¿Quitar el repositorio personalizado “%s”?</string>
+  <string name="download_document_question">¿Descargar “%s”?</string>
+  <string name="choose_file_action">Elegir archivo</string>
+  <string name="old_webview_question">¿Usar la aplicación con un WebView antiguo?</string>
+  <string name="incomplete_translation_question">¿Continuar con una traducción parcial?</string>
+  <string name="rate_action">Valorar</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">¿Borrar el documento “%s”?</string>
+  <string name="my_document_page_delete_lead">¿Borrar la página “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">Los documentos de IA no se pueden borrar mientras contengan páginas.</string>
+  <string name="my_document_cannot_delete_ai_detail">Borra primero las páginas.</string>
+  <string name="reading_progress_new_cycle_lead">¿Empezar un nuevo ciclo de lectura?</string>
+  <string name="reading_progress_new_cycle_detail">Tu progreso se registra desde cero. Se conservan los datos de tu ciclo anterior.</string>
+  <string name="reading_progress_new_cycle_start">Empezar</string>
+  <string name="reset_plan_lead">¿Restablecer este plan?</string>
+  <string name="reset_plan_detail">Se borran tu fecha de inicio y tu progreso en este plan.</string>
+  <string name="set_current_day_lead">¿Establecer %1$s como el día actual?</string>
+  <string name="set_current_day_detail">Todos los días anteriores se marcan como leídos.</string>
+  <string name="plan_duplicate_user_plan_lead">Un archivo de plan de lectura tiene el mismo nombre que un plan integrado.</string>
+  <string name="plan_duplicate_user_plan_detail">El archivo del plan no se puede mostrar en la lista. Renombra el archivo en la carpeta jsword/readingplan, manteniendo su extensión .properties.</string>
+  <string name="background_image_delete_lead">¿Borrar esta imagen de fondo?</string>
+  <string name="background_image_delete_detail">Los espacios de trabajo que aún la usan pasarán a no tener imagen.</string>
+  <string name="reset_values_lead">¿Restablecer todos estos valores?</string>
+  <string name="revert_setting_lead">¿Revertir este ajuste al valor heredado?</string>
+  <string name="revert_setting_confirm">Revertir</string>
+  <string name="reset_settings_screen_lead">¿Restablecer los ajustes de esta pantalla?</string>
+  <string name="reset_settings_screen_detail">Vuelven a sus valores predeterminados.</string>
+  <string name="memorize_unmark_lead">¿Quitar el estado de memorizado de “%s”?</string>
+  <string name="memorize_remove_target_lead">¿Quitar el objetivo de memorización “%s”?</string>
+  <string name="dialog_apply">Aplicar</string>
+  <string name="dialog_dont_apply">No aplicar</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">La nube ya tiene tus %s. ¿Qué debería ocurrir?</string>
+  <string name="cloud_merge_consequence">Se conservan ambos lados; donde un elemento cambió en los dos, gana el cambio más reciente.</string>
+  <string name="cloud_fetch_consequence">Reemplaza los datos de este dispositivo con la copia de la nube.</string>
+  <string name="cloud_create_consequence">Reemplaza la copia de la nube con los datos de este dispositivo.</string>
+  <string name="cloud_disable_consequence">La sincronización sigue desactivada para estos datos.</string>
+  <string name="cloud_merge_lead">¿Combinar tus %s con la nube?</string>
+  <string name="cloud_merge_confirm">Combinar</string>
+  <string name="cloud_replace_confirm">Reemplazar</string>
+  <string name="cloud_replace_local_lead">¿Reemplazar los %s de este dispositivo con la copia de la nube?</string>
+  <string name="cloud_replace_local_detail">Lo que hay ahora en este dispositivo se sobrescribe y no se puede recuperar.</string>
+  <string name="cloud_replace_cloud_lead">¿Reemplazar la copia de %s en la nube con los datos de este dispositivo?</string>
+  <string name="cloud_replace_cloud_detail">Lo que hay ahora en la nube se sobrescribe, y tus otros dispositivos recibirán los datos de este dispositivo.</string>
+  <string name="sign_in_failed_lead">No se pudo iniciar sesión en el servicio de sincronización.</string>
+  <string name="sync_too_old_lead">Esta aplicación es demasiado antigua para sincronizar %s.</string>
+  <string name="sync_too_old_detail">Los datos de la nube usan una versión más reciente de la que admite esta aplicación. La sincronización de estos datos está desactivada por ahora; actualiza la aplicación para volver a activarla.</string>
+  <string name="backup_replace_lead">¿Reemplazar tus %s con la copia de seguridad?</string>
+  <string name="backup_replace_detail">Lo que hay ahora en este dispositivo se sobrescribe y no se puede recuperar.</string>
+  <string name="reset_database_lead">¿Restablecer “%1$s” a su estado inicial?</string>
+  <string name="reset_database_detail">Todos los datos que contiene se borran de forma permanente. Esto no se puede deshacer.</string>
+  <string name="reset_database_button">Restablecer</string>
+  <string name="restore_all_lead">¿Reemplazar tus notas, marcadores, pizarras de estudio, planes de lectura y espacios de trabajo?</string>
+  <string name="restore_or_import_lead">¿Restaurar o importar los %s?</string>
+  <string name="restore_consequence">Reemplaza lo que hay en este dispositivo con la copia de seguridad.</string>
+  <string name="import_consequence">Añade los elementos de la copia de seguridad a lo que hay en este dispositivo.</string>
+  <string name="sync_start_syncing">Empezar a sincronizar</string>
+  <string name="sync_reset_lead">¿Cerrar sesión y restablecer la sincronización?</string>
+  <string name="sync_reset_detail">Tendrás que configurar la sincronización de nuevo.</string>
+  <string name="webdav_forget_certificate_lead">¿Olvidar el certificado de servidor de confianza?</string>
+  <string name="webdav_forget_certificate_detail">Se te pedirá confirmar el certificado de nuevo en la próxima conexión.</string>
+  <string name="webdav_forget_certificate_confirm">Olvidar</string>
+  <string name="cloud_doc_remove_all_lead">¿Quitar “%1$s” de la nube y de todos tus dispositivos?</string>
+  <string name="cloud_doc_remove_cloud_lead">¿Quitar “%1$s” de la nube?</string>
+  <string name="cloud_doc_purge_lead">¿Quitar “%1$s” de forma permanente del historial de la nube?</string>
+  <string name="cloud_doc_remove_all_detail">Esto también borra las copias de este dispositivo y de todos los demás dispositivos con la sincronización de documentos activada.</string>
+  <string name="cloud_doc_remove_cloud_detail">Las copias de este dispositivo se conservan. Los dispositivos con la sincronización de documentos activada también las quitarán.</string>
+  <string name="cloud_doc_purge_detail">Un dispositivo que aún tenga una copia puede volver a subirla en su próxima sincronización.</string>
+  <string name="cloud_doc_block_confirm_button">No sincronizar</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">¿Quitar %1$d documento de la nube y de todos tus dispositivos?</item>
+        <item quantity="many">¿Quitar %1$d de documentos de la nube y de todos tus dispositivos?</item>
+        <item quantity="other">¿Quitar %1$d documentos de la nube y de todos tus dispositivos?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">¿Quitar %1$d documento de la nube?</item>
+        <item quantity="many">¿Quitar %1$d de documentos de la nube?</item>
+        <item quantity="other">¿Quitar %1$d documentos de la nube?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">¿Quitar %1$d documento de forma permanente del historial de la nube?</item>
+        <item quantity="many">¿Quitar %1$d de documentos de forma permanente del historial de la nube?</item>
+        <item quantity="other">¿Quitar %1$d documentos de forma permanente del historial de la nube?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">¿Dejar de sincronizar %1$d documento con la nube?</item>
+        <item quantity="many">¿Dejar de sincronizar %1$d de documentos con la nube?</item>
+        <item quantity="other">¿Dejar de sincronizar %1$d documentos con la nube?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Ahora se pueden sincronizar más de tus datos</string>
+  <string name="new_sync_targets_detail">Mis documentos, los ajustes de IA y el progreso de lectura también se pueden sincronizar. Actívalos en los ajustes de sincronización del dispositivo.</string>
+  <!--end dialog copy: B3b-->
 </resources>

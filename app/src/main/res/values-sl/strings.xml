@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Celoten uporabniški priročnik je na andbible.org. Strani se odprejo v brskalniku.</string>
   <string name="help_user_guide_home">Domača stran priročnika</string>
   <string name="help_read_in_user_guide">Preberite v uporabniškem priročniku</string>
+  <string name="help_in_user_guide">Pomoč v uporabniškem priročniku</string>
+  <string name="help_matching_section">Ustrezni razdelek</string>
   <string name="help_read_page">Preberite v uporabniškem priročniku: %1$s</string>
   <string name="help_tutorial_videos">Videoposnetki z navodili</string>
   <string name="help_watch_in_order">Oglejte si video vodiče po vrsti</string>
@@ -248,6 +250,9 @@
   <string name="prefs_navigate_to_verse_summary">Za izbiro odlomka izberi vrstico in poglavje.</string>
   <string name="prefs_open_links_in_special_window_title">Okno povezav</string>
   <string name="prefs_open_links_in_special_window_summary">Povezave odprite v posebnem oknu za hitrejši prikaz navzkrižnih referenc in Strongovih števil</string>
+  <string name="prefs_trusted_link_domains_title">Zaupanja vredne domene povezav</string>
+  <string name="prefs_trusted_link_domains_summary">Povezave do teh domen se odprejo brez vprašanja. Počistite izbiro domene, če želite, da vas znova vprašamo.</string>
+  <string name="prefs_trusted_link_domains_empty">Zaenkrat nobene. Ob odpiranju povezave označite \"Ne vprašaj več\", da dodate njeno domeno.</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
   <string name="prefs_screen_keep_on_summary">Prepreči ugašanje zaslona med uporabo te aplikacije.</string>
@@ -310,7 +315,6 @@
   <string name="line_spacing_title">Razmik med vrsticami</string>
   <string name="line_spacing_summary">Nastavi razmik med vrsticami.</string>
   <string name="select_none">Ne izberi ničesar</string>
-  <string name="reset_are_you_sure">Ali ste prepričani, da želite ponastaviti vse te vrednosti?</string>
   <string name="window_pinning_menutitle">Pripenjanje oken</string>
   <string name="hide_window_buttons_title">Skrij gumbe oken</string>
   <string name="hide_window_buttons_summary">Gumbi za okna, ki so prikazani na desni strani biblijskih pogledov, so skriti. Vrstica za krmarjenje po oknih na dnu je še vedno prikazana in lahko z dolgim klikom odprete pojavni meni okna.</string>
@@ -333,6 +337,7 @@
   <string name="word_not_found_in_dictionaries">Besede ni v nobenem slovarju</string>
   <string name="prefs_top_margin_title_mm">Levi rob (%d mm)</string>
   <string name="font_size_title">Velikost besedila</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Bog je namreč svet tako ljubil, da je dal svojega edinorojenega Sina, da bi se nihče, kdor vanj veruje, ne pogubil, ampak bi imel večno življenje.</string>
   <string name="font_size_title_pt">Velikost besedila (%d)</string>
   <string name="prefs_font_text_size_summary">Nastavite velikost pisave glavnega besedila</string>
@@ -350,6 +355,8 @@
   <string name="window_color_settings_title">Nastavitve barv (okno)</string>
   <string name="workspace_color_settings_title">Nastavitve barv (delovni prostor)</string>
   <string name="color_workspace">Barva delovnega prostora</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Privzeto</string>
   <string name="color_text">Barva besedila</string>
   <string name="color_background">Barva ozadja</string>
   <string name="colors_day_mode_title">Dnevni način</string>
@@ -383,7 +390,6 @@
   <string name="download_source_last_updated">Nazadnje posodobljen seznam dokumentov: %s.</string>
   <string name="download_refreshing_book_list">Osvežitev seznama razpoložljivih dokumentov iz strežnikov...</string>
   <string name="download_source_message1">Dokumenti se prenesejo iz naslednjih virov:</string>
-  <string name="download_document_confirm_prefix">Prenos</string>
   <string name="error_downloading">Med prenosom se je zgodila napaka.  Prosim preverite vašo povezavo z internetom.</string>
   <string name="error_downloading_status">Strežnik, ki gosti %1$s je sporočil napako zaradi %2$s (%3$d).</string>
   <string name="storage_space_warning">Premalo lokalnega prostora za shranjevanje.</string>
@@ -404,9 +410,6 @@
   <string name="activity_title">Dejavnost v ozadju</string>
   <string name="activity_empty">Nič ne teče</string>
   <string name="activity_failed_toast">%1$s — glejte meni</string>
-  <string name="download_question_title">Ali želite nadaljevati s prenosom dokumentov?</string>
-  <string name="download_question_message">Če živite v državi, kjer so kristjani preganjani, morate biti previdni pri prenosu krščanskih vsebin prek interneta. Raje si morda omislite datoteke zip z moduli na varnejši način in jih namestite prek \"%1$s\". Ali ste prepričani, da želite nadaljevati s prenosom? Vsi prenosi s strežnikov z moduli so šifrirani (HTTPS).</string>
-  <string name="do_not_ask_again">Da, ne sprašujte več</string>
   <string name="recommended_document">Priporočljivo!</string>
   <string name="about_version_history">Zgodovina verzij: %s</string>
   <string name="download_errors">Napake pri prenosu</string>
@@ -423,12 +426,10 @@
   <string name="checking_zip_file">Preverjanje datoteke...</string>
   <string name="invalid_module">Datoteka ne vsebuje veljavnega SWORD modula</string>
   <string name="install_zip_title">Počakajte. Nalaganje modulov iz datoteke.</string>
-  <string name="overwrite_files">Naslednje datoteke že obstajajo: %s Jih prepišem?</string>
   <string name="overwrite_files_title">Prepišem datoteke?</string>
   <string name="could_not_overwrite_files"> 
 Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="module_backup_restore">Ta datoteka je varnostna kopija dokumentov AndBible. Ali želite obnoviti njene dokumente?</string>
-  <string name="install_do_you_want">Ali želite namestiti modul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Načrt branja</string>
   <string name="reading_plans_plural">Načrti branja </string>
@@ -436,14 +437,8 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="rdg_plan_day">Dan %s</string>
   <string name="rdg_plan_set_start_date">Nastavi datum začetka...</string>
   <string name="set_current_day">Nastavi kot trenuten dan…</string>
-  <string name="msg_set_current_day_reading_plan">S tem boste %1$s nastavili kot trenutni dan v tem načrtu in vse prejšnje dni označili kot prebrane. Nadaljujem?</string>
   <string name="done">Končano</string>
-  <string name="reset_plan_question">Ali ste prepričani, da želite ponastaviti ta načrt?</string>
   <string name="import_reading_plan">Uvozi načrt branja...</string>
-  <string name="plan_duplicate_user_plan">
-        Na SD kartici je uporabnikov načrt branja
-        z istim imenom kot notranji načrt. Tega ni mogoče izpisati.
-        Preimenujte datoteko, pri čemer ohranite pripono .properties</string>
   <string name="plan_name_y1ntpspr">NZ, Psalmi in Pregovori v enem letu</string>
   <string name="plan_description_y1ntpspr">
         Z dovoljenjem spletnega časopisa HEARTLIGHT,
@@ -481,12 +476,8 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="delete_index">Izbriše indeks iskanja</string>
   <string name="about">O dokumentu</string>
   <string name="delete_doc">Izbriši %s?</string>
-  <string name="interrupted_downloads_title">Prenos prekinjen</string>
-  <string name="interrupted_downloads_message">Ti dokumenti niso bili nameščeni, ker je bil njihov prenos prekinjen:</string>
-  <string name="interrupted_downloads_question">Jih prenesem znova?</string>
   <string name="download_again">Prenesi znova</string>
   <string name="delete_docs_confirm">Izbrišem te dokumente?</string>
-  <string name="delete_search_index_doc">Izbriše indeks %s?</string>
   <!--Verse context menu-->
   <string name="notes">Opombe pod črto in sklici</string>
   <string name="share_verse">Deli...</string>
@@ -527,7 +518,6 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
 Če se je struktura dokumenta spremenila, lahko posodobitev tega dokumenta
 povzroči, da se lokacije teh zaznamkov/opomb premaknejo znotraj dokumenta ali popolnoma izginejo.
     </string>
-  <string name="bookmark_warning3">Ali še vedno želite posodobiti modul?</string>
   <string name="bookmark_warning4">Priporočljivo je, da pred posodobitvijo naredite varnostno kopijo modula.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urejeno po datumu</string>
@@ -705,10 +695,8 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Obnovi ali uvozi iz ...</string>
   <string name="backup_restore2">Obnovi ali uvozi iz</string>
-  <string name="overwrite_something">Prepišem %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Obnovitev baze aplikacije</string>
-  <string name="restore_confirmation">Prepišem Zaznamke, Moje opombe, Beležke, Načrte branja in Delovne prostore?</string>
   <string name="restore_success">Zaznamki, Moje opombe, Beležke, Načrti branja in Delovni prostori so uspešno obnovljeni.</string>
   <string name="downloading_backup">Prenos arhivske datoteke...</string>
   <string name="loading_backup">Nalaganje baze podatkov iz varnostne kopije...</string>
@@ -730,7 +718,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="send_export_file">Pošlji izvozno datoteko</string>
   <string name="backup_modules_title">Izberite, katere module želite varnostno kopirati</string>
   <string name="install_zip_canceled">Namestitev modula je preklicana</string>
-  <string name="ask_restore_or_import">Bazo podatkov za %s je mogoče obnoviti (tj. obstoječo zbirko podatkov odstranimo in naložimo izbrano zbirko podatkov) ali uvozimo (izbrano bazo podatkov uvozimo v obstoječo zbirko podatkov). Kaj želite storiti?</string>
   <string name="restore">Povrni iz arhiva</string>
   <string name="import2">Uvoz</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -785,7 +772,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="settings_editor_back">Nazaj</string>
   <string name="settings_editor_close">Zapri</string>
   <string name="settings_editor_apply">Uveljavi</string>
-  <string name="discard_changes_confirmation">Želite zavrniti nespremenjene spremembe?</string>
   <string name="discard">Zavrzi</string>
   <string name="remove">Odstrani</string>
   <string name="overwrite">Prepiši</string>
@@ -812,7 +798,8 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="empty_list">Za prikaz ni nobenega predmeta</string>
   <string name="error_skip">Preskoči</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Poškodovani podatki</string>
+  <string name="corrupt_database_headline">AndBible ne more odpreti nekaterih vaših podatkov</string>
+  <string name="corrupt_database_files_detail">Teh datotek ni bilo mogoče odpreti: %1$s. Nič ni bilo spremenjeno ali izbrisano. Ponastavitev jih začne praznih, vsako poškodovano datoteko pa ohrani na tej napravi, preimenovano z .corrupt- ter datumom in uro.</string>
   <string name="corrupt_database_reset">Ponastavi poškodovane podatke</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Poškodovanih podatkov ni bilo mogoče ponastaviti: %1$s ni bilo mogoče premakniti na stran. Nič ni bilo spremenjeno. Poskusite znova, pošljite poročilo o napaki ali uporabite Varnostna kopija &amp; Obnova.</string>
@@ -820,8 +807,8 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="damaged_data_needs_attention">Podatki aplikacije potrebujejo pozornost. Tapnite, da odprete aplikacijo.</string>
   <string name="debug_test_error">Testna napaka (razhroščevalna različica)</string>
   <string name="bug_report_prepare_failed">Poročila ni bilo mogoče pripraviti ali deliti. Poskusite znova ali uporabite Varnostno kopiranje in obnovitev za shranjevanje podatkov.</string>
-  <string name="bug_report_email_title">Poročilo o napaki pošljite prek e-pošte</string>
   <string name="bug_report_desktop_text">Nato boste vprašani, kam shraniti datoteko s poročilom o napaki. Potem boste dobili navodila za pošiljanje razvijalski ekipi.</string>
+  <string name="bug_report_email_title">Poročilo o napaki pošljite prek e-pošte</string>
   <string name="bug_report_email_text">Nato izberite želeno e-poštno aplikacijo (na primer Gmail) da pošljete poročilo ekipi razvijalcev.</string>
   <string name="bug_report_manual_title">Pošlji poročilo po e-pošti</string>
   <string name="bug_report_manual_text_saved">Poročilo je bilo shranjeno v <b>%1$s</b>.\n\nProsimo, pošljite e-pošto na <b>%2$s</b> in priložite to datoteko; e-poštni program je ne more priložiti namesto vas. Predlagani zadevek: <b>%3$s</b>. V sporočilu nam povejte, kaj ste naredili in kaj se je zgodilo.</string>
@@ -892,8 +879,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="beta_special_regards">Lep pozdrav, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Razvoj AndBible lahko denarno podprete s %s.</string>
   <string name="beta_special_sponsor_link">sponzoriranjem razvojnih ur</string>
-  <string name="new_sync_targets_notice_title">Na voljo so nove nastavitve sinhronizacije</string>
-  <string name="new_sync_targets_notice_message">Ta različica AndBible uvaja dodatne cilje sinhronizacije: Moji dokumenti, nastavitve umetne inteligence in napredek branja. Če jih želite omogočiti, to storite v nastavitvah Sinhronizacije naprav.</string>
   <string name="open_settings">Odpri nastavitve</string>
   <!--History-->
   <string name="history_for">Zgodovina (%1$s: Okno %2$d)</string>
@@ -993,7 +978,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="give_passphrase_for_module">Dokument %sje šifriran in za odklepanje potrebuje geslo </string>
   <string name="unlock_module">Nastavite geslo za modul</string>
   <string name="unlock_info">Informacije o odklepanju šifriranega modula</string>
-  <string name="try_again_passphrase">Geslo ni bilo pravo, boste znova poskusiii?</string>
   <string name="show_unlock_info">Modul in informacije o odklepanju</string>
   <string name="prefs_experimental_features_title">Eksperimentalne lastnosti</string>
   <string name="prefs_experimental_features_summary">Izberite, katere eksperimentalne funkcije boste omogočili. Te funkcije so še vedno v razvoju in se lahko spremenijo ali odstranijo.</string>
@@ -1027,9 +1011,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="active_window_indicator_summary">Poudarite vogale oken, da boste lažje prepoznali, katero okno je aktivno.</string>
   <string name="app_licence_title">Odprtokodna licenca</string>
   <string name="how_to_contribute">Kako prispevati?</string>
-  <string name="confirm_delete_bookmarks">Ali želite odstraniti %d zaznamke in njihove zapiske?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Izbrana oznaka je priložena %d zaznamkom, ki nimajo drugih oznak. Želite izbrisati te zaznamke skupaj z oznakami?</string>
-  <string name="delete_label_and_bookmarks">Izbriši oznake in zaznamke</string>
   <string name="delete_label_only">Izbriši samo oznake</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Priporočite prijatelju</string>
@@ -1060,8 +1041,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="old_webview">Paket Android WebView je prestar (%1$s). Paket Android WebView morate nadgraditi na vsaj različico %2$s, da uporabljate %3$s. Za večino naprav je to mogoče storiti prek %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Vseeno nadaljuj</string>
-  <string name="proceed">Nadaljuj</string>
-  <string name="rate_title">Ocenite in preglejte aplikacijo</string>
   <string name="rate_message5">
         Pozitivni in podrobni pregledi veliko pomagajo AndBible odprtokodnemu projektu. Hvala!
     </string>
@@ -1112,7 +1091,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="primary_label">Glavna oznaka</string>
   <string name="favourite_label">Priljubljena oznaka</string>
   <string name="edit_label">Uredi oznako</string>
-  <string name="delete_label_confirmation">Ali želite odstraniti oznako zaznamka \"%s\"? Odstranjene bodo tudi vse povezane opombe!</string>
   <string name="active_labels">Izbrane oznake</string>
   <string name="recent_labels">Prejšnje oznake</string>
   <string name="other_labels">Ostale oznake</string>
@@ -1122,8 +1100,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="book_menu_show_progress_bars">Prikaži potek napredka</string>
   <string name="reset_workspace_labels">Ali želite ponastaviti nastavitve za ta delovni prostor?</string>
   <string name="clear_auto_assign_labels">Počisti samodejno dodeljene oznake</string>
-  <string name="reset_workspace_auto_assign_labels">Ali želite odstraniti vse samodejno dodeljene oznake iz tega delovnega prostora?</string>
-  <string name="reset_hide_labels">Ali želite ponastaviti nastavitve za skrivanje določenih nastavitev oznak?</string>
   <string name="reorder">Prerazporeditev</string>
   <string name="system_items">Sistemska opravila</string>
   <string name="system_items1">Več</string>
@@ -1137,7 +1113,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="ios_fullscreen_hint">Dvakrat se dotaknite ali se dotaknite gumba za izhod iz celozaslonskega načina.</string>
   <string name="desktop_exit_fullscreen">Izhod iz celozaslonskega načina</string>
   <string name="exit_fullscreen">Dvakrat tapnite za izhod iz celozaslonskega načina</string>
-  <string name="reset_app_prefs">Ali želite ponastaviti vse globalne nastavitve aplikacije, ki so prikazane na tem zaslonu, na privzete vrednosti?</string>
   <string name="label_red">Rdeča</string>
   <string name="label_green">Zelena</string>
   <string name="label_blue">Modra</string>
@@ -1148,7 +1123,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="reset_databases_title">Ponastavi baze podatkov</string>
   <string name="reset_databases_description">Ponastavi posamezne baze podatkov na začetno prazno stanje. Tega ni mogoče razveljaviti.</string>
   <string name="last_crash_info_title">Informacije o zadnji zrušitvi</string>
-  <string name="reset_database_confirm">To bo trajno izbrisalo vse podatke v \"%1$s\" in jih ponastavilo na začetno stanje. Tega ni mogoče razveljaviti.\n\nAli ste prepričani?</string>
   <string name="reset_database_success">Baza podatkov je bila uspešno ponastavljena</string>
   <string name="reset_something">Ponastavi: %1$s</string>
   <string name="export">Izvoz</string>
@@ -1218,19 +1192,18 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="manage_labels_help_favourite">Obdrži oznako med priljubljenimi za hiter dostop.</string>
   <string name="manage_labels_help_styles">Pod imenom majhen primer prikazuje videz oznake: Izbor za zaznamek izbranega besedila, Celotna vrstica za zaznamek celotne vrstice in oznaka Delovni prostor za slog, ki ga ta delovni prostor preglasi. Zatemnjen primer brez okraskov pomeni, da zaznamki te oznake niso izrisani. Primere skrijete v meniju ⋮.</string>
   <string name="manage_labels_help_reorder">Seznam preuredite v meniju ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Na ozkem zaslonu seznam izpusti ikone za primarno, samodejno dodeljevanje in priljubljeno, da je več prostora za imena oznak. Tapnite oznako, da jih nastavite v njenem urejevalniku.</string>
   <string name="added_to_bookmark">Dodeljeno temu zaznamku</string>
   <string name="strongs_links">Povezave</string>
   <string name="strongs_text_and_links">Besedilo in povezave</string>
   <string name="strongs_hidden_links">Skrite povezave</string>
   <string name="verse_tip">Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo</string>
-  <string name="permission_required">Potrebno je dovoljenje</string>
   <string name="labels_search_hint">Iskanje</string>
   <string name="search_mode_name_start">Ime (od začetka)</string>
   <string name="search_mode_name_contains">Ime (vsebuje)</string>
   <string name="search_mode_content">Vsebina</string>
   <string name="search_results_matches">%d rezultatov</string>
   <string name="search_results_match">1 rezultat</string>
-  <string name="progress_status_permission">Za prikazovanje obvestil (stanje prenosa, obdelava, stanje govora) je potrebno vaše dovoljenje.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Preprost kalkulator</string>
   <string name="prefs_persecution_cat">Nastavitve za preganjane</string>
@@ -1279,7 +1252,6 @@ lahko.
   <string name="custom_repositories_create_button_label">Dodajanje shrambe po meri</string>
   <string name="custom_repositories_info_button_label">Informacije</string>
   <string name="repository_specification">URL shrambe</string>
-  <string name="delete_custom_repository">Ali želite odstraniti shrambo po meri %s?</string>
   <string name="custom_repositories_help1">Če želite dodati novo shrambo po meri, vnesite ali kopirajte &amp; sem prilepite URL shrambe po meri.</string>
   <string name="custom_repositories_help2">Več informacij o shrambah po meri si lahko preberete v %s.</string>
   <string name="custom_repositories_help0">Dokumente iz zunanjih shramb po meri lahko namestite tako, da namestite shrambe po meri.</string>
@@ -1301,9 +1273,6 @@ lahko.
   <string name="db_bookmarks">Zaznamki, moji zapiski, oznake in beležke</string>
   <string name="synchronizing">Sinhroniziranje...</string>
   <string name="notification_finished">Končano</string>
-  <string name="overrideBackup">
-        Obstoječa zbirka podatkov, s katero ta naprava ni sinhronizirana, je v oblaku.
-         Podatkovna baza vsebuje %s. Kaj želite storiti? </string>
   <string name="reading_plans_content">Načrti za branje in njihovo stanje</string>
   <string name="bookmarks_contents">Zaznamki, oznake in beležke</string>
   <string name="workspaces_contents">Delovni prostori in okna</string>
@@ -1323,7 +1292,6 @@ lahko.
   <string name="reading_progress_calendar">Bralna aktivnost</string>
   <string name="reading_progress_cycle">Cikel %d</string>
   <string name="reading_progress_new_cycle">Nov cikel</string>
-  <string name="reading_progress_new_cycle_confirm">Želite začeti nov bralni cikel? S tem boste začeli spremljati svoj napredek od začetka, hkrati pa bodo ohranjeni podatki iz prejšnjega cikla.</string>
   <string name="reading_progress_previous_cycle">Prejšnji cikel</string>
   <string name="reading_progress_next_cycle">Naslednji cikel</string>
   <string name="cloud_merge_data">Združi podatke</string>
@@ -1333,7 +1301,6 @@ lahko.
   <string name="cloud_sync_title">Sinhronizacija naprave</string>
   <string name="reset_sync">Odjava</string>
   <string name="prefs_reset_sync_summary">Onemogočite sinhronizacijo in ponastavite povezane nastavitve.</string>
-  <string name="sync_confirmation">Ali ste prepričani, da se želite odjaviti in ponastaviti sinhronizacijo?</string>
   <string name="cloud_info">Informacije o oblaku</string>
   <string name="cloud_info_summary">Podatki v shrambi v oblaku:%s Mb</string>
   <string name="sync_adapter">Sinhronizacija zaledja</string>
@@ -1349,7 +1316,6 @@ lahko.
   <string name="webdav_server_url_hint">Naslov mape WebDAV, npr. https://nas.local/dav/ ali https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinhronizacija zahteva varen naslov https://.</string>
   <string name="webdav_certificate_title">Potrdilo strežnika</string>
-  <string name="webdav_forget_certificate_message">Pozabim zaupanja vredno potrdilo strežnika? Ob naslednji povezavi boste ponovno morali potrditi potrdilo.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nezaupanja vredno potrdilo strežnika</string>
   <string name="webdav_untrusted_certificate_message">Android ne zaupa potrdilu strežnika %1$s. Zaupajte mu le, če ga prepoznate, na primer ker ste ta strežnik postavili sami.\n\nSubjekt: %2$s\nIzdajatelj: %3$s\nVeljavno: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1366,14 +1332,7 @@ lahko.
   <string name="synchronization_categories">Kategorije sinhronizacije</string>
   <string name="sync_general_settings">Informacije &amp; splošne nastavitve</string>
   <string name="sync_introduction">Uvod</string>
-  <string name="are_you_sure">Si prepričan?</string>
   <string name="are_you_sure_merge">Ohranjeni bodo tako podatki na tej napravi kot %s v oblaku. Kjer je bil isti element spremenjen na obeh, se ohrani novejša sprememba. Podatki te naprave bodo poslani vašim drugim napravam.</string>
-  <string name="are_you_sure_reset_local">S tem boste ponastavili lokalno zbirko podatkov za %s z vsebino, ki je trenutno shranjena v storitvi v oblaku.</string>
-  <string name="are_you_sure_reset_cloud">To bo ponastavilo bazo podatkov v oblaku %s z vsebino, ki jo imate v tej napravi.</string>
-  <string name="sync_cant_fetch">Različica podatkovne zbirke ali datoteke popravkov, shranjene v oblaku, je višja od različice, ki jo podpira ta aplikacija.</string>
-  <string name="sync_disabling">Za zdaj onemogočite sinhronizacijo za %s.</string>
-  <string name="sync_update_app">Za nadaljevanje sinhronizacije posodobite aplikacijo.</string>
-  <string name="sign_in_failed">Prijava v zaledno storitev sinhronizacije ni uspela.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Onemogočanje sinhronizacije v oblaku. Po obnovitvi morate ponovno ročno omogočiti.</string>
   <string name="report">Poročilo</string>
@@ -1391,6 +1350,7 @@ lahko.
   <string name="open_here">Odpri tukaj</string>
   <string name="external_link">Zunanja povezava</string>
   <string name="external_link_question">To bo odprlo zunanjo povezavo %s v aplikaciji brskalnika. Ali želite nadaljevati?</string>
+  <string name="external_link_dont_ask_again">Ne vprašaj več za %s</string>
   <string name="nameless">Naslov ni določen</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcije z enim dotikom (Biblije)
 </string>
@@ -1441,8 +1401,6 @@ Tega sporočila ne prikaži več
   <string name="memorize_include_reference_summary">Doda referenco vrstice (npr. Janez 3:16) kot zadnji element za pomnjenje</string>
   <string name="reading_progress_settings">Napredek in pomnjenje</string>
   <string name="reading_progress_settings_summary">Nastavitve samodejnega sledenja, pomnjenja in prakse tipkanja</string>
-  <string name="memorize_confirm_unmark">Odstraniti status pomnjenja za %s?</string>
-  <string name="memorize_confirm_remove_target">Odstraniti cilj pomnjenja%s?</string>
   <string name="memorize_tab_reading">Branje</string>
   <string name="memorize_tab_memorization">Pomnjenje</string>
   <string name="memorize_verses_memorized">Zapomnjeno</string>
@@ -1468,7 +1426,6 @@ Tega sporočila ne prikaži več
   <string name="llm_reset_usage_title">Ponastavi podatke o uporabi</string>
   <string name="llm_reset_usage_summary">Počisti skupno sledenje žetonov in stroškov</string>
   <string name="llm_reset_usage_confirm_title">Ponastavim podatke o uporabi?</string>
-  <string name="llm_reset_usage_confirm_message">S tem boste počistili vse skupne podatke o uporabi.</string>
   <string name="llm_custom_input_price_title">Vhodna cena ($/Mžeton)</string>
   <string name="llm_custom_output_price_title">Izhodna cena ($/Mžeton)</string>
   <string name="llm_cost_total">Skupaj: %1$s</string>
@@ -1484,8 +1441,6 @@ Tega sporočila ne prikaži več
   <string name="llm_parse_error_anthropic">Napaka pri razčlenjevanju odgovora Anthropic: %1$s</string>
   <string name="llm_error_unknown">Neznana napaka</string>
   <string name="llm_error_max_iterations">Doseženo največje število ponovitev (%1$d) brez dokončanja</string>
-  <string name="llm_continue_iterations_title">Nadaljujem?</string>
-  <string name="llm_continue_iterations_message">Agent AI je dosegel omejitev %1$d ponovitev brez dokončanja. Nadaljujem še za %2$d ponovitev?</string>
   <string name="agent_max_iterations_title">Največje število ponovitev agenta</string>
   <string name="agent_max_iterations_summary">Največje število ponovitev, preden vpraša za nadaljevanje (0 = neomejeno)</string>
   <string name="ask_model_before_run_title">Vprašaj za model pred izvedbo</string>
@@ -1545,7 +1500,6 @@ Tega sporočila ne prikaži več
   <string name="ai_models_summary_none">Ni konfiguriranih modelov</string>
   <string name="ai_add_provider">Dodaj ponudnika</string>
   <string name="ai_provider_edit">Uredi</string>
-  <string name="ai_provider_delete_confirm">Izbrišem ponudnika »%1$s«? Pozivi, ki uporabljajo tega ponudnika, se bodo vrnili na privzeto vrednost.</string>
   <string name="ai_provider_api_key_not_set">API ključ ni nastavljen</string>
   <string name="ai_provider_select_type">Izberite vrsto ponudnika</string>
   <string name="ai_provider_name">Ime ponudnika</string>
@@ -1565,7 +1519,6 @@ Tega sporočila ne prikaži več
   <string name="edit_model_title">Uredi model</string>
   <string name="model_saved">Model shranjen</string>
   <string name="model_deleted">Model izbrisan</string>
-  <string name="model_delete_confirm">Izbrišem model \"%1$s\"?</string>
   <string name="model_set_default">Nastavi kot privzeti model</string>
   <string name="model_select_provider">Ponudnik</string>
   <string name="model_supported_badge">✓ Podprto</string>
@@ -1605,7 +1558,6 @@ Tega sporočila ne prikaži več
   <string name="ai_disclaimer_point8">Tvoji podatki so poslani na strežnike izbranega ponudnika AI. Z uporabo API ključa sprejmete pogoje in pravilnike o zasebnosti tega ponudnika. Gostovanje na lastnem strežniku je možno, a zahteva več tehničnega znanja in morda ne daje tako dobrih rezultatov kot komercialni modeli.</string>
   <string name="ai_disclaimer_point9">Ponudniki AI zaračunavajo za uporabo API. Ocene stroškov v AndBible so okvirne — za dejanske stroške vedno preverite obračun pri svojem ponudniku.</string>
   <string name="ai_disclaimer_accept_title">Sprejmite izjavo o omejitvi odgovornosti za AI</string>
-  <string name="ai_disclaimer_accept_button">Sprejemam in prevzemam polno odgovornost</string>
   <string name="prompt_permission_mode">Način dovoljenja</string>
   <string name="prompt_permission_mode_description">Nadzira, kdaj je potrebna potrditev uporabnika, preden AI izvede pisalne operacije. Nastavitve posameznih orodij spodaj lahko to za posamezna orodja spremenijo.</string>
   <string name="agent_permission_mode_summary">Nadzira, kdaj je potrebna potrditev uporabnika pred pisalnimi operacijami AI</string>
@@ -1721,7 +1673,6 @@ Tega sporočila ne prikaži več
   <string name="default_prompt_custom_desc">Izvedi lastno nalogo na izbranem odlomku</string>
   <string name="default_prompt_custom_template">Upoštevaj uporabnikovo specifikacijo naloge za izbrani biblijski odlomek.</string>
   <string name="copy">Kopiraj</string>
-  <string name="delete_prompt_confirm_message">Ali ste prepričani, da želite izbrisati ta poziv?</string>
   <string name="ai_hide_prompt">Skrij</string>
   <string name="ai_restore_hidden_prompts">Obnovi skrite pozive</string>
   <string name="ai_prompt_hidden">Poziv skrit</string>
@@ -1806,8 +1757,6 @@ Tega sporočila ne prikaži več
   <string name="permission_allow_all_session">Dovoli vsa orodja v tej seji</string>
   <string name="permission_allow_always">Vedno dovoli »%1$s«</string>
   <string name="permission_deny">Zavrni</string>
-  <string name="permission_always_allow_confirm_title">Vedno dovolim?</string>
-  <string name="permission_always_allow_confirm">Ali ste prepričani, da želite trajno dovoliti »%1$s«?</string>
   <string name="permission_always_allow_confirm_reset_hint">To lahko ponastavite v nastavitvah AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Dovoljenja orodij</string>
@@ -1912,18 +1861,15 @@ Tega sporočila ne prikaži več
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Ustvari nov dokument</string>
   <string name="my_document_rename_title">Preimenuj dokument</string>
-  <string name="my_document_delete_confirmation">Izbrišem dokument »%s«?</string>
   <string name="show_secret">Pokaži</string>
   <string name="hide_secret">Skrij</string>
   <string name="ai_documents_name">Dokumenti AI</string>
   <string name="ai_documents_description">Samodejno ustvarjeni dokumenti iz AI</string>
-  <string name="my_document_cannot_delete_ai_documents">Dokumentov AI ni mogoče izbrisati, dokler vsebuje strani. Najprej izbrišite strani.</string>
   <string name="my_document_save_changes">Shranim spremembe?</string>
   <string name="my_document_no_description">Ni opisa</string>
   <string name="my_document_edit_description">Uredi opis</string>
   <string name="my_document_pages_title">%s - Strani</string>
   <string name="my_document_page_rename_title">Preimenujte stran</string>
-  <string name="my_document_page_delete_confirmation">Izbrišem stran »%s«?</string>
   <string name="my_document_pages_delete_confirmation">Izbrišem te strani?</string>
   <string name="my_documents_switch_document">Zamenjaj dokument</string>
   <string name="my_document_new_page_name">Stran %1$d</string>
@@ -1991,7 +1937,6 @@ Tega sporočila ne prikaži več
   <string name="cloud_doc_show_removed">Pokaži odstranjene dokumente</string>
   <string name="cloud_doc_status_removed">Odstranjeno iz oblaka</string>
   <string name="cloud_doc_status_still_installed">še vedno nameščeno tukaj</string>
-  <string name="cloud_doc_purge_confirm">Trajno odstranim \"%1$s\" iz zgodovine oblaka? Če je še vedno nameščeno na drugi napravi, lahko ta naprava dokument ob naslednji sinhronizaciji znova naloži v oblak.</string>
   <string name="cloud_doc_action_download">Prenesi</string>
   <string name="cloud_doc_action_push">Naloži v oblak</string>
   <string name="cloud_doc_action_remove_cloud">Odstrani iz oblaka</string>
@@ -2002,8 +1947,6 @@ Tega sporočila ne prikaži več
   <string name="cloud_doc_action_dont_sync">Ne sinhroniziraj v oblak</string>
   <string name="cloud_doc_action_allow_sync">Sinhroniziraj v oblak</string>
   <string name="cloud_doc_action_purge">Odstrani iz zgodovine oblaka</string>
-  <string name="cloud_doc_remove_all_confirm">Odstranim %1$s iz oblaka in z vseh vaših naprav, vključno s to?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Odstranim %1$s iz oblaka? Kopija na tej napravi se ohrani; naprave z vklopljeno sinhronizacijo dokumentov jo bodo prav tako odstranile.</string>
   <string name="cloud_doc_sync_now">Sinhroniziraj zdaj</string>
   <string name="cloud_doc_rescan">Ponovno preglej iz oblaka</string>
   <string name="cloud_doc_sync_now_download">Prenesi nove in posodobljene dokumente</string>
@@ -2015,6 +1958,18 @@ Tega sporočila ne prikaži več
   <string name="cloud_doc_summary_download">Prenesi %1$d</string>
   <string name="cloud_doc_summary_download_size">Prenesi %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Samodejni prenosi se bodo začeli prek Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d dokument</item>
+    <item quantity="two">%1$d dokumenta</item>
+    <item quantity="few">%1$d dokumenti</item>
+    <item quantity="other">%1$d dokumentov</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d dokument (%2$s)</item>
+    <item quantity="two">%1$d dokumenta (%2$s)</item>
+    <item quantity="few">%1$d dokumenti (%2$s)</item>
+    <item quantity="other">%1$d dokumentov (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Ni ničesar za prenos</string>
   <string name="cloud_doc_selected_count">%1$d izbranih</string>
   <string name="cloud_doc_bulk_skipped">Preskočenih %1$d neustreznih</string>
@@ -2031,8 +1986,6 @@ Tega sporočila ne prikaži več
   <string name="background_image_import">Uvozi iz galerije…</string>
   <string name="background_image_empty">Še ni uvoženih slik. Dotaknite se »Uvozi iz galerije…«, da jo dodate.</string>
   <string name="background_image_importing">Uvažanje…</string>
-  <string name="background_image_delete_title">Izbrišem sliko?</string>
-  <string name="background_image_delete_confirm">Izbrišem to sliko ozadja? Delovni prostori, ki jo še uporabljajo, bodo prešli na brez slike.</string>
   <string name="background_image_day">Slika ozadja (dan)</string>
   <string name="background_image_night">Slika ozadja (noč)</string>
   <string name="background_image_opacity_day">Neprosojnost slike ozadja (dan)</string>
@@ -2106,6 +2059,12 @@ Tega sporočila ne prikaži več
   <string name="legacy_notice_icloud">Sinhronizacija zdaj uporablja iCloud Drive. Znova jo vklopite v Nastavitve → Sinhronizacija. Ta naprava obdrži, kar je imela; spremembe z vaših drugih naprav prispejo, ko bo sinhronizacija znova nastavljena. Za sprostitev starih podatkov iCloud: Nastavitve → vaše ime → iCloud → Upravljanje shrambe → AndBible.</string>
   <string name="legacy_notice_nextcloud">Vaša povezava z Nextcloud je bila prenesena, vendar je sinhronizacija izklopljena. Vklopite jo v Nastavitve → Sinhronizacija in izberite, ali želite prenesti iz oblaka ali ustvariti novo.</string>
   <string name="legacy_notice_nextcloud_unsent">Nekatere spremembe na tej napravi še niso bile poslane v Nextcloud. Niso bile poslane in ostanejo samo na tej napravi.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d zaznamka ni bilo mogoče zanesljivo umestiti in ni bil uvožen. Ohranjen je med vašimi starimi podatki na tej napravi.</item>
+    <item quantity="two">%1$d zaznamkov ni bilo mogoče zanesljivo umestiti in nista bila uvožena. Ohranjena sta med vašimi starimi podatki na tej napravi.</item>
+    <item quantity="few">%1$d zaznamkov ni bilo mogoče zanesljivo umestiti in niso bili uvoženi. Ohranjeni so med vašimi starimi podatki na tej napravi.</item>
+    <item quantity="other">%1$d zaznamkov ni bilo mogoče zanesljivo umestiti in niso bili uvoženi. Ohranjeni so med vašimi starimi podatki na tej napravi.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">To je zmogljiva, a preprosta za uporabo aplikacija za preučevanje Biblije brez povezave.</string>
   <string name="webdav_untrusted_certificate_message_device">Ta naprava ne zaupa potrdilu strežnika %1$s. Zaupajte mu le, če ga prepoznate, na primer ker ste ta strežnik postavili sami.\n\nSubjekt: %2$s\nIzdajatelj: %3$s\nVeljavno: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2157,6 +2116,25 @@ Tega sporočila ne prikaži več
   <string name="recommend_share_link">Deli povezavo</string>
   <string name="recommend_qr_caption">Skenirajte za AndBible na telefonu, tablici ali računalniku.</string>
   <string name="desktop_activation_failed">AndBible že teče, vendar se njegovo okno ni odzvalo. Preklopite na zagnani primerek in poskusite znova. Prejete datoteke niso bile potrjene kot dostavljene.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Tega ni mogoče razveljaviti.</string>
+  <string name="ai_raw_log_delete_lead">Izbrišem ta dnevnik?</string>
+  <string name="ai_provider_delete_lead">Izbrišem ponudnika “%1$s”?</string>
+  <string name="ai_provider_delete_detail">Pozivi, ki ga uporabljajo, se vrnejo k privzetemu ponudniku.</string>
+  <string name="ai_model_delete_lead">Izbrišem model “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Izbrišem poziv “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Izbrišem ta poziv?</string>
+  <string name="ai_reset_usage_detail">Vsote žetonov in stroškov se vrnejo na nič. Tega ni mogoče razveljaviti.</string>
+  <string name="ai_reset_usage_button">Ponastavi</string>
+  <string name="ai_disclaimer_accept">Sprejemam</string>
+  <string name="llm_continue_iterations_lead">Nadaljujem še %1$d iteracij?</string>
+  <string name="llm_continue_iterations_detail">Ai agent je dosegel omejitev %1$d iteracij, ne da bi končal.</string>
+  <string name="llm_continue_button">Nadaljuj</string>
+  <string name="permission_always_allow_lead">Vedno dovolim “%1$s”?</string>
+  <string name="permission_always_allow_button">Vedno dovoli</string>
+  <string name="ai_bug_report_send_lead">Pošljem poročilo o napaki ai?</string>
+  <string name="ai_bug_report_send_button">Pošlji</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Prvi koraki</string>
   <string name="user_guide_section_reading_workspace">Branje in delovni prostor</string>
@@ -2234,4 +2212,166 @@ Tega sporočila ne prikaži več
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Pomočnik AI, 3. del: orodja, vaši podatki in dovoljenja</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Pomočnik AI, 4. del: lastni pozivi, stroški in sinhronizacija</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Zavržem spremembe?</string>
+  <string name="dialog_keep_editing">Nadaljuj z urejanjem</string>
+  <string name="dialog_label_delete_lead">Izbrišem oznako “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Izbrisane so tudi njene opombe v beležkah. Tega ni mogoče razveljaviti.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d zaznamek nima druge oznake.</item>
+    <item quantity="two">%1$d zaznamka nimata druge oznake.</item>
+    <item quantity="few">%1$d zaznamki nimajo druge oznake.</item>
+    <item quantity="other">%1$d zaznamkov nima druge oznake.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Izbriši oznako in %1$d zaznamek</item>
+    <item quantity="two">Izbriši oznako in %1$d zaznamka</item>
+    <item quantity="few">Izbriši oznako in %1$d zaznamke</item>
+    <item quantity="other">Izbriši oznako in %1$d zaznamkov</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Zaznamki in njihove opombe so izbrisani.</string>
+  <string name="dialog_label_delete_only_consequence">Zaznamki ostanejo, brez oznake.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Odstranim %1$d zaznamek?</item>
+    <item quantity="two">Odstranim %1$d zaznamka?</item>
+    <item quantity="few">Odstranim %1$d zaznamke?</item>
+    <item quantity="other">Odstranim %1$d zaznamkov?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">Odstranjene so tudi pripadajoče opombe.</item>
+    <item quantity="two">Odstranjeni sta tudi njuni opombi.</item>
+    <item quantity="few">Odstranjene so tudi njihove opombe.</item>
+    <item quantity="other">Odstranjene so tudi njihove opombe.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Odstranim vse samodejno dodeljene oznake iz tega delovnega prostora?</string>
+  <string name="dialog_labels_reset_hidden_lead">Znova prikažem vse skrite oznake?</string>
+  <string name="dialog_labels_reset_shown_detail">Oznake, ki ste jih skrili s seznama, so spet prikazane.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Namestim “%s”?</string>
+  <string name="install_action">Namesti</string>
+  <string name="install_from_file_question">Namestim dokumente iz datoteke?</string>
+  <string name="overwrite_files_detail">Te datoteke že obstajajo:%s</string>
+  <string name="import_studypads_question">Uvozim te beležke?</string>
+  <string name="import_action">Uvozi</string>
+  <string name="restore_backup_question">Povrnem dokumente iz te varnostne kopije?</string>
+  <string name="restore_backup_detail">Ta datoteka je varnostna kopija dokumentov AndBible.</string>
+  <string name="update_document_question">Posodobim ta dokument?</string>
+  <string name="update_action">Posodobi</string>
+  <string name="download_documents_question">Prenesem dokumente?</string>
+  <string name="download_persecution_warning">Če živite v državi, kjer so kristjani preganjani, boste morda morali biti previdni pri prenosu krščanskih gradiv prek interneta. Morda raje pridobite zip datoteke dokumentov na varnejši način in jih namestite prek “%1$s”. Vsi prenosi s strežnikov dokumentov so šifrirani (HTTPS).</string>
+  <string name="download_action">Prenesi</string>
+  <string name="download_dont_ask_again">Prenesi, ne vprašaj več</string>
+  <string name="download_dont_ask_again_consequence">Prenosi se bodo v prihodnje začeli brez tega vprašanja.</string>
+  <string name="passphrase_did_not_work">Geslo ni delovalo.</string>
+  <string name="try_again">Poskusi znova</string>
+  <string name="interrupted_downloads_lead">Znova prenesem te dokumente?</string>
+  <string name="interrupted_downloads_detail">Njihov prenos je bil prekinjen, zato niso bili nameščeni.</string>
+  <string name="external_link_open_question">Odprem to povezavo v brskalniku?</string>
+  <string name="open_action">Odpri</string>
+  <string name="notification_permission_question">Dovolim obvestila?</string>
+  <string name="notification_permission_detail">Obvestila prikazujejo stanje prenosa, obdelavo in stanje govora.</string>
+  <string name="allow_action">Dovoli</string>
+  <string name="rate_question">Ocenim aplikacijo in napišem mnenje?</string>
+  <string name="bug_report_email_question">Pošljem poročilo o napaki po e-pošti?</string>
+  <string name="continue_action">Nadaljuj</string>
+  <string name="delete_search_index_question">Izbrišem iskalni indeks za “%s”?</string>
+  <string name="remove_custom_repository_question">Odstranim shrambo po meri “%s”?</string>
+  <string name="download_document_question">Prenesem “%s”?</string>
+  <string name="choose_file_action">Izberi datoteko</string>
+  <string name="old_webview_question">Uporabim aplikacijo s starim WebView?</string>
+  <string name="incomplete_translation_question">Nadaljujem z delnim prevodom?</string>
+  <string name="rate_action">Oceni</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Izbrišem dokument “%s”?</string>
+  <string name="my_document_page_delete_lead">Izbrišem stran “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">Dokumentov ai ni mogoče izbrisati, dokler vsebujejo strani.</string>
+  <string name="my_document_cannot_delete_ai_detail">Najprej izbrišite strani.</string>
+  <string name="reading_progress_new_cycle_lead">Začnem nov krog branja?</string>
+  <string name="reading_progress_new_cycle_detail">Vaš napredek se spremlja znova. Podatki prejšnjega kroga so ohranjeni.</string>
+  <string name="reading_progress_new_cycle_start">Začni</string>
+  <string name="reset_plan_lead">Ponastavim ta načrt?</string>
+  <string name="reset_plan_detail">Vaš začetni datum in napredek v tem načrtu sta izbrisana.</string>
+  <string name="set_current_day_lead">Nastavim %1$s kot trenutni dan?</string>
+  <string name="set_current_day_detail">Vsi prejšnji dnevi so označeni kot prebrani.</string>
+  <string name="plan_duplicate_user_plan_lead">Datoteka načrta branja ima enako ime kot vgrajeni načrt.</string>
+  <string name="plan_duplicate_user_plan_detail">Datoteke načrta ni mogoče prikazati. Preimenujte datoteko v mapi jsword/readingplan in ohranite njeno končnico .properties.</string>
+  <string name="background_image_delete_lead">Izbrišem to sliko ozadja?</string>
+  <string name="background_image_delete_detail">Delovni prostori, ki jo še uporabljajo, bodo ostali brez slike.</string>
+  <string name="reset_values_lead">Ponastavim vse te vrednosti?</string>
+  <string name="revert_setting_lead">Vrnem to nastavitev na podedovano vrednost?</string>
+  <string name="revert_setting_confirm">Vrni</string>
+  <string name="reset_settings_screen_lead">Ponastavim nastavitve na tem zaslonu?</string>
+  <string name="reset_settings_screen_detail">Vrnejo se na privzete vrednosti.</string>
+  <string name="memorize_unmark_lead">Odstranim stanje pomnjenja za “%s”?</string>
+  <string name="memorize_remove_target_lead">Odstranim cilj pomnjenja “%s”?</string>
+  <string name="dialog_apply">Uveljavi</string>
+  <string name="dialog_dont_apply">Ne uveljavi</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Oblak že vsebuje vaše: %s. Kaj naj se zgodi?</string>
+  <string name="cloud_merge_consequence">Obe strani sta ohranjeni; kjer se je element spremenil na obeh, zmaga novejša sprememba.</string>
+  <string name="cloud_fetch_consequence">Podatke na tej napravi zamenja kopija iz oblaka.</string>
+  <string name="cloud_create_consequence">Kopijo v oblaku zamenjajo podatki na tej napravi.</string>
+  <string name="cloud_disable_consequence">Sinhronizacija za te podatke ostane izklopljena.</string>
+  <string name="cloud_merge_lead">Združim vaše: %s z oblakom?</string>
+  <string name="cloud_merge_confirm">Združi</string>
+  <string name="cloud_replace_confirm">Zamenjaj</string>
+  <string name="cloud_replace_local_lead">Zamenjam: %s te naprave s kopijo iz oblaka?</string>
+  <string name="cloud_replace_local_detail">Trenutna vsebina te naprave bo prepisana in je ni mogoče obnoviti.</string>
+  <string name="cloud_replace_cloud_lead">Zamenjam kopijo v oblaku za: %s s podatki te naprave?</string>
+  <string name="cloud_replace_cloud_detail">Trenutna vsebina oblaka bo prepisana, vaše druge naprave pa bodo prejele podatke te naprave.</string>
+  <string name="sign_in_failed_lead">Prijava v storitev sinhronizacije ni uspela.</string>
+  <string name="sync_too_old_lead">Ta aplikacija je prestara za sinhronizacijo: %s.</string>
+  <string name="sync_too_old_detail">Podatki v oblaku uporabljajo novejšo različico, kot jo podpira ta aplikacija. Sinhronizacija zanje je za zdaj izklopljena; posodobite aplikacijo, da jo spet vklopite.</string>
+  <string name="backup_replace_lead">Zamenjam vaše: %s z varnostno kopijo?</string>
+  <string name="backup_replace_detail">Trenutna vsebina te naprave bo prepisana in je ni mogoče obnoviti.</string>
+  <string name="reset_database_lead">Ponastavim “%1$s” v začetno stanje?</string>
+  <string name="reset_database_detail">Vsi podatki v njej so trajno izbrisani. Tega ni mogoče razveljaviti.</string>
+  <string name="reset_database_button">Ponastavi</string>
+  <string name="restore_all_lead">Zamenjam vaše opombe, zaznamke, beležke, načrte branja in delovne prostore?</string>
+  <string name="restore_or_import_lead">Povrnem ali uvozim: %s?</string>
+  <string name="restore_consequence">Vsebino te naprave zamenja varnostna kopija.</string>
+  <string name="import_consequence">Elemente iz varnostne kopije doda k vsebini te naprave.</string>
+  <string name="sync_start_syncing">Začni sinhronizacijo</string>
+  <string name="sync_reset_lead">Odjava in ponastavitev sinhronizacije?</string>
+  <string name="sync_reset_detail">Sinhronizacijo boste morali nastaviti znova.</string>
+  <string name="webdav_forget_certificate_lead">Pozabim zaupanja vredno potrdilo strežnika?</string>
+  <string name="webdav_forget_certificate_detail">Ob naslednji povezavi boste morali potrdilo znova potrditi.</string>
+  <string name="webdav_forget_certificate_confirm">Pozabi</string>
+  <string name="cloud_doc_remove_all_lead">Odstranim “%1$s” iz oblaka in z vseh vaših naprav?</string>
+  <string name="cloud_doc_remove_cloud_lead">Odstranim “%1$s” iz oblaka?</string>
+  <string name="cloud_doc_purge_lead">Trajno odstranim “%1$s” iz zgodovine oblaka?</string>
+  <string name="cloud_doc_remove_all_detail">S tem izbrišete tudi kopije na tej napravi in na vseh drugih napravah z vklopljeno sinhronizacijo dokumentov.</string>
+  <string name="cloud_doc_remove_cloud_detail">Kopije na tej napravi so ohranjene. Naprave z vklopljeno sinhronizacijo dokumentov jih bodo prav tako odstranile.</string>
+  <string name="cloud_doc_purge_detail">Naprava, ki še ima kopijo, jo lahko ob naslednji sinhronizaciji znova naloži.</string>
+  <string name="cloud_doc_block_confirm_button">Ne sinhroniziraj</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Odstranim %1$d dokument iz oblaka in z vseh vaših naprav?</item>
+    <item quantity="two">Odstranim %1$d dokumenta iz oblaka in z vseh vaših naprav?</item>
+    <item quantity="few">Odstranim %1$d dokumente iz oblaka in z vseh vaših naprav?</item>
+    <item quantity="other">Odstranim %1$d dokumentov iz oblaka in z vseh vaših naprav?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Odstranim %1$d dokument iz oblaka?</item>
+    <item quantity="two">Odstranim %1$d dokumenta iz oblaka?</item>
+    <item quantity="few">Odstranim %1$d dokumente iz oblaka?</item>
+    <item quantity="other">Odstranim %1$d dokumentov iz oblaka?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Trajno odstranim %1$d dokument iz zgodovine oblaka?</item>
+    <item quantity="two">Trajno odstranim %1$d dokumenta iz zgodovine oblaka?</item>
+    <item quantity="few">Trajno odstranim %1$d dokumente iz zgodovine oblaka?</item>
+    <item quantity="other">Trajno odstranim %1$d dokumentov iz zgodovine oblaka?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Ustavim sinhronizacijo %1$d dokumenta v oblak?</item>
+    <item quantity="two">Ustavim sinhronizacijo %1$d dokumentov v oblak?</item>
+    <item quantity="few">Ustavim sinhronizacijo %1$d dokumentov v oblak?</item>
+    <item quantity="other">Ustavim sinhronizacijo %1$d dokumentov v oblak?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Več vaših podatkov se zdaj lahko sinhronizira</string>
+  <string name="new_sync_targets_detail">Sinhronizirajo se lahko tudi Moji dokumenti, nastavitve ai in napredek branja. Vklopite jih v nastavitvah sinhronizacije naprave.</string>
+  <!--end dialog copy: B3b-->
 </resources>

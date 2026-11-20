@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Die volledige gebruikersgids is op andbible.org. Bladsye maak in jou blaaier oop.</string>
   <string name="help_user_guide_home">Gebruikersgids tuisblad</string>
   <string name="help_read_in_user_guide">Lees in die gebruikersgids</string>
+  <string name="help_in_user_guide">Hulp in die gebruikersgids</string>
+  <string name="help_matching_section">Ooreenstemmende afdeling</string>
   <string name="help_read_page">Lees in die gebruikersgids: %1$s</string>
   <string name="help_tutorial_videos">Handleidingvideo\'s</string>
   <string name="help_watch_in_order">Kyk die handleidingvideo\'s in volgorde</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
   <string name="prefs_open_links_in_special_window_title">Skakels venster</string>
   <string name="prefs_open_links_in_special_window_summary">Open skakels in spesiale venster, vir vinniger vertoning van kruisverwysings en Srongs</string>
+  <string name="prefs_trusted_link_domains_title">Vertroude skakeldomeine</string>
+  <string name="prefs_trusted_link_domains_summary">Skakels na hierdie domeine word sonder om te vra oopgemaak. Ontmerk \'n domein om weer gevra te word.</string>
+  <string name="prefs_trusted_link_domains_empty">Nog geen. Merk \"Moenie weer vra nie\" wanneer jy \'n skakel oopmaak om sy domein by te voeg.</string>
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
   <string name="prefs_screen_keep_on_title">Hou skerm aan</string>
   <string name="prefs_screen_keep_on_summary">Voorkom dat skerm gaan slaap tydens die gebruik van hierdie program</string>
@@ -306,7 +311,6 @@ Woordafbreking</string>
   <string name="line_spacing_title">Lyn spasiëring</string>
   <string name="line_spacing_summary">Stel die spasie tussen lyne</string>
   <string name="select_none">Kies geen</string>
-  <string name="reset_are_you_sure">Is jy seker dat jy al hierdie waardes wil terugstel?</string>
   <string name="window_pinning_menutitle">Venster vasgespeld</string>
   <string name="hide_window_buttons_title">Versteek venster knoppies</string>
   <string name="hide_window_buttons_summary">Venster knoppies wat aan die regterkant van die Bybel aansigte vertoon word, word weggesteek. Venster navigasiebalk aan die onderkant word steeds vertoon en jy kan venste ropspring kieslys oopmaak deur hulle lank te klik</string>
@@ -329,6 +333,7 @@ Woordafbreking</string>
   <string name="word_not_found_in_dictionaries">Woord nie in enige woordeboek gevind nie</string>
   <string name="prefs_top_margin_title_mm">Boonste kantlyn (%d mm)</string>
   <string name="font_size_title">Skrif grootte</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Want so lief het God die wêreld gehad dat Hy sy eniggebore Seun gegee het, sodat elkeen wat in Hom glo, nie verlore mag gaan nie, maar die ewige lewe kan hê.</string>
   <string name="font_size_title_pt">Skrif grootte (%dpt)</string>
   <string name="prefs_font_text_size_summary">Verstel hoof teks skrif grootte</string>
@@ -346,6 +351,8 @@ Woordafbreking</string>
   <string name="window_color_settings_title">Kleurinstellings (Venster)</string>
   <string name="workspace_color_settings_title">Kleurinstellings (Werkruimte)</string>
   <string name="color_workspace">Werkspasie kleur</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Verstek</string>
   <string name="color_text">Teks kleur</string>
   <string name="color_background">Agtergrond kleur</string>
   <string name="colors_day_mode_title">Dag mode</string>
@@ -379,7 +386,6 @@ Woordafbreking</string>
   <string name="download_source_last_updated">Dokument lyste laas opgedateer: %s</string>
   <string name="download_refreshing_book_list">Verfris lys beskikbare dokumente van dokument bedieners...</string>
   <string name="download_source_message1">Dokumente word van die volgende bronne afgelaai:</string>
-  <string name="download_document_confirm_prefix">Laai af</string>
   <string name="error_downloading">\'n Fout het voorgekom terwyl dit afgelaai is. Kontroleer asseblief jou internetverbinding.</string>
   <string name="error_downloading_status">Die bediener wat gasheer is %1$s het \'n fout teruggegee as gevolg van %2$s (%3$d).</string>
   <string name="storage_space_warning">Onvoldoende lokale stoorplek.</string>
@@ -400,9 +406,6 @@ Woordafbreking</string>
   <string name="activity_title">Agtergrondaktiwiteit</string>
   <string name="activity_empty">Niks loop nie</string>
   <string name="activity_failed_toast">%1$s — sien kieslys</string>
-  <string name="download_question_title">Wil u voortgaan om dokumente af te laai?</string>
-  <string name="download_question_message">As jy in \'n land woon waar Christene vervolg word, moet jy dalk versigtig wees om Christelike materiaal oor die internet af te laai. In plaas daarvan wil jy dalk modulesip-lêers veiliger bekom en dit installeer via \"%1$s\". Is jy seker jy wil voortgaan met aflaai? Alle aflaaie vanaf modulebedieners is geënkripteer (HTTPS).</string>
-  <string name="do_not_ask_again">Ja, moenie meer vra nie</string>
   <string name="recommended_document">Aanbeveel!</string>
   <string name="about_version_history">Weergawe geskiedenis:%s</string>
   <string name="download_errors">Fout met aflaai</string>
@@ -419,11 +422,9 @@ Woordafbreking</string>
   <string name="checking_zip_file">Kontroleer die gegewe lêer ...</string>
   <string name="invalid_module">Lêer nie \'n geldige SWORD module nie</string>
   <string name="install_zip_title">Wag asseblief. Laai modules van uit \'n lêer.</string>
-  <string name="overwrite_files">Volgende lêers bestaan reeds%s Oorskryf?</string>
   <string name="overwrite_files_title">Oorskryf lêers?</string>
   <string name="could_not_overwrite_files">Kon nie lêers oorheers nie: %s Afgesien daarvan was die installasie suksesvol.</string>
   <string name="module_backup_restore">Hierdie lêer is \'n AndBible-dokumenterugskrif. Wil jy sy dokumente herstel?</string>
-  <string name="install_do_you_want">Wil jy module installeer (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lees Plan</string>
   <string name="reading_plans_plural">Lees Planne</string>
@@ -431,14 +432,8 @@ Woordafbreking</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel die begin datum ...</string>
   <string name="set_current_day">Stel as huidige dag... </string>
-  <string name="msg_set_current_day_reading_plan">Dit sal %1$s as die huidige dag in hierdie plan stel en al die vorige dae as gelees merk. Gaan voort?</string>
   <string name="done">Klaar</string>
-  <string name="reset_plan_question">Is u seker dat u hierdie plan wil terugstel?</string>
   <string name="import_reading_plan">Voer leesplan in... </string>
-  <string name="plan_duplicate_user_plan">
-Daar is \'n gebruikers leesplan in sdcard
-jsword / leesplan met dieselfde naam as \'n interne plan. Dit kan nie hier gelys word nie.
-Herbenoem die lêer na iets anders, en laat die lêer uitbreiding as. eienskappe</string>
   <string name="plan_name_y1ntpspr">NT, Psalms &amp; Spreuke in \'n Jaar</string>
   <string name="plan_description_y1ntpspr">
       Met vergunning van HEARTLIGHT Internet Magazine,
@@ -477,12 +472,8 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="delete_index">Skrap soek indeks</string>
   <string name="about">Betreffende</string>
   <string name="delete_doc">Skrap %s?</string>
-  <string name="interrupted_downloads_title">Aflaai onderbreek</string>
-  <string name="interrupted_downloads_message">Hierdie dokumente is nie geïnstalleer nie omdat hul aflaai onderbreek is:</string>
-  <string name="interrupted_downloads_question">Laai hulle weer af?</string>
   <string name="download_again">Laai weer af</string>
   <string name="delete_docs_confirm">Skrap hierdie dokumente?</string>
-  <string name="delete_search_index_doc">Skrap indeks van %s?</string>
   <!--Verse context menu-->
   <string name="notes">Voetnotas en verwysings</string>
   <string name="share_verse">Deel...</string>
@@ -522,7 +513,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="bookmark_warning2">
 As dokument struktuur verander het, kan die opdatering van hierdie dokument maak
 dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwyn heeltemal.</string>
-  <string name="bookmark_warning3">Wil u nog steeds die module opdateer?</string>
   <string name="bookmark_warning4">Dit word aanbeveel dat u die module rugsteun voordat u dit opdateer.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datum volgorde</string>
@@ -689,10 +679,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Herstel of voer in vanaf ... </string>
   <string name="backup_restore2">Herstel of voer in</string>
-  <string name="overwrite_something">Oorskryf %s? </string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Rugsteun databasis leer ...</string>
-  <string name="restore_confirmation">Herskryf My notas, boekmerke, studie blokkies, lees planne en werkruimtes?</string>
   <string name="restore_success">My Notas, Boekmerke, Studie blokkies, Lees planne en Werkruimtes suksesvol herstel</string>
   <string name="downloading_backup">Laai rugsteunlêer af ... </string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
@@ -715,7 +703,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="send_export_file">Stuur \'n uitvoerlêer</string>
   <string name="backup_modules_title">Kies watter modules om te rugsteun</string>
   <string name="install_zip_canceled">Module installasie gekanselleer</string>
-  <string name="ask_restore_or_import">Databasis vir %s kan óf herstel word (d.w.s. bestaande databasis word verwyder en geselekteerde databasis word gelaai) of ingevoer (geselekteerde databasis word in bestaande databasis ingevoer). Wat wil jy doen?</string>
   <string name="restore">Herstel</string>
   <string name="import2">Invoer</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -770,7 +757,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="settings_editor_back">Terug</string>
   <string name="settings_editor_close">Sluit</string>
   <string name="settings_editor_apply">Pas toe</string>
-  <string name="discard_changes_confirmation">Ongestoorde wysigings weggooi?</string>
   <string name="discard">Verwerp</string>
   <string name="remove">Verwyder</string>
   <string name="overwrite">Oorskryf</string>
@@ -797,7 +783,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="empty_list">Geen items om te wys</string>
   <string name="error_skip">Vermy</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Beskadigde data</string>
+  <string name="corrupt_database_headline">AndBible kan nie van jou data oopmaak nie</string>
+  <string name="corrupt_database_files_detail">Hierdie lêers kon nie oopgemaak word nie: %1$s. Niks is verander of geskrap nie. Herstel begin hulle leeg en hou elke beskadigde lêer op hierdie toestel, hernoem met .corrupt- plus die datum en tyd.</string>
   <string name="corrupt_database_reset">Stel beskadigde data terug</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Die beskadigde data kon nie teruggestel word nie: %1$s kon nie eenkant toe geskuif word nie. Niks is verander nie. Jy kan weer probeer, \'n foutverslag stuur of Rugsteun &amp; herstel gebruik.</string>
@@ -805,8 +792,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="damaged_data_needs_attention">Die toepassing se data het aandag nodig. Tik om die toepassing oop te maak.</string>
   <string name="debug_test_error">Toetsfout (ontfoutingsbou)</string>
   <string name="bug_report_prepare_failed">Kon nie die verslag voorberei of deel nie. Jy kan weer probeer, of Rugsteun en Herstel gebruik om jou data te bêre.</string>
-  <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
   <string name="bug_report_desktop_text">Daarna sal jy gevra word waar om die foutverslaglêer te stoor. Dan kry jy instruksies om dit aan die ontwikkelaarspan te stuur.</string>
+  <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
   <string name="bug_report_email_text">Kies vervolgens u voorkeur-e-postoepassing (byvoorbeeld Gmail) om die verslag aan die ontwikkelaarspan te stuur.</string>
   <string name="bug_report_manual_title">Stuur die verslag per e-pos</string>
   <string name="bug_report_manual_text_saved">Die verslag is gestoor in <b>%1$s</b>.\n\nStuur asseblief \'n e-pos aan <b>%2$s</b> en heg daardie lêer aan; \'n e-posprogram kan dit nie vir jou aanheg nie. Voorgestelde onderwerp: <b>%3$s</b>. Vertel ons in die boodskap wat jy gedoen het en wat gebeur het.</string>
@@ -877,8 +864,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="beta_special_regards">Beste groete, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Jy kan AndBible se ontwikkeling finansieel ondersteun deur %s.</string>
   <string name="beta_special_sponsor_link">ontwikkelingsure te borg</string>
-  <string name="new_sync_targets_notice_title">Nuwe sinkronisinstellings beskikbaar</string>
-  <string name="new_sync_targets_notice_message">Hierdie weergawe van AndBible stel bykomende sinkronisasieteikens bekend: My Dokumente, KI-instellings en leesvordering. As jy dit wil aktiveer, kan jy dit doen in die Toestelsinkronisasie-instellings.</string>
   <string name="open_settings">Open instellings</string>
   <!--History-->
   <string name="history_for">Geskiedenis (%1$s:Venster %2$d)</string>
@@ -983,7 +968,6 @@ ander ekstra materiaal as jy die bybel bestudeer.</string>
   <string name="give_passphrase_for_module">Dokument %s is geïnkripteer en moet met wagfrase ontsluit wor</string>
   <string name="unlock_module">Stel module wagfrase</string>
   <string name="unlock_info">Geënkripteerde module ontsluitings inligting</string>
-  <string name="try_again_passphrase">Wagfrase het nie gewerk nie. Probeer weer?</string>
   <string name="show_unlock_info">Module &amp; ontsluit inligting</string>
   <string name="prefs_experimental_features_title">Eksperimentele funksies</string>
   <string name="prefs_experimental_features_summary">Kies watter eksperimentele funksies om te aktiveer. Hierdie funksies is nog in ontwikkeling en kan verander of verwyder word</string>
@@ -1017,9 +1001,6 @@ ander ekstra materiaal as jy die bybel bestudeer.</string>
   <string name="active_window_indicator_summary">Merk vensterhoeke om te help herken watter venster aktief is</string>
   <string name="app_licence_title">Maak bron lisensie oop</string>
   <string name="how_to_contribute">Hoe om by te dra?</string>
-  <string name="confirm_delete_bookmarks">Wil jy %d boekmerke en hul notas  verwyder?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Die geselekteerde etiket is gekoppel aan %d boekmerke wat geen ander etikette het nie. Wil jy hierdie boekmerke saam met die etikette skrap?</string>
-  <string name="delete_label_and_bookmarks">Skrap etiket en boekmerke</string>
   <string name="delete_label_only">Skrap etiket alleen</string>
   <string name="module_size_megabytes">%.1fMB</string>
   <string name="tell_friend_title">Beveel dit aan vir \'n vriend</string>
@@ -1050,8 +1031,6 @@ ander ekstra materiaal as jy die bybel bestudeer.</string>
   <string name="old_webview">Android WebView pakket is te oud (%1$s).  Jy moet jou Android WebView pakket opgradeer na ten minste weergawe %2$s te gebruik %3$s.  of die meeste toestelle dit kan oor gedoen word %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Gaan in elk geval voort</string>
-  <string name="proceed">Gaan voort</string>
-  <string name="rate_title">Gradering en hersiening van program</string>
   <string name="rate_message5">
        Positiewe en gedetailleerde resensies help AndBible Oop Bron Projek baie. Dankie!</string>
   <string name="rate_message6">
@@ -1092,7 +1071,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="primary_label">Primêre etiket</string>
   <string name="favourite_label">Gunsteling etiket</string>
   <string name="edit_label">Wysig etiket</string>
-  <string name="delete_label_confirmation">Wil jy die boekmerk  etiket  verwyder \"%s\"? Ook alle verwante Studiebloknotas sal verwyder word.</string>
   <string name="active_labels">Geselekteerde etikette</string>
   <string name="recent_labels">Onlangse etikette</string>
   <string name="other_labels">Ander etikette</string>
@@ -1102,8 +1080,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="book_menu_show_progress_bars">Wys vordering-stafies</string>
   <string name="reset_workspace_labels">Wil jy outo-toewysing en gunsteling instellings vir hierdie werkruimte terugstel?</string>
   <string name="clear_auto_assign_labels">Maak outomaties-toegewysde etikette skoon</string>
-  <string name="reset_workspace_auto_assign_labels">Wil jy alle outomaties-toegewysde etikette van hierdie werkspasie verwyder?</string>
-  <string name="reset_hide_labels">Wil jy instelling terugstel om gespesifiseerde etikette instellings weg te steek?</string>
   <string name="reorder">Herbestelling</string>
   <string name="system_items">Stelsel aksies</string>
   <string name="system_items1">Meer</string>
@@ -1117,7 +1093,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="ios_fullscreen_hint">Dubbeltik of tik op die knoppie om volskerm te verlaat.</string>
   <string name="desktop_exit_fullscreen">Verlaat volskerm</string>
   <string name="exit_fullscreen">Dubbel tik op die skerm om die volle skerm te verlaat</string>
-  <string name="reset_app_prefs">Wil jy alle globale toepassing voorkeure terugstel wat op hierdie skerm na hul oorspronklike plek?</string>
   <string name="label_red">Rooi</string>
   <string name="label_green">Groen</string>
   <string name="label_blue">Blou</string>
@@ -1128,7 +1103,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="reset_databases_title">Herstel databasisse</string>
   <string name="reset_databases_description">Herstel individuele databasisse na hul aanvanklike leë toestand. Dit kan nie ongedaan gemaak word nie.</string>
   <string name="last_crash_info_title">Laaste ineenstorting-inligting</string>
-  <string name="reset_database_confirm">Dit sal alle data in \"%1$s\" permanent uitvee en dit na die aanvanklike toestand herstel. Dit kan nie ongedaan gemaak word nie.\n\nIs jy seker?</string>
   <string name="reset_database_success">Databasis is suksesvol herstel</string>
   <string name="reset_something">Herstel: %1$s</string>
   <string name="export">Uitvoer</string>
@@ -1198,19 +1172,18 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="manage_labels_help_favourite">Hou die etiket in jou gunstelinge vir vinnige toegang.</string>
   <string name="manage_labels_help_styles">Onder die naam wys \'n klein voorbeeld die etiket se voorkoms: Seleksie vir \'n teksseleksie-boekmerk, Hele vers vir \'n hele-vers-boekmerk, en \'n Werkspasie-merker vir \'n styl wat hierdie werkspasie oorheers. \'n Vergrysde voorbeeld sonder versiering beteken die etiket se boekmerke word nie geteken nie. Versteek die voorbeelde vanaf die ⋮-kieslys.</string>
   <string name="manage_labels_help_reorder">Herrangskik die lys vanaf die ⋮-kieslys.</string>
+  <string name="manage_labels_help_narrow_toggles">Op \'n smal skerm los die lys die primêre-, outo-toewys- en gunsteling-ikone uit om ruimte vir die etiketname te gee. Tik op \'n etiket om hulle in sy redigeerder te stel.</string>
   <string name="added_to_bookmark">Toegewys aan hierdie boekmerk</string>
   <string name="strongs_links">Skakels</string>
   <string name="strongs_text_and_links">Teks en Skakels</string>
   <string name="strongs_hidden_links">Versteekte skakels</string>
   <string name="verse_tip">Om gedeeltelike of baie verse te kies, kan jy Bybel teks lank druk</string>
-  <string name="permission_required">Toestemming benodig</string>
   <string name="labels_search_hint">Soek</string>
   <string name="search_mode_name_start">Naam (vanaf begin)</string>
   <string name="search_mode_name_contains">Naam (bevat)</string>
   <string name="search_mode_content">Inhoud</string>
   <string name="search_results_matches">%d treffers</string>
   <string name="search_results_match">1 treffer</string>
-  <string name="progress_status_permission">Om kennisgewings (aflaai status, verwerking, praat status) te wys, het ons jou toestemming nodig.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Eenvoudige Sakrekenaar</string>
   <string name="prefs_persecution_cat">Instellings vir die vervolgde</string>
@@ -1253,7 +1226,6 @@ Jy kan die nuutste weergawe van diskrete weergawe aflaai vanaf %s.</string>
   <string name="custom_repositories_create_button_label">Voeg Pasgemaakte Bewaarplek by</string>
   <string name="custom_repositories_info_button_label">Inligting</string>
   <string name="repository_specification">URL van bewaarplek </string>
-  <string name="delete_custom_repository">Wil jy persoonlike bewaarplek verwyder %s?</string>
   <string name="custom_repositories_help1">Om \'n nuwe pasgemaakte bewaarplek by te voeg, tik of kopieer en plak pasgemaakte bewaarplek-URL hier.</string>
   <string name="custom_repositories_help2">Jy kan meer inligting oor persoonlike bewaarplekke in lees by %s.</string>
   <string name="custom_repositories_help0">U kan dokumente vanaf eksterne aangepaste bewaarplekke installeer, deur ook pasgemaakte bewaarplekke te installeer.</string>
@@ -1275,9 +1247,6 @@ Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, ni
   <string name="db_bookmarks">Boekmerke, My Notas, Etikette en Studie Blokkies</string>
   <string name="synchronizing">Sinchroniseer...</string>
   <string name="notification_finished">Voltooi</string>
-  <string name="overrideBackup">
-Bestaande databasis waarmee hierdie toestel nie gesinchroniseer is nie, word in Cloud gevind.
-Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="reading_plans_content">Lees planne en hul statusse</string>
   <string name="bookmarks_contents">Boekmerke, etikette en studieblokkies</string>
   <string name="workspaces_contents">Werkspasies en Windows</string>
@@ -1297,7 +1266,6 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="reading_progress_calendar">Leesaktiwiteit</string>
   <string name="reading_progress_cycle">Siklus %d</string>
   <string name="reading_progress_new_cycle">Nuwe Siklus</string>
-  <string name="reading_progress_new_cycle_confirm">Begin \'n nuwe leessiklus? Dit sal jou vordering van voor af begin volg, terwyl jou vorige siklus se data behoue bly.</string>
   <string name="reading_progress_previous_cycle">Vorige siklus</string>
   <string name="reading_progress_next_cycle">Volgende siklus</string>
   <string name="cloud_merge_data">Voeg data saam</string>
@@ -1307,7 +1275,6 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="cloud_sync_title">Toestel sinchronisasie</string>
   <string name="reset_sync">Teken uit</string>
   <string name="prefs_reset_sync_summary">Deaktiveer sinchronisasie en stel verwante instellings terug.</string>
-  <string name="sync_confirmation">Is jy seker jy wil uit teken en sinchronisasie terugstel?</string>
   <string name="cloud_info">Cloud Informasie</string>
   <string name="cloud_info_summary">Data incloud berging: %sMb</string>
   <string name="sync_adapter">Sinchronisasie Backend</string>
@@ -1323,7 +1290,6 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="webdav_server_url_hint">Adres van die WebDAV-gids, bv. https://nas.local/dav/ of https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinchronisasie vereis \'n veilige https://-adres.</string>
   <string name="webdav_certificate_title">Bedienersertifikaat</string>
-  <string name="webdav_forget_certificate_message">Vergeet die vertroude bedienersertifikaat? Jy sal met die volgende verbinding weer gevra word om die sertifikaat te bevestig.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Onvertroude bedienersertifikaat</string>
   <string name="webdav_untrusted_certificate_message">Die sertifikaat van %1$s word nie deur Android vertrou nie. Vertrou dit net as jy dit herken, byvoorbeeld omdat jy hierdie bediener self opgestel het.\n\nOnderwerp: %2$s\nUitreiker: %3$s\nGeldig: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1340,14 +1306,7 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="synchronization_categories">Sinchronisasie kategorieë</string>
   <string name="sync_general_settings">Inligting &amp; algemene instellings</string>
   <string name="sync_introduction">Inleiding</string>
-  <string name="are_you_sure">Is jy seker?</string>
   <string name="are_you_sure_merge">Beide die data op hierdie toestel en die %s in die wolk sal behou word. Waar dieselfde item op albei verander is, word die nuwer verandering behou. Hierdie toestel se data sal na jou ander toestelle gestuur word.</string>
-  <string name="are_you_sure_reset_local">Dit sal jou plaaslike databasis terugstel vir %s met die inhoud wat tans in cloud diens gestoor word.</string>
-  <string name="are_you_sure_reset_cloud">Dit sal u cloud databasis terugstel vir %s s met die inhoud wat u op hierdie toestel het.</string>
-  <string name="sync_cant_fetch">Die weergawe van die databasis of patch-lêer wat in die Cloud gestoor is, is hoër as wat deur hierdie toep ondersteun word. </string>
-  <string name="sync_disabling">Deaktiveer sinchronisasie vir %s vir eers.</string>
-  <string name="sync_update_app">Dateer asseblief die toep op om voort te gaan met sinchronisasie.</string>
-  <string name="sign_in_failed">Aanmelding by sinchronisasie backend diens het misluk.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Deaktiveer wolk sinchronisasie. U moet handmatig inskakel na herstel.</string>
   <string name="report">Verslag</string>
@@ -1365,6 +1324,7 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="open_here">Maak hier oop </string>
   <string name="external_link">Eksterne skakel </string>
   <string name="external_link_question">Dit sal eksterne skakel %s in \'n blaaiertoepassing oopmaak, wil jy voortgaan?</string>
+  <string name="external_link_dont_ask_again">Moenie weer vra vir %s nie</string>
   <string name="nameless">Titel nie gedefinieer nie </string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Een-tik aksies (Bybels)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Een-tik aksies (Ander)</string>
@@ -1413,8 +1373,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="memorize_include_reference_summary">Voeg die versaanduiding (bv. Johannes 3:16) as die laaste item om te memoriseer by</string>
   <string name="reading_progress_settings">Vordering &amp; memorisering</string>
   <string name="reading_progress_settings_summary">Outomatiese-opvolg, memorisering, en tikoefeningsinstellings</string>
-  <string name="memorize_confirm_unmark">Verwyder gememoriseer-status vir %s?</string>
-  <string name="memorize_confirm_remove_target">Verwyder memoriseerdoelwit %s?</string>
   <string name="memorize_tab_reading">Lees</string>
   <string name="memorize_tab_memorization">Memorisering</string>
   <string name="memorize_verses_memorized">Gememoriseer</string>
@@ -1440,7 +1398,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="llm_reset_usage_title">Herstel gebruiksdata</string>
   <string name="llm_reset_usage_summary">Maak kumulatiewe token- en koste-opvolging skoon</string>
   <string name="llm_reset_usage_confirm_title">Herstel gebruiksdata?</string>
-  <string name="llm_reset_usage_confirm_message">Dit sal alle kumulatiewe gebruiksdata uitvee.</string>
   <string name="llm_custom_input_price_title">Invoerprys ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Uitvoerprys ($/Mtoken)</string>
   <string name="llm_cost_total">Totaal: %1$s</string>
@@ -1456,8 +1413,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="llm_parse_error_anthropic">Kon nie Anthropic-antwoord ontleed nie: %1$s</string>
   <string name="llm_error_unknown">Onbekende fout</string>
   <string name="llm_error_max_iterations">Maksimum herhalings (%1$d) bereik sonder voltooiing</string>
-  <string name="llm_continue_iterations_title">Gaan voort?</string>
-  <string name="llm_continue_iterations_message">Die KI-agent het sy limiet van %1$d herhalings bereik sonder om te voltooi. Gaan voort vir %2$d meer herhalings?</string>
   <string name="agent_max_iterations_title">Maks. agent-herhalings</string>
   <string name="agent_max_iterations_summary">Maksimum herhalings voor om voort te gaan gevra word (0 = onbeperk)</string>
   <string name="ask_model_before_run_title">Vra model voor uitvoering</string>
@@ -1517,7 +1472,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="ai_models_summary_none">Geen modelle opgestel nie</string>
   <string name="ai_add_provider">Voeg verskaffer by</string>
   <string name="ai_provider_edit">Wysig</string>
-  <string name="ai_provider_delete_confirm">Skrap verskaffer \"%1$s\"? Opdragte wat hierdie verskaffer gebruik, sal na die verstek terugkeer.</string>
   <string name="ai_provider_api_key_not_set">API-sleutel nie gestel nie</string>
   <string name="ai_provider_select_type">Kies verskaffer-tipe</string>
   <string name="ai_provider_name">Verskaffer-naam</string>
@@ -1537,7 +1491,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="edit_model_title">Wysig model</string>
   <string name="model_saved">Model gebêre</string>
   <string name="model_deleted">Model geskrap</string>
-  <string name="model_delete_confirm">Skrap model \"%1$s\"?</string>
   <string name="model_set_default">Stel as verstekmodel in</string>
   <string name="model_select_provider">Verskaffer</string>
   <string name="model_supported_badge">✓ Ondersteun</string>
@@ -1577,7 +1530,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="ai_disclaimer_point8">Jou data word na die bedieners van jou gekose KI-verskaffer gestuur. Deur \'n API-sleutel te gebruik, aanvaar jy daardie verskaffer se gebruiksvoorwaardes en privaatbeleid. Self-gehoste modelle is moontlik maar vereis meer tegniese kundigheid, en lewer moontlik nie resultate so goed soos kommersiële modelle nie.</string>
   <string name="ai_disclaimer_point9">KI-verskaffers hef koste vir API-gebruik. Kosraming wat in AndBible gewys word, is by benadering — kontroleer altyd jou verskaffer se fakturering vir werklike koste.</string>
   <string name="ai_disclaimer_accept_title">Aanvaar KI-vrywaring</string>
-  <string name="ai_disclaimer_accept_button">Ek aanvaar en neem volle verantwoordelikheid</string>
   <string name="prompt_permission_mode">Toestemmingmodus</string>
   <string name="prompt_permission_mode_description">Beheer wanneer gebruikersbevestiging vereis word voordat die KI skryfbewerkings uitvoer. Die per-nutsmiddel-instellings hieronder kan dit vir individuele nutsmiddels oorskryf.</string>
   <string name="agent_permission_mode_summary">Beheer wanneer gebruikersbevestiging vereis word voor KI-skryfbewerkings</string>
@@ -1693,7 +1645,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="default_prompt_custom_desc">Voer \'n persoonlike taak uit op die geselekteerde gedeelte</string>
   <string name="default_prompt_custom_template">Volg die gebruiker se taakopdrag vir die geselekteerde Bybelgedeelte.</string>
   <string name="copy">Kopieer</string>
-  <string name="delete_prompt_confirm_message">Is jy seker jy wil hierdie aanwysing verwyder?</string>
   <string name="ai_hide_prompt">Verberg</string>
   <string name="ai_restore_hidden_prompts">Herstel verborge aanwysings</string>
   <string name="ai_prompt_hidden">Aanwysing verberg</string>
@@ -1778,8 +1729,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="permission_allow_all_session">Laat alle gereedskap toe hierdie sessie</string>
   <string name="permission_allow_always">Laat altyd toe \"%1$s\"</string>
   <string name="permission_deny">Weier</string>
-  <string name="permission_always_allow_confirm_title">Altyd toelaat?</string>
-  <string name="permission_always_allow_confirm">Is jy seker jy wil \"%1$s\" permanent toelaat?</string>
   <string name="permission_always_allow_confirm_reset_hint">Jy kan dit herstel in KI-instellings.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Gereedskap-toestemmings</string>
@@ -1884,18 +1833,15 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Skep nuwe dokument</string>
   <string name="my_document_rename_title">Hernoem dokument</string>
-  <string name="my_document_delete_confirmation">Verwyder dokument \"%s\"?</string>
   <string name="show_secret">Wys</string>
   <string name="hide_secret">Versteek</string>
   <string name="ai_documents_name">KI-dokumente</string>
   <string name="ai_documents_description">Outomaties gegenereerde dokumente van KI</string>
-  <string name="my_document_cannot_delete_ai_documents">KI-dokumente kan nie verwyder word terwyl dit bladsye bevat nie. Verwyder eers die bladsye.</string>
   <string name="my_document_save_changes">Wysigings bêre?</string>
   <string name="my_document_no_description">Geen beskrywing</string>
   <string name="my_document_edit_description">Wysig beskrywing</string>
   <string name="my_document_pages_title">%s - Bladsye</string>
   <string name="my_document_page_rename_title">Hernoem bladsy</string>
-  <string name="my_document_page_delete_confirmation">Verwyder bladsy \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Skrap hierdie bladsye?</string>
   <string name="my_documents_switch_document">Wissel dokument</string>
   <string name="my_document_new_page_name">Bladsy %1$d</string>
@@ -1963,7 +1909,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="cloud_doc_show_removed">Wys verwyderde dokumente</string>
   <string name="cloud_doc_status_removed">Verwyder uit die wolk</string>
   <string name="cloud_doc_status_still_installed">steeds hier geïnstalleer</string>
-  <string name="cloud_doc_purge_confirm">Verwyder \"%1$s\" permanent uit die wolkgeskiedenis? As dit steeds op \'n ander toestel geïnstalleer is, kan daardie toestel dit met sy volgende sinkronisering terug na die wolk oplaai.</string>
   <string name="cloud_doc_action_download">Laai af</string>
   <string name="cloud_doc_action_push">Laai op na wolk</string>
   <string name="cloud_doc_action_remove_cloud">Verwyder uit die wolk</string>
@@ -1974,8 +1919,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="cloud_doc_action_dont_sync">Moet nie na die wolk sinkroniseer nie</string>
   <string name="cloud_doc_action_allow_sync">Sinkroniseer na die wolk</string>
   <string name="cloud_doc_action_purge">Verwyder uit wolkgeskiedenis</string>
-  <string name="cloud_doc_remove_all_confirm">Verwyder %1$s uit die wolk en van al jou toestelle, insluitend hierdie een?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Verwyder %1$s uit die wolk? Die kopie op hierdie toestel word behou; toestelle met dokumentsinkronisering aan sal dit ook verwyder.</string>
   <string name="cloud_doc_sync_now">Sinkroniseer nou</string>
   <string name="cloud_doc_rescan">Herskandeer vanaf die wolk</string>
   <string name="cloud_doc_sync_now_download">Laai nuwe en bygewerkte dokumente af</string>
@@ -1987,6 +1930,14 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="cloud_doc_summary_download">Laai %1$d af</string>
   <string name="cloud_doc_summary_download_size">Laai %1$d af (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Outomatiese aflaaie sal op Wi-Fi begin.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d dokument</item>
+    <item quantity="other">%1$d dokumente</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d dokument (%2$s)</item>
+    <item quantity="other">%1$d dokumente (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Niks om oor te dra nie</string>
   <string name="cloud_doc_selected_count">%1$d gekies</string>
   <string name="cloud_doc_bulk_skipped">%1$d nie-toepaslike oorgeslaan</string>
@@ -2003,8 +1954,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="background_image_import">Voer in vanaf galery…</string>
   <string name="background_image_empty">Nog geen ingevoerde prente nie. Tik op \"Voer in vanaf galery…\" om een by te voeg.</string>
   <string name="background_image_importing">Voer in…</string>
-  <string name="background_image_delete_title">Skrap prent?</string>
-  <string name="background_image_delete_confirm">Skrap hierdie agtergrondprent? Werkspasies wat dit nog gebruik, sal terugval op geen prent.</string>
   <string name="background_image_day">Agtergrondprent (dag)</string>
   <string name="background_image_night">Agtergrondprent (nag)</string>
   <string name="background_image_opacity_day">Deursigtigheid van agtergrondprent (dag)</string>
@@ -2078,6 +2027,10 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="legacy_notice_icloud">Sinchronisasie gebruik nou iCloud Drive. Skakel dit weer aan in Instellings → Sinchronisasie. Hierdie toestel behou wat dit gehad het; veranderinge van jou ander toestelle kom aan sodra sinchronisasie weer opgestel is. Om die ou iCloud-data vry te maak: Instellings → jou naam → iCloud → Bestuur berging → AndBible.</string>
   <string name="legacy_notice_nextcloud">Jou Nextcloud-verbinding is oorgedra, maar sinchronisasie is af. Skakel dit aan in Instellings → Sinchronisasie en kies om van die wolk af te haal of om nuut te skep.</string>
   <string name="legacy_notice_nextcloud_unsent">Sommige veranderinge op hierdie toestel is nog nie na Nextcloud gestuur nie. Hulle is nie gestuur nie en bly slegs op hierdie toestel.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d boekmerk kon nie betroubaar geplaas word nie en is nie ingevoer nie. Dit word saam met jou ou data op hierdie toestel behou.</item>
+    <item quantity="other">%1$d boekmerke kon nie betroubaar geplaas word nie en is nie ingevoer nie. Hulle word saam met jou ou data op hierdie toestel behou.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Dit is \'n kragtige, maar maklik-om-te-gebruik, vanlyn Bybelstudie-toepassing.</string>
   <string name="webdav_untrusted_certificate_message_device">Die sertifikaat van %1$s word nie deur hierdie toestel vertrou nie. Vertrou dit net as jy dit herken, byvoorbeeld omdat jy hierdie bediener self opgestel het.\n\nOnderwerp: %2$s\nUitreiker: %3$s\nGeldig: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2129,6 +2082,25 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="recommend_share_link">Deel \'n skakel</string>
   <string name="recommend_qr_caption">Skandeer om AndBible vir jou foon, tablet of rekenaar te kry.</string>
   <string name="desktop_activation_failed">AndBible loop reeds, maar sy venster het nie gereageer nie. Skakel oor na die lopende instansie en probeer weer. Inkomende lêers is nie as afgelewer bevestig nie.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Dit kan nie ongedaan gemaak word nie.</string>
+  <string name="ai_raw_log_delete_lead">Skrap hierdie log?</string>
+  <string name="ai_provider_delete_lead">Skrap die verskaffer “%1$s”?</string>
+  <string name="ai_provider_delete_detail">Opdragte wat dit gebruik, gaan terug na die verstekverskaffer.</string>
+  <string name="ai_model_delete_lead">Skrap die model “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Skrap die opdrag “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Skrap hierdie opdrag?</string>
+  <string name="ai_reset_usage_detail">Token- en koste-totale gaan terug na nul. Dit kan nie ongedaan gemaak word nie.</string>
+  <string name="ai_reset_usage_button">Herstel</string>
+  <string name="ai_disclaimer_accept">Ek aanvaar</string>
+  <string name="llm_continue_iterations_lead">Gaan voort vir nog %1$d iterasies?</string>
+  <string name="llm_continue_iterations_detail">Die KI-agent het sy limiet van %1$d iterasies bereik sonder om klaar te maak.</string>
+  <string name="llm_continue_button">Gaan voort</string>
+  <string name="permission_always_allow_lead">Laat “%1$s” altyd toe?</string>
+  <string name="permission_always_allow_button">Laat altyd toe</string>
+  <string name="ai_bug_report_send_lead">Stuur \'n KI-foutverslag?</string>
+  <string name="ai_bug_report_send_button">Stuur</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Aan die gang</string>
   <string name="user_guide_section_reading_workspace">Lees en werkruimtes</string>
@@ -2206,4 +2178,150 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="tutorial_title_31_ai_3_tools_data_permissions">KI-assistent, deel 3: hulpmiddels, jou data en toestemmings</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">KI-assistent, deel 4: jou eie opdragte, koste en sinchronisasie</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Gooi veranderinge weg?</string>
+  <string name="dialog_keep_editing">Hou aan wysig</string>
+  <string name="dialog_label_delete_lead">Skrap die etiket “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Sy studieblok-notas word ook geskrap. Dit kan nie ongedaan gemaak word nie.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d boekmerk het geen ander etiket nie.</item>
+    <item quantity="other">%1$d boekmerke het geen ander etiket nie.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Skrap etiket en %1$d boekmerk</item>
+    <item quantity="other">Skrap etiket en %1$d boekmerke</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Die boekmerke en hul notas word geskrap.</string>
+  <string name="dialog_label_delete_only_consequence">Die boekmerke bly, sonder \'n etiket.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Verwyder hierdie boekmerk?</item>
+    <item quantity="other">Verwyder %1$d boekmerke?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">Sy nota word ook verwyder.</item>
+    <item quantity="other">Hul notas word ook verwyder.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Verwyder alle outo-toewys-etikette uit hierdie werkspasie?</string>
+  <string name="dialog_labels_reset_hidden_lead">Wys alle versteekte etikette weer?</string>
+  <string name="dialog_labels_reset_shown_detail">Etikette wat jy uit die lys versteek het, word weer gewys.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Installeer “%s”?</string>
+  <string name="install_action">Installeer</string>
+  <string name="install_from_file_question">Installeer dokumente vanaf \'n lêer?</string>
+  <string name="overwrite_files_detail">Hierdie lêers bestaan reeds:%s</string>
+  <string name="import_studypads_question">Voer hierdie studieblokkies in?</string>
+  <string name="import_action">Voer in</string>
+  <string name="restore_backup_question">Herstel die dokumente in hierdie rugsteun?</string>
+  <string name="restore_backup_detail">Hierdie lêer is \'n AndBible-dokumenterugsteun.</string>
+  <string name="update_document_question">Opdateer hierdie dokument?</string>
+  <string name="update_action">Opdateer</string>
+  <string name="download_documents_question">Laai dokumente af?</string>
+  <string name="download_persecution_warning">As jy in \'n land woon waar Christene vervolg word, moet jy dalk versigtig wees om Christelike materiaal oor die internet af te laai. Jy sal dalk eerder dokument-zip-lêers veiliger wil bekom en dit via “%1$s” wil installeer. Alle aflaaie vanaf dokumentbedieners is geënkripteer (HTTPS).</string>
+  <string name="download_action">Laai af</string>
+  <string name="download_dont_ask_again">Laai af, moenie weer vra nie</string>
+  <string name="download_dont_ask_again_consequence">Aflaaie begin voortaan sonder hierdie vraag.</string>
+  <string name="passphrase_did_not_work">Die wagfrase het nie gewerk nie.</string>
+  <string name="try_again">Probeer weer</string>
+  <string name="interrupted_downloads_lead">Laai hierdie dokumente weer af?</string>
+  <string name="interrupted_downloads_detail">Hul aflaai is onderbreek, dus is hulle nie geïnstalleer nie.</string>
+  <string name="external_link_open_question">Maak hierdie skakel in jou blaaier oop?</string>
+  <string name="open_action">Maak oop</string>
+  <string name="notification_permission_question">Laat kennisgewings toe?</string>
+  <string name="notification_permission_detail">Kennisgewings wys aflaaistatus, verwerking en voorleesstatus.</string>
+  <string name="allow_action">Laat toe</string>
+  <string name="rate_question">Gradeer en resenseer die toep?</string>
+  <string name="bug_report_email_question">Stuur die foutverslag per e-pos?</string>
+  <string name="continue_action">Gaan voort</string>
+  <string name="delete_search_index_question">Skrap die soekindeks van “%s”?</string>
+  <string name="remove_custom_repository_question">Verwyder die pasgemaakte bewaarplek “%s”?</string>
+  <string name="download_document_question">Laai “%s” af?</string>
+  <string name="choose_file_action">Kies lêer</string>
+  <string name="old_webview_question">Gebruik die toep met \'n ou WebView?</string>
+  <string name="incomplete_translation_question">Gaan voort met \'n gedeeltelike vertaling?</string>
+  <string name="rate_action">Gradeer</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Skrap die dokument “%s”?</string>
+  <string name="my_document_page_delete_lead">Skrap die bladsy “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">KI-dokumente kan nie geskrap word terwyl hulle bladsye bevat nie.</string>
+  <string name="my_document_cannot_delete_ai_detail">Skrap eers die bladsye.</string>
+  <string name="reading_progress_new_cycle_lead">Begin \'n nuwe leessiklus?</string>
+  <string name="reading_progress_new_cycle_detail">Jou vordering word van voor af gevolg. Jou vorige siklus se data word behou.</string>
+  <string name="reading_progress_new_cycle_start">Begin</string>
+  <string name="reset_plan_lead">Herstel hierdie plan?</string>
+  <string name="reset_plan_detail">Jou begindatum en vordering in hierdie plan word uitgevee.</string>
+  <string name="set_current_day_lead">Stel %1$s as die huidige dag?</string>
+  <string name="set_current_day_detail">Alle vorige dae word as gelees gemerk.</string>
+  <string name="plan_duplicate_user_plan_lead">\'n Leesplanlêer het dieselfde naam as \'n ingeboude plan.</string>
+  <string name="plan_duplicate_user_plan_detail">Die planlêer kan nie gelys word nie. Hernoem die lêer in die jsword/readingplan-gids en behou sy .properties-uitbreiding.</string>
+  <string name="background_image_delete_lead">Skrap hierdie agtergrondprent?</string>
+  <string name="background_image_delete_detail">Werkspasies wat dit nog gebruik, sal terugval na geen prent.</string>
+  <string name="reset_values_lead">Herstel al hierdie waardes?</string>
+  <string name="revert_setting_lead">Keer hierdie instelling terug na die oorgeërfde waarde?</string>
+  <string name="revert_setting_confirm">Keer terug</string>
+  <string name="reset_settings_screen_lead">Herstel die instellings op hierdie skerm?</string>
+  <string name="reset_settings_screen_detail">Hulle keer terug na hul verstekwaardes.</string>
+  <string name="memorize_unmark_lead">Verwyder memoriseerstatus vir “%s”?</string>
+  <string name="memorize_remove_target_lead">Verwyder die memoriseerdoel “%s”?</string>
+  <string name="dialog_apply">Pas toe</string>
+  <string name="dialog_dont_apply">Moenie toepas nie</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Die wolk het reeds jou %s. Wat moet gebeur?</string>
+  <string name="cloud_merge_consequence">Albei kante word behou; waar \'n item aan albei kante verander het, wen die nuwer verandering.</string>
+  <string name="cloud_fetch_consequence">Vervang die data op hierdie toestel met die wolkkopie.</string>
+  <string name="cloud_create_consequence">Vervang die wolkkopie met die data op hierdie toestel.</string>
+  <string name="cloud_disable_consequence">Sinchronisasie bly af vir hierdie data.</string>
+  <string name="cloud_merge_lead">Voeg jou %s saam met die wolk?</string>
+  <string name="cloud_merge_confirm">Voeg saam</string>
+  <string name="cloud_replace_confirm">Vervang</string>
+  <string name="cloud_replace_local_lead">Vervang hierdie toestel se %s met die wolkkopie?</string>
+  <string name="cloud_replace_local_detail">Wat nou op hierdie toestel is, word oorskryf en kan nie herwin word nie.</string>
+  <string name="cloud_replace_cloud_lead">Vervang die wolkkopie van %s met hierdie toestel se data?</string>
+  <string name="cloud_replace_cloud_detail">Wat nou in die wolk is, word oorskryf, en jou ander toestelle sal hierdie toestel se data ontvang.</string>
+  <string name="sign_in_failed_lead">Kon nie by die sinchronisasiediens aanmeld nie.</string>
+  <string name="sync_too_old_lead">Hierdie toep is te oud om %s te sinchroniseer.</string>
+  <string name="sync_too_old_detail">Die wolkdata gebruik \'n nuwer weergawe as wat hierdie toep ondersteun. Sinchronisasie daarvoor is vir eers afgeskakel; opdateer die toep om dit weer aan te skakel.</string>
+  <string name="backup_replace_lead">Vervang jou %s met die rugsteun?</string>
+  <string name="backup_replace_detail">Wat nou op hierdie toestel is, word oorskryf en kan nie herwin word nie.</string>
+  <string name="reset_database_lead">Herstel “%1$s” na sy beginstaat?</string>
+  <string name="reset_database_detail">Alle data daarin word permanent geskrap. Dit kan nie ongedaan gemaak word nie.</string>
+  <string name="reset_database_button">Herstel</string>
+  <string name="restore_all_lead">Vervang jou notas, boekmerke, studieblokkies, leesplanne en werkruimtes?</string>
+  <string name="restore_or_import_lead">Herstel of voer die %s in?</string>
+  <string name="restore_consequence">Vervang wat op hierdie toestel is met die rugsteun.</string>
+  <string name="import_consequence">Voeg die rugsteun se items by dit wat op hierdie toestel is.</string>
+  <string name="sync_start_syncing">Begin sinchroniseer</string>
+  <string name="sync_reset_lead">Meld af en herstel sinchronisasie?</string>
+  <string name="sync_reset_detail">Jy sal sinchronisasie weer moet opstel.</string>
+  <string name="webdav_forget_certificate_lead">Vergeet die vertroude bedienersertifikaat?</string>
+  <string name="webdav_forget_certificate_detail">Jy sal by die volgende verbinding weer gevra word om die sertifikaat te bevestig.</string>
+  <string name="webdav_forget_certificate_confirm">Vergeet</string>
+  <string name="cloud_doc_remove_all_lead">Verwyder “%1$s” uit die wolk en al jou toestelle?</string>
+  <string name="cloud_doc_remove_cloud_lead">Verwyder “%1$s” uit die wolk?</string>
+  <string name="cloud_doc_purge_lead">Verwyder “%1$s” permanent uit die wolkgeskiedenis?</string>
+  <string name="cloud_doc_remove_all_detail">Dit skrap ook die kopieë op hierdie toestel en op elke ander toestel met dokumentsinchronisasie aan.</string>
+  <string name="cloud_doc_remove_cloud_detail">Kopieë op hierdie toestel word behou. Toestelle met dokumentsinchronisasie aan sal hulle ook verwyder.</string>
+  <string name="cloud_doc_purge_detail">\'n Toestel wat nog \'n kopie het, kan dit by sy volgende sinchronisasie weer oplaai.</string>
+  <string name="cloud_doc_block_confirm_button">Moenie sinchroniseer nie</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Verwyder %1$d dokument uit die wolk en al jou toestelle?</item>
+    <item quantity="other">Verwyder %1$d dokumente uit die wolk en al jou toestelle?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Verwyder %1$d dokument uit die wolk?</item>
+    <item quantity="other">Verwyder %1$d dokumente uit die wolk?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Verwyder %1$d dokument permanent uit die wolkgeskiedenis?</item>
+    <item quantity="other">Verwyder %1$d dokumente permanent uit die wolkgeskiedenis?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Hou op om %1$d dokument met die wolk te sinchroniseer?</item>
+    <item quantity="other">Hou op om %1$d dokumente met die wolk te sinchroniseer?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Meer van jou data kan nou sinchroniseer</string>
+  <string name="new_sync_targets_detail">My dokumente, KI-instellings en leesvordering kan ook sinchroniseer. Skakel hulle aan in die Toestelsinchronisasie-instellings.</string>
+  <!--end dialog copy: B3b-->
 </resources>

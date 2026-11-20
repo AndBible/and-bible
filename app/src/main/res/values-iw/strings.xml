@@ -62,6 +62,8 @@
   <string name="help_user_guide_intro">המדריך המלא למשתמש נמצא באתר andbible.org. הדפים נפתחים בדפדפן שלך.</string>
   <string name="help_user_guide_home">דף הבית של המדריך למשתמש</string>
   <string name="help_read_in_user_guide">קריאה במדריך למשתמש</string>
+  <string name="help_in_user_guide">עזרה במדריך למשתמש</string>
+  <string name="help_matching_section">הסעיף המתאים</string>
   <string name="help_read_page">קריאה במדריך למשתמש: %1$s</string>
   <string name="help_tutorial_videos">סרטוני הדרכה</string>
   <string name="help_watch_in_order">צפו בסרטוני ההדרכה לפי הסדר</string>
@@ -250,6 +252,9 @@
   <string name="prefs_navigate_to_verse_summary">אפשר בחירת פסוק בעת מעבר</string>
   <string name="prefs_open_links_in_special_window_title">חלון קישורים</string>
   <string name="prefs_open_links_in_special_window_summary">פתיחת קישורים בחלון מיוחד, להצגה מהירה של מראי מקום מקבילים ו-STRONG</string>
+  <string name="prefs_trusted_link_domains_title">דומיינים מהימנים לקישורים</string>
+  <string name="prefs_trusted_link_domains_summary">קישורים לדומיינים אלה נפתחים ללא שאלה. בטל את הסימון של דומיין כדי שישאלו אותך שוב.</string>
+  <string name="prefs_trusted_link_domains_empty">עדיין אין. סמן \"אל תשאל שוב\" בעת פתיחת קישור כדי להוסיף את הדומיין שלו.</string>
   <string name="prefs_text_size_sample_text">טקסט לדוגמה</string>
   <string name="prefs_screen_keep_on_title">השאר את המסך דולק</string>
   <string name="prefs_screen_keep_on_summary">המנע מכיבוי המסך כשתוכנה פועלת</string>
@@ -312,7 +317,6 @@
   <string name="line_spacing_title">מרווח שורות</string>
   <string name="line_spacing_summary">הגדר את המרווח בין שורות</string>
   <string name="select_none">בטל בחירה</string>
-  <string name="reset_are_you_sure">האם אתה בטוח שברצונך לאפס את כל השדות האלה?</string>
   <string name="window_pinning_menutitle">נעיצת חלון</string>
   <string name="hide_window_buttons_title">הסתרת כפתורים של החלון</string>
   <string name="hide_window_buttons_summary">כפתורי החלון שבצד שמאל מוסתרים. סרגל הניווט בתחתית המסך עדיין מוצג, ואפשר לפתוח את תפריט אפשרויות החלון בלחיצה ארוכה עליו.</string>
@@ -335,6 +339,7 @@
   <string name="word_not_found_in_dictionaries">המילה לא נמצאה באף מילון</string>
   <string name="prefs_top_margin_title_mm">שוליים עליונים (%d מ\"מ)</string>
   <string name="font_size_title">גודל גופן</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">כי כה אהב האלהים את העולם עד אשר נתן את בנו יחידו למען לא יאבד כל המאמין בו, כי אם יחיה חיי עולם.</string>
   <string name="font_size_title_pt">גודל גופן (%d נק)</string>
   <string name="prefs_font_text_size_summary">הגדרות שוליים, גופן וגודל</string>
@@ -352,6 +357,8 @@
   <string name="window_color_settings_title">הגדרות צבע (חלון)</string>
   <string name="workspace_color_settings_title">הגדרות צבע (סביבת עבודה)</string>
   <string name="color_workspace">צבע סביבת עבודה</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">ברירת מחדל</string>
   <string name="color_text">צבע טקסט</string>
   <string name="color_background">צבע רקע</string>
   <string name="colors_day_mode_title">מצב יום</string>
@@ -385,7 +392,6 @@
   <string name="download_source_last_updated">רשימת המסמכים עודכנה לאחרונה: %s.</string>
   <string name="download_refreshing_book_list">מעדכן רשימת מסמכים משרתי המסמכים...</string>
   <string name="download_source_message1">ניתן להוריד מסמכים מהמקורות הבאים:</string>
-  <string name="download_document_confirm_prefix">הורדה</string>
   <string name="error_downloading">אירעה תקלה בזמן ההורדה. נא לבדוק את החיבור לאינטרנט.</string>
   <string name="error_downloading_status">השרת המארח את %1$s החזיר שגיאה בשל %2$s (%3$d).</string>
   <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
@@ -406,9 +412,6 @@
   <string name="activity_title">פעילות רקע</string>
   <string name="activity_empty">שום דבר לא פועל</string>
   <string name="activity_failed_toast">%1$s — ראו בתפריט</string>
-  <string name="download_question_title">האם להמשיך בהורדה?</string>
-  <string name="download_question_message">אם אתה חי במדינה שבה נרדפים נוצרים, ייתכן שעליך להיזהר בהורדת חומר נוצרי דרך האינטרנט. במקום זאת, ייתכן שתעדיף להשיג קובצי zip של מודולים באופן מאובטח יותר ולהתקין אותם דרך \"%1$s\". האם אתה בטוח שברצונך להמשיך בהורדה? כל ההורדות משרתי המודולים מוצפנות (HTTPS).</string>
-  <string name="do_not_ask_again">כן, אל תשאל שוב</string>
   <string name="recommended_document">מומלץ!</string>
   <string name="about_version_history">גרסא: %s</string>
   <string name="download_errors">שגיאות הורדה</string>
@@ -425,11 +428,9 @@
   <string name="checking_zip_file">בדיקת הקובץ מתבצעת....</string>
   <string name="invalid_module">הקובץ אינו מכיל מודול SWORD תקין</string>
   <string name="install_zip_title">אנא המתן. טוען מודולים מהקובץ</string>
-  <string name="overwrite_files">הקבצים הבאים כבר קיימים: %s האם לדרוס?</string>
   <string name="overwrite_files_title">האם לדרוס את הקבצים?</string>
   <string name="could_not_overwrite_files">לא ניתן לדרוס קבצים: %s. למעט זה, ההתקנה הצליחה.</string>
   <string name="module_backup_restore">קובץ זה הוא גיבוי של מסמכי AndBible. האם לשחזר את המסמכים שבו?</string>
-  <string name="install_do_you_want">האם ברצונך להתקין את המודול (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">תוכנית קריאה</string>
   <string name="reading_plans_plural">תוכניות קריאה</string>
@@ -437,15 +438,8 @@
   <string name="rdg_plan_day">יום %s</string>
   <string name="rdg_plan_set_start_date">הגדרת תאריך התחלה....</string>
   <string name="set_current_day">הגדר בתור היום הנוכחי....</string>
-  <string name="msg_set_current_day_reading_plan">פעולה זו תגדיר את %1$s כיום הנוכחי בתוכנית זו ותסמן את כל הימים הקודמים כנקראו. להמשיך?</string>
   <string name="done">סיום</string>
-  <string name="reset_plan_question">בטוח שאתה רוצה לאפס את התוכנית?</string>
   <string name="import_reading_plan">ייבוא תוכנית קריאה...</string>
-  <string name="plan_duplicate_user_plan">
-        ישנה תוכנית קריאה בכרטיס הזכרון
-        jsword/readingplan באותו השם כמו התחוכנית הפנימית, ולכן לא ניתן להציג אותה.
-        יש לשנות את שם הקובץ, אבל להשאיר את הסיומת .properties
-    </string>
   <string name="plan_name_y1ntpspr">הברית החדשה, תהלים ומשלי בשנה אחת</string>
   <string name="plan_description_y1ntpspr">
         Courtesy of HEARTLIGHT Internet Magazine,
@@ -481,12 +475,8 @@
   <string name="delete_index">מחק אינדקס חיפוש</string>
   <string name="about">אודות</string>
   <string name="delete_doc">האם למחוק %s?</string>
-  <string name="interrupted_downloads_title">ההורדה הופסקה</string>
-  <string name="interrupted_downloads_message">המסמכים הבאים לא הותקנו כי ההורדה שלהם הופסקה:</string>
-  <string name="interrupted_downloads_question">להוריד אותם שוב?</string>
   <string name="download_again">הורדה מחדש</string>
   <string name="delete_docs_confirm">למחוק את המסמכים האלה?</string>
-  <string name="delete_search_index_doc">האם למחוק את האינדקס של %s ?</string>
   <!--Verse context menu-->
   <string name="notes">הערות שוליים ומראי מקום</string>
   <string name="share_verse">שתף...</string>
@@ -524,7 +514,6 @@
   <!--can be removed-->
   <string name="bookmark_warning">ישנן סימניות ו/או הערות עבור מסמך זה.</string>
   <string name="bookmark_warning2">אם מבנה המסמך השתנה, עדכון המסמך עלול לגרום לסימניות/הערות לעבור מיקום בתוך המסמך או להיעלם לחלוטין.</string>
-  <string name="bookmark_warning3">האם ברצונך להמשיך ולעדכן את המודול?</string>
   <string name="bookmark_warning4">מומלץ לגבות את המודול לפני העדכון.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">סדר תאריכים</string>
@@ -691,10 +680,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">שחזור או ייבוא מ...</string>
   <string name="backup_restore2">שחזור או ייבוא</string>
-  <string name="overwrite_something">לדרוס את %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">שחזור קובץ מסד נתונים</string>
-  <string name="restore_confirmation">שחזור ידרוס את כל הנתונים הבאים: הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה, מסכי עבודה. האם לשחזר?</string>
   <string name="restore_success">הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה ומסכי עבודה שוחזרו בהצלחה.</string>
   <string name="downloading_backup">מוריד קובץ גיבוי...</string>
   <string name="loading_backup">טוען נתונים מהגיבוי....</string>
@@ -716,7 +703,6 @@
   <string name="send_export_file">שליחת קובץ ייצוא</string>
   <string name="backup_modules_title">בחירת מודולים לגיבוי</string>
   <string name="install_zip_canceled">התקנת המודול בוטלה</string>
-  <string name="ask_restore_or_import">ניתן לשחזר את מסד הנתונים עבור %s (כלומר, מסד הנתונים הקיים מוסר והנבחר נטען) או לייבא אותו (מסד הנתונים הנבחר מיובא לתוך הקיים). מה ברצונך לעשות?</string>
   <string name="restore">שחזור</string>
   <string name="import2">ייבוא</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -771,7 +757,6 @@
   <string name="settings_editor_back">חזרה</string>
   <string name="settings_editor_close">סגירה</string>
   <string name="settings_editor_apply">החלה</string>
-  <string name="discard_changes_confirmation">לבטל שינויים שלא נשמרו?</string>
   <string name="discard">ביטול שינויים</string>
   <string name="remove">הסרה</string>
   <string name="overwrite">החלפה</string>
@@ -798,7 +783,8 @@
   <string name="empty_list">אין פריטים</string>
   <string name="error_skip">דלג</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">נתונים פגומים</string>
+  <string name="corrupt_database_headline">AndBible לא מצליח לפתוח חלק מהנתונים שלך</string>
+  <string name="corrupt_database_files_detail">לא ניתן היה לפתוח את הקבצים הבאים: %1$s. דבר לא שונה ולא נמחק. האיפוס מתחיל אותם מחדש כריקים ושומר כל קובץ פגום במכשיר זה, בשם חדש עם הסיומת .corrupt- ואחריה התאריך והשעה.</string>
   <string name="corrupt_database_reset">איפוס הנתונים הפגומים</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">לא ניתן היה לאפס את הנתונים הפגומים: לא ניתן היה להזיז את %1$s הצידה. דבר לא שונה. אפשר לנסות שוב, לשלוח דוח שגיאה או להשתמש בגיבוי ושחזור.</string>
@@ -806,8 +792,8 @@
   <string name="damaged_data_needs_attention">נתוני האפליקציה דורשים תשומת לב. הקש כדי לפתוח את האפליקציה.</string>
   <string name="debug_test_error">שגיאת בדיקה (גרסת ניפוי שגיאות)</string>
   <string name="bug_report_prepare_failed">לא ניתן היה להכין או לשתף את הדוח. אפשר לנסות שוב, או להשתמש בגיבוי ושחזור כדי לשמור את הנתונים.</string>
-  <string name="bug_report_email_title">שלח דווח תקלה בדואל</string>
   <string name="bug_report_desktop_text">לאחר מכן תתבקשו לבחור היכן לשמור את קובץ דוח הבאג. לאחר מכן תקבלו הוראות לשליחתו לצוות המפתחים.</string>
+  <string name="bug_report_email_title">שלח דווח תקלה בדואל</string>
   <string name="bug_report_email_text">לאחר מכן, אנא בחר את אפליקציית הדוא\"ל המועדפת עליך (Gmail למשל) לשליחת הדוח לצוות המפתחים.</string>
   <string name="bug_report_manual_title">שליחת הדוח בדוא\"ל</string>
   <string name="bug_report_manual_text_saved">הדוח נשמר ב-<b>%1$s</b>.\n\nאנא שלחו הודעת דוא\"ל אל <b>%2$s</b> וצרפו אליה את הקובץ; תוכנת דוא\"ל אינה יכולה לצרף אותו עבורכם. נושא מוצע: <b>%3$s</b>. בהודעה, ספרו לנו מה עשיתם ומה קרה.</string>
@@ -878,8 +864,6 @@
   <string name="beta_special_regards">בברכה, טואומס</string>
   <string name="beta_special_sponsor">נ.ב. אפשר לתמוך כלכלית בפיתוח AndBible על ידי %s.</string>
   <string name="beta_special_sponsor_link">חסות על שעות פיתוח</string>
-  <string name="new_sync_targets_notice_title">הגדרות סנכרון חדשות זמינות</string>
-  <string name="new_sync_targets_notice_message">גרסה זו של AndBible מציגה יעדי סנכרון נוספים: המסמכים שלי, הגדרות בינה מלאכותית והתקדמות קריאה. אם ברצונך להפעיל אותם, תוכל לעשות זאת בהגדרות סנכרון המכשיר.</string>
   <string name="open_settings">פתח הגדרות</string>
   <!--History-->
   <string name="history_for">היסטוריה (%1$s: חלון %2$d)</string>
@@ -965,7 +949,6 @@
   <string name="give_passphrase_for_module">המסמך %s מוצפן ונדרשת סיסמה לפתיחתו</string>
   <string name="unlock_module">קביעת סיסמה למסמך</string>
   <string name="unlock_info">מידע לפתיחת מסמך מוצפן</string>
-  <string name="try_again_passphrase">הסיסמה לא עבדה, לנסות שוב?</string>
   <string name="show_unlock_info">מידע על פתיחת מסמך</string>
   <string name="prefs_experimental_features_title">תכונות ניסיוניות</string>
   <string name="prefs_experimental_features_summary">בחר אילו תכונות ניסיוניות להפעיל. תכונות אלו עדיין בפיתוח ועשויות להשתנות או להיות מוסרות</string>
@@ -999,9 +982,6 @@
   <string name="active_window_indicator_summary">הדגש את פינות החלון הפעיל להקלת זיהויו</string>
   <string name="app_licence_title">רשיון קוד פתוח</string>
   <string name="how_to_contribute">איך לתרום?</string>
-  <string name="confirm_delete_bookmarks">למחוק %d סימניה/ות ואת ההערות שלה/ן?</string>
-  <string name="confirm_delete_orphaned_bookmarks">התווית שנבחרה מצורפת ל-%d סימניות שאין להן תוויות אחרות. האם ברצונך למחוק את הסימניות הללו יחד עם התוויות?</string>
-  <string name="delete_label_and_bookmarks">מחק תווית וסימניות</string>
   <string name="delete_label_only">מחק תווית בלבד</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">להמליץ לחבר/ה</string>
@@ -1032,8 +1012,6 @@
   <string name="old_webview">חבילת Android WebView ישנה מדי (%1$s). יש לשדרג את חבילת Android WebView לפחות לגרסה %2$s כדי להשתמש ב-%3$s. ברוב המכשירים ניתן לעשות זאת דרך %4$s.</string>
   <string name="play">חנות גוגל</string>
   <string name="proceed_anyway">המשך בכל זאת</string>
-  <string name="proceed">המשך</string>
-  <string name="rate_title">דירוג וביקורת האפליקציה</string>
   <string name="rate_message5">ביקורות חיוביות ומפורטות עוזרות מאוד לפרויקט הקוד הפתוח AndBible. תודה!</string>
   <string name="rate_message6">
 בטרם תכתבו סקירה שלילית, אנא שקלו את הדברים הבאים:</string>
@@ -1072,7 +1050,6 @@
   <string name="primary_label">תגית ראשית</string>
   <string name="favourite_label">תגית מועדפת</string>
   <string name="edit_label">עריכת תגית</string>
-  <string name="delete_label_confirmation">האם ברצונך למחוק את התווית \"%s\"? בנוסף, יימחקו כל רשימות פנקסי הלימוד המקושרים אליה.</string>
   <string name="active_labels">תגיות נבחרות</string>
   <string name="recent_labels">תגיות אחרונות</string>
   <string name="other_labels">תגיות אחרות</string>
@@ -1082,8 +1059,6 @@
   <string name="book_menu_show_progress_bars">הצג פסי התקדמות</string>
   <string name="reset_workspace_labels">האם לאפס הגדרות העדפות והשמה אוטומטית עבור סביבת עבודה זו?</string>
   <string name="clear_auto_assign_labels">ניקוי תוויות להקצאה אוטומטית</string>
-  <string name="reset_workspace_auto_assign_labels">להסיר את כל התוויות להקצאה אוטומטית מסביבת עבודה זו?</string>
-  <string name="reset_hide_labels">האם לבטל הסתרה של תוויות מסויימות?</string>
   <string name="reorder">סידור מחדש</string>
   <string name="system_items">פעולות מערכת</string>
   <string name="system_items1">עוד</string>
@@ -1097,7 +1072,6 @@
   <string name="ios_fullscreen_hint">הקש פעמיים או הקש על הכפתור כדי לצאת ממסך מלא.</string>
   <string name="desktop_exit_fullscreen">יציאה ממסך מלא</string>
   <string name="exit_fullscreen">הקשה כפולה כדי לצאת ממסך מלא</string>
-  <string name="reset_app_prefs">האם ברצונך לאפס את כל ההגדרות הכלליות, המוצגות במסך זה, לברירת המחדל שלהן?</string>
   <string name="label_red">אדום</string>
   <string name="label_green">ירוק</string>
   <string name="label_blue">כחול</string>
@@ -1108,7 +1082,6 @@
   <string name="reset_databases_title">איפוס מסדי נתונים</string>
   <string name="reset_databases_description">אפס מסדי נתונים נבחרים למצב ריק ראשוני. לא ניתן לבטל פעולה זו.</string>
   <string name="last_crash_info_title">מידע על הקריסה האחרונה</string>
-  <string name="reset_database_confirm">פעולה זו תמחק לצמיתות את כל הנתונים ב-\"%1$s\" ותאפס אותו למצב ראשוני. לא ניתן לבטל פעולה זו.\n\nהאם אתה בטוח?</string>
   <string name="reset_database_success">מסד הנתונים אופס בהצלחה</string>
   <string name="reset_something">איפוס: %1$s</string>
   <string name="export">יצוא</string>
@@ -1178,19 +1151,18 @@
   <string name="manage_labels_help_favourite">שמירת התווית במועדפים לגישה מהירה.</string>
   <string name="manage_labels_help_styles">מתחת לשם מוצגת דוגמה קטנה של מראה התווית: \"בחירה\" עבור סימניית בחירת טקסט, \"פסוק שלם\" עבור סימניית פסוק שלם, ותג \"סביבת עבודה\" עבור סגנון שסביבת עבודה זו עוקפת. דוגמה אפורה ללא עיטור פירושה שסימניות התווית אינן מצוירות. אפשר להסתיר את הדוגמאות מתפריט ⋮.</string>
   <string name="manage_labels_help_reorder">סידור הרשימה מחדש מתפריט ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">במסך צר הרשימה משמיטה את סמלי התווית הראשית, ההקצאה האוטומטית והמועדפים כדי לפנות מקום לשמות התוויות. הקש על תווית כדי להגדיר אותם בעורך שלה.</string>
   <string name="added_to_bookmark">צרף לסימניה זו</string>
   <string name="strongs_links">קישורים</string>
   <string name="strongs_text_and_links">טקסט וקישורים</string>
   <string name="strongs_hidden_links">קישורים מוסתרים</string>
   <string name="verse_tip">ניתן ללחוץ לחיצה ארוכה כדי לבחור חלק של פסוק או מספר פסוקים</string>
-  <string name="permission_required">נדרשת הרשאה</string>
   <string name="labels_search_hint">חיפוש</string>
   <string name="search_mode_name_start">שם (מתחילת שם)</string>
   <string name="search_mode_name_contains">שם (מכיל)</string>
   <string name="search_mode_content">תוכן</string>
   <string name="search_results_matches">%d תוצאות</string>
   <string name="search_results_match">תוצאה אחת</string>
-  <string name="progress_status_permission">כדי להציג התראות (סטטוס הורדה, עיבוד, סטטוס הקראה), נדרשת הרשאתך.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">מחשבון פשוט</string>
   <string name="prefs_persecution_cat">הגדרות לנרדפים</string>
@@ -1224,7 +1196,6 @@
   <string name="custom_repositories_create_button_label">הוספת מאגר מיוחד</string>
   <string name="custom_repositories_info_button_label">מידע</string>
   <string name="repository_specification">URL של המקור</string>
-  <string name="delete_custom_repository">האם להסיר את המאגר %s?</string>
   <string name="custom_repositories_help1">כדי להוסיף מאגר מותאם אישית חדש, הקלד או הדבק את כתובת ה-URL של המאגר כאן.</string>
   <string name="custom_repositories_help2">ניתן לקרוא מידע נוסף על מאגרים מותאמים אישית ב-%s.</string>
   <string name="custom_repositories_help0">ניתן להתקין מסמכים ממאגרים חיצוניים מותאמים אישית על ידי הוספת מאגרים מותאמים אישית.</string>
@@ -1244,7 +1215,6 @@
   <string name="db_bookmarks">סימניות, הערות אישיות, תוויות ופנקסי לימוד</string>
   <string name="synchronizing">מסנכרן...</string>
   <string name="notification_finished">הסתיים</string>
-  <string name="overrideBackup">נמצא מסד נתונים בענן שמכשיר זה אינו מסונכרן אליו. מסד הנתונים מכיל %s. מה ברצונך לעשות?</string>
   <string name="reading_plans_content">תוכניות קריאה וסטטוסיהן</string>
   <string name="bookmarks_contents">סימניות, תוויות ופנקסי לימוד</string>
   <string name="workspaces_contents">סביבות עבודה וחלונות</string>
@@ -1264,7 +1234,6 @@
   <string name="reading_progress_calendar">פעילות קריאה</string>
   <string name="reading_progress_cycle">מחזור %d</string>
   <string name="reading_progress_new_cycle">מחזור חדש</string>
-  <string name="reading_progress_new_cycle_confirm">להתחיל מחזור קריאה חדש? זה יתחיל מעקב התקדמות מחדש, תוך שמירת נתוני המחזור הקודם.</string>
   <string name="reading_progress_previous_cycle">מחזור קודם</string>
   <string name="reading_progress_next_cycle">מחזור הבא</string>
   <string name="cloud_merge_data">מיזוג נתונים</string>
@@ -1274,7 +1243,6 @@
   <string name="cloud_sync_title">סנכרון מכשיר</string>
   <string name="reset_sync">התנתקות</string>
   <string name="prefs_reset_sync_summary">השבת סנכרון ואפס הגדרות קשורות.</string>
-  <string name="sync_confirmation">האם אתה בטוח שברצונך להתנתק ולאפס את הסנכרון?</string>
   <string name="cloud_info">מידע מהענן</string>
   <string name="cloud_info_summary">נתונים באחסון ענן: %s מגהבייט</string>
   <string name="sync_adapter">ספינת גב סנכרון</string>
@@ -1290,7 +1258,6 @@
   <string name="webdav_server_url_hint">כתובת תיקיית ה-WebDAV, למשל https://nas.local/dav/ או https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">הסנכרון דורש כתובת מאובטחת מסוג https://.</string>
   <string name="webdav_certificate_title">אישור שרת</string>
-  <string name="webdav_forget_certificate_message">לשכוח את אישור השרת המהימן? תתבקשו לאשר את האישור שוב בחיבור הבא.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">אישור שרת לא מהימן</string>
   <string name="webdav_untrusted_certificate_message">האישור של %1$s אינו מהימן ב-Android. הסתמכו עליו רק אם אתם מכירים אותו, למשל משום שהקמתם את השרת בעצמכם.\n\nנושא: %2$s\nמנפיק: %3$s\nתקף: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1307,14 +1274,7 @@
   <string name="synchronization_categories">קטגוריות לסנכרון</string>
   <string name="sync_general_settings">מידע והגדרות כלליות</string>
   <string name="sync_introduction">הקדמה</string>
-  <string name="are_you_sure">האם אתה בטוח?</string>
   <string name="are_you_sure_merge">הנתונים במכשיר זה וה%s בענן יישמרו שניהם. כאשר אותו פריט שונה בשניהם, השינוי החדש יותר יישמר. נתוני מכשיר זה יישלחו להתקנים האחרים שלכם.</string>
-  <string name="are_you_sure_reset_local">פעולה זו תאפס את מסד הנתונים המקומי שלך עבור %s עם התוכן המאוחסן כעת בשירות הענן.</string>
-  <string name="are_you_sure_reset_cloud">פעולה זו תאפס את מסד הנתונים בענן עבור %s עם התוכן שיש לך במכשיר זה.</string>
-  <string name="sync_cant_fetch">גרסת מסד הנתונים או קובץ התיקון המאוחסן בענן גבוהה מזו הנתמכת על ידי אפליקציה זו.</string>
-  <string name="sync_disabling">מכבה סנכרון עבור %s לעת עתה.</string>
-  <string name="sync_update_app">אנא עדכן את האפליקציה להמשך הסנכרון.</string>
-  <string name="sign_in_failed">הכניסה לשירות ספינת גב הסנכרון נכשלה.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">מכבה סנכרון ענן. יש להפעיל מחדש ידנית לאחר שחזור.</string>
   <string name="report">דוח</string>
@@ -1332,6 +1292,7 @@
   <string name="open_here">פתח כאן</string>
   <string name="external_link">קישור חיצוני</string>
   <string name="external_link_question">פעולה זו תפתח את הקישור החיצוני %s בדפדפן, האם ברצונך להמשיך?</string>
+  <string name="external_link_dont_ask_again">אל תשאל שוב עבור %s</string>
   <string name="nameless">הכותרת אינה מוגדרת</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">פעולות בהקשה אחת (תנ\"כים)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">פעולות בהקשה אחת (אחר)</string>
@@ -1381,8 +1342,6 @@
   <string name="memorize_include_reference_summary">הוסף את מראה המקום של הפסוק (לדוגמה יוחנן 3:16) כפריט האחרון לשינון</string>
   <string name="reading_progress_settings">התקדמות ושינון</string>
   <string name="reading_progress_settings_summary">הגדרות מעקב אוטומטי, שינון ותרגול הקלדה</string>
-  <string name="memorize_confirm_unmark">להסיר סטטוס שינון עבור %s?</string>
-  <string name="memorize_confirm_remove_target">להסיר יעד שינון %s?</string>
   <string name="memorize_tab_reading">קריאה</string>
   <string name="memorize_tab_memorization">שינון</string>
   <string name="memorize_verses_memorized">נשנן</string>
@@ -1408,7 +1367,6 @@
   <string name="llm_reset_usage_title">אפס נתוני שימוש</string>
   <string name="llm_reset_usage_summary">נקה מעקב מצטבר של טוקנים ועלויות</string>
   <string name="llm_reset_usage_confirm_title">לאפס נתוני שימוש?</string>
-  <string name="llm_reset_usage_confirm_message">פעולה זו תמחק את כל נתוני השימוש המצטברים.</string>
   <string name="llm_custom_input_price_title">מחיר קלט ($/מיליון טוקן)</string>
   <string name="llm_custom_output_price_title">מחיר פלט ($/מיליון טוקן)</string>
   <string name="llm_cost_total">סה\"כ: %1$s</string>
@@ -1424,8 +1382,6 @@
   <string name="llm_parse_error_anthropic">נכשל בניתוח תגובת Anthropic: %1$s</string>
   <string name="llm_error_unknown">שגיאה לא ידועה</string>
   <string name="llm_error_max_iterations">הגיע למקסימום איטרציות (%1$d) ללא השלמה</string>
-  <string name="llm_continue_iterations_title">להמשיך?</string>
-  <string name="llm_continue_iterations_message">סוכן הבינה המלאכותית הגיע למגבלה של %1$d איטרציות ללא השלמה. להמשיך עוד %2$d איטרציות?</string>
   <string name="agent_max_iterations_title">מקסימום איטרציות לסוכן</string>
   <string name="agent_max_iterations_summary">מקסימום איטרציות לפני בקשה להמשך (0 = ללא הגבלה)</string>
   <string name="ask_model_before_run_title">שאל מודל לפני הרצה</string>
@@ -1485,7 +1441,6 @@
   <string name="ai_models_summary_none">לא הוגדרו מודלים</string>
   <string name="ai_add_provider">הוסף ספק</string>
   <string name="ai_provider_edit">ערוך</string>
-  <string name="ai_provider_delete_confirm">למחוק ספק \"%1$s\"? הנחיות המשתמשות בספק זה יחזרו לברירת המחדל.</string>
   <string name="ai_provider_api_key_not_set">מפתח API לא הוגדר</string>
   <string name="ai_provider_select_type">בחר סוג ספק</string>
   <string name="ai_provider_name">שם ספק</string>
@@ -1505,7 +1460,6 @@
   <string name="edit_model_title">ערוך מודל</string>
   <string name="model_saved">המודל נשמר</string>
   <string name="model_deleted">המודל נמחק</string>
-  <string name="model_delete_confirm">למחוק מודל \"%1$s\"?</string>
   <string name="model_set_default">הגדר כמודל ברירת מחדל</string>
   <string name="model_select_provider">ספק</string>
   <string name="model_supported_badge">✓ נתמך</string>
@@ -1545,7 +1499,6 @@
   <string name="ai_disclaimer_point8">הנתונים שלך נשלחים לשרתי ספק הבינה המלאכותית שבחרת. בשימוש במפתח API, אתה מקבל את תנאי הספק ומדיניות הפרטיות שלו. מודלים המאוחסנים עצמאית אפשריים אך דורשים מומחיות טכנית נוספת, ועשויים שלא לייצר תוצאות טובות כמו מודלים מסחריים.</string>
   <string name="ai_disclaimer_point9">ספקי בינה מלאכותית גובים תשלום עבור שימוש ב-API. אומדני עלות המוצגים ב-AndBible הם משוערים — תמיד בדוק את החיוב של הספק שלך לחיובים בפועל.</string>
   <string name="ai_disclaimer_accept_title">אשר כתב ויתור על בינה מלאכותית</string>
-  <string name="ai_disclaimer_accept_button">אני מקבל ולוקח אחריות מלאה</string>
   <string name="prompt_permission_mode">מצב הרשאות</string>
   <string name="prompt_permission_mode_description">שולט מתי נדרשת אישור משתמש לפני שהבינה המלאכותית מבצעת פעולות כתיבה. הגדרות הכלים הפרטניות להלן יכולות לעקוף זאת עבור כלים בודדים.</string>
   <string name="agent_permission_mode_summary">שולט מתי נדרשת אישור משתמש לפני פעולות כתיבה של בינה מלאכותית</string>
@@ -1661,7 +1614,6 @@
   <string name="default_prompt_custom_desc">הפעל משימה מותאמת אישית על הקטע המקראי שנבחר</string>
   <string name="default_prompt_custom_template">בצע את מפרט המשימה של המשתמש עבור הקטע המקראי שנבחר.</string>
   <string name="copy">העתק</string>
-  <string name="delete_prompt_confirm_message">האם אתה בטוח שברצונך למחוק הנחיה זו?</string>
   <string name="ai_hide_prompt">הסתר</string>
   <string name="ai_restore_hidden_prompts">שחזר הנחיות מוסתרות</string>
   <string name="ai_prompt_hidden">ההנחיה הוסתרה</string>
@@ -1746,8 +1698,6 @@
   <string name="permission_allow_all_session">אפשר את כל הכלים בסשן זה</string>
   <string name="permission_allow_always">תמיד אפשר \"%1$s\"</string>
   <string name="permission_deny">דחה</string>
-  <string name="permission_always_allow_confirm_title">תמיד לאפשר?</string>
-  <string name="permission_always_allow_confirm">האם אתה בטוח שברצונך לאפשר לצמיתות \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">ניתן לאפס זאת בהגדרות הבינה המלאכותית.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">הרשאות כלים</string>
@@ -1852,18 +1802,15 @@
   <string name="my_document_new_name">מסמך %d</string>
   <string name="my_document_create_title">צור מסמך חדש</string>
   <string name="my_document_rename_title">שנה שם מסמך</string>
-  <string name="my_document_delete_confirmation">למחוק מסמך \"%s\"?</string>
   <string name="show_secret">הצג</string>
   <string name="hide_secret">הסתר</string>
   <string name="ai_documents_name">מסמכי AI</string>
   <string name="ai_documents_description">מסמכים שנוצרו אוטומטית על ידי AI</string>
-  <string name="my_document_cannot_delete_ai_documents">לא ניתן למחוק מסמכי בינה מלאכותית כשהם מכילים עמודים. מחק את העמודים תחילה.</string>
   <string name="my_document_save_changes">לשמור שינויים?</string>
   <string name="my_document_no_description">אין תיאור</string>
   <string name="my_document_edit_description">ערוך תיאור</string>
   <string name="my_document_pages_title">%s - עמודים</string>
   <string name="my_document_page_rename_title">שנה שם עמוד</string>
-  <string name="my_document_page_delete_confirmation">למחוק עמוד \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">למחוק את העמודים האלה?</string>
   <string name="my_documents_switch_document">החלפת מסמך</string>
   <string name="my_document_new_page_name">עמוד %1$d</string>
@@ -1931,7 +1878,6 @@
   <string name="cloud_doc_show_removed">הצגת מסמכים שהוסרו</string>
   <string name="cloud_doc_status_removed">הוסר מהענן</string>
   <string name="cloud_doc_status_still_installed">עדיין מותקן כאן</string>
-  <string name="cloud_doc_purge_confirm">להסיר לצמיתות את \"%1$s\" מהיסטוריית הענן? אם הוא עדיין מותקן במכשיר אחר, מכשיר זה עשוי להעלות אותו חזרה לענן בסנכרון הבא שלו.</string>
   <string name="cloud_doc_action_download">הורדה</string>
   <string name="cloud_doc_action_push">העלאה לענן</string>
   <string name="cloud_doc_action_remove_cloud">הסרה מהענן</string>
@@ -1942,8 +1888,6 @@
   <string name="cloud_doc_action_dont_sync">אל תסנכרן לעננה</string>
   <string name="cloud_doc_action_allow_sync">סנכרן לעננה</string>
   <string name="cloud_doc_action_purge">הסרה מהיסטוריית הענן</string>
-  <string name="cloud_doc_remove_all_confirm">להסיר את %1$s מהענן ומכל המכשירים שלך, כולל מכשיר זה?</string>
-  <string name="cloud_doc_remove_cloud_confirm">להסיר את %1$s מהענן? העותק במכשיר זה יישמר; מכשירים שבהם סנכרון המסמכים מופעל יסירו אותו גם הם.</string>
   <string name="cloud_doc_sync_now">סנכרון כעת</string>
   <string name="cloud_doc_rescan">סריקה מחדש מהענן</string>
   <string name="cloud_doc_sync_now_download">הורדת מסמכים חדשים ומעודכנים</string>
@@ -1955,6 +1899,18 @@
   <string name="cloud_doc_summary_download">הורדה %1$d</string>
   <string name="cloud_doc_summary_download_size">הורדה %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">הורדות אוטומטיות יתחילו ברשת Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">מסמך %1$d</item>
+        <item quantity="two">%1$d מסמכים</item>
+        <item quantity="many">%1$d מסמכים</item>
+        <item quantity="other">%1$d מסמכים</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">מסמך %1$d (%2$s)</item>
+        <item quantity="two">%1$d מסמכים (%2$s)</item>
+        <item quantity="many">%1$d מסמכים (%2$s)</item>
+        <item quantity="other">%1$d מסמכים (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">אין מה להעביר</string>
   <string name="cloud_doc_selected_count">‏%1$d נבחרו</string>
   <string name="cloud_doc_bulk_skipped">‏%1$d שאינם רלוונטיים נדלגו</string>
@@ -1971,8 +1927,6 @@
   <string name="background_image_import">ייבוא מהגלריה…</string>
   <string name="background_image_empty">עדיין אין תמונות מיובאות. הקישו על \"ייבוא מהגלריה…\" כדי להוסיף.</string>
   <string name="background_image_importing">מייבא…</string>
-  <string name="background_image_delete_title">למחוק את התמונה?</string>
-  <string name="background_image_delete_confirm">למחוק את תמונת הרקע הזו? סביבות עבודה שעדיין משתמשות בה יעברו לאפשרות ללא תמונה.</string>
   <string name="background_image_day">תמונת רקע (יום)</string>
   <string name="background_image_night">תמונת רקע (לילה)</string>
   <string name="background_image_opacity_day">אטימות תמונת הרקע (יום)</string>
@@ -2046,6 +2000,12 @@
   <string name="legacy_notice_icloud">הסנכרון משתמש כעת ב-iCloud Drive. הפעילו אותו מחדש בהגדרות ← סנכרון. מכשיר זה שומר את מה שהיה לו; שינויים מההתקנים האחרים יגיעו לאחר שהסנכרון יוגדר מחדש. כדי לפנות את נתוני iCloud הישנים: הגדרות ← השם שלכם ← iCloud ← ניהול אחסון ← AndBible.</string>
   <string name="legacy_notice_nextcloud">חיבור Nextcloud שלכם הועבר, אך הסנכרון כבוי. הפעילו אותו בהגדרות ← סנכרון ובחרו אם להביא מהענן או ליצור חדש.</string>
   <string name="legacy_notice_nextcloud_unsent">חלק מהשינויים במכשיר זה טרם נשלחו ל-Nextcloud. הם לא נשלחו ונשארים רק במכשיר זה.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">לא ניתן היה למקם סימניה %1$d באופן אמין והיא לא יובאה. היא נשמרת עם הנתונים הישנים שלך במכשיר זה.</item>
+        <item quantity="two">לא ניתן היה למקם %1$d סימניות באופן אמין והן לא יובאו. הן נשמרות עם הנתונים הישנים שלך במכשיר זה.</item>
+        <item quantity="many">לא ניתן היה למקם %1$d סימניות באופן אמין והן לא יובאו. הן נשמרות עם הנתונים הישנים שלך במכשיר זה.</item>
+        <item quantity="other">לא ניתן היה למקם %1$d סימניות באופן אמין והן לא יובאו. הן נשמרות עם הנתונים הישנים שלך במכשיר זה.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">זוהי אפליקציה עוצמתית אך קלה לשימוש ללימוד המקרא ללא חיבור לאינטרנט.</string>
   <string name="webdav_untrusted_certificate_message_device">האישור של %1$s אינו מהימן במכשיר זה. הסתמכו עליו רק אם אתם מכירים אותו, למשל משום שהקמתם את השרת בעצמכם.\n\nנושא: %2$s\nמנפיק: %3$s\nתקף: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2097,6 +2057,25 @@
   <string name="recommend_share_link">שתף קישור</string>
   <string name="recommend_qr_caption">סרוק כדי להשיג את AndBible לטלפון, לטאבלט או למחשב שלך.</string>
   <string name="desktop_activation_failed">AndBible כבר פועל, אך החלון שלו לא הגיב. עבור למופע הפועל ונסה שוב. קבצים נכנסים לא אושרו כמסורים.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">לא ניתן לבטל פעולה זו.</string>
+  <string name="ai_raw_log_delete_lead">למחוק את היומן הזה?</string>
+  <string name="ai_provider_delete_lead">למחוק את הספק “%1$s”?</string>
+  <string name="ai_provider_delete_detail">הנחיות שמשתמשות בו יחזרו לספק ברירת המחדל.</string>
+  <string name="ai_model_delete_lead">למחוק את המודל “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">למחוק את ההנחיה “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">למחוק את ההנחיה הזו?</string>
+  <string name="ai_reset_usage_detail">סך האסימונים והעלות יחזרו לאפס. לא ניתן לבטל פעולה זו.</string>
+  <string name="ai_reset_usage_button">איפוס</string>
+  <string name="ai_disclaimer_accept">אני מסכים</string>
+  <string name="llm_continue_iterations_lead">להמשיך עוד %1$d איטרציות?</string>
+  <string name="llm_continue_iterations_detail">סוכן הבינה המלאכותית הגיע למגבלה של %1$d איטרציות מבלי לסיים.</string>
+  <string name="llm_continue_button">המשך</string>
+  <string name="permission_always_allow_lead">לאפשר תמיד את “%1$s”?</string>
+  <string name="permission_always_allow_button">אפשר תמיד</string>
+  <string name="ai_bug_report_send_lead">לשלוח דיווח על באג בבינה מלאכותית?</string>
+  <string name="ai_bug_report_send_button">שלח</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">צעדים ראשונים</string>
   <string name="user_guide_section_reading_workspace">קריאה וסביבת עבודה</string>
@@ -2174,4 +2153,166 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">עוזר בינה מלאכותית, חלק 3: כלים, הנתונים שלך והרשאות</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">עוזר בינה מלאכותית, חלק 4: הנחיות אישיות, עלויות וסנכרון</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">לבטל את השינויים?</string>
+  <string name="dialog_keep_editing">המשך לערוך</string>
+  <string name="dialog_label_delete_lead">למחוק את התווית “%1$s”?</string>
+  <string name="dialog_label_delete_detail">גם הערות פנקס הלימוד שלה נמחקות. לא ניתן לבטל פעולה זו.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">לסימניה %1$d אין תווית אחרת.</item>
+        <item quantity="two">ל-%1$d סימניות אין תווית אחרת.</item>
+        <item quantity="many">ל-%1$d סימניות אין תווית אחרת.</item>
+        <item quantity="other">ל-%1$d סימניות אין תווית אחרת.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">מחק את התווית ואת סימניה %1$d</item>
+        <item quantity="two">מחק את התווית ואת %1$d הסימניות</item>
+        <item quantity="many">מחק את התווית ואת %1$d הסימניות</item>
+        <item quantity="other">מחק את התווית ואת %1$d הסימניות</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">הסימניות והערותיהן נמחקות.</string>
+  <string name="dialog_label_delete_only_consequence">הסימניות נשארות, ללא תווית.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">להסיר את הסימניה הזו?</item>
+        <item quantity="two">להסיר %1$d סימניות?</item>
+        <item quantity="many">להסיר %1$d סימניות?</item>
+        <item quantity="other">להסיר %1$d סימניות?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">גם ההערה שלה נמחקת.</item>
+        <item quantity="two">גם ההערות שלהן נמחקות.</item>
+        <item quantity="many">גם ההערות שלהן נמחקות.</item>
+        <item quantity="other">גם ההערות שלהן נמחקות.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">להסיר את כל תוויות ההקצאה האוטומטית מסביבת עבודה זו?</string>
+  <string name="dialog_labels_reset_hidden_lead">להציג שוב את כל התוויות המוסתרות?</string>
+  <string name="dialog_labels_reset_shown_detail">תוויות שהסתרת מהרשימה יוצגו שוב.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">להתקין את “%s”?</string>
+  <string name="install_action">התקן</string>
+  <string name="install_from_file_question">להתקין מסמכים מקובץ?</string>
+  <string name="overwrite_files_detail">הקבצים הבאים כבר קיימים:%s</string>
+  <string name="import_studypads_question">לייבא את פנקסי הלימוד האלה?</string>
+  <string name="import_action">ייבא</string>
+  <string name="restore_backup_question">לשחזר את המסמכים שבגיבוי זה?</string>
+  <string name="restore_backup_detail">קובץ זה הוא גיבוי מסמכים של AndBible.</string>
+  <string name="update_document_question">לעדכן את המסמך הזה?</string>
+  <string name="update_action">עדכן</string>
+  <string name="download_documents_question">להוריד מסמכים?</string>
+  <string name="download_persecution_warning">אם אתה חי במדינה שבה נרדפים נוצרים, ייתכן שעליך להיזהר בהורדת חומרים נוצריים דרך האינטרנט. במקום זאת, ייתכן שתעדיף להשיג קובצי zip של מסמכים בדרך בטוחה יותר ולהתקין אותם דרך “%1$s”. כל ההורדות משרתי המסמכים מוצפנות (HTTPS).</string>
+  <string name="download_action">הורד</string>
+  <string name="download_dont_ask_again">הורד, אל תשאל שוב</string>
+  <string name="download_dont_ask_again_consequence">בעתיד ההורדות יתחילו ללא שאלה זו.</string>
+  <string name="passphrase_did_not_work">ביטוי הסיסמה לא עבד.</string>
+  <string name="try_again">נסה שוב</string>
+  <string name="interrupted_downloads_lead">להוריד שוב את המסמכים האלה?</string>
+  <string name="interrupted_downloads_detail">הורדתם הופסקה, ולכן הם לא הותקנו.</string>
+  <string name="external_link_open_question">לפתוח קישור זה בדפדפן?</string>
+  <string name="open_action">פתח</string>
+  <string name="notification_permission_question">לאפשר התראות?</string>
+  <string name="notification_permission_detail">ההתראות מציגות את מצב ההורדה, העיבוד ומצב ההקראה.</string>
+  <string name="allow_action">אפשר</string>
+  <string name="rate_question">לדרג ולכתוב ביקורת על היישום?</string>
+  <string name="bug_report_email_question">לשלוח את דיווח הבאג בדואר אלקטרוני?</string>
+  <string name="continue_action">המשך</string>
+  <string name="delete_search_index_question">למחוק את אינדקס החיפוש של “%s”?</string>
+  <string name="remove_custom_repository_question">להסיר את המאגר המיוחד “%s”?</string>
+  <string name="download_document_question">להוריד את “%s”?</string>
+  <string name="choose_file_action">בחר קובץ</string>
+  <string name="old_webview_question">להשתמש ביישום עם WebView ישן?</string>
+  <string name="incomplete_translation_question">להמשיך עם תרגום חלקי?</string>
+  <string name="rate_action">דרג</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">למחוק את המסמך “%s”?</string>
+  <string name="my_document_page_delete_lead">למחוק את העמוד “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">לא ניתן למחוק מסמכי בינה מלאכותית כל עוד הם מכילים עמודים.</string>
+  <string name="my_document_cannot_delete_ai_detail">מחק קודם את העמודים.</string>
+  <string name="reading_progress_new_cycle_lead">להתחיל מחזור קריאה חדש?</string>
+  <string name="reading_progress_new_cycle_detail">ההתקדמות שלך תימדד מחדש מהתחלה. נתוני המחזור הקודם נשמרים.</string>
+  <string name="reading_progress_new_cycle_start">התחל</string>
+  <string name="reset_plan_lead">לאפס את התוכנית הזו?</string>
+  <string name="reset_plan_detail">תאריך ההתחלה וההתקדמות שלך בתוכנית זו יימחקו.</string>
+  <string name="set_current_day_lead">להגדיר את %1$s כיום הנוכחי?</string>
+  <string name="set_current_day_detail">כל הימים הקודמים יסומנו כנקראו.</string>
+  <string name="plan_duplicate_user_plan_lead">לקובץ תוכנית קריאה יש אותו שם כמו לתוכנית מובנית.</string>
+  <string name="plan_duplicate_user_plan_detail">לא ניתן להציג את קובץ התוכנית ברשימה. שנה את שם הקובץ בתיקייה jsword/readingplan תוך שמירה על הסיומת .properties.</string>
+  <string name="background_image_delete_lead">למחוק את תמונת הרקע הזו?</string>
+  <string name="background_image_delete_detail">סביבות עבודה שעדיין משתמשות בה יחזרו לללא תמונה.</string>
+  <string name="reset_values_lead">לאפס את כל הערכים האלה?</string>
+  <string name="revert_setting_lead">להחזיר הגדרה זו לערך שעבר בירושה?</string>
+  <string name="revert_setting_confirm">החזר</string>
+  <string name="reset_settings_screen_lead">לאפס את ההגדרות במסך זה?</string>
+  <string name="reset_settings_screen_detail">הן יחזרו לערכי ברירת המחדל שלהן.</string>
+  <string name="memorize_unmark_lead">להסיר את סטטוס השינון של “%s”?</string>
+  <string name="memorize_remove_target_lead">להסיר את יעד השינון “%s”?</string>
+  <string name="dialog_apply">החל</string>
+  <string name="dialog_dont_apply">אל תחיל</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">בענן כבר נמצא %s שלך. מה לעשות?</string>
+  <string name="cloud_merge_consequence">שני הצדדים נשמרים; היכן שפריט השתנה בשניהם, השינוי החדש יותר גובר.</string>
+  <string name="cloud_fetch_consequence">מחליף את הנתונים במכשיר זה בעותק מהענן.</string>
+  <string name="cloud_create_consequence">מחליף את העותק בענן בנתונים שבמכשיר זה.</string>
+  <string name="cloud_disable_consequence">הסנכרון נשאר כבוי עבור נתונים אלה.</string>
+  <string name="cloud_merge_lead">למזג את %s שלך עם הענן?</string>
+  <string name="cloud_merge_confirm">מזג</string>
+  <string name="cloud_replace_confirm">החלף</string>
+  <string name="cloud_replace_local_lead">להחליף את %s של מכשיר זה בעותק מהענן?</string>
+  <string name="cloud_replace_local_detail">מה שנמצא כעת במכשיר זה יידרס ולא ניתן יהיה לשחזר אותו.</string>
+  <string name="cloud_replace_cloud_lead">להחליף את העותק בענן של %s בנתוני מכשיר זה?</string>
+  <string name="cloud_replace_cloud_detail">מה שנמצא כעת בענן יידרס, והמכשירים האחרים שלך יקבלו את נתוני מכשיר זה.</string>
+  <string name="sign_in_failed_lead">לא ניתן היה להתחבר לשירות הסנכרון.</string>
+  <string name="sync_too_old_lead">היישום ישן מדי לסנכרון %s.</string>
+  <string name="sync_too_old_detail">נתוני הענן משתמשים בגרסה חדשה יותר ממה שהיישום תומך בו. הסנכרון שלהם כבוי לעת עתה; עדכן את היישום כדי להפעיל אותו שוב.</string>
+  <string name="backup_replace_lead">להחליף את %s שלך בגיבוי?</string>
+  <string name="backup_replace_detail">מה שנמצא כעת במכשיר זה יידרס ולא ניתן יהיה לשחזר אותו.</string>
+  <string name="reset_database_lead">לאפס את “%1$s” למצבו ההתחלתי?</string>
+  <string name="reset_database_detail">כל הנתונים שבו יימחקו לצמיתות. לא ניתן לבטל פעולה זו.</string>
+  <string name="reset_database_button">איפוס</string>
+  <string name="restore_all_lead">להחליף את ההערות, הסימניות, פנקסי הלימוד, תוכניות הקריאה וסביבות העבודה שלך?</string>
+  <string name="restore_or_import_lead">לשחזר או לייבא את %s?</string>
+  <string name="restore_consequence">מחליף את מה שנמצא במכשיר זה בגיבוי.</string>
+  <string name="import_consequence">מוסיף את פריטי הגיבוי למה שנמצא במכשיר זה.</string>
+  <string name="sync_start_syncing">התחל לסנכרן</string>
+  <string name="sync_reset_lead">להתנתק ולאפס את הסנכרון?</string>
+  <string name="sync_reset_detail">תצטרך להגדיר את הסנכרון מחדש.</string>
+  <string name="webdav_forget_certificate_lead">לשכוח את אישור השרת המהימן?</string>
+  <string name="webdav_forget_certificate_detail">תתבקש לאשר את האישור שוב בחיבור הבא.</string>
+  <string name="webdav_forget_certificate_confirm">שכח</string>
+  <string name="cloud_doc_remove_all_lead">להסיר את “%1$s” מהענן ומכל המכשירים שלך?</string>
+  <string name="cloud_doc_remove_cloud_lead">להסיר את “%1$s” מהענן?</string>
+  <string name="cloud_doc_purge_lead">להסיר את “%1$s” לצמיתות מהיסטוריית הענן?</string>
+  <string name="cloud_doc_remove_all_detail">פעולה זו מוחקת גם את העותקים במכשיר זה ובכל מכשיר אחר שסנכרון המסמכים פועל בו.</string>
+  <string name="cloud_doc_remove_cloud_detail">העותקים במכשיר זה נשמרים. מכשירים שסנכרון המסמכים פועל בהם יסירו אותם גם כן.</string>
+  <string name="cloud_doc_purge_detail">מכשיר שעדיין יש בו עותק עשוי להעלות אותו שוב בסנכרון הבא.</string>
+  <string name="cloud_doc_block_confirm_button">אל תסנכרן</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">להסיר מסמך %1$d מהענן ומכל המכשירים שלך?</item>
+        <item quantity="two">להסיר %1$d מסמכים מהענן ומכל המכשירים שלך?</item>
+        <item quantity="many">להסיר %1$d מסמכים מהענן ומכל המכשירים שלך?</item>
+        <item quantity="other">להסיר %1$d מסמכים מהענן ומכל המכשירים שלך?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">להסיר מסמך %1$d מהענן?</item>
+        <item quantity="two">להסיר %1$d מסמכים מהענן?</item>
+        <item quantity="many">להסיר %1$d מסמכים מהענן?</item>
+        <item quantity="other">להסיר %1$d מסמכים מהענן?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">להסיר מסמך %1$d לצמיתות מהיסטוריית הענן?</item>
+        <item quantity="two">להסיר %1$d מסמכים לצמיתות מהיסטוריית הענן?</item>
+        <item quantity="many">להסיר %1$d מסמכים לצמיתות מהיסטוריית הענן?</item>
+        <item quantity="other">להסיר %1$d מסמכים לצמיתות מהיסטוריית הענן?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">להפסיק לסנכרן מסמך %1$d לענן?</item>
+        <item quantity="two">להפסיק לסנכרן %1$d מסמכים לענן?</item>
+        <item quantity="many">להפסיק לסנכרן %1$d מסמכים לענן?</item>
+        <item quantity="other">להפסיק לסנכרן %1$d מסמכים לענן?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">ניתן כעת לסנכרן עוד מהנתונים שלך</string>
+  <string name="new_sync_targets_detail">גם המסמכים שלי, הגדרות הבינה המלאכותית והתקדמות הקריאה יכולים להסתנכרן. הפעל אותם בהגדרות סנכרון המכשירים.</string>
+  <!--end dialog copy: B3b-->
 </resources>

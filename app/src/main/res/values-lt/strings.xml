@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Visas vartotojo vadovas yra svetainėje andbible.org. Puslapiai atidaromi naršyklėje.</string>
   <string name="help_user_guide_home">Vartotojo vadovo pradžia</string>
   <string name="help_read_in_user_guide">Skaityti naudotojo vadove</string>
+  <string name="help_in_user_guide">Pagalba naudotojo vadove</string>
+  <string name="help_matching_section">Atitinkantis skyrius</string>
   <string name="help_read_page">Skaityti naudotojo vadove: %1$s</string>
   <string name="help_tutorial_videos">Mokomieji vaizdo įrašai</string>
   <string name="help_watch_in_order">Žiūrėkite mokomuosius vaizdo įrašus iš eilės</string>
@@ -248,6 +250,9 @@
   <string name="prefs_navigate_to_verse_summary">Renkantis ištrauką, pasirinkti eilutę (ir skyrių)</string>
   <string name="prefs_open_links_in_special_window_title">Nuorodų langas</string>
   <string name="prefs_open_links_in_special_window_summary">Atverti nuorodas specialiame lange greitesniai kryžminių nuorodų ir Strongo peržiūrai</string>
+  <string name="prefs_trusted_link_domains_title">Patikimi nuorodų domenai</string>
+  <string name="prefs_trusted_link_domains_summary">Nuorodos į šiuos domenus atveriamos nieko neklausiant. Panaikinkite domeno žymėjimą, kad vėl būtumėte klausiami.</string>
+  <string name="prefs_trusted_link_domains_empty">Kol kas nėra. Atverdami nuorodą pažymėkite „Daugiau neklausti“, kad pridėtumėte jos domeną.</string>
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
   <string name="prefs_screen_keep_on_title">Laikyti ekraną įjungtą</string>
   <string name="prefs_screen_keep_on_summary">Neleidžia ekranui išsijungti tol, kol naudojatės šia programėle</string>
@@ -308,7 +313,6 @@
   <string name="line_spacing_title">Atstumai tarp eilučių</string>
   <string name="line_spacing_summary">Nustatyti atstumą tarp eilučių</string>
   <string name="select_none">Pasirinkti nieko</string>
-  <string name="reset_are_you_sure">Ar tikrai norite atstatyti visas šias reikšmes?</string>
   <string name="window_pinning_menutitle">Lango prisegimas</string>
   <string name="hide_window_buttons_title">Paslėpti lango mygtukus</string>
   <string name="hide_window_buttons_summary">Biblijos rodinio dešinėje pusėje esantys mygtukai yra paslėpti. Apačioje esanti naršymo juosta yra vis dar rodoma ir jūs galite atverti iškylantįjį langą ant jos paspaudę ir palaikę.</string>
@@ -331,6 +335,7 @@
   <string name="word_not_found_in_dictionaries">Žodis nerastas nei viename žodyne</string>
   <string name="prefs_top_margin_title_mm">Viršutinė paraštė (%d mm)</string>
   <string name="font_size_title">Šrifto dydis</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Nes Dievas taip pamilo pasaulį, kad atidavė savo viengimį Sūnų, jog kiekvienas, kuris Jį tiki, nebūtų pražuvęs, bet turėtų amžinąjį gyvenimą.</string>
   <string name="font_size_title_pt">Šrifto dydis (%d tšk.)</string>
   <string name="prefs_font_text_size_summary">Reguliuoti pagrindinio teksto šrifto dydį</string>
@@ -348,6 +353,8 @@
   <string name="window_color_settings_title">Spalvų nustatymai (langas)</string>
   <string name="workspace_color_settings_title">Spalvų nustatymai (darbo sritis)</string>
   <string name="color_workspace">Darbo srities spalva</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Numatytoji</string>
   <string name="color_text">Teksto spalva</string>
   <string name="color_background">Fono spalva</string>
   <string name="colors_day_mode_title">Dienos režimas</string>
@@ -381,7 +388,6 @@
   <string name="download_source_last_updated">Dokumentų sąrašas paskutinį kartą atnaujintas: %s.</string>
   <string name="download_refreshing_book_list">Atnaujinamas pasiekiamų dokumentų sąrašas iš dokumentų serverių...</string>
   <string name="download_source_message1">Dokumentai yra atsiunčiami iš šių šaltinių:</string>
-  <string name="download_document_confirm_prefix">Atsisiųsti</string>
   <string name="error_downloading">Atsiunčiant įvyko klaida. Patikrinkite interneto ryšį.</string>
   <string name="error_downloading_status">Serveris, kuriame yra %1$s, grąžino klaidą dėl %2$s (%3$d).</string>
   <string name="storage_space_warning">Nepakanka vietos vietinėje saugykloje.</string>
@@ -402,9 +408,6 @@
   <string name="activity_title">Foninė veikla</string>
   <string name="activity_empty">Nieko nevykdoma</string>
   <string name="activity_failed_toast">%1$s — žr. meniu</string>
-  <string name="download_question_title">Ar norite tęsti dokumentų atsisiuntimą?</string>
-  <string name="download_question_message">Jei gyvenate persekiojimus patiriančioje šalyje, gali tekti būti atsargiems atsisiunčiant krikščioniškąją medžiagą internetu. Verčiau galite saugesniu būdu gauti modulių zip failus ir įdiegti juos per \"%1$s\". Ar tikrai norite tęsti atsisiuntimą? Visi atsisiuntimai iš modulių serverių yra šifruojami (HTTPS).</string>
-  <string name="do_not_ask_again">Taip, daugiau nebeklausti</string>
   <string name="recommended_document">Rekomenduojama!</string>
   <string name="about_version_history">Versijų istorija: %s</string>
   <string name="download_errors">Atsiuntimo klaidos</string>
@@ -421,11 +424,9 @@
   <string name="checking_zip_file">Tikrinamas pateiktas failas...</string>
   <string name="invalid_module">Faile nėra SWORD modulio</string>
   <string name="install_zip_title">Prašome palaukti. Iš failo įkeliami moduliai.</string>
-  <string name="overwrite_files">Šie failai jau yra: %s Perrašyti?</string>
   <string name="overwrite_files_title">Perrašyti failus?</string>
   <string name="could_not_overwrite_files">Nepavyko ant viršaus užrašyti failų: %s. Visas kitas diegimas buvo sėkmingas.</string>
   <string name="module_backup_restore">Šis failas yra AndBible dokumentų atsarginė kopija. Ar norite atkurti jos dokumentus?</string>
-  <string name="install_do_you_want">Ar norite įdiegti modulį (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Skaitymo planas</string>
   <string name="reading_plans_plural">Skaitymo planai</string>
@@ -433,15 +434,8 @@
   <string name="rdg_plan_day">Diena %s</string>
   <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
   <string name="set_current_day">Nustatyti kaip šią dieną...</string>
-  <string name="msg_set_current_day_reading_plan">Tai nustatys %1$s kaip dabartinę šio plano dieną ir pažymės visas ankstesnes dienas kaip perskaitytas. Tęsti?</string>
   <string name="done">Atlikta</string>
-  <string name="reset_plan_question">Ar tikrai norite atstatyti šį planą?</string>
   <string name="import_reading_plan">Importuoti skaitymo planą…</string>
-  <string name="plan_duplicate_user_plan">
-        Yra skaitymo planas, esantis sdcard
-        jsword/readingplan tokiu pačiu pavadinimu kaip ir vidinis planas. Jis negali būti čia išvardytas.
-        Pervadinkite failą kitaip, palikdami jo failo prievardį kaip .properties
-    </string>
   <string name="plan_name_y1ntpspr">NT, Psalmės ir Patarlės per metus</string>
   <string name="plan_description_y1ntpspr">
         HEARTLIGHT internetiniam žurnalui leidus,
@@ -483,12 +477,8 @@
   <string name="delete_index">Ištrinti paieškos indeksą</string>
   <string name="about">Apie</string>
   <string name="delete_doc">Ištrinti %s?</string>
-  <string name="interrupted_downloads_title">Atsisiuntimas nutrauktas</string>
-  <string name="interrupted_downloads_message">Šie dokumentai neįdiegti, nes jų atsisiuntimas buvo nutrauktas:</string>
-  <string name="interrupted_downloads_question">Atsisiųsti juos iš naujo?</string>
   <string name="download_again">Atsisiųsti iš naujo</string>
   <string name="delete_docs_confirm">Ištrinti šiuos dokumentus?</string>
-  <string name="delete_search_index_doc">Ištrinti %s indeksą?</string>
   <!--Verse context menu-->
   <string name="notes">Išnašos ir nuorodos</string>
   <string name="share_verse">Bendrinti…</string>
@@ -529,7 +519,6 @@
         Jei dokumento struktūra pasikeitė, dokumento atnaujinimas gali
         žymių/pastabų vietą perkelti dokumento viduje arba  jos išvis gali pradingti.
     </string>
-  <string name="bookmark_warning3">Ar vis dar norite atnaujinti pmodulį?</string>
   <string name="bookmark_warning4">Rekomenduojama prieš atnaujinant padaryti modulio atsarginę kopiją.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Rikiavimas pagal datą</string>
@@ -703,10 +692,8 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Atkurti arba importuoti iš...</string>
   <string name="backup_restore2">Atkurti arba importuoti</string>
-  <string name="overwrite_something">Perrašyti %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Atkurti duomenų bazės failą</string>
-  <string name="restore_confirmation">Perrašyti mano pastabas, žymes, bloknotus, skaitymo planus ir darbo sritis?</string>
   <string name="restore_success">Mano pastabos, žymės, bloknotai, skaitymo planai ir darbo sritys sėkmingai atkurtos</string>
   <string name="downloading_backup">Atsisiunčiamas atsarginės kopijos failas…</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
@@ -728,7 +715,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="send_export_file">Siųsti eksporto failą</string>
   <string name="backup_modules_title">Pasirinkite kurių modulių atsargines kopijas darysite</string>
   <string name="install_zip_canceled">Modulio diegimo atsisakyta</string>
-  <string name="ask_restore_or_import">%s duomenų bazė gali būti atkurta (t. y. esama duomenų bazė pašalinta, o pasirinkta duomenų bazė įkelta) arba importuota (pasirinkta duomenų bazė importuota į esamą). Ką norite atlikti?</string>
   <string name="restore">Atkurti</string>
   <string name="import2">Importuoti</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -784,7 +770,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="settings_editor_back">Atgal</string>
   <string name="settings_editor_close">Užverti</string>
   <string name="settings_editor_apply">Taikyti</string>
-  <string name="discard_changes_confirmation">Atmesti neišsaugotus pakeitimus?</string>
   <string name="discard">Atmesti</string>
   <string name="remove">Pašalinti</string>
   <string name="overwrite">Perrašyti</string>
@@ -811,7 +796,8 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="empty_list">Nėra ko rodyti</string>
   <string name="error_skip">Praleisti</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Pažeisti duomenys</string>
+  <string name="corrupt_database_headline">„AndBible“ negali atverti dalies jūsų duomenų</string>
+  <string name="corrupt_database_files_detail">Šių failų nepavyko atverti: %1$s. Niekas nebuvo pakeista ar ištrinta. Atstačius jie pradedami tušti, o kiekvienas pažeistas failas paliekamas šiame įrenginyje, pervardytas pridedant .corrupt- ir datą bei laiką.</string>
   <string name="corrupt_database_reset">Atstatyti pažeistus duomenis</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Pažeistų duomenų atstatyti nepavyko: %1$s nepavyko perkelti į šalį. Nieko nepakeista. Galite bandyti dar kartą, išsiųsti klaidos ataskaitą arba naudoti Atsarginės kopijos ir atkūrimas.</string>
@@ -819,8 +805,8 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="damaged_data_needs_attention">Programėlės duomenims reikia dėmesio. Bakstelėkite, kad atidarytumėte programėlę.</string>
   <string name="debug_test_error">Bandomoji klaida (derinimo versija)</string>
   <string name="bug_report_prepare_failed">Nepavyko parengti ar bendrinti ataskaitos. Galite bandyti dar kartą arba naudoti Atsarginės kopijos kūrimą ir atkūrimą, kad išsaugotumėte duomenis.</string>
-  <string name="bug_report_email_title">Siųsti pranešimą apie klaidą el. paštu</string>
   <string name="bug_report_desktop_text">Toliau būsite paklausti, kur išsaugoti pranešimo apie klaidą failą. Tada gausite nurodymus, kaip jį išsiųsti kūrėjų komandai.</string>
+  <string name="bug_report_email_title">Siųsti pranešimą apie klaidą el. paštu</string>
   <string name="bug_report_email_text">Toliau, pasirinkite pageidaujamą el. pašto kliento programėlę (pvz., Gmail), kad išsiųstumėte plėtotojų komandai pranešimą apie klaidą.</string>
   <string name="bug_report_manual_title">Siųsti ataskaitą el. paštu</string>
   <string name="bug_report_manual_text_saved">Pranešimas buvo išsaugotas čia: <b>%1$s</b>.\n\nSiųskite el. laišką adresu <b>%2$s</b> ir pridėkite tą failą; el. pašto programa negali jo pridėti už jus. Siūloma tema: <b>%3$s</b>. Laiške papasakokite, ką darėte ir kas įvyko.</string>
@@ -891,8 +877,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="beta_special_regards">Geriausi linkėjimai, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Galite finansiškai paremti AndBible kūrimą: %s.</string>
   <string name="beta_special_sponsor_link">remdami kūrėjo darbo valandas</string>
-  <string name="new_sync_targets_notice_title">Galimi nauji sinchronizavimo nustatymai</string>
-  <string name="new_sync_targets_notice_message">Šioje AndBible versijoje pridėti papildomi sinchronizavimo objektai: Mano dokumentai, DI nustatymai ir skaitymo pažanga. Jei norite juos įjungti, tai galite padaryti įrenginio sinchronizavimo nustatymuose.</string>
   <string name="open_settings">Atidaryti nustatymus</string>
   <!--History-->
   <string name="history_for">Istorija (%1$s: Langas %2$d)</string>
@@ -997,7 +981,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="give_passphrase_for_module">Dokumentas %s yra šifruotas ir tam, kad būtų atrakintas, reikalauja slaptafrazės</string>
   <string name="unlock_module">Nustatyti modulio slaptafrazę</string>
   <string name="unlock_info">Informacija apie šifruoto modulio atrakinimą</string>
-  <string name="try_again_passphrase">Slaptafrazė nesuveikė, bandyti dar kartą?</string>
   <string name="show_unlock_info">Modulis ir informacija apie atrakinimą</string>
   <string name="prefs_experimental_features_title">Eksperimentinės ypatybės</string>
   <string name="prefs_experimental_features_summary">Pažymėkite, kurias eksperimentines ypatybes norite įjungti. Šios ypatybės yra vis dar plėtojamos ir gali būti pakeistos ar pašalintos</string>
@@ -1031,9 +1014,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="active_window_indicator_summary">Paryškinti lango kampus, kad būtų lengviau atpažinti aktyvų langą</string>
   <string name="app_licence_title">Atvirojo kodo licencija</string>
   <string name="how_to_contribute">Kaip talkinti?</string>
-  <string name="confirm_delete_bookmarks">Ar norite pašalinti %d žymes(-ių) ir jų pastabas?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Pasirinkta etiketė priskirta %d žymėms, kurios neturi kitų etikečių. Ar norite ištrinti šias žymes kartu su etiketėmis?</string>
-  <string name="delete_label_and_bookmarks">Ištrinti etiketę ir žymes</string>
   <string name="delete_label_only">Ištrinti tik etiketę</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomenduoti draugui</string>
@@ -1064,8 +1044,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="old_webview">„Android WebView“ paketas yra per senas (%1$s). Turite atnaujinti „Android WebView“ paketą bent iki versijos %2$s, kad galėtumėte naudoti %3$s. Daugumoje įrenginių, tai galima atlikti per %4$s.</string>
   <string name="play">„Google Play“</string>
   <string name="proceed_anyway">Vis tiek tęsti</string>
-  <string name="proceed">Tęsti</string>
-  <string name="rate_title">Programėlės įvertinimas ir apžvalga</string>
   <string name="rate_message5">
         Teigiamos ir išsamios apžvalgos labai padeda AndBible atvirojo kodo projektui. Dėkojame!
     </string>
@@ -1117,7 +1095,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="primary_label">Pagrindinė etiketė</string>
   <string name="favourite_label">Mėgstama etiketė</string>
   <string name="edit_label">Taisyti etiketę</string>
-  <string name="delete_label_confirmation">Ar norite pašalinti žymės etiketę „%s“? Tuo pačiu bus pašalintos ir visos susietos bloknoto pastabos.</string>
   <string name="active_labels">Pasirinktos etiketės</string>
   <string name="recent_labels">Paskiausios etiketės</string>
   <string name="other_labels">Kitos etiketės</string>
@@ -1127,8 +1104,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="book_menu_show_progress_bars">Rodyti eigos juostas</string>
   <string name="reset_workspace_labels">Ar norite atstatyti šios darbo srities automatinio priskyrimo ir mėgstamų nustatymus?</string>
   <string name="clear_auto_assign_labels">Išvalyti automatiškai priskiriamas etiketes</string>
-  <string name="reset_workspace_auto_assign_labels">Ar norite pašalinti visas automatiškai priskiriamas etiketes iš šios darbo srities?</string>
-  <string name="reset_hide_labels">Ar norite atstatyti tam tikrų etikečių nustatymų slėpimo nustatymą?</string>
   <string name="reorder">Pertvarkyti</string>
   <string name="system_items">Sistemos veiksmai</string>
   <string name="system_items1">Daugiau</string>
@@ -1142,7 +1117,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="ios_fullscreen_hint">Dukart bakstelėkite arba bakstelėkite mygtuką, kad išeitumėte iš viso ekrano režimo.</string>
   <string name="desktop_exit_fullscreen">Išeiti iš viso ekrano režimo</string>
   <string name="exit_fullscreen">Bakstelėkite du kartus, kad išeitumėte iš viso ekrano</string>
-  <string name="reset_app_prefs">Ar norite atstatyti visas šiame ekrane rodomas visuotines programėlės nuostatas į jų numatytąsias reikšmes?</string>
   <string name="label_red">Raudona</string>
   <string name="label_green">Žalia</string>
   <string name="label_blue">Mėlyna</string>
@@ -1153,7 +1127,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="reset_databases_title">Atstatyti duomenų bazes</string>
   <string name="reset_databases_description">Atstatyti atskiras duomenų bazes į pradinę tuščią būseną. Šio veiksmo negalima atšaukti.</string>
   <string name="last_crash_info_title">Paskutinės avarijos informacija</string>
-  <string name="reset_database_confirm">Tai visam laikui ištrins visus duomenis iš \"%1$s\" ir atstatys į pradinę būseną. Šio veiksmo negalima atšaukti.\n\nAr tikrai?</string>
   <string name="reset_database_success">Duomenų bazė sėkmingai atstatyta</string>
   <string name="reset_something">Atstatyta: %1$s</string>
   <string name="export">Eksportuoti</string>
@@ -1223,19 +1196,18 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="manage_labels_help_favourite">Laikyti etiketę mėgstamose, kad ją greitai pasiektumėte.</string>
   <string name="manage_labels_help_styles">Po pavadinimu nedidelis pavyzdys rodo etiketės išvaizdą: Žymėjimas – teksto žymėjimo žymei, Visa eilutė – visos eilutės žymei, o Darbo srities žyma – stiliui, kurį ši darbo sritis perrašo. Pilkas pavyzdys be dekoracijų reiškia, kad etiketės žymės nebraižomos. Pavyzdžius galite paslėpti meniu ⋮.</string>
   <string name="manage_labels_help_reorder">Pakeiskite sąrašo tvarką meniu ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Siaurame ekrane sąraše nerodomos pagrindinės, automatiškai priskiriamos ir mėgstamos piktogramos, kad etikečių pavadinimams liktų vietos. Palieskite etiketę, kad nustatytumėte jas jos redaktoriuje.</string>
   <string name="added_to_bookmark">Priskirta šiai žymei</string>
   <string name="strongs_links">Nuorodos</string>
   <string name="strongs_text_and_links">Tekstas ir nuorodos</string>
   <string name="strongs_hidden_links">Paslėptos nuorodos</string>
   <string name="verse_tip">Norėdami žymėti kelias eilutes ar eilutės dalį, paspauskite ir palaikykite ant Biblijos teksto</string>
-  <string name="permission_required">Reikalingas leidimas</string>
   <string name="labels_search_hint">Ieškoti</string>
   <string name="search_mode_name_start">Pavadinimas (nuo pradžios)</string>
   <string name="search_mode_name_contains">Pavadinimas (yra)</string>
   <string name="search_mode_content">Turinys</string>
   <string name="search_results_matches">%d atitikmenų</string>
   <string name="search_results_match">1 atitikmuo</string>
-  <string name="progress_status_permission">Reikia jūsų leidimo, kad galima būtų rodyti pranešimus (atsiuntimo būseną, apdorojimą, kalbėjimo būseną).</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Paprastas skaičiuotuvas</string>
   <string name="prefs_persecution_cat">Nustatymai persekiojamiems</string>
@@ -1285,7 +1257,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="custom_repositories_create_button_label">Pridėti tinkintą saugyklą</string>
   <string name="custom_repositories_info_button_label">Informacija</string>
   <string name="repository_specification">Saugyklos URL adresas</string>
-  <string name="delete_custom_repository">Ar norite šalinti tinkintą saugyklą „%s“?</string>
   <string name="custom_repositories_help1">Norėdami pridėti naują tinkinta saugyklą, įrašykite arba nukopijuokite ir įdėkite čia tinkintos saugyklos URL adresą.</string>
   <string name="custom_repositories_help2">Daugiau informacijos apie tinkintas saugyklas galite rasti %s.</string>
   <string name="custom_repositories_help0">Įdiegdami tinkintas saugyklas, galite diegti dokumentus iš išorinių tinkintų saugyklų.</string>
@@ -1309,10 +1280,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="db_bookmarks">Žymės, mano pastabos, etiketės ir bloknotai</string>
   <string name="synchronizing">Sinchronizuojama…</string>
   <string name="notification_finished">Baigta</string>
-  <string name="overrideBackup">
-        Debesijoje yra rasta duomenų bazė su kuria šis įrenginys nėra sinchronizuotas.
-        Duomenų bazėje yra %s. Ką norėtumėte daryti?
-    </string>
   <string name="reading_plans_content">Skaitymo planai ir jų būsena</string>
   <string name="bookmarks_contents">Žymės, etiketės ir bloknotai</string>
   <string name="workspaces_contents">Darbo sritys ir langai</string>
@@ -1332,7 +1299,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="reading_progress_calendar">Skaitymo veikla</string>
   <string name="reading_progress_cycle">Ciklas %d</string>
   <string name="reading_progress_new_cycle">Naujas ciklas</string>
-  <string name="reading_progress_new_cycle_confirm">Pradėti naują skaitymo ciklą? Bus pradedamas naujas progreso sekimas nuo nulio, išsaugant ankstesnio ciklo duomenis.</string>
   <string name="reading_progress_previous_cycle">Ankstesnis ciklas</string>
   <string name="reading_progress_next_cycle">Kitas ciklas</string>
   <string name="cloud_merge_data">Sujungti duomenis</string>
@@ -1342,7 +1308,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="cloud_sync_title">Įrenginio sinchronizavimas</string>
   <string name="reset_sync">Atsijungti</string>
   <string name="prefs_reset_sync_summary">Išjungti sinchronizavimą ir atstatyti susijusius nustatymus.</string>
-  <string name="sync_confirmation">Ar tikrai norite atsijungti ir atstatyti sinchronizavimą?</string>
   <string name="cloud_info">Informacija apie debesiją</string>
   <string name="cloud_info_summary">Duomenų debesijos saugykloje: %s Mb</string>
   <string name="sync_adapter">Sinchronizavimo vidinė sąsaja</string>
@@ -1358,7 +1323,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="webdav_server_url_hint">WebDAV aplanko adresas, pvz., https://nas.local/dav/ arba https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinchronizavimui reikalingas saugus https:// adresas.</string>
   <string name="webdav_certificate_title">Serverio sertifikatas</string>
-  <string name="webdav_forget_certificate_message">Pamiršti patikimą serverio sertifikatą? Kitą kartą prisijungiant jūsų bus paprašyta sertifikatą patvirtinti iš naujo.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nepatikimas serverio sertifikatas</string>
   <string name="webdav_untrusted_certificate_message">„Android“ nepasitiki %1$s sertifikatu. Juo pasitikėkite tik jei jį atpažįstate, pavyzdžiui, nes patys sukūrėte šį serverį.\n\nSubjektas: %2$s\nIšdavėjas: %3$s\nGalioja: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1375,14 +1339,7 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="synchronization_categories">Sinchronizavimo kategorijos</string>
   <string name="sync_general_settings">Informacija ir bendri nustatymai</string>
   <string name="sync_introduction">Įžanga</string>
-  <string name="are_you_sure">Ar tikrai?</string>
   <string name="are_you_sure_merge">Bus išsaugoti ir šiame įrenginyje esantys duomenys, ir %s debesyje. Jei tas pats elementas pakeistas abiejose vietose, išsaugomas naujesnis pakeitimas. Šio įrenginio duomenys bus išsiųsti į kitus jūsų įrenginius.</string>
-  <string name="are_you_sure_reset_local">Tai atstatys jūsų vietinę %s duomenų bazę ir pakeis joje esantį turinį tuo, kuris šiuo metu yra saugomas debesijos paslaugoje.</string>
-  <string name="are_you_sure_reset_cloud">Tai atstatys jūsų %s debesijos duomenų bazę ir pakeis joje esantį turinį tuo, kuris yra šiame įrenginyje.</string>
-  <string name="sync_cant_fetch">Debesijoje saugomo duomenų bazės ar pataisos failo versija yra didesnė, nei palaiko ši programėlė.</string>
-  <string name="sync_disabling">Kol kas išjungiamas %s sinchronizavimas.</string>
-  <string name="sync_update_app">Norėdami tęsti sinchronizavimą, atnaujinkite programėlę.</string>
-  <string name="sign_in_failed">Nepavyko prisijungti prie sinchronizavimo vidinės sąsajos paslaugų.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Išjungiamas debesijos sinchronizavimas. Atkūrus, privalėsite rankiniu būdu įjungti iš naujo.</string>
   <string name="report">Siųsti pranešimą</string>
@@ -1400,6 +1357,7 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="open_here">Atverti čia</string>
   <string name="external_link">Išorinė nuoroda</string>
   <string name="external_link_question">Tai naršyklės programėlėje atvers išorinę nuorodą %s. Ar norite tęsti?</string>
+  <string name="external_link_dont_ask_again">Daugiau neklausti dėl %s</string>
   <string name="nameless">Nėra pavadinimo</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Vieno bakstelėjimo veiksmai (Biblijos)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Vieno bakstelėjimo veiksmai (Kita)</string>
@@ -1449,8 +1407,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="memorize_include_reference_summary">Pridėti eilutės nuorodą (pvz. Jn 3:16) kaip paskutinį elementą įsiminimui</string>
   <string name="reading_progress_settings">Progresas ir įsiminimas</string>
   <string name="reading_progress_settings_summary">Automatinio sekimo, įsiminimo ir rašymo praktikos nustatymai</string>
-  <string name="memorize_confirm_unmark">Pašalinti įsiminto statusą eilutei %s?</string>
-  <string name="memorize_confirm_remove_target">Pašalinti įsiminimo tikslą %s?</string>
   <string name="memorize_tab_reading">Skaitymas</string>
   <string name="memorize_tab_memorization">Įsiminimas</string>
   <string name="memorize_verses_memorized">Įsiminta</string>
@@ -1476,7 +1432,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="llm_reset_usage_title">Atstatyti naudojimo duomenis</string>
   <string name="llm_reset_usage_summary">Išvalyti sukauptų žetonų ir kainos stebėjimą</string>
   <string name="llm_reset_usage_confirm_title">Atstatyti naudojimo duomenis?</string>
-  <string name="llm_reset_usage_confirm_message">Tai išvalys visus sukauptus naudojimo duomenis.</string>
   <string name="llm_custom_input_price_title">Įvesties kaina ($/Mžetonas)</string>
   <string name="llm_custom_output_price_title">Išvesties kaina ($/Mžetonas)</string>
   <string name="llm_cost_total">Iš viso: %1$s</string>
@@ -1492,8 +1447,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="llm_parse_error_anthropic">Nepavyko analizuoti Anthropic atsakymo: %1$s</string>
   <string name="llm_error_unknown">Nežinoma klaida</string>
   <string name="llm_error_max_iterations">Pasiektas maksimalus iteracijų skaičius (%1$d) nebaigus</string>
-  <string name="llm_continue_iterations_title">Tęsti?</string>
-  <string name="llm_continue_iterations_message">DI agentas pasiekė %1$d iteracijų limitą nebaigęs. Tęsti dar %2$d iteracijų?</string>
   <string name="agent_max_iterations_title">Maks. agento iteracijos</string>
   <string name="agent_max_iterations_summary">Maksimalus iteracijų skaičius prieš paklausiant tęsti (0 = neribota)</string>
   <string name="ask_model_before_run_title">Klausti modelio prieš vykdymą</string>
@@ -1553,7 +1506,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="ai_models_summary_none">Modeliai nesukonfigūruoti</string>
   <string name="ai_add_provider">Pridėti tiekėją</string>
   <string name="ai_provider_edit">Redaguoti</string>
-  <string name="ai_provider_delete_confirm">Ištrinti tiekėją „%1$s\"? Užklausos, naudojančios šį tiekėją, grįš prie numatytojo.</string>
   <string name="ai_provider_api_key_not_set">API raktas nenustatytas</string>
   <string name="ai_provider_select_type">Pasirinkti tiekėjo tipą</string>
   <string name="ai_provider_name">Tiekėjo pavadinimas</string>
@@ -1573,7 +1525,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="edit_model_title">Taisyti modelį</string>
   <string name="model_saved">Modelis išsaugotas</string>
   <string name="model_deleted">Modelis ištrintas</string>
-  <string name="model_delete_confirm">Ištrinti modelį \"%1$s\"?</string>
   <string name="model_set_default">Nustatyti kaip numatytąjį modelį</string>
   <string name="model_select_provider">Tiekėjas</string>
   <string name="model_supported_badge">✓ Palaikoma</string>
@@ -1613,7 +1564,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="ai_disclaimer_point8">Jūsų duomenys siunčiami į jūsų pasirinkto DI tiekėjo serverius. Naudodami API raktą, sutinkate su to tiekėjo sąlygomis ir privatumo politika. Vietoje talpinami modeliai yra įmanomi, tačiau reikalauja daugiau techninių žinių ir gali duoti ne tokius gerus rezultatus kaip komerciniai modeliai.</string>
   <string name="ai_disclaimer_point9">DI tiekėjai ima mokestį už API naudojimą. AndBible rodomos sąnaudų apytikslės — visada tikrinkite savo tiekėjo sąskaitą dėl faktinių mokesčių.</string>
   <string name="ai_disclaimer_accept_title">Priimti DI atsakomybės atsisakymą</string>
-  <string name="ai_disclaimer_accept_button">Sutinku ir priimu visą atsakomybę</string>
   <string name="prompt_permission_mode">Leidimų režimas</string>
   <string name="prompt_permission_mode_description">Kontroliuoja, kada reikalingas naudotojo patvirtinimas prieš DI atliekant rašymo operacijas. Toliau pateikti atskirų įrankių nustatymai gali tai nepaisyti konkretiems įrankiams.</string>
   <string name="agent_permission_mode_summary">Kontroliuoja, kada reikalingas naudotojo patvirtinimas prieš DI rašymo operacijas</string>
@@ -1729,7 +1679,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="default_prompt_custom_desc">Vykdyti pasirinktinę užduotį su pasirinkta ištrauka</string>
   <string name="default_prompt_custom_template">Vykdykite vartotojo užduoties specifikaciją pasirinktai Biblijos ištraukai.</string>
   <string name="copy">Kopijuoti</string>
-  <string name="delete_prompt_confirm_message">Ar tikrai norite ištrinti šį raginimą?</string>
   <string name="ai_hide_prompt">Slėpti</string>
   <string name="ai_restore_hidden_prompts">Atkurti paslėptus raginimus</string>
   <string name="ai_prompt_hidden">Raginimas paslėptas</string>
@@ -1814,8 +1763,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="permission_allow_all_session">Leisti visus įrankius šiai sesijai</string>
   <string name="permission_allow_always">Visada leisti „%1$s\"</string>
   <string name="permission_deny">Atmesti</string>
-  <string name="permission_always_allow_confirm_title">Visada leisti?</string>
-  <string name="permission_always_allow_confirm">Ar tikrai norite visam laikui leisti „%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Tai galite nustatyti iš naujo DI nustatymuose.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Įrankių leidimai</string>
@@ -1920,18 +1867,15 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="my_document_new_name">Dokumentas %d</string>
   <string name="my_document_create_title">Kurti naują dokumentą</string>
   <string name="my_document_rename_title">Pervadinti dokumentą</string>
-  <string name="my_document_delete_confirmation">Ištrinti dokumentą \"%s\"?</string>
   <string name="show_secret">Rodyti</string>
   <string name="hide_secret">Slėpti</string>
   <string name="ai_documents_name">DI dokumentai</string>
   <string name="ai_documents_description">Automatiškai DI sukurti dokumentai</string>
-  <string name="my_document_cannot_delete_ai_documents">DI dokumentų negalima ištrinti, kol juose yra puslapių. Pirmiausia ištrinkite puslapius.</string>
   <string name="my_document_save_changes">Išsaugoti pakeitimus?</string>
   <string name="my_document_no_description">Nėra aprašymo</string>
   <string name="my_document_edit_description">Redaguoti aprašymą</string>
   <string name="my_document_pages_title">%s – puslapiai</string>
   <string name="my_document_page_rename_title">Pervadinti puslapį</string>
-  <string name="my_document_page_delete_confirmation">Ištrinti puslapį \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Ištrinti šiuos puslapius?</string>
   <string name="my_documents_switch_document">Perjungti dokumentą</string>
   <string name="my_document_new_page_name">Puslapis %1$d</string>
@@ -1999,7 +1943,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="cloud_doc_show_removed">Rodyti pašalintus dokumentus</string>
   <string name="cloud_doc_status_removed">Pašalinta iš debesies</string>
   <string name="cloud_doc_status_still_installed">vis dar įdiegta čia</string>
-  <string name="cloud_doc_purge_confirm">Visam laikui pašalinti \"%1$s\" iš debesies istorijos? Jei jis vis dar įdiegtas kitame įrenginyje, tas įrenginys gali jį vėl įkelti į debesį per kitą sinchronizavimą.</string>
   <string name="cloud_doc_action_download">Atsisiųsti</string>
   <string name="cloud_doc_action_push">Įkelti į debesį</string>
   <string name="cloud_doc_action_remove_cloud">Pašalinti iš debesies</string>
@@ -2010,8 +1953,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="cloud_doc_action_dont_sync">Nesinchronizuoti su debesiu</string>
   <string name="cloud_doc_action_allow_sync">Sinchronizuoti su debesiu</string>
   <string name="cloud_doc_action_purge">Pašalinti iš debesies istorijos</string>
-  <string name="cloud_doc_remove_all_confirm">Pašalinti %1$s iš debesies ir iš visų jūsų įrenginių, įskaitant šį?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Pašalinti %1$s iš debesies? Kopija šiame įrenginyje išsaugoma; įrenginiai, kuriuose įjungtas dokumentų sinchronizavimas, taip pat ją pašalins.</string>
   <string name="cloud_doc_sync_now">Sinchronizuoti dabar</string>
   <string name="cloud_doc_rescan">Iš naujo nuskaityti iš debesies</string>
   <string name="cloud_doc_sync_now_download">Atsisiųsti naujus ir atnaujintus dokumentus</string>
@@ -2023,6 +1964,18 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="cloud_doc_summary_download">Atsisiųsti %1$d</string>
   <string name="cloud_doc_summary_download_size">Atsisiųsti %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatinis atsisiuntimas prasidės per Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d dokumentas</item>
+        <item quantity="few">%1$d dokumentai</item>
+        <item quantity="many">%1$d dokumento</item>
+        <item quantity="other">%1$d dokumentų</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d dokumentas (%2$s)</item>
+        <item quantity="few">%1$d dokumentai (%2$s)</item>
+        <item quantity="many">%1$d dokumento (%2$s)</item>
+        <item quantity="other">%1$d dokumentų (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Nėra ką perkelti</string>
   <string name="cloud_doc_selected_count">Pasirinkta %1$d</string>
   <string name="cloud_doc_bulk_skipped">Praleista %1$d netaikoma</string>
@@ -2039,8 +1992,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="background_image_import">Importuoti iš galerijos…</string>
   <string name="background_image_empty">Dar nėra importuotų paveikslėlių. Bakstelėkite „Importuoti iš galerijos…“, kad pridėtumėte.</string>
   <string name="background_image_importing">Importuojama…</string>
-  <string name="background_image_delete_title">Ištrinti paveikslėlį?</string>
-  <string name="background_image_delete_confirm">Ištrinti šį fono paveikslėlį? Darbo sritys, kurios jį vis dar naudoja, grįš prie fono be paveikslėlio.</string>
   <string name="background_image_day">Fono paveikslėlis (diena)</string>
   <string name="background_image_night">Fono paveikslėlis (naktis)</string>
   <string name="background_image_opacity_day">Fono paveikslėlio nepermatomumas (diena)</string>
@@ -2114,6 +2065,12 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="legacy_notice_icloud">Sinchronizavimas dabar naudoja „iCloud Drive“. Įjunkite jį iš naujo skiltyje Nustatymai → Sinchronizavimas. Šis įrenginys pasilieka tai, ką turėjo; kitų įrenginių pakeitimai atkeliaus, kai sinchronizavimas bus nustatytas iš naujo. Norėdami atlaisvinti senus „iCloud“ duomenis: Nustatymai → jūsų vardas → iCloud → Tvarkyti saugyklą → AndBible.</string>
   <string name="legacy_notice_nextcloud">Jūsų „Nextcloud“ ryšys perkeltas, bet sinchronizavimas išjungtas. Įjunkite jį skiltyje Nustatymai → Sinchronizavimas ir pasirinkite gauti iš debesies arba kurti naują.</string>
   <string name="legacy_notice_nextcloud_unsent">Kai kurie šiame įrenginyje atlikti pakeitimai dar nebuvo išsiųsti į „Nextcloud“. Jie nebuvo išsiųsti ir lieka tik šiame įrenginyje.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d žymės nepavyko patikimai įdėti, todėl ji neimportuota. Ji laikoma su jūsų senais duomenimis šiame įrenginyje.</item>
+        <item quantity="few">%1$d žymių nepavyko patikimai įdėti, todėl jos neimportuotos. Jos laikomos su jūsų senais duomenimis šiame įrenginyje.</item>
+        <item quantity="many">%1$d žymės nepavyko patikimai įdėti, todėl jos neimportuotos. Jos laikomos su jūsų senais duomenimis šiame įrenginyje.</item>
+        <item quantity="other">%1$d žymių nepavyko patikimai įdėti, todėl jos neimportuotos. Jos laikomos su jūsų senais duomenimis šiame įrenginyje.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Tai galinga, tačiau lengvai naudojama neprisijungus veikianti Biblijos studijų programa.</string>
   <string name="webdav_untrusted_certificate_message_device">Šis įrenginys nepasitiki %1$s sertifikatu. Juo pasitikėkite tik jei jį atpažįstate, pavyzdžiui, nes patys sukūrėte šį serverį.\n\nSubjektas: %2$s\nIšdavėjas: %3$s\nGalioja: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2165,6 +2122,25 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="recommend_share_link">Bendrinti nuorodą</string>
   <string name="recommend_qr_caption">Nuskaitykite, kad gautumėte „AndBible“ savo telefonui, planšetei ar kompiuteriui.</string>
   <string name="desktop_activation_failed">AndBible jau veikia, tačiau jos langas neatsakė. Persijunkite į veikiančią programą ir bandykite dar kartą. Gaunami failai nebuvo patvirtinti kaip pristatyti.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">To atšaukti negalima.</string>
+  <string name="ai_raw_log_delete_lead">Ištrinti šį žurnalą?</string>
+  <string name="ai_provider_delete_lead">Ištrinti tiekėją „%1$s“?</string>
+  <string name="ai_provider_delete_detail">Raginimai, kurie jį naudoja, grįžta prie numatytojo tiekėjo.</string>
+  <string name="ai_model_delete_lead">Ištrinti modelį „%1$s“?</string>
+  <string name="ai_prompt_delete_named_lead">Ištrinti raginimą „%1$s“?</string>
+  <string name="ai_prompt_delete_lead">Ištrinti šį raginimą?</string>
+  <string name="ai_reset_usage_detail">Žetonų ir kainos sumos grįžta į nulį. To atšaukti negalima.</string>
+  <string name="ai_reset_usage_button">Atstatyti</string>
+  <string name="ai_disclaimer_accept">Sutinku</string>
+  <string name="llm_continue_iterations_lead">Tęsti dar %1$d iteracijų?</string>
+  <string name="llm_continue_iterations_detail">DI agentas pasiekė %1$d iteracijų ribą nebaigęs darbo.</string>
+  <string name="llm_continue_button">Tęsti</string>
+  <string name="permission_always_allow_lead">Visada leisti „%1$s“?</string>
+  <string name="permission_always_allow_button">Visada leisti</string>
+  <string name="ai_bug_report_send_lead">Siųsti DI klaidos ataskaitą?</string>
+  <string name="ai_bug_report_send_button">Siųsti</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Darbo pradžia</string>
   <string name="user_guide_section_reading_workspace">Skaitymas ir darbo erdvės</string>
@@ -2242,4 +2218,166 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="tutorial_title_31_ai_3_tools_data_permissions">DI asistentas, 3 dalis: įrankiai, jūsų duomenys ir leidimai</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">DI asistentas, 4 dalis: jūsų raginimai, išlaidos ir sinchronizavimas</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Atmesti pakeitimus?</string>
+  <string name="dialog_keep_editing">Toliau redaguoti</string>
+  <string name="dialog_label_delete_lead">Ištrinti etiketę „%1$s“?</string>
+  <string name="dialog_label_delete_detail">Jos bloknoto pastabos taip pat ištrinamos. To atšaukti negalima.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d žymė neturi kitos etiketės.</item>
+        <item quantity="few">%1$d žymės neturi kitos etiketės.</item>
+        <item quantity="many">%1$d žymės neturi kitos etiketės.</item>
+        <item quantity="other">%1$d žymių neturi kitos etiketės.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Ištrinti etiketę ir %1$d žymę</item>
+        <item quantity="few">Ištrinti etiketę ir %1$d žymes</item>
+        <item quantity="many">Ištrinti etiketę ir %1$d žymės</item>
+        <item quantity="other">Ištrinti etiketę ir %1$d žymių</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Žymės ir jų pastabos ištrinamos.</string>
+  <string name="dialog_label_delete_only_consequence">Žymės lieka be etiketės.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Pašalinti %1$d žymę?</item>
+        <item quantity="few">Pašalinti %1$d žymes?</item>
+        <item quantity="many">Pašalinti %1$d žymės?</item>
+        <item quantity="other">Pašalinti %1$d žymių?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Pastabos taip pat pašalinamos.</item>
+        <item quantity="few">Jų pastabos taip pat pašalinamos.</item>
+        <item quantity="many">Jų pastabos taip pat pašalinamos.</item>
+        <item quantity="other">Jų pastabos taip pat pašalinamos.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Pašalinti visas automatiškai priskiriamas etiketes iš šios darbo srities?</string>
+  <string name="dialog_labels_reset_hidden_lead">Vėl rodyti visas paslėptas etiketes?</string>
+  <string name="dialog_labels_reset_shown_detail">Etiketės, kurias paslėpėte sąraše, vėl rodomos.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Įdiegti „%s“?</string>
+  <string name="install_action">Įdiegti</string>
+  <string name="install_from_file_question">Įdiegti dokumentus iš failo?</string>
+  <string name="overwrite_files_detail">Šie failai jau yra:%s</string>
+  <string name="import_studypads_question">Importuoti šiuos bloknotus?</string>
+  <string name="import_action">Importuoti</string>
+  <string name="restore_backup_question">Atkurti šioje atsarginėje kopijoje esančius dokumentus?</string>
+  <string name="restore_backup_detail">Šis failas yra „AndBible“ dokumentų atsarginė kopija.</string>
+  <string name="update_document_question">Atnaujinti šį dokumentą?</string>
+  <string name="update_action">Atnaujinti</string>
+  <string name="download_documents_question">Atsisiųsti dokumentus?</string>
+  <string name="download_persecution_warning">Jei gyvenate šalyje, kurioje persekiojami krikščionys, gali tekti būti atsargiems atsisiunčiant krikščionišką medžiagą internetu. Vietoj to dokumentų zip failus galbūt norėsite gauti saugesniu būdu ir įdiegti per „%1$s“. Visi atsisiuntimai iš dokumentų serverių yra šifruojami (HTTPS).</string>
+  <string name="download_action">Atsisiųsti</string>
+  <string name="download_dont_ask_again">Atsisiųsti, daugiau neklausti</string>
+  <string name="download_dont_ask_again_consequence">Ateityje atsisiuntimai prasidės be šio klausimo.</string>
+  <string name="passphrase_did_not_work">Slaptafrazė netiko.</string>
+  <string name="try_again">Bandyti dar kartą</string>
+  <string name="interrupted_downloads_lead">Atsisiųsti šiuos dokumentus iš naujo?</string>
+  <string name="interrupted_downloads_detail">Jų atsisiuntimas buvo nutrauktas, todėl jie nebuvo įdiegti.</string>
+  <string name="external_link_open_question">Atverti šią nuorodą naršyklėje?</string>
+  <string name="open_action">Atverti</string>
+  <string name="notification_permission_question">Leisti pranešimus?</string>
+  <string name="notification_permission_detail">Pranešimai rodo atsisiuntimo būseną, apdorojimą ir skaitymo balsu būseną.</string>
+  <string name="allow_action">Leisti</string>
+  <string name="rate_question">Įvertinti programą ir palikti atsiliepimą?</string>
+  <string name="bug_report_email_question">Siųsti klaidos ataskaitą el. paštu?</string>
+  <string name="continue_action">Tęsti</string>
+  <string name="delete_search_index_question">Ištrinti „%s“ paieškos indeksą?</string>
+  <string name="remove_custom_repository_question">Pašalinti pasirinktinę saugyklą „%s“?</string>
+  <string name="download_document_question">Atsisiųsti „%s“?</string>
+  <string name="choose_file_action">Pasirinkti failą</string>
+  <string name="old_webview_question">Naudoti programą su sena „WebView“?</string>
+  <string name="incomplete_translation_question">Tęsti su dalinių vertimu?</string>
+  <string name="rate_action">Įvertinti</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Ištrinti dokumentą „%s“?</string>
+  <string name="my_document_page_delete_lead">Ištrinti puslapį „%s“?</string>
+  <string name="my_document_cannot_delete_ai_lead">DI dokumentų negalima ištrinti, kol juose yra puslapių.</string>
+  <string name="my_document_cannot_delete_ai_detail">Pirmiausia ištrinkite puslapius.</string>
+  <string name="reading_progress_new_cycle_lead">Pradėti naują skaitymo ciklą?</string>
+  <string name="reading_progress_new_cycle_detail">Jūsų pažanga sekama iš naujo. Ankstesnio ciklo duomenys išsaugomi.</string>
+  <string name="reading_progress_new_cycle_start">Pradėti</string>
+  <string name="reset_plan_lead">Atstatyti šį planą?</string>
+  <string name="reset_plan_detail">Jūsų pradžios data ir pažanga šiame plane išvalomos.</string>
+  <string name="set_current_day_lead">Nustatyti %1$s kaip dabartinę dieną?</string>
+  <string name="set_current_day_detail">Visos ankstesnės dienos pažymimos kaip perskaitytos.</string>
+  <string name="plan_duplicate_user_plan_lead">Skaitymo plano failas turi tokį patį pavadinimą kaip integruotas planas.</string>
+  <string name="plan_duplicate_user_plan_detail">Plano failo negalima įtraukti į sąrašą. Pervadinkite failą aplanke jsword/readingplan, išlaikydami jo .properties plėtinį.</string>
+  <string name="background_image_delete_lead">Ištrinti šį fono paveikslėlį?</string>
+  <string name="background_image_delete_detail">Darbo sritys, kurios vis dar jį naudoja, bus be paveikslėlio.</string>
+  <string name="reset_values_lead">Atstatyti visas šias reikšmes?</string>
+  <string name="revert_setting_lead">Grąžinti šį nustatymą į paveldėtą reikšmę?</string>
+  <string name="revert_setting_confirm">Grąžinti</string>
+  <string name="reset_settings_screen_lead">Atstatyti šio ekrano nustatymus?</string>
+  <string name="reset_settings_screen_detail">Jie grįžta į numatytąsias reikšmes.</string>
+  <string name="memorize_unmark_lead">Pašalinti „%s“ įsimintos būsenos žymėjimą?</string>
+  <string name="memorize_remove_target_lead">Pašalinti įsiminimo tikslą „%s“?</string>
+  <string name="dialog_apply">Taikyti</string>
+  <string name="dialog_dont_apply">Netaikyti</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Debesyje jau yra jūsų %s. Ką daryti?</string>
+  <string name="cloud_merge_consequence">Išsaugomos abi pusės; kur elementas pasikeitė abiejose, laimi naujesnis pakeitimas.</string>
+  <string name="cloud_fetch_consequence">Šio įrenginio duomenys pakeičiami debesies kopija.</string>
+  <string name="cloud_create_consequence">Debesies kopija pakeičiama šio įrenginio duomenimis.</string>
+  <string name="cloud_disable_consequence">Šių duomenų sinchronizavimas lieka išjungtas.</string>
+  <string name="cloud_merge_lead">Sujungti jūsų %s su debesimi?</string>
+  <string name="cloud_merge_confirm">Sujungti</string>
+  <string name="cloud_replace_confirm">Pakeisti</string>
+  <string name="cloud_replace_local_lead">Pakeisti šio įrenginio %s debesies kopija?</string>
+  <string name="cloud_replace_local_detail">Tai, kas dabar yra šiame įrenginyje, bus perrašyta ir jos atkurti nebus galima.</string>
+  <string name="cloud_replace_cloud_lead">Pakeisti %s debesies kopiją šio įrenginio duomenimis?</string>
+  <string name="cloud_replace_cloud_detail">Tai, kas dabar yra debesyje, bus perrašyta, o kiti jūsų įrenginiai gaus šio įrenginio duomenis.</string>
+  <string name="sign_in_failed_lead">Nepavyko prisijungti prie sinchronizavimo paslaugos.</string>
+  <string name="sync_too_old_lead">Ši programa per sena, kad sinchronizuotų %s.</string>
+  <string name="sync_too_old_detail">Debesies duomenys naudoja naujesnę versiją, nei palaiko ši programa. Jų sinchronizavimas kol kas išjungtas; atnaujinkite programą, kad vėl jį įjungtumėte.</string>
+  <string name="backup_replace_lead">Pakeisti jūsų %s atsargine kopija?</string>
+  <string name="backup_replace_detail">Tai, kas dabar yra šiame įrenginyje, bus perrašyta ir jos atkurti nebus galima.</string>
+  <string name="reset_database_lead">Atstatyti „%1$s“ į pradinę būseną?</string>
+  <string name="reset_database_detail">Visi jame esantys duomenys ištrinami visam laikui. To atšaukti negalima.</string>
+  <string name="reset_database_button">Atstatyti</string>
+  <string name="restore_all_lead">Pakeisti jūsų pastabas, žymes, bloknotus, skaitymo planus ir darbo sritis?</string>
+  <string name="restore_or_import_lead">Atkurti ar importuoti %s?</string>
+  <string name="restore_consequence">Tai, kas yra šiame įrenginyje, pakeičiama atsargine kopija.</string>
+  <string name="import_consequence">Prie to, kas yra šiame įrenginyje, pridedami atsarginės kopijos elementai.</string>
+  <string name="sync_start_syncing">Pradėti sinchronizuoti</string>
+  <string name="sync_reset_lead">Atsijungti ir atstatyti sinchronizavimą?</string>
+  <string name="sync_reset_detail">Sinchronizavimą reikės nustatyti iš naujo.</string>
+  <string name="webdav_forget_certificate_lead">Pamiršti patikimą serverio sertifikatą?</string>
+  <string name="webdav_forget_certificate_detail">Kitą kartą prisijungus būsite paprašyti sertifikatą patvirtinti iš naujo.</string>
+  <string name="webdav_forget_certificate_confirm">Pamiršti</string>
+  <string name="cloud_doc_remove_all_lead">Pašalinti „%1$s“ iš debesies ir visų jūsų įrenginių?</string>
+  <string name="cloud_doc_remove_cloud_lead">Pašalinti „%1$s“ iš debesies?</string>
+  <string name="cloud_doc_purge_lead">Visam laikui pašalinti „%1$s“ iš debesies istorijos?</string>
+  <string name="cloud_doc_remove_all_detail">Tai taip pat ištrina kopijas šiame įrenginyje ir kiekviename kitame įrenginyje, kuriame įjungtas dokumentų sinchronizavimas.</string>
+  <string name="cloud_doc_remove_cloud_detail">Kopijos šiame įrenginyje išsaugomos. Įrenginiai, kuriuose įjungtas dokumentų sinchronizavimas, jas taip pat pašalins.</string>
+  <string name="cloud_doc_purge_detail">Įrenginys, kuris vis dar turi kopiją, gali ją vėl įkelti kito sinchronizavimo metu.</string>
+  <string name="cloud_doc_block_confirm_button">Nesinchronizuoti</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">Pašalinti %1$d dokumentą iš debesies ir visų jūsų įrenginių?</item>
+        <item quantity="few">Pašalinti %1$d dokumentus iš debesies ir visų jūsų įrenginių?</item>
+        <item quantity="many">Pašalinti %1$d dokumento iš debesies ir visų jūsų įrenginių?</item>
+        <item quantity="other">Pašalinti %1$d dokumentų iš debesies ir visų jūsų įrenginių?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">Pašalinti %1$d dokumentą iš debesies?</item>
+        <item quantity="few">Pašalinti %1$d dokumentus iš debesies?</item>
+        <item quantity="many">Pašalinti %1$d dokumento iš debesies?</item>
+        <item quantity="other">Pašalinti %1$d dokumentų iš debesies?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">Visam laikui pašalinti %1$d dokumentą iš debesies istorijos?</item>
+        <item quantity="few">Visam laikui pašalinti %1$d dokumentus iš debesies istorijos?</item>
+        <item quantity="many">Visam laikui pašalinti %1$d dokumento iš debesies istorijos?</item>
+        <item quantity="other">Visam laikui pašalinti %1$d dokumentų iš debesies istorijos?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">Nebesinchronizuoti %1$d dokumento su debesimi?</item>
+        <item quantity="few">Nebesinchronizuoti %1$d dokumentų su debesimi?</item>
+        <item quantity="many">Nebesinchronizuoti %1$d dokumento su debesimi?</item>
+        <item quantity="other">Nebesinchronizuoti %1$d dokumentų su debesimi?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Dabar galima sinchronizuoti daugiau jūsų duomenų</string>
+  <string name="new_sync_targets_detail">Mano dokumentus, DI nustatymus ir skaitymo pažangą taip pat galima sinchronizuoti. Įjunkite juos įrenginio sinchronizavimo nustatymuose.</string>
+  <!--end dialog copy: B3b-->
 </resources>

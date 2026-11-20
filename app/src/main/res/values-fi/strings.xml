@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Täydellinen käyttöopas on osoitteessa andbible.org. Sivut avautuvat selaimessasi.</string>
   <string name="help_user_guide_home">Käyttöoppaan etusivu</string>
   <string name="help_read_in_user_guide">Lue käyttöoppaasta</string>
+  <string name="help_in_user_guide">Ohje käyttöoppaassa</string>
+  <string name="help_matching_section">Vastaava osio</string>
   <string name="help_read_page">Lue käyttöoppaasta: %1$s</string>
   <string name="help_tutorial_videos">Opetusvideot</string>
   <string name="help_watch_in_order">Katso opetusvideot järjestyksessä</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
   <string name="prefs_open_links_in_special_window_title">Linkki-ikkuna</string>
   <string name="prefs_open_links_in_special_window_summary">Avaa linkit erityisessä linkki-ikkunassa. Tämä nopeuttaa rinnakkaispaikkojen ja Strongin sanakirjan tarkastelua.</string>
+  <string name="prefs_trusted_link_domains_title">Luotetut linkkien verkkotunnukset</string>
+  <string name="prefs_trusted_link_domains_summary">Näiden verkkotunnusten linkit avautuvat kysymättä. Poista verkkotunnuksen valinta, jos haluat, että sitä kysytään uudelleen.</string>
+  <string name="prefs_trusted_link_domains_empty">Ei vielä yhtään. Valitse ”Älä kysy uudelleen” avatessasi linkin, niin sen verkkotunnus lisätään.</string>
   <string name="prefs_text_size_sample_text">Esimerkkiteksti</string>
   <string name="prefs_screen_keep_on_title">Pidä näyttö päällä</string>
   <string name="prefs_screen_keep_on_summary">Estä näyttöä menemästä pois päällä ohjelmaa käytettäessä</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">Rivin väli</string>
   <string name="line_spacing_summary">Aseta rivien välin koko</string>
   <string name="select_none">Poista valinta</string>
-  <string name="reset_are_you_sure">Oletko varma että haluat tyhjätä kaikki nämä valinnat?</string>
   <string name="window_pinning_menutitle">Ikkunan kiinnitys</string>
   <string name="hide_window_buttons_title">Piilota ikkunoiden painikkeet</string>
   <string name="hide_window_buttons_summary">Piilota ikkunoiden painikkeet, jotka näytetään tavallisesti kunkin raamattunäkymän oikealla puolella. Ikkunan navigointipaneeli ruudun alakulmassa näytetään edelleen, ja voit avata ikkunan ponnahdusvalikon napsauttamalla pitkään näitä painikkeita.</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">Sanaa ei löytynyt sanakirjoista</string>
   <string name="prefs_top_margin_title_mm">Ylämarginaali (%d mm)</string>
   <string name="font_size_title">Kirjaisimen koko</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Sillä niin on Jumala maailmaa rakastanut, että hän antoi ainokaisen Poikansa, ettei yksikään, joka häneen uskoo, huku, vaan hänellä olisi iankaikkinen elämä.</string>
   <string name="font_size_title_pt">Kirjaisimen koko (%d pt)</string>
   <string name="prefs_font_text_size_summary">Muuta kirjaisimen kokoa</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">Värien asetukset (ikkuna)</string>
   <string name="workspace_color_settings_title">Värien asetukset (työtila)</string>
   <string name="color_workspace">Työtilan väri</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Oletus</string>
   <string name="color_text">Tekstin väri</string>
   <string name="color_background">Taustaväri</string>
   <string name="colors_day_mode_title">Päivätila</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">Dokumenttilista viimeksi päivitetty: %s.</string>
   <string name="download_refreshing_book_list">Päivitetään luettelot käytettävistä teoksista dokumenttipalvelimilta…</string>
   <string name="download_source_message1">Teoksia ladataan seuraavista lähteistä:</string>
-  <string name="download_document_confirm_prefix">Lataa</string>
   <string name="error_downloading">Lataamisen aikana tapahtui virhe. Ole hyvä ja tarkista internetyhteytesi toimivuus.</string>
   <string name="error_downloading_status">Palvelin, joka tarjoaa moduulin %1$s, palautti virheen %2$s (%3$d).</string>
   <string name="storage_space_warning">Liian vähän tallennustilaa teoksen tallentamiseen.</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">Taustatoiminta</string>
   <string name="activity_empty">Ei käynnissä olevia toimintoja</string>
   <string name="activity_failed_toast">%1$s — katso valikko</string>
-  <string name="download_question_title">Haluatko jatkaa dokumenttien lataukseen?</string>
-  <string name="download_question_message">Jos asut maassa, jossa kristittyjä vainotaan, kristillisen aineiston lataamisessa internetin kautta kannattaa olla varovainen. Voit sen sijaan hankkia moduulien zip-tiedostot turvallisemmin ja asentaa ne kohdasta \"%1$s\". Haluatko varmasti jatkaa lataamiseen? Kaikki lataukset moduulipalvelimilta on salattu (HTTPS).</string>
-  <string name="do_not_ask_again">Kyllä, äläkä kysy enää uudestaan</string>
   <string name="recommended_document">Suositeltu!</string>
   <string name="about_version_history">Versiohistoria: %s</string>
   <string name="download_errors">Virheet latauksessa</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">Tarkastetaan annettua tiedostoa…</string>
   <string name="invalid_module">Tiedostossa ei ole kelvollista SWORD moduulia</string>
   <string name="install_zip_title">Odota hetki. Lataan moduuleja tiedostosta. </string>
-  <string name="overwrite_files">Seuraavat tiedosto ovat jo olemassa: %s Ylikirjoitetaanko?</string>
   <string name="overwrite_files_title">Ylikirjoitetaanko tiedostot?</string>
   <string name="could_not_overwrite_files">Ei voitu ylikirjoittaa tiedostoja: %s. Tätä lukuunottamatta asennus onnistui.</string>
   <string name="module_backup_restore">Tämä tiedosto on AndBiblen dokumenttien varmuuskopio. Haluatko palauttaa sen dokumentit?</string>
-  <string name="install_do_you_want">Haluatko asentaa moduulin (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lukusuunnitelma</string>
   <string name="reading_plans_plural">Lukusuunnitelmat</string>
@@ -429,14 +430,8 @@
   <string name="rdg_plan_day">Päivä %s</string>
   <string name="rdg_plan_set_start_date">Aseta alkupäivämäärä…</string>
   <string name="set_current_day">Aseta nykyiseksi päiväksi…</string>
-  <string name="msg_set_current_day_reading_plan">Tämä asettaa päivän %1$s tämän suunnitelman nykyiseksi päiväksi ja merkitsee kaikki aiemmat päivät luetuiksi. Jatketaanko?</string>
   <string name="done">Valmis</string>
-  <string name="reset_plan_question">Oletko varma että haluat alustaa tämän lukusuunnitelman?</string>
   <string name="import_reading_plan">Tuo lukusuunnitelma…</string>
-  <string name="plan_duplicate_user_plan">
-SD-kortilla on käyttäjän lukusuunnitelma 
-jsword/readingplan joka on saman niminen kuin sisäänrakennettu lukusuunnitelma. Sitä ei voida näyttää tässä. 
-Nimeä tiedosto uudelleen siten että sen tiedostotunniste on .properties.</string>
   <string name="plan_name_y1ntpspr">UT, Psalmit &amp; Sananlaskut vuodessa</string>
   <string name="plan_description_y1ntpspr">
 HEARTLIGHT Internet Magazinen luvalla
@@ -468,12 +463,8 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="delete_index">Poista hakuindeksi</string>
   <string name="about">Tietoja</string>
   <string name="delete_doc">Poista %s?</string>
-  <string name="interrupted_downloads_title">Lataus keskeytyi</string>
-  <string name="interrupted_downloads_message">Näitä teoksia ei asennettu, koska niiden lataus keskeytyi:</string>
-  <string name="interrupted_downloads_question">Ladataanko ne uudelleen?</string>
   <string name="download_again">Lataa uudelleen</string>
   <string name="delete_docs_confirm">Poistetaanko nämä teokset?</string>
-  <string name="delete_search_index_doc">Poista %s indeksi?</string>
   <!--Verse context menu-->
   <string name="notes">Alaviitteet ja rinnakkaisviitteet</string>
   <string name="share_verse">Jaa…</string>
@@ -512,7 +503,6 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="bookmark_warning">Tässä dokumentissa on kirjanmerkkejä ja/tai merkintöjä.</string>
   <string name="bookmark_warning2">
 Jos dokumentin rakenne on muuttunut, dokumentin päivittäminen voi saada aikaan sen, että näiden kirjanmerkkit / merkinnöt siirtyvät dokumentin sisällä tai katoavat kokonaan.</string>
-  <string name="bookmark_warning3">Haluatko silti päivittää moduulin?</string>
   <string name="bookmark_warning4">On suositeltavaa että varmuuskopioit moduulin ennen päivitystä.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Aikajärjestys</string>
@@ -687,10 +677,8 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Palauta tai tuo ...</string>
   <string name="backup_restore2">Palauta tai tuo</string>
-  <string name="overwrite_something">Ylikirjoita %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Palauta tietokantatiedosto</string>
-  <string name="restore_confirmation">Palauta omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat nykyisten päälle?</string>
   <string name="restore_success">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on palautettu onnistuneesti</string>
   <string name="downloading_backup">Lataa varmuuskopiotiedosto…</string>
   <string name="loading_backup">Lataan tietokantaa varmuuskopiosta…</string>
@@ -712,7 +700,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="send_export_file">Lähetä vientitiedosto</string>
   <string name="backup_modules_title">Valitse mitkä moduulit varmuuskopioidaan</string>
   <string name="install_zip_canceled">Moduulin asennus peruuntui</string>
-  <string name="ask_restore_or_import">%s voidaan joko palauttaa (ts. tietokanta tyhjennetään ja valittu tietokanta ladataan tilalle) tai tuoda (valittu tietokanta tuodaan entiseen tietokantaan). Mitä haluat tehdä?</string>
   <string name="restore">Palauta</string>
   <string name="import2">Tuo</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -767,7 +754,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="settings_editor_back">Takaisin</string>
   <string name="settings_editor_close">Sulje</string>
   <string name="settings_editor_apply">Käytä</string>
-  <string name="discard_changes_confirmation">Hylätäänkö tallentamattomat muutokset?</string>
   <string name="discard">Hylkää</string>
   <string name="remove">Poista</string>
   <string name="overwrite">Korvaa</string>
@@ -794,7 +780,8 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="empty_list">Ei näytettävää</string>
   <string name="error_skip">Ohita</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Vioittuneet tiedot</string>
+  <string name="corrupt_database_headline">AndBible ei voi avata joitakin tietojasi</string>
+  <string name="corrupt_database_files_detail">Näitä tiedostoja ei voitu avata: %1$s. Mitään ei ole muutettu tai poistettu. Nollaus aloittaa ne tyhjinä ja säilyttää jokaisen vahingoittuneen tiedoston tällä laitteella uudelleennimettynä tunnisteella .corrupt- sekä päivämäärällä ja kellonajalla.</string>
   <string name="corrupt_database_reset">Nollaa vioittuneet tiedot</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Vioittuneita tietoja ei voitu nollata: tiedostoa %1$s ei voitu siirtää sivuun. Mitään ei muutettu. Voit yrittää uudelleen, lähettää virheraportin tai käyttää Varmuuskopioi &amp; palauta -toimintoa.</string>
@@ -802,8 +789,8 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="damaged_data_needs_attention">Sovelluksen tiedot vaativat huomiota. Avaa sovellus napauttamalla.</string>
   <string name="debug_test_error">Testivirhe (debug-versio)</string>
   <string name="bug_report_prepare_failed">Raporttia ei voitu valmistella tai jakaa. Voit yrittää uudelleen tai tallentaa tietosi Varmuuskopioinnin ja palautuksen avulla.</string>
-  <string name="bug_report_email_title">Lähetä bugiraportti sähköpostilla</string>
   <string name="bug_report_desktop_text">Seuraavaksi sinulta kysytään, minne virheraporttitiedosto tallennetaan. Sen jälkeen saat ohjeet sen lähettämiseen kehittäjätiimille.</string>
+  <string name="bug_report_email_title">Lähetä bugiraportti sähköpostilla</string>
   <string name="bug_report_email_text">Valitse seuraavaksi haluamasi sähköpostisovellus (GMail esimerkiksi) lähettääksi raportin kehittäjätiimille.</string>
   <string name="bug_report_manual_title">Lähetä raportti sähköpostilla</string>
   <string name="bug_report_manual_text_saved">Raportti tallennettiin kohteeseen <b>%1$s</b>.\n\nLähetä sähköpostia osoitteeseen <b>%2$s</b> ja liitä siihen kyseinen tiedosto; sähköpostiohjelma ei voi liittää sitä puolestasi. Ehdotettu aihe: <b>%3$s</b>. Kerro viestissä, mitä teit ja mitä tapahtui.</string>
@@ -874,8 +861,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="beta_special_regards">Terveisin, Tuomas</string>
   <string name="beta_special_sponsor">PS. Voit tukea AndBiblen kehitystä rahallisesti: %s.</string>
   <string name="beta_special_sponsor_link">sponsoroimalla kehitystunteja</string>
-  <string name="new_sync_targets_notice_title">Uusia synkronointiasetuksia saatavilla</string>
-  <string name="new_sync_targets_notice_message">Tämä AndBiblen versio lisää uusia synkronointikohteita: Omat dokumentit, tekoälyasetukset ja lukuhistoria. Voit ottaa ne käyttöön Laitteen synkronointi -asetuksista.</string>
   <string name="open_settings">Avaa asetukset</string>
   <!--History-->
   <string name="history_for">Historia (%1$s: Ikkuna %2$d)</string>
@@ -955,7 +940,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="give_passphrase_for_module">Dokumentti %s on salattu ja tarvitset salasanan avataksesi sen</string>
   <string name="unlock_module">Aseta moduulin salasana</string>
   <string name="unlock_info">Salatun moduulin avaustiedot</string>
-  <string name="try_again_passphrase">Salasana ei toiminut, yritä uudelleen?</string>
   <string name="show_unlock_info">Moduulin tiedot &amp; ohjeet salasanan hankkimiseksi</string>
   <string name="prefs_experimental_features_title">Kokeelliset ominaisuudet</string>
   <string name="prefs_experimental_features_summary">Valitse käyttöön otettavat kokeelliset ominaisuudet. Nämä ominaisuudet ovat vielä kehitteillä ja voivat muuttua tai poistua</string>
@@ -989,9 +973,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="active_window_indicator_summary">Korosta ikkunan nurkkia siten että aktiivinen ikkuna erottuu paremmin</string>
   <string name="app_licence_title">Avoimen lähdekoodin lisenssi</string>
   <string name="how_to_contribute">Kuinka voin auttaa?</string>
-  <string name="confirm_delete_bookmarks">Haluatko poistaa %d kirjanmerkkiä merkintöineen?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Valittuun kirjanmerkkiryhmään on liitetty %d kirjanmerkkiä, joilla ei ole muita kirjanmerkkiryhmiä. Haluatko poistaa nämä kirjanmerkit kirjanmerkkiryhmän mukana?</string>
-  <string name="delete_label_and_bookmarks">Poista kirjanmerkkiryhmä ja kirjanmerkit</string>
   <string name="delete_label_only">Poista vain kirjanmerkkiryhmä</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Suosittele ystävälle</string>
@@ -1022,8 +1003,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="old_webview">Androidin WebView-paketti on liian vanha (%1$s). Sinun pitää päivittää Android WebView-paketti vähintään versioon %2$s käyttääksesi sovellusta %3$s. Useimpiin laitteisiin sen voi tehdä: %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Jatka joka tapauksessa</string>
-  <string name="proceed">Jatka</string>
-  <string name="rate_title">Sovelluksen arviointi</string>
   <string name="rate_message5">Positiiviset ja yksityiskohtaiset arviot auttavat AndBible avoimen lähdekoodin projektia paljon. Kiitos!</string>
   <string name="rate_message6">Ennen kuin annat negatiivisen arvion, huomioithan seuraavat:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -1053,7 +1032,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="primary_label">Pääkirjanmerkkiryhmä</string>
   <string name="favourite_label">Suosikkikirjanmerkkiryhmä</string>
   <string name="edit_label">Muokkaa kirjanmerkkiryhmää</string>
-  <string name="delete_label_confirmation">Haluatko poistaa kirjanmerkkiryhmän \"%s\"? Myös kaikki liitännäiset opintoalustan merkinnät poistetaan.</string>
   <string name="active_labels">Valitut kirjanmerkkiryhmät</string>
   <string name="recent_labels">Viimeaikaiset kirjanmerkkiryhmät</string>
   <string name="other_labels">Muut kirjanmerkkiryhmät</string>
@@ -1063,8 +1041,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="book_menu_show_progress_bars">Näytä edistymispalkit</string>
   <string name="reset_workspace_labels">Haluatko alustaa työtilaan liittyvät kirjanmerkkiryhmien asetukset? Tämä koskee suosikkikirjamerkkiryhmiä ja automaattisesti uusiin kirjanmerkkehin lisättäviä kirjanmerkkiryhmiä. </string>
   <string name="clear_auto_assign_labels">Tyhjennä automaattisesti liitettävät ryhmät</string>
-  <string name="reset_workspace_auto_assign_labels">Haluatko poistaa kaikki automaattisesti liitettävät ryhmät tästä työtilasta?</string>
-  <string name="reset_hide_labels">Haluatko tyhjätä tiettyjen kirjanmerkkiryhmien piilotuksen asetuksen?</string>
   <string name="reorder">Järjestä uudelleen</string>
   <string name="system_items">Järestelmän toiminnot</string>
   <string name="system_items1">Lisää</string>
@@ -1078,7 +1054,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="ios_fullscreen_hint">Poistu koko näytön tilasta kaksoisnapauttamalla tai napauttamalla painiketta.</string>
   <string name="desktop_exit_fullscreen">Poistu koko näytön tilasta</string>
   <string name="exit_fullscreen">Tupla-napauta ruutua sulkeaksesi kokoruututilan</string>
-  <string name="reset_app_prefs">Haluatko alustaa kaikki tässä ruudussa näkyvät sovelluksen yleiset asetukset oletusarvoihin?</string>
   <string name="label_red">Punainen</string>
   <string name="label_green">Vihreä</string>
   <string name="label_blue">Sininen</string>
@@ -1089,7 +1064,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="reset_databases_title">Nollaa tietokannat</string>
   <string name="reset_databases_description">Nollaa yksittäisiä tietokantoja niiden alkutilaan. Tätä ei voi perua.</string>
   <string name="last_crash_info_title">Viimeisimmän kaatumisen tiedot</string>
-  <string name="reset_database_confirm">Tämä poistaa pysyvästi kaikki tiedot tietokannasta \"%1$s\" ja palauttaa sen alkutilaan. Tätä ei voi perua.\n\nOletko varma?</string>
   <string name="reset_database_success">Tietokanta on nollattu onnistuneesti</string>
   <string name="reset_something">Nollaa: %1$s</string>
   <string name="export">Vie</string>
@@ -1159,19 +1133,18 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="manage_labels_help_favourite">Pidä ryhmä suosikeissasi nopeaa käyttöä varten.</string>
   <string name="manage_labels_help_styles">Nimen alla oleva pieni esimerkki näyttää ryhmän ulkoasun: Valinta tekstivalinnan kirjanmerkille, Koko jae koko jakeen kirjanmerkille ja Työtila-tunniste tyylille, jonka tämä työtila ohittaa. Harmaa esimerkki ilman koristeita tarkoittaa, että ryhmän kirjanmerkkejä ei piirretä. Voit piilottaa esimerkit ⋮-valikosta.</string>
   <string name="manage_labels_help_reorder">Muuta luettelon järjestystä ⋮-valikosta.</string>
+  <string name="manage_labels_help_narrow_toggles">Kapealla näytöllä luettelosta jätetään pois ensisijaisen, automaattisen annon ja suosikin kuvakkeet, jotta ryhmien nimille jää tilaa. Napauta ryhmää asettaaksesi ne sen muokkausnäkymässä.</string>
   <string name="added_to_bookmark">Sijoitettu tähän kirjanmerkkiin</string>
   <string name="strongs_links">Linkkejä</string>
   <string name="strongs_text_and_links">Teksti ja linkit</string>
   <string name="strongs_hidden_links">Piilotetut linkit</string>
   <string name="verse_tip">Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä</string>
-  <string name="permission_required">Lupa tarvitaan</string>
   <string name="labels_search_hint">Etsi</string>
   <string name="search_mode_name_start">Nimi (alusta)</string>
   <string name="search_mode_name_contains">Nimi (sisältää)</string>
   <string name="search_mode_content">Sisältö</string>
   <string name="search_results_matches">%d osumaa</string>
   <string name="search_results_match">1 osuma</string>
-  <string name="progress_status_permission">Jotta järjestelmän huomioita (notifications) voidaan näyttää (latauksen, prosessoinnin, tai puheen tila), tarvitsemme siihen sinulta luvan.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Laskin</string>
   <string name="prefs_persecution_cat">Asetuksia vainotuille</string>
@@ -1205,7 +1178,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="custom_repositories_create_button_label">Lisää oma dokumenttirepositorio</string>
   <string name="custom_repositories_info_button_label">Tietoja</string>
   <string name="repository_specification">Repositorion URL</string>
-  <string name="delete_custom_repository">Haluatko poistaa oman dokumenttirepositorion %s?</string>
   <string name="custom_repositories_help1">Lisätäksesi uuden dokumenttirepositorion, näppäile tai kopioi &amp; liitä oman dokumenttirepositorion URL tähän.</string>
   <string name="custom_repositories_help2">Voit lukea lisää tietoja omista dokumenttirepositorioista: %s.</string>
   <string name="custom_repositories_help0">Voit asentaa dokumentteja ulkoisesta omasta dokumenttirepositoriosta asentamalla omia dokumenttirepositorioita.</string>
@@ -1225,7 +1197,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="db_bookmarks">Kirjanmerkit, omat merkinnät, kirjanmerkkiryhmät ja opintoalustat</string>
   <string name="synchronizing">Synkronoidaan…</string>
   <string name="notification_finished">Valmis</string>
-  <string name="overrideBackup">Aikaisempi tietokanta johon tätä laitetta ei ole synkronoitu löytyi pilvipalvelusta. Tietokanta sisältää: %s. Mitä haluat tehdä?</string>
   <string name="reading_plans_content">Lukusuunnitelmat ja niiden tila</string>
   <string name="bookmarks_contents">Kirjanmerkit, kirjanmerkkiryhmät ja opintoalustat</string>
   <string name="workspaces_contents">Työtilat ja ikkunat</string>
@@ -1245,7 +1216,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="reading_progress_calendar">Lukutoiminta</string>
   <string name="reading_progress_cycle">Kierros %d</string>
   <string name="reading_progress_new_cycle">Uusi kierros</string>
-  <string name="reading_progress_new_cycle_confirm">Aloitetaanko uusi lukukierros? Edistymistä aletaan seurata alusta, mutta edellisen kierroksen tiedot säilytetään.</string>
   <string name="reading_progress_previous_cycle">Edellinen kierros</string>
   <string name="reading_progress_next_cycle">Seuraava kierros</string>
   <string name="cloud_merge_data">Yhdistä tiedot</string>
@@ -1255,7 +1225,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_sync_title">Laitteiden synkronointi</string>
   <string name="reset_sync">Kirjaudu ulos</string>
   <string name="prefs_reset_sync_summary">Kytke synkronointi pois ja alusta siihen liittyvät asetukset.</string>
-  <string name="sync_confirmation">Oletko varma että haluat kirjautua ulos ja alustaa synkronoinnin asetukset?</string>
   <string name="cloud_info">Pilven tietoja</string>
   <string name="cloud_info_summary">Tilankäyttö pilvipalvelussa: %s Mb</string>
   <string name="sync_adapter">Synkronoinnin taustapalvelu</string>
@@ -1271,7 +1240,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="webdav_server_url_hint">WebDAV-kansion osoite, esim. https://nas.local/dav/ tai https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronointi vaatii suojatun https://-osoitteen.</string>
   <string name="webdav_certificate_title">Palvelimen varmenne</string>
-  <string name="webdav_forget_certificate_message">Unohdetaanko luotettu palvelinvarmenne? Sinua pyydetään vahvistamaan varmenne uudelleen seuraavan yhteyden yhteydessä.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Ei-luotettu palvelinvarmenne</string>
   <string name="webdav_untrusted_certificate_message">Android ei luota palvelimen %1$s varmenteeseen. Luota siihen vain, jos tunnistat sen, esimerkiksi koska olet itse perustanut tämän palvelimen.\n\nKohde: %2$s\nMyöntäjä: %3$s\nVoimassa: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1288,14 +1256,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="synchronization_categories">Synkronoinnin kategoriat</string>
   <string name="sync_general_settings">Tietoa &amp; yleisiä asetuksia</string>
   <string name="sync_introduction">Johdanto</string>
-  <string name="are_you_sure">Oletko varma?</string>
   <string name="are_you_sure_merge">Sekä tämän laitteen tiedot että pilvessä olevat %s säilytetään. Jos sama kohde on muuttunut molemmissa, uudempi muutos säilytetään. Tämän laitteen tiedot lähetetään muille laitteillesi.</string>
-  <string name="are_you_sure_reset_local">Tämä alustaa laitteellasi olevan tietokannan näille: %s sillä sisällöllä joka on nyt talletettuna pilvipalveluun.</string>
-  <string name="are_you_sure_reset_cloud">Tämä alustaa pilvipalvelussa olevan tietokannan näille: %s sillä sisällöllä joka on nyt tässä laitteessa.</string>
-  <string name="sync_cant_fetch">Pilvipalvelussa olevan tietokannan tai patch-tiedoston versio on uudempi kuin se mitä tämä sovellus tukee.</string>
-  <string name="sync_disabling">Kytketään synkronointi pois %s toistaiseksi.</string>
-  <string name="sync_update_app">Päivitä sovellus jatkaaksesi synkronointia.</string>
-  <string name="sign_in_failed">Kirjatuminen synkronoinnin taustapalveluun epäonnistui.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Kytketään pois synkronointi. Sinun pitää laittaa se itse päälle varmuuskopion palautuksen jälkeen.</string>
   <string name="report">Raportoi</string>
@@ -1313,6 +1274,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="open_here">Avaa täällä</string>
   <string name="external_link">Ulkoinen linkki</string>
   <string name="external_link_question">Tämä avaa ulkoisen linkin %s selainsovelluksessa. Haluatko jatkaa?</string>
+  <string name="external_link_dont_ask_again">Älä kysy uudelleen: %s</string>
   <string name="nameless">Otsikkoa ei määritelty</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Yhden napsautuksen toiminnot (Raamatut)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Yhden napsautuksen toiminnot (Muut)</string>
@@ -1360,8 +1322,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="memorize_include_reference_summary">Lisää jakeviittaus (esim. Joh. 3:16) viimeisenä opeteltavana kohteena</string>
   <string name="reading_progress_settings">Edistyminen &amp; opettelu</string>
   <string name="reading_progress_settings_summary">Automaattisen seurannan, opettelun ja kirjoitusharjoittelun asetukset</string>
-  <string name="memorize_confirm_unmark">Poistetaanko opittu-merkintä jakeelta %s?</string>
-  <string name="memorize_confirm_remove_target">Poistetaanko opettelutavoite %s?</string>
   <string name="memorize_tab_reading">Lukeminen</string>
   <string name="memorize_tab_memorization">Opettelu</string>
   <string name="memorize_verses_memorized">Opittu</string>
@@ -1387,7 +1347,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="llm_reset_usage_title">Nollaa käyttötiedot</string>
   <string name="llm_reset_usage_summary">Tyhjennä kertyneet token- ja kustannustiedot</string>
   <string name="llm_reset_usage_confirm_title">Nollataanko käyttötiedot?</string>
-  <string name="llm_reset_usage_confirm_message">Tämä tyhjentää kaikki kertyneet käyttötiedot.</string>
   <string name="llm_custom_input_price_title">Syötehinta ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Tulostehinta ($/Mtoken)</string>
   <string name="llm_cost_total">Yhteensä: %1$s</string>
@@ -1403,8 +1362,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="llm_parse_error_anthropic">Anthropic-vastauksen jäsennys epäonnistui: %1$s</string>
   <string name="llm_error_unknown">Tuntematon virhe</string>
   <string name="llm_error_max_iterations">Enimmäisiteraatiot (%1$d) saavutettu ilman valmistumista</string>
-  <string name="llm_continue_iterations_title">Jatketaanko?</string>
-  <string name="llm_continue_iterations_message">Tekoälyagentti on saavuttanut %1$d iteraation rajan eikä ole valmis. Jatketaanko vielä %2$d iteraatiota?</string>
   <string name="agent_max_iterations_title">Agentin iteraatioiden enimmäismäärä</string>
   <string name="agent_max_iterations_summary">Iteraatioiden enimmäismäärä ennen jatkamisen kysymistä (0 = rajoittamaton)</string>
   <string name="ask_model_before_run_title">Kysy malli ennen suoritusta</string>
@@ -1464,7 +1421,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="ai_models_summary_none">Malleja ei ole määritetty</string>
   <string name="ai_add_provider">Lisää palveluntarjoaja</string>
   <string name="ai_provider_edit">Muokkaa</string>
-  <string name="ai_provider_delete_confirm">Poistetaanko palveluntarjoaja \"%1$s\"? Tätä palveluntarjoajaa käyttävät kehotteet palautuvat oletusasetuksiin.</string>
   <string name="ai_provider_api_key_not_set">API-avainta ei ole asetettu</string>
   <string name="ai_provider_select_type">Valitse palveluntarjoajan tyyppi</string>
   <string name="ai_provider_name">Palveluntarjoajan nimi</string>
@@ -1484,7 +1440,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="edit_model_title">Muokkaa mallia</string>
   <string name="model_saved">Malli tallennettu</string>
   <string name="model_deleted">Malli poistettu</string>
-  <string name="model_delete_confirm">Poistetaanko malli \"%1$s\"?</string>
   <string name="model_set_default">Aseta oletusmalliks</string>
   <string name="model_select_provider">Palveluntarjoaja</string>
   <string name="model_supported_badge">✓ Tuettu</string>
@@ -1524,7 +1479,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="ai_disclaimer_point8">Tietosi lähetetään valitsemasi tekoälypalveluntarjoajan palvelimille. Käyttämällä API-avainta hyväksyt kyseisen palveluntarjoajan ehdot ja tietosuojakäytännön. Itse isännöidyt mallit ovat mahdollisia, mutta vaativat enemmän teknistä osaamista, eivätkä tulokset välttämättä ole yhtä hyviä kuin kaupallisilla malleilla.</string>
   <string name="ai_disclaimer_point9">Tekoälypalveluntarjoajat veloittavat API-käytöstä. AndBiblessä näytetyt kustannusarviot ovat likimääräisiä — tarkista todelliset kulut aina palveluntarjoajasi laskutuksesta.</string>
   <string name="ai_disclaimer_accept_title">Hyväksy tekoälyä koskeva vastuuvapauslauseke</string>
-  <string name="ai_disclaimer_accept_button">Hyväksyn ja otan täyden vastuun</string>
   <string name="prompt_permission_mode">Käyttöoikeustila</string>
   <string name="prompt_permission_mode_description">Hallitsee milloin käyttäjän vahvistus vaaditaan ennen tekoälyn kirjoitustoimintoja. Alla olevat työkalukohtaiset asetukset voivat ohittaa tämän yksittäisille työkaluille.</string>
   <string name="agent_permission_mode_summary">Määrittää, milloin käyttäjän vahvistus vaaditaan ennen tekoälyn kirjoitustoimintoja</string>
@@ -1640,7 +1594,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="default_prompt_custom_desc">Suorita mukautettu tehtävä valitulle tekstijaksolle</string>
   <string name="default_prompt_custom_template">Noudata käyttäjän tehtävämääritystä valitulle Raamatun tekstijaksolle.</string>
   <string name="copy">Kopioi</string>
-  <string name="delete_prompt_confirm_message">Haluatko varmasti poistaa tämän kehotteen?</string>
   <string name="ai_hide_prompt">Piilota</string>
   <string name="ai_restore_hidden_prompts">Palauta piilotetut kehotteet</string>
   <string name="ai_prompt_hidden">Kehote piilotettu</string>
@@ -1725,8 +1678,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="permission_allow_all_session">Salli kaikki työkalut tälle istunnolle</string>
   <string name="permission_allow_always">Salli aina \"%1$s\"</string>
   <string name="permission_deny">Estä</string>
-  <string name="permission_always_allow_confirm_title">Salli aina?</string>
-  <string name="permission_always_allow_confirm">Haluatko varmasti sallia pysyvästi \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Voit nollata tämän tekoälyn asetuksista.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Työkalujen käyttöoikeudet</string>
@@ -1831,18 +1782,15 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="my_document_new_name">Dokumentti %d</string>
   <string name="my_document_create_title">Luo uusi dokumentti</string>
   <string name="my_document_rename_title">Nimeä dokumentti uudelleen</string>
-  <string name="my_document_delete_confirmation">Poistetaanko dokumentti \"%s\"?</string>
   <string name="show_secret">Näytä</string>
   <string name="hide_secret">Piilota</string>
   <string name="ai_documents_name">Tekoälydokumentit</string>
   <string name="ai_documents_description">Tekoälyn automaattisesti luomat dokumentit</string>
-  <string name="my_document_cannot_delete_ai_documents">Tekoälydokumenttia ei voi poistaa, kun se sisältää sivuja. Poista ensin sivut.</string>
   <string name="my_document_save_changes">Tallennetaanko muutokset?</string>
   <string name="my_document_no_description">Ei kuvausta</string>
   <string name="my_document_edit_description">Muokkaa kuvausta</string>
   <string name="my_document_pages_title">%s - Sivut</string>
   <string name="my_document_page_rename_title">Nimeä sivu uudelleen</string>
-  <string name="my_document_page_delete_confirmation">Poistetaanko sivu \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Poistetaanko nämä sivut?</string>
   <string name="my_documents_switch_document">Vaihda teosta</string>
   <string name="my_document_new_page_name">Sivu %1$d</string>
@@ -1910,7 +1858,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_doc_show_removed">Näytä poistetut dokumentit</string>
   <string name="cloud_doc_status_removed">Poistettu pilvestä</string>
   <string name="cloud_doc_status_still_installed">edelleen asennettu tähän</string>
-  <string name="cloud_doc_purge_confirm">Poistetaanko \"%1$s\" pysyvästi pilvihistoriasta? Jos se on edelleen asennettuna toisella laitteella, kyseinen laite voi lähettää sen takaisin pilveen seuraavalla synkronoinnilla.</string>
   <string name="cloud_doc_action_download">Lataa</string>
   <string name="cloud_doc_action_push">Lähetä pilveen</string>
   <string name="cloud_doc_action_remove_cloud">Poista pilvestä</string>
@@ -1921,8 +1868,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_doc_action_dont_sync">Älä synkronoi pilveen</string>
   <string name="cloud_doc_action_allow_sync">Synkronoi pilveen</string>
   <string name="cloud_doc_action_purge">Poista pilvihistoriasta</string>
-  <string name="cloud_doc_remove_all_confirm">Poistetaanko %1$s pilvestä ja kaikilta laitteiltasi, mukaan lukien tämä laite?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Poistetaanko %1$s pilvestä? Tämän laitteen kopio säilytetään; laitteet, joissa dokumenttien synkronointi on käytössä, poistavat sen myös.</string>
   <string name="cloud_doc_sync_now">Synkronoi nyt</string>
   <string name="cloud_doc_rescan">Hae uudelleen pilvestä</string>
   <string name="cloud_doc_sync_now_download">Lataa uudet ja päivitetyt dokumentit</string>
@@ -1934,6 +1879,14 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_doc_summary_download">Lataa %1$d</string>
   <string name="cloud_doc_summary_download_size">Lataa %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automaattiset lataukset alkavat Wi-Fi-yhteydellä.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d dokumentti</item>
+        <item quantity="other">%1$d dokumenttia</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d dokumentti (%2$s)</item>
+        <item quantity="other">%1$d dokumenttia (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Ei siirrettävää</string>
   <string name="cloud_doc_selected_count">%1$d valittu</string>
   <string name="cloud_doc_bulk_skipped">Ohitettiin %1$d, ei koske niitä</string>
@@ -1950,8 +1903,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="background_image_import">Tuo galleriasta…</string>
   <string name="background_image_empty">Ei vielä tuotuja kuvia. Lisää kuva napauttamalla \"Tuo galleriasta…\".</string>
   <string name="background_image_importing">Tuodaan…</string>
-  <string name="background_image_delete_title">Poistetaanko kuva?</string>
-  <string name="background_image_delete_confirm">Poistetaanko tämä taustakuva? Työtilat, jotka sitä vielä käyttävät, palaavat ilman kuvaa.</string>
   <string name="background_image_day">Taustakuva (päivä)</string>
   <string name="background_image_night">Taustakuva (yö)</string>
   <string name="background_image_opacity_day">Taustakuvan läpinäkyvyys (päivä)</string>
@@ -2025,6 +1976,10 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="legacy_notice_icloud">Synkronointi käyttää nyt iCloud Drivea. Ota se uudelleen käyttöön kohdassa Asetukset → Synkronointi. Tämä laite säilyttää omat tietonsa; muutokset muilta laitteiltasi saapuvat, kun synkronointi on otettu uudelleen käyttöön. Vapauta vanhat iCloud-tiedot: Asetukset → nimesi → iCloud → Hallitse tallennustilaa → AndBible.</string>
   <string name="legacy_notice_nextcloud">Nextcloud-yhteytesi siirrettiin mukaan, mutta synkronointi on pois päältä. Ota se käyttöön kohdassa Asetukset → Synkronointi ja valitse, haetaanko pilvestä vai luodaanko uusi.</string>
   <string name="legacy_notice_nextcloud_unsent">Joitakin tämän laitteen muutoksia ei ollut vielä lähetetty Nextcloudiin. Niitä ei lähetetty, ja ne säilyvät vain tällä laitteella.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d kirjanmerkkiä ei voitu sijoittaa luotettavasti, eikä sitä tuotu. Se säilytetään vanhojen tietojesi mukana tällä laitteella.</item>
+        <item quantity="other">%1$d kirjanmerkkiä ei voitu sijoittaa luotettavasti, eikä niitä tuotu. Ne säilytetään vanhojen tietojesi mukana tällä laitteella.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Se on tehokas mutta helppokäyttöinen offline-raamattusovellus.</string>
   <string name="webdav_untrusted_certificate_message_device">Tämä laite ei luota palvelimen %1$s varmenteeseen. Luota siihen vain, jos tunnistat sen, esimerkiksi koska olet itse perustanut tämän palvelimen.\n\nKohde: %2$s\nMyöntäjä: %3$s\nVoimassa: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2076,6 +2031,25 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="recommend_share_link">Jaa linkki</string>
   <string name="recommend_qr_caption">Skannaa hankkiaksesi AndBiblen puhelimeesi, tablettiisi tai tietokoneellesi.</string>
   <string name="desktop_activation_failed">AndBible on jo käynnissä, mutta sen ikkuna ei vastannut. Siirry käynnissä olevaan ohjelmaan ja yritä uudelleen. Saapuvien tiedostojen toimitusta ei vahvistettu.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Tätä ei voi perua.</string>
+  <string name="ai_raw_log_delete_lead">Poistetaanko tämä loki?</string>
+  <string name="ai_provider_delete_lead">Poistetaanko palveluntarjoaja ”%1$s”?</string>
+  <string name="ai_provider_delete_detail">Sitä käyttävät kehotteet palaavat käyttämään oletuspalveluntarjoajaa.</string>
+  <string name="ai_model_delete_lead">Poistetaanko malli ”%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Poistetaanko kehote ”%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Poistetaanko tämä kehote?</string>
+  <string name="ai_reset_usage_detail">Token- ja kustannuskertymät nollataan. Tätä ei voi perua.</string>
+  <string name="ai_reset_usage_button">Nollaa</string>
+  <string name="ai_disclaimer_accept">Hyväksyn</string>
+  <string name="llm_continue_iterations_lead">Jatketaanko vielä %1$d iteraatiota?</string>
+  <string name="llm_continue_iterations_detail">Tekoälyagentti saavutti %1$d iteraation rajan keskeyttämättä työtään valmiiksi.</string>
+  <string name="llm_continue_button">Jatka</string>
+  <string name="permission_always_allow_lead">Sallitaanko ”%1$s” aina?</string>
+  <string name="permission_always_allow_button">Salli aina</string>
+  <string name="ai_bug_report_send_lead">Lähetetäänkö tekoälyn virheraportti?</string>
+  <string name="ai_bug_report_send_button">Lähetä</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Aloittaminen</string>
   <string name="user_guide_section_reading_workspace">Lukeminen ja työtila</string>
@@ -2153,4 +2127,150 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Tekoälyavustaja, osa 3: työkalut, tietosi ja käyttöoikeudet</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Tekoälyavustaja, osa 4: omat kehotteet, kustannukset ja synkronointi</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Hylätäänkö muutokset?</string>
+  <string name="dialog_keep_editing">Jatka muokkausta</string>
+  <string name="dialog_label_delete_lead">Poistetaanko ryhmä ”%1$s”?</string>
+  <string name="dialog_label_delete_detail">Sen opintoalustan muistiinpanot poistetaan myös. Tätä ei voi perua.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d kirjanmerkillä ei ole muuta ryhmää.</item>
+        <item quantity="other">%1$d kirjanmerkillä ei ole muuta ryhmää.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Poista ryhmä ja %1$d kirjanmerkki</item>
+        <item quantity="other">Poista ryhmä ja %1$d kirjanmerkkiä</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Kirjanmerkit ja niiden muistiinpanot poistetaan.</string>
+  <string name="dialog_label_delete_only_consequence">Kirjanmerkit säilyvät ilman ryhmää.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Poistetaanko tämä kirjanmerkki?</item>
+        <item quantity="other">Poistetaanko %1$d kirjanmerkkiä?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Sen muistiinpano poistetaan myös.</item>
+        <item quantity="other">Niiden muistiinpanot poistetaan myös.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Poistetaanko kaikki automaattisesti annettavat ryhmät tästä työtilasta?</string>
+  <string name="dialog_labels_reset_hidden_lead">Näytetäänkö kaikki piilotetut ryhmät uudelleen?</string>
+  <string name="dialog_labels_reset_shown_detail">Luettelosta piilottamasi ryhmät näytetään jälleen.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Asennetaanko ”%s”?</string>
+  <string name="install_action">Asenna</string>
+  <string name="install_from_file_question">Asennetaanko dokumentit tiedostosta?</string>
+  <string name="overwrite_files_detail">Nämä tiedostot ovat jo olemassa:%s</string>
+  <string name="import_studypads_question">Tuodaanko nämä opintoalustat?</string>
+  <string name="import_action">Tuo</string>
+  <string name="restore_backup_question">Palautetaanko tämän varmuuskopion dokumentit?</string>
+  <string name="restore_backup_detail">Tämä tiedosto on AndBiblen dokumenttien varmuuskopio.</string>
+  <string name="update_document_question">Päivitetäänkö tämä dokumentti?</string>
+  <string name="update_action">Päivitä</string>
+  <string name="download_documents_question">Ladataanko dokumentit?</string>
+  <string name="download_persecution_warning">Jos asut maassa, jossa kristittyjä vainotaan, kristillisen aineiston lataamisessa internetin kautta kannattaa olla varovainen. Voit sen sijaan hankkia dokumenttien zip-tiedostot turvallisemmin ja asentaa ne kohdasta ”%1$s”. Kaikki lataukset dokumenttipalvelimilta salataan (HTTPS).</string>
+  <string name="download_action">Lataa</string>
+  <string name="download_dont_ask_again">Lataa, älä kysy uudelleen</string>
+  <string name="download_dont_ask_again_consequence">Lataukset alkavat jatkossa ilman tätä kysymystä.</string>
+  <string name="passphrase_did_not_work">Salalause ei toiminut.</string>
+  <string name="try_again">Yritä uudelleen</string>
+  <string name="interrupted_downloads_lead">Ladataanko nämä dokumentit uudelleen?</string>
+  <string name="interrupted_downloads_detail">Niiden lataus keskeytyi, joten niitä ei asennettu.</string>
+  <string name="external_link_open_question">Avataanko tämä linkki selaimessa?</string>
+  <string name="open_action">Avaa</string>
+  <string name="notification_permission_question">Sallitaanko ilmoitukset?</string>
+  <string name="notification_permission_detail">Ilmoitukset näyttävät latauksen, käsittelyn ja puheen tilan.</string>
+  <string name="allow_action">Salli</string>
+  <string name="rate_question">Arvostellaanko sovellus?</string>
+  <string name="bug_report_email_question">Lähetetäänkö virheraportti sähköpostilla?</string>
+  <string name="continue_action">Jatka</string>
+  <string name="delete_search_index_question">Poistetaanko ”%s”-hakemisto?</string>
+  <string name="remove_custom_repository_question">Poistetaanko oma tietovarasto ”%s”?</string>
+  <string name="download_document_question">Ladataanko ”%s”?</string>
+  <string name="choose_file_action">Valitse tiedosto</string>
+  <string name="old_webview_question">Käytetäänkö sovellusta vanhalla WebView-komponentilla?</string>
+  <string name="incomplete_translation_question">Jatketaanko osittaisella käännöksellä?</string>
+  <string name="rate_action">Arvostele</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Poistetaanko dokumentti ”%s”?</string>
+  <string name="my_document_page_delete_lead">Poistetaanko sivu ”%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">Tekoälydokumentteja ei voi poistaa, kun niissä on sivuja.</string>
+  <string name="my_document_cannot_delete_ai_detail">Poista ensin sivut.</string>
+  <string name="reading_progress_new_cycle_lead">Aloitetaanko uusi lukukierros?</string>
+  <string name="reading_progress_new_cycle_detail">Edistymistäsi seurataan alusta. Edellisen kierroksen tiedot säilyvät.</string>
+  <string name="reading_progress_new_cycle_start">Aloita</string>
+  <string name="reset_plan_lead">Nollataanko tämä suunnitelma?</string>
+  <string name="reset_plan_detail">Tämän suunnitelman aloituspäivä ja edistyminen tyhjennetään.</string>
+  <string name="set_current_day_lead">Asetetaanko %1$s nykyiseksi päiväksi?</string>
+  <string name="set_current_day_detail">Kaikki aiemmat päivät merkitään luetuiksi.</string>
+  <string name="plan_duplicate_user_plan_lead">Lukusuunnitelmatiedostolla on sama nimi kuin sisäänrakennetulla suunnitelmalla.</string>
+  <string name="plan_duplicate_user_plan_detail">Suunnitelmatiedostoa ei voi näyttää luettelossa. Nimeä tiedosto uudelleen jsword/readingplan-kansiossa ja säilytä sen .properties-pääte.</string>
+  <string name="background_image_delete_lead">Poistetaanko tämä taustakuva?</string>
+  <string name="background_image_delete_detail">Työtilat, jotka vielä käyttävät sitä, palaavat ilman kuvaa.</string>
+  <string name="reset_values_lead">Nollataanko kaikki nämä arvot?</string>
+  <string name="revert_setting_lead">Palautetaanko tämä asetus peritylle arvolle?</string>
+  <string name="revert_setting_confirm">Palauta</string>
+  <string name="reset_settings_screen_lead">Nollataanko tämän näytön asetukset?</string>
+  <string name="reset_settings_screen_detail">Ne palaavat oletusarvoihinsa.</string>
+  <string name="memorize_unmark_lead">Poistetaanko ”%s” muistettujen merkintä?</string>
+  <string name="memorize_remove_target_lead">Poistetaanko ulkoa opettelun tavoite ”%s”?</string>
+  <string name="dialog_apply">Ota käyttöön</string>
+  <string name="dialog_dont_apply">Älä ota käyttöön</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Pilvessä on jo tiedot: %s. Mitä tehdään?</string>
+  <string name="cloud_merge_consequence">Molemmat puolet säilytetään; jos kohde on muuttunut molemmilla, uudempi muutos voittaa.</string>
+  <string name="cloud_fetch_consequence">Korvaa tämän laitteen tiedot pilvikopiolla.</string>
+  <string name="cloud_create_consequence">Korvaa pilvikopion tämän laitteen tiedoilla.</string>
+  <string name="cloud_disable_consequence">Synkronointi pysyy pois päältä tämän tiedon osalta.</string>
+  <string name="cloud_merge_lead">Yhdistetäänkö tiedot (%s) pilven kanssa?</string>
+  <string name="cloud_merge_confirm">Yhdistä</string>
+  <string name="cloud_replace_confirm">Korvaa</string>
+  <string name="cloud_replace_local_lead">Korvataanko tämän laitteen tiedot (%s) pilvikopiolla?</string>
+  <string name="cloud_replace_local_detail">Se, mitä tällä laitteella nyt on, korvataan eikä sitä voi palauttaa.</string>
+  <string name="cloud_replace_cloud_lead">Korvataanko pilvikopio (%s) tämän laitteen tiedoilla?</string>
+  <string name="cloud_replace_cloud_detail">Se, mitä pilvessä nyt on, korvataan, ja muut laitteesi saavat tämän laitteen tiedot.</string>
+  <string name="sign_in_failed_lead">Kirjautuminen synkronointipalveluun epäonnistui.</string>
+  <string name="sync_too_old_lead">Tämä sovellus on liian vanha synkronoimaan tiedot (%s).</string>
+  <string name="sync_too_old_detail">Pilvitiedot käyttävät uudempaa versiota kuin tämä sovellus tukee. Niiden synkronointi on toistaiseksi pois päältä; päivitä sovellus ottaaksesi sen uudelleen käyttöön.</string>
+  <string name="backup_replace_lead">Korvataanko tiedot (%s) varmuuskopiolla?</string>
+  <string name="backup_replace_detail">Se, mitä tällä laitteella nyt on, korvataan eikä sitä voi palauttaa.</string>
+  <string name="reset_database_lead">Nollataanko ”%1$s” alkutilaan?</string>
+  <string name="reset_database_detail">Kaikki sen tiedot poistetaan pysyvästi. Tätä ei voi perua.</string>
+  <string name="reset_database_button">Nollaa</string>
+  <string name="restore_all_lead">Korvataanko muistiinpanosi, kirjanmerkkisi, opintoalustasi, lukusuunnitelmasi ja työtilasi?</string>
+  <string name="restore_or_import_lead">Palautetaanko vai tuodaanko tiedot (%s)?</string>
+  <string name="restore_consequence">Korvaa tämän laitteen tiedot varmuuskopiolla.</string>
+  <string name="import_consequence">Lisää varmuuskopion kohteet tämän laitteen tietoihin.</string>
+  <string name="sync_start_syncing">Aloita synkronointi</string>
+  <string name="sync_reset_lead">Kirjaudutaanko ulos ja nollataanko synkronointi?</string>
+  <string name="sync_reset_detail">Synkronointi täytyy määrittää uudelleen.</string>
+  <string name="webdav_forget_certificate_lead">Unohdetaanko luotettu palvelinvarmenne?</string>
+  <string name="webdav_forget_certificate_detail">Varmenne pyydetään vahvistamaan uudelleen seuraavan yhteyden yhteydessä.</string>
+  <string name="webdav_forget_certificate_confirm">Unohda</string>
+  <string name="cloud_doc_remove_all_lead">Poistetaanko ”%1$s” pilvestä ja kaikilta laitteiltasi?</string>
+  <string name="cloud_doc_remove_cloud_lead">Poistetaanko ”%1$s” pilvestä?</string>
+  <string name="cloud_doc_purge_lead">Poistetaanko ”%1$s” pysyvästi pilven historiasta?</string>
+  <string name="cloud_doc_remove_all_detail">Tämä poistaa myös kopiot tältä laitteelta ja jokaiselta muulta laitteelta, jolla dokumenttien synkronointi on käytössä.</string>
+  <string name="cloud_doc_remove_cloud_detail">Tämän laitteen kopiot säilyvät. Laitteet, joilla dokumenttien synkronointi on käytössä, poistavat ne myös.</string>
+  <string name="cloud_doc_purge_detail">Laite, jolla on vielä kopio, voi ladata sen uudelleen seuraavassa synkronoinnissaan.</string>
+  <string name="cloud_doc_block_confirm_button">Älä synkronoi</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">Poistetaanko %1$d dokumentti pilvestä ja kaikilta laitteiltasi?</item>
+        <item quantity="other">Poistetaanko %1$d dokumenttia pilvestä ja kaikilta laitteiltasi?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">Poistetaanko %1$d dokumentti pilvestä?</item>
+        <item quantity="other">Poistetaanko %1$d dokumenttia pilvestä?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">Poistetaanko %1$d dokumentti pysyvästi pilven historiasta?</item>
+        <item quantity="other">Poistetaanko %1$d dokumenttia pysyvästi pilven historiasta?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">Lopetetaanko %1$d dokumentin synkronointi pilveen?</item>
+        <item quantity="other">Lopetetaanko %1$d dokumentin synkronointi pilveen?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Yhä useampi tietosi voi nyt synkronoitua</string>
+  <string name="new_sync_targets_detail">Myös Omat dokumentit, tekoälyasetukset ja lukuedistyminen voivat synkronoitua. Ota ne käyttöön Laitteiden synkronointi -asetuksissa.</string>
+  <!--end dialog copy: B3b-->
 </resources>

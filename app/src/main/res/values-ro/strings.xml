@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Ghidul complet al utilizatorului se află pe andbible.org. Paginile se deschid în browser.</string>
   <string name="help_user_guide_home">Pagina principală a ghidului</string>
   <string name="help_read_in_user_guide">Citește în ghidul utilizatorului</string>
+  <string name="help_in_user_guide">Ajutor în ghidul de utilizare</string>
+  <string name="help_matching_section">Secțiunea corespunzătoare</string>
   <string name="help_read_page">Citește în ghidul utilizatorului: %1$s</string>
   <string name="help_tutorial_videos">Videoclipuri tutorial</string>
   <string name="help_watch_in_order">Urmărește videoclipurile tutorial în ordine</string>
@@ -246,6 +248,9 @@
   <string name="prefs_navigate_to_verse_summary">Alege versetul (și capitolul) cînd selecționezi un pasaj</string>
   <string name="prefs_open_links_in_special_window_title">Ferestre</string>
   <string name="prefs_open_links_in_special_window_summary">Deschide legăturile în ferestre speciale, pentru a vedea rapid trimiterile și Strong</string>
+  <string name="prefs_trusted_link_domains_title">Domenii de încredere pentru linkuri</string>
+  <string name="prefs_trusted_link_domains_summary">Linkurile către aceste domenii se deschid fără întrebare. Debifează un domeniu ca să fii întrebat din nou.</string>
+  <string name="prefs_trusted_link_domains_empty">Încă niciunul. Bifează „Nu mai întreba” la deschiderea unui link ca să-i adaugi domeniul.</string>
   <string name="prefs_text_size_sample_text">Exemplu de text</string>
   <string name="prefs_screen_keep_on_title">Menține ecranul aprins</string>
   <string name="prefs_screen_keep_on_summary">Împiedică stingerea ecranului în timpul folosirii aplicației</string>
@@ -308,7 +313,6 @@
   <string name="line_spacing_title">Distanța dintre rînduri</string>
   <string name="line_spacing_summary">Stabilește distanța dintre rînduri</string>
   <string name="select_none">Nu alege nimic</string>
-  <string name="reset_are_you_sure">Sigur vrei să restabilești toate aceste valori?</string>
   <string name="window_pinning_menutitle">Fixează fereastra</string>
   <string name="hide_window_buttons_title">Ascunde butoanele ferestrei</string>
   <string name="hide_window_buttons_summary">Butoanele ferestrei din partea dreaptă a paginii sînt ascunse. Butoanele ferestrelor din partea de jos a paginii sînt în continuare afișate și poți deschide opțiunile ferestrelor ținînd apăsat pe ele.</string>
@@ -331,6 +335,7 @@
   <string name="word_not_found_in_dictionaries">Cuvântul nu a fost găsit în niciun dicționar</string>
   <string name="prefs_top_margin_title_mm">Marginea de sus (%d mm)</string>
   <string name="font_size_title">Mărime litere</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Fiindcă atât de mult a iubit Dumnezeu lumea, încât a dat pe singurul Său Fiu, pentru ca oricine crede în El să nu piară, ci să aibă viață veșnică.</string>
   <string name="font_size_title_pt">Mărime litere (%d pt)</string>
   <string name="prefs_font_text_size_summary">Schimbă mărimea literelor</string>
@@ -348,6 +353,8 @@
   <string name="window_color_settings_title">Setări de culoare (Fereastră)</string>
   <string name="workspace_color_settings_title">Setări de culoare (Spațiu de studiu)</string>
   <string name="color_workspace">Culoarea spațiului de studiu</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Implicit</string>
   <string name="color_text">Culoarea textului</string>
   <string name="color_background">Culoarea fondului</string>
   <string name="colors_day_mode_title">Aspect de zi</string>
@@ -381,7 +388,6 @@
   <string name="download_source_last_updated">Ultima actualizare a listei: %s.</string>
   <string name="download_refreshing_book_list">Se actualizează lista de documente de la servere…</string>
   <string name="download_source_message1">Documentele sînt descărcate din următoarele surse:</string>
-  <string name="download_document_confirm_prefix">Descarcă</string>
   <string name="error_downloading">A apărut o eroare în timpul descărcării. Verifică conexiunea la internet.</string>
   <string name="error_downloading_status">Serverul care găzduiește %1$s a generat o eroare din cauza %2$s (%3$d).</string>
   <string name="storage_space_warning">Spațiu de stocare insuficient.</string>
@@ -402,9 +408,6 @@
   <string name="activity_title">Activitate în fundal</string>
   <string name="activity_empty">Nimic în desfășurare</string>
   <string name="activity_failed_toast">%1$s — vezi meniul</string>
-  <string name="download_question_title">Vrei să descarci documentele?</string>
-  <string name="download_question_message">Dacă locuiești într-o țară în care creștinii sînt persecutați, ar trebui să fii atent la descărcarea materialelor creștine prin Internet. Poți obține fișierele zip ale modulelor într-un mod mai sigur și le poți instala prin „%1$s”. Ești sigur că vrei să continui cu descărcarea? Toate descărcările de pe serverele de module sînt criptate (HTTPS).</string>
-  <string name="do_not_ask_again">Da, nu mai întreba</string>
   <string name="recommended_document">Recomandat!</string>
   <string name="about_version_history">Cronologia versiunilor: %s</string>
   <string name="download_errors">Eroare la descărcare</string>
@@ -421,11 +424,9 @@
   <string name="checking_zip_file">Se verifică fișierul…</string>
   <string name="invalid_module">Fișierul nu conține un document SWORD valabil</string>
   <string name="install_zip_title">Așteaptă. Se încarcă modulele din fișier.</string>
-  <string name="overwrite_files">Următoarele fișiere există deja: %s Scrii peste ele? </string>
   <string name="overwrite_files_title">Scrii peste fișiere?</string>
   <string name="could_not_overwrite_files">Nu s-a putut scrie peste fișierele: %s. În afară de asta, instalarea a avut succes.</string>
   <string name="module_backup_restore">Acest fișier este o copie de rezervă a documentelor AndBible. Vrei să restaurezi documentele din ea?</string>
-  <string name="install_do_you_want">Vrei să instalezi modulul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de citire</string>
   <string name="reading_plans_plural">Planuri de citire</string>
@@ -433,15 +434,8 @@
   <string name="rdg_plan_day">Ziua %s</string>
   <string name="rdg_plan_set_start_date">Alege data de începere…</string>
   <string name="set_current_day">Stabilește ca zi actuală…</string>
-  <string name="msg_set_current_day_reading_plan">Aceasta va seta %1$s ca zi curentă în acest plan și va marca toate zilele anterioare ca citite. Continuați?</string>
   <string name="done">Gata</string>
-  <string name="reset_plan_question">Sigur vrei să restabilești acest plan?</string>
   <string name="import_reading_plan">Importă planul de citire…</string>
-  <string name="plan_duplicate_user_plan">
-        Există un plan de citire jsword/readingplan
-        în cardul sd cu același nume ca un plan intern. Acesta nu poate fi inclus aici.
-        Dă alt nume fișierului, lăsînd extensia fișierului ca .properties.
-    </string>
   <string name="plan_name_y1ntpspr">NT, Psalmii și Proverbele într-un an</string>
   <string name="plan_description_y1ntpspr">
         Din partea HEARTLIGHT Internet Magazine,
@@ -481,12 +475,8 @@
   <string name="delete_index">Șterge indexul de căutare</string>
   <string name="about">Despre</string>
   <string name="delete_doc">Ștergi %s?</string>
-  <string name="interrupted_downloads_title">Descărcare întreruptă</string>
-  <string name="interrupted_downloads_message">Aceste documente nu au fost instalate deoarece descărcarea lor a fost întreruptă:</string>
-  <string name="interrupted_downloads_question">Le descarci din nou?</string>
   <string name="download_again">Descarcă din nou</string>
   <string name="delete_docs_confirm">Ștergi aceste documente?</string>
-  <string name="delete_search_index_doc">Ștergi indexul pentru %s?</string>
   <!--Verse context menu-->
   <string name="notes">Note de subsol și trimiteri</string>
   <string name="share_verse">Trimite…</string>
@@ -527,7 +517,6 @@
         Dacă structura documentului s-a modificat, actualizarea acestui document ar putea face ca
         pozițiile acestor semne de carte/notițe să se mute în interiorul documentului sau să dispară.
     </string>
-  <string name="bookmark_warning3">Mai vrei să actualizezi modulul?</string>
   <string name="bookmark_warning4">Se recomandă efectuarea unei copii de rezervă a modulului înainte de actualizare.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">În ordinea datei</string>
@@ -708,10 +697,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Recuperează sau importă din…</string>
   <string name="backup_restore2">Recuperează sau importă</string>
-  <string name="overwrite_something">Înlocuiești %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Recuperează fișierul bazei de date</string>
-  <string name="restore_confirmation">Suprascrii Notițele mele, Semne de carte, Notițe de studiu, Planuri de citire și Spații de studiu?</string>
   <string name="restore_success">Notițele mele, Semne de carte, Notițe de studiu, Planuri de citire și Spații de studiu, recuperate cu succes.</string>
   <string name="downloading_backup">Se descarcă copia de rezervă…</string>
   <string name="loading_backup">Se încarcă baza de date din copie…</string>
@@ -733,7 +720,6 @@
   <string name="send_export_file">Trimite un fișier de export</string>
   <string name="backup_modules_title">Alege ce vrei să copiezi</string>
   <string name="install_zip_canceled">Instalarea a fost anulată</string>
-  <string name="ask_restore_or_import">Baza de date pentru %s poate să fie recuperată (adică baza de date existentă este eliminată și baza de date aleasă este încărcată) sau importată (baza de date aleasă este importată în baza de date existentă). Ce dorești să faci?</string>
   <string name="restore">Recuperează</string>
   <string name="import2">Importă</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -789,7 +775,6 @@
   <string name="settings_editor_back">Înapoi</string>
   <string name="settings_editor_close">Închide</string>
   <string name="settings_editor_apply">Aplică</string>
-  <string name="discard_changes_confirmation">Renunți la modificările nesalvate?</string>
   <string name="discard">Renunță</string>
   <string name="remove">Elimină</string>
   <string name="overwrite">Suprascrie</string>
@@ -816,7 +801,8 @@
   <string name="empty_list">Nimic de arătat</string>
   <string name="error_skip">Saltă</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Date deteriorate</string>
+  <string name="corrupt_database_headline">AndBible nu poate deschide o parte din datele tale</string>
+  <string name="corrupt_database_files_detail">Aceste fișiere nu au putut fi deschise: %1$s. Nimic nu a fost modificat sau șters. Prin restabilire, ele pornesc goale, iar fiecare fișier deteriorat rămâne pe acest dispozitiv, redenumit cu .corrupt- plus data și ora.</string>
   <string name="corrupt_database_reset">Resetează datele deteriorate</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Datele deteriorate nu au putut fi resetate: %1$s nu a putut fi mutat deoparte. Nimic nu a fost modificat. Puteți încerca din nou, trimite un raport de eroare sau folosi Copiere și Recuperare.</string>
@@ -824,8 +810,8 @@
   <string name="damaged_data_needs_attention">Datele aplicației necesită atenție. Atingeți pentru a deschide aplicația.</string>
   <string name="debug_test_error">Eroare de test (versiune de depanare)</string>
   <string name="bug_report_prepare_failed">Raportul nu a putut fi pregătit sau trimis. Poți încerca din nou sau poți folosi Copie de siguranță și recuperare pentru a-ți salva datele.</string>
-  <string name="bug_report_email_title">Trimite un raport de eroare prin e-mail</string>
   <string name="bug_report_desktop_text">În continuare, vi se va cere unde să salvați fișierul raportului de eroare. Apoi veți primi instrucțiuni pentru trimiterea lui către echipa de dezvoltare.</string>
+  <string name="bug_report_email_title">Trimite un raport de eroare prin e-mail</string>
   <string name="bug_report_email_text">Apoi, alege aplicația de e-mail preferată (Gmail, de exemplu) pentru a trimite raportul către echipa de programatori.</string>
   <string name="bug_report_manual_title">Trimite raportul prin e-mail</string>
   <string name="bug_report_manual_text_saved">Raportul a fost salvat în <b>%1$s</b>.\n\nVă rugăm să trimiteți un e-mail la <b>%2$s</b> și să atașați acel fișier; un program de e-mail nu îl poate atașa pentru dumneavoastră. Subiect sugerat: <b>%3$s</b>. În mesaj, spuneți-ne ce ați făcut și ce s-a întâmplat.</string>
@@ -896,8 +882,6 @@
   <string name="beta_special_regards">Cu respect, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Puteți sprijini financiar dezvoltarea AndBible prin %s.</string>
   <string name="beta_special_sponsor_link">sponsorizarea orelor de dezvoltare</string>
-  <string name="new_sync_targets_notice_title">Noi setări de sincronizare disponibile</string>
-  <string name="new_sync_targets_notice_message">Această versiune a AndBible introduce ținte de sincronizare suplimentare: Documentele mele, setările AI și progresul de citire. Dacă doriți să le activați, o puteți face în setările de Sincronizare a dispozitivului.</string>
   <string name="open_settings">Deschide setările</string>
   <!--History-->
   <string name="history_for">Cronologia (%1$s: Fereastra %2$d)</string>
@@ -1007,7 +991,6 @@
   <string name="give_passphrase_for_module">Documentul %s este cifrat și are nevoie de parolă pentru a fi deblocat</string>
   <string name="unlock_module">Stabilește parola</string>
   <string name="unlock_info">Informații de deblocare a fișierelor cifrate</string>
-  <string name="try_again_passphrase">Parola nu a funcționat, încerci din nou?</string>
   <string name="show_unlock_info">Informații despre fișier și descifrare</string>
   <string name="prefs_experimental_features_title">Caracteristici experimentale</string>
   <string name="prefs_experimental_features_summary">Alege caracteristicile experimentale pe care vrei să le activezi. Aceste caracteristici sunt încă în dezvoltare și pot fi modificate sau eliminate</string>
@@ -1041,9 +1024,6 @@
   <string name="active_window_indicator_summary">Evidențiază colțurile ferestrelor pentru a recunoaște care fereastră este activă</string>
   <string name="app_licence_title">Licență liberă</string>
   <string name="how_to_contribute">Cum să contribui?</string>
-  <string name="confirm_delete_bookmarks">Vrei să elimini %dsemne de carte și notițele lor?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Eticheta aleasă este atașată la %d semne de carte care nu au alte etichete. Vrei să ștergi aceste semne de carte împreună cu etichetele?</string>
-  <string name="delete_label_and_bookmarks">Șterge eticheta și semnele de carte</string>
   <string name="delete_label_only">Șterge doar eticheta</string>
   <string name="module_size_megabytes">%.1f Mo</string>
   <string name="tell_friend_title">Recomandă unui prieten</string>
@@ -1074,8 +1054,6 @@
   <string name="old_webview">Android WebView este prea veche (%1$s). Trebuie să actualizezi aplicația Android WebView la versiunea %2$s pentru a folosi %3$s. Pentru majoritatea telefoanelor, acest lucru se poate face prin %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Continuă oricum</string>
-  <string name="proceed">Continuă</string>
-  <string name="rate_title">Evaluează și comentează aplicația</string>
   <string name="rate_message5">
         Comentariile pozitive și detaliate ajută foarte mult AndBible Open Source Project. Vă mulțumim!
     </string>
@@ -1127,7 +1105,6 @@
   <string name="primary_label">Etichetă principală</string>
   <string name="favourite_label">Etichetă preferată</string>
   <string name="edit_label">Modifică eticheta</string>
-  <string name="delete_label_confirmation">Vrei să elimini eticheta semnului de carte „%s”? Vor fi eliminate toate notițele asociate notițelor de studiu.</string>
   <string name="active_labels">Etichete alese</string>
   <string name="recent_labels">Etichete recente</string>
   <string name="other_labels">Alte etichete</string>
@@ -1137,8 +1114,6 @@
   <string name="book_menu_show_progress_bars">Afișează bare de progres</string>
   <string name="reset_workspace_labels">Vrei să restabilești reglările pentru punere automată și preferate ale acestui spațiu de studiu?</string>
   <string name="clear_auto_assign_labels">Șterge etichetele atribuite automat</string>
-  <string name="reset_workspace_auto_assign_labels">Vrei să elimini toate etichetele atribuite automat din acest spațiu de studiu?</string>
-  <string name="reset_hide_labels">Vrei să restabilești reglările pentru ascunderea etichetelor specificate?</string>
   <string name="reorder">Reorganizează</string>
   <string name="system_items">Acțiuni ale sistemului</string>
   <string name="system_items1">Mai mult</string>
@@ -1152,7 +1127,6 @@
   <string name="ios_fullscreen_hint">Atinge de două ori sau atinge butonul pentru a ieși din ecranul complet.</string>
   <string name="desktop_exit_fullscreen">Ieși din ecranul complet</string>
   <string name="exit_fullscreen">Apasă de două ori pentru a reduce</string>
-  <string name="reset_app_prefs">Vrei să restabilești toate preferințele aplicației, care sînt afișate pe acest ecran, la valorile lor prestabilite?</string>
   <string name="label_red">Roșu</string>
   <string name="label_green">Verde</string>
   <string name="label_blue">Albastru</string>
@@ -1163,7 +1137,6 @@
   <string name="reset_databases_title">Restabilește bazele de date</string>
   <string name="reset_databases_description">Restabilește bazele de date individuale la starea inițială goală. Această acțiune nu poate fi anulată.</string>
   <string name="last_crash_info_title">Informații despre ultima blocare</string>
-  <string name="reset_database_confirm">Aceasta va șterge definitiv toate datele din %1$s și o va aduce la starea inițială. Această acțiune nu poate fi anulată.\n\nEști sigur?</string>
   <string name="reset_database_success">Baza de date a fost restabilită cu succes</string>
   <string name="reset_something">Restabilește: %1$s</string>
   <string name="export">Exportă</string>
@@ -1233,19 +1206,18 @@
   <string name="manage_labels_help_favourite">Păstrează eticheta în favorite pentru acces rapid.</string>
   <string name="manage_labels_help_styles">Sub nume, un mic exemplu arată aspectul etichetei: Selecție pentru un semn de carte pe text selectat, Verset întreg pentru unul pe un verset întreg și o etichetă Spațiu de studiu pentru un stil pe care îl înlocuiește acest spațiu de studiu. Un exemplu gri, fără decorații, înseamnă că semnele de carte ale etichetei nu sunt desenate. Ascunde exemplele din meniul ⋮.</string>
   <string name="manage_labels_help_reorder">Reordonează lista din meniul ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Pe un ecran îngust, lista omite pictogramele pentru principală, atribuire automată și favorită, ca să rămână loc pentru numele etichetelor. Atinge o etichetă ca să le setezi în editorul ei.</string>
   <string name="added_to_bookmark">Atribuit acestui semn de carte</string>
   <string name="strongs_links">Legături</string>
   <string name="strongs_text_and_links">Text și legături</string>
   <string name="strongs_hidden_links">Legături ascunse</string>
   <string name="verse_tip">Pentru a alege un text din Biblie, ține degetul apăsat pe el</string>
-  <string name="permission_required">Permisiune necesară</string>
   <string name="labels_search_hint">Caută</string>
   <string name="search_mode_name_start">Nume (de la început)</string>
   <string name="search_mode_name_contains">Nume (conține)</string>
   <string name="search_mode_content">Conținut</string>
   <string name="search_results_matches">%d rezultate</string>
   <string name="search_results_match">1 rezultat</string>
-  <string name="progress_status_permission">Pentru a arăta notificări (starea descărcării, procesarea, starea vorbirii), este nevoie de permisiunea ta.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Calculator simplu</string>
   <string name="prefs_persecution_cat">Reglări pentru cei prigoniți</string>
@@ -1294,7 +1266,6 @@
   <string name="custom_repositories_create_button_label">Adaugă un depozit personalizat</string>
   <string name="custom_repositories_info_button_label">Informații</string>
   <string name="repository_specification">Adresa URL a depozitului</string>
-  <string name="delete_custom_repository">Vrei să elimini depozitul personalizat %s?</string>
   <string name="custom_repositories_help1">Pentru a adăuga un nou depozit personalizat, introdu sau copiază &amp; lipește aici URL-ul depozitului personalizat.</string>
   <string name="custom_repositories_help2">Poți citi mai multe informații despre depozitele personalizate în %s.</string>
   <string name="custom_repositories_help0">Poți instala documente din depozite personalizate externe prin instalarea de depozite personalizate.</string>
@@ -1318,10 +1289,6 @@
   <string name="db_bookmarks">Semne de carte, Notițele mele, Etichete și Notițe de studiu</string>
   <string name="synchronizing">Se sincronizează…</string>
   <string name="notification_finished">Finalizat</string>
-  <string name="overrideBackup">
-        Baza de date existentă cu care acest aparat nu este sincronizat se găsește în Cloud.
-        Baza de date conține %s. Ce vrei să faci?
-    </string>
   <string name="reading_plans_content">Planuri de lectură și starea acestora</string>
   <string name="bookmarks_contents">Semne de carte, Etichete și Notițe de studiu</string>
   <string name="workspaces_contents">Spații de studiu și Ferestre</string>
@@ -1341,7 +1308,6 @@
   <string name="reading_progress_calendar">Activitate de citire</string>
   <string name="reading_progress_cycle">Ciclul %d</string>
   <string name="reading_progress_new_cycle">Ciclu nou</string>
-  <string name="reading_progress_new_cycle_confirm">Începi un nou ciclu de citire? Aceasta va porni urmărirea progresului de la zero, păstrând datele ciclului anterior.</string>
   <string name="reading_progress_previous_cycle">Ciclul anterior</string>
   <string name="reading_progress_next_cycle">Ciclul următor</string>
   <string name="cloud_merge_data">Îmbină datele</string>
@@ -1351,7 +1317,6 @@
   <string name="cloud_sync_title">Sincronizarea aparatului</string>
   <string name="reset_sync">Deconectare</string>
   <string name="prefs_reset_sync_summary">Dezactivează sincronizarea și restabilește reglările respective.</string>
-  <string name="sync_confirmation">Sigur vrei să te deconectezi și să restabilești sincronizarea?</string>
   <string name="cloud_info">Informații Cloud</string>
   <string name="cloud_info_summary">Date stocate în Cloud: %s MB</string>
   <string name="sync_adapter">Serviciu de sincronizare</string>
@@ -1367,7 +1332,6 @@
   <string name="webdav_server_url_hint">Adresa dosarului WebDAV, de exemplu https://nas.local/dav/ sau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sincronizarea necesită o adresă securizată https://.</string>
   <string name="webdav_certificate_title">Certificatul serverului</string>
-  <string name="webdav_forget_certificate_message">Uiți certificatul de server de încredere? Ți se va cere să confirmi din nou certificatul la următoarea conectare.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Certificat de server nesigur</string>
   <string name="webdav_untrusted_certificate_message">Certificatul pentru %1$s nu este considerat de încredere de Android. Acordă-i încredere doar dacă îl recunoști, de exemplu pentru că ai configurat chiar tu acest server.\n\nSubiect: %2$s\nEmitent: %3$s\nValabil: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1384,14 +1348,7 @@
   <string name="synchronization_categories">Categorii de sincronizare</string>
   <string name="sync_general_settings">Info &amp; reglări generale</string>
   <string name="sync_introduction">Introducere</string>
-  <string name="are_you_sure">Ești sigur?</string>
   <string name="are_you_sure_merge">Vor fi păstrate atât datele de pe acest dispozitiv, cât și %s din cloud. Dacă același element a fost modificat în ambele locuri, se păstrează modificarea mai nouă. Datele acestui dispozitiv vor fi trimise celorlalte dispozitive ale tale.</string>
-  <string name="are_you_sure_reset_local">Acest lucru va înlocui baza de date locală pentru %s cu conținutul care este stocat în prezent în serviciul Cloud.</string>
-  <string name="are_you_sure_reset_cloud">Acest lucru va înlocui baza de date din Cloud pentru %s cu conținutul din acest aparat.</string>
-  <string name="sync_cant_fetch">Versiunea bazei de date sau a fișierului stocat în Cloud este mai mare decît cea acceptată de această aplicație.</string>
-  <string name="sync_disabling">Dezactivarea sincronizării pentru %s deocamdată.</string>
-  <string name="sync_update_app">Actualizează aplicația pentru a continua sincronizarea.</string>
-  <string name="sign_in_failed">Conectarea la serviciul de sincronizare a eșuat.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Se dezactivează sincronizarea în „cloud”. Trebuie reactivată manual după recuperare.</string>
   <string name="report">Raport</string>
@@ -1409,6 +1366,7 @@
   <string name="open_here">Deschide aici</string>
   <string name="external_link">Legătură externă</string>
   <string name="external_link_question">Acest lucru va deschide legătura externă %s într-o aplicație de navigare în internet, vrei să continui?</string>
+  <string name="external_link_dont_ask_again">Nu mai întreba pentru %s</string>
   <string name="nameless">Titlu necunoscut</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acțiuni cu o singură atingere (Biblii)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Acțiuni cu o singură atingere (Altele)</string>
@@ -1458,8 +1416,6 @@
   <string name="memorize_include_reference_summary">Adaugă referința versetului (ex. Ioan 3:16) ca ultimul element de memorat</string>
   <string name="reading_progress_settings">Progres și memorare</string>
   <string name="reading_progress_settings_summary">Reglări pentru urmărire automată, memorare și exerciții de tastare</string>
-  <string name="memorize_confirm_unmark">Elimini statusul de memorat pentru %s?</string>
-  <string name="memorize_confirm_remove_target">Elimini obiectivul de memorare %s?</string>
   <string name="memorize_tab_reading">Citire</string>
   <string name="memorize_tab_memorization">Memorare</string>
   <string name="memorize_verses_memorized">Memorate</string>
@@ -1485,7 +1441,6 @@
   <string name="llm_reset_usage_title">Restabilește datele de utilizare</string>
   <string name="llm_reset_usage_summary">Șterge urmărirea cumulativă a tokenilor și costurilor</string>
   <string name="llm_reset_usage_confirm_title">Restabilești datele de utilizare?</string>
-  <string name="llm_reset_usage_confirm_message">Aceasta va șterge toate datele cumulative de utilizare.</string>
   <string name="llm_custom_input_price_title">Prețul intrării ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Prețul ieșirii ($/Mtoken)</string>
   <string name="llm_cost_total">Total: %1$s</string>
@@ -1501,8 +1456,6 @@
   <string name="llm_parse_error_anthropic">Eroare la procesarea răspunsului Anthropic: %1$s</string>
   <string name="llm_error_unknown">Eroare necunoscută</string>
   <string name="llm_error_max_iterations">Numărul maxim de iterații (%1$d) atins fără finalizare</string>
-  <string name="llm_continue_iterations_title">Continui?</string>
-  <string name="llm_continue_iterations_message">Agentul AI a atins limita de %1$d iterații fără a finaliza. Continui cu încă %2$d iterații?</string>
   <string name="agent_max_iterations_title">Număr maxim de iterații agent</string>
   <string name="agent_max_iterations_summary">Număr maxim de iterații înainte de a întreba dacă se continuă (0 = nelimitat)</string>
   <string name="ask_model_before_run_title">Întreabă modelul înainte de rulare</string>
@@ -1562,7 +1515,6 @@
   <string name="ai_models_summary_none">Niciun model configurat</string>
   <string name="ai_add_provider">Adaugă furnizor</string>
   <string name="ai_provider_edit">Modifică</string>
-  <string name="ai_provider_delete_confirm">Ștergi furnizorul \"%1$s\"? Prompturile care folosesc acest furnizor vor reveni la cel implicit.</string>
   <string name="ai_provider_api_key_not_set">Cheia API nu este setată</string>
   <string name="ai_provider_select_type">Selectează tipul furnizorului</string>
   <string name="ai_provider_name">Numele furnizorului</string>
@@ -1582,7 +1534,6 @@
   <string name="edit_model_title">Modifică modelul</string>
   <string name="model_saved">Model salvat</string>
   <string name="model_deleted">Model șters</string>
-  <string name="model_delete_confirm">Ștergi modelul \"%1$s\"?</string>
   <string name="model_set_default">Setează ca model implicit</string>
   <string name="model_select_provider">Provider</string>
   <string name="model_supported_badge">✓ Acceptat</string>
@@ -1622,7 +1573,6 @@
   <string name="ai_disclaimer_point8">Datele tale sunt trimise la serverele providerului AI ales. Folosind o cheie API, accepți termenii și politica de confidențialitate a acelui provider. Modelele găzduite local sunt posibile, dar necesită mai multă expertiză tehnică și pot să nu producă rezultate la fel de bune ca modelele comerciale.</string>
   <string name="ai_disclaimer_point9">Providerii AI percep taxe pentru utilizarea API. Estimările de cost afișate în AndBible sunt aproximative — verifică întotdeauna facturarea providerului tău pentru taxele reale.</string>
   <string name="ai_disclaimer_accept_title">Acceptă disclaimerul AI</string>
-  <string name="ai_disclaimer_accept_button">Accept și îmi asum întreaga responsabilitate</string>
   <string name="prompt_permission_mode">Mod de permisiuni</string>
   <string name="prompt_permission_mode_description">Controlează când este necesară confirmarea utilizatorului înainte ca AI să efectueze operații de scriere. Reglările per-instrument de mai jos pot suprascrie aceasta pentru instrumente individuale.</string>
   <string name="agent_permission_mode_summary">Controlează când este necesară confirmarea utilizatorului înainte de operațiile de scriere AI</string>
@@ -1738,7 +1688,6 @@
   <string name="default_prompt_custom_desc">Execută o sarcină personalizată pe pasajul selectat</string>
   <string name="default_prompt_custom_template">Urmează specificațiile de sarcină ale utilizatorului pentru pasajul biblic selectat.</string>
   <string name="copy">Copiază</string>
-  <string name="delete_prompt_confirm_message">Ești sigur că vrei să ștergi această comandă?</string>
   <string name="ai_hide_prompt">Ascunde</string>
   <string name="ai_restore_hidden_prompts">Recuperează comenzile ascunse</string>
   <string name="ai_prompt_hidden">Comandă ascunsă</string>
@@ -1823,8 +1772,6 @@
   <string name="permission_allow_all_session">Permite toate instrumentele în această sesiune</string>
   <string name="permission_allow_always">Permite întotdeauna \"%1$s\"</string>
   <string name="permission_deny">Refuză</string>
-  <string name="permission_always_allow_confirm_title">Permiți întotdeauna?</string>
-  <string name="permission_always_allow_confirm">Ești sigur că vrei să permiți permanent \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Poți restabili aceasta în Reglările AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Permisiuni instrumente</string>
@@ -1929,18 +1876,15 @@
   <string name="my_document_new_name">Document %d</string>
   <string name="my_document_create_title">Creează document nou</string>
   <string name="my_document_rename_title">Redenumește documentul</string>
-  <string name="my_document_delete_confirmation">Șterge documentul \"%s\"?</string>
   <string name="show_secret">Arată</string>
   <string name="hide_secret">Ascunde</string>
   <string name="ai_documents_name">Documente AI</string>
   <string name="ai_documents_description">Documente generate automat de AI</string>
-  <string name="my_document_cannot_delete_ai_documents">Documentele AI nu pot fi șterse cât timp conțin pagini. Ștergeți mai întâi paginile.</string>
   <string name="my_document_save_changes">Salvați modificările?</string>
   <string name="my_document_no_description">Fără descriere</string>
   <string name="my_document_edit_description">Modifică descrierea</string>
   <string name="my_document_pages_title">%s - Pagini</string>
   <string name="my_document_page_rename_title">Redenumește pagina</string>
-  <string name="my_document_page_delete_confirmation">Șterge pagina \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Ștergi aceste pagini?</string>
   <string name="my_documents_switch_document">Schimbă documentul</string>
   <string name="my_document_new_page_name">Pagina %1$d</string>
@@ -2008,7 +1952,6 @@
   <string name="cloud_doc_show_removed">Afișează documentele eliminate</string>
   <string name="cloud_doc_status_removed">Eliminat din cloud</string>
   <string name="cloud_doc_status_still_installed">încă instalat aici</string>
-  <string name="cloud_doc_purge_confirm">Elimini definitiv \"%1$s\" din istoricul cloud? Dacă este încă instalat pe alt dispozitiv, acel dispozitiv îl poate încărca din nou în cloud la următoarea sincronizare.</string>
   <string name="cloud_doc_action_download">Descarcă</string>
   <string name="cloud_doc_action_push">Încarcă în cloud</string>
   <string name="cloud_doc_action_remove_cloud">Elimină din cloud</string>
@@ -2019,8 +1962,6 @@
   <string name="cloud_doc_action_dont_sync">Nu sincroniza cu cloud-ul</string>
   <string name="cloud_doc_action_allow_sync">Sincronizează cu cloud-ul</string>
   <string name="cloud_doc_action_purge">Elimină din istoricul cloud</string>
-  <string name="cloud_doc_remove_all_confirm">Elimini %1$s din cloud și de pe toate dispozitivele tale, inclusiv acesta?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Elimini %1$s din cloud? Copia de pe acest dispozitiv este păstrată; dispozitivele cu sincronizarea documentelor activată îl vor elimina și ele.</string>
   <string name="cloud_doc_sync_now">Sincronizează acum</string>
   <string name="cloud_doc_rescan">Rescanează din cloud</string>
   <string name="cloud_doc_sync_now_download">Descarcă documentele noi și actualizate</string>
@@ -2032,6 +1973,16 @@
   <string name="cloud_doc_summary_download">Descarcă %1$d</string>
   <string name="cloud_doc_summary_download_size">Descarcă %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Descărcările automate vor începe pe Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d document</item>
+        <item quantity="few">%1$d documente</item>
+        <item quantity="other">%1$d de documente</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d document (%2$s)</item>
+        <item quantity="few">%1$d documente (%2$s)</item>
+        <item quantity="other">%1$d de documente (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Nimic de transferat</string>
   <string name="cloud_doc_selected_count">%1$d selectate</string>
   <string name="cloud_doc_bulk_skipped">%1$d omise, nu se aplică</string>
@@ -2048,8 +1999,6 @@
   <string name="background_image_import">Importă din galerie…</string>
   <string name="background_image_empty">Nu există încă imagini importate. Atinge „Importă din galerie…” pentru a adăuga una.</string>
   <string name="background_image_importing">Se importă…</string>
-  <string name="background_image_delete_title">Ștergi imaginea?</string>
-  <string name="background_image_delete_confirm">Ștergi această imagine de fundal? Spațiile de studiu care o mai folosesc vor reveni la fără imagine.</string>
   <string name="background_image_day">Imagine de fundal (zi)</string>
   <string name="background_image_night">Imagine de fundal (noapte)</string>
   <string name="background_image_opacity_day">Opacitatea imaginii de fundal (zi)</string>
@@ -2123,6 +2072,11 @@
   <string name="legacy_notice_icloud">Sincronizarea folosește acum iCloud Drive. Activeaz-o din nou în Preferințe → Sincronizare. Acest dispozitiv păstrează ce avea; modificările de pe celelalte dispozitive vor sosi după ce sincronizarea este configurată din nou. Pentru a elibera datele vechi din iCloud: Setări → numele tău → iCloud → Gestionează spațiul → AndBible.</string>
   <string name="legacy_notice_nextcloud">Conexiunea ta Nextcloud a fost preluată, dar sincronizarea este oprită. Activeaz-o în Preferințe → Sincronizare și alege să preiei din cloud sau să creezi date noi.</string>
   <string name="legacy_notice_nextcloud_unsent">Unele modificări de pe acest dispozitiv nu fuseseră încă trimise către Nextcloud. Nu au fost trimise și rămân doar pe acest dispozitiv.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d semn de carte nu a putut fi plasat cu încredere și nu a fost importat. Este păstrat împreună cu datele tale vechi pe acest dispozitiv.</item>
+        <item quantity="few">%1$d semne de carte nu au putut fi plasate cu încredere și nu au fost importate. Sunt păstrate împreună cu datele tale vechi pe acest dispozitiv.</item>
+        <item quantity="other">%1$d de semne de carte nu au putut fi plasate cu încredere și nu au fost importate. Sunt păstrate împreună cu datele tale vechi pe acest dispozitiv.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Este o aplicație puternică, dar ușor de folosit, pentru studiul Bibliei offline.</string>
   <string name="webdav_untrusted_certificate_message_device">Certificatul pentru %1$s nu este considerat de încredere de acest dispozitiv. Acordă-i încredere doar dacă îl recunoști, de exemplu pentru că ai configurat chiar tu acest server.\n\nSubiect: %2$s\nEmitent: %3$s\nValabil: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2174,6 +2128,25 @@
   <string name="recommend_share_link">Distribuie un link</string>
   <string name="recommend_qr_caption">Scanează pentru a obține AndBible pentru telefonul, tableta sau computerul tău.</string>
   <string name="desktop_activation_failed">AndBible rulează deja, dar fereastra lui nu a răspuns. Comută la instanța care rulează și încearcă din nou. Fișierele primite nu au fost confirmate ca livrate.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Această acțiune nu poate fi anulată.</string>
+  <string name="ai_raw_log_delete_lead">Ștergi acest jurnal?</string>
+  <string name="ai_provider_delete_lead">Ștergi providerul „%1$s”?</string>
+  <string name="ai_provider_delete_detail">Comenzile care îl folosesc revin la providerul implicit.</string>
+  <string name="ai_model_delete_lead">Ștergi modelul „%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Ștergi comanda „%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Ștergi această comandă?</string>
+  <string name="ai_reset_usage_detail">Totalurile de tokenuri și costuri revin la zero. Această acțiune nu poate fi anulată.</string>
+  <string name="ai_reset_usage_button">Restabilește</string>
+  <string name="ai_disclaimer_accept">Accept</string>
+  <string name="llm_continue_iterations_lead">Continui pentru încă %1$d iterații?</string>
+  <string name="llm_continue_iterations_detail">Agentul AI a atins limita de %1$d iterații fără să termine.</string>
+  <string name="llm_continue_button">Continuă</string>
+  <string name="permission_always_allow_lead">Permiți întotdeauna „%1$s”?</string>
+  <string name="permission_always_allow_button">Permite întotdeauna</string>
+  <string name="ai_bug_report_send_lead">Trimiți un raport de eroare AI?</string>
+  <string name="ai_bug_report_send_button">Trimite</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Primii pași</string>
   <string name="user_guide_section_reading_workspace">Citire și spații de studiu</string>
@@ -2251,4 +2224,158 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Asistent AI, partea 3: instrumente, date și permisiuni</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Asistent AI, partea 4: comenzi proprii, costuri și sincronizare</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Renunți la modificări?</string>
+  <string name="dialog_keep_editing">Continuă modificarea</string>
+  <string name="dialog_label_delete_lead">Ștergi eticheta „%1$s”?</string>
+  <string name="dialog_label_delete_detail">Notițele ei de studiu sunt șterse și ele. Această acțiune nu poate fi anulată.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d semn de carte nu are altă etichetă.</item>
+        <item quantity="few">%1$d semne de carte nu au altă etichetă.</item>
+        <item quantity="other">%1$d de semne de carte nu au altă etichetă.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Șterge eticheta și %1$d semn de carte</item>
+        <item quantity="few">Șterge eticheta și %1$d semne de carte</item>
+        <item quantity="other">Șterge eticheta și %1$d de semne de carte</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Semnele de carte și notele lor sunt șterse.</string>
+  <string name="dialog_label_delete_only_consequence">Semnele de carte rămân, fără etichetă.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Elimini acest semn de carte?</item>
+        <item quantity="few">Elimini %1$d semne de carte?</item>
+        <item quantity="other">Elimini %1$d de semne de carte?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Nota lui este eliminată și ea.</item>
+        <item quantity="few">Notele lor sunt eliminate și ele.</item>
+        <item quantity="other">Notele lor sunt eliminate și ele.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Elimini toate etichetele cu atribuire automată din acest spațiu de studiu?</string>
+  <string name="dialog_labels_reset_hidden_lead">Afișezi din nou toate etichetele ascunse?</string>
+  <string name="dialog_labels_reset_shown_detail">Etichetele pe care le-ai ascuns din listă sunt afișate din nou.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Instalezi „%s”?</string>
+  <string name="install_action">Instalează</string>
+  <string name="install_from_file_question">Instalezi documente dintr-un fișier?</string>
+  <string name="overwrite_files_detail">Aceste fișiere există deja:%s</string>
+  <string name="import_studypads_question">Imporți aceste notițe de studiu?</string>
+  <string name="import_action">Importă</string>
+  <string name="restore_backup_question">Recuperezi documentele din această copie de rezervă?</string>
+  <string name="restore_backup_detail">Acest fișier este o copie de rezervă a documentelor AndBible.</string>
+  <string name="update_document_question">Actualizezi acest document?</string>
+  <string name="update_action">Actualizează</string>
+  <string name="download_documents_question">Descarci documente?</string>
+  <string name="download_persecution_warning">Dacă locuiești într-o țară unde creștinii sunt persecutați, ar putea fi nevoie să fii atent la descărcarea materialelor creștine prin Internet. Poate ar fi mai bine să obții fișierele zip ale documentelor într-un mod mai sigur și să le instalezi prin „%1$s”. Toate descărcările de pe serverele de documente sunt criptate (HTTPS).</string>
+  <string name="download_action">Descarcă</string>
+  <string name="download_dont_ask_again">Descarcă, nu mai întreba</string>
+  <string name="download_dont_ask_again_consequence">Pe viitor, descărcările pornesc fără această întrebare.</string>
+  <string name="passphrase_did_not_work">Fraza de acces nu a funcționat.</string>
+  <string name="try_again">Încearcă din nou</string>
+  <string name="interrupted_downloads_lead">Descarci din nou aceste documente?</string>
+  <string name="interrupted_downloads_detail">Descărcarea lor a fost întreruptă, deci nu au fost instalate.</string>
+  <string name="external_link_open_question">Deschizi acest link în browser?</string>
+  <string name="open_action">Deschide</string>
+  <string name="notification_permission_question">Permiți notificările?</string>
+  <string name="notification_permission_detail">Notificările arată starea descărcărilor, a procesării și a citirii cu voce tare.</string>
+  <string name="allow_action">Permite</string>
+  <string name="rate_question">Evaluezi aplicația și scrii o recenzie?</string>
+  <string name="bug_report_email_question">Trimiți raportul de eroare prin e-mail?</string>
+  <string name="continue_action">Continuă</string>
+  <string name="delete_search_index_question">Ștergi indexul de căutare pentru „%s”?</string>
+  <string name="remove_custom_repository_question">Elimini depozitul personalizat „%s”?</string>
+  <string name="download_document_question">Descarci „%s”?</string>
+  <string name="choose_file_action">Alege fișierul</string>
+  <string name="old_webview_question">Folosești aplicația cu un WebView vechi?</string>
+  <string name="incomplete_translation_question">Continui cu o traducere parțială?</string>
+  <string name="rate_action">Evaluează</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Ștergi documentul „%s”?</string>
+  <string name="my_document_page_delete_lead">Ștergi pagina „%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">Documentele AI nu pot fi șterse cât timp conțin pagini.</string>
+  <string name="my_document_cannot_delete_ai_detail">Șterge mai întâi paginile.</string>
+  <string name="reading_progress_new_cycle_lead">Începi un nou ciclu de citire?</string>
+  <string name="reading_progress_new_cycle_detail">Progresul tău este urmărit de la zero. Datele ciclului anterior sunt păstrate.</string>
+  <string name="reading_progress_new_cycle_start">Începe</string>
+  <string name="reset_plan_lead">Restabilești acest plan?</string>
+  <string name="reset_plan_detail">Data de început și progresul tău în acest plan sunt șterse.</string>
+  <string name="set_current_day_lead">Setezi %1$s ca zi curentă?</string>
+  <string name="set_current_day_detail">Toate zilele anterioare sunt marcate ca citite.</string>
+  <string name="plan_duplicate_user_plan_lead">Un fișier de plan de citire are același nume ca un plan încorporat.</string>
+  <string name="plan_duplicate_user_plan_detail">Fișierul de plan nu poate fi afișat în listă. Redenumește fișierul în folderul jsword/readingplan, păstrând extensia .properties.</string>
+  <string name="background_image_delete_lead">Ștergi această imagine de fundal?</string>
+  <string name="background_image_delete_detail">Spațiile de studiu care o folosesc încă vor reveni la nicio imagine.</string>
+  <string name="reset_values_lead">Restabilești toate aceste valori?</string>
+  <string name="revert_setting_lead">Readuci această reglare la valoarea moștenită?</string>
+  <string name="revert_setting_confirm">Readu</string>
+  <string name="reset_settings_screen_lead">Restabilești reglările de pe acest ecran?</string>
+  <string name="reset_settings_screen_detail">Ele revin la valorile implicite.</string>
+  <string name="memorize_unmark_lead">Elimini starea de memorat pentru „%s”?</string>
+  <string name="memorize_remove_target_lead">Elimini ținta de memorare „%s”?</string>
+  <string name="dialog_apply">Aplică</string>
+  <string name="dialog_dont_apply">Nu aplica</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Cloudul are deja %s. Ce să se întâmple?</string>
+  <string name="cloud_merge_consequence">Ambele părți sunt păstrate; unde un element a fost modificat pe ambele, câștigă modificarea mai recentă.</string>
+  <string name="cloud_fetch_consequence">Înlocuiește datele de pe acest dispozitiv cu copia din cloud.</string>
+  <string name="cloud_create_consequence">Înlocuiește copia din cloud cu datele de pe acest dispozitiv.</string>
+  <string name="cloud_disable_consequence">Sincronizarea rămâne dezactivată pentru aceste date.</string>
+  <string name="cloud_merge_lead">Combini %s cu cloudul?</string>
+  <string name="cloud_merge_confirm">Combină</string>
+  <string name="cloud_replace_confirm">Înlocuiește</string>
+  <string name="cloud_replace_local_lead">Înlocuiești %s de pe acest dispozitiv cu copia din cloud?</string>
+  <string name="cloud_replace_local_detail">Ce este acum pe acest dispozitiv este suprascris și nu poate fi recuperat.</string>
+  <string name="cloud_replace_cloud_lead">Înlocuiești copia din cloud a %s cu datele acestui dispozitiv?</string>
+  <string name="cloud_replace_cloud_detail">Ce este acum în cloud este suprascris, iar celelalte dispozitive ale tale vor primi datele acestui dispozitiv.</string>
+  <string name="sign_in_failed_lead">Autentificarea la serviciul de sincronizare nu a reușit.</string>
+  <string name="sync_too_old_lead">Această aplicație este prea veche pentru a sincroniza %s.</string>
+  <string name="sync_too_old_detail">Datele din cloud folosesc o versiune mai nouă decât cea acceptată de această aplicație. Sincronizarea lor este oprită deocamdată; actualizează aplicația ca să o pornești din nou.</string>
+  <string name="backup_replace_lead">Înlocuiești %s cu copia de rezervă?</string>
+  <string name="backup_replace_detail">Ce este acum pe acest dispozitiv este suprascris și nu poate fi recuperat.</string>
+  <string name="reset_database_lead">Restabilești „%1$s” la starea inițială?</string>
+  <string name="reset_database_detail">Toate datele din ea sunt șterse definitiv. Această acțiune nu poate fi anulată.</string>
+  <string name="reset_database_button">Restabilește</string>
+  <string name="restore_all_lead">Înlocuiești notițele, semnele de carte, notițele de studiu, planurile de citire și spațiile de studiu?</string>
+  <string name="restore_or_import_lead">Recuperezi sau imporți %s?</string>
+  <string name="restore_consequence">Înlocuiește ce este pe acest dispozitiv cu copia de rezervă.</string>
+  <string name="import_consequence">Adaugă elementele din copia de rezervă la ce este pe acest dispozitiv.</string>
+  <string name="sync_start_syncing">Începe sincronizarea</string>
+  <string name="sync_reset_lead">Te deconectezi și restabilești sincronizarea?</string>
+  <string name="sync_reset_detail">Va trebui să configurezi din nou sincronizarea.</string>
+  <string name="webdav_forget_certificate_lead">Uiți certificatul de server de încredere?</string>
+  <string name="webdav_forget_certificate_detail">La următoarea conectare ți se va cere din nou să confirmi certificatul.</string>
+  <string name="webdav_forget_certificate_confirm">Uită</string>
+  <string name="cloud_doc_remove_all_lead">Elimini „%1$s” din cloud și de pe toate dispozitivele tale?</string>
+  <string name="cloud_doc_remove_cloud_lead">Elimini „%1$s” din cloud?</string>
+  <string name="cloud_doc_purge_lead">Elimini definitiv „%1$s” din istoricul cloudului?</string>
+  <string name="cloud_doc_remove_all_detail">Se șterg și copiile de pe acest dispozitiv și de pe fiecare alt dispozitiv cu sincronizarea documentelor activă.</string>
+  <string name="cloud_doc_remove_cloud_detail">Copiile de pe acest dispozitiv sunt păstrate. Dispozitivele cu sincronizarea documentelor activă le vor elimina și ele.</string>
+  <string name="cloud_doc_purge_detail">Un dispozitiv care mai are o copie o poate încărca din nou la următoarea sincronizare.</string>
+  <string name="cloud_doc_block_confirm_button">Nu sincroniza</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">Elimini %1$d document din cloud și de pe toate dispozitivele tale?</item>
+        <item quantity="few">Elimini %1$d documente din cloud și de pe toate dispozitivele tale?</item>
+        <item quantity="other">Elimini %1$d de documente din cloud și de pe toate dispozitivele tale?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">Elimini %1$d document din cloud?</item>
+        <item quantity="few">Elimini %1$d documente din cloud?</item>
+        <item quantity="other">Elimini %1$d de documente din cloud?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">Elimini definitiv %1$d document din istoricul cloudului?</item>
+        <item quantity="few">Elimini definitiv %1$d documente din istoricul cloudului?</item>
+        <item quantity="other">Elimini definitiv %1$d de documente din istoricul cloudului?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">Oprești sincronizarea a %1$d document cu cloudul?</item>
+        <item quantity="few">Oprești sincronizarea a %1$d documente cu cloudul?</item>
+        <item quantity="other">Oprești sincronizarea a %1$d de documente cu cloudul?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Mai multe dintre datele tale se pot sincroniza acum</string>
+  <string name="new_sync_targets_detail">Documentele mele, reglările AI și progresul de citire se pot sincroniza și ele. Activează-le în reglările de sincronizare a dispozitivelor.</string>
+  <!--end dialog copy: B3b-->
 </resources>

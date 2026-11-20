@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Kullanım kılavuzunun tamamı andbible.org adresindedir. Sayfalar tarayıcınızda açılır.</string>
   <string name="help_user_guide_home">Kullanım kılavuzu ana sayfası</string>
   <string name="help_read_in_user_guide">Kullanım kılavuzunda okuyun</string>
+  <string name="help_in_user_guide">Kullanım kılavuzunda yardım</string>
+  <string name="help_matching_section">Eşleşen bölüm</string>
   <string name="help_read_page">Kullanım kılavuzunda okuyun: %1$s</string>
   <string name="help_tutorial_videos">Eğitim videoları</string>
   <string name="help_watch_in_order">Eğitim videolarını sırayla izleyin</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
   <string name="prefs_open_links_in_special_window_title">Bağlantılar penceresi</string>
   <string name="prefs_open_links_in_special_window_summary">Referansları ve Strong’un numaraları daha hızlı görüntülemek için bağlantıları özel pencerede açın</string>
+  <string name="prefs_trusted_link_domains_title">Güvenilen bağlantı alan adları</string>
+  <string name="prefs_trusted_link_domains_summary">Bu alan adlarına giden bağlantılar sormadan açılır. Yeniden sorulmasını istiyorsanız alan adının işaretini kaldırın.</string>
+  <string name="prefs_trusted_link_domains_empty">Henüz yok. Alan adını eklemek için bir bağlantıyı açarken \"Bir daha sorma\" kutusunu işaretleyin.</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
   <string name="prefs_screen_keep_on_title">Ekranı açık tut</string>
   <string name="prefs_screen_keep_on_summary">Bu uygulamayı kullanırken ekranın kapanmasını önleyin</string>
@@ -306,7 +311,6 @@
   <string name="line_spacing_title">Satır aralığı</string>
   <string name="line_spacing_summary">Satırlar arasındaki mesafeyi ayarla</string>
   <string name="select_none">Hiçbirini seçme</string>
-  <string name="reset_are_you_sure">Tüm bu değerleri sıfırlamak istediğinizden emin misiniz?</string>
   <string name="window_pinning_menutitle">Pencere iğneleme</string>
   <string name="hide_window_buttons_title">Pencere düğmelerini gizle</string>
   <string name="hide_window_buttons_summary">İncil görünümlerinin sağ tarafında görüntülenen pencere düğmeleri gizlenir. Aşağıdaki pencere gezinme çubuğu hala gösterilir ve pencerenin açılır menüsünü uzun tıklayarak açabilirsiniz.</string>
@@ -329,6 +333,7 @@
   <string name="word_not_found_in_dictionaries">Sözcük hiçbir sözlükte bulunamadı</string>
   <string name="prefs_top_margin_title_mm">Üst kenar boşluğu (%d mm)</string>
   <string name="font_size_title">Yazı tipi boyutu</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Çünkü Tanrı dünyayı o kadar çok sevdi ki, biricik Oğlu\'nu verdi; öyle ki, O\'na iman eden hiçbir kimse mahvolmasın, ama sonsuz yaşama sahip olsun.</string>
   <string name="font_size_title_pt">Yazı tipi boyutu (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ana metin için yazı tipi boyutunu ayarlayın</string>
@@ -346,6 +351,8 @@
   <string name="window_color_settings_title">Renk ayarları (Pencere)</string>
   <string name="workspace_color_settings_title">Renk ayarları (Çalışma alanı)</string>
   <string name="color_workspace">Çalışma alanı rengi</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Varsayılan</string>
   <string name="color_text">Metin rengi</string>
   <string name="color_background">Arka plan rengi</string>
   <string name="colors_day_mode_title">Gündüz modu</string>
@@ -379,7 +386,6 @@
   <string name="download_source_last_updated">Belgelerin listesinin en son güncellenme tarihi: %s.</string>
   <string name="download_refreshing_book_list">Belge sunucularındaki erişilebilir belgelerin listesi yenileniyor.</string>
   <string name="download_source_message1">Belgeler aşağıdaki kaynaklardan indirilir:</string>
-  <string name="download_document_confirm_prefix">İndir</string>
   <string name="error_downloading">İndirirken bir hata oldu.  Lütfen internet bağlantınızı kontrol edin.</string>
   <string name="error_downloading_status">%1$s’yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
@@ -400,9 +406,6 @@
   <string name="activity_title">Arka plan etkinliği</string>
   <string name="activity_empty">Çalışan bir şey yok</string>
   <string name="activity_failed_toast">%1$s — menüye bakın</string>
-  <string name="download_question_title">Belgeleri indirmeye devam etmek istiyor musunuz?</string>
-  <string name="download_question_message">Zulüm gören bir ülkede yaşıyorsanız, İnternet üzerinden Hristiyan içeriği indirirken dikkatli olmanız gerekebilir. Bunun yerine modül zip dosyalarını daha güvenli bir yolla edinip \"%1$s\" üzerinden yüklemek isteyebilirsiniz. İndirmeye devam etmek istediğinizden emin misiniz? Modül sunucularından yapılan tüm indirmeler şifrelidir (HTTPS).</string>
-  <string name="do_not_ask_again">Evet, tekrar sorma</string>
   <string name="recommended_document">Tavsiye edilir!</string>
   <string name="about_version_history">Sürüm geçmişi: %s</string>
   <string name="download_errors">İndirme hataları</string>
@@ -419,11 +422,9 @@
   <string name="checking_zip_file">Verilen dosya denetleniyor…</string>
   <string name="invalid_module">Dosya geçerli SWORD modülü içermiyor</string>
   <string name="install_zip_title">Lütfen bekleyin. Bir dosyadan modüller yükleniyor.</string>
-  <string name="overwrite_files">Aşağıdaki dosyalar zaten mevcut: %s üzerine yazılsın mı?</string>
   <string name="overwrite_files_title">Dosyaların üzerine yazılsın mı?</string>
   <string name="could_not_overwrite_files">Dosyaların üzerine yazılamadı: %s. Bunun dışında yükleme başarılı oldu.</string>
   <string name="module_backup_restore">Bu dosya bir AndBible belge yedeğidir. Belgelerini geri yüklemek istiyor musunuz?</string>
-  <string name="install_do_you_want">Modül (%s) yüklemek istiyor musunuz?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Okuma Planı</string>
   <string name="reading_plans_plural">Okuma Planları</string>
@@ -431,15 +432,8 @@
   <string name="rdg_plan_day">%s. Gün</string>
   <string name="rdg_plan_set_start_date">Başlama Tarihini Seçin…</string>
   <string name="set_current_day">Bugünü seç…</string>
-  <string name="msg_set_current_day_reading_plan">Bu işlem %1$s gününü bu planın geçerli günü yapar ve önceki tüm günleri okundu olarak işaretler. Devam edilsin mi?</string>
   <string name="done">Bitti</string>
-  <string name="reset_plan_question">Bu planı sıfırlamak istediğinizden emin misiniz?</string>
   <string name="import_reading_plan">Okuma planını içe aktar…</string>
-  <string name="plan_duplicate_user_plan">
-    Hafız kartta jsword/readingplan içinde
-    dahili bir planla aynı ada sahip bir kullanıcı okuma planı var. Burada listelenemez.
-    Lütfen dosyanın dosya uzantısını .properties olarak bırakarak dosyayı başka bir adla yeniden adlandırın
-  </string>
   <string name="plan_name_y1ntpspr">Bir yılda Yeni Antlaşma, Mezmurlar ve Süleyman’ın Özdeyişleri</string>
   <string name="plan_description_y1ntpspr">
     HEARTLIGHT İnternet Dergisi’nin nezaketiyle,
@@ -479,12 +473,8 @@
   <string name="delete_index">Arama dizinini sil</string>
   <string name="about">Belge hakkında</string>
   <string name="delete_doc">%s silinsin mi?</string>
-  <string name="interrupted_downloads_title">İndirme kesintiye uğradı</string>
-  <string name="interrupted_downloads_message">İndirmeleri kesintiye uğradığı için bu belgeler yüklenmedi:</string>
-  <string name="interrupted_downloads_question">Yeniden indirilsin mi?</string>
   <string name="download_again">Yeniden indir</string>
   <string name="delete_docs_confirm">Bu belgeler silinsin mi?</string>
-  <string name="delete_search_index_doc">%s’in dizini silinsin mi?</string>
   <!--Verse context menu-->
   <string name="notes">Dipnotlar ve iç göndermeler</string>
   <string name="share_verse">Paylaş</string>
@@ -525,7 +515,6 @@
     Belge yapısı değiştiyse, bu belgenin güncellenmesi bu yer imlerinin/notların konumlarının
     belge içinde yer değiştirmesine veya tamamen kaybolmasına neden olabilir.
   </string>
-  <string name="bookmark_warning3">Do you still want to update module?</string>
   <string name="bookmark_warning4">It is recommended that you backup the module before updating.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Tarih Sırası</string>
@@ -706,10 +695,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Geri yükle veya İçe aktar…</string>
   <string name="backup_restore2">Geri Yükle veya İçe Aktar</string>
-  <string name="overwrite_something">%s üzerine yaz?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Veritabanı Dosyasını Geri Yükle</string>
-  <string name="restore_confirmation">Notlarımın, Yer İmlerimin, Çalışma Defterlerimin, Okuma Planlarımın ve Çalışma Alanlarımın üzerine yazılsın mı?</string>
   <string name="restore_success">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla geri yüklendi</string>
   <string name="downloading_backup">Downloading backup file…</string>
   <string name="loading_backup">Veritabanı yedeklemeden yükleniyor…</string>
@@ -731,7 +718,6 @@
   <string name="send_export_file">Dışa aktarma dosyası gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
-  <string name="ask_restore_or_import">%s için veritabanı ya geri yüklenebilir (yani mevcut veritabanı kaldırılarak seçilen veritabanı yüklenir) ya da içe aktarılabilir (seçilen veritabanı mevcut veritabanına aktarılır). Ne yapmak istiyorsunuz?</string>
   <string name="restore">Yedekten geri yükle</string>
   <string name="import2">İçe aktarın</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -787,7 +773,6 @@
   <string name="settings_editor_back">Geri</string>
   <string name="settings_editor_close">Kapat</string>
   <string name="settings_editor_apply">Uygula</string>
-  <string name="discard_changes_confirmation">Kaydedilmemiş değişiklikler atılsın mı?</string>
   <string name="discard">Vazgeç</string>
   <string name="remove">Kaldır</string>
   <string name="overwrite">Üzerine yaz</string>
@@ -814,7 +799,8 @@
   <string name="empty_list">Öğe bulunmadı</string>
   <string name="error_skip">Atla</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Hasarlı veri</string>
+  <string name="corrupt_database_headline">AndBible bazı verilerinizi açamıyor</string>
+  <string name="corrupt_database_files_detail">Şu dosyalar açılamadı: %1$s. Hiçbir şey değiştirilmedi veya silinmedi. Sıfırlama, bunları boş olarak başlatır ve hasarlı her dosyayı bu cihazda, adının sonuna .corrupt- ile tarih ve saat eklenmiş olarak saklar.</string>
   <string name="corrupt_database_reset">Hasarlı veriyi sıfırla</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Hasarlı veri sıfırlanamadı: %1$s kenara taşınamadı. Hiçbir şey değiştirilmedi. Tekrar deneyebilir, bir hata raporu gönderebilir veya Yedekle &amp; Geri Al\'ı kullanabilirsiniz.</string>
@@ -822,8 +808,8 @@
   <string name="damaged_data_needs_attention">Uygulamanın verilerinin ilgilenilmesi gerekiyor. Uygulamayı açmak için dokunun.</string>
   <string name="debug_test_error">Test hatası (hata ayıklama sürümü)</string>
   <string name="bug_report_prepare_failed">Rapor hazırlanamadı veya paylaşılamadı. Yeniden deneyebilir veya verilerinizi kaydetmek için Yedekle ve Geri Yükle\'yi kullanabilirsiniz.</string>
-  <string name="bug_report_email_title">E-posta yoluyla hata raporu gönderme</string>
   <string name="bug_report_desktop_text">Şimdi hata raporu dosyasının nereye kaydedileceği sorulacak. Ardından raporu geliştirici ekibine göndermek için talimatları alacaksınız.</string>
+  <string name="bug_report_email_title">E-posta yoluyla hata raporu gönderme</string>
   <string name="bug_report_email_text">Ardından, raporu geliştirici ekibine göndermek için lütfen tercih ettiğiniz e-posta uygulamasını (örneğin Gmail) seçin.</string>
   <string name="bug_report_manual_title">Raporu e-postayla gönderin</string>
   <string name="bug_report_manual_text_saved">Rapor <b>%1$s</b> konumuna kaydedildi.\n\nLütfen <b>%2$s</b> adresine bir e-posta gönderin ve bu dosyayı ekleyin; bir e-posta programı bunu sizin için ekleyemez. Önerilen konu: <b>%3$s</b>. İletide ne yaptığınızı ve ne olduğunu anlatın.</string>
@@ -894,8 +880,6 @@
   <string name="beta_special_regards">Saygılarımla, Tuomas</string>
   <string name="beta_special_sponsor">Not: AndBible geliştirmesini %s ile maddi olarak destekleyebilirsiniz.</string>
   <string name="beta_special_sponsor_link">geliştirme saatlerine sponsor olarak</string>
-  <string name="new_sync_targets_notice_title">Yeni senkronizasyon ayarları mevcut</string>
-  <string name="new_sync_targets_notice_message">AndBible\'nin bu sürümü ek senkronizasyon hedefleri sunuyor: Belgelerim, Yapay Zeka ayarları ve okuma ilerlemesi. Bunları etkinleştirmek isterseniz, Cihaz Senkronizasyonu ayarlarından yapabilirsiniz.</string>
   <string name="open_settings">Ayarları aç</string>
   <!--History-->
   <string name="history_for">Geçmişi (%1$s: Pencere %2$d)</string>
@@ -1005,7 +989,6 @@
   <string name="give_passphrase_for_module">%s belgesi şifreli ve kilidinin açılması için parola gerekiyor</string>
   <string name="unlock_module">Modül parolasını ayarla</string>
   <string name="unlock_info">Şifrelenmiş modülün kilit açma bilgisi</string>
-  <string name="try_again_passphrase">Parola çalışmadı, tekrar dener misiniz?</string>
   <string name="show_unlock_info">Modül &amp; kilit açma bilgisi</string>
   <string name="prefs_experimental_features_title">Deneysel özellikler</string>
   <string name="prefs_experimental_features_summary">Etkinleştirilecek deneysel özellikleri seçin. Bu özellikler hâlâ geliştirme aşamasındadır ve değişebilir veya kaldırılabilir</string>
@@ -1039,9 +1022,6 @@
   <string name="active_window_indicator_summary">Hangi pencerenin etkin olduğunu tanımaya yardımcı olması için pencere köşelerini vurgula</string>
   <string name="app_licence_title">Açık Kaynak Lisansı</string>
   <string name="how_to_contribute">Nasıl katkıda bulunulur?</string>
-  <string name="confirm_delete_bookmarks">%d yer imlerini ve notlarını kaldırmak istiyor musunuz?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Seçilen etiket, başka etiketi olmayan %d yer imine eklenmiş. Bu yer imlerini etiketlerle birlikte silmek istiyor musunuz?</string>
-  <string name="delete_label_and_bookmarks">Etiketi ve yer imlerini sil</string>
   <string name="delete_label_only">Yalnızca etiketi sil</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Bir arkadaşına öner</string>
@@ -1072,8 +1052,6 @@
   <string name="old_webview">Android WebView paketi çok eski (%1$s). %3$s’yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Yine de devam et</string>
-  <string name="proceed">Devam et</string>
-  <string name="rate_title">Uygulamayı derecelendir ve incele</string>
   <string name="rate_message5">
     Olumlu ve ayrıntılı incelemeler AndBible Açık Kaynak Projesine çok yardımcı oluyor. Teşekkür ederim!
   </string>
@@ -1125,7 +1103,6 @@
   <string name="primary_label">Birincil etiket</string>
   <string name="favourite_label">Favori etiket</string>
   <string name="edit_label">Etiketi düzenle</string>
-  <string name="delete_label_confirmation">\"%s\" yer imi etiketini kaldırmak istiyor musunuz? Ayrıca ilgili tüm Çalışma Defteri notları kaldırılacaktır. </string>
   <string name="active_labels">Seçili etiketler</string>
   <string name="recent_labels">Son etiketler</string>
   <string name="other_labels">Diğer etiketler</string>
@@ -1135,8 +1112,6 @@
   <string name="book_menu_show_progress_bars">İlerleme çubuklarını göster</string>
   <string name="reset_workspace_labels">Bu çalışma alanı için otomatik atama ve sık kullanılan ayarlarını sıfırlamak istiyor musunuz?</string>
   <string name="clear_auto_assign_labels">Otomatik atanan etiketleri temizle</string>
-  <string name="reset_workspace_auto_assign_labels">Bu çalışma alanındaki tüm otomatik atanan etiketleri kaldırmak istiyor musunuz?</string>
-  <string name="reset_hide_labels">Belirtilen etiketlerin gizlenmesi ayarlarını sıfırlamak istiyor musunuz?</string>
   <string name="reorder">Yeniden sırala</string>
   <string name="system_items">Sistem eylemleri</string>
   <string name="system_items1">Daha fazla</string>
@@ -1150,7 +1125,6 @@
   <string name="ios_fullscreen_hint">Tam ekrandan çıkmak için çift dokunun veya düğmeye dokunun.</string>
   <string name="desktop_exit_fullscreen">Tam ekrandan çık</string>
   <string name="exit_fullscreen">Tam ekrandan çıkmak için ekrana iki kez dokunun</string>
-  <string name="reset_app_prefs">Bu ekranda görüntülenen tüm genel uygulama tercihlerini varsayılan değerlerine sıfırlamak istiyor musunuz?</string>
   <string name="label_red">Kırmızı</string>
   <string name="label_green">Yeşil</string>
   <string name="label_blue">Mavi</string>
@@ -1161,7 +1135,6 @@
   <string name="reset_databases_title">Veritabanlarını Sıfırla</string>
   <string name="reset_databases_description">Tek tek veritabanlarını başlangıçtaki boş durumlarına sıfırla. Bu işlem geri alınamaz.</string>
   <string name="last_crash_info_title">Son çökme bilgisi</string>
-  <string name="reset_database_confirm">Bu işlem \"%1$s\" içindeki tüm verileri kalıcı olarak silecek ve başlangıç durumuna sıfırlayacaktır. Bu işlem geri alınamaz.\n\nEmin misiniz?</string>
   <string name="reset_database_success">Veritabanı başarıyla sıfırlandı</string>
   <string name="reset_something">Sıfırla: %1$s</string>
   <string name="export">Dışa aktar</string>
@@ -1231,19 +1204,18 @@
   <string name="manage_labels_help_favourite">Etiketi hızlı erişim için favorilerinizde tutun.</string>
   <string name="manage_labels_help_styles">Adın altında küçük bir örnek etiketin görünümünü gösterir: metin seçimi yer imi için Seçim, tüm ayet yer imi için Tüm ayet ve bu çalışma alanının geçersiz kıldığı bir stil için Çalışma alanı etiketi. Süslemesiz, grileştirilmiş bir örnek, etiketin yer imlerinin çizilmediği anlamına gelir. Örnekleri ⋮ menüsünden gizleyebilirsiniz.</string>
   <string name="manage_labels_help_reorder">Listeyi ⋮ menüsünden yeniden sıralayın.</string>
+  <string name="manage_labels_help_narrow_toggles">Dar ekranda liste, etiket adlarına yer açmak için birincil, otomatik atama ve favori simgelerini göstermez. Bunları ayarlamak için bir etikete dokunun ve düzenleyicisini açın.</string>
   <string name="added_to_bookmark">Bu yer imine atandı</string>
   <string name="strongs_links">Bağlantılar</string>
   <string name="strongs_text_and_links">Metin ve Bağlantılar</string>
   <string name="strongs_hidden_links">Gizli Bağlantılar</string>
   <string name="verse_tip">Kısmi veya çok sayıda ayet seçmek için İncil metnine uzun basabilirsiniz.</string>
-  <string name="permission_required">İzin gerekli</string>
   <string name="labels_search_hint">Ara</string>
   <string name="search_mode_name_start">Ad (baştan)</string>
   <string name="search_mode_name_contains">Ad (içeren)</string>
   <string name="search_mode_content">İçerik</string>
   <string name="search_results_matches">%d eşleşme</string>
   <string name="search_results_match">1 eşleşme</string>
-  <string name="progress_status_permission">Bildirimleri (indirme durumu, işleme, konuşma durumu) göstermek için izninize ihtiyacımız var. </string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Basit Hesap Makinesi</string>
   <string name="prefs_persecution_cat">Zulme uğrayanlar için ayarlar</string>
@@ -1292,7 +1264,6 @@
   <string name="custom_repositories_create_button_label">Özel Depo Ekleme</string>
   <string name="custom_repositories_info_button_label">Bilgi</string>
   <string name="repository_specification">Depo URL’si</string>
-  <string name="delete_custom_repository">Özel %s deposunu kaldırmak istiyor musunuz?</string>
   <string name="custom_repositories_help1">Yeni bir özel depo eklemek için şunları yazın veya kopyalayın</string>
   <string name="custom_repositories_help2">Özel depolar hakkında daha fazla bilgiyi %s bölümünde okuyabilirsiniz.</string>
   <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
@@ -1316,10 +1287,6 @@
   <string name="db_bookmarks">Yer İmleri, Notlarım, Etiketler ve Çalışma Pedleri</string>
   <string name="synchronizing">Senkronizasyon…</string>
   <string name="notification_finished">Tamamlandı</string>
-  <string name="overrideBackup">
-    Bu cihazın senkronize edilmediği mevcut veritabanı Bulut’ta bulunur.
-    Veritabanı %s içeriyor. Ne yapmak istiyorsunuz?
-  </string>
   <string name="reading_plans_content">Okuma planları ve durumları</string>
   <string name="bookmarks_contents">Yer İmleri, Etiketler ve Çalışma Pedleri</string>
   <string name="workspaces_contents">Çalışma Alanları ve Pencereler</string>
@@ -1339,7 +1306,6 @@
   <string name="reading_progress_calendar">Okuma Etkinliği</string>
   <string name="reading_progress_cycle">%d. Döngü</string>
   <string name="reading_progress_new_cycle">Yeni Döngü</string>
-  <string name="reading_progress_new_cycle_confirm">Yeni bir okuma döngüsü başlatılsın mı? Bu, önceki döngünüzün verileri korunurken ilerlemenizi sıfırdan takip etmeye başlayacaktır.</string>
   <string name="reading_progress_previous_cycle">Önceki döngü</string>
   <string name="reading_progress_next_cycle">Sonraki döngü</string>
   <string name="cloud_merge_data">Verileri birleştir</string>
@@ -1349,7 +1315,6 @@
   <string name="cloud_sync_title">Cihaz senkronizasyonu</string>
   <string name="reset_sync">Çıkış Yapın</string>
   <string name="prefs_reset_sync_summary">Senkronizasyonu devre dışı bırakın ve ilgili ayarları sıfırlayın.</string>
-  <string name="sync_confirmation">Oturumu kapatmak ve senkronizasyonu sıfırlamak istediğinizden emin misiniz?</string>
   <string name="cloud_info">Bulut bilgileri</string>
   <string name="cloud_info_summary">Bulut depolama alanındaki veri: %s Mb</string>
   <string name="sync_adapter">Senkronizasyon Metodu</string>
@@ -1365,7 +1330,6 @@
   <string name="webdav_server_url_hint">WebDAV klasörünün adresi, örn. https://nas.local/dav/ veya https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Eşitleme için güvenli bir https:// adresi gerekir.</string>
   <string name="webdav_certificate_title">Sunucu sertifikası</string>
-  <string name="webdav_forget_certificate_message">Güvenilen sunucu sertifikası unutulsun mu? Bir sonraki bağlantıda sertifikayı yeniden onaylamanız istenecek.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Güvenilmeyen sunucu sertifikası</string>
   <string name="webdav_untrusted_certificate_message">%1$s sertifikasına Android güvenmiyor. Yalnızca tanıyorsanız, örneğin bu sunucuyu kendiniz kurduysanız güvenin.\n\nKonu: %2$s\nVeren: %3$s\nGeçerlilik: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1382,14 +1346,7 @@
   <string name="synchronization_categories">Senkronizasyon kategorileri</string>
   <string name="sync_general_settings">Bilgi ve genel ayarlar</string>
   <string name="sync_introduction">Giriş</string>
-  <string name="are_you_sure">Emin misin?</string>
   <string name="are_you_sure_merge">Bu cihazdaki veriler ve buluttaki %s birlikte korunacak. Aynı öğenin her iki tarafta da değiştirildiği durumlarda daha yeni değişiklik korunur. Bu cihazın verileri diğer cihazlarınıza gönderilecek.</string>
-  <string name="are_you_sure_reset_local">Bu, %s için yerel veritabanınızı şu anda bulut hizmetinde depolanan içerikle sıfırlayacaktır.</string>
-  <string name="are_you_sure_reset_cloud">Bu, %s için bulut veritabanınızı bu cihazda sahip olduğunuz içerikle sıfırlayacaktır.</string>
-  <string name="sync_cant_fetch">Bulutta depolanan veritabanı veya yama dosyasının sürümü, bu uygulama tarafından desteklenenden daha yüksektir. </string>
-  <string name="sync_disabling">Şimdilik %s için senkronizasyon devre dışı bırakılıyor.</string>
-  <string name="sync_update_app">Senkronizasyona devam etmek için lütfen uygulamayı güncelleyin.</string>
-  <string name="sign_in_failed">Senkronizasyon arka uç hizmetinde oturum açma başarısız oldu.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Bulut senkronizasyonu devre dışı bırakılıyor. Geri yüklemeden sonra manuel olarak yeniden etkinleştirmeniz gerekir.</string>
   <string name="report">Rapor</string>
@@ -1407,6 +1364,7 @@
   <string name="open_here">Burayı açın</string>
   <string name="external_link">Dış bağlantı</string>
   <string name="external_link_question">Bu, bir tarayıcı uygulamasında %s harici bağlantısını açacaktır, devam etmek istiyor musunuz?</string>
+  <string name="external_link_dont_ask_again">%s için bir daha sorma</string>
   <string name="nameless">Başlık tanımlanmamış</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tek dokunuşla eylemler (Kutsal Kitaplar)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Tek dokunuş eylemleri (Diğer)</string>
@@ -1456,8 +1414,6 @@
   <string name="memorize_include_reference_summary">Ayet referansını (örn. Yuhanna 3:16) ezberleme listesinin son öğesi olarak ekle</string>
   <string name="reading_progress_settings">İlerleme ve ezberleme</string>
   <string name="reading_progress_settings_summary">Otomatik takip, ezberleme ve yazma alıştırması ayarları</string>
-  <string name="memorize_confirm_unmark">%s için ezberlendi durumu kaldırılsın mı?</string>
-  <string name="memorize_confirm_remove_target">%s ezberleme hedefi kaldırılsın mı?</string>
   <string name="memorize_tab_reading">Okuma</string>
   <string name="memorize_tab_memorization">Ezberleme</string>
   <string name="memorize_verses_memorized">Ezberlendi</string>
@@ -1483,7 +1439,6 @@
   <string name="llm_reset_usage_title">Kullanım verilerini sıfırla</string>
   <string name="llm_reset_usage_summary">Birikimli token ve maliyet takibini temizle</string>
   <string name="llm_reset_usage_confirm_title">Kullanım verileri sıfırlansın mı?</string>
-  <string name="llm_reset_usage_confirm_message">Bu işlem tüm birikimli kullanım verilerini temizleyecektir.</string>
   <string name="llm_custom_input_price_title">Giriş fiyatı ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Çıkış fiyatı ($/Mtoken)</string>
   <string name="llm_cost_total">Toplam: %1$s</string>
@@ -1499,8 +1454,6 @@
   <string name="llm_parse_error_anthropic">Anthropic yanıtı ayrıştırılamadı: %1$s</string>
   <string name="llm_error_unknown">Bilinmeyen hata</string>
   <string name="llm_error_max_iterations">Tamamlanmadan maksimum yineleme sayısına (%1$d) ulaşıldı</string>
-  <string name="llm_continue_iterations_title">Devam edilsin mi?</string>
-  <string name="llm_continue_iterations_message">Yapay zeka ajanı tamamlamadan %1$d yineleme sınırına ulaştı. %2$d yineleme daha için devam edilsin mi?</string>
   <string name="agent_max_iterations_title">Maks. ajan yinelemesi</string>
   <string name="agent_max_iterations_summary">Devam etmeyi sormadan önce maksimum yineleme sayısı (0 = sınırsız)</string>
   <string name="ask_model_before_run_title">Çalıştırmadan önce model sor</string>
@@ -1560,7 +1513,6 @@
   <string name="ai_models_summary_none">Yapılandırılmış model yok</string>
   <string name="ai_add_provider">Sağlayıcı ekle</string>
   <string name="ai_provider_edit">Düzenle</string>
-  <string name="ai_provider_delete_confirm">\"%1$s\" sağlayıcısı silinsin mi? Bu sağlayıcıyı kullanan istemler varsayılana dönecek.</string>
   <string name="ai_provider_api_key_not_set">API anahtarı ayarlanmamış</string>
   <string name="ai_provider_select_type">Sağlayıcı türünü seçin</string>
   <string name="ai_provider_name">Sağlayıcı adı</string>
@@ -1580,7 +1532,6 @@
   <string name="edit_model_title">Modeli düzenle</string>
   <string name="model_saved">Model kaydedildi</string>
   <string name="model_deleted">Model silindi</string>
-  <string name="model_delete_confirm">\"%1$s\" modeli silinsin mi?</string>
   <string name="model_set_default">Varsayılan model olarak ayarla</string>
   <string name="model_select_provider">Sağlayıcı</string>
   <string name="model_supported_badge">✓ Destekleniyor</string>
@@ -1620,7 +1571,6 @@
   <string name="ai_disclaimer_point8">Verileriniz seçtiğiniz yapay zeka sağlayıcısının sunucularına gönderilir. Bir API anahtarı kullanarak o sağlayıcının koşullarını ve gizlilik politikasını kabul etmiş olursunuz. Kendi sunucunuzda barındırılan modeller mümkündür ancak daha fazla teknik uzmanlık gerektirir ve ticari modeller kadar iyi sonuçlar vermeyebilir.</string>
   <string name="ai_disclaimer_point9">Yapay zeka sağlayıcıları API kullanımı için ücret alır. AndBible\'da gösterilen maliyet tahminleri yaklaşıktır — gerçek ücretler için sağlayıcınızın faturasını kontrol edin.</string>
   <string name="ai_disclaimer_accept_title">Yapay Zeka Feragatnamesini Kabul Et</string>
-  <string name="ai_disclaimer_accept_button">Kabul ediyorum ve tam sorumluluğu üstleniyorum</string>
   <string name="prompt_permission_mode">İzin modu</string>
   <string name="prompt_permission_mode_description">Yapay zekanın yazma işlemleri gerçekleştirmeden önce kullanıcı onayının ne zaman gerekli olduğunu denetler. Aşağıdaki araç başına ayarlar, bireysel araçlar için bunu geçersiz kılabilir.</string>
   <string name="agent_permission_mode_summary">Yapay zeka yazma işlemleri öncesinde kullanıcı onayının ne zaman gerekli olduğunu denetler</string>
@@ -1736,7 +1686,6 @@
   <string name="default_prompt_custom_desc">Seçili pasajda özel bir görev çalıştır</string>
   <string name="default_prompt_custom_template">Seçili Kutsal Kitap pasajı için kullanıcının görev belirtimine uyun.</string>
   <string name="copy">Kopyala</string>
-  <string name="delete_prompt_confirm_message">Bu istemi silmek istediğinizden emin misiniz?</string>
   <string name="ai_hide_prompt">Gizle</string>
   <string name="ai_restore_hidden_prompts">Gizlenen istemleri geri yükle</string>
   <string name="ai_prompt_hidden">İstem gizlendi</string>
@@ -1821,8 +1770,6 @@
   <string name="permission_allow_all_session">Bu oturumda tüm araçlara izin ver</string>
   <string name="permission_allow_always">\"%1$s\" için her zaman izin ver</string>
   <string name="permission_deny">Reddet</string>
-  <string name="permission_always_allow_confirm_title">Her zaman izin verilsin mi?</string>
-  <string name="permission_always_allow_confirm">\"%1$s\" için kalıcı olarak izin vermek istediğinizden emin misiniz?</string>
   <string name="permission_always_allow_confirm_reset_hint">Bunu Yapay Zeka Ayarları\'ndan sıfırlayabilirsiniz.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Araç izinleri</string>
@@ -1927,18 +1874,15 @@
   <string name="my_document_new_name">Belge %d</string>
   <string name="my_document_create_title">Yeni belge oluştur</string>
   <string name="my_document_rename_title">Belgeyi yeniden adlandır</string>
-  <string name="my_document_delete_confirmation">\"%s\" belgesi silinsin mi?</string>
   <string name="show_secret">Göster</string>
   <string name="hide_secret">Gizle</string>
   <string name="ai_documents_name">AI Belgeleri</string>
   <string name="ai_documents_description">AI tarafından otomatik olarak oluşturulan belgeler</string>
-  <string name="my_document_cannot_delete_ai_documents">AI Belgeleri, sayfa içerdiği sürece silinemez. Önce sayfaları silin.</string>
   <string name="my_document_save_changes">Değişiklikler kaydedilsin mi?</string>
   <string name="my_document_no_description">Açıklama yok</string>
   <string name="my_document_edit_description">Açıklamayı düzenle</string>
   <string name="my_document_pages_title">%s - Sayfalar</string>
   <string name="my_document_page_rename_title">Sayfayı yeniden adlandır</string>
-  <string name="my_document_page_delete_confirmation">\"%s\" sayfası silinsin mi?</string>
   <string name="my_document_pages_delete_confirmation">Bu sayfalar silinsin mi?</string>
   <string name="my_documents_switch_document">Belge değiştir</string>
   <string name="my_document_new_page_name">Sayfa %1$d</string>
@@ -2006,7 +1950,6 @@
   <string name="cloud_doc_show_removed">Kaldırılan belgeleri göster</string>
   <string name="cloud_doc_status_removed">Buluttan kaldırıldı</string>
   <string name="cloud_doc_status_still_installed">hâlâ burada yüklü</string>
-  <string name="cloud_doc_purge_confirm">\"%1$s\" belgesi bulut geçmişinden kalıcı olarak kaldırılsın mı? Başka bir cihazda hâlâ yüklüyse, o cihaz bir sonraki senkronizasyonunda belgeyi tekrar buluta yükleyebilir.</string>
   <string name="cloud_doc_action_download">İndir</string>
   <string name="cloud_doc_action_push">Buluta yükle</string>
   <string name="cloud_doc_action_remove_cloud">Buluttan kaldır</string>
@@ -2017,8 +1960,6 @@
   <string name="cloud_doc_action_dont_sync">Buluta senkronize etme</string>
   <string name="cloud_doc_action_allow_sync">Buluta senkronize et</string>
   <string name="cloud_doc_action_purge">Bulut geçmişinden kaldır</string>
-  <string name="cloud_doc_remove_all_confirm">%1$s belgesi bu cihaz da dahil olmak üzere buluttan ve tüm cihazlarınızdan kaldırılsın mı?</string>
-  <string name="cloud_doc_remove_cloud_confirm">%1$s belgesi buluttan kaldırılsın mı? Bu cihazdaki kopya korunur; belge senkronizasyonu açık olan cihazlar da belgeyi kaldıracaktır.</string>
   <string name="cloud_doc_sync_now">Şimdi senkronize et</string>
   <string name="cloud_doc_rescan">Buluttan yeniden tara</string>
   <string name="cloud_doc_sync_now_download">Yeni ve güncellenen belgeleri indir</string>
@@ -2030,6 +1971,14 @@
   <string name="cloud_doc_summary_download">%1$d indir</string>
   <string name="cloud_doc_summary_download_size">%1$d indir (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Otomatik indirmeler Wi-Fi üzerinde başlayacak.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d belge</item>
+        <item quantity="other">%1$d belge</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d belge (%2$s)</item>
+        <item quantity="other">%1$d belge (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Aktarılacak bir şey yok</string>
   <string name="cloud_doc_selected_count">%1$d seçildi</string>
   <string name="cloud_doc_bulk_skipped">%1$d uygulanamadığı için atlandı</string>
@@ -2046,8 +1995,6 @@
   <string name="background_image_import">Galeriden içe aktar…</string>
   <string name="background_image_empty">Henüz içe aktarılmış resim yok. Eklemek için \"Galeriden içe aktar…\" öğesine dokunun.</string>
   <string name="background_image_importing">İçe aktarılıyor…</string>
-  <string name="background_image_delete_title">Resim silinsin mi?</string>
-  <string name="background_image_delete_confirm">Bu arka plan resmi silinsin mi? Hâlâ kullanan çalışma alanları resimsiz duruma dönecek.</string>
   <string name="background_image_day">Arka plan resmi (gündüz)</string>
   <string name="background_image_night">Arka plan resmi (gece)</string>
   <string name="background_image_opacity_day">Arka plan resmi opaklığı (gündüz)</string>
@@ -2121,6 +2068,10 @@
   <string name="legacy_notice_icloud">Eşitleme artık iCloud Drive kullanıyor. Ayarlar → Eşitleme bölümünden yeniden açın. Bu cihaz sahip olduklarını korur; diğer cihazlarınızdaki değişiklikler eşitleme yeniden kurulduktan sonra gelir. Eski iCloud verilerini temizlemek için: Ayarlar → adınız → iCloud → Depolamayı Yönet → AndBible.</string>
   <string name="legacy_notice_nextcloud">Nextcloud bağlantınız aktarıldı, ancak eşitleme kapalı. Ayarlar → Eşitleme bölümünden açın ve buluttan almayı veya yeni oluşturmayı seçin.</string>
   <string name="legacy_notice_nextcloud_unsent">Bu cihazdaki bazı değişiklikler henüz Nextcloud\'a gönderilmemişti. Gönderilmediler ve yalnızca bu cihazda duruyorlar.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d yer imi güvenilir biçimde yerleştirilemedi ve içe aktarılmadı. Bu cihazdaki eski verilerinizle birlikte saklanıyor.</item>
+        <item quantity="other">%1$d yer imi güvenilir biçimde yerleştirilemedi ve içe aktarılmadı. Bu cihazdaki eski verilerinizle birlikte saklanıyor.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Güçlü ama kullanımı kolay, çevrimdışı bir Kutsal Kitap çalışma uygulamasıdır.</string>
   <string name="webdav_untrusted_certificate_message_device">%1$s sertifikasına bu cihaz güvenmiyor. Yalnızca tanıyorsanız, örneğin bu sunucuyu kendiniz kurduysanız güvenin.\n\nKonu: %2$s\nVeren: %3$s\nGeçerlilik: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2172,6 +2123,25 @@
   <string name="recommend_share_link">Bağlantı paylaş</string>
   <string name="recommend_qr_caption">AndBible\'ı telefonunuz, tabletiniz veya bilgisayarınız için edinmek üzere tarayın.</string>
   <string name="desktop_activation_failed">AndBible zaten çalışıyor, ancak penceresi yanıt vermedi. Çalışan örneğe geçip yeniden deneyin. Gelen dosyaların teslim edildiği doğrulanmadı.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Bu işlem geri alınamaz.</string>
+  <string name="ai_raw_log_delete_lead">Bu günlük silinsin mi?</string>
+  <string name="ai_provider_delete_lead">“%1$s” sağlayıcısı silinsin mi?</string>
+  <string name="ai_provider_delete_detail">Bunu kullanan istemler varsayılan sağlayıcıya döner.</string>
+  <string name="ai_model_delete_lead">“%1$s” modeli silinsin mi?</string>
+  <string name="ai_prompt_delete_named_lead">“%1$s” istemi silinsin mi?</string>
+  <string name="ai_prompt_delete_lead">Bu istem silinsin mi?</string>
+  <string name="ai_reset_usage_detail">Token ve maliyet toplamları sıfıra döner. Bu işlem geri alınamaz.</string>
+  <string name="ai_reset_usage_button">Sıfırla</string>
+  <string name="ai_disclaimer_accept">Kabul ediyorum</string>
+  <string name="llm_continue_iterations_lead">%1$d yineleme daha devam edilsin mi?</string>
+  <string name="llm_continue_iterations_detail">Yapay zeka aracısı, işi bitirmeden %1$d yineleme sınırına ulaştı.</string>
+  <string name="llm_continue_button">Devam et</string>
+  <string name="permission_always_allow_lead">“%1$s” için her zaman izin verilsin mi?</string>
+  <string name="permission_always_allow_button">Her zaman izin ver</string>
+  <string name="ai_bug_report_send_lead">Yapay zeka hata raporu gönderilsin mi?</string>
+  <string name="ai_bug_report_send_button">Gönder</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Başlarken</string>
   <string name="user_guide_section_reading_workspace">Okuma ve çalışma alanı</string>
@@ -2249,4 +2219,150 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Yapay zeka asistanı, bölüm 3: araçlar, verileriniz ve izinler</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Yapay zeka asistanı, bölüm 4: kendi istemleriniz, maliyetler ve eşitleme</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Değişiklikler silinsin mi?</string>
+  <string name="dialog_keep_editing">Düzenlemeye devam et</string>
+  <string name="dialog_label_delete_lead">“%1$s” etiketi silinsin mi?</string>
+  <string name="dialog_label_delete_detail">Çalışma defteri notları da silinir. Bu işlem geri alınamaz.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">%1$d yer iminin başka etiketi yok.</item>
+        <item quantity="other">%1$d yer iminin başka etiketi yok.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Etiketi ve %1$d yer imini sil</item>
+        <item quantity="other">Etiketi ve %1$d yer imini sil</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Yer imleri ve notları silinir.</string>
+  <string name="dialog_label_delete_only_consequence">Yer imleri etiketsiz olarak kalır.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Bu yer imi kaldırılsın mı?</item>
+        <item quantity="other">%1$d yer imi kaldırılsın mı?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Notu da kaldırılır.</item>
+        <item quantity="other">Notları da kaldırılır.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Bu çalışma alanındaki tüm otomatik atama etiketleri kaldırılsın mı?</string>
+  <string name="dialog_labels_reset_hidden_lead">Gizlenen tüm etiketler yeniden gösterilsin mi?</string>
+  <string name="dialog_labels_reset_shown_detail">Listeden gizlediğiniz etiketler yeniden gösterilir.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">“%s” yüklensin mi?</string>
+  <string name="install_action">Yükle</string>
+  <string name="install_from_file_question">Belgeler bir dosyadan yüklensin mi?</string>
+  <string name="overwrite_files_detail">Bu dosyalar zaten var:%s</string>
+  <string name="import_studypads_question">Bu çalışma defterleri içe aktarılsın mı?</string>
+  <string name="import_action">İçe aktar</string>
+  <string name="restore_backup_question">Bu yedekteki belgeler geri yüklensin mi?</string>
+  <string name="restore_backup_detail">Bu dosya bir AndBible belge yedeğidir.</string>
+  <string name="update_document_question">Bu belge güncellensin mi?</string>
+  <string name="update_action">Güncelle</string>
+  <string name="download_documents_question">Belgeler indirilsin mi?</string>
+  <string name="download_persecution_warning">Zulmün olduğu bir ülkede yaşıyorsanız, Hristiyan içeriklerini İnternet üzerinden indirirken dikkatli olmanız gerekebilir. Bunun yerine belge zip dosyalarını daha güvenli bir yoldan edinip “%1$s” üzerinden yüklemeyi tercih edebilirsiniz. Belge sunucularından yapılan tüm indirmeler şifrelidir (HTTPS).</string>
+  <string name="download_action">İndir</string>
+  <string name="download_dont_ask_again">İndir, bir daha sorma</string>
+  <string name="download_dont_ask_again_consequence">Bundan sonra indirmeler bu soru sorulmadan başlar.</string>
+  <string name="passphrase_did_not_work">Parola çalışmadı.</string>
+  <string name="try_again">Tekrar dene</string>
+  <string name="interrupted_downloads_lead">Bu belgeler yeniden indirilsin mi?</string>
+  <string name="interrupted_downloads_detail">İndirmeleri kesintiye uğradığı için yüklenmediler.</string>
+  <string name="external_link_open_question">Bu bağlantı tarayıcınızda açılsın mı?</string>
+  <string name="open_action">Aç</string>
+  <string name="notification_permission_question">Bildirimlere izin verilsin mi?</string>
+  <string name="notification_permission_detail">Bildirimler indirme durumunu, işlemeyi ve sesli okuma durumunu gösterir.</string>
+  <string name="allow_action">İzin ver</string>
+  <string name="rate_question">Uygulama puanlansın ve değerlendirilsin mi?</string>
+  <string name="bug_report_email_question">Hata raporu e-postayla gönderilsin mi?</string>
+  <string name="continue_action">Devam et</string>
+  <string name="delete_search_index_question">“%s” belgesinin arama dizini silinsin mi?</string>
+  <string name="remove_custom_repository_question">“%s” özel deposu kaldırılsın mı?</string>
+  <string name="download_document_question">“%s” indirilsin mi?</string>
+  <string name="choose_file_action">Dosya seç</string>
+  <string name="old_webview_question">Uygulama eski bir WebView ile kullanılsın mı?</string>
+  <string name="incomplete_translation_question">Kısmi bir çeviriyle devam edilsin mi?</string>
+  <string name="rate_action">Puanla</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">“%s” belgesi silinsin mi?</string>
+  <string name="my_document_page_delete_lead">“%s” sayfası silinsin mi?</string>
+  <string name="my_document_cannot_delete_ai_lead">Yapay zeka belgeleri sayfa içerirken silinemez.</string>
+  <string name="my_document_cannot_delete_ai_detail">Önce sayfaları silin.</string>
+  <string name="reading_progress_new_cycle_lead">Yeni bir okuma döngüsü başlatılsın mı?</string>
+  <string name="reading_progress_new_cycle_detail">İlerlemeniz baştan izlenir. Önceki döngünüzün verileri saklanır.</string>
+  <string name="reading_progress_new_cycle_start">Başlat</string>
+  <string name="reset_plan_lead">Bu plan sıfırlansın mı?</string>
+  <string name="reset_plan_detail">Bu plandaki başlangıç tarihiniz ve ilerlemeniz silinir.</string>
+  <string name="set_current_day_lead">%1$s geçerli gün olarak ayarlansın mı?</string>
+  <string name="set_current_day_detail">Önceki tüm günler okundu olarak işaretlenir.</string>
+  <string name="plan_duplicate_user_plan_lead">Bir okuma planı dosyası, yerleşik bir planla aynı ada sahip.</string>
+  <string name="plan_duplicate_user_plan_detail">Plan dosyası listelenemiyor. Dosyayı jsword/readingplan klasöründe, .properties uzantısını koruyarak yeniden adlandırın.</string>
+  <string name="background_image_delete_lead">Bu arka plan resmi silinsin mi?</string>
+  <string name="background_image_delete_detail">Bunu hâlâ kullanan çalışma alanları resimsiz duruma döner.</string>
+  <string name="reset_values_lead">Bu değerlerin tümü sıfırlansın mı?</string>
+  <string name="revert_setting_lead">Bu ayar devralınan değere döndürülsün mü?</string>
+  <string name="revert_setting_confirm">Döndür</string>
+  <string name="reset_settings_screen_lead">Bu ekrandaki ayarlar sıfırlansın mı?</string>
+  <string name="reset_settings_screen_detail">Varsayılan değerlerine döner.</string>
+  <string name="memorize_unmark_lead">“%s” için ezberlendi durumu kaldırılsın mı?</string>
+  <string name="memorize_remove_target_lead">“%s” ezberleme hedefi kaldırılsın mı?</string>
+  <string name="dialog_apply">Uygula</string>
+  <string name="dialog_dont_apply">Uygulama</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Bulutta zaten %s verileriniz var. Ne yapılsın?</string>
+  <string name="cloud_merge_consequence">Her iki taraf da saklanır; bir öğe her iki tarafta da değiştiyse daha yeni değişiklik geçerli olur.</string>
+  <string name="cloud_fetch_consequence">Bu cihazdaki verilerin yerine bulut kopyası konur.</string>
+  <string name="cloud_create_consequence">Bulut kopyasının yerine bu cihazdaki veriler konur.</string>
+  <string name="cloud_disable_consequence">Bu veriler için eşitleme kapalı kalır.</string>
+  <string name="cloud_merge_lead">%s verileriniz bulutla birleştirilsin mi?</string>
+  <string name="cloud_merge_confirm">Birleştir</string>
+  <string name="cloud_replace_confirm">Değiştir</string>
+  <string name="cloud_replace_local_lead">Bu cihazdaki %s verileri bulut kopyasıyla değiştirilsin mi?</string>
+  <string name="cloud_replace_local_detail">Bu cihazdaki mevcut veriler üzerine yazılır ve kurtarılamaz.</string>
+  <string name="cloud_replace_cloud_lead">%s verilerinin bulut kopyası bu cihazın verileriyle değiştirilsin mi?</string>
+  <string name="cloud_replace_cloud_detail">Buluttaki mevcut veriler üzerine yazılır ve diğer cihazlarınız bu cihazın verilerini alır.</string>
+  <string name="sign_in_failed_lead">Eşitleme hizmetinde oturum açılamadı.</string>
+  <string name="sync_too_old_lead">Bu uygulama %s verilerini eşitlemek için çok eski.</string>
+  <string name="sync_too_old_detail">Bulut verileri, bu uygulamanın desteklediğinden daha yeni bir sürüm kullanıyor. Bunun eşitlemesi şimdilik kapalı; yeniden açmak için uygulamayı güncelleyin.</string>
+  <string name="backup_replace_lead">%s verileriniz yedekle değiştirilsin mi?</string>
+  <string name="backup_replace_detail">Bu cihazdaki mevcut veriler üzerine yazılır ve kurtarılamaz.</string>
+  <string name="reset_database_lead">“%1$s” ilk durumuna sıfırlansın mı?</string>
+  <string name="reset_database_detail">İçindeki tüm veriler kalıcı olarak silinir. Bu işlem geri alınamaz.</string>
+  <string name="reset_database_button">Sıfırla</string>
+  <string name="restore_all_lead">Notlarınız, yer imleriniz, çalışma defterleriniz, okuma planlarınız ve çalışma alanlarınız değiştirilsin mi?</string>
+  <string name="restore_or_import_lead">%s geri yüklensin veya içe aktarılsın mı?</string>
+  <string name="restore_consequence">Bu cihazdaki verilerin yerine yedeği koyar.</string>
+  <string name="import_consequence">Yedekteki öğeleri bu cihazdaki verilere ekler.</string>
+  <string name="sync_start_syncing">Eşitlemeyi başlat</string>
+  <string name="sync_reset_lead">Oturum kapatılıp eşitleme sıfırlansın mı?</string>
+  <string name="sync_reset_detail">Eşitlemeyi yeniden kurmanız gerekecek.</string>
+  <string name="webdav_forget_certificate_lead">Güvenilen sunucu sertifikası unutulsun mu?</string>
+  <string name="webdav_forget_certificate_detail">Bir sonraki bağlantıda sertifikayı yeniden onaylamanız istenecek.</string>
+  <string name="webdav_forget_certificate_confirm">Unut</string>
+  <string name="cloud_doc_remove_all_lead">“%1$s” buluttan ve tüm cihazlarınızdan kaldırılsın mı?</string>
+  <string name="cloud_doc_remove_cloud_lead">“%1$s” buluttan kaldırılsın mı?</string>
+  <string name="cloud_doc_purge_lead">“%1$s” bulut geçmişinden kalıcı olarak kaldırılsın mı?</string>
+  <string name="cloud_doc_remove_all_detail">Bu, bu cihazdaki ve belge eşitlemesi açık olan diğer tüm cihazlardaki kopyaları da siler.</string>
+  <string name="cloud_doc_remove_cloud_detail">Bu cihazdaki kopyalar saklanır. Belge eşitlemesi açık olan cihazlar bunları kaldıracaktır.</string>
+  <string name="cloud_doc_purge_detail">Kopyası hâlâ olan bir cihaz, bir sonraki eşitlemesinde onu yeniden yükleyebilir.</string>
+  <string name="cloud_doc_block_confirm_button">Eşitleme</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">%1$d belge buluttan ve tüm cihazlarınızdan kaldırılsın mı?</item>
+        <item quantity="other">%1$d belge buluttan ve tüm cihazlarınızdan kaldırılsın mı?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">%1$d belge buluttan kaldırılsın mı?</item>
+        <item quantity="other">%1$d belge buluttan kaldırılsın mı?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">%1$d belge bulut geçmişinden kalıcı olarak kaldırılsın mı?</item>
+        <item quantity="other">%1$d belge bulut geçmişinden kalıcı olarak kaldırılsın mı?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">%1$d belgenin buluta eşitlenmesi durdurulsun mu?</item>
+        <item quantity="other">%1$d belgenin buluta eşitlenmesi durdurulsun mu?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Verilerinizin daha fazlası artık eşitlenebilir</string>
+  <string name="new_sync_targets_detail">Belgelerim, yapay zeka ayarları ve okuma ilerlemesi de eşitlenebilir. Bunları Cihaz eşitleme ayarlarından açın.</string>
+  <!--end dialog copy: B3b-->
 </resources>

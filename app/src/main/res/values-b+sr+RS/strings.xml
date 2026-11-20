@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Комплетно упутство за кориснике налази се на andbible.org. Странице се отварају у вашем прегледачу.</string>
   <string name="help_user_guide_home">Почетна страница упутства</string>
   <string name="help_read_in_user_guide">Прочитај у корисничком водичу</string>
+  <string name="help_in_user_guide">Помоћ у корисничком упутству</string>
+  <string name="help_matching_section">Одговарајући одељак</string>
   <string name="help_read_page">Прочитај у корисничком водичу: %1$s</string>
   <string name="help_tutorial_videos">Видео упутства</string>
   <string name="help_watch_in_order">Гледајте видео упутства редом</string>
@@ -246,6 +248,9 @@
   <string name="prefs_navigate_to_verse_summary">Изабери стих (и поглавље) када се означи одломак.</string>
   <string name="prefs_open_links_in_special_window_title">Прозор са линковима</string>
   <string name="prefs_open_links_in_special_window_summary">Отвори линкове у посебном прозору, за бржи приказ рефернци и Стронгова</string>
+  <string name="prefs_trusted_link_domains_title">Поуздани домени веза</string>
+  <string name="prefs_trusted_link_domains_summary">Везе ка овим доменима се отварају без питања. Поништите избор домена да бисте поново били упитани.</string>
+  <string name="prefs_trusted_link_domains_empty">Још ниједан. Означите \"Не питај поново\" при отварању везе да бисте додали њен домен.</string>
   <string name="prefs_text_size_sample_text">Пример текста</string>
   <string name="prefs_screen_keep_on_title">Држи екран укљученим</string>
   <string name="prefs_screen_keep_on_summary">Спречи екран да оде у спавање током коришћења апликације</string>
@@ -308,7 +313,6 @@
   <string name="line_spacing_title">Размак између редова</string>
   <string name="line_spacing_summary">Постави размак између редова</string>
   <string name="select_none">Скини означавање</string>
-  <string name="reset_are_you_sure">Да ли сте сигурни да желите да повратите све ове вредности?</string>
   <string name="window_pinning_menutitle">Истицање прозора</string>
   <string name="hide_window_buttons_title">Сакриј дугмиће прозора</string>
   <string name="hide_window_buttons_summary">Сакривени су дугмићи прозора који се приказују са десне стране прегледа Библије. Линија за навигацију прозора у дну је и даље приказана и можете отворити искачући мени дугим притиском на њу.</string>
@@ -331,6 +335,7 @@
   <string name="word_not_found_in_dictionaries">Реч није пронађена ни у једном речнику</string>
   <string name="prefs_top_margin_title_mm">Горња маргина (%d mm)</string>
   <string name="font_size_title">Величина текста</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Јер Бог толико завоље свет да је Сина свог јединородног дао, да ниједан који верује у њега не погине, него да има живот вечни.</string>
   <string name="font_size_title_pt">Величина слова (%d pt)</string>
   <string name="prefs_font_text_size_summary">Прилагоди величину слова главног текста</string>
@@ -348,6 +353,8 @@
   <string name="window_color_settings_title">Поставке боја (прозор)</string>
   <string name="workspace_color_settings_title">Поставке боја (радна површ)</string>
   <string name="color_workspace">Боја радне површине</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Подразумевано</string>
   <string name="color_text">Боја текста</string>
   <string name="color_background">Боја позадине</string>
   <string name="colors_day_mode_title">Дневни режим</string>
@@ -381,7 +388,6 @@
   <string name="download_source_last_updated">Списак докумената је последњи пут ажуриран: %s.</string>
   <string name="download_refreshing_book_list">Освежавам листу доступних докумената са документ-сервера...</string>
   <string name="download_source_message1">Документа се преузимају са следећих извора:</string>
-  <string name="download_document_confirm_prefix">Преузми</string>
   <string name="error_downloading">Грешка приликом преузимања. Проверите везу са интернетом.</string>
   <string name="error_downloading_status">Хост сервер %1$s је наишао на грешку услед %2$s (%3$d).</string>
   <string name="storage_space_warning">Недовољно простора на локалном складишту.</string>
@@ -402,9 +408,6 @@
   <string name="activity_title">Активност у позадини</string>
   <string name="activity_empty">Ништа није у току</string>
   <string name="activity_failed_toast">%1$s — погледајте мени</string>
-  <string name="download_question_title">Да ли желити наставити преузимање докумената?</string>
-  <string name="download_question_message">Ако живите у земљи у којој су хришћани прогоњени, можда треба да будете опрезни при преузимању хришћанског материјала путем интернета. Уместо тога, можда желите да сигурније набавите зип фајлове модула и инсталирате их преко \"%1$s\". Да ли сте сигурни да желите да наставите са преузимањем? Сва преузимања са сервера модула су шифрована (HTTPS).</string>
-  <string name="do_not_ask_again">Да, не питај поново</string>
   <string name="recommended_document">Препоручено!</string>
   <string name="about_version_history">Историја верзија: %s</string>
   <string name="download_errors">Грешке преузимања</string>
@@ -421,11 +424,9 @@
   <string name="checking_zip_file">Проверавам задату датотеку...</string>
   <string name="invalid_module">Датотека не садржи одговарајући SWORD модул</string>
   <string name="install_zip_title">Молимо сачекајте. Учитавање модула из фајла у току.</string>
-  <string name="overwrite_files">Следеће датотеке већ постоје: %s Преписати?</string>
   <string name="overwrite_files_title">Препиши датотеке?</string>
   <string name="could_not_overwrite_files">Није могуће заменити фајлове: %s. Изузев тога, инсталација је била успешна.</string>
   <string name="module_backup_restore">Овај фајл је резервна копија AndBible докумената. Да ли желите да вратите њена документа?</string>
-  <string name="install_do_you_want">Да ли желите да уградите модул (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План читања</string>
   <string name="reading_plans_plural">Планови читања</string>
@@ -433,15 +434,8 @@
   <string name="rdg_plan_day">Дан %s</string>
   <string name="rdg_plan_set_start_date">Постави датум почетка...</string>
   <string name="set_current_day">Подесити на тренутни дан...</string>
-  <string name="msg_set_current_day_reading_plan">Ово ће поставити %1$s као текући дан у овом плану и означити све претходне дане као прочитане. Наставити?</string>
   <string name="done">Готово</string>
-  <string name="reset_plan_question">Да ли сте сигурни да желите ресетовати овај план?</string>
   <string name="import_reading_plan">Увезите план читања...</string>
-  <string name="plan_duplicate_user_plan">
-        На СД картици постоји план читања
-        jsword/readingplan са истим именом као и интерни план. Не може бити овде приказан.
-        Молим преименујте датотеку, остављајући њену екстензију као .properties
-    </string>
   <string name="plan_name_y1ntpspr">Нови Завет, Псалми и Приче Соломонове током године</string>
   <string name="plan_description_y1ntpspr">
         Љубазношћу Хартлајт интернет магазина,
@@ -481,12 +475,8 @@
   <string name="delete_index">Избриши индекс претраге</string>
   <string name="about">О програму</string>
   <string name="delete_doc">Обриши %s?</string>
-  <string name="interrupted_downloads_title">Преузимање је прекинуто</string>
-  <string name="interrupted_downloads_message">Ови документи нису инсталирани јер је њихово преузимање прекинуто:</string>
-  <string name="interrupted_downloads_question">Преузети их поново?</string>
   <string name="download_again">Преузми поново</string>
   <string name="delete_docs_confirm">Обрисати ове документе?</string>
-  <string name="delete_search_index_doc">Обрисати индекс од %s?</string>
   <!--Verse context menu-->
   <string name="notes">Фусноте и референце</string>
   <string name="share_verse">Дели...</string>
@@ -526,7 +516,6 @@
   <string name="bookmark_warning2">
 Уколико је структура документа промењена, ажурирање истог би могло
 довести до трајног губитка ових обележивача/белешки или пак померања њихових локација унутар документа.</string>
-  <string name="bookmark_warning3">Да ли и даље желите да ажурирате модул?</string>
   <string name="bookmark_warning4">Препоручљиво је да направите резервну копију модула пре ажурирарања.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Датумски редослед</string>
@@ -707,10 +696,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Врати или увези из…</string>
   <string name="backup_restore2">Врати или увези</string>
-  <string name="overwrite_something">Преписати %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Врати фајл са базом података</string>
-  <string name="restore_confirmation">Преправи Моје Белешке, Обележиваче, Радне Свеске, Планове читања и Радне површине?</string>
   <string name="restore_success">Моје белешке, Обележивачи, Радне Свеске, Планови читања и Радне површине успешно су враћене</string>
   <string name="downloading_backup">Преузимање резервне копије фајла је у току...</string>
   <string name="loading_backup">Учитавање базе података из резервне копије...</string>
@@ -732,7 +719,6 @@
   <string name="send_export_file">Пошаљи датотеку извоза</string>
   <string name="backup_modules_title">Одабери модуле за резервну копију</string>
   <string name="install_zip_canceled">Уградња модула отказана</string>
-  <string name="ask_restore_or_import">База података за %s може бити враћена (тј. постојећа база се уклања и учитава изабрана) или увезена (изабрана база се увози у постојећу). Шта желите да урадите?</string>
   <string name="restore">Повратити</string>
   <string name="import2">Увези</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -787,7 +773,6 @@
   <string name="settings_editor_back">Назад</string>
   <string name="settings_editor_close">Затвори</string>
   <string name="settings_editor_apply">Примени</string>
-  <string name="discard_changes_confirmation">Одбацити несачуване измене?</string>
   <string name="discard">Одбаци</string>
   <string name="remove">Уклони</string>
   <string name="overwrite">Препиши</string>
@@ -814,7 +799,8 @@
   <string name="empty_list">Нема ставки за приказ</string>
   <string name="error_skip">Прескочи</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Оштећени подаци</string>
+  <string name="corrupt_database_headline">AndBible не може да отвори неке ваше податке</string>
+  <string name="corrupt_database_files_detail">Ови фајлови нису могли бити отворени: %1$s. Ништа није промењено нити обрисано. Ресетовањем се почиње с празним фајловима, а сваки оштећени фајл остаје на овом уређају, преименован са .corrupt- плус датум и време.</string>
   <string name="corrupt_database_reset">Ресетуј оштећене податке</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Оштећени подаци нису могли да се ресетују: %1$s није могао да се премести. Ништа није измењено. Можете покушати поново, послати извештај о грешци или користити Резервна копија и враћање.</string>
@@ -822,8 +808,8 @@
   <string name="damaged_data_needs_attention">Подацима апликације је потребна пажња. Додирните да отворите апликацију.</string>
   <string name="debug_test_error">Тестна грешка (debug верзија)</string>
   <string name="bug_report_prepare_failed">Извештај није могао да се припреми или подели. Можете поново покушати или користити Резервну копију и враћање да сачувате своје податке.</string>
-  <string name="bug_report_email_title">Пошаљите пријаву о грешци путем имејла</string>
   <string name="bug_report_desktop_text">Затим ће вам бити постављено питање где да се сачува фајл са извештајем о грешци. После тога ћете добити упутство за слање развојном тиму.</string>
+  <string name="bug_report_email_title">Пошаљите пријаву о грешци путем имејла</string>
   <string name="bug_report_email_text">Следеће, молимо Вас да одаберете Вашу жељену имејл апликацију (као на пример Gmail) како бисте послати извештај програмерском тиму.</string>
   <string name="bug_report_manual_title">Пошаљите извештај имејлом</string>
   <string name="bug_report_manual_text_saved">Извештај је сачуван у <b>%1$s</b>.\n\nПошаљите е-пошту на <b>%2$s</b> и приложите тај фајл; програм за е-пошту не може да га приложи уместо вас. Предложени наслов: <b>%3$s</b>. У поруци опишите шта сте радили и шта се догодило.</string>
@@ -894,8 +880,6 @@
   <string name="beta_special_regards">Срдачан поздрав, Туомас</string>
   <string name="beta_special_sponsor">P.S. Развој AndBible-а можете финансијски подржати %s.</string>
   <string name="beta_special_sponsor_link">спонзорисањем сати развоја</string>
-  <string name="new_sync_targets_notice_title">Доступне су нове поставке синхронизације</string>
-  <string name="new_sync_targets_notice_message">Ова верзија AndBible-а уводи додатне циљеве синхронизације: Моји документи, АИ поставке и напредак читања. Ако желите да их омогућите, то можете учинити у поставкама синхронизације уређаја.</string>
   <string name="open_settings">Отвори поставке</string>
   <!--History-->
   <string name="history_for">Историјат (%1$s: Прозор %2$d)</string>
@@ -1002,7 +986,6 @@
   <string name="give_passphrase_for_module">Документ %s је шифрован и захтева лозинку ради откључавања</string>
   <string name="unlock_module">Поставите модул лозинке</string>
   <string name="unlock_info">Информације о шифрованом модулу откључавања</string>
-  <string name="try_again_passphrase">Лозинка није уродила плодом, покушајте поново?</string>
   <string name="show_unlock_info">Модул &amp;amp, детаљи откључавања</string>
   <string name="prefs_experimental_features_title">Експерименталне функције</string>
   <string name="prefs_experimental_features_summary">Изабери које експерименталне функције да омогућиш. Ове функције су још у развоју и могу се мењати или уклонити</string>
@@ -1036,9 +1019,6 @@
   <string name="active_window_indicator_summary">Означите углове прозора како бисте помогли при препознавању активних прозора</string>
   <string name="app_licence_title">Лиценца Отвореног Кода</string>
   <string name="how_to_contribute">Како можете допринети?</string>
-  <string name="confirm_delete_bookmarks">Да ли желите да уклоните %dобележивача и њихове белешке?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Изабрана ознака је прикачена за %d обележивача који немају друге ознаке. Да ли желите да обришете и те обележиваче заједно са ознакама?</string>
-  <string name="delete_label_and_bookmarks">Обриши ознаку и обележиваче</string>
   <string name="delete_label_only">Обриши само ознаку</string>
   <string name="module_size_megabytes">%.1fMB</string>
   <string name="tell_friend_title">Препоручите пријатељу</string>
@@ -1069,8 +1049,6 @@
   <string name="old_webview">Android WebView пакет је превише стар (%1$s). Морате надоградити ваш Android WebView пакет макар на %2$s како бисте користили %3$s. За већину уређаја ово се може урадити путем %4$s.</string>
   <string name="play">Play продавница</string>
   <string name="proceed_anyway">Свеједно наставити</string>
-  <string name="proceed">Наставити</string>
-  <string name="rate_title">Оцене и рецензије апликације</string>
   <string name="rate_message5">
 Позитивне и детаљне рецензије увелико помажу AndBible Open Source Project. Хвала Вам!</string>
   <string name="rate_message6">
@@ -1111,7 +1089,6 @@
   <string name="primary_label">Главна ознака</string>
   <string name="favourite_label">Омиљена ознака</string>
   <string name="edit_label">Уредите ознаку</string>
-  <string name="delete_label_confirmation">Да ли желите да уклоните ознаку обележивача \"%s\"? Такође, све повезане белешке Радне Свеске биће укоњене.</string>
   <string name="active_labels">Изабране ознаке</string>
   <string name="recent_labels">Недавне ознаке</string>
   <string name="other_labels">Друге ознаке</string>
@@ -1121,8 +1098,6 @@
   <string name="book_menu_show_progress_bars">Прикажи траке напретка</string>
   <string name="reset_workspace_labels">Да ли желите да ресетује ауто-додељивање и омиљена подешавања за ову радну површ?</string>
   <string name="clear_auto_assign_labels">Обриши ознаке за аутоматско додељивање</string>
-  <string name="reset_workspace_auto_assign_labels">Желите ли да уклоните све ознаке за аутоматско додељивање из ове радне површи?</string>
-  <string name="reset_hide_labels">Да ли желите да ресетујете параметре за  подешавања скривања одређених ознаке?</string>
   <string name="reorder">Поново преуреди</string>
   <string name="system_items">Системске радње</string>
   <string name="system_items1">Више</string>
@@ -1136,7 +1111,6 @@
   <string name="ios_fullscreen_hint">Двапут додирните или додирните дугме да изађете из целог екрана.</string>
   <string name="desktop_exit_fullscreen">Изађи из целог екрана</string>
   <string name="exit_fullscreen">Двапут додирните екран за излаз из Целог Екрана</string>
-  <string name="reset_app_prefs">Да ли желите да ресетујете сва глобална подешавања која су приказана на овом екрану на њихове задане вредности?</string>
   <string name="label_red">Црвена</string>
   <string name="label_green">Зелена</string>
   <string name="label_blue">Плава</string>
@@ -1147,7 +1121,6 @@
   <string name="reset_databases_title">Ресетуј базе података</string>
   <string name="reset_databases_description">Ресетуј поједине базе података на почетно празно стање. Ово се не може поништити.</string>
   <string name="last_crash_info_title">Информације о последњем падању</string>
-  <string name="reset_database_confirm">Ово ће трајно избрисати све податке у \"%1$s\" и ресетовати је у почетно стање. Ово се не може поништити.\n\nДа ли сте сигурни?</string>
   <string name="reset_database_success">База података је успешно ресетована</string>
   <string name="reset_something">Ресетуј: %1$s</string>
   <string name="export">Извези</string>
@@ -1217,19 +1190,18 @@
   <string name="manage_labels_help_favourite">Задржи ознаку међу омиљенима ради брзог приступа.</string>
   <string name="manage_labels_help_styles">Испод имена мали пример приказује изглед ознаке: Избор за обележивач избора текста, Цео стих за обележивач целог стиха и ознака Радна површ за стил који ова радна површ преписује. Засивљен пример без украса значи да се обележивачи те ознаке не цртају. Сакријте примере из менија ⋮.</string>
   <string name="manage_labels_help_reorder">Промените редослед листе из менија ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">На уском екрану листа изоставља иконе примарне, аутоматски додељене и омиљене ознаке да би имена ознака имала места. Додирните ознаку да их подесите у њеном уређивачу.</string>
   <string name="added_to_bookmark">Додељен овом обележивачу</string>
   <string name="strongs_links">Линкови</string>
   <string name="strongs_text_and_links">Текст и линкови</string>
   <string name="strongs_hidden_links">Скривени линкови</string>
   <string name="verse_tip">Да бисте изабрали део или више стихова, можете то учинити дугим притиском на библијски текст</string>
-  <string name="permission_required">Потребна дозвола</string>
   <string name="labels_search_hint">Претрага</string>
   <string name="search_mode_name_start">Назив (од почетка)</string>
   <string name="search_mode_name_contains">Назив (садржи)</string>
   <string name="search_mode_content">Садржај</string>
   <string name="search_results_matches">%d поклапања</string>
   <string name="search_results_match">1 поклапање</string>
-  <string name="progress_status_permission">Да би Вам се показала обавештења (статус преузимања, процесуирања, изговора), треба нам Ваша дозвола.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Прости Калкулатор</string>
   <string name="prefs_persecution_cat">Подешавања за прогоњене</string>
@@ -1272,7 +1244,6 @@
   <string name="custom_repositories_create_button_label">Додај Особену Ризницу</string>
   <string name="custom_repositories_info_button_label">Информације</string>
   <string name="repository_specification">URL Ризнице</string>
-  <string name="delete_custom_repository">Да ли желите да уклоните особену ризницу %s?</string>
   <string name="custom_repositories_help1">Како бисте додали нову особену ризницу, укуцајте или копирајте &amp;аmp;  залепите URL особене ризнице овде.</string>
   <string name="custom_repositories_help2">Можете прочитати више о особеним ризницама на %s.</string>
   <string name="custom_repositories_help0">Можете инсталирати документа са спољашњих особених ризница инсталирањем особених ризница.</string>
@@ -1294,9 +1265,6 @@
   <string name="db_bookmarks">Обележивачи, Моје Белешке, Ознаке и Радне Свеске</string>
   <string name="synchronizing">Усклађивање</string>
   <string name="notification_finished">Завршено</string>
-  <string name="overrideBackup">
-Постојећа база података која није усклађена са уређајем је пронађена на Облаку.
-База података садржи %s. Како желите да поступите?</string>
   <string name="reading_plans_content">Планови читања и њихови статуси</string>
   <string name="bookmarks_contents">Обележивачи, Ознаке и Радне Свеске</string>
   <string name="workspaces_contents">Радне површи и Прозори</string>
@@ -1316,7 +1284,6 @@
   <string name="reading_progress_calendar">Активност читања</string>
   <string name="reading_progress_cycle">Циклус %d</string>
   <string name="reading_progress_new_cycle">Нови циклус</string>
-  <string name="reading_progress_new_cycle_confirm">Започети нови циклус читања? Ово ће почети пратити ваш напредак од почетка, уз чување података претходног циклуса.</string>
   <string name="reading_progress_previous_cycle">Претходни циклус</string>
   <string name="reading_progress_next_cycle">Следећи циклус</string>
   <string name="cloud_merge_data">Споји податке</string>
@@ -1326,7 +1293,6 @@
   <string name="cloud_sync_title">Усклађивање уређаја</string>
   <string name="reset_sync">Одјавите се</string>
   <string name="prefs_reset_sync_summary">Онемогући усклађивање и ресетуј сродна подешавања.</string>
-  <string name="sync_confirmation">Да ли сте сигурни да желите да се одјавите и ресетује усклађивање?</string>
   <string name="cloud_info">Информације о Облак</string>
   <string name="cloud_info_summary">Подаци у Облаку спремишта: %sMb</string>
   <string name="sync_adapter">Усклађивање Задњег краја</string>
@@ -1342,7 +1308,6 @@
   <string name="webdav_server_url_hint">Адреса WebDAV фасцикле, нпр. https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Синхронизација захтева безбедну https:// адресу.</string>
   <string name="webdav_certificate_title">Сертификат сервера</string>
-  <string name="webdav_forget_certificate_message">Заборавити поуздани сертификат сервера? Од вас ће се при следећој вези поново тражити да потврдите сертификат.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Непоуздан сертификат сервера</string>
   <string name="webdav_untrusted_certificate_message">Android не верује сертификату за %1$s. Верујте му само ако га препознајете, на пример зато што сте сами подесили овај сервер.\n\nСубјект: %2$s\nИздавалац: %3$s\nВажи: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1359,14 +1324,7 @@
   <string name="synchronization_categories">Категорије усклађивања</string>
   <string name="sync_general_settings">Информације &amp; опште поставке</string>
   <string name="sync_introduction">Увод</string>
-  <string name="are_you_sure">Да ли сте сигурни?</string>
   <string name="are_you_sure_merge">И подаци на овом уређају и %s у облаку биће задржани. Где је иста ставка измењена на оба места, задржава се новија измена. Подаци овог уређаја биће послати на ваше остале уређаје.</string>
-  <string name="are_you_sure_reset_local">Ово ће ресетовати Вашу локалну базу података за %s са садржајем који се тренутно складишти на Облаку.</string>
-  <string name="are_you_sure_reset_cloud">Ово ће ресетовати Вашу базу података у Облаку за %s са садржајем који имате на овом уређају.</string>
-  <string name="sync_cant_fetch">Верзија базе података или закрпе које се држе на Облаку новија је него она коју подржава ова апликација.</string>
-  <string name="sync_disabling">Онемогућивање усклађивањa за %s за сада.</string>
-  <string name="sync_update_app">Молимо ажиурирајте апликацију како бисте наставили са усклађивањем.</string>
-  <string name="sign_in_failed">Пријављивање у Облак ради усклађивања безуспешно.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Онемогућавање усклађивања на Облаку. Морате омогућити ручно након враћања.</string>
   <string name="report">Пријава</string>
@@ -1384,6 +1342,7 @@
   <string name="open_here">Отворите овде</string>
   <string name="external_link">Спољашњи линк</string>
   <string name="external_link_question">Ово ће отворити спољашњи линк %s у интернет  прегледачу, да ли желите наставити?</string>
+  <string name="external_link_dont_ask_again">Не питај поново за %s</string>
   <string name="nameless">Наслов није одређен</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Радње једним додиром (Библије)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Радње једним додиром (Остало)</string>
@@ -1432,8 +1391,6 @@
   <string name="memorize_include_reference_summary">Додај референцу стиха (нпр. Јован 3:16) као последњу ставку за меморисање</string>
   <string name="reading_progress_settings">Напредак и меморисање</string>
   <string name="reading_progress_settings_summary">Подешавања аутоматског праћења, меморисања и вежбе куцања</string>
-  <string name="memorize_confirm_unmark">Уклонити статус меморисаног за %s?</string>
-  <string name="memorize_confirm_remove_target">Уклонити циљ меморисања %s?</string>
   <string name="memorize_tab_reading">Читање</string>
   <string name="memorize_tab_memorization">Меморисање</string>
   <string name="memorize_verses_memorized">Меморисано</string>
@@ -1459,7 +1416,6 @@
   <string name="llm_reset_usage_title">Ресетуј податке о употреби</string>
   <string name="llm_reset_usage_summary">Обриши кумулативно праћење токена и цена</string>
   <string name="llm_reset_usage_confirm_title">Ресетовати податке о употреби?</string>
-  <string name="llm_reset_usage_confirm_message">Ово ће обрисати све кумулативне податке о употреби.</string>
   <string name="llm_custom_input_price_title">Цена улаза ($/Мtoken)</string>
   <string name="llm_custom_output_price_title">Цена излаза ($/Мtoken)</string>
   <string name="llm_cost_total">Укупно: %1$s</string>
@@ -1475,8 +1431,6 @@
   <string name="llm_parse_error_anthropic">Грешка при обради Anthropic одговора: %1$s</string>
   <string name="llm_error_unknown">Непозната грешка</string>
   <string name="llm_error_max_iterations">Достигнут максималан број итерација (%1$d) без завршетка</string>
-  <string name="llm_continue_iterations_title">Наставити?</string>
-  <string name="llm_continue_iterations_message">АИ агент је достигао границу од %1$d итерација без завршетка. Наставити са %2$d итерација?</string>
   <string name="agent_max_iterations_title">Максималан број итерација агента</string>
   <string name="agent_max_iterations_summary">Максималан број итерација пре тражења наставка (0 = неограничено)</string>
   <string name="ask_model_before_run_title">Питај за модел пре покретања</string>
@@ -1536,7 +1490,6 @@
   <string name="ai_models_summary_none">Нису конфигурисани модели</string>
   <string name="ai_add_provider">Додај провајдера</string>
   <string name="ai_provider_edit">Уреди</string>
-  <string name="ai_provider_delete_confirm">Обрисати провајдера \"%1$s\"? Упити који користе овог провајдера ће се вратити на подразумеваног.</string>
   <string name="ai_provider_api_key_not_set">API кључ није постављен</string>
   <string name="ai_provider_select_type">Изабери врсту провајдера</string>
   <string name="ai_provider_name">Назив провајдера</string>
@@ -1556,7 +1509,6 @@
   <string name="edit_model_title">Уреди модел</string>
   <string name="model_saved">Модел сачуван</string>
   <string name="model_deleted">Модел обрисан</string>
-  <string name="model_delete_confirm">Обрисати модел \"%1$s\"?</string>
   <string name="model_set_default">Постави као подразумевани модел</string>
   <string name="model_select_provider">Провајдер</string>
   <string name="model_supported_badge">✓ Подржано</string>
@@ -1596,7 +1548,6 @@
   <string name="ai_disclaimer_point8">Ваши подаци се шаљу серверима изабраног АИ провајдера. Коришћењем API кључа прихватате услове и политику приватности тог провајдера. Самохостовани модели су могући, али захтевају веће техничко знање и могу давати лошије резултате од комерцијалних модела.</string>
   <string name="ai_disclaimer_point9">АИ провајдери наплаћују коришћење API-ја. Процене трошкова у AndBible-у су приближне — увек проверите наплату код провајдера ради стварних трошкова.</string>
   <string name="ai_disclaimer_accept_title">Прихвати одрицање одговорности за АИ</string>
-  <string name="ai_disclaimer_accept_button">Прихватам и преузимам пуну одговорност</string>
   <string name="prompt_permission_mode">Режим дозволе</string>
   <string name="prompt_permission_mode_description">Контролише када је потребна потврда корисника пре него АИ изврши операције записивања. Подешавања по алаткама испод могу заменити ово за поједине алатке.</string>
   <string name="agent_permission_mode_summary">Контролише када је потребна потврда корисника пре АИ операција записивања</string>
@@ -1712,7 +1663,6 @@
   <string name="default_prompt_custom_desc">Изврши прилагођени задатак на изабраном одломку</string>
   <string name="default_prompt_custom_template">Изврши корисников задатак за изабрани библијски одломак.</string>
   <string name="copy">Копирај</string>
-  <string name="delete_prompt_confirm_message">Да ли сте сигурни да желите обрисати овај упит?</string>
   <string name="ai_hide_prompt">Сакриј</string>
   <string name="ai_restore_hidden_prompts">Врати скривене упите</string>
   <string name="ai_prompt_hidden">Упит скривен</string>
@@ -1797,8 +1747,6 @@
   <string name="permission_allow_all_session">Дозволи све алатке ове сесије</string>
   <string name="permission_allow_always">Увек дозволи „%1$s\"</string>
   <string name="permission_deny">Одбиј</string>
-  <string name="permission_always_allow_confirm_title">Увек дозволити?</string>
-  <string name="permission_always_allow_confirm">Да ли сте сигурни да желите трајно дозволити „%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Можете ресетовати ово у АИ подешавањима.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Дозволе алатки</string>
@@ -1903,18 +1851,15 @@
   <string name="my_document_new_name">Документ %d</string>
   <string name="my_document_create_title">Направи нови документ</string>
   <string name="my_document_rename_title">Преименуј документ</string>
-  <string name="my_document_delete_confirmation">Обрисати документ „%s\"?</string>
   <string name="show_secret">Прикажи</string>
   <string name="hide_secret">Сакриј</string>
   <string name="ai_documents_name">ВИ документи</string>
   <string name="ai_documents_description">Документи које аутоматски генерише ВИ</string>
-  <string name="my_document_cannot_delete_ai_documents">АИ документи не могу бити обрисани док садрже странице. Прво обриши странице.</string>
   <string name="my_document_save_changes">Сачувати измене?</string>
   <string name="my_document_no_description">Нема описа</string>
   <string name="my_document_edit_description">Уреди опис</string>
   <string name="my_document_pages_title">%s — Странице</string>
   <string name="my_document_page_rename_title">Преименуј страницу</string>
-  <string name="my_document_page_delete_confirmation">Обрисати страницу „%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Обрисати ове странице?</string>
   <string name="my_documents_switch_document">Промени документ</string>
   <string name="my_document_new_page_name">Страница %1$d</string>
@@ -1982,7 +1927,6 @@
   <string name="cloud_doc_show_removed">Прикажи уклоњене документе</string>
   <string name="cloud_doc_status_removed">Уклоњено из облака</string>
   <string name="cloud_doc_status_still_installed">и даље инсталирано овде</string>
-  <string name="cloud_doc_purge_confirm">Трајно уклонити \"%1$s\" из историје облака? Ако је и даље инсталирано на другом уређају, тај уређај може поново да га отпреми у облак при следећој синхронизацији.</string>
   <string name="cloud_doc_action_download">Преузми</string>
   <string name="cloud_doc_action_push">Отпреми у облак</string>
   <string name="cloud_doc_action_remove_cloud">Уклони из облака</string>
@@ -1993,8 +1937,6 @@
   <string name="cloud_doc_action_dont_sync">Не синхронизуј са облаком</string>
   <string name="cloud_doc_action_allow_sync">Синхронизуј са облаком</string>
   <string name="cloud_doc_action_purge">Уклони из историје облака</string>
-  <string name="cloud_doc_remove_all_confirm">Уклонити %1$s из облака и са свих ваших уређаја, укључујући и овај?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Уклонити %1$s из облака? Копија на овом уређају се задржава; уређаји са укљученом синхронизацијом докумената ће га такође уклонити.</string>
   <string name="cloud_doc_sync_now">Синхронизуј сада</string>
   <string name="cloud_doc_rescan">Поново скенирај из облака</string>
   <string name="cloud_doc_sync_now_download">Преузми нове и ажуриране документе</string>
@@ -2006,6 +1948,16 @@
   <string name="cloud_doc_summary_download">Преузми %1$d</string>
   <string name="cloud_doc_summary_download_size">Преузми %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Аутоматска преузимања ће почети уз Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d документ</item>
+    <item quantity="few">%1$d документа</item>
+    <item quantity="other">%1$d докумената</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d документ (%2$s)</item>
+    <item quantity="few">%1$d документа (%2$s)</item>
+    <item quantity="other">%1$d докумената (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Нема ничега за пренос</string>
   <string name="cloud_doc_selected_count">%1$d изабрано</string>
   <string name="cloud_doc_bulk_skipped">Прескочено %1$d неприменљиво</string>
@@ -2022,8 +1974,6 @@
   <string name="background_image_import">Увези из галерије…</string>
   <string name="background_image_empty">Још нема увезених слика. Додирните \"Увези из галерије…\" да додате једну.</string>
   <string name="background_image_importing">Увоз…</string>
-  <string name="background_image_delete_title">Обрисати слику?</string>
-  <string name="background_image_delete_confirm">Обрисати ову позадинску слику? Радне површи које је још користе вратиће се на без слике.</string>
   <string name="background_image_day">Позадинска слика (дан)</string>
   <string name="background_image_night">Позадинска слика (ноћ)</string>
   <string name="background_image_opacity_day">Провидност позадинске слике (дан)</string>
@@ -2097,6 +2047,11 @@
   <string name="legacy_notice_icloud">Синхронизација сада користи iCloud Drive. Поново је укључите у Поставке → Синхронизација. Овај уређај задржава оно што је имао; измене са ваших осталих уређаја стижу када се синхронизација поново подеси. Да ослободите стари iCloud простор: Поставке → ваше име → iCloud → Управљање складиштем → AndBible.</string>
   <string name="legacy_notice_nextcloud">Ваша Nextcloud веза је пренета, али је синхронизација искључена. Укључите је у Поставке → Синхронизација и изаберите да преузмете из облака или да направите ново.</string>
   <string name="legacy_notice_nextcloud_unsent">Неке измене на овом уређају још нису послате на Nextcloud. Нису послате и остају само на овом уређају.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="one">%1$d обележивач није могао поуздано да се постави и није увезен. Чува се са вашим старим подацима на овом уређају.</item>
+    <item quantity="few">%1$d обележивача нису могла поуздано да се поставе и нису увезена. Чувају се са вашим старим подацима на овом уређају.</item>
+    <item quantity="other">%1$d обележивача нису могла поуздано да се поставе и нису увезена. Чувају се са вашим старим подацима на овом уређају.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">То је моћна, а ипак једноставна офлајн апликација за проучавање Библије.</string>
   <string name="webdav_untrusted_certificate_message_device">Овај уређај не верује сертификату за %1$s. Верујте му само ако га препознајете, на пример зато што сте сами подесили овај сервер.\n\nСубјект: %2$s\nИздавалац: %3$s\nВажи: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2148,6 +2103,25 @@
   <string name="recommend_share_link">Подели везу</string>
   <string name="recommend_qr_caption">Скенирајте да набавите AndBible за свој телефон, таблет или рачунар.</string>
   <string name="desktop_activation_failed">AndBible је већ покренут, али његов прозор не одговара. Пређите на покренуту инстанцу и покушајте поново. Долазни фајлови нису потврђени као испоручени.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Ово се не може опозвати.</string>
+  <string name="ai_raw_log_delete_lead">Обрисати овај дневник?</string>
+  <string name="ai_provider_delete_lead">Обрисати провајдера „%1$s“?</string>
+  <string name="ai_provider_delete_detail">Упити који га користе враћају се на подразумеваног провајдера.</string>
+  <string name="ai_model_delete_lead">Обрисати модел „%1$s“?</string>
+  <string name="ai_prompt_delete_named_lead">Обрисати упит „%1$s“?</string>
+  <string name="ai_prompt_delete_lead">Обрисати овај упит?</string>
+  <string name="ai_reset_usage_detail">Укупни токени и трошкови се враћају на нулу. Ово се не може опозвати.</string>
+  <string name="ai_reset_usage_button">Ресет</string>
+  <string name="ai_disclaimer_accept">Прихватам</string>
+  <string name="llm_continue_iterations_lead">Наставити још %1$d итерација?</string>
+  <string name="llm_continue_iterations_detail">Аи агент је достигао ограничење од %1$d итерација а да није завршио.</string>
+  <string name="llm_continue_button">Настави</string>
+  <string name="permission_always_allow_lead">Увек дозволити „%1$s“?</string>
+  <string name="permission_always_allow_button">Увек дозволи</string>
+  <string name="ai_bug_report_send_lead">Послати извештај о грешци аи-ја?</string>
+  <string name="ai_bug_report_send_button">Пошаљи</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Почетак рада</string>
   <string name="user_guide_section_reading_workspace">Читање и радне површи</string>
@@ -2225,4 +2199,158 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">АИ помоћник, трећи део: алати, подаци и дозволе</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">АИ помоћник, четврти део: сопствени упити, трошкови и синхронизација</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Одбацити измене?</string>
+  <string name="dialog_keep_editing">Настави уређивање</string>
+  <string name="dialog_label_delete_lead">Обрисати ознаку “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Белешке њене радне свеске се такође бришу. Ово се не може опозвати.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="one">%1$d обележивач нема другу ознаку.</item>
+    <item quantity="few">%1$d обележивача немају другу ознаку.</item>
+    <item quantity="other">%1$d обележивача немају другу ознаку.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="one">Обриши ознаку и %1$d обележивач</item>
+    <item quantity="few">Обриши ознаку и %1$d обележивача</item>
+    <item quantity="other">Обриши ознаку и %1$d обележивача</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">Обележивачи и њихове белешке се бришу.</string>
+  <string name="dialog_label_delete_only_consequence">Обележивачи остају, без ознаке.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="one">Уклонити %1$d обележивач?</item>
+    <item quantity="few">Уклонити %1$d обележивача?</item>
+    <item quantity="other">Уклонити %1$d обележивача?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="one">Белешке се такође уклањају.</item>
+    <item quantity="few">Њихове белешке се такође уклањају.</item>
+    <item quantity="other">Њихове белешке се такође уклањају.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Уклонити све ознаке за аутоматско додељивање из ове радне површи?</string>
+  <string name="dialog_labels_reset_hidden_lead">Поново приказати све скривене ознаке?</string>
+  <string name="dialog_labels_reset_shown_detail">Ознаке које сте сакрили са листе поново се приказују.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Инсталирати „%s“?</string>
+  <string name="install_action">Инсталирај</string>
+  <string name="install_from_file_question">Инсталирати документе из фајла?</string>
+  <string name="overwrite_files_detail">Ови фајлови већ постоје:%s</string>
+  <string name="import_studypads_question">Увести ове радне свеске?</string>
+  <string name="import_action">Увези</string>
+  <string name="restore_backup_question">Повратити документе из ове резервне копије?</string>
+  <string name="restore_backup_detail">Овај фајл је резервна копија докумената AndBible-а.</string>
+  <string name="update_document_question">Ажурирати овај документ?</string>
+  <string name="update_action">Ажурирај</string>
+  <string name="download_documents_question">Преузети документе?</string>
+  <string name="download_persecution_warning">Ако живите у земљи у којој се хришћани прогоне, можда ћете морати да будете опрезни при преузимању хришћанског материјала путем интернета. Уместо тога, можда желите да безбедније набавите зип фајлове докумената и инсталирате их преко „%1$s“. Сва преузимања са сервера докумената су шифрована (HTTPS).</string>
+  <string name="download_action">Преузми</string>
+  <string name="download_dont_ask_again">Преузми, не питај поново</string>
+  <string name="download_dont_ask_again_consequence">Преузимања убудуће почињу без овог питања.</string>
+  <string name="passphrase_did_not_work">Лозинка није радила.</string>
+  <string name="try_again">Покушај поново</string>
+  <string name="interrupted_downloads_lead">Поново преузети ове документе?</string>
+  <string name="interrupted_downloads_detail">Њихово преузимање је прекинуто, па нису инсталирани.</string>
+  <string name="external_link_open_question">Отворити ову везу у прегледачу?</string>
+  <string name="open_action">Отвори</string>
+  <string name="notification_permission_question">Дозволити обавештења?</string>
+  <string name="notification_permission_detail">Обавештења приказују статус преузимања, обраде и читања наглас.</string>
+  <string name="allow_action">Дозволи</string>
+  <string name="rate_question">Оценити и прегледати апликацију?</string>
+  <string name="bug_report_email_question">Послати извештај о грешци е-поштом?</string>
+  <string name="continue_action">Настави</string>
+  <string name="delete_search_index_question">Обрисати индекс претраге за „%s“?</string>
+  <string name="remove_custom_repository_question">Уклонити особену ризницу „%s“?</string>
+  <string name="download_document_question">Преузети „%s“?</string>
+  <string name="choose_file_action">Изабери фајл</string>
+  <string name="old_webview_question">Користити апликацију са старим WebView-ом?</string>
+  <string name="incomplete_translation_question">Наставити са делимичним преводом?</string>
+  <string name="rate_action">Оцени</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Обрисати документ „%s“?</string>
+  <string name="my_document_page_delete_lead">Обрисати страницу „%s“?</string>
+  <string name="my_document_cannot_delete_ai_lead">Аи документи се не могу обрисати док садрже странице.</string>
+  <string name="my_document_cannot_delete_ai_detail">Прво обришите странице.</string>
+  <string name="reading_progress_new_cycle_lead">Започети нови циклус читања?</string>
+  <string name="reading_progress_new_cycle_detail">Ваш напредак се прати испочетка. Подаци претходног циклуса се чувају.</string>
+  <string name="reading_progress_new_cycle_start">Започни</string>
+  <string name="reset_plan_lead">Ресетовати овај план?</string>
+  <string name="reset_plan_detail">Ваш датум почетка и напредак у овом плану се бришу.</string>
+  <string name="set_current_day_lead">Поставити %1$s као текући дан?</string>
+  <string name="set_current_day_detail">Сви претходни дани се означавају као прочитани.</string>
+  <string name="plan_duplicate_user_plan_lead">Фајл плана читања има исто име као уграђени план.</string>
+  <string name="plan_duplicate_user_plan_detail">Фајл плана не може бити приказан на листи. Преименујте фајл у фасцикли jsword/readingplan, задржавајући његово проширење .properties.</string>
+  <string name="background_image_delete_lead">Обрисати ову позадинску слику?</string>
+  <string name="background_image_delete_detail">Радне површи које је још користе прећи ће на без слике.</string>
+  <string name="reset_values_lead">Ресетовати све ове вредности?</string>
+  <string name="revert_setting_lead">Вратити ову поставку на наслеђену вредност?</string>
+  <string name="revert_setting_confirm">Врати</string>
+  <string name="reset_settings_screen_lead">Ресетовати поставке на овом екрану?</string>
+  <string name="reset_settings_screen_detail">Оне се враћају на подразумеване вредности.</string>
+  <string name="memorize_unmark_lead">Уклонити статус меморисаног за „%s“?</string>
+  <string name="memorize_remove_target_lead">Уклонити циљ меморисања „%s“?</string>
+  <string name="dialog_apply">Примени</string>
+  <string name="dialog_dont_apply">Не примењуј</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Облак већ има ваше: %s. Шта треба да се деси?</string>
+  <string name="cloud_merge_consequence">Обе стране се чувају; где је ставка промењена на обе, побеђује новија измена.</string>
+  <string name="cloud_fetch_consequence">Замењује податке на овом уређају копијом из облака.</string>
+  <string name="cloud_create_consequence">Замењује копију у облаку подацима са овог уређаја.</string>
+  <string name="cloud_disable_consequence">Синхронизација остаје искључена за ове податке.</string>
+  <string name="cloud_merge_lead">Спојити ваше: %s са облаком?</string>
+  <string name="cloud_merge_confirm">Споји</string>
+  <string name="cloud_replace_confirm">Замени</string>
+  <string name="cloud_replace_local_lead">Заменити: %s на овом уређају копијом из облака?</string>
+  <string name="cloud_replace_local_detail">Оно што је сада на овом уређају биће преписано и не може се повратити.</string>
+  <string name="cloud_replace_cloud_lead">Заменити копију у облаку за: %s подацима са овог уређаја?</string>
+  <string name="cloud_replace_cloud_detail">Оно што је сада у облаку биће преписано, а ваши други уређаји ће примити податке са овог уређаја.</string>
+  <string name="sign_in_failed_lead">Пријава на сервис за синхронизацију није успела.</string>
+  <string name="sync_too_old_lead">Ова апликација је превише стара за синхронизацију: %s.</string>
+  <string name="sync_too_old_detail">Подаци у облаку користе новију верзију него што ова апликација подржава. Синхронизација за њих је засад искључена; ажурирајте апликацију да бисте је поново укључили.</string>
+  <string name="backup_replace_lead">Заменити ваше: %s резервном копијом?</string>
+  <string name="backup_replace_detail">Оно што је сада на овом уређају биће преписано и не може се повратити.</string>
+  <string name="reset_database_lead">Ресетовати „%1$s“ на почетно стање?</string>
+  <string name="reset_database_detail">Сви подаци у њој се трајно бришу. Ово се не може опозвати.</string>
+  <string name="reset_database_button">Ресет</string>
+  <string name="restore_all_lead">Заменити ваше белешке, обележиваче, радне свеске, планове читања и радне површи?</string>
+  <string name="restore_or_import_lead">Повратити или увести: %s?</string>
+  <string name="restore_consequence">Замењује оно што је на овом уређају резервном копијом.</string>
+  <string name="import_consequence">Додаје ставке из резервне копије ономе што је на овом уређају.</string>
+  <string name="sync_start_syncing">Почни синхронизацију</string>
+  <string name="sync_reset_lead">Одјавити се и ресетовати синхронизацију?</string>
+  <string name="sync_reset_detail">Мораћете поново да подесите синхронизацију.</string>
+  <string name="webdav_forget_certificate_lead">Заборавити поуздани сертификат сервера?</string>
+  <string name="webdav_forget_certificate_detail">Од вас ће се поново тражити да потврдите сертификат при следећем повезивању.</string>
+  <string name="webdav_forget_certificate_confirm">Заборави</string>
+  <string name="cloud_doc_remove_all_lead">Уклонити „%1$s“ из облака и са свих ваших уређаја?</string>
+  <string name="cloud_doc_remove_cloud_lead">Уклонити „%1$s“ из облака?</string>
+  <string name="cloud_doc_purge_lead">Трајно уклонити „%1$s“ из историје облака?</string>
+  <string name="cloud_doc_remove_all_detail">Ово такође брише копије на овом уређају и на сваком другом уређају са укљученом синхронизацијом докумената.</string>
+  <string name="cloud_doc_remove_cloud_detail">Копије на овом уређају се чувају. Уређаји са укљученом синхронизацијом докумената ће их такође уклонити.</string>
+  <string name="cloud_doc_purge_detail">Уређај који још има копију може је поново отпремити при следећој синхронизацији.</string>
+  <string name="cloud_doc_block_confirm_button">Не синхронизуј</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="one">Уклонити %1$d документ из облака и са свих ваших уређаја?</item>
+    <item quantity="few">Уклонити %1$d документа из облака и са свих ваших уређаја?</item>
+    <item quantity="other">Уклонити %1$d докумената из облака и са свих ваших уређаја?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="one">Уклонити %1$d документ из облака?</item>
+    <item quantity="few">Уклонити %1$d документа из облака?</item>
+    <item quantity="other">Уклонити %1$d докумената из облака?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="one">Трајно уклонити %1$d документ из историје облака?</item>
+    <item quantity="few">Трајно уклонити %1$d документа из историје облака?</item>
+    <item quantity="other">Трајно уклонити %1$d докумената из историје облака?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="one">Престати синхронизовати %1$d документ у облак?</item>
+    <item quantity="few">Престати синхронизовати %1$d документа у облак?</item>
+    <item quantity="other">Престати синхронизовати %1$d докумената у облак?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">Још ваших података сада може да се синхронизује</string>
+  <string name="new_sync_targets_detail">Моји документи, аи поставке и напредак читања такође могу да се синхронизују. Укључите их у поставкама синхронизације уређаја.</string>
+  <!--end dialog copy: B3b-->
 </resources>

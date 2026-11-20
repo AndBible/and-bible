@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Ang buong gabay sa paggamit ay nasa andbible.org. Magbubukas ang mga pahina sa iyong browser.</string>
   <string name="help_user_guide_home">Home ng gabay sa paggamit</string>
   <string name="help_read_in_user_guide">Basahin sa gabay ng gumagamit</string>
+  <string name="help_in_user_guide">Tulong sa gabay ng user</string>
+  <string name="help_matching_section">Katugmang seksyon</string>
   <string name="help_read_page">Basahin sa gabay ng gumagamit: %1$s</string>
   <string name="help_tutorial_videos">Mga tutorial na video</string>
   <string name="help_watch_in_order">Panoorin nang may pagkakasunod-sunod ang mga tutorial na video</string>
@@ -244,6 +246,9 @@
   <string name="prefs_navigate_to_verse_summary">Pumili ng talata (at kabanata) kapag pumipili ng sipi</string>
   <string name="prefs_open_links_in_special_window_title">Window ng mga link</string>
   <string name="prefs_open_links_in_special_window_summary">Buksan ang mga link sa espesyal na window, para sa mas mabilis na pagpapakita ng mga cross-reference at Strong\'s</string>
+  <string name="prefs_trusted_link_domains_title">Mga pinagkakatiwalaang domain ng link</string>
+  <string name="prefs_trusted_link_domains_summary">Bubukas nang hindi nagtatanong ang mga link sa mga domain na ito. I-uncheck ang isang domain para tanungin ka ulit.</string>
+  <string name="prefs_trusted_link_domains_empty">Wala pa. Lagyan ng tsek ang \"Huwag nang magtanong\" kapag nagbubukas ng link para idagdag ang domain nito.</string>
   <string name="prefs_text_size_sample_text">Sample na teksto</string>
   <string name="prefs_screen_keep_on_title">Panatilihing naka-on ang screen</string>
   <string name="prefs_screen_keep_on_summary">Pigilan ang screen na matulog habang ginagamit ang app na ito</string>
@@ -304,7 +309,6 @@
   <string name="line_spacing_title">Espasyo ng linya</string>
   <string name="line_spacing_summary">Itakda ang espasyo sa pagitan ng mga linya</string>
   <string name="select_none">Huwag pumili ng kahit ano</string>
-  <string name="reset_are_you_sure">Sigurado ka bang gusto mong i-reset ang lahat ng mga value na ito?</string>
   <string name="window_pinning_menutitle">Pag-pin ng window</string>
   <string name="hide_window_buttons_title">Itago ang mga button ng window</string>
   <string name="hide_window_buttons_summary">Ang mga button ng window na ipinapakita sa kanang bahagi ng mga Bible view ay itinatago. Ang navigation bar ng window sa ibaba ay ipinapakita pa rin at maaari mong buksan ang popup menu ng window sa pamamagitan ng matagal na pag-tap dito.</string>
@@ -327,6 +331,7 @@
   <string name="word_not_found_in_dictionaries">Hindi nahanap ang salita sa anumang diksyonaryo</string>
   <string name="prefs_top_margin_title_mm">Tuktok na margin (%d mm)</string>
   <string name="font_size_title">Laki ng font</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Sapagka\'t gayon na lamang ang pagsinta ng Dios sa sanglibutan, na ibinigay niya ang kaniyang bugtong na Anak, upang ang sinomang sumampalataya sa kaniya ay huwag mapahamak, kundi magkaroon ng buhay na walang hanggan.</string>
   <string name="font_size_title_pt">Laki ng font (%d pt)</string>
   <string name="prefs_font_text_size_summary">I-adjust ang laki ng font ng pangunahing teksto</string>
@@ -344,6 +349,8 @@
   <string name="window_color_settings_title">Mga setting ng kulay (Window)</string>
   <string name="workspace_color_settings_title">Mga setting ng kulay (Workspace)</string>
   <string name="color_workspace">Kulay ng workspace</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Default</string>
   <string name="color_text">Kulay ng teksto</string>
   <string name="color_background">Kulay ng background</string>
   <string name="colors_day_mode_title">Day mode</string>
@@ -377,7 +384,6 @@
   <string name="download_source_last_updated">Mga listahan ng dokumento ay huling na-update: %s.</string>
   <string name="download_refreshing_book_list">Nire-refresh ang listahan ng mga available na dokumento mula sa mga document server…</string>
   <string name="download_source_message1">Ang mga dokumento ay dina-download mula sa mga sumusunod na pinagkukunan:</string>
-  <string name="download_document_confirm_prefix">I-download</string>
   <string name="error_downloading">Nagkaroon ng error habang nagda-download. Pakisuri ang iyong koneksyon sa internet.</string>
   <string name="error_downloading_status">Ang server na nag-ho-host ng %1$s ay nagbalik ng error dahil sa %2$s (%3$d).</string>
   <string name="storage_space_warning">Hindi sapat ang lokal na espasyo sa storage.</string>
@@ -398,9 +404,6 @@
   <string name="activity_title">Background activity</string>
   <string name="activity_empty">Walang tumatakbo</string>
   <string name="activity_failed_toast">%1$s — tingnan ang menu</string>
-  <string name="download_question_title">Nais mo bang magpatuloy sa pag-download ng mga dokumento?</string>
-  <string name="download_question_message">Kung nakatira ka sa bansang may pag-uusig, maaaring kailangan mong mag-ingat sa pag-download ng materyal na Kristiyano sa pamamagitan ng Internet. Sa halip, maaari mong kunin nang mas ligtas ang mga zip file ng module at i-install ang mga ito sa pamamagitan ng \"%1$s\". Sigurado ka bang gusto mong magpatuloy sa pag-download? Naka-encrypt (HTTPS) ang lahat ng download mula sa mga server ng module.</string>
-  <string name="do_not_ask_again">Oo, huwag nang itanong pa</string>
   <string name="recommended_document">Inirerekomenda!</string>
   <string name="about_version_history">Kasaysayan ng bersyon: %s</string>
   <string name="download_errors">Mga error sa pag-download</string>
@@ -417,11 +420,9 @@
   <string name="checking_zip_file">Sinusuri ang ibinigay na file…</string>
   <string name="invalid_module">Ang file ay hindi naglalaman ng valid na SWORD module</string>
   <string name="install_zip_title">Mangyaring maghintay. Naglo-load ng mga module mula sa isang file.</string>
-  <string name="overwrite_files">Ang mga sumusunod na file ay mayroon na: %s I-overwrite?</string>
   <string name="overwrite_files_title">I-overwrite ang mga file?</string>
   <string name="could_not_overwrite_files">Hindi ma-overwrite ang mga file: %s. Bukod doon, matagumpay ang pag-install.</string>
   <string name="module_backup_restore">Ang file na ito ay backup ng mga dokumento ng AndBible. Gusto mo bang ibalik ang mga dokumento nito?</string>
-  <string name="install_do_you_want">Nais mo bang i-install ang module (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plano sa Pagbabasa</string>
   <string name="reading_plans_plural">Mga Plano sa Pagbabasa</string>
@@ -429,11 +430,8 @@
   <string name="rdg_plan_day">Araw %s</string>
   <string name="rdg_plan_set_start_date">Itakda ang Petsa ng Pagsisimula…</string>
   <string name="set_current_day">Itakda bilang kasalukuyang araw…</string>
-  <string name="msg_set_current_day_reading_plan">Itatakda nito ang %1$s bilang kasalukuyang araw sa planong ito at mamarkahan ang lahat ng nakaraang araw bilang nabasa na. Magpatuloy?</string>
   <string name="done">Tapos na</string>
-  <string name="reset_plan_question">Sigurado ka bang nais mong i-reset ang planong ito?</string>
   <string name="import_reading_plan">Mag-import ng plano sa pagbabasa…</string>
-  <string name="plan_duplicate_user_plan">Mayroong isang user reading plan sa sdcard jsword/readingplan na may parehong pangalan ng isang internal na plano. Hindi ito mailista dito. Mangyaring palitan ang pangalan ng file sa ibang bagay, na iniiwan ang extension ng file bilang .properties</string>
   <string name="plan_name_y1ntpspr">NT, Mga Awit at Kawikaan sa Isang Taon</string>
   <string name="plan_description_y1ntpspr">Nagmula sa HEARTLIGHT Internet Magazine, http://www.heartlight.org, may pahintulot</string>
   <string name="plan_name_y1ot1nt1_chronological">Kronolohikal na 1-Taon sa Buong Bibliya</string>
@@ -453,12 +451,8 @@
   <string name="delete_index">Tanggalin ang search index</string>
   <string name="about">Tungkol sa</string>
   <string name="delete_doc">Tanggalin ang %s?</string>
-  <string name="interrupted_downloads_title">Naputol ang pag-download</string>
-  <string name="interrupted_downloads_message">Hindi na-install ang mga dokumentong ito dahil naputol ang pag-download:</string>
-  <string name="interrupted_downloads_question">I-download muli?</string>
   <string name="download_again">I-download muli</string>
   <string name="delete_docs_confirm">Tanggalin ang mga dokumentong ito?</string>
-  <string name="delete_search_index_doc">Tanggalin ang index ng %s?</string>
   <!--Verse context menu-->
   <string name="notes">Mga talababa at sanggunian</string>
   <string name="share_verse">I-share…</string>
@@ -496,7 +490,6 @@
   <!--can be removed-->
   <string name="bookmark_warning">Mayroong mga bookmark at/o tala para sa dokumentong ito.</string>
   <string name="bookmark_warning2">Kung nagbago ang istraktura ng dokumento, ang pag-update ng dokumentong ito ay maaaring magpagalaw ng mga lokasyon ng mga bookmark/tala sa loob ng dokumento o mawala nang tuluyan.</string>
-  <string name="bookmark_warning3">Gusto mo pa ring i-update ang module?</string>
   <string name="bookmark_warning4">Inirerekomenda na i-backup ang module bago i-update.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Pagkakasunud-sunod ng petsa</string>
@@ -643,10 +636,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">I-restore o Mag-import mula sa…</string>
   <string name="backup_restore2">I-restore o Mag-import</string>
-  <string name="overwrite_something">I-overwrite ang %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">I-restore ang File ng Database</string>
-  <string name="restore_confirmation">I-overwrite ang Aking Mga Tala, Mga Bookmark, Mga Study Pad, Mga Plano sa Pagbabasa, at Mga Workspace?</string>
   <string name="restore_success">Matagumpay na na-restore ang Aking Mga Tala, Mga Bookmark, Mga Study Pad, Mga Plano sa Pagbabasa, at Mga Workspace</string>
   <string name="downloading_backup">Dina-download ang backup file…</string>
   <string name="loading_backup">Nilo-load ang database mula sa backup…</string>
@@ -668,7 +659,6 @@
   <string name="send_export_file">Magpadala ng export file</string>
   <string name="backup_modules_title">Piliin kung aling mga module ang iba-backup</string>
   <string name="install_zip_canceled">Kinansela ang pag-install ng module</string>
-  <string name="ask_restore_or_import">Ang database para sa %s ay maaaring i-restore (ibig sabihin, tinanggal ang kasalukuyang database at ikine-load ang napiling database) o mai-import (ini-import ang napiling database sa kasalukuyang database). Ano ang nais mong gawin?</string>
   <string name="restore">I-restore</string>
   <string name="import2">Mag-import</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -723,7 +713,6 @@
   <string name="settings_editor_back">Bumalik</string>
   <string name="settings_editor_close">Isara</string>
   <string name="settings_editor_apply">Ilapat</string>
-  <string name="discard_changes_confirmation">Itapon ang mga hindi nai-save na pagbabago?</string>
   <string name="discard">Itapon</string>
   <string name="remove">Alisin</string>
   <string name="overwrite">Palitan</string>
@@ -750,7 +739,8 @@
   <string name="empty_list">Walang mga item na ipapakita</string>
   <string name="error_skip">Laktawan</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Nasirang data</string>
+  <string name="corrupt_database_headline">Hindi mabuksan ng AndBible ang ilan sa iyong data</string>
+  <string name="corrupt_database_files_detail">Hindi mabuksan ang mga file na ito: %1$s. Walang binago o tinanggal. Ang pag-reset ay magsisimula sa mga ito nang walang laman at itatago ang bawat nasirang file sa device na ito, na pinalitan ng pangalan ng .corrupt- at ang petsa at oras.</string>
   <string name="corrupt_database_reset">I-reset ang nasirang data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Hindi na-reset ang nasirang data: hindi mailipat sa tabi ang %1$s. Walang binago. Maaari mong subukan muli, magpadala ng ulat ng error, o gamitin ang Backup at I-restore.</string>
@@ -758,8 +748,8 @@
   <string name="damaged_data_needs_attention">Kailangan ng atensyon ang data ng app. I-tap para buksan ang app.</string>
   <string name="debug_test_error">Test error (debug build)</string>
   <string name="bug_report_prepare_failed">Hindi naihanda o naibahagi ang ulat. Maaari kang subukang muli, o gamitin ang Backup at Restore para i-save ang iyong data.</string>
-  <string name="bug_report_email_title">Magpadala ng ulat ng bug sa pamamagitan ng email</string>
   <string name="bug_report_desktop_text">Susunod, tatanungin ka kung saan ise-save ang file ng bug report. Pagkatapos, makakakuha ka ng mga tagubilin para ipadala ito sa developer team.</string>
+  <string name="bug_report_email_title">Magpadala ng ulat ng bug sa pamamagitan ng email</string>
   <string name="bug_report_email_text">Susunod, mangyaring piliin ang iyong gustong email application (tulad ng Gmail) para ipadala ang ulat sa team ng developer.</string>
   <string name="bug_report_manual_title">Ipadala ang ulat sa pamamagitan ng email</string>
   <string name="bug_report_manual_text_saved">Na-save ang ulat sa <b>%1$s</b>.\n\nMagpadala ng email sa <b>%2$s</b> at ilakip ang file na iyon; hindi ito kayang ilakip para sa iyo ng email program. Iminumungkahing paksa: <b>%3$s</b>. Sa mensahe, sabihin sa amin kung ano ang ginawa mo at ano ang nangyari.</string>
@@ -830,8 +820,6 @@
   <string name="beta_special_regards">Taos-pusong bumabati, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Maaari mong suportahan ang pag-develop ng AndBible sa pamamagitan ng pananalapi sa pamamagitan ng %s.</string>
   <string name="beta_special_sponsor_link">pag-sponsor ng mga oras ng development</string>
-  <string name="new_sync_targets_notice_title">Available na ang mga bagong setting ng pag-sync</string>
-  <string name="new_sync_targets_notice_message">Ang bersyong ito ng AndBible ay nagdaragdag ng mga karagdagang target ng pag-sync: Aking mga Dokumento, mga setting ng AI, at progreso sa pagbabasa. Kung nais mong paganahin ang mga ito, maaari mong gawin sa mga setting ng Device Synchronization.</string>
   <string name="open_settings">Buksan ang mga setting</string>
   <!--History-->
   <string name="history_for">Kasaysayan (%1$s: Window %2$d)</string>
@@ -904,7 +892,6 @@
   <string name="give_passphrase_for_module">Ang dokumento %s ay naka-encrypt at nangangailangan ng passphrase para ma-unlock</string>
   <string name="unlock_module">Itakda ang passphrase ng module</string>
   <string name="unlock_info">Impormasyon sa pag-unlock ng naka-encrypt na module</string>
-  <string name="try_again_passphrase">Hindi gumana ang passphrase, subukan muli?</string>
   <string name="show_unlock_info">Module at impormasyon sa pag-unlock</string>
   <string name="prefs_experimental_features_title">Mga experimental na feature</string>
   <string name="prefs_experimental_features_summary">Pumili kung aling mga experimental na feature ang ibibigay-daan. Ang mga feature na ito ay nasa pag-unlad pa at maaaring magbago o maalis</string>
@@ -938,9 +925,6 @@
   <string name="active_window_indicator_summary">I-highlight ang mga sulok ng window para matukoy kung aling window ang aktibo</string>
   <string name="app_licence_title">Lisensya ng Open Source</string>
   <string name="how_to_contribute">Paano makakatulong?</string>
-  <string name="confirm_delete_bookmarks">Gusto mo bang alisin ang %d na bookmark at ang kanilang mga tala?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Ang napiling label ay nakakabit sa %d na bookmark na walang ibang label. Gusto mo bang tanggalin ang mga bookmark na ito kasama ang mga label?</string>
-  <string name="delete_label_and_bookmarks">Tanggalin ang label at mga bookmark</string>
   <string name="delete_label_only">Tanggalin ang label lamang</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Irekomenda sa isang kaibigan</string>
@@ -971,8 +955,6 @@
   <string name="old_webview">Ang Android WebView package ay masyadong luma (%1$s). Kailangan mong i-upgrade ang iyong Android WebView package sa kahit bersyon %2$s para magamit ang %3$s. Para sa karamihan ng mga device maaari itong gawin sa pamamagitan ng %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Magpatuloy naman</string>
-  <string name="proceed">Magpatuloy</string>
-  <string name="rate_title">Pagbibigay ng rating at pagsusuri ng app</string>
   <string name="rate_message5">\n Ang mga positibo at detalyadong pagsusuri ay napakatulong sa AndBible Open Source Project. Maraming salamat!\n</string>
   <string name="rate_message6">\n Bago magsulat ng negatibong pagsusuri, pakiisaalang-alang ang sumusunod:\n</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -1002,7 +984,6 @@
   <string name="primary_label">Pangunahing label</string>
   <string name="favourite_label">Paboritong label</string>
   <string name="edit_label">I-edit ang label</string>
-  <string name="delete_label_confirmation">Gusto mo bang alisin ang bookmark label na \"%s\"? Maaalis din ang lahat ng kaugnay na tala sa Study Pad.</string>
   <string name="active_labels">Mga napiling label</string>
   <string name="recent_labels">Mga kamakailang label</string>
   <string name="other_labels">Iba pang mga label</string>
@@ -1012,8 +993,6 @@
   <string name="book_menu_show_progress_bars">Ipakita ang mga progress bar</string>
   <string name="reset_workspace_labels">Gusto mo bang i-reset ang mga setting ng auto-assign at paborito para sa workspace na ito?</string>
   <string name="clear_auto_assign_labels">I-clear ang mga auto-assign na label</string>
-  <string name="reset_workspace_auto_assign_labels">Gusto mo bang alisin ang lahat ng auto-assign na label mula sa workspace na ito?</string>
-  <string name="reset_hide_labels">Gusto mo bang i-reset ang setting para sa pagtatago ng mga tinukoy na label?</string>
   <string name="reorder">Muling ayusin</string>
   <string name="system_items">Mga aksyon ng sistema</string>
   <string name="system_items1">Higit pa</string>
@@ -1027,7 +1006,6 @@
   <string name="ios_fullscreen_hint">I-double-tap o i-tap ang button para lumabas sa full screen.</string>
   <string name="desktop_exit_fullscreen">Lumabas sa fullscreen</string>
   <string name="exit_fullscreen">I-double-tap ang screen para lumabas sa fullscreen</string>
-  <string name="reset_app_prefs">Nais mo bang i-reset ang lahat ng pandaigdigang kagustuhan ng aplikasyon na ipinapakita sa screen na ito sa kanilang mga default na halaga?</string>
   <string name="label_red">Pula</string>
   <string name="label_green">Berde</string>
   <string name="label_blue">Asul</string>
@@ -1038,7 +1016,6 @@
   <string name="reset_databases_title">I-reset ang Mga Database</string>
   <string name="reset_databases_description">I-reset ang mga indibidwal na database sa kanilang paunang walang laman na estado. Hindi ito mababawi.</string>
   <string name="last_crash_info_title">Impormasyon ng huling pag-crash</string>
-  <string name="reset_database_confirm">Permanenteng mabubura ang lahat ng data sa \"%1$s\" at ire-reset sa paunang estado. Hindi ito mababawi.\n\nSigurado ka ba?</string>
   <string name="reset_database_success">Matagumpay na na-reset ang database</string>
   <string name="reset_something">I-reset: %1$s</string>
   <string name="export">I-export</string>
@@ -1108,19 +1085,18 @@
   <string name="manage_labels_help_favourite">Itago ang label sa iyong mga paborito para sa mabilis na pag-access.</string>
   <string name="manage_labels_help_styles">Sa ilalim ng pangalan, may maliit na halimbawang nagpapakita ng itsura ng label: Pinili para sa bookmark ng napiling teksto, Buong talata para sa bookmark ng buong talata, at tag na Workspace para sa istilong pinapalitan ng workspace na ito. Ang kulay-abong halimbawang walang palamuti ay nangangahulugang hindi ipinapakita ang mga bookmark ng label. Itago ang mga halimbawa mula sa menu na ⋮.</string>
   <string name="manage_labels_help_reorder">Ayusin muli ang listahan mula sa menu na ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Sa makitid na screen, hindi isinasama ng listahan ang mga icon ng primary, auto-assign at paborito para magkaroon ng espasyo ang mga pangalan ng label. I-tap ang isang label para itakda ang mga ito sa editor nito.</string>
   <string name="added_to_bookmark">Itinalaga sa bookmark na ito</string>
   <string name="strongs_links">Mga Link</string>
   <string name="strongs_text_and_links">Teksto at Mga Link</string>
   <string name="strongs_hidden_links">Mga Nakatagong Link</string>
   <string name="verse_tip">Para pumili ng bahagyang o maraming talata, maaari kang mag-long-press sa teksto ng Bibliya</string>
-  <string name="permission_required">Kailangan ng pahintulot</string>
   <string name="labels_search_hint">Hanapin</string>
   <string name="search_mode_name_start">Pangalan (mula sa simula)</string>
   <string name="search_mode_name_contains">Pangalan (naglalaman)</string>
   <string name="search_mode_content">Nilalaman</string>
   <string name="search_results_matches">%d mga tugma</string>
   <string name="search_results_match">1 tugma</string>
-  <string name="progress_status_permission">Para ipakita ang mga notification (katayuan ng download, pagpoproseso, katayuan ng pagsasalita), kailangan namin ang iyong pahintulot.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simpleng Calculator</string>
   <string name="prefs_persecution_cat">Mga setting para sa mga pinersekuto</string>
@@ -1154,7 +1130,6 @@
   <string name="custom_repositories_create_button_label">Magdagdag ng Custom na Repository</string>
   <string name="custom_repositories_info_button_label">Impormasyon</string>
   <string name="repository_specification">URL ng Repository</string>
-  <string name="delete_custom_repository">Nais mo bang alisin ang custom na repository %s?</string>
   <string name="custom_repositories_help1">Para magdagdag ng bagong custom na repository, i-type o kopyahin at i-paste ang custom na URL ng repository dito.</string>
   <string name="custom_repositories_help2">Maaari kang magbasa ng karagdagang impormasyon tungkol sa mga custom na repository sa %s.</string>
   <string name="custom_repositories_help0">Maaari kang mag-install ng mga dokumento mula sa panlabas na custom na mga repository sa pamamagitan ng pag-install ng mga custom na repository.</string>
@@ -1174,7 +1149,6 @@
   <string name="db_bookmarks">Mga Bookmark, My Notes, Mga Label at Study Pad</string>
   <string name="synchronizing">Nagsi-synchronize…</string>
   <string name="notification_finished">Tapos na</string>
-  <string name="overrideBackup">May nakitang umiiral na database sa Cloud na hindi naka-synchronize ang device na ito. Ang database ay naglalaman ng %s. Ano ang nais mong gawin?</string>
   <string name="reading_plans_content">Mga plano sa pagbabasa at kanilang mga katayuan</string>
   <string name="bookmarks_contents">Mga Bookmark, Mga Label at Study Pad</string>
   <string name="workspaces_contents">Mga Workspace at Window</string>
@@ -1194,7 +1168,6 @@
   <string name="reading_progress_calendar">Aktibidad sa Pagbabasa</string>
   <string name="reading_progress_cycle">Iklo %d</string>
   <string name="reading_progress_new_cycle">Bagong Iklo</string>
-  <string name="reading_progress_new_cycle_confirm">Magsimula ng bagong iklo ng pagbabasa? Magsisimula itong mag-track ng iyong pag-unlad mula sa simula, habang pinapanatili ang data ng iyong nakaraang iklo.</string>
   <string name="reading_progress_previous_cycle">Nakaraang iklo</string>
   <string name="reading_progress_next_cycle">Susunod na iklo</string>
   <string name="cloud_merge_data">Pagsamahin ang data</string>
@@ -1204,7 +1177,6 @@
   <string name="cloud_sync_title">Synchronization ng device</string>
   <string name="reset_sync">Mag-sign Out</string>
   <string name="prefs_reset_sync_summary">Huwag paganahin ang synchronization at i-reset ang mga kaugnay na setting.</string>
-  <string name="sync_confirmation">Sigurado ka bang nais mong mag-sign out at i-reset ang synchronization?</string>
   <string name="cloud_info">Impormasyon sa Cloud</string>
   <string name="cloud_info_summary">Data sa cloud storage: %s Mb</string>
   <string name="sync_adapter">Backend ng Synchronization</string>
@@ -1220,7 +1192,6 @@
   <string name="webdav_server_url_hint">Address ng WebDAV folder, hal. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Nangangailangan ang sync ng ligtas na https:// address.</string>
   <string name="webdav_certificate_title">Sertipiko ng server</string>
-  <string name="webdav_forget_certificate_message">Kalimutan ang pinagkakatiwalaang sertipiko ng server? Hihilingin sa iyong kumpirmahin muli ang sertipiko sa susunod na koneksyon.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Hindi pinagkakatiwalaang sertipiko ng server</string>
   <string name="webdav_untrusted_certificate_message">Ang sertipiko ng %1$s ay hindi pinagkakatiwalaan ng Android. Pagkatiwalaan lamang ito kung kilala mo ito, halimbawa dahil ikaw mismo ang nag-set up ng server na ito.\n\nPaksa: %2$s\nNag-isyu: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1237,14 +1208,7 @@
   <string name="synchronization_categories">Mga kategorya ng synchronization</string>
   <string name="sync_general_settings">Impormasyon at mga pangkalahatang setting</string>
   <string name="sync_introduction">Panimula</string>
-  <string name="are_you_sure">Sigurado ka ba?</string>
   <string name="are_you_sure_merge">Pareho ang data sa device na ito at ang %s sa cloud ay mananatili. Kung ang parehong aytem ay binago sa pareho, ang mas bagong pagbabago ang mananatili. Ipapadala ang data ng device na ito sa iyong iba pang mga device.</string>
-  <string name="are_you_sure_reset_local">Ire-reset nito ang iyong lokal na database para sa %s gamit ang nilalaman na kasalukuyang nakaimbak sa cloud service.</string>
-  <string name="are_you_sure_reset_cloud">Ire-reset nito ang iyong cloud database para sa %s gamit ang nilalaman na mayroon ka sa device na ito.</string>
-  <string name="sync_cant_fetch">Ang bersyon ng database o patch file na nakaimbak sa Cloud ay mas mataas kaysa sa sinusuportahan ng app na ito.</string>
-  <string name="sync_disabling">Nini-disable ang synchronization para sa %s sa ngayon.</string>
-  <string name="sync_update_app">Pakiayos ang app para mapatuloy ang synchronization.</string>
-  <string name="sign_in_failed">Nabigo ang pag-sign in sa synchronization backend service.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Dini-disable ang cloud synchronization. Kailangan mong i-enable muli nang manu-mano pagkatapos ng restore.</string>
   <string name="report">Ulat</string>
@@ -1262,6 +1226,7 @@
   <string name="open_here">Buksan dito</string>
   <string name="external_link">External na link</string>
   <string name="external_link_question">Magbubukas ito ng external na link na %s sa isang browser application, nais mo bang magpatuloy?</string>
+  <string name="external_link_dont_ask_again">Huwag nang magtanong para sa %s</string>
   <string name="nameless">Hindi natukoy ang pamagat</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Mga one-tap na aksyon (Mga Bibliya)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Mga one-tap na aksyon (Iba pa)</string>
@@ -1309,8 +1274,6 @@
   <string name="memorize_include_reference_summary">Idagdag ang sanggunian ng talata (hal. Juan 3:16) bilang huling aytem na isaulo</string>
   <string name="reading_progress_settings">Pag-unlad at pagsasaulo</string>
   <string name="reading_progress_settings_summary">Mga setting ng auto-tracking, pagsasaulo, at pagsasanay sa pag-type</string>
-  <string name="memorize_confirm_unmark">Alisin ang status na nasaulo para sa %s?</string>
-  <string name="memorize_confirm_remove_target">Alisin ang layunin sa pagsasaulo na %s?</string>
   <string name="memorize_tab_reading">Pagbabasa</string>
   <string name="memorize_tab_memorization">Pagsasaulo</string>
   <string name="memorize_verses_memorized">Nasaulo</string>
@@ -1336,7 +1299,6 @@
   <string name="llm_reset_usage_title">I-reset ang datos ng paggamit</string>
   <string name="llm_reset_usage_summary">I-clear ang pinagsama-samang pagsubaybay ng token at gastos</string>
   <string name="llm_reset_usage_confirm_title">I-reset ang datos ng paggamit?</string>
-  <string name="llm_reset_usage_confirm_message">Maaaring mawala ang lahat ng pinagsama-samang datos ng paggamit.</string>
   <string name="llm_custom_input_price_title">Presyo ng input ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Presyo ng output ($/Mtoken)</string>
   <string name="llm_cost_total">Kabuuan: %1$s</string>
@@ -1352,8 +1314,6 @@
   <string name="llm_parse_error_anthropic">Nabigo ang pag-parse ng tugon ng Anthropic: %1$s</string>
   <string name="llm_error_unknown">Hindi kilalang error</string>
   <string name="llm_error_max_iterations">Naabot na ang maximum na iterasyon (%1$d) nang hindi natatapos</string>
-  <string name="llm_continue_iterations_title">Magpatuloy?</string>
-  <string name="llm_continue_iterations_message">Naabot na ng AI agent ang limitasyon nito na %1$d iterasyon nang hindi natatapos. Magpatuloy para sa %2$d pang iterasyon?</string>
   <string name="agent_max_iterations_title">Max na iterasyon ng agent</string>
   <string name="agent_max_iterations_summary">Maximum na iterasyon bago magtanong na magpatuloy (0 = walang limitasyon)</string>
   <string name="ask_model_before_run_title">Itanong ang modelo bago tumakbo</string>
@@ -1413,7 +1373,6 @@
   <string name="ai_models_summary_none">Walang na-configure na modelo</string>
   <string name="ai_add_provider">Magdagdag ng provider</string>
   <string name="ai_provider_edit">I-edit</string>
-  <string name="ai_provider_delete_confirm">Tanggalin ang provider na \"%1$s\"? Ang mga prompt na gumagamit ng provider na ito ay babalik sa default.</string>
   <string name="ai_provider_api_key_not_set">Hindi nakatakda ang API key</string>
   <string name="ai_provider_select_type">Pumili ng uri ng provider</string>
   <string name="ai_provider_name">Pangalan ng provider</string>
@@ -1433,7 +1392,6 @@
   <string name="edit_model_title">I-edit ang modelo</string>
   <string name="model_saved">Nai-save ang modelo</string>
   <string name="model_deleted">Natanggal ang modelo</string>
-  <string name="model_delete_confirm">Tanggalin ang modelo na \"%1$s\"?</string>
   <string name="model_set_default">Itakda bilang default na modelo</string>
   <string name="model_select_provider">Provider</string>
   <string name="model_supported_badge">✓ Sinusuportahan</string>
@@ -1473,7 +1431,6 @@
   <string name="ai_disclaimer_point8">Ang iyong data ay ipinapadala sa mga server ng iyong piniling AI provider. Sa paggamit ng API key, tinatanggap mo ang mga tuntunin at patakaran sa privacy ng provider. Posible ang mga self-hosted na modelo ngunit nangangailangan ng higit pang teknikal na kaalaman, at maaaring hindi makagawa ng mga resulta na kasing ganda ng mga komersyal na modelo.</string>
   <string name="ai_disclaimer_point9">Nag-icharge ang mga AI provider para sa paggamit ng API. Ang mga tinantyang gastos na ipinapakita sa AndBible ay tinatayang halaga lamang — palaging suriin ang billing ng iyong provider para sa aktwal na mga singil.</string>
   <string name="ai_disclaimer_accept_title">Tanggapin ang AI Disclaimer</string>
-  <string name="ai_disclaimer_accept_button">Tinatanggap ko at buong responsibilidad ko ito</string>
   <string name="prompt_permission_mode">Mode ng pahintulot</string>
   <string name="prompt_permission_mode_description">Kinokontrol kung kailan kailangan ang kumpirmasyon ng gumagamit bago magsagawa ng mga write operation ang AI. Ang mga setting bawat tool sa ibaba ay maaaring mag-override nito para sa mga indibidwal na tool.</string>
   <string name="agent_permission_mode_summary">Kinokontrol kung kailan kailangan ang kumpirmasyon ng gumagamit bago ang mga write operation ng AI</string>
@@ -1589,7 +1546,6 @@
   <string name="default_prompt_custom_desc">Magpatakbo ng custom na gawain sa napiling talata</string>
   <string name="default_prompt_custom_template">Sundin ang pagtutukoy ng gawain ng gumagamit para sa napiling talata ng Bibliya.</string>
   <string name="copy">Kopyahin</string>
-  <string name="delete_prompt_confirm_message">Tiyak bang gusto mong tanggalin ang prompt na ito?</string>
   <string name="ai_hide_prompt">Itago</string>
   <string name="ai_restore_hidden_prompts">Ibalik ang mga nakatagong prompt</string>
   <string name="ai_prompt_hidden">Naitago ang prompt</string>
@@ -1674,8 +1630,6 @@
   <string name="permission_allow_all_session">Payagan ang lahat ng tool sa session na ito</string>
   <string name="permission_allow_always">Laging payagan ang \"%1$s\"</string>
   <string name="permission_deny">Tanggihan</string>
-  <string name="permission_always_allow_confirm_title">Laging payagan?</string>
-  <string name="permission_always_allow_confirm">Tiyak bang gusto mong permanenteng payagan ang \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Maaari mong i-reset ito sa Mga Setting ng AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Mga pahintulot ng tool</string>
@@ -1780,18 +1734,15 @@
   <string name="my_document_new_name">Dokumento %d</string>
   <string name="my_document_create_title">Lumikha ng bagong dokumento</string>
   <string name="my_document_rename_title">Palitan ang pangalan ng dokumento</string>
-  <string name="my_document_delete_confirmation">Tanggalin ang dokumentong \"%s\"?</string>
   <string name="show_secret">Ipakita</string>
   <string name="hide_secret">Itago</string>
   <string name="ai_documents_name">Mga AI Document</string>
   <string name="ai_documents_description">Mga dokumentong awtomatikong binuo ng AI</string>
-  <string name="my_document_cannot_delete_ai_documents">Hindi matatanggal ang Mga AI Document habang mayroon itong mga pahina. Tanggalin muna ang mga pahina.</string>
   <string name="my_document_save_changes">I-save ang mga pagbabago?</string>
   <string name="my_document_no_description">Walang paglalarawan</string>
   <string name="my_document_edit_description">I-edit ang paglalarawan</string>
   <string name="my_document_pages_title">%s - Mga Pahina</string>
   <string name="my_document_page_rename_title">Palitan ang pangalan ng pahina</string>
-  <string name="my_document_page_delete_confirmation">Tanggalin ang pahinang \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Tanggalin ang mga pahinang ito?</string>
   <string name="my_documents_switch_document">Lumipat ng dokumento</string>
   <string name="my_document_new_page_name">Pahina %1$d</string>
@@ -1859,7 +1810,6 @@
   <string name="cloud_doc_show_removed">Ipakita ang mga tinanggal na dokumento</string>
   <string name="cloud_doc_status_removed">Tinanggal sa cloud</string>
   <string name="cloud_doc_status_still_installed">naka-install pa rin dito</string>
-  <string name="cloud_doc_purge_confirm">Permanenteng tanggalin ang \"%1$s\" sa history ng cloud? Kung naka-install pa rin ito sa ibang device, maaaring i-upload ito muli ng device na iyon sa cloud sa susunod nitong pag-sync.</string>
   <string name="cloud_doc_action_download">I-download</string>
   <string name="cloud_doc_action_push">I-upload sa cloud</string>
   <string name="cloud_doc_action_remove_cloud">Tanggalin sa cloud</string>
@@ -1870,8 +1820,6 @@
   <string name="cloud_doc_action_dont_sync">Huwag i-sync sa cloud</string>
   <string name="cloud_doc_action_allow_sync">I-sync sa cloud</string>
   <string name="cloud_doc_action_purge">Tanggalin sa history ng cloud</string>
-  <string name="cloud_doc_remove_all_confirm">Tanggalin ang %1$s sa cloud at sa lahat ng iyong device, kabilang ang isang ito?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Tanggalin ang %1$s sa cloud? Mananatili ang kopya sa device na ito; tatanggalin din ito ng mga device na may naka-on na pag-sync ng dokumento.</string>
   <string name="cloud_doc_sync_now">I-sync ngayon</string>
   <string name="cloud_doc_rescan">Muling i-scan mula sa cloud</string>
   <string name="cloud_doc_sync_now_download">I-download ang mga bago at na-update na dokumento</string>
@@ -1883,6 +1831,14 @@
   <string name="cloud_doc_summary_download">I-download %1$d</string>
   <string name="cloud_doc_summary_download_size">I-download %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Magsisimula ang mga awtomatikong pag-download sa Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d dokumento</item>
+        <item quantity="other">%1$d mga dokumento</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d dokumento (%2$s)</item>
+        <item quantity="other">%1$d mga dokumento (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Walang ililipat</string>
   <string name="cloud_doc_selected_count">%1$d napili</string>
   <string name="cloud_doc_bulk_skipped">%1$d na hindi naaangkop ay nilaktawan</string>
@@ -1899,8 +1855,6 @@
   <string name="background_image_import">I-import mula sa gallery…</string>
   <string name="background_image_empty">Wala pang na-import na larawan. I-tap ang \"I-import mula sa gallery…\" para magdagdag.</string>
   <string name="background_image_importing">Ini-import…</string>
-  <string name="background_image_delete_title">Tanggalin ang larawan?</string>
-  <string name="background_image_delete_confirm">Tanggalin ang background image na ito? Ang mga workspace na gumagamit pa nito ay babalik sa walang larawan.</string>
   <string name="background_image_day">Background image (araw)</string>
   <string name="background_image_night">Background image (gabi)</string>
   <string name="background_image_opacity_day">Opacity ng background image (araw)</string>
@@ -1974,6 +1928,10 @@
   <string name="legacy_notice_icloud">Gumagamit na ngayon ng iCloud Drive ang sync. I-on itong muli sa Mga Setting → Sync. Pinananatili ng device na ito ang mayroon ito; darating ang mga pagbabago mula sa iyong iba pang device kapag naka-set up nang muli ang sync. Para mapalaya ang lumang data sa iCloud: Mga Setting → iyong pangalan → iCloud → Manage Storage → AndBible.</string>
   <string name="legacy_notice_nextcloud">Nadala ang iyong koneksyon sa Nextcloud, ngunit naka-off ang sync. I-on ito sa Mga Setting → Sync at piliing kumuha mula sa cloud o gumawa ng bago.</string>
   <string name="legacy_notice_nextcloud_unsent">Ang ilang pagbabago sa device na ito ay hindi pa naipapadala sa Nextcloud. Hindi ito naipadala at mananatili lamang sa device na ito.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">Ang %1$d bookmark ay hindi mailagay nang maayos at hindi na-import. Itinatago ito kasama ng iyong lumang data sa device na ito.</item>
+        <item quantity="other">Ang %1$d mga bookmark ay hindi mailagay nang maayos at hindi na-import. Itinatago ang mga ito kasama ng iyong lumang data sa device na ito.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Isa itong makapangyarihan ngunit madaling gamitin na offline na application sa pag-aaral ng Bibliya.</string>
   <string name="webdav_untrusted_certificate_message_device">Ang sertipiko ng %1$s ay hindi pinagkakatiwalaan ng device na ito. Pagkatiwalaan lamang ito kung kilala mo ito, halimbawa dahil ikaw mismo ang nag-set up ng server na ito.\n\nPaksa: %2$s\nNag-isyu: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2025,6 +1983,25 @@
   <string name="recommend_share_link">Magbahagi ng link</string>
   <string name="recommend_qr_caption">I-scan para makuha ang AndBible para sa iyong telepono, tablet o computer.</string>
   <string name="desktop_activation_failed">Tumatakbo na ang AndBible, ngunit hindi tumugon ang window nito. Lumipat sa tumatakbong instance at subukang muli. Hindi nakumpirma na naihatid ang anumang papasok na file.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Hindi na ito maibabalik.</string>
+  <string name="ai_raw_log_delete_lead">Tanggalin ang log na ito?</string>
+  <string name="ai_provider_delete_lead">Tanggalin ang provider na “%1$s”?</string>
+  <string name="ai_provider_delete_detail">Ang mga prompt na gumagamit nito ay babalik sa default na provider.</string>
+  <string name="ai_model_delete_lead">Tanggalin ang modelong “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Tanggalin ang prompt na “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Tanggalin ang prompt na ito?</string>
+  <string name="ai_reset_usage_detail">Babalik sa zero ang mga kabuuan ng token at gastos. Hindi na ito maibabalik.</string>
+  <string name="ai_reset_usage_button">I-reset</string>
+  <string name="ai_disclaimer_accept">Tinatanggap ko</string>
+  <string name="llm_continue_iterations_lead">Magpatuloy pa para sa %1$d iterasyon?</string>
+  <string name="llm_continue_iterations_detail">Naabot ng AI agent ang limitasyon nitong %1$d iterasyon nang hindi natatapos.</string>
+  <string name="llm_continue_button">Magpatuloy</string>
+  <string name="permission_always_allow_lead">Laging payagan ang “%1$s”?</string>
+  <string name="permission_always_allow_button">Laging payagan</string>
+  <string name="ai_bug_report_send_lead">Magpadala ng ulat ng bug ng AI?</string>
+  <string name="ai_bug_report_send_button">Ipadala</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Pagsisimula</string>
   <string name="user_guide_section_reading_workspace">Pagbabasa at workspace</string>
@@ -2102,4 +2079,150 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI assistant, bahagi 3: mga tool, data at pahintulot</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI assistant, bahagi 4: sariling prompt, gastos at pag-sync</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Itapon ang mga pagbabago?</string>
+  <string name="dialog_keep_editing">Ipagpatuloy ang pag-edit</string>
+  <string name="dialog_label_delete_lead">Tanggalin ang label na “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Natatanggal din ang mga tala nito sa Study Pad. Hindi na ito maibabalik.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="one">Ang %1$d bookmark ay walang ibang label.</item>
+        <item quantity="other">Ang %1$d mga bookmark ay walang ibang label.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="one">Tanggalin ang label at %1$d bookmark</item>
+        <item quantity="other">Tanggalin ang label at %1$d mga bookmark</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Natatanggal ang mga bookmark at ang mga tala nito.</string>
+  <string name="dialog_label_delete_only_consequence">Mananatili ang mga bookmark, nang walang label.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="one">Alisin ang bookmark na ito?</item>
+        <item quantity="other">Alisin ang %1$d mga bookmark?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="one">Aalisin din ang tala nito.</item>
+        <item quantity="other">Aalisin din ang mga tala ng mga ito.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Alisin ang lahat ng auto-assign na label sa workspace na ito?</string>
+  <string name="dialog_labels_reset_hidden_lead">Ipakita muli ang lahat ng nakatagong label?</string>
+  <string name="dialog_labels_reset_shown_detail">Ipinapakita muli ang mga label na itinago mo sa listahan.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">I-install ang “%s”?</string>
+  <string name="install_action">I-install</string>
+  <string name="install_from_file_question">Mag-install ng mga dokumento mula sa file?</string>
+  <string name="overwrite_files_detail">Umiiral na ang mga file na ito:%s</string>
+  <string name="import_studypads_question">I-import ang mga Study Pad na ito?</string>
+  <string name="import_action">I-import</string>
+  <string name="restore_backup_question">I-restore ang mga dokumento sa backup na ito?</string>
+  <string name="restore_backup_detail">Ang file na ito ay backup ng mga dokumento ng AndBible.</string>
+  <string name="update_document_question">I-update ang dokumentong ito?</string>
+  <string name="update_action">I-update</string>
+  <string name="download_documents_question">Mag-download ng mga dokumento?</string>
+  <string name="download_persecution_warning">Kung nakatira ka sa bansang may pag-uusig, maaaring kailangan mong mag-ingat sa pag-download ng materyal na Kristiyano sa Internet. Sa halip, maaari kang kumuha ng mga zip file ng dokumento sa mas ligtas na paraan at i-install ang mga ito sa pamamagitan ng “%1$s”. Naka-encrypt (HTTPS) ang lahat ng download mula sa mga server ng dokumento.</string>
+  <string name="download_action">I-download</string>
+  <string name="download_dont_ask_again">I-download, huwag nang magtanong</string>
+  <string name="download_dont_ask_again_consequence">Magsisimula ang mga download nang walang tanong na ito sa hinaharap.</string>
+  <string name="passphrase_did_not_work">Hindi gumana ang passphrase.</string>
+  <string name="try_again">Subukan muli</string>
+  <string name="interrupted_downloads_lead">I-download muli ang mga dokumentong ito?</string>
+  <string name="interrupted_downloads_detail">Naantala ang kanilang pag-download, kaya hindi na-install ang mga ito.</string>
+  <string name="external_link_open_question">Buksan ang link na ito sa iyong browser?</string>
+  <string name="open_action">Buksan</string>
+  <string name="notification_permission_question">Payagan ang mga notification?</string>
+  <string name="notification_permission_detail">Ipinapakita ng mga notification ang status ng pag-download, pagproseso at pagsasalita.</string>
+  <string name="allow_action">Payagan</string>
+  <string name="rate_question">I-rate at i-review ang app?</string>
+  <string name="bug_report_email_question">Ipadala ang ulat ng bug sa pamamagitan ng email?</string>
+  <string name="continue_action">Magpatuloy</string>
+  <string name="delete_search_index_question">Tanggalin ang search index ng “%s”?</string>
+  <string name="remove_custom_repository_question">Alisin ang custom na repository na “%s”?</string>
+  <string name="download_document_question">I-download ang “%s”?</string>
+  <string name="choose_file_action">Pumili ng file</string>
+  <string name="old_webview_question">Gamitin ang app na may lumang WebView?</string>
+  <string name="incomplete_translation_question">Magpatuloy gamit ang bahagyang salin?</string>
+  <string name="rate_action">I-rate</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Tanggalin ang dokumentong “%s”?</string>
+  <string name="my_document_page_delete_lead">Tanggalin ang pahinang “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">Hindi matatanggal ang mga AI document habang may laman pang mga pahina.</string>
+  <string name="my_document_cannot_delete_ai_detail">Tanggalin muna ang mga pahina.</string>
+  <string name="reading_progress_new_cycle_lead">Magsimula ng bagong siklo ng pagbabasa?</string>
+  <string name="reading_progress_new_cycle_detail">Masusubaybayan ang iyong progreso mula sa simula. Mananatili ang data ng nakaraan mong siklo.</string>
+  <string name="reading_progress_new_cycle_start">Magsimula</string>
+  <string name="reset_plan_lead">I-reset ang planong ito?</string>
+  <string name="reset_plan_detail">Mabubura ang iyong petsa ng pagsisimula at progreso sa planong ito.</string>
+  <string name="set_current_day_lead">Itakda ang %1$s bilang kasalukuyang araw?</string>
+  <string name="set_current_day_detail">Mamarkahan bilang nabasa na ang lahat ng nakaraang araw.</string>
+  <string name="plan_duplicate_user_plan_lead">Ang isang file ng plano sa pagbabasa ay may parehong pangalan sa built-in na plano.</string>
+  <string name="plan_duplicate_user_plan_detail">Hindi mailista ang file ng plano. Palitan ang pangalan ng file sa folder na jsword/readingplan, at panatilihin ang extension nitong .properties.</string>
+  <string name="background_image_delete_lead">Tanggalin ang background na larawang ito?</string>
+  <string name="background_image_delete_detail">Ang mga workspace na gumagamit pa rin nito ay babalik sa walang larawan.</string>
+  <string name="reset_values_lead">I-reset ang lahat ng value na ito?</string>
+  <string name="revert_setting_lead">Ibalik ang setting na ito sa minanang value?</string>
+  <string name="revert_setting_confirm">Ibalik</string>
+  <string name="reset_settings_screen_lead">I-reset ang mga setting sa screen na ito?</string>
+  <string name="reset_settings_screen_detail">Babalik ang mga ito sa kanilang mga default na value.</string>
+  <string name="memorize_unmark_lead">Alisin ang status na nasaulo para sa “%s”?</string>
+  <string name="memorize_remove_target_lead">Alisin ang layunin sa pagsasaulo na “%s”?</string>
+  <string name="dialog_apply">Ilapat</string>
+  <string name="dialog_dont_apply">Huwag ilapat</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Mayroon nang iyong %s sa cloud. Ano ang dapat mangyari?</string>
+  <string name="cloud_merge_consequence">Mananatili ang magkabilang panig; kung may item na nabago sa pareho, ang mas bagong pagbabago ang mananaig.</string>
+  <string name="cloud_fetch_consequence">Papalitan ang data sa device na ito ng kopya sa cloud.</string>
+  <string name="cloud_create_consequence">Papalitan ang kopya sa cloud ng data sa device na ito.</string>
+  <string name="cloud_disable_consequence">Mananatiling naka-off ang sync para sa data na ito.</string>
+  <string name="cloud_merge_lead">Pagsamahin ang iyong %s sa cloud?</string>
+  <string name="cloud_merge_confirm">Pagsamahin</string>
+  <string name="cloud_replace_confirm">Palitan</string>
+  <string name="cloud_replace_local_lead">Palitan ang %s ng device na ito ng kopya sa cloud?</string>
+  <string name="cloud_replace_local_detail">Ang kasalukuyang nasa device na ito ay mapapalitan at hindi na mababawi.</string>
+  <string name="cloud_replace_cloud_lead">Palitan ang kopya sa cloud ng %s ng data ng device na ito?</string>
+  <string name="cloud_replace_cloud_detail">Ang kasalukuyang nasa cloud ay mapapalitan, at matatanggap ng iyong iba pang device ang data ng device na ito.</string>
+  <string name="sign_in_failed_lead">Hindi makapag-sign in sa serbisyo ng sync.</string>
+  <string name="sync_too_old_lead">Masyadong luma ang app na ito para mag-sync ng %s.</string>
+  <string name="sync_too_old_detail">Gumagamit ang data sa cloud ng mas bagong bersyon kaysa sa sinusuportahan ng app na ito. Naka-off muna ang sync para dito; i-update ang app para i-on itong muli.</string>
+  <string name="backup_replace_lead">Palitan ang iyong %s ng backup?</string>
+  <string name="backup_replace_detail">Ang kasalukuyang nasa device na ito ay mapapalitan at hindi na mababawi.</string>
+  <string name="reset_database_lead">I-reset ang “%1$s” sa paunang estado nito?</string>
+  <string name="reset_database_detail">Permanenteng matatanggal ang lahat ng data dito. Hindi na ito maibabalik.</string>
+  <string name="reset_database_button">I-reset</string>
+  <string name="restore_all_lead">Palitan ang iyong mga tala, bookmark, Study Pad, plano sa pagbabasa at workspace?</string>
+  <string name="restore_or_import_lead">I-restore o i-import ang %s?</string>
+  <string name="restore_consequence">Papalitan ang nasa device na ito ng backup.</string>
+  <string name="import_consequence">Idinadagdag ang mga item ng backup sa nasa device na ito.</string>
+  <string name="sync_start_syncing">Simulan ang pag-sync</string>
+  <string name="sync_reset_lead">Mag-sign out at i-reset ang pag-synchronize?</string>
+  <string name="sync_reset_detail">Kakailanganin mong i-set up muli ang pag-synchronize.</string>
+  <string name="webdav_forget_certificate_lead">Kalimutan ang pinagkakatiwalaang certificate ng server?</string>
+  <string name="webdav_forget_certificate_detail">Hihilingin sa iyong kumpirmahin muli ang certificate sa susunod na koneksyon.</string>
+  <string name="webdav_forget_certificate_confirm">Kalimutan</string>
+  <string name="cloud_doc_remove_all_lead">Alisin ang “%1$s” sa cloud at sa lahat ng iyong device?</string>
+  <string name="cloud_doc_remove_cloud_lead">Alisin ang “%1$s” sa cloud?</string>
+  <string name="cloud_doc_purge_lead">Permanenteng alisin ang “%1$s” sa kasaysayan ng cloud?</string>
+  <string name="cloud_doc_remove_all_detail">Tatanggalin din nito ang mga kopya sa device na ito at sa bawat iba pang device na naka-on ang document sync.</string>
+  <string name="cloud_doc_remove_cloud_detail">Mananatili ang mga kopya sa device na ito. Aalisin din ang mga ito ng mga device na naka-on ang document sync.</string>
+  <string name="cloud_doc_purge_detail">Maaaring i-upload muli ng device na may kopya pa ang dokumento sa susunod nitong sync.</string>
+  <string name="cloud_doc_block_confirm_button">Huwag i-sync</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="one">Alisin ang %1$d dokumento sa cloud at sa lahat ng iyong device?</item>
+        <item quantity="other">Alisin ang %1$d mga dokumento sa cloud at sa lahat ng iyong device?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="one">Alisin ang %1$d dokumento sa cloud?</item>
+        <item quantity="other">Alisin ang %1$d mga dokumento sa cloud?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="one">Permanenteng alisin ang %1$d dokumento sa kasaysayan ng cloud?</item>
+        <item quantity="other">Permanenteng alisin ang %1$d mga dokumento sa kasaysayan ng cloud?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="one">Ihinto ang pag-sync ng %1$d dokumento sa cloud?</item>
+        <item quantity="other">Ihinto ang pag-sync ng %1$d mga dokumento sa cloud?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Mas marami mong data ang maaari nang i-sync</string>
+  <string name="new_sync_targets_detail">Maaari na ring i-sync ang My Documents, mga setting ng AI at progreso sa pagbabasa. I-on ang mga ito sa mga setting ng Device synchronization.</string>
+  <!--end dialog copy: B3b-->
 </resources>

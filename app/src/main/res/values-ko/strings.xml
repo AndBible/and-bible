@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">전체 사용자 가이드는 andbible.org에 있습니다. 페이지는 브라우저에서 열립니다.</string>
   <string name="help_user_guide_home">사용자 가이드 홈</string>
   <string name="help_read_in_user_guide">사용자 가이드에서 읽기</string>
+  <string name="help_in_user_guide">사용자 가이드의 도움말</string>
+  <string name="help_matching_section">해당 섹션</string>
   <string name="help_read_page">사용자 가이드에서 읽기: %1$s</string>
   <string name="help_tutorial_videos">튜토리얼 동영상</string>
   <string name="help_watch_in_order">튜토리얼 동영상을 순서대로 보기</string>
@@ -242,6 +244,9 @@
   <string name="prefs_navigate_to_verse_summary">문장을 선택할 때 절(과 장)을 선택</string>
   <string name="prefs_open_links_in_special_window_title">링크 윈도우</string>
   <string name="prefs_open_links_in_special_window_summary">링크를 누르면 상호 참조와 스트롱 넘버를 빠르게 보여주기 위해 특수한 창에 엽니다</string>
+  <string name="prefs_trusted_link_domains_title">신뢰하는 링크 도메인</string>
+  <string name="prefs_trusted_link_domains_summary">이 도메인의 링크는 확인 없이 열립니다. 다시 확인을 받으려면 도메인의 선택을 해제하세요.</string>
+  <string name="prefs_trusted_link_domains_empty">아직 없습니다. 링크를 열 때 \"다시 묻지 않음\"을 선택하면 해당 도메인이 추가됩니다.</string>
   <string name="prefs_text_size_sample_text">샘플 텍스트</string>
   <string name="prefs_screen_keep_on_title">화면 켜 놓기</string>
   <string name="prefs_screen_keep_on_summary">이 앱을 사용하는 동안 스크린이 꺼지지 않게 함</string>
@@ -302,7 +307,6 @@
   <string name="line_spacing_title">줄 간격</string>
   <string name="line_spacing_summary">줄 사이의 공간을 설정함</string>
   <string name="select_none">모두 선택 안함</string>
-  <string name="reset_are_you_sure">정말 이 모든 값을 재설정하시겠습니까?</string>
   <string name="window_pinning_menutitle">윈도우 고정</string>
   <string name="hide_window_buttons_title">윈도우 버튼 숨기기</string>
   <string name="hide_window_buttons_summary">성경 창의 오른쪽에 있는 윈도우 버튼을 숨깁니다. 아래쪽의 윈도우 내비게이션 바는 여전히 보이고 오래 클릭해서 윈도우 팝업 메뉴를 열 수 있습니다.</string>
@@ -325,6 +329,7 @@
   <string name="word_not_found_in_dictionaries">어떤 사전에서도 단어를 찾을 수 없습니다</string>
   <string name="prefs_top_margin_title_mm">상단 여백 (%d mm)</string>
   <string name="font_size_title">글꼴 크기</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라</string>
   <string name="font_size_title_pt">글꼴 크기 (%d pt)</string>
   <string name="prefs_font_text_size_summary">주 텍스트의 글꼴 크기를 조정합니다</string>
@@ -342,6 +347,8 @@
   <string name="window_color_settings_title">색 설정 (윈도우)</string>
   <string name="workspace_color_settings_title">색 설정 (워크스페이스)</string>
   <string name="color_workspace">워크스페이스 색상</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">기본값</string>
   <string name="color_text">글꼴 색</string>
   <string name="color_background">배경 색</string>
   <string name="colors_day_mode_title">낮 모드</string>
@@ -375,7 +382,6 @@
   <string name="download_source_last_updated">문서 목록 최근 업데이트: %s.</string>
   <string name="download_refreshing_book_list">문서 서버에서 사용 가능한 문서의 목록을 갱신중...</string>
   <string name="download_source_message1">문서를 다음 소스에서 다운로드했습니다:</string>
-  <string name="download_document_confirm_prefix">다운로드</string>
   <string name="error_downloading">다운로드 중 문제가 발생했습니다. 인터넷 연결을 확인하세요.</string>
   <string name="error_downloading_status">%1$s를 호스팅하는 서버에서 %2$s (%3$d)로 인해 오류가 발생했습니다.</string>
   <string name="storage_space_warning">저장 공간 부족</string>
@@ -396,9 +402,6 @@
   <string name="activity_title">백그라운드 작업</string>
   <string name="activity_empty">실행 중인 작업 없음</string>
   <string name="activity_failed_toast">%1$s — 메뉴 참조</string>
-  <string name="download_question_title">문서들을 다운로드하시겠습니까?</string>
-  <string name="download_question_message">박해받는 나라에 살고 계신다면, 인터넷을 통해 기독교 자료를 다운로드하는 데 주의가 필요할 수 있습니다. 대신 모듈 zip 파일을 더 안전하게 입수하여 \"%1$s\"를 통해 설치하는 것이 좋을 수 있습니다. 정말 다운로드를 진행하시겠습니까? 문서 서버에서의 모든 다운로드는 암호화(HTTPS)되어 있습니다.</string>
-  <string name="do_not_ask_again">예, 더 물어보지 마세요</string>
   <string name="recommended_document">추천!</string>
   <string name="about_version_history">버전 히스토리: %s</string>
   <string name="download_errors">다운로드 에러</string>
@@ -415,11 +418,9 @@
   <string name="checking_zip_file">파일 검사 중…</string>
   <string name="invalid_module">유효한 Sword 모듈이 포함되지 않은 파일</string>
   <string name="install_zip_title">잠시 기다려 주세요. 파일에서 모듈을 불러오는 중입니다.</string>
-  <string name="overwrite_files">이 파일은 이미 있습니다: %s 덮어쓸까요?</string>
   <string name="overwrite_files_title">파일을 덮어쓸까요?</string>
   <string name="could_not_overwrite_files">다음 파일을 덮어쓸 수 없습니다: %s. 그 외에는 설치가 성공적으로 완료되었습니다.</string>
   <string name="module_backup_restore">이 파일은 AndBible 문서 백업입니다. 백업에 들어 있는 문서를 복원하시겠습니까?</string>
-  <string name="install_do_you_want">모듈 (%s)을 설치하시겠습니까?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">읽기 계획</string>
   <string name="reading_plans_plural">읽기 계획</string>
@@ -427,15 +428,8 @@
   <string name="rdg_plan_day">일 %s</string>
   <string name="rdg_plan_set_start_date">시작일 설정…</string>
   <string name="set_current_day">오늘로 설정…</string>
-  <string name="msg_set_current_day_reading_plan">이 계획의 현재 날짜를 %1$s(으)로 설정하고 이전의 모든 날짜를 읽음으로 표시합니다. 계속하시겠습니까?</string>
   <string name="done">완료</string>
-  <string name="reset_plan_question">이 계획을 초기화하기 원하시나요?</string>
   <string name="import_reading_plan">읽기 계획 불러들이기...</string>
-  <string name="plan_duplicate_user_plan">
-        사용자 읽기 계획이 SD 카드에 있습니다
-        내부 계획과 같은 이름의 jsword/readingplan 이 있습니다. 여기에는 나타나지 않습니다.
-        확장자는 .properties로 남기고 파일 이름을 다른 것으로 바꿔주세요
-    </string>
   <string name="plan_name_y1ntpspr">1년에 신약, 시편, 잠언 읽기</string>
   <string name="plan_description_y1ntpspr">
         Courtesy of HEARTLIGHT Internet Magazine,
@@ -475,12 +469,8 @@
   <string name="delete_index">검색 색인을 삭제</string>
   <string name="about">소개</string>
   <string name="delete_doc">%s 을 (를) 삭제하시겠습니까?</string>
-  <string name="interrupted_downloads_title">다운로드가 중단되었습니다</string>
-  <string name="interrupted_downloads_message">다운로드가 중단되어 다음 문서가 설치되지 않았습니다:</string>
-  <string name="interrupted_downloads_question">다시 다운로드하시겠습니까?</string>
   <string name="download_again">다시 다운로드</string>
   <string name="delete_docs_confirm">이 문서들을 삭제하시겠습니까?</string>
-  <string name="delete_search_index_doc">%s의 색인을 삭제하시겠습니까?</string>
   <!--Verse context menu-->
   <string name="notes">각주 및 참고 문헌</string>
   <string name="share_verse">공유...</string>
@@ -521,7 +511,6 @@
         문서 구조가 변경된 경우, 이 문서를 업데이트하면
         즐겨찾기/노트의 위치가 문서 내에서 이동하거나 완전히 사라질 수 있습니다.
     </string>
-  <string name="bookmark_warning3">그래도 모듈을 업데이트하시겠습니까?</string>
   <string name="bookmark_warning4">업데이트 전에 모듈을 백업하는 것을 권장합니다.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">날짜 순서</string>
@@ -702,10 +691,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">복원 또는 가져오기 위치…</string>
   <string name="backup_restore2">복원 또는 가져오기</string>
-  <string name="overwrite_something">%s을(를) 덮어쓰시겠습니까?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">데이터베이스 파일 복원</string>
-  <string name="restore_confirmation">내 노트, 북마크, 스터디 패드, 읽기 계획, 워크플레이스를 덮어쓸까요?</string>
   <string name="restore_success">내 노트, 북마크, 스터디 패드, 읽기 계획, 워크플레이스 복원 성공</string>
   <string name="downloading_backup">백업 파일 다운로드 중…</string>
   <string name="loading_backup">백업에서 데이터베이스 읽는 중...</string>
@@ -727,7 +714,6 @@
   <string name="send_export_file">내보내기 파일 보내기</string>
   <string name="backup_modules_title">어떤 모듈을 백업할지 선택</string>
   <string name="install_zip_canceled">모듈 설치가 취소됨</string>
-  <string name="ask_restore_or_import">%s의 데이터베이스를 복원(기존 데이터베이스를 제거하고 선택한 데이터베이스를 로드)하거나 가져오기(선택한 데이터베이스를 기존 데이터베이스로 가져오기)할 수 있습니다. 어떻게 하시겠습니까?</string>
   <string name="restore">복원</string>
   <string name="import2">가져오기</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -783,7 +769,6 @@
   <string name="settings_editor_back">뒤로</string>
   <string name="settings_editor_close">닫기</string>
   <string name="settings_editor_apply">적용</string>
-  <string name="discard_changes_confirmation">저장하지 않은 변경 사항을 취소하시겠습니까?</string>
   <string name="discard">버리기</string>
   <string name="remove">제거</string>
   <string name="overwrite">덮어쓰기</string>
@@ -810,7 +795,8 @@
   <string name="empty_list">표시할 항목이 없습니다</string>
   <string name="error_skip">건너뛰기</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">손상된 데이터</string>
+  <string name="corrupt_database_headline">AndBible에서 일부 데이터를 열 수 없습니다</string>
+  <string name="corrupt_database_files_detail">다음 파일을 열 수 없습니다: %1$s. 아무것도 변경되거나 삭제되지 않았습니다. 재설정하면 해당 파일이 비어 있는 상태로 시작되며, 손상된 각 파일은 이 기기에 .corrupt-와 날짜 및 시간이 붙은 이름으로 보관됩니다.</string>
   <string name="corrupt_database_reset">손상된 데이터 초기화</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">손상된 데이터를 초기화할 수 없습니다: %1$s을(를) 옮길 수 없었습니다. 변경된 것은 없습니다. 다시 시도하거나, 오류 보고서를 보내거나, 백업과 복원을 사용할 수 있습니다.</string>
@@ -818,8 +804,8 @@
   <string name="damaged_data_needs_attention">앱의 데이터를 확인해야 합니다. 탭하여 앱을 여세요.</string>
   <string name="debug_test_error">테스트 오류 (디버그 빌드)</string>
   <string name="bug_report_prepare_failed">보고서를 준비하거나 공유하지 못했습니다. 다시 시도하거나 백업 및 복원으로 데이터를 저장할 수 있습니다.</string>
-  <string name="bug_report_email_title">이메일로 버그 리포트 보내기</string>
   <string name="bug_report_desktop_text">다음으로 버그 보고서 파일을 저장할 위치를 묻습니다. 그런 다음 개발팀에 보내는 방법을 안내해 드립니다.</string>
+  <string name="bug_report_email_title">이메일로 버그 리포트 보내기</string>
   <string name="bug_report_email_text">다음으로 선호하는 이메일 애플리케이션(예: Gmail)을 선택하여 개발팀에 리포트를 보내주세요.</string>
   <string name="bug_report_manual_title">보고서를 이메일로 보내기</string>
   <string name="bug_report_manual_text_saved">보고서가 <b>%1$s</b>에 저장되었습니다.\n\n<b>%2$s</b>(으)로 이메일을 보내면서 해당 파일을 첨부해 주세요. 이메일 프로그램이 파일을 대신 첨부할 수는 없습니다. 제안하는 제목: <b>%3$s</b>. 본문에는 어떤 작업을 했고 무슨 일이 일어났는지 적어 주세요.</string>
@@ -890,8 +876,6 @@
   <string name="beta_special_regards">감사합니다. 투오마스 드림</string>
   <string name="beta_special_sponsor">추신: %s을(를) 통해 AndBible 개발을 재정적으로 후원하실 수 있습니다.</string>
   <string name="beta_special_sponsor_link">개발 시간 후원하기</string>
-  <string name="new_sync_targets_notice_title">새 동기화 설정 사용 가능</string>
-  <string name="new_sync_targets_notice_message">이 버전의 AndBible에는 추가 동기화 항목이 도입되었습니다: 내 문서, AI 설정, 읽기 진행 현황. 활성화하려면 기기 동기화 설정에서 변경할 수 있습니다.</string>
   <string name="open_settings">설정 열기</string>
   <!--History-->
   <string name="history_for">기록 (%1$s: 창 %2$d)</string>
@@ -1000,7 +984,6 @@
   <string name="give_passphrase_for_module">%s 문서는 암호화되었으며 해제하기 위해서는 비밀번호가 필요합니다</string>
   <string name="unlock_module">모듈 비밀번호 지정</string>
   <string name="unlock_info">암호화된 모듈 잠금 해제 정보</string>
-  <string name="try_again_passphrase">비밀번호가 맞지 않습니다. 재시도해 보시겠어요?</string>
   <string name="show_unlock_info">모듈 및 잠금 해제 정보</string>
   <string name="prefs_experimental_features_title">실험적 기능</string>
   <string name="prefs_experimental_features_summary">활성화할 실험적 기능을 선택하세요. 이 기능들은 아직 개발 중이며 변경되거나 제거될 수 있습니다</string>
@@ -1034,9 +1017,6 @@
   <string name="active_window_indicator_summary">어느 창이 활성 상태인지 인식하는 데 도움이 되도록 창 모서리를 강조 표시합니다</string>
   <string name="app_licence_title">오픈소스 라이선스</string>
   <string name="how_to_contribute">프로젝트에 기여하는 방법</string>
-  <string name="confirm_delete_bookmarks">북마크 %d개와 해당 노트를 삭제하시겠습니까?</string>
-  <string name="confirm_delete_orphaned_bookmarks">선택한 레이블이 다른 레이블이 없는 북마크 %d개에 연결되어 있습니다. 레이블과 함께 이 북마크들을 삭제하시겠습니까?</string>
-  <string name="delete_label_and_bookmarks">레이블 및 북마크 삭제</string>
   <string name="delete_label_only">레이블만 삭제</string>
   <string name="module_size_megabytes">%.1fMB</string>
   <string name="tell_friend_title">친구에게 추천하기</string>
@@ -1067,8 +1047,6 @@
   <string name="old_webview">Android WebView 패키지가 너무 오래되었습니다(%1$s). %3$s를 사용하려면 Android WebView 패키지를 최소 버전 %2$s 이상으로 업그레이드해야 합니다. 대부분의 기기에서 %4$s를 통해 업그레이드할 수 있습니다.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">그냥 계속 진행</string>
-  <string name="proceed">계속</string>
-  <string name="rate_title">앱 평가 및 리뷰하기</string>
   <string name="rate_message5">
         긍정적이고 자세한 리뷰는 AndBible 오픈소스 프로젝트에 큰 도움이 됩니다. 감사합니다\!
     </string>
@@ -1120,7 +1098,6 @@
   <string name="primary_label">주 레이블</string>
   <string name="favourite_label">즐겨찾기 레이블</string>
   <string name="edit_label">레이블 편집</string>
-  <string name="delete_label_confirmation">북마크 레이블 \"%s\"를 삭제하시겠습니까? 연결된 모든 스터디 패드 노트도 함께 삭제됩니다.</string>
   <string name="active_labels">선택된 레이블</string>
   <string name="recent_labels">최근 레이블</string>
   <string name="other_labels">다른 레이블</string>
@@ -1130,8 +1107,6 @@
   <string name="book_menu_show_progress_bars">진행률 막대 표시</string>
   <string name="reset_workspace_labels">이 워크스페이스의 자동 할당 및 즐겨찾기 설정을 재설정하시겠습니까?</string>
   <string name="clear_auto_assign_labels">자동 지정 레이블 지우기</string>
-  <string name="reset_workspace_auto_assign_labels">이 워크스페이스의 모든 자동 지정 레이블을 제거하시겠습니까?</string>
-  <string name="reset_hide_labels">지정된 레이블 숨기기 설정을 재설정하시겠습니까?</string>
   <string name="reorder">재정렬</string>
   <string name="system_items">시스템 작업</string>
   <string name="system_items1">기타</string>
@@ -1145,7 +1120,6 @@
   <string name="ios_fullscreen_hint">전체 화면을 종료하려면 두 번 탭하거나 버튼을 탭하세요.</string>
   <string name="desktop_exit_fullscreen">전체 화면 종료</string>
   <string name="exit_fullscreen">두 번 탭하여 전체 화면 종료</string>
-  <string name="reset_app_prefs">이 화면에 표시된 모든 전역 애플리케이션 환경 설정을 기본값으로 재설정하시겠습니까?</string>
   <string name="label_red">빨간색</string>
   <string name="label_green">초록색</string>
   <string name="label_blue">파란색</string>
@@ -1156,7 +1130,6 @@
   <string name="reset_databases_title">데이터베이스 재설정</string>
   <string name="reset_databases_description">개별 데이터베이스를 초기 빈 상태로 재설정합니다. 이 작업은 취소할 수 없습니다.</string>
   <string name="last_crash_info_title">마지막 오류 정보</string>
-  <string name="reset_database_confirm">\"%1$s\"의 모든 데이터가 영구적으로 삭제되고 초기 상태로 재설정됩니다. 이 작업은 취소할 수 없습니다.\n\n계속하시겠습니까?</string>
   <string name="reset_database_success">데이터베이스가 성공적으로 재설정되었습니다</string>
   <string name="reset_something">재설정: %1$s</string>
   <string name="export">내보내기</string>
@@ -1226,19 +1199,18 @@
   <string name="manage_labels_help_favourite">빠르게 접근할 수 있도록 레이블을 즐겨찾기에 보관합니다.</string>
   <string name="manage_labels_help_styles">이름 아래의 작은 예시는 레이블의 모양을 보여줍니다. 선택은 텍스트 선택 북마크, 구절 전체는 구절 전체 북마크, 워크스페이스 태그는 이 워크스페이스가 재정의한 스타일을 뜻합니다. 장식 없이 회색으로 표시된 예시는 해당 레이블의 북마크가 표시되지 않음을 뜻합니다. 예시는 ⋮ 메뉴에서 숨길 수 있습니다.</string>
   <string name="manage_labels_help_reorder">⋮ 메뉴에서 목록 순서를 변경할 수 있습니다.</string>
+  <string name="manage_labels_help_narrow_toggles">화면이 좁으면 레이블 이름이 들어갈 공간을 확보하기 위해 목록에서 기본, 자동 지정, 즐겨찾기 아이콘이 생략됩니다. 레이블을 탭하면 레이블 편집기에서 설정할 수 있습니다.</string>
   <string name="added_to_bookmark">이 북마크에 할당됨</string>
   <string name="strongs_links">링크</string>
   <string name="strongs_text_and_links">텍스트 및 링크</string>
   <string name="strongs_hidden_links">숨겨진 링크</string>
   <string name="verse_tip">절의 일부나 여러 절을 선택하려면, 성경 본문을 길게 누릅니다</string>
-  <string name="permission_required">권한 필요</string>
   <string name="labels_search_hint">검색</string>
   <string name="search_mode_name_start">이름 (처음부터)</string>
   <string name="search_mode_name_contains">이름 (포함)</string>
   <string name="search_mode_content">내용</string>
   <string name="search_results_matches">%d개 일치</string>
   <string name="search_results_match">1개 일치</string>
-  <string name="progress_status_permission">알림(다운로드 상태, 처리 중, 말하기 상태)을 표시하려면 권한이 필요합니다.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simple Calculator</string>
   <string name="prefs_persecution_cat">박해받는 자를 위한 설정</string>
@@ -1287,7 +1259,6 @@
   <string name="custom_repositories_create_button_label">사용자 지정 저장소 추가</string>
   <string name="custom_repositories_info_button_label">정보</string>
   <string name="repository_specification">저장소 URL</string>
-  <string name="delete_custom_repository">사용자 지정 저장소 %s를 제거하시겠습니까?</string>
   <string name="custom_repositories_help1">새 사용자 지정 저장소를 추가하려면 사용자 지정 저장소 URL을 여기에 입력하거나 복사하여 붙여넣으세요.</string>
   <string name="custom_repositories_help2">사용자 지정 저장소에 대한 자세한 정보는 %s에서 확인할 수 있습니다.</string>
   <string name="custom_repositories_help0">사용자 지정 저장소를 설치하여 외부 사용자 지정 저장소에서 문서를 설치할 수 있습니다.</string>
@@ -1311,10 +1282,6 @@
   <string name="db_bookmarks">북마크, 내 참고들, 레이블 및 스터디 패드</string>
   <string name="synchronizing">동기화 중…</string>
   <string name="notification_finished">완료됨</string>
-  <string name="overrideBackup">
-        이 기기와 동기화되지 않은 기존 데이터베이스가 클라우드에서 발견되었습니다.
-        데이터베이스에 %s이(가) 포함되어 있습니다. 어떻게 하시겠습니까?
-    </string>
   <string name="reading_plans_content">읽기 계획 및 진행 상태</string>
   <string name="bookmarks_contents">북마크, 레이블 및 스터디 패드</string>
   <string name="workspaces_contents">워크스페이스 및 창</string>
@@ -1334,7 +1301,6 @@
   <string name="reading_progress_calendar">읽기 활동</string>
   <string name="reading_progress_cycle">사이클 %d</string>
   <string name="reading_progress_new_cycle">새 사이클</string>
-  <string name="reading_progress_new_cycle_confirm">새로운 읽기 사이클을 시작하시겠습니까? 이전 사이클의 데이터를 보존하면서 처음부터 진행 상황을 추적하기 시작합니다.</string>
   <string name="reading_progress_previous_cycle">이전 사이클</string>
   <string name="reading_progress_next_cycle">다음 사이클</string>
   <string name="cloud_merge_data">데이터 병합</string>
@@ -1344,7 +1310,6 @@
   <string name="cloud_sync_title">기기 동기화</string>
   <string name="reset_sync">로그아웃</string>
   <string name="prefs_reset_sync_summary">동기화를 비활성화하고 관련 설정을 재설정합니다.</string>
-  <string name="sync_confirmation">정말로 로그아웃하고 동기화를 재설정하시겠습니까?</string>
   <string name="cloud_info">클라우드 정보</string>
   <string name="cloud_info_summary">클라우드 저장소의 데이터: %s Mb</string>
   <string name="sync_adapter">동기화 백엔드</string>
@@ -1360,7 +1325,6 @@
   <string name="webdav_server_url_hint">WebDAV 폴더의 주소(예: https://nas.local/dav/ 또는 https://cloud.example.com/remote.php/dav/files/USERNAME/)</string>
   <string name="webdav_https_required">동기화에는 보안 https:// 주소가 필요합니다.</string>
   <string name="webdav_certificate_title">서버 인증서</string>
-  <string name="webdav_forget_certificate_message">신뢰하는 서버 인증서를 삭제하시겠습니까? 다음에 연결할 때 인증서를 다시 확인하라는 메시지가 표시됩니다.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">신뢰할 수 없는 서버 인증서</string>
   <string name="webdav_untrusted_certificate_message">%1$s의 인증서는 Android에서 신뢰하지 않습니다. 직접 이 서버를 설정한 경우처럼 인증서를 알고 있을 때만 신뢰하세요.\n\n주체: %2$s\n발급자: %3$s\n유효 기간: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1377,14 +1341,7 @@
   <string name="synchronization_categories">동기화 카테고리</string>
   <string name="sync_general_settings">정보 및 일반 설정</string>
   <string name="sync_introduction">소개</string>
-  <string name="are_you_sure">확실합니까?</string>
   <string name="are_you_sure_merge">이 기기의 데이터와 클라우드의 %s 모두 유지됩니다. 같은 항목이 양쪽에서 변경된 경우 더 최근의 변경이 유지됩니다. 이 기기의 데이터는 다른 기기로 전송됩니다.</string>
-  <string name="are_you_sure_reset_local">이 작업은 %s의 로컬 데이터베이스를 클라우드 서비스에 현재 저장된 내용으로 재설정합니다.</string>
-  <string name="are_you_sure_reset_cloud">이 작업은 %s의 클라우드 데이터베이스를 이 기기에 있는 내용으로 재설정합니다.</string>
-  <string name="sync_cant_fetch">클라우드에 저장된 데이터베이스 또는 패치 파일의 버전이 이 앱에서 지원하는 버전보다 높습니다. </string>
-  <string name="sync_disabling">%s의 동기화를 일시적으로 비활성화합니다.</string>
-  <string name="sync_update_app">동기화를 계속하려면 앱을 업데이트하세요.</string>
-  <string name="sign_in_failed">동기화 백엔드 서비스 로그인에 실패했습니다.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">클라우드 동기화를 비활성화합니다. 복원 후 수동으로 다시 활성화해야 합니다.</string>
   <string name="report">보고</string>
@@ -1402,6 +1359,7 @@
   <string name="open_here">여기서 열기</string>
   <string name="external_link">외부 링크</string>
   <string name="external_link_question">브라우저 애플리케이션에서 외부 링크 %s을(를) 열립니다. 계속하시겠습니까?</string>
+  <string name="external_link_dont_ask_again">%s에 대해 다시 묻지 않음</string>
   <string name="nameless">제목 없음</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">한 번 탭 동작 (성경)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">한 번 탭 동작 (기타)</string>
@@ -1451,8 +1409,6 @@
   <string name="memorize_include_reference_summary">암송할 마지막 항목으로 구절 참조(예: 요한복음 3:16)를 추가합니다</string>
   <string name="reading_progress_settings">진행 및 암송</string>
   <string name="reading_progress_settings_summary">자동 추적, 암송 및 타이핑 연습 설정</string>
-  <string name="memorize_confirm_unmark">%s의 암송 상태를 제거하시겠습니까?</string>
-  <string name="memorize_confirm_remove_target">암송 목표 %s을(를) 제거하시겠습니까?</string>
   <string name="memorize_tab_reading">읽기</string>
   <string name="memorize_tab_memorization">암송</string>
   <string name="memorize_verses_memorized">암송 완료</string>
@@ -1478,7 +1434,6 @@
   <string name="llm_reset_usage_title">사용 데이터 재설정</string>
   <string name="llm_reset_usage_summary">누적 토큰 및 비용 추적 지우기</string>
   <string name="llm_reset_usage_confirm_title">사용 데이터를 재설정하시겠습니까?</string>
-  <string name="llm_reset_usage_confirm_message">이 작업은 모든 누적 사용 데이터를 지웁니다.</string>
   <string name="llm_custom_input_price_title">입력 가격 ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">출력 가격 ($/Mtoken)</string>
   <string name="llm_cost_total">합계: %1$s</string>
@@ -1494,8 +1449,6 @@
   <string name="llm_parse_error_anthropic">Anthropic 응답 파싱 실패: %1$s</string>
   <string name="llm_error_unknown">알 수 없는 오류</string>
   <string name="llm_error_max_iterations">완료하지 못한 채 최대 반복 횟수(%1$d)에 도달했습니다</string>
-  <string name="llm_continue_iterations_title">계속하시겠습니까?</string>
-  <string name="llm_continue_iterations_message">AI 에이전트가 완료하지 못한 채 %1$d번의 반복 한도에 도달했습니다. %2$d번 더 계속하시겠습니까?</string>
   <string name="agent_max_iterations_title">에이전트 최대 반복 횟수</string>
   <string name="agent_max_iterations_summary">계속할지 묻기 전 최대 반복 횟수 (0 = 무제한)</string>
   <string name="ask_model_before_run_title">실행 전 모델 선택</string>
@@ -1555,7 +1508,6 @@
   <string name="ai_models_summary_none">구성된 모델 없음</string>
   <string name="ai_add_provider">공급자 추가</string>
   <string name="ai_provider_edit">편집</string>
-  <string name="ai_provider_delete_confirm">공급자 \"%1$s\"를 삭제하시겠습니까? 이 공급자를 사용하는 프롬프트가 기본값으로 되돌아갑니다.</string>
   <string name="ai_provider_api_key_not_set">API 키가 설정되지 않았습니다</string>
   <string name="ai_provider_select_type">공급자 유형 선택</string>
   <string name="ai_provider_name">공급자 이름</string>
@@ -1575,7 +1527,6 @@
   <string name="edit_model_title">모델 편집</string>
   <string name="model_saved">모델이 저장되었습니다</string>
   <string name="model_deleted">모델이 삭제되었습니다</string>
-  <string name="model_delete_confirm">모델 \"%1$s\"을(를) 삭제하시겠습니까?</string>
   <string name="model_set_default">기본 모델로 설정</string>
   <string name="model_select_provider">공급자</string>
   <string name="model_supported_badge">✓ 지원됨</string>
@@ -1615,7 +1566,6 @@
   <string name="ai_disclaimer_point8">사용자의 데이터는 선택한 AI 제공업체의 서버로 전송됩니다. API 키를 사용함으로써 해당 제공업체의 이용 약관 및 개인정보 보호정책에 동의하는 것입니다. 자체 호스팅 모델도 가능하지만 더 많은 기술적 전문 지식이 필요하며, 상용 모델만큼 좋은 결과를 내지 못할 수 있습니다.</string>
   <string name="ai_disclaimer_point9">AI 제공업체는 API 사용에 요금을 부과합니다. AndBible에 표시된 비용 추정은 대략적인 수치입니다. 실제 청구 금액은 해당 제공업체의 청구서를 확인하십시오.</string>
   <string name="ai_disclaimer_accept_title">AI 면책 조항 동의</string>
-  <string name="ai_disclaimer_accept_button">동의하고 전적인 책임을 집니다</string>
   <string name="prompt_permission_mode">권한 모드</string>
   <string name="prompt_permission_mode_description">AI가 쓰기 작업을 수행하기 전에 사용자 확인이 필요한 시점을 제어합니다. 아래의 도구별 설정으로 개별 도구에 대해 이를 재정의할 수 있습니다.</string>
   <string name="agent_permission_mode_summary">AI 쓰기 작업 전 사용자 확인이 필요한 시점을 제어합니다</string>
@@ -1731,7 +1681,6 @@
   <string name="default_prompt_custom_desc">선택한 구절에 사용자 지정 작업 실행</string>
   <string name="default_prompt_custom_template">선택한 성경 구절에 대해 사용자의 작업 지시를 따르세요.</string>
   <string name="copy">복사</string>
-  <string name="delete_prompt_confirm_message">이 프롬프트를 삭제하시겠습니까?</string>
   <string name="ai_hide_prompt">숨기기</string>
   <string name="ai_restore_hidden_prompts">숨긴 프롬프트 복원</string>
   <string name="ai_prompt_hidden">프롬프트 숨김</string>
@@ -1816,8 +1765,6 @@
   <string name="permission_allow_all_session">이 세션의 모든 도구 허용</string>
   <string name="permission_allow_always">\"%1$s\" 항상 허용</string>
   <string name="permission_deny">거부</string>
-  <string name="permission_always_allow_confirm_title">항상 허용하시겠습니까?</string>
-  <string name="permission_always_allow_confirm">\"%1$s\"을(를) 영구적으로 허용하시겠습니까?</string>
   <string name="permission_always_allow_confirm_reset_hint">AI 설정에서 재설정할 수 있습니다.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">도구 권한</string>
@@ -1922,18 +1869,15 @@
   <string name="my_document_new_name">문서 %d</string>
   <string name="my_document_create_title">새 문서 만들기</string>
   <string name="my_document_rename_title">문서 이름 바꾸기</string>
-  <string name="my_document_delete_confirmation">문서 \"%s\"을(를) 삭제하시겠습니까?</string>
   <string name="show_secret">표시</string>
   <string name="hide_secret">숨기기</string>
   <string name="ai_documents_name">AI 문서</string>
   <string name="ai_documents_description">AI가 자동으로 생성한 문서</string>
-  <string name="my_document_cannot_delete_ai_documents">AI 문서는 페이지가 있는 동안에는 삭제할 수 없습니다. 먼저 페이지를 삭제하세요.</string>
   <string name="my_document_save_changes">변경 사항을 저장하시겠습니까?</string>
   <string name="my_document_no_description">설명 없음</string>
   <string name="my_document_edit_description">설명 편집하다</string>
   <string name="my_document_pages_title">%s - 페이지</string>
   <string name="my_document_page_rename_title">페이지 이름 바꾸기</string>
-  <string name="my_document_page_delete_confirmation">페이지 \"%s\"을(를) 삭제하시겠습니까?</string>
   <string name="my_document_pages_delete_confirmation">이 페이지들을 삭제하시겠습니까?</string>
   <string name="my_documents_switch_document">문서 전환</string>
   <string name="my_document_new_page_name">페이지 %1$d</string>
@@ -2001,7 +1945,6 @@
   <string name="cloud_doc_show_removed">제거된 문서 표시</string>
   <string name="cloud_doc_status_removed">클라우드에서 제거됨</string>
   <string name="cloud_doc_status_still_installed">여기에 여전히 설치됨</string>
-  <string name="cloud_doc_purge_confirm">클라우드 기록에서 \"%1$s\"을(를) 영구적으로 제거하시겠습니까? 다른 기기에 여전히 설치되어 있는 경우 해당 기기가 다음 동기화 시 클라우드로 다시 업로드할 수 있습니다.</string>
   <string name="cloud_doc_action_download">다운로드</string>
   <string name="cloud_doc_action_push">클라우드로 업로드</string>
   <string name="cloud_doc_action_remove_cloud">클라우드에서 제거</string>
@@ -2012,8 +1955,6 @@
   <string name="cloud_doc_action_dont_sync">클라우드에 동기화하지 않음</string>
   <string name="cloud_doc_action_allow_sync">클라우드에 동기화</string>
   <string name="cloud_doc_action_purge">클라우드 기록에서 제거</string>
-  <string name="cloud_doc_remove_all_confirm">이 기기를 포함한 모든 기기와 클라우드에서 %1$s을(를) 제거하시겠습니까?</string>
-  <string name="cloud_doc_remove_cloud_confirm">클라우드에서 %1$s을(를) 제거하시겠습니까? 이 기기의 사본은 유지됩니다. 문서 동기화가 켜진 기기에서도 제거됩니다.</string>
   <string name="cloud_doc_sync_now">지금 동기화</string>
   <string name="cloud_doc_rescan">클라우드에서 다시 스캔</string>
   <string name="cloud_doc_sync_now_download">새 문서 및 업데이트된 문서 다운로드</string>
@@ -2025,6 +1966,12 @@
   <string name="cloud_doc_summary_download">다운로드 %1$d</string>
   <string name="cloud_doc_summary_download_size">다운로드 %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">자동 다운로드는 Wi-Fi에서 시작됩니다.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="other">문서 %1$d개</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="other">문서 %1$d개 (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">전송할 항목이 없습니다</string>
   <string name="cloud_doc_selected_count">%1$d개 선택됨</string>
   <string name="cloud_doc_bulk_skipped">해당되지 않아 %1$d개 건너뜀</string>
@@ -2041,8 +1988,6 @@
   <string name="background_image_import">갤러리에서 가져오기…</string>
   <string name="background_image_empty">가져온 이미지가 아직 없습니다. \"갤러리에서 가져오기…\"를 눌러 추가하세요.</string>
   <string name="background_image_importing">가져오는 중…</string>
-  <string name="background_image_delete_title">이미지를 삭제하시겠습니까?</string>
-  <string name="background_image_delete_confirm">이 배경 이미지를 삭제하시겠습니까? 이 이미지를 사용하는 워크스페이스는 이미지 없음으로 바뀝니다.</string>
   <string name="background_image_day">배경 이미지 (낮)</string>
   <string name="background_image_night">배경 이미지 (밤)</string>
   <string name="background_image_opacity_day">배경 이미지 불투명도 (낮)</string>
@@ -2116,6 +2061,9 @@
   <string name="legacy_notice_icloud">이제 동기화에 iCloud Drive를 사용합니다. 설정 → 동기화에서 다시 켜세요. 이 기기는 기존 데이터를 유지하며, 다른 기기의 변경 사항은 동기화를 다시 설정하면 도착합니다. 이전 iCloud 데이터를 정리하려면: 설정 → 내 이름 → iCloud → 저장 공간 관리 → AndBible.</string>
   <string name="legacy_notice_nextcloud">Nextcloud 연결은 그대로 이전되었지만 동기화는 꺼져 있습니다. 설정 → 동기화에서 켜고 클라우드에서 가져올지 새로 만들지 선택하세요.</string>
   <string name="legacy_notice_nextcloud_unsent">이 기기의 일부 변경 사항이 아직 Nextcloud로 전송되지 않았습니다. 전송되지 않았으며 이 기기에만 남아 있습니다.</string>
+  <plurals name="legacy_notice_bookmarks_skipped">
+    <item quantity="other">북마크 %1$d개의 위치를 안정적으로 지정할 수 없어 가져오지 않았습니다. 이 기기의 이전 데이터와 함께 보관됩니다.</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">강력하면서도 사용하기 쉬운 오프라인 성경 공부 애플리케이션입니다.</string>
   <string name="webdav_untrusted_certificate_message_device">%1$s의 인증서는 이 기기에서 신뢰하지 않습니다. 직접 이 서버를 설정한 경우처럼 인증서를 알고 있을 때만 신뢰하세요.\n\n주체: %2$s\n발급자: %3$s\n유효 기간: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2167,6 +2115,25 @@
   <string name="recommend_share_link">링크 공유</string>
   <string name="recommend_qr_caption">스캔하여 휴대폰, 태블릿 또는 컴퓨터용 AndBible을 받으세요.</string>
   <string name="desktop_activation_failed">AndBible이 이미 실행 중이지만 창이 응답하지 않았습니다. 실행 중인 인스턴스로 전환한 후 다시 시도하세요. 전달된 파일은 수신이 확인되지 않았습니다.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">이 작업은 되돌릴 수 없습니다.</string>
+  <string name="ai_raw_log_delete_lead">이 로그를 삭제하시겠습니까?</string>
+  <string name="ai_provider_delete_lead">공급자 “%1$s”을(를) 삭제하시겠습니까?</string>
+  <string name="ai_provider_delete_detail">이 공급자를 사용하는 프롬프트는 기본 공급자로 돌아갑니다.</string>
+  <string name="ai_model_delete_lead">모델 “%1$s”을(를) 삭제하시겠습니까?</string>
+  <string name="ai_prompt_delete_named_lead">프롬프트 “%1$s”을(를) 삭제하시겠습니까?</string>
+  <string name="ai_prompt_delete_lead">이 프롬프트를 삭제하시겠습니까?</string>
+  <string name="ai_reset_usage_detail">토큰 및 비용 합계가 0으로 돌아갑니다. 이 작업은 되돌릴 수 없습니다.</string>
+  <string name="ai_reset_usage_button">재설정</string>
+  <string name="ai_disclaimer_accept">동의합니다</string>
+  <string name="llm_continue_iterations_lead">%1$d회 더 반복하시겠습니까?</string>
+  <string name="llm_continue_iterations_detail">AI 에이전트가 작업을 끝내지 못한 채 반복 한도인 %1$d회에 도달했습니다.</string>
+  <string name="llm_continue_button">계속</string>
+  <string name="permission_always_allow_lead">“%1$s”을(를) 항상 허용하시겠습니까?</string>
+  <string name="permission_always_allow_button">항상 허용</string>
+  <string name="ai_bug_report_send_lead">AI 버그 보고서를 보내시겠습니까?</string>
+  <string name="ai_bug_report_send_button">보내기</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">시작하기</string>
   <string name="user_guide_section_reading_workspace">읽기와 작업 공간</string>
@@ -2244,4 +2211,142 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI 도우미 3부: 도구, 데이터와 권한</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI 도우미 4부: 사용자 프롬프트, 비용과 동기화</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">변경 사항을 취소하시겠습니까?</string>
+  <string name="dialog_keep_editing">계속 편집</string>
+  <string name="dialog_label_delete_lead">레이블 “%1$s”을(를) 삭제하시겠습니까?</string>
+  <string name="dialog_label_delete_detail">레이블의 스터디 패드 노트도 함께 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
+  <plurals name="dialog_label_delete_orphans_detail">
+    <item quantity="other">북마크 %1$d개에는 다른 레이블이 없습니다.</item>
+  </plurals>
+  <plurals name="dialog_label_delete_both">
+    <item quantity="other">레이블과 북마크 %1$d개 삭제</item>
+  </plurals>
+  <string name="dialog_label_delete_both_consequence">북마크와 해당 노트가 삭제됩니다.</string>
+  <string name="dialog_label_delete_only_consequence">북마크는 레이블 없이 그대로 남습니다.</string>
+  <plurals name="dialog_bookmarks_remove_lead">
+    <item quantity="other">북마크 %1$d개를 제거하시겠습니까?</item>
+  </plurals>
+  <plurals name="dialog_bookmarks_remove_detail">
+    <item quantity="other">북마크의 노트도 함께 제거됩니다.</item>
+  </plurals>
+  <string name="dialog_labels_reset_workspace_lead">이 워크스페이스에서 모든 자동 지정 레이블을 제거하시겠습니까?</string>
+  <string name="dialog_labels_reset_hidden_lead">숨긴 모든 레이블을 다시 표시하시겠습니까?</string>
+  <string name="dialog_labels_reset_shown_detail">목록에서 숨긴 레이블이 다시 표시됩니다.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">“%s”을(를) 설치하시겠습니까?</string>
+  <string name="install_action">설치</string>
+  <string name="install_from_file_question">파일에서 문서를 설치하시겠습니까?</string>
+  <string name="overwrite_files_detail">다음 파일이 이미 있습니다:%s</string>
+  <string name="import_studypads_question">이 스터디 패드를 가져오시겠습니까?</string>
+  <string name="import_action">가져오기</string>
+  <string name="restore_backup_question">이 백업의 문서를 복원하시겠습니까?</string>
+  <string name="restore_backup_detail">이 파일은 AndBible 문서 백업입니다.</string>
+  <string name="update_document_question">이 문서를 업데이트하시겠습니까?</string>
+  <string name="update_action">업데이트</string>
+  <string name="download_documents_question">문서를 다운로드하시겠습니까?</string>
+  <string name="download_persecution_warning">박해받는 나라에 거주하신다면 인터넷으로 기독교 자료를 다운로드할 때 주의가 필요할 수 있습니다. 대신 문서 zip 파일을 더 안전하게 구한 뒤 “%1$s”(으)로 설치하는 방법도 있습니다. 문서 서버의 모든 다운로드는 암호화(HTTPS)되어 있습니다.</string>
+  <string name="download_action">다운로드</string>
+  <string name="download_dont_ask_again">다운로드하고 다시 묻지 않음</string>
+  <string name="download_dont_ask_again_consequence">앞으로 이 질문 없이 다운로드가 시작됩니다.</string>
+  <string name="passphrase_did_not_work">암호가 올바르지 않습니다.</string>
+  <string name="try_again">다시 시도</string>
+  <string name="interrupted_downloads_lead">이 문서를 다시 다운로드하시겠습니까?</string>
+  <string name="interrupted_downloads_detail">다운로드가 중단되어 설치되지 않았습니다.</string>
+  <string name="external_link_open_question">이 링크를 브라우저에서 여시겠습니까?</string>
+  <string name="open_action">열기</string>
+  <string name="notification_permission_question">알림을 허용하시겠습니까?</string>
+  <string name="notification_permission_detail">알림에는 다운로드 상태, 처리 상태, 음성 읽기 상태가 표시됩니다.</string>
+  <string name="allow_action">허용</string>
+  <string name="rate_question">앱을 평가하고 리뷰를 남기시겠습니까?</string>
+  <string name="bug_report_email_question">버그 보고서를 이메일로 보내시겠습니까?</string>
+  <string name="continue_action">계속</string>
+  <string name="delete_search_index_question">“%s”의 검색 색인을 삭제하시겠습니까?</string>
+  <string name="remove_custom_repository_question">사용자 지정 저장소 “%s”을(를) 제거하시겠습니까?</string>
+  <string name="download_document_question">“%s”을(를) 다운로드하시겠습니까?</string>
+  <string name="choose_file_action">파일 선택</string>
+  <string name="old_webview_question">오래된 WebView로 앱을 사용하시겠습니까?</string>
+  <string name="incomplete_translation_question">부분 번역으로 계속하시겠습니까?</string>
+  <string name="rate_action">평가</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">문서 “%s”을(를) 삭제하시겠습니까?</string>
+  <string name="my_document_page_delete_lead">페이지 “%s”을(를) 삭제하시겠습니까?</string>
+  <string name="my_document_cannot_delete_ai_lead">페이지가 들어 있는 AI 문서는 삭제할 수 없습니다.</string>
+  <string name="my_document_cannot_delete_ai_detail">먼저 페이지를 삭제하세요.</string>
+  <string name="reading_progress_new_cycle_lead">새 읽기 주기를 시작하시겠습니까?</string>
+  <string name="reading_progress_new_cycle_detail">진행 상황이 처음부터 다시 기록됩니다. 이전 주기의 데이터는 보관됩니다.</string>
+  <string name="reading_progress_new_cycle_start">시작</string>
+  <string name="reset_plan_lead">이 계획을 재설정하시겠습니까?</string>
+  <string name="reset_plan_detail">이 계획의 시작일과 진행 상황이 지워집니다.</string>
+  <string name="set_current_day_lead">%1$s을(를) 현재 날짜로 설정하시겠습니까?</string>
+  <string name="set_current_day_detail">이전의 모든 날짜가 읽음으로 표시됩니다.</string>
+  <string name="plan_duplicate_user_plan_lead">읽기 계획 파일의 이름이 기본 제공 계획과 같습니다.</string>
+  <string name="plan_duplicate_user_plan_detail">이 계획 파일은 목록에 표시할 수 없습니다. jsword/readingplan 폴더에서 파일 이름을 바꾸세요. 확장자 .properties는 유지해야 합니다.</string>
+  <string name="background_image_delete_lead">이 배경 이미지를 삭제하시겠습니까?</string>
+  <string name="background_image_delete_detail">이 이미지를 사용하는 워크스페이스는 이미지 없음으로 바뀝니다.</string>
+  <string name="reset_values_lead">이 값을 모두 재설정하시겠습니까?</string>
+  <string name="revert_setting_lead">이 설정을 상속된 값으로 되돌리시겠습니까?</string>
+  <string name="revert_setting_confirm">되돌리기</string>
+  <string name="reset_settings_screen_lead">이 화면의 설정을 재설정하시겠습니까?</string>
+  <string name="reset_settings_screen_detail">기본값으로 돌아갑니다.</string>
+  <string name="memorize_unmark_lead">“%s”의 암송 상태를 제거하시겠습니까?</string>
+  <string name="memorize_remove_target_lead">암송 목표 “%s”을(를) 제거하시겠습니까?</string>
+  <string name="dialog_apply">적용</string>
+  <string name="dialog_dont_apply">적용 안 함</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">클라우드에 이미 %s이(가) 있습니다. 어떻게 할까요?</string>
+  <string name="cloud_merge_consequence">양쪽 모두 유지되며, 양쪽에서 변경된 항목은 더 최근 변경 사항이 적용됩니다.</string>
+  <string name="cloud_fetch_consequence">이 기기의 데이터를 클라우드 사본으로 바꿉니다.</string>
+  <string name="cloud_create_consequence">클라우드 사본을 이 기기의 데이터로 바꿉니다.</string>
+  <string name="cloud_disable_consequence">이 데이터의 동기화는 꺼진 상태로 유지됩니다.</string>
+  <string name="cloud_merge_lead">%s을(를) 클라우드와 병합하시겠습니까?</string>
+  <string name="cloud_merge_confirm">병합</string>
+  <string name="cloud_replace_confirm">바꾸기</string>
+  <string name="cloud_replace_local_lead">이 기기의 %s을(를) 클라우드 사본으로 바꾸시겠습니까?</string>
+  <string name="cloud_replace_local_detail">이 기기에 있는 내용은 덮어쓰이며 복구할 수 없습니다.</string>
+  <string name="cloud_replace_cloud_lead">클라우드의 %s 사본을 이 기기의 데이터로 바꾸시겠습니까?</string>
+  <string name="cloud_replace_cloud_detail">클라우드에 있는 내용은 덮어쓰이며, 다른 기기에서 이 기기의 데이터를 받게 됩니다.</string>
+  <string name="sign_in_failed_lead">동기화 서비스에 로그인할 수 없습니다.</string>
+  <string name="sync_too_old_lead">이 앱은 %s을(를) 동기화하기에는 너무 오래되었습니다.</string>
+  <string name="sync_too_old_detail">클라우드 데이터가 이 앱이 지원하는 것보다 새로운 버전을 사용합니다. 해당 동기화는 현재 꺼져 있으며, 다시 켜려면 앱을 업데이트하세요.</string>
+  <string name="backup_replace_lead">%s을(를) 백업으로 바꾸시겠습니까?</string>
+  <string name="backup_replace_detail">이 기기에 있는 내용은 덮어쓰이며 복구할 수 없습니다.</string>
+  <string name="reset_database_lead">“%1$s”을(를) 초기 상태로 재설정하시겠습니까?</string>
+  <string name="reset_database_detail">여기에 있는 모든 데이터가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
+  <string name="reset_database_button">재설정</string>
+  <string name="restore_all_lead">노트, 북마크, 스터디 패드, 읽기 계획, 워크스페이스를 바꾸시겠습니까?</string>
+  <string name="restore_or_import_lead">%s을(를) 복원하거나 가져오시겠습니까?</string>
+  <string name="restore_consequence">이 기기에 있는 내용을 백업으로 바꿉니다.</string>
+  <string name="import_consequence">백업의 항목을 이 기기에 있는 내용에 추가합니다.</string>
+  <string name="sync_start_syncing">동기화 시작</string>
+  <string name="sync_reset_lead">로그아웃하고 동기화를 재설정하시겠습니까?</string>
+  <string name="sync_reset_detail">동기화를 다시 설정해야 합니다.</string>
+  <string name="webdav_forget_certificate_lead">신뢰하는 서버 인증서를 삭제하시겠습니까?</string>
+  <string name="webdav_forget_certificate_detail">다음 연결 시 인증서를 다시 확인하라는 메시지가 표시됩니다.</string>
+  <string name="webdav_forget_certificate_confirm">삭제</string>
+  <string name="cloud_doc_remove_all_lead">“%1$s”을(를) 클라우드와 모든 기기에서 제거하시겠습니까?</string>
+  <string name="cloud_doc_remove_cloud_lead">“%1$s”을(를) 클라우드에서 제거하시겠습니까?</string>
+  <string name="cloud_doc_purge_lead">“%1$s”을(를) 클라우드 기록에서 영구적으로 제거하시겠습니까?</string>
+  <string name="cloud_doc_remove_all_detail">이 기기와 문서 동기화가 켜져 있는 다른 모든 기기의 사본도 함께 삭제됩니다.</string>
+  <string name="cloud_doc_remove_cloud_detail">이 기기의 사본은 유지됩니다. 문서 동기화가 켜져 있는 기기에서는 사본이 제거됩니다.</string>
+  <string name="cloud_doc_purge_detail">사본이 남아 있는 기기는 다음 동기화 때 다시 업로드할 수 있습니다.</string>
+  <string name="cloud_doc_block_confirm_button">동기화 안 함</string>
+  <plurals name="cloud_doc_bulk_remove_all_lead">
+    <item quantity="other">문서 %1$d개를 클라우드와 모든 기기에서 제거하시겠습니까?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_lead">
+    <item quantity="other">문서 %1$d개를 클라우드에서 제거하시겠습니까?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_lead">
+    <item quantity="other">문서 %1$d개를 클라우드 기록에서 영구적으로 제거하시겠습니까?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_block_lead">
+    <item quantity="other">문서 %1$d개를 클라우드에 동기화하지 않으시겠습니까?</item>
+  </plurals>
+  <string name="new_sync_targets_lead">더 많은 데이터를 동기화할 수 있습니다</string>
+  <string name="new_sync_targets_detail">내 문서, AI 설정, 읽기 진행 상황도 동기화할 수 있습니다. 기기 동기화 설정에서 켜세요.</string>
+  <!--end dialog copy: B3b-->
 </resources>

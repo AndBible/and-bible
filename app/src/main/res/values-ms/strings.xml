@@ -60,6 +60,8 @@
   <string name="help_user_guide_intro">Panduan pengguna penuh terdapat di andbible.org. Halaman dibuka dalam pelayar anda.</string>
   <string name="help_user_guide_home">Laman utama panduan pengguna</string>
   <string name="help_read_in_user_guide">Baca dalam panduan pengguna</string>
+  <string name="help_in_user_guide">Bantuan dalam panduan pengguna</string>
+  <string name="help_matching_section">Bahagian yang sepadan</string>
   <string name="help_read_page">Baca dalam panduan pengguna: %1$s</string>
   <string name="help_tutorial_videos">Video tutorial</string>
   <string name="help_watch_in_order">Tonton video tutorial mengikut urutan</string>
@@ -242,6 +244,9 @@
   <string name="prefs_navigate_to_verse_summary">Pilih ayat (dan bab) semasa memilih petikan</string>
   <string name="prefs_open_links_in_special_window_title">Tetingkap pautan</string>
   <string name="prefs_open_links_in_special_window_summary">Buka pautan dalam tetingkap khas, untuk paparan rujukan silang dan Strong\'s yang lebih pantas</string>
+  <string name="prefs_trusted_link_domains_title">Domain pautan dipercayai</string>
+  <string name="prefs_trusted_link_domains_summary">Pautan ke domain ini dibuka tanpa bertanya. Nyahtanda sesuatu domain untuk ditanya semula.</string>
+  <string name="prefs_trusted_link_domains_empty">Belum ada. Tandakan \"Jangan tanya lagi\" semasa membuka pautan untuk menambah domainnya.</string>
   <string name="prefs_text_size_sample_text">Teks contoh</string>
   <string name="prefs_screen_keep_on_title">Kekalkan skrin hidup</string>
   <string name="prefs_screen_keep_on_summary">Elakkan skrin tidur semasa menggunakan aplikasi ini</string>
@@ -302,7 +307,6 @@
   <string name="line_spacing_title">Jarak baris</string>
   <string name="line_spacing_summary">Tetapkan ruang antara baris</string>
   <string name="select_none">Pilih tiada</string>
-  <string name="reset_are_you_sure">Adakah anda pasti ingin menetapkan semula semua nilai ini?</string>
   <string name="window_pinning_menutitle">Penepatan tetingkap</string>
   <string name="hide_window_buttons_title">Sembunyikan butang tetingkap</string>
   <string name="hide_window_buttons_summary">Butang tetingkap yang dipaparkan di sebelah kanan paparan Alkitab disembunyikan. Bar navigasi tetingkap di bahagian bawah masih dipaparkan dan anda boleh membuka menu pop timbul tetingkap dengan mengetuk lama.</string>
@@ -325,6 +329,7 @@
   <string name="word_not_found_in_dictionaries">Perkataan tidak ditemui dalam mana-mana kamus</string>
   <string name="prefs_top_margin_title_mm">Jidar atas (%d mm)</string>
   <string name="font_size_title">Saiz fon</string>
+  <string name="font_preview_verse_number">16</string>
   <string name="font_preview_verse">Kerana demikianlah kasih Allah akan dunia ini, sehingga dikaruniakan-Nya Anak-Nya yang tunggal, supaya setiap orang yang percaya kepada-Nya jangan binasa, melainkan beroleh hidup yang kekal.</string>
   <string name="font_size_title_pt">Saiz fon (%d pt)</string>
   <string name="prefs_font_text_size_summary">Laraskan saiz fon teks utama</string>
@@ -342,6 +347,8 @@
   <string name="window_color_settings_title">Tetapan warna (Tetingkap)</string>
   <string name="workspace_color_settings_title">Tetapan warna (Ruang kerja)</string>
   <string name="color_workspace">Warna ruang kerja</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
+  <string name="color_workspace_default">Lalai</string>
   <string name="color_text">Warna teks</string>
   <string name="color_background">Warna latar belakang</string>
   <string name="colors_day_mode_title">Mod siang</string>
@@ -375,7 +382,6 @@
   <string name="download_source_last_updated">Senarai dokumen dikemas kini terakhir: %s.</string>
   <string name="download_refreshing_book_list">Menyegarkan senarai dokumen yang tersedia dari pelayan dokumen…</string>
   <string name="download_source_message1">Dokumen dimuat turun dari sumber-sumber berikut:</string>
-  <string name="download_document_confirm_prefix">Muat turun</string>
   <string name="error_downloading">Ralat berlaku semasa memuat turun. Sila semak sambungan internet anda.</string>
   <string name="error_downloading_status">Pelayan yang mengehoskan %1$s mengembalikan ralat kerana %2$s (%3$d).</string>
   <string name="storage_space_warning">Ruang storan tempatan tidak mencukupi.</string>
@@ -396,9 +402,6 @@
   <string name="activity_title">Aktiviti latar belakang</string>
   <string name="activity_empty">Tiada yang sedang berjalan</string>
   <string name="activity_failed_toast">%1$s — lihat menu</string>
-  <string name="download_question_title">Adakah anda ingin meneruskan untuk memuat turun dokumen?</string>
-  <string name="download_question_message">Jika anda tinggal di negara yang menganiayai orang Kristian, anda mungkin perlu berhati-hati semasa memuat turun bahan Kristian melalui Internet. Sebaliknya, anda mungkin ingin mendapatkan fail zip modul dengan lebih selamat dan memasangnya melalui \"%1$s\". Adakah anda pasti mahu meneruskan muat turun? Semua muat turun daripada pelayan modul disulitkan (HTTPS).</string>
-  <string name="do_not_ask_again">Ya, jangan tanya lagi</string>
   <string name="recommended_document">Disyorkan!</string>
   <string name="about_version_history">Sejarah versi: %s</string>
   <string name="download_errors">Ralat muat turun</string>
@@ -415,11 +418,9 @@
   <string name="checking_zip_file">Memeriksa fail yang diberikan…</string>
   <string name="invalid_module">Fail tidak mengandungi modul SWORD yang sah</string>
   <string name="install_zip_title">Sila tunggu. Memuatkan modul dari fail.</string>
-  <string name="overwrite_files">Fail berikut sudah wujud: %s Timpa?</string>
   <string name="overwrite_files_title">Timpa fail?</string>
   <string name="could_not_overwrite_files">Tidak dapat menimpa fail: %s. Selain itu pemasangan berjaya.</string>
   <string name="module_backup_restore">Fail ini ialah sandaran dokumen AndBible. Adakah anda mahu memulihkan dokumennya?</string>
-  <string name="install_do_you_want">Adakah anda ingin memasang modul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Rancangan Bacaan</string>
   <string name="reading_plans_plural">Rancangan Bacaan</string>
@@ -427,11 +428,8 @@
   <string name="rdg_plan_day">Hari %s</string>
   <string name="rdg_plan_set_start_date">Tetapkan Tarikh Mula…</string>
   <string name="set_current_day">Tetapkan sebagai hari semasa…</string>
-  <string name="msg_set_current_day_reading_plan">Ini akan menetapkan %1$s sebagai hari semasa dalam rancangan ini dan menandakan semua hari sebelumnya sebagai sudah dibaca. Teruskan?</string>
   <string name="done">Selesai</string>
-  <string name="reset_plan_question">Adakah anda pasti ingin menetapkan semula rancangan ini?</string>
   <string name="import_reading_plan">Import rancangan bacaan…</string>
-  <string name="plan_duplicate_user_plan">Terdapat rancangan bacaan pengguna dalam sdcard jsword/readingplan dengan nama yang sama seperti rancangan dalaman. Ia tidak dapat disenaraikan di sini. Sila namakan semula fail tersebut kepada nama lain, dengan mengekalkan sambungan fail sebagai .properties</string>
   <string name="plan_name_y1ntpspr">PB, Mazmur &amp; Amsal Dalam Setahun</string>
   <string name="plan_description_y1ntpspr">Ihsan HEARTLIGHT Internet Magazine, http://www.heartlight.org, kebenaran diberikan</string>
   <string name="plan_name_y1ot1nt1_chronological">Kronologi 1 Tahun Melalui Alkitab</string>
@@ -451,12 +449,8 @@
   <string name="delete_index">Padamkan indeks carian</string>
   <string name="about">Tentang</string>
   <string name="delete_doc">Padamkan %s?</string>
-  <string name="interrupted_downloads_title">Muat turun terganggu</string>
-  <string name="interrupted_downloads_message">Dokumen ini tidak dipasang kerana muat turunnya terganggu:</string>
-  <string name="interrupted_downloads_question">Muat turun semula?</string>
   <string name="download_again">Muat turun semula</string>
   <string name="delete_docs_confirm">Padamkan dokumen ini?</string>
-  <string name="delete_search_index_doc">Padamkan indeks %s?</string>
   <!--Verse context menu-->
   <string name="notes">Nota kaki dan rujukan</string>
   <string name="share_verse">Kongsi…</string>
@@ -494,7 +488,6 @@
   <!--can be removed-->
   <string name="bookmark_warning">Terdapat penanda buku dan/atau nota untuk dokumen ini.</string>
   <string name="bookmark_warning2">Jika struktur dokumen telah berubah, mengemas kini dokumen ini boleh menyebabkan lokasi penanda buku/nota ini berpindah dalam dokumen atau hilang sepenuhnya.</string>
-  <string name="bookmark_warning3">Adakah anda masih ingin mengemas kini modul?</string>
   <string name="bookmark_warning4">Adalah disyorkan agar anda membuat sandaran modul sebelum mengemas kini.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Susunan tarikh</string>
@@ -641,10 +634,8 @@
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Pulih atau Import dari…</string>
   <string name="backup_restore2">Pulih atau Import</string>
-  <string name="overwrite_something">Timpa %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Pulih Fail Pangkalan Data</string>
-  <string name="restore_confirmation">Timpa Nota Saya, Penanda Buku, Pad Kajian, Rancangan Bacaan dan Ruang Kerja?</string>
   <string name="restore_success">Nota Saya, Penanda Buku, Pad Kajian, Rancangan Bacaan dan Ruang Kerja berjaya dipulihkan</string>
   <string name="downloading_backup">Memuat turun fail sandaran…</string>
   <string name="loading_backup">Memuatkan pangkalan data dari sandaran…</string>
@@ -666,7 +657,6 @@
   <string name="send_export_file">Hantar fail eksport</string>
   <string name="backup_modules_title">Pilih modul mana untuk disandarkan</string>
   <string name="install_zip_canceled">Pemasangan modul dibatalkan</string>
-  <string name="ask_restore_or_import">Pangkalan data untuk %s boleh sama ada dipulihkan (iaitu pangkalan data sedia ada dibuang dan pangkalan data yang dipilih dimuatkan) atau diimport (pangkalan data yang dipilih diimport ke dalam pangkalan data sedia ada). Apa yang anda ingin lakukan?</string>
   <string name="restore">Pulih</string>
   <string name="import2">Import</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
@@ -721,7 +711,6 @@
   <string name="settings_editor_back">Kembali</string>
   <string name="settings_editor_close">Tutup</string>
   <string name="settings_editor_apply">Gunakan</string>
-  <string name="discard_changes_confirmation">Buang perubahan yang belum disimpan?</string>
   <string name="discard">Buang</string>
   <string name="remove">Alih keluar</string>
   <string name="overwrite">Timpa</string>
@@ -748,7 +737,8 @@
   <string name="empty_list">Tiada item untuk dipaparkan</string>
   <string name="error_skip">Langkau</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
-  <string name="corrupt_database_title">Data rosak</string>
+  <string name="corrupt_database_headline">AndBible tidak dapat membuka sebahagian data anda</string>
+  <string name="corrupt_database_files_detail">Fail ini tidak dapat dibuka: %1$s. Tiada apa-apa yang diubah atau dipadamkan. Menetapkan semula akan memulakannya dalam keadaan kosong dan menyimpan setiap fail yang rosak pada peranti ini, dinamakan semula dengan .corrupt- serta tarikh dan masa.</string>
   <string name="corrupt_database_reset">Tetapkan semula data yang rosak</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Data yang rosak tidak dapat ditetapkan semula: %1$s tidak dapat dialihkan ke tepi. Tiada apa-apa yang diubah. Anda boleh mencuba lagi, menghantar laporan ralat, atau menggunakan Sandaran &amp; Pulih.</string>
@@ -756,8 +746,8 @@
   <string name="damaged_data_needs_attention">Data aplikasi memerlukan perhatian. Ketuk untuk membuka aplikasi.</string>
   <string name="debug_test_error">Ralat ujian (binaan nyahpepijat)</string>
   <string name="bug_report_prepare_failed">Laporan tidak dapat disediakan atau dikongsi. Anda boleh mencuba lagi, atau gunakan Sandaran &amp; Pulih untuk menyimpan data anda.</string>
-  <string name="bug_report_email_title">Hantar laporan pepijat melalui e-mel</string>
   <string name="bug_report_desktop_text">Seterusnya, anda akan ditanya di mana hendak menyimpan fail laporan pepijat. Kemudian anda akan mendapat arahan untuk menghantarnya kepada pasukan pembangun.</string>
+  <string name="bug_report_email_title">Hantar laporan pepijat melalui e-mel</string>
   <string name="bug_report_email_text">Seterusnya, sila pilih aplikasi e-mel pilihan anda (Gmail contohnya) untuk menghantar laporan kepada pasukan pembangun.</string>
   <string name="bug_report_manual_title">Hantar laporan melalui e-mel</string>
   <string name="bug_report_manual_text_saved">Laporan telah disimpan ke <b>%1$s</b>.\n\nSila hantar e-mel kepada <b>%2$s</b> dan lampirkan fail itu; program e-mel tidak dapat melampirkannya untuk anda. Subjek yang dicadangkan: <b>%3$s</b>. Dalam mesej itu, beritahu kami apa yang anda lakukan dan apa yang berlaku.</string>
@@ -828,8 +818,6 @@
   <string name="beta_special_regards">Salam hormat, Tuomas</string>
   <string name="beta_special_sponsor">P.S. Anda boleh menyokong pembangunan AndBible secara kewangan dengan %s.</string>
   <string name="beta_special_sponsor_link">menaja jam pembangunan</string>
-  <string name="new_sync_targets_notice_title">Tetapan segerak baharu tersedia</string>
-  <string name="new_sync_targets_notice_message">Versi AndBible ini memperkenalkan sasaran segerak tambahan: Dokumen Saya, tetapan AI dan kemajuan bacaan. Jika anda ingin mengaktifkannya, anda boleh berbuat demikian dalam tetapan Penyegerakan Peranti.</string>
   <string name="open_settings">Buka tetapan</string>
   <!--History-->
   <string name="history_for">Sejarah (%1$s: Tetingkap %2$d)</string>
@@ -902,7 +890,6 @@
   <string name="give_passphrase_for_module">Dokumen %s disulitkan dan memerlukan kata laluan untuk dibuka</string>
   <string name="unlock_module">Tetapkan kata laluan modul</string>
   <string name="unlock_info">Maklumat pembukaan kunci modul yang disulitkan</string>
-  <string name="try_again_passphrase">Kata laluan tidak berfungsi, cuba lagi?</string>
   <string name="show_unlock_info">Modul &amp; maklumat pembukaan kunci</string>
   <string name="prefs_experimental_features_title">Ciri eksperimental</string>
   <string name="prefs_experimental_features_summary">Pilih ciri eksperimental mana yang hendak diaktifkan. Ciri-ciri ini masih dalam pembangunan dan mungkin berubah atau dibuang</string>
@@ -936,9 +923,6 @@
   <string name="active_window_indicator_summary">Serlahkan sudut tetingkap untuk membantu mengenali tetingkap mana yang aktif</string>
   <string name="app_licence_title">Lesen Sumber Terbuka</string>
   <string name="how_to_contribute">Bagaimana untuk menyumbang?</string>
-  <string name="confirm_delete_bookmarks">Adakah anda ingin membuang %d penanda buku dan notanya?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Label yang dipilih dilampirkan pada %d penanda buku yang tidak mempunyai label lain. Adakah anda ingin memadamkan penanda buku ini bersama label?</string>
-  <string name="delete_label_and_bookmarks">Padamkan label dan penanda buku</string>
   <string name="delete_label_only">Padamkan label sahaja</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Cadangkan kepada rakan</string>
@@ -969,8 +953,6 @@
   <string name="old_webview">Pakej Android WebView terlalu lama (%1$s). Anda perlu menaik taraf pakej Android WebView anda ke sekurang-kurangnya versi %2$s untuk menggunakan %3$s. Untuk kebanyakan peranti ini boleh dilakukan melalui %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Teruskan juga</string>
-  <string name="proceed">Teruskan</string>
-  <string name="rate_title">Menilai dan mengulas aplikasi</string>
   <string name="rate_message5">Ulasan positif dan terperinci sangat membantu Projek Sumber Terbuka AndBible. Terima kasih!</string>
   <string name="rate_message6">Sebelum menulis ulasan negatif, sila pertimbangkan perkara berikut:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -1000,7 +982,6 @@
   <string name="primary_label">Label utama</string>
   <string name="favourite_label">Label kegemaran</string>
   <string name="edit_label">Edit label</string>
-  <string name="delete_label_confirmation">Adakah anda ingin membuang label penanda buku \"%s\"? Juga semua nota Pad Kajian yang berkaitan akan dibuang.</string>
   <string name="active_labels">Label yang dipilih</string>
   <string name="recent_labels">Label terkini</string>
   <string name="other_labels">Label lain</string>
@@ -1010,8 +991,6 @@
   <string name="book_menu_show_progress_bars">Tunjukkan bar kemajuan</string>
   <string name="reset_workspace_labels">Adakah anda ingin menetapkan semula tetapan auto-tugasan dan kegemaran untuk ruang kerja ini?</string>
   <string name="clear_auto_assign_labels">Kosongkan label tetapan automatik</string>
-  <string name="reset_workspace_auto_assign_labels">Adakah anda mahu membuang semua label tetapan automatik daripada ruang kerja ini?</string>
-  <string name="reset_hide_labels">Adakah anda ingin menetapkan semula tetapan untuk menyembunyikan label yang ditentukan?</string>
   <string name="reorder">Susun semula</string>
   <string name="system_items">Tindakan sistem</string>
   <string name="system_items1">Lagi</string>
@@ -1025,7 +1004,6 @@
   <string name="ios_fullscreen_hint">Ketik dua kali atau ketik butang untuk keluar daripada skrin penuh.</string>
   <string name="desktop_exit_fullscreen">Keluar daripada skrin penuh</string>
   <string name="exit_fullscreen">Ketuk dua kali skrin untuk keluar skrin penuh</string>
-  <string name="reset_app_prefs">Adakah anda ingin menetapkan semula semua keutamaan aplikasi global yang dipaparkan pada skrin ini ke nilai lalainya?</string>
   <string name="label_red">Merah</string>
   <string name="label_green">Hijau</string>
   <string name="label_blue">Biru</string>
@@ -1036,7 +1014,6 @@
   <string name="reset_databases_title">Set Semula Pangkalan Data</string>
   <string name="reset_databases_description">Set semula pangkalan data individu ke keadaan kosong awalnya. Ini tidak boleh dibuat asal.</string>
   <string name="last_crash_info_title">Maklumat ranap terakhir</string>
-  <string name="reset_database_confirm">Ini akan memadamkan secara kekal semua data dalam \"%1$s\" dan menetapkan semulanya ke keadaan awal. Ini tidak boleh dibuat asal.\n\nAdakah anda pasti?</string>
   <string name="reset_database_success">Pangkalan data telah berjaya ditetapkan semula</string>
   <string name="reset_something">Set semula: %1$s</string>
   <string name="export">Eksport</string>
@@ -1106,19 +1083,18 @@
   <string name="manage_labels_help_favourite">Kekalkan label dalam kegemaran anda untuk akses pantas.</string>
   <string name="manage_labels_help_styles">Di bawah nama, satu contoh kecil menunjukkan rupa label: Pemilihan untuk penanda buku pemilihan teks, Keseluruhan ayat untuk penanda buku keseluruhan ayat, dan tag Ruang kerja untuk gaya yang diatasi oleh ruang kerja ini. Contoh yang dikelabukan tanpa hiasan bermaksud penanda buku label itu tidak dilukis. Sembunyikan contoh daripada menu ⋮.</string>
   <string name="manage_labels_help_reorder">Susun semula senarai daripada menu ⋮.</string>
+  <string name="manage_labels_help_narrow_toggles">Pada skrin sempit, senarai tidak memaparkan ikon utama, tugas automatik dan kegemaran supaya nama label mempunyai ruang. Ketik label untuk menetapkannya dalam penyunting label.</string>
   <string name="added_to_bookmark">Diberikan kepada penanda buku ini</string>
   <string name="strongs_links">Pautan</string>
   <string name="strongs_text_and_links">Teks dan Pautan</string>
   <string name="strongs_hidden_links">Pautan Tersembunyi</string>
   <string name="verse_tip">Untuk memilih sebahagian atau banyak ayat, anda boleh menekan lama teks Alkitab</string>
-  <string name="permission_required">Kebenaran diperlukan</string>
   <string name="labels_search_hint">Cari</string>
   <string name="search_mode_name_start">Nama (dari permulaan)</string>
   <string name="search_mode_name_contains">Nama (mengandungi)</string>
   <string name="search_mode_content">Kandungan</string>
   <string name="search_results_matches">%d padanan</string>
   <string name="search_results_match">1 padanan</string>
-  <string name="progress_status_permission">Untuk menunjukkan pemberitahuan (status muat turun, pemprosesan, status baca), kami memerlukan kebenaran anda.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Kalkulator Mudah</string>
   <string name="prefs_persecution_cat">Tetapan untuk mereka yang dianiaya</string>
@@ -1152,7 +1128,6 @@
   <string name="custom_repositories_create_button_label">Tambah Repositori Tersuai</string>
   <string name="custom_repositories_info_button_label">Maklumat</string>
   <string name="repository_specification">URL repositori</string>
-  <string name="delete_custom_repository">Adakah anda ingin membuang repositori tersuai %s?</string>
   <string name="custom_repositories_help1">Untuk menambah repositori tersuai baharu, taip atau salin &amp; tampal URL repositori tersuai di sini.</string>
   <string name="custom_repositories_help2">Anda boleh membaca lebih banyak maklumat tentang repositori tersuai dalam %s.</string>
   <string name="custom_repositories_help0">Anda boleh memasang dokumen dari repositori tersuai luaran dengan memasang repositori tersuai.</string>
@@ -1172,7 +1147,6 @@
   <string name="db_bookmarks">Penanda Buku, Nota Saya, Label dan Pad Kajian</string>
   <string name="synchronizing">Menyegerakkan…</string>
   <string name="notification_finished">Selesai</string>
-  <string name="overrideBackup">Pangkalan data sedia ada yang tidak disegerakkan dengan peranti ini ditemui dalam Awan. Pangkalan data mengandungi %s. Apa yang anda ingin lakukan?</string>
   <string name="reading_plans_content">Rancangan bacaan dan statusnya</string>
   <string name="bookmarks_contents">Penanda Buku, Label dan Pad Kajian</string>
   <string name="workspaces_contents">Ruang Kerja dan Tetingkap</string>
@@ -1192,7 +1166,6 @@
   <string name="reading_progress_calendar">Aktiviti Bacaan</string>
   <string name="reading_progress_cycle">Kitaran %d</string>
   <string name="reading_progress_new_cycle">Kitaran Baharu</string>
-  <string name="reading_progress_new_cycle_confirm">Mulakan kitaran bacaan baharu? Ini akan mula menjejaki kemajuan anda dari awal, sambil mengekalkan data kitaran sebelumnya.</string>
   <string name="reading_progress_previous_cycle">Kitaran sebelumnya</string>
   <string name="reading_progress_next_cycle">Kitaran seterusnya</string>
   <string name="cloud_merge_data">Gabungkan data</string>
@@ -1202,7 +1175,6 @@
   <string name="cloud_sync_title">Penyegerakan peranti</string>
   <string name="reset_sync">Log Keluar</string>
   <string name="prefs_reset_sync_summary">Nyahdayakan penyegerakan dan tetapkan semula tetapan berkaitan.</string>
-  <string name="sync_confirmation">Adakah anda pasti ingin log keluar dan tetapkan semula penyegerakan?</string>
   <string name="cloud_info">Maklumat awan</string>
   <string name="cloud_info_summary">Data dalam storan awan: %s Mb</string>
   <string name="sync_adapter">Bahagian Belakang Penyegerakan</string>
@@ -1218,7 +1190,6 @@
   <string name="webdav_server_url_hint">Alamat folder WebDAV, cth. https://nas.local/dav/ atau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Penyegerakan memerlukan alamat https:// yang selamat.</string>
   <string name="webdav_certificate_title">Sijil pelayan</string>
-  <string name="webdav_forget_certificate_message">Lupakan sijil pelayan yang dipercayai? Anda akan diminta mengesahkan sijil itu semula pada sambungan seterusnya.</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Sijil pelayan tidak dipercayai</string>
   <string name="webdav_untrusted_certificate_message">Sijil %1$s tidak dipercayai oleh Android. Percayai hanya jika anda mengenalinya, contohnya kerana anda sendiri yang menyediakan pelayan ini.\n\nSubjek: %2$s\nPenerbit: %3$s\nSah: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -1235,14 +1206,7 @@
   <string name="synchronization_categories">Kategori penyegerakan</string>
   <string name="sync_general_settings">Maklumat &amp; tetapan umum</string>
   <string name="sync_introduction">Pengenalan</string>
-  <string name="are_you_sure">Adakah anda pasti?</string>
   <string name="are_you_sure_merge">Data pada peranti ini dan %s di awan kedua-duanya akan dikekalkan. Jika item yang sama diubah pada kedua-duanya, perubahan yang lebih baharu dikekalkan. Data peranti ini akan dihantar ke peranti anda yang lain.</string>
-  <string name="are_you_sure_reset_local">Ini akan menetapkan semula pangkalan data tempatan anda untuk %s dengan kandungan yang kini disimpan dalam perkhidmatan awan.</string>
-  <string name="are_you_sure_reset_cloud">Ini akan menetapkan semula pangkalan data awan anda untuk %s dengan kandungan yang anda miliki dalam peranti ini.</string>
-  <string name="sync_cant_fetch">Versi pangkalan data atau fail tampalan yang disimpan dalam Awan lebih tinggi daripada yang disokong oleh aplikasi ini.</string>
-  <string name="sync_disabling">Menyahdayakan penyegerakan untuk %s buat masa ini.</string>
-  <string name="sync_update_app">Sila kemas kini aplikasi untuk meneruskan penyegerakan.</string>
-  <string name="sign_in_failed">Log masuk ke perkhidmatan bahagian belakang penyegerakan gagal.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Menyahdayakan penyegerakan awan. Anda perlu mengaktifkan semula secara manual selepas pemulihan.</string>
   <string name="report">Lapor</string>
@@ -1260,6 +1224,7 @@
   <string name="open_here">Buka di sini</string>
   <string name="external_link">Pautan luaran</string>
   <string name="external_link_question">Ini akan membuka pautan luaran %s dalam aplikasi penyemak imbas, adakah anda ingin meneruskan?</string>
+  <string name="external_link_dont_ask_again">Jangan tanya lagi untuk %s</string>
   <string name="nameless">Tajuk tidak ditakrifkan</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tindakan satu ketukan (Alkitab)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Tindakan satu ketukan (Lain-lain)</string>
@@ -1307,8 +1272,6 @@
   <string name="memorize_include_reference_summary">Tambah rujukan ayat (cth. Yohanes 3:16) sebagai item terakhir untuk dihafal</string>
   <string name="reading_progress_settings">Kemajuan &amp; hafalan</string>
   <string name="reading_progress_settings_summary">Tetapan penjejakan automatik, hafalan, dan latihan menaip</string>
-  <string name="memorize_confirm_unmark">Buang status dihafal untuk %s?</string>
-  <string name="memorize_confirm_remove_target">Buang matlamat hafalan %s?</string>
   <string name="memorize_tab_reading">Bacaan</string>
   <string name="memorize_tab_memorization">Hafalan</string>
   <string name="memorize_verses_memorized">Dihafal</string>
@@ -1334,7 +1297,6 @@
   <string name="llm_reset_usage_title">Set semula data penggunaan</string>
   <string name="llm_reset_usage_summary">Kosongkan penjejakan token dan kos kumulatif</string>
   <string name="llm_reset_usage_confirm_title">Set semula data penggunaan?</string>
-  <string name="llm_reset_usage_confirm_message">Ini akan mengosongkan semua data penggunaan kumulatif.</string>
   <string name="llm_custom_input_price_title">Harga input ($/Mtoken)</string>
   <string name="llm_custom_output_price_title">Harga output ($/Mtoken)</string>
   <string name="llm_cost_total">Jumlah: %1$s</string>
@@ -1350,8 +1312,6 @@
   <string name="llm_parse_error_anthropic">Gagal menghurai respons Anthropic: %1$s</string>
   <string name="llm_error_unknown">Ralat tidak diketahui</string>
   <string name="llm_error_max_iterations">Lelaran maksimum (%1$d) dicapai tanpa penyiapan</string>
-  <string name="llm_continue_iterations_title">Teruskan?</string>
-  <string name="llm_continue_iterations_message">Ejen AI telah mencapai had %1$d lelaran tanpa menyiapkan. Teruskan untuk %2$d lelaran lagi?</string>
   <string name="agent_max_iterations_title">Lelaran ejen maksimum</string>
   <string name="agent_max_iterations_summary">Lelaran maksimum sebelum meminta untuk meneruskan (0 = tanpa had)</string>
   <string name="ask_model_before_run_title">Tanya model sebelum jalankan</string>
@@ -1411,7 +1371,6 @@
   <string name="ai_models_summary_none">Tiada model dikonfigurasi</string>
   <string name="ai_add_provider">Tambah penyedia</string>
   <string name="ai_provider_edit">Edit</string>
-  <string name="ai_provider_delete_confirm">Padamkan penyedia \"%1$s\"? Prompt yang menggunakan penyedia ini akan kembali ke lalai.</string>
   <string name="ai_provider_api_key_not_set">Kunci API tidak ditetapkan</string>
   <string name="ai_provider_select_type">Pilih jenis penyedia</string>
   <string name="ai_provider_name">Nama penyedia</string>
@@ -1431,7 +1390,6 @@
   <string name="edit_model_title">Edit model</string>
   <string name="model_saved">Model disimpan</string>
   <string name="model_deleted">Model dipadamkan</string>
-  <string name="model_delete_confirm">Padamkan model \"%1$s\"?</string>
   <string name="model_set_default">Tetapkan sebagai model lalai</string>
   <string name="model_select_provider">Penyedia</string>
   <string name="model_supported_badge">✓ Disokong</string>
@@ -1471,7 +1429,6 @@
   <string name="ai_disclaimer_point8">Data anda dihantar ke pelayan penyedia AI yang anda pilih. Dengan menggunakan kunci API, anda menerima syarat dan dasar privasi penyedia tersebut. Model yang di-hos sendiri adalah mungkin tetapi memerlukan kepakaran teknikal yang lebih, dan mungkin tidak menghasilkan keputusan sebaik model komersial.</string>
   <string name="ai_disclaimer_point9">Penyedia AI mengenakan bayaran untuk penggunaan API. Anggaran kos yang ditunjukkan dalam AndBible adalah anggaran — sentiasa semak pengebilan penyedia anda untuk caj sebenar.</string>
   <string name="ai_disclaimer_accept_title">Terima Penafian AI</string>
-  <string name="ai_disclaimer_accept_button">Saya menerima dan mengambil tanggungjawab penuh</string>
   <string name="prompt_permission_mode">Mod kebenaran</string>
   <string name="prompt_permission_mode_description">Mengawal bila pengesahan pengguna diperlukan sebelum AI melakukan operasi tulis. Tetapan setiap alat di bawah boleh mengatasi ini untuk alat individu.</string>
   <string name="agent_permission_mode_summary">Mengawal bila pengesahan pengguna diperlukan sebelum operasi tulis AI</string>
@@ -1587,7 +1544,6 @@
   <string name="default_prompt_custom_desc">Jalankan tugasan tersuai pada petikan yang dipilih</string>
   <string name="default_prompt_custom_template">Ikut spesifikasi tugasan pengguna untuk petikan Alkitab yang dipilih.</string>
   <string name="copy">Salin</string>
-  <string name="delete_prompt_confirm_message">Adakah anda pasti ingin memadamkan prompt ini?</string>
   <string name="ai_hide_prompt">Sembunyikan</string>
   <string name="ai_restore_hidden_prompts">Pulihkan prompt yang disembunyikan</string>
   <string name="ai_prompt_hidden">Prompt disembunyikan</string>
@@ -1672,8 +1628,6 @@
   <string name="permission_allow_all_session">Benarkan semua alat sesi ini</string>
   <string name="permission_allow_always">Sentiasa benarkan \"%1$s\"</string>
   <string name="permission_deny">Tolak</string>
-  <string name="permission_always_allow_confirm_title">Sentiasa benarkan?</string>
-  <string name="permission_always_allow_confirm">Adakah anda pasti ingin sentiasa membenarkan \"%1$s\" secara kekal?</string>
   <string name="permission_always_allow_confirm_reset_hint">Anda boleh menetapkan semula ini dalam Tetapan AI.</string>
   <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Kebenaran alat</string>
@@ -1778,18 +1732,15 @@
   <string name="my_document_new_name">Dokumen %d</string>
   <string name="my_document_create_title">Buat dokumen baharu</string>
   <string name="my_document_rename_title">Namakan semula dokumen</string>
-  <string name="my_document_delete_confirmation">Padamkan dokumen \"%s\"?</string>
   <string name="show_secret">Tunjukkan</string>
   <string name="hide_secret">Sembunyikan</string>
   <string name="ai_documents_name">Dokumen AI</string>
   <string name="ai_documents_description">Dokumen yang dijana secara automatik oleh AI</string>
-  <string name="my_document_cannot_delete_ai_documents">Dokumen AI tidak boleh dipadamkan semasa ia mengandungi halaman. Padamkan halaman dahulu.</string>
   <string name="my_document_save_changes">Simpan perubahan?</string>
   <string name="my_document_no_description">Tiada penerangan</string>
   <string name="my_document_edit_description">Edit penerangan</string>
   <string name="my_document_pages_title">%s - Halaman</string>
   <string name="my_document_page_rename_title">Namakan semula halaman</string>
-  <string name="my_document_page_delete_confirmation">Padamkan halaman \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Padamkan halaman ini?</string>
   <string name="my_documents_switch_document">Tukar dokumen</string>
   <string name="my_document_new_page_name">Halaman %1$d</string>
@@ -1857,7 +1808,6 @@
   <string name="cloud_doc_show_removed">Tunjukkan dokumen yang dibuang</string>
   <string name="cloud_doc_status_removed">Dibuang daripada awan</string>
   <string name="cloud_doc_status_still_installed">masih dipasang di sini</string>
-  <string name="cloud_doc_purge_confirm">Buang \"%1$s\" daripada sejarah awan secara kekal? Jika ia masih dipasang pada peranti lain, peranti itu mungkin memuat naiknya semula ke awan pada penyegerakan seterusnya.</string>
   <string name="cloud_doc_action_download">Muat turun</string>
   <string name="cloud_doc_action_push">Muat naik ke awan</string>
   <string name="cloud_doc_action_remove_cloud">Buang daripada awan</string>
@@ -1868,8 +1818,6 @@
   <string name="cloud_doc_action_dont_sync">Jangan segerakkan ke awan</string>
   <string name="cloud_doc_action_allow_sync">Segerakkan ke awan</string>
   <string name="cloud_doc_action_purge">Buang daripada sejarah awan</string>
-  <string name="cloud_doc_remove_all_confirm">Buang %1$s daripada awan dan daripada semua peranti anda, termasuk peranti ini?</string>
-  <string name="cloud_doc_remove_cloud_confirm">Buang %1$s daripada awan? Salinan pada peranti ini dikekalkan; peranti yang mempunyai penyegerakan dokumen dihidupkan juga akan membuangnya.</string>
   <string name="cloud_doc_sync_now">Segerakkan sekarang</string>
   <string name="cloud_doc_rescan">Imbas semula daripada awan</string>
   <string name="cloud_doc_sync_now_download">Muat turun dokumen baharu dan dikemas kini</string>
@@ -1881,6 +1829,12 @@
   <string name="cloud_doc_summary_download">Muat turun %1$d</string>
   <string name="cloud_doc_summary_download_size">Muat turun %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Muat turun automatik akan bermula pada Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="other">%1$d dokumen</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="other">%1$d dokumen (%2$s)</item>
+    </plurals>
   <string name="cloud_doc_sync_now_count_none">Tiada apa-apa untuk dipindahkan</string>
   <string name="cloud_doc_selected_count">%1$d dipilih</string>
   <string name="cloud_doc_bulk_skipped">%1$d dilangkau, tidak berkenaan</string>
@@ -1897,8 +1851,6 @@
   <string name="background_image_import">Import dari galeri…</string>
   <string name="background_image_empty">Belum ada imej diimport. Ketik \"Import dari galeri…\" untuk menambah satu.</string>
   <string name="background_image_importing">Mengimport…</string>
-  <string name="background_image_delete_title">Padamkan imej?</string>
-  <string name="background_image_delete_confirm">Padamkan imej latar belakang ini? Ruang kerja yang masih menggunakannya akan kembali tanpa imej.</string>
   <string name="background_image_day">Imej latar belakang (siang)</string>
   <string name="background_image_night">Imej latar belakang (malam)</string>
   <string name="background_image_opacity_day">Kelegapan imej latar belakang (siang)</string>
@@ -1972,6 +1924,9 @@
   <string name="legacy_notice_icloud">Penyegerakan kini menggunakan iCloud Drive. Hidupkan semula dalam Tetapan → Segerak. Peranti ini mengekalkan apa yang ada padanya; perubahan daripada peranti anda yang lain tiba selepas penyegerakan disediakan semula. Untuk mengosongkan data iCloud lama: Tetapan → nama anda → iCloud → Urus Storan → AndBible.</string>
   <string name="legacy_notice_nextcloud">Sambungan Nextcloud anda telah dibawa bersama, tetapi penyegerakan dimatikan. Hidupkan dalam Tetapan → Segerak dan pilih untuk mengambil daripada awan atau membuat yang baharu.</string>
   <string name="legacy_notice_nextcloud_unsent">Sesetengah perubahan pada peranti ini belum dihantar ke Nextcloud. Ia tidak dihantar dan kekal hanya pada peranti ini.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="other">%1$d penanda buku tidak dapat diletakkan dengan tepat dan tidak diimport. Ia disimpan bersama data lama anda pada peranti ini.</item>
+    </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Ia ialah aplikasi kajian Alkitab luar talian yang berkuasa, namun mudah digunakan.</string>
   <string name="webdav_untrusted_certificate_message_device">Sijil %1$s tidak dipercayai oleh peranti ini. Percayai hanya jika anda mengenalinya, contohnya kerana anda sendiri yang menyediakan pelayan ini.\n\nSubjek: %2$s\nPenerbit: %3$s\nSah: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2023,6 +1978,25 @@
   <string name="recommend_share_link">Kongsi pautan</string>
   <string name="recommend_qr_caption">Imbas untuk mendapatkan AndBible untuk telefon, tablet atau komputer anda.</string>
   <string name="desktop_activation_failed">AndBible sudah berjalan, tetapi tetingkapnya tidak bertindak balas. Beralih kepada contoh yang sedang berjalan dan cuba lagi. Fail masuk tidak disahkan telah diterima.</string>
+  <!--dialog copy: B3a-->
+  <string name="ai_cannot_be_undone_detail">Ini tidak boleh dibuat asal.</string>
+  <string name="ai_raw_log_delete_lead">Padamkan log ini?</string>
+  <string name="ai_provider_delete_lead">Padamkan penyedia “%1$s”?</string>
+  <string name="ai_provider_delete_detail">Prompt yang menggunakannya kembali kepada penyedia lalai.</string>
+  <string name="ai_model_delete_lead">Padamkan model “%1$s”?</string>
+  <string name="ai_prompt_delete_named_lead">Padamkan prompt “%1$s”?</string>
+  <string name="ai_prompt_delete_lead">Padamkan prompt ini?</string>
+  <string name="ai_reset_usage_detail">Jumlah token dan kos kembali kepada sifar. Ini tidak boleh dibuat asal.</string>
+  <string name="ai_reset_usage_button">Set semula</string>
+  <string name="ai_disclaimer_accept">Saya terima</string>
+  <string name="llm_continue_iterations_lead">Teruskan untuk %1$d lelaran lagi?</string>
+  <string name="llm_continue_iterations_detail">Ejen AI mencapai had %1$d lelaran tanpa selesai.</string>
+  <string name="llm_continue_button">Teruskan</string>
+  <string name="permission_always_allow_lead">Sentiasa benarkan “%1$s”?</string>
+  <string name="permission_always_allow_button">Sentiasa benarkan</string>
+  <string name="ai_bug_report_send_lead">Hantar laporan pepijat AI?</string>
+  <string name="ai_bug_report_send_button">Hantar</string>
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Mula menggunakan</string>
   <string name="user_guide_section_reading_workspace">Bacaan dan ruang kerja</string>
@@ -2100,4 +2074,142 @@
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Pembantu AI, bahagian 3: alat, data dan kebenaran anda</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Pembantu AI, bahagian 4: prompt sendiri, kos dan penyegerakan</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <string name="dialog_discard_changes_lead">Buang perubahan?</string>
+  <string name="dialog_keep_editing">Teruskan mengedit</string>
+  <string name="dialog_label_delete_lead">Padamkan label “%1$s”?</string>
+  <string name="dialog_label_delete_detail">Nota Pad Kajiannya turut dipadamkan. Ini tidak boleh dibuat asal.</string>
+    <plurals name="dialog_label_delete_orphans_detail">
+        <item quantity="other">%1$d penanda buku tidak mempunyai label lain.</item>
+    </plurals>
+    <plurals name="dialog_label_delete_both">
+        <item quantity="other">Padamkan label dan %1$d penanda buku</item>
+    </plurals>
+  <string name="dialog_label_delete_both_consequence">Penanda buku dan notanya dipadamkan.</string>
+  <string name="dialog_label_delete_only_consequence">Penanda buku kekal, tanpa label.</string>
+    <plurals name="dialog_bookmarks_remove_lead">
+        <item quantity="other">Buang %1$d penanda buku?</item>
+    </plurals>
+    <plurals name="dialog_bookmarks_remove_detail">
+        <item quantity="other">Notanya turut dibuang.</item>
+    </plurals>
+  <string name="dialog_labels_reset_workspace_lead">Buang semua label tugas automatik daripada ruang kerja ini?</string>
+  <string name="dialog_labels_reset_hidden_lead">Tunjukkan semula semua label tersembunyi?</string>
+  <string name="dialog_labels_reset_shown_detail">Label yang anda sembunyikan daripada senarai dipaparkan semula.</string>
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <string name="install_document_question">Pasang “%s”?</string>
+  <string name="install_action">Pasang</string>
+  <string name="install_from_file_question">Pasang dokumen daripada fail?</string>
+  <string name="overwrite_files_detail">Fail ini sudah wujud:%s</string>
+  <string name="import_studypads_question">Import Pad Kajian ini?</string>
+  <string name="import_action">Import</string>
+  <string name="restore_backup_question">Pulihkan dokumen dalam sandaran ini?</string>
+  <string name="restore_backup_detail">Fail ini ialah sandaran dokumen AndBible.</string>
+  <string name="update_document_question">Kemas kini dokumen ini?</string>
+  <string name="update_action">Kemas kini</string>
+  <string name="download_documents_question">Muat turun dokumen?</string>
+  <string name="download_persecution_warning">Jika anda tinggal di negara yang menganiaya, anda mungkin perlu berhati-hati semasa memuat turun bahan Kristian melalui Internet. Sebaliknya, anda mungkin mahu mendapatkan fail zip dokumen dengan lebih selamat dan memasangnya melalui “%1$s”. Semua muat turun daripada pelayan dokumen disulitkan (HTTPS).</string>
+  <string name="download_action">Muat turun</string>
+  <string name="download_dont_ask_again">Muat turun, jangan tanya lagi</string>
+  <string name="download_dont_ask_again_consequence">Muat turun bermula tanpa soalan ini pada masa hadapan.</string>
+  <string name="passphrase_did_not_work">Frasa laluan tidak berfungsi.</string>
+  <string name="try_again">Cuba lagi</string>
+  <string name="interrupted_downloads_lead">Muat turun dokumen ini semula?</string>
+  <string name="interrupted_downloads_detail">Muat turun mereka terganggu, jadi tidak dipasang.</string>
+  <string name="external_link_open_question">Buka pautan ini dalam pelayar anda?</string>
+  <string name="open_action">Buka</string>
+  <string name="notification_permission_question">Benarkan pemberitahuan?</string>
+  <string name="notification_permission_detail">Pemberitahuan memaparkan status muat turun, pemprosesan dan status pertuturan.</string>
+  <string name="allow_action">Benarkan</string>
+  <string name="rate_question">Nilai dan ulas aplikasi?</string>
+  <string name="bug_report_email_question">Hantar laporan pepijat melalui e-mel?</string>
+  <string name="continue_action">Teruskan</string>
+  <string name="delete_search_index_question">Padamkan indeks carian “%s”?</string>
+  <string name="remove_custom_repository_question">Buang repositori tersuai “%s”?</string>
+  <string name="download_document_question">Muat turun “%s”?</string>
+  <string name="choose_file_action">Pilih fail</string>
+  <string name="old_webview_question">Guna aplikasi dengan WebView lama?</string>
+  <string name="incomplete_translation_question">Teruskan dengan terjemahan separa?</string>
+  <string name="rate_action">Nilai</string>
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <string name="my_document_delete_lead">Padamkan dokumen “%s”?</string>
+  <string name="my_document_page_delete_lead">Padamkan halaman “%s”?</string>
+  <string name="my_document_cannot_delete_ai_lead">Dokumen AI tidak boleh dipadamkan selagi mengandungi halaman.</string>
+  <string name="my_document_cannot_delete_ai_detail">Padamkan halaman dahulu.</string>
+  <string name="reading_progress_new_cycle_lead">Mulakan kitaran bacaan baharu?</string>
+  <string name="reading_progress_new_cycle_detail">Kemajuan anda dijejak dari awal. Data kitaran sebelumnya disimpan.</string>
+  <string name="reading_progress_new_cycle_start">Mula</string>
+  <string name="reset_plan_lead">Set semula rancangan ini?</string>
+  <string name="reset_plan_detail">Tarikh mula dan kemajuan anda dalam rancangan ini dikosongkan.</string>
+  <string name="set_current_day_lead">Tetapkan %1$s sebagai hari semasa?</string>
+  <string name="set_current_day_detail">Semua hari sebelumnya ditandakan sebagai telah dibaca.</string>
+  <string name="plan_duplicate_user_plan_lead">Sebuah fail rancangan bacaan mempunyai nama yang sama dengan rancangan terbina dalam.</string>
+  <string name="plan_duplicate_user_plan_detail">Fail rancangan tidak boleh disenaraikan. Namakan semula fail dalam folder jsword/readingplan, dengan mengekalkan sambungan .properties.</string>
+  <string name="background_image_delete_lead">Padamkan imej latar belakang ini?</string>
+  <string name="background_image_delete_detail">Ruang kerja yang masih menggunakannya akan kembali kepada tiada imej.</string>
+  <string name="reset_values_lead">Set semula semua nilai ini?</string>
+  <string name="revert_setting_lead">Kembalikan tetapan ini kepada nilai yang diwarisi?</string>
+  <string name="revert_setting_confirm">Kembalikan</string>
+  <string name="reset_settings_screen_lead">Set semula tetapan pada skrin ini?</string>
+  <string name="reset_settings_screen_detail">Ia kembali kepada nilai lalai.</string>
+  <string name="memorize_unmark_lead">Buang status dihafal untuk “%s”?</string>
+  <string name="memorize_remove_target_lead">Buang sasaran hafalan “%s”?</string>
+  <string name="dialog_apply">Gunakan</string>
+  <string name="dialog_dont_apply">Jangan gunakan</string>
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <string name="cloud_existing_data_lead">Awan sudah mempunyai %s anda. Apakah yang patut berlaku?</string>
+  <string name="cloud_merge_consequence">Kedua-dua pihak dikekalkan; jika sesuatu item berubah di kedua-duanya, perubahan yang lebih baharu diutamakan.</string>
+  <string name="cloud_fetch_consequence">Menggantikan data pada peranti ini dengan salinan awan.</string>
+  <string name="cloud_create_consequence">Menggantikan salinan awan dengan data pada peranti ini.</string>
+  <string name="cloud_disable_consequence">Penyegerakan kekal dimatikan untuk data ini.</string>
+  <string name="cloud_merge_lead">Gabungkan %s anda dengan awan?</string>
+  <string name="cloud_merge_confirm">Gabung</string>
+  <string name="cloud_replace_confirm">Ganti</string>
+  <string name="cloud_replace_local_lead">Gantikan %s peranti ini dengan salinan awan?</string>
+  <string name="cloud_replace_local_detail">Apa yang ada pada peranti ini sekarang akan ditimpa dan tidak boleh dipulihkan.</string>
+  <string name="cloud_replace_cloud_lead">Gantikan salinan awan bagi %s dengan data peranti ini?</string>
+  <string name="cloud_replace_cloud_detail">Apa yang ada di awan sekarang akan ditimpa, dan peranti anda yang lain akan menerima data peranti ini.</string>
+  <string name="sign_in_failed_lead">Tidak dapat log masuk ke perkhidmatan penyegerakan.</string>
+  <string name="sync_too_old_lead">Aplikasi ini terlalu lama untuk menyegerakkan %s.</string>
+  <string name="sync_too_old_detail">Data awan menggunakan versi yang lebih baharu daripada yang disokong aplikasi ini. Penyegerakannya dimatikan buat sementara; kemas kini aplikasi untuk menghidupkannya semula.</string>
+  <string name="backup_replace_lead">Gantikan %s anda dengan sandaran?</string>
+  <string name="backup_replace_detail">Apa yang ada pada peranti ini sekarang akan ditimpa dan tidak boleh dipulihkan.</string>
+  <string name="reset_database_lead">Set semula “%1$s” kepada keadaan awalnya?</string>
+  <string name="reset_database_detail">Semua data di dalamnya dipadamkan secara kekal. Ini tidak boleh dibuat asal.</string>
+  <string name="reset_database_button">Set semula</string>
+  <string name="restore_all_lead">Gantikan nota, penanda buku, Pad Kajian, rancangan bacaan dan ruang kerja anda?</string>
+  <string name="restore_or_import_lead">Pulihkan atau import %s?</string>
+  <string name="restore_consequence">Menggantikan apa yang ada pada peranti ini dengan sandaran.</string>
+  <string name="import_consequence">Menambah item sandaran kepada apa yang ada pada peranti ini.</string>
+  <string name="sync_start_syncing">Mula menyegerak</string>
+  <string name="sync_reset_lead">Log keluar dan set semula penyegerakan?</string>
+  <string name="sync_reset_detail">Anda perlu menyediakan penyegerakan semula.</string>
+  <string name="webdav_forget_certificate_lead">Lupakan sijil pelayan yang dipercayai?</string>
+  <string name="webdav_forget_certificate_detail">Anda akan diminta mengesahkan sijil semula pada sambungan seterusnya.</string>
+  <string name="webdav_forget_certificate_confirm">Lupakan</string>
+  <string name="cloud_doc_remove_all_lead">Buang “%1$s” daripada awan dan semua peranti anda?</string>
+  <string name="cloud_doc_remove_cloud_lead">Buang “%1$s” daripada awan?</string>
+  <string name="cloud_doc_purge_lead">Buang “%1$s” secara kekal daripada sejarah awan?</string>
+  <string name="cloud_doc_remove_all_detail">Ini juga memadamkan salinan pada peranti ini dan pada setiap peranti lain yang menghidupkan penyegerakan dokumen.</string>
+  <string name="cloud_doc_remove_cloud_detail">Salinan pada peranti ini dikekalkan. Peranti yang menghidupkan penyegerakan dokumen akan membuangnya juga.</string>
+  <string name="cloud_doc_purge_detail">Peranti yang masih mempunyai salinan mungkin memuat naiknya semula pada penyegerakan seterusnya.</string>
+  <string name="cloud_doc_block_confirm_button">Jangan segerak</string>
+    <plurals name="cloud_doc_bulk_remove_all_lead">
+        <item quantity="other">Buang %1$d dokumen daripada awan dan semua peranti anda?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_lead">
+        <item quantity="other">Buang %1$d dokumen daripada awan?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_lead">
+        <item quantity="other">Buang %1$d dokumen secara kekal daripada sejarah awan?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_block_lead">
+        <item quantity="other">Berhenti menyegerakkan %1$d dokumen ke awan?</item>
+    </plurals>
+  <string name="new_sync_targets_lead">Lebih banyak data anda kini boleh disegerakkan</string>
+  <string name="new_sync_targets_detail">Dokumen Saya, tetapan AI dan kemajuan bacaan juga boleh disegerakkan. Hidupkannya dalam tetapan Penyegerakan peranti.</string>
+  <!--end dialog copy: B3b-->
 </resources>
