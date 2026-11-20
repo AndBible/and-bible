@@ -79,7 +79,7 @@ please describe the feature clearly.
 [andbible.org](https://andbible.org), where the downloads for every platform are listed, that a friend
 can scan in person. **Share a link** in the same dialog opens the system share sheet with a short
 description of AndBible and the same link.
-**Rate & Review**, when offered, shows a short dialog about rating and about reporting problems; its confirm
+**Rate & Review**, when offered, asks *Rate and review the app?* and also mentions reporting problems; its *Rate*
 button then opens the standard Play listing, or Samsung Apps for Samsung builds.
 
 **Recommend to a friend** is hidden in discrete mode. Recommendation and rating actions

@@ -20,8 +20,7 @@ If a database holding your own data (bookmarks, notes, StudyPads, workspaces,
 reading plans, My Documents, settings, AI settings, reading progress or
 repositories) is damaged, AndBible does not open and shows a **Damaged data**
 message naming the damaged database file. Filenames are displayed as text,
-including any ampersands or angle brackets in their names. The explanation is
-split into paragraphs above the recovery actions. Nothing has been changed or
+including any ampersands or angle brackets in their names. Nothing has been changed or
 deleted at that point. You can choose:
 
 - **Send Report**: send us an error report so that we can look for the cause.
@@ -123,10 +122,10 @@ To restore your *AndBible* data:
     - *Documents* restores your Bibles, Dictionaries, Commentaries,
         Maps, etc.
 3. Tap *Restore or Import from…*.
-4. For *Documents*, if prompted, tap *Proceed* on the next dialog which indicates
+4. For *Documents*, if prompted, tap *Choose file* on the next dialog which indicates
     supported filetypes.
 5. Select the zipped backup file on your device to restore your *AndBible* data.
-6. For *Database*, AndBible asks which backup sections you want to restore. For
+6. For *Database*, AndBible asks *Restore or import the …?* for each backup section. For
     each section you can choose *Restore* (the existing data is removed and the
     data from the backup is loaded) or *Import* (the data from the backup is
     merged into your existing data).
@@ -153,8 +152,7 @@ same restore as *Restore or Import*, asking which backup sections to restore, in
 offering to install it as a module.
 
 Document backups can also be selected using *Load Documents From Files*. AndBible
-recognises them by their contents, even if the filename has changed, and asks you
-to confirm restoration. If files already exist, a separate overwrite confirmation
+recognises them by their contents, even if the filename has changed, and asks *Restore the documents in this backup?*. If files already exist, a separate overwrite confirmation
 appears. Cancel either confirmation to leave the existing files unchanged.
 
 ## Auto-Backups, Reset Databases and Last crash info

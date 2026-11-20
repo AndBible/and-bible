@@ -59,8 +59,11 @@ When enabling sync for the first time:
     - **Cancel & disable synchronization** — cancels and disables sync for this
         category.
 
-    A confirmation dialog will follow to make sure you understand the
-    consequences.
+    The dialog is headed *The cloud already has your …. What should happen?*
+    and each option shows what it does. A confirmation follows to make sure you
+    understand the consequences: *Merge your … with the cloud?* (**Merge**),
+    *Replace this device’s … with the cloud copy?* or *Replace the cloud copy of …
+    with this device’s data?* (both **Replace**).
 
 ### Setting Up Nextcloud
 
@@ -262,7 +265,7 @@ To disconnect from cloud sync:
 
 1. Open `Device synchronization`.
 2. Tap `Sign Out`.
-3. Confirm the reset.
+3. Confirm *Sign out and reset synchronization?*.
 
 This signs out, disables synchronization, and resets related settings. Your
 local data is kept intact. You can set up sync again at any time.

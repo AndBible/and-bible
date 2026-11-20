@@ -71,7 +71,7 @@ To delete a bookmark:
 2. The verse action dialog shows all bookmarks for the selected verse,
     not just the bookmark clicked on.
 3. Click the trash can icon inside the bookmark you wish to delete.
-4. Click *Yes* to confirm deletion.
+4. *AndBible* asks *Remove this bookmark?* (its note is removed too). Click *Remove* to confirm.
 
 ## Changing a bookmark’s icon {#changing-a-bookmark-s-icon}
 

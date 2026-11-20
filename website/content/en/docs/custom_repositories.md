@@ -35,8 +35,8 @@ Custom repositories are managed from the download screen:
 1. Open the top left main menu (☰) and click *Download Documents*.
 2. Click the three vertical dot menu and choose *Custom repositories*.
 3. Tap `+` to add a repository. Tap an existing repository in the list to edit it.
-4. To remove a repository, open it and tap the trash can icon; *AndBible* asks *Do you
-    want to remove custom repository …?* and you confirm with *Remove*.
+4. To remove a repository, open it and tap the trash can icon; *AndBible* asks *Remove the
+    custom repository “…”?* and you confirm with *Remove*.
 
 In the editor you can paste either the full manifest URL or the repository root
 folder URL into the “Repository URL” field (the clipboard icon at the end of the field
