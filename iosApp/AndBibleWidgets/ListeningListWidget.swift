@@ -81,6 +81,7 @@ struct ListeningRowView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.vertical, 3).padding(.horizontal, 8)
             .background(RoundedRectangle(cornerRadius: 10).fill(row.current ? p.track.opacity(0.9) : p.track.opacity(0.4)))
         }

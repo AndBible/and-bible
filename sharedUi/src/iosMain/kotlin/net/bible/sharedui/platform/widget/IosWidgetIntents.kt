@@ -48,6 +48,10 @@ object IosWidgetIntents {
         }
         try {
             bringUp()
+            // A headless process has no UI to start the snapshot writer: start it here so the widgets show the result.
+            withContext(Dispatchers.Default) {
+                KoinPlatform.getKoin().getOrNull<IosWidgetSnapshotWriter>()?.start()
+            }
             val transport = KoinPlatform.getKoin().get<SpeakTransportService>()
             // The speak engine is main-thread bound.
             withContext(Dispatchers.Main) {

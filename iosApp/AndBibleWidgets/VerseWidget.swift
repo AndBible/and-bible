@@ -88,7 +88,7 @@ struct VerseBody: View {
         let textSize: CGFloat = family == .systemSmall ? 13 : (family == .systemMedium ? 15 : 21)
         let lines = family == .systemSmall ? 5 : (family == .systemMedium ? 3 : 12)
         VStack(alignment: .leading, spacing: 0) {
-            WHeader(symbol: "sun.max.fill", text: config.showSource ? "\(sourceName) · \(periodLabel)" : sourceName, palette: p)
+            WHeader(symbol: "sun.max.fill", text: config.showSource && family != .systemSmall ? "\(sourceName) · \(periodLabel)" : sourceName, palette: p)
             Text(verse.text).font(.system(size: textSize, weight: .medium)).foregroundStyle(p.onSurface)
                 .lineLimit(lines).minimumScaleFactor(0.8).padding(.top, family == .systemLarge ? 14 : 6)
             Spacer(minLength: 0)
