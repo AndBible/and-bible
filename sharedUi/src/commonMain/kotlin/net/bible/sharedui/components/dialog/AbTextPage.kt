@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.HorizontalDivider
@@ -54,6 +53,7 @@ import net.bible.sharedui.components.DialogEdgeToEdge
 import net.bible.sharedui.components.textPageDialogProperties
 import net.bible.sharedui.components.NoDialogDim
 import net.bible.sharedui.components.TrackOverlay
+import net.bible.sharedui.components.volumeVerticalScroll
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.isPureMonochrome
 import net.bible.sharedui.theme.LocalIsDarkTheme
@@ -128,7 +128,7 @@ fun AbTextPage(
                 HorizontalDivider(color = rule)
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                     Column(
-                        Modifier.widthIn(max = PageMaxWidth).fillMaxWidth().verticalScroll(rememberScrollState())
+                        Modifier.widthIn(max = PageMaxWidth).fillMaxWidth().volumeVerticalScroll(rememberScrollState())
                             .padding(horizontal = AbDialogTokens.PaddingSide, vertical = 16.dp),
                     ) {
                         androidx.compose.material3.ProvideTextStyle(abDialogBodyStyle()) { body() }

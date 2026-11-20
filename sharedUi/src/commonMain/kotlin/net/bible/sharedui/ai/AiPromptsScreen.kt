@@ -546,7 +546,7 @@ fun AiPromptsScreen(
  *  a constraint the user cannot see is indistinguishable from missing data. */
 @Composable
 private fun FilterAction(active: Boolean, contentDescription: String, onClick: () -> Unit) {
-    IconButton(onClick = onClick) {
+    IconButton(onClick = onClick, modifier = Modifier.toggleStateSemantics(active)) {
         Icon(
             if (active) Icons.Filled.FilterAlt else Icons.Filled.FilterAltOff,
             contentDescription = contentDescription,

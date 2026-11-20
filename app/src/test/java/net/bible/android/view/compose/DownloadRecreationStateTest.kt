@@ -16,6 +16,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.activity.R
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.download.CustomRepositoryData
 import net.bible.sharedcore.download.CustomRepositoryService
@@ -195,7 +196,7 @@ class DownloadRecreationStateTest {
         // Back while dirty asks to discard; confirming leaves the editor and writes no repository.
         recreated.onBackPressedDispatcher.onBackPressed()
         awaitHostCondition("dirty draft asks to discard", ::advance) {
-            compose.onAllNodes(hasText("Discard unsaved changes?", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodes(hasText(recreated.getString(R.string.dialog_discard_changes_lead), substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithText("Discard").performClick()
         awaitHostRoute(recreated, NavRoutes.DOWNLOAD_PATTERN, ::advance)

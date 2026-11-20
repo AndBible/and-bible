@@ -449,8 +449,8 @@ class BookmarkRecreationStateTest {
         val recreated = recreate(activity)
 
         recreated.onBackPressedDispatcher.onBackPressed()
-        compose.onNodeWithText("Discard unsaved changes?").assertExists()
-        compose.onNodeWithText("Cancel").performClick()
+        compose.onNodeWithText(recreated.getString(R.string.dialog_discard_changes_lead)).assertExists()
+        compose.onNodeWithText(recreated.getString(R.string.dialog_keep_editing)).performClick()
         compose.onNodeWithText("BM13 unsaved assigned label").assertExists()
         recreated.onBackPressedDispatcher.onBackPressed()
         compose.onNodeWithText("Discard").performClick()
