@@ -173,17 +173,9 @@ object NavRoutes {
     const val ARG_SEARCH_DOCUMENT: String = "searchDocument"
     const val ARG_SELECTED_TRANSLATIONS: String = "selectedTranslations"
     const val ARG_IS_STRONGS_SEARCH: String = "isStrongsSearch"
-    const val ARG_SEARCH_TYPE: String = "searchType"
-    const val ARG_SEARCH_SECTION: String = "searchSection"
-    const val ARG_BIBLE_BOOK: String = "bibleBook"
     const val ARG_READING_SEARCH_REQUEST: String = "readingSearchRequest"
 
     const val EPUB_SEARCH: String = "search/epub"
-    const val SEARCH_FORM_PATTERN: String =
-        "search/form?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
-            "&$ARG_SEARCH_TYPE={$ARG_SEARCH_TYPE}" +
-            "&$ARG_SEARCH_SECTION={$ARG_SEARCH_SECTION}" +
-            "&$ARG_BIBLE_BOOK={$ARG_BIBLE_BOOK}"
     const val SEARCH_INDEX_PATTERN: String =
         "search/index?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
             "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
@@ -198,18 +190,6 @@ object NavRoutes {
             "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
             "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}" +
             "&$ARG_READING_SEARCH_REQUEST={$ARG_READING_SEARCH_REQUEST}"
-
-    fun searchForm(
-        searchText: String? = null,
-        searchType: String? = null,
-        searchSection: String? = null,
-        bibleBook: String? = null,
-    ): String = buildRoute("search/form") {
-        optional(ARG_SEARCH_TEXT, searchText)
-        optional(ARG_SEARCH_TYPE, searchType)
-        optional(ARG_SEARCH_SECTION, searchSection)
-        optional(ARG_BIBLE_BOOK, bibleBook)
-    }
 
     fun searchIndex(
         searchText: String? = null,

@@ -9,11 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.PageControl
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.search.SearchControl
-import net.bible.sharedui.search.SEARCH_RECENT_TERMS_KEY
-import net.bible.sharedui.search.seedSearchTranslations
-import net.bible.sharedui.search.parseSavedSearchTranslations
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
 import net.bible.android.view.activity.search.toClassicSearchTypeName
@@ -22,12 +17,9 @@ import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.index.isInProgress
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.ProgressJob
-import net.bible.sharedcore.search.SearchFormController
 import net.bible.sharedcore.search.SearchIndexService
-import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.ExternalLinks
@@ -37,30 +29,21 @@ import net.bible.sharedui.search.nav.EpubSearchFormDeps
 import net.bible.sharedui.search.nav.EpubSearchSetup
 import net.bible.sharedui.search.nav.IndexOutcome
 import net.bible.sharedui.search.nav.IndexTarget
-import net.bible.sharedui.search.nav.SearchFormDeps
-import net.bible.sharedui.search.nav.SearchFormSetup
 import net.bible.sharedui.search.nav.SearchIndexProgressDeps
 import net.bible.sharedui.search.nav.SearchIndexPromptDeps
 import net.bible.sharedui.search.nav.SearchNavDeps
-import net.bible.sharedui.search.nav.SearchSubmission
-import net.bible.sharedui.search.nav.TranslationSelection
-import net.bible.sharedui.search.nav.toReadingSearchRequest
 import net.bible.sharedui.strings.Strings
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
-import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 
-private const val TAG_SEARCH = "SearchCompose"
 private const val TAG_SEARCH_INDEX = "SearchIndexProgCompose"
 private const val TAG_EPUB_SEARCH = "EpubSearchCompose"
 
 /**
- * The search cluster's deps builder and host baggage: the Bible search form, the index prompt and its progress
+ * The search cluster's deps builder and host baggage: the index prompt and its progress
  * screen, and the EPUB search form.
  *
  * Ported from classic SearchComposeActivity / SearchIndexComposeActivity / SearchIndexProgressComposeActivity.
@@ -75,21 +58,12 @@ class SearchHost(
     private val appSettingsProvider: () -> AppSettings,
     private val notificationPermission: NotificationPermission,
     private val links: ExternalLinks,
-    private val searchControlProvider: () -> SearchControl,
-    private val bibleSearchServiceProvider: () -> BibleSearchService,
     private val searchIndexServiceProvider: () -> SearchIndexService,
-    private val windowControlProvider: () -> WindowControl,
     private val pageControlProvider: () -> PageControl,
 ) {
     private val appSettings: AppSettings by lazy(appSettingsProvider)
-    private val searchControl: SearchControl by lazy(searchControlProvider)
-    private val bibleSearchService: BibleSearchService by lazy(bibleSearchServiceProvider)
     private val searchIndexService: SearchIndexService by lazy(searchIndexServiceProvider)
-    private val windowControl: WindowControl by lazy(windowControlProvider)
     private val pageControl: PageControl by lazy(pageControlProvider)
-
-    /** Classic `SearchComposeActivity`'s `windowControl.activeWindowPageManager.currentPage.currentDocument`. */
-    private val currentSearchDocument get() = windowControl.activeWindowPageManager.currentPage.currentDocument
 
     /**
      * The graph's search deps. Built on every host launch, so every slot is a lambda over a provider;
@@ -103,12 +77,6 @@ class SearchHost(
         clearHistoryRoute = { owner -> shell.clearHistoryRoute(owner) },
         goBackInHistory = { shell.goBackInHistory() },
         historyBackEnabled = shell.separateHistoryBack,
-        searchForm = SearchFormDeps(
-            prepare = { restoredBibleBook -> prepareSearchForm(restoredBibleBook) },
-            loadTranslations = { loadSearchTranslations() },
-            controllerFor = { currentBookName -> buildSearchFormController(currentBookName) },
-            submit = { request -> submitSearch(request) },
-        ),
         searchIndex = SearchIndexPromptDeps(
             resolve = { searchDocument -> resolveIndexTarget(searchDocument) },
             createIndex = { documentId -> searchIndexService.createIndex(documentId) },
@@ -134,88 +102,6 @@ class SearchHost(
     )
 
     // --- Search cluster host baggage -----------------------------------------------------------
-
-    /**
-     * Classic `SearchComposeActivity.onCreate`'s preamble: the `search-last-used` stamp, the "nothing to search"
-     * gate (null here == classic's immediate `finish()`) and the two strings the form needs. [restoredBibleBook]
-     * is the route's own `bibleBook` argument, which classic read from its history-restore extra before falling
-     * back to the current book name.
-     */
-    internal fun prepareSearchForm(restoredBibleBook: String?): SearchFormSetup? {
-        Log.i(TAG_SEARCH, "Displaying Compose search view")
-        appSettings.setLong("search-last-used", currentTimeMillis())
-        val currentDoc = currentSearchDocument ?: return null
-        return SearchFormSetup(
-            title = strings.searchIn(currentDoc.abbreviation),
-            currentBookName = restoredBibleBook ?: searchControl.currentBookName,
-        )
-    }
-
-    /**
-     * Classic's `onCreate` seed AND its `onResume` re-seed in one call (they read the same two things): every
-     * installed Bible as `initials to abbreviation` sorted by abbreviation, and the indexed persisted
-     * selection plus the current document (which may itself need an index).
-     */
-    internal fun loadSearchTranslations(currentDoc: Book? = currentSearchDocument): TranslationSelection {
-        val bibles = SwordDocumentFacade.bibles
-            .filterIsInstance<SwordBook>()
-            .sortedBy { it.abbreviation }
-        val isBible = currentDoc?.bookCategory == BookCategory.BIBLE
-        val saved = appSettings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null)
-        val remembered = parseSavedSearchTranslations(saved, bibles.map { it.initials }.toSet())
-        // The cheap in-memory index status, not a validation of the index store (this runs on the main
-        // thread for every remembered translation); `submitSearch` still validates the whole selection.
-        val indexed = if (isBible) {
-            bibles.filter { it.initials in remembered && it.indexStatus == IndexStatus.DONE }.map { it.initials }.toSet()
-        } else emptySet()
-        return TranslationSelection(
-            available = bibles.map { it.initials to it.abbreviation },
-            selected = seedSearchTranslations(
-                currentInitials = currentDoc?.initials,
-                isBible = isBible,
-                saved = saved,
-                indexedBibles = indexed,
-            ),
-        )
-    }
-
-    /** Classic Search.loadRecentTerms (F22): newline-separated, since a query may contain commas. */
-    private fun loadRecentSearchTerms(): List<String> {
-        val saved = appSettings.getString(SEARCH_RECENT_TERMS_KEY, null)
-        if (saved.isNullOrBlank()) return emptyList()
-        return saved.split("\n").filter { it.isNotBlank() }
-    }
-
-    /** The form's controller: host-side only because all three of its lambdas reach app settings. */
-    internal fun buildSearchFormController(currentBookName: String) = SearchFormController(
-        currentBookName = currentBookName,
-        persistTranslations = { ids ->
-            appSettings.setString(SearchControl.SEARCH_TRANSLATIONS_PREF, ids.joinToString(","))
-        },
-        persistRecentTerms = { terms ->
-            appSettings.setString(SEARCH_RECENT_TERMS_KEY, terms.joinToString("\n"))
-        },
-        loadRecentTerms = { loadRecentSearchTerms() },
-    )
-
-    /**
-     * Classic `SearchComposeActivity.onSubmit`'s JSword half. It returns the DECISION rather than navigating:
-     * both of classic's arms were `startActivity(...); finish()`, and in the graph both are
-     * `navController.navigate(...)`, which only the graph can do -- see [SearchSubmission].
-     */
-    internal fun submitSearch(request: SearchRequest): SearchSubmission {
-        val continuation = request.toReadingSearchRequest(
-            decoratedQuery = bibleSearchService.decorate(request),
-            documentId = currentSearchDocument?.initials,
-        )
-        if (!bibleSearchService.validateIndex(request)) {
-            val firstUnindexed = request.translationIds.firstOrNull {
-                SwordDocumentFacade.getDocumentByInitials(it)?.indexStatus != IndexStatus.DONE
-            }
-            return SearchSubmission.NeedsIndex(firstUnindexed, continuation)
-        }
-        return SearchSubmission.Results(continuation)
-    }
 
     /**
      * Classic `SearchIndexComposeActivity.documentToIndex` (`:44-49`) plus its `hasIndex` read. Null == classic's

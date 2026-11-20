@@ -94,7 +94,7 @@ class ReadingSearchServices(
  * and iOS share them. The settings persist through [AppSettings] under the keys the classic search
  * Activities use, byte for byte.
  *
- * Settings are plain Compose `State` rather than a `SearchFormController`: the reading view's
+ * Settings are plain Compose `State` rather than a controller of their own: the reading view's
  * current book moves as the user reads, so the book name is read fresh per search instead.
  *
  * Everything the platform alone can do (the document being read, JSword lookups, showing a result,

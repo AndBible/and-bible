@@ -26,8 +26,6 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.ReadingSearchRequest
 import net.bible.sharedcore.search.SearchBibleSection
-import net.bible.sharedcore.search.SearchFormController
-import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedui.components.AbNavHost
 import net.bible.sharedui.strings.LocalStrings
@@ -43,7 +41,6 @@ class SearchGraphContinuationTest {
     private val strings = iosStrings("en")
 
     private fun deps(
-        submit: (SearchRequest) -> SearchSubmission = { error("unexpected form submission") },
         mode: EpubSearchMode = EpubSearchMode.FTS,
         goBackInHistory: () -> Boolean = { false },
         historyBackEnabled: Boolean = true,
@@ -51,11 +48,6 @@ class SearchGraphContinuationTest {
         exitHost = { error("unexpected host exit") }, setWindowTitle = {},
         setHistoryRoute = { _, _ -> }, clearHistoryRoute = {}, goBackInHistory = goBackInHistory,
         historyBackEnabled = historyBackEnabled,
-        searchForm = SearchFormDeps(
-            prepare = { SearchFormSetup("Find", "John") },
-            loadTranslations = { TranslationSelection(listOf("KJV" to "KJV", "ESV" to "ESV"), listOf("KJV", "ESV")) },
-            controllerFor = { SearchFormController(it, persistTranslations = {}) }, submit = submit,
-        ),
         searchIndex = SearchIndexPromptDeps(
             resolve = { IndexTarget("Other unindexed translation", "Index target", false) },
             createIndex = {}, title = "Index",
@@ -70,41 +62,35 @@ class SearchGraphContinuationTest {
         ),
     )
 
+    /**
+     * #4164: the legacy `search/form` destination is gone. A stale route naming it (a restored back stack, an old
+     * deep link) must fail the way every unknown route does, a catchable `IllegalArgumentException` from `navigate`
+     * that `NavHostComposeActivity.navigateToRoute` logs and ignores, and must leave the current destination alone.
+     */
     @Test
-    fun formSubmitNavigatesToReadingWithExactDecoratedScope() = runComposeUiTest {
-        val query = "100% + love & peace"
-        val decorated = "+[John] \"$query\""
-        var submitted: SearchRequest? = null
-        var received: ReadingSearchRequest? = null
+    fun aStaleSearchFormRouteIsNotRoutableAndLeavesTheCurrentDestination() = runComposeUiTest {
         lateinit var nav: NavHostController
-        val dependencies = deps(submit = {
-            submitted = it
-            SearchSubmission.Results(it.toReadingSearchRequest(decorated, "KJV"))
-        })
         setContent {
             CompositionLocalProvider(LocalStrings provides strings) {
                 AbTheme(darkTheme = false, disableAnimations = true) {
                     nav = rememberNavController()
-                    AbNavHost(nav, startDestination = NavRoutes.searchForm(query, SearchType.PHRASE.name, SearchBibleSection.CURRENT_BOOK.name, "John")) {
-                        searchNavGraph(nav, dependencies)
-                        composable(NavRoutes.READING_SEARCH_PATTERN, arguments = listOf(navArgument("request") { type = NavType.StringType })) { entry ->
-                            LaunchedEffect(Unit) {
-                                received = NavRoutes.decodeReadingSearchArgument(entry.arguments!!.read { getString("request") })
-                            }
-                        }
+                    AbNavHost(nav, startDestination = "home") {
+                        composable("home") { Text("Home screen") }
+                        searchNavGraph(nav, deps())
                     }
                 }
             }
         }
         waitForIdle()
-        onNode(hasSetTextAction()).performImeAction()
-        waitForIdle()
-        assertEquals(SearchRequest(query, SearchType.PHRASE, SearchBibleSection.CURRENT_BOOK, listOf("KJV", "ESV"), "John"), submitted)
-        assertEquals(ReadingSearchRequest(decorated, "KJV", listOf("KJV", "ESV"), preDecorated = true,
-            section = SearchBibleSection.CURRENT_BOOK, type = SearchType.PHRASE), received)
+        var failure: Throwable? = null
         runOnIdle {
-            assertFalse(nav.popBackStack(), "the submitted form must not remain under the handoff")
+            failure = runCatching { nav.navigate("search/form?searchText=love&searchType=PHRASE&searchSection=ALL&bibleBook=John") }
+                .exceptionOrNull()
         }
+        waitForIdle()
+        assertTrue(failure is IllegalArgumentException, "an unknown route must surface as IllegalArgumentException, was $failure")
+        assertEquals("home", nav.currentDestination?.route)
+        assertTrue(onAllNodesWithText("Home screen").fetchSemanticsNodes().isNotEmpty())
     }
 
     @Test

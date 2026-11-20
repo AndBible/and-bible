@@ -53,7 +53,7 @@ import net.bible.sharedui.strings.Strings
  * The SWORD/Bible search settings **form**, with no chrome of its own: the bible-section and
  * word-mode segmented rows plus the translations picker row (and the picker's dialog).
  *
- * Lifted verbatim out of [SearchScreen]'s settings sheet so the same form can be shown either in
+ * Lifted verbatim out of the retired legacy search form's settings sheet so the same form can be shown either in
  * that screen's `AbSettingsSummarySheet` or, in the reading view, in [SearchSettingsSheet] opened
  * from the toolbar. Emits its three children as plain siblings — it introduces no layout node of
  * its own, so hosting it inside a `Column` renders exactly as the inlined body did.
@@ -153,8 +153,8 @@ fun BibleSearchSettings(
  * `section · word mode · translations`.
  *
  * Takes [strings] as a parameter rather than reading `LocalStrings` so it stays a plain function:
- * its one caller, [SearchScreen], already has `LocalStrings.current` in hand and derives this
- * summary as a value, not as a composable. (An earlier version of this comment claimed the reading
+ * it was written for the retired legacy search form (#4164), which derived it as a value rather than as a
+ * composable. It has no production caller since that form was removed and is kept, with its test, as a pure helper. (An earlier version of this comment claimed the reading
  * toolbar needed a non-composable summary; the reading-view search mode does not use this at all —
  * F6's settings live in their own sheet, whose contents are the real [BibleSearchSettings].)
  */
@@ -189,7 +189,7 @@ private fun translationsSummaryOf(
  * The label for one search scope. `CURRENT_BOOK` is named after the open book, which is what classic
  * did by overwriting its radio button's text at runtime (`Search.kt:168-179`,
  * `SearchControl.currentBookName`). The static label is the fallback for callers with no book to name
- * — `SearchScreen`'s `currentBookName` parameter is defaulted to `""`.
+ * — a caller may pass an empty `currentBookName`.
  */
 internal fun searchSectionLabel(
     strings: Strings,

@@ -58,11 +58,12 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * The route Android's `searchIntent` starts for [document], or null when there is nothing to open (a general book
- * without an index). A pure function of the document's facts so it is testable without a Sword module.
+ * The route [HostReadingNavigator.openSearch] navigates to when it has no in-place reading search to open, or null when
+ * there is nothing to open: a general book without an index, or an indexed Bible/commentary (its search is the reading
+ * view's own sheet, never a route). A pure function of the document's facts so it is testable without a Sword module.
  */
 internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boolean, initials: String?): String? = when {
-    indexDone -> if (isEpub) NavRoutes.EPUB_SEARCH else NavRoutes.searchForm()
+    indexDone -> if (isEpub) NavRoutes.EPUB_SEARCH else null
     isGeneralBook -> null
     else -> NavRoutes.searchIndex(searchDocument = initials)
 }

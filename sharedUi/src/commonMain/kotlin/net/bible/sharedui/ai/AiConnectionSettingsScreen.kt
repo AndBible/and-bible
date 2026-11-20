@@ -159,8 +159,7 @@ fun AiConnectionSettingsScreen(
      *  [net.bible.sharedui.settings.SettingsEditorSheet]'s kdoc) — the Android host passes
      *  `{ onBack -> BackHandler(onBack = onBack) }`; other hosts/tests may leave the default no-op. */
     backHandler: @Composable (onBack: () -> Unit) -> Unit = {},
-    /** Test-only seam (matches `initiallyXxxOpen` elsewhere, e.g. `SearchScreen`'s
-     *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbTextPage] open
+    /** Test-only seam (matches `initiallyXxxOpen` elsewhere, as on other screens): lets golden tests capture the disclaimer [AbTextPage] open
      *  without a click-simulation harness (this module has no Compose UI-test dependency). */
     initiallyDisclaimerDialogOpen: Boolean = false,
     /** Test-only seam: capture the [CustomPromptEditor] (agent system prompt) open, e.g. with a

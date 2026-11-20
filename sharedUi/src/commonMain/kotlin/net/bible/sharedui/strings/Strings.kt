@@ -568,7 +568,7 @@ interface Strings {
     /**
      * F6-B5. The Bible-search help dialog, restored to the Compose path: classic offered it from the
      * search screen's action bar (`R.menu.search_actionbar_menu`) and the Compose form dropped it
-     * along with the rebuild-index item, because `SearchScreen` passes `AbScaffold` no `actions` slot.
+     * along with the rebuild-index item, because the (since removed) legacy form passed `AbScaffold` no `actions` slot.
      * [helpSearchDetails] takes the link label, matching `custom_repositories_help2`'s shape.
      */
     val helpSearchText2: String
