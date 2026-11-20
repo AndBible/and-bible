@@ -101,8 +101,9 @@ class EmptyAddonCollectionException(moduleInitials: String, reason: String) :
  *   none: [ensureSpecialLabels]); speak and AI links are dropped. A verse left with no collection label is not imported.
  * - User rows are never written: not by [replace], [remove] or [sweep]. A user's link to (or primary label of) an add-on
  *   label that is gone stays as it is: the module may come back (an update that uninstalls first, storage not mounted,
- *   a reinstall) and the dangling reference is harmless (sync's foreign-key clean-up keeps it, SQLite lets an edit of
- *   the row pass). Clearing it here would be an unlogged write that the next logged edit of the row spreads to every
+ *   a reinstall) and the dangling reference is kept by sync's foreign-key clean-up. A full-row update of such a user row
+ *   with the dangling primary label does NOT pass in SQLite (the foreign key fails), so
+ *   [BookmarkControl.updateBookmarkRow] works around it instead of the importer clearing the reference. Clearing it here would be an unlogged write that the next logged edit of the row spreads to every
  *   device.
  * - Ownership is recorded in `AddonCollectionRow`, the version and hash in `AddonCollectionModule`.
  * - Writes run with the sync triggers disabled, so no add-on row (and no cascade it causes) reaches `LogEntry`.

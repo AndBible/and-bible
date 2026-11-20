@@ -120,7 +120,12 @@ fun stripAddonRows(conn: SQLiteConnection, category: SyncableDatabaseDefinition,
 }
 
 /** Rows of the per-device add-on state tables ([ADDON_STATE_TABLES]), as read by [readAddonLocalState]. */
-class AddonLocalState internal constructor(internal val rows: Map<String, List<List<Any?>>>)
+class AddonLocalState internal constructor(
+    internal val rows: Map<String, List<List<Any?>>>,
+    /** Column names of each table in [rows], in value order: the restore names them, so a column added to or moved in
+     *  the new database cannot shift a value into the wrong column. */
+    internal val columns: Map<String, List<String>>,
+)
 
 /** Per-device, user-chosen add-on state: carried across a whole-database swap (the other add-on tables are rebuilt). */
 private val ADDON_STATE_TABLES = listOf("AddonLabelLocalState", "AddonLinkLocalState")
@@ -133,8 +138,10 @@ suspend fun readAddonLocalState(dbDef: SyncableDatabaseAccessor<*>): AddonLocalS
     if (!dbDef.category.hasAddonRows) return null
     return try {
         dbDef.localDb.useReaderConnectionMarked { c ->
+            val columns = mutableMapOf<String, List<String>>()
             AddonLocalState(ADDON_STATE_TABLES.associateWith { table ->
                 c.queryRows("SELECT * FROM $table") { st ->
+                    columns[table] = (0 until st.getColumnCount()).map { i -> st.getColumnName(i) }
                     (0 until st.getColumnCount()).map { i ->
                         when (st.getColumnType(i)) {
                             androidx.sqlite.SQLITE_DATA_NULL -> null
@@ -157,8 +164,11 @@ suspend fun restoreAddonLocalState(dbDef: SyncableDatabaseAccessor<*>, state: Ad
     if (state == null || state.rows.values.all { it.isEmpty() }) return
     try {
         dbDef.localDb.useWriterConnectionMarked { c ->
-            for ((table, rows) in state.rows) for (row in rows) {
-                c.exec("INSERT OR REPLACE INTO $table VALUES (${row.joinToString(",") { "?" }})", *row.toTypedArray())
+            for ((table, rows) in state.rows) {
+                val names = state.columns[table]?.joinToString(",") ?: continue
+                for (row in rows) {
+                    c.exec("INSERT OR REPLACE INTO $table ($names) VALUES (${row.joinToString(",") { "?" }})", *row.toTypedArray())
+                }
             }
         }
     } catch (e: Exception) {

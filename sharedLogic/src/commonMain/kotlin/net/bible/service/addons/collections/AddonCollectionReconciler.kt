@@ -119,7 +119,8 @@ class AddonCollectionReconciler(
             } catch (e: Exception) {
                 // The previous content (if any) stays: replace is one transaction. The file itself is the likely cause
                 // (nothing to import, a newer schema, damage): not tried again for this content until the add-ons are
-                // reloaded or the app restarts. A transient I/O failure (e.g. a full disk) is tried again next time.
+                // reloaded or the app restarts. Only an okio I/O failure is tried again next time; a full disk inside SQLite
+                // surfaces as a SQLite exception, so it is memoised like the others (tried again after a reload/restart).
                 Log.e(TAG, "Could not import add-on collection ${ref.moduleInitials} ${ref.version}", e)
                 if (e !is okio.IOException) failedImports[ref.moduleInitials] = ref.version to hash
                 if (previous != null) keptStale = true
@@ -136,6 +137,8 @@ class AddonCollectionReconciler(
             val before = dao().rowsOf(gone)
             try {
                 importer.remove(gone)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Could not remove add-on collection $gone", e)
                 keptStale = true

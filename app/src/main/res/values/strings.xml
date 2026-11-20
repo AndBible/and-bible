@@ -862,9 +862,10 @@
     <string name="restore">Restore</string>
     <string name="import2">Import</string>
 
-    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
     <!-- Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name. -->
     <string name="addon_label_copy_name">%1$s (copy)</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
     <string name="bookmarks_db_stats">\"%1$s\" and %2$s other Label(s) / StudyPad/(s) and %3$s Bookmarks</string>
 
     <!-- About -->
