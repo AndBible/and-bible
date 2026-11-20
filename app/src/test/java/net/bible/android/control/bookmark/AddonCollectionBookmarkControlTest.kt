@@ -208,6 +208,19 @@ class AddonCollectionBookmarkControlTest {
         assertEquals(listOf(own.id), dao.labelsForBookmark(saved.id).map { it.id })
     }
 
+    /** Emulator finding (2026-11-20): a note on a collection verse hid the original but never told the views about the copy. */
+    @Test
+    fun aFirstNoteOnACollectionVerseTellsTheViewsAboutTheCopyThatReplacesTheHiddenOriginal() = run {
+        seen.clear()
+        control.saveBibleBookmarkNote(b1, "My own note")
+        val copy = userBookmarksOn(1).single()
+        assertTrue(seen.filterIsInstance<BookmarkChange.BookmarksDeleted>().any { b1 in it.bookmarkIds })
+        val upserted = seen.filterIsInstance<BookmarkChange.BookmarksUpserted>().flatMap { it.bookmarks }.singleOrNull { it.id == copy.id }
+        assertTrue("the copy is announced, with the add-on label and its note", upserted != null)
+        assertEquals("My own note", upserted!!.notes)
+        assertTrue(l in upserted.labelIds.orEmpty())
+    }
+
     @Test
     fun ownLabelOnCollectionVerseMakesOneCopyThatStandsInForIt() = run {
         val own = ownLabel()
