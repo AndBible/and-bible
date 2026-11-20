@@ -60,12 +60,14 @@ class AbDialogShellTest {
         onDismiss: () -> Unit = {},
         lead: String = "Lead",
         body: String? = null,
+        threeButtons: Boolean = false,
     ) = compose.setContent {
         run {
             AbTheme {
                 AbDialogShell(
                     onDismissRequest = onDismiss,
                     buttons = {
+                        if (threeButtons) AbDialogButton("Later", DialogButtonRole.Neutral, {})
                         AbDialogButton("Cancel", DialogButtonRole.Cancel, {})
                         AbDialogButton("Delete", DialogButtonRole.Destructive, {})
                     },
@@ -107,6 +109,22 @@ class AbDialogShellTest {
         // A 16sp-ish line is ~25dp at scale 1 (25sp line height); at scale 3 it must be ~75dp.
         val oneDp = compose.density.density
         assertTrue("lead height $scaled px is not scaled (1dp = $oneDp px)", scaled > 50 * oneDp)
+    }
+
+    /** Landscape-like short window at AX5: all three buttons stay whole and the middle keeps >= 56dp. */
+    @Ax5 @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun threeButtonsAndMiddleMinimumInShortWindowAtAx5() {
+        show(lead = ax5Lead, body = longBody, threeButtons = true)
+        compose.waitForIdle()
+        val root = dialogRoot().rootBounds()
+        listOf("dialog-neutral", "dialog-dismiss", "dialog-confirm").forEach { tag ->
+            compose.onNodeWithTag(tag).assertIsDisplayed()
+            val b = compose.onNodeWithTag(tag).rootBounds()
+            assertTrue("$tag $b outside dialog root $root", b.top >= root.top && b.bottom <= root.bottom && b.left >= root.left && b.right <= root.right)
+        }
+        val minPx = 56 * compose.density.density
+        val middleH = compose.onNodeWithTag("dialog-middle").rootBounds().height
+        assertTrue("middle $middleH px < 56dp ($minPx px)", middleH >= minPx - 1f)
     }
 
     @Test fun leadIsCappedAt40PercentOfTheDialog() {
