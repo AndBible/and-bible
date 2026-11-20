@@ -102,7 +102,6 @@ internal class ActivityTestStrings : CoreStrings {
     override val syncError = "syncError"
     override val okay = "okay"
     override val cancel = "cancel"
-    override val areYouSure = "areYouSure"
     override fun areYouSureMerge(contents: String): String = "areYouSureMerge ${contents}"
     override fun syncDisabling(what: String): String = "syncDisabling ${what}"
     override fun databaseTitle(dbFileName: String): String = dbFileName

@@ -59,7 +59,6 @@ internal fun ReadingDialogContent(hostState: ReadingHostState, strings: Strings,
             destructive = true,
             confirmText = strings.delete,
             dismissText = strings.cancel,
-            destructive = true,
             onConfirm = hostState::confirmReadingDialog,
             onDismiss = hostState::dismissReadingDialog,
         )
