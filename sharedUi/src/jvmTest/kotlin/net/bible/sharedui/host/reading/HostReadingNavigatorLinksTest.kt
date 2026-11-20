@@ -56,8 +56,10 @@ class HostReadingNavigatorLinksTest {
             val shown = assertNotNull(dialogs.pending.value, "A document link must request confirmation")
             val request = (shown.request as? AppDialogRequest.Localized)?.resolve() ?: shown.request
             val confirm = assertIs<AppDialogRequest.Confirm>(request)
-            assertEquals("External link", confirm.title)
-            assertEquals("This will open external link https://example.org/document in a browser application, do you wish to continue?", confirm.message)
+            assertEquals("Open this link in your browser?", confirm.title)
+            assertNull(confirm.message)
+            assertEquals("https://example.org/document", confirm.detail)
+            assertEquals("Open", confirm.confirmText)
             return shown
         }
     }
@@ -122,7 +124,7 @@ class HostReadingNavigatorLinksTest {
         val shown = f.confirmation()
         f.language = "fi"
         val localized = assertIs<AppDialogRequest.Localized>(shown.request)
-        assertEquals(iosStrings("fi").externalLink, localized.resolve().title)
+        assertEquals(iosStrings("fi").externalLinkOpenQuestion, localized.resolve().title)
         assertTrue(f.links.opened.isEmpty())
         f.dialogs.cancelAll()
         assertTrue(f.links.opened.isEmpty(), "Dropping the pending dialog must not open a link")

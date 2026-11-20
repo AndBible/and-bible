@@ -48,9 +48,9 @@ class EnglishWordingTest {
             setLocale(Locale.ENGLISH)
         })
         val menuLabel = context.getString(R.string.install_zip)
-        val warning = context.getString(R.string.download_question_message, menuLabel)
+        val warning = context.getString(R.string.download_persecution_warning, menuLabel)
         assertTrue("Warning must name the actual file import action: $warning", warning.contains(menuLabel))
         val strings = AndroidStrings(context)
-        assertTrue(strings.downloadQuestionMessage("Renamed import action").contains("Renamed import action"))
+        assertTrue(strings.downloadPersecutionWarning("Renamed import action").contains("Renamed import action"))
     }
 }

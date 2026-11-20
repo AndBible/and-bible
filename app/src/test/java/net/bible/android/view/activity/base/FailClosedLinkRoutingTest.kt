@@ -71,10 +71,10 @@ class FailClosedLinkRoutingTest {
             }
         }
         compose.onNodeWithText("tap me").performClick()
-        // The fail-closed question dialog (title = Strings.externalLink) is now on top -- the link
+        // The fail-closed question dialog (title = Strings.externalLinkOpenQuestion) is now on top -- the link
         // was never opened directly (which would have thrown, with no CurrentActivityHolder set up).
         val context = ApplicationProvider.getApplicationContext<android.app.Application>()
-        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.external_link_open_question)).assertExists()
     }
 
     private class RecordingUriHandler : UriHandler {
@@ -112,7 +112,7 @@ class FailClosedLinkRoutingTest {
         setInfoDialog(askFirst = true, opened = opened, platform = platform)
         compose.onNodeWithText("Read more").performClick()
         val context = ApplicationProvider.getApplicationContext<android.app.Application>()
-        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.external_link_open_question)).assertExists()
         assertTrue(opened.isEmpty())
         assertTrue(platform.opened.isEmpty())
     }

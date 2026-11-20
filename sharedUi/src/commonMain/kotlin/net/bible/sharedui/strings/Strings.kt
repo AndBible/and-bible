@@ -430,9 +430,7 @@ interface Strings {
     val errorOccurred: String
     val okay: String
     // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing
-    // R.string.external_link / external_link_question words `CommonUtils.openLink` already asks.
-    val externalLink: String
-    fun externalLinkQuestion(link: String): String
+    // R.string.external_link_open_question words `CommonUtils.openLink` already asks.
     val indexingWaitMsg: String
     val noTasksRunning: String
     val doInBackground: String
@@ -514,11 +512,7 @@ interface Strings {
     val deleteIndexLabel: String
     val unlockModule: String
     fun deleteDoc(name: String): String
-    val interruptedDownloadsTitle: String
-    val interruptedDownloadsMessage: String
-    val interruptedDownloadsQuestion: String
     val downloadAgain: String
-    fun deleteSearchIndexDoc(name: String): String
     val cantDeleteDocument: String
     val downloadDocuments: String
 
@@ -1112,24 +1106,12 @@ interface Strings {
 
     // Task B1 (InstallZip Plan B) — Compose install UI (progress + decision dialogs)
     val installZipTitle: String                    // R.string.install_zip (FormatInfo prelude dialog title)
-    val moduleBackupRestore: String
-    fun installDoYouWant(subject: String): String   // R.string.install_do_you_want (ConfirmInstall / StudyPadImport question)
     val proceed: String                             // R.string.proceed (FormatInfo confirm button)
     val overwriteFilesTitle: String                 // R.string.overwrite_files_title
-    fun overwriteFiles(files: String): String        // R.string.overwrite_files (%s — pre-joined file list)
-    val epubUpgradeTitle: String                    // R.string.bookmark_warning (EpubUpgrade dialog title)
+    val epubUpgradeTitle: String                    // R.string.bookmark_warning (first sentence of the EpubUpgrade detail)
     val epubUpgradeWarning: String                  // R.string.bookmark_warning2
     val epubUpgradeRecommendation: String           // R.string.bookmark_warning4
-    val epubUpgradeQuestion: String                 // R.string.bookmark_warning3
 
-    /**
-     * Composed EPUB re-optimize confirmation body — mirrors classic
-     * `CommonUtils.documentUpgradeConfirmation`'s `"$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"`.
-     * A DEFAULT interface implementation (deliberately NOT an `override` member, same reasoning as
-     * [aiDisclaimerBody]) computed from the 3 per-platform parts above.
-     */
-    val epubUpgradeMessage: String get() =
-        "$epubUpgradeWarning\n\n$epubUpgradeRecommendation\n\n$epubUpgradeQuestion"
 
     // Batch 13 T2 — CustomRepositories list + CustomRepositoryEditor screens
     val customRepositories: String                  // R.string.custom_repositories (both screens' title + help dialog title)
@@ -1137,7 +1119,6 @@ interface Strings {
     val customRepositoriesHelp0: String              // R.string.custom_repositories_help0 (both help dialogs)
     val customRepositoriesHelp1: String               // R.string.custom_repositories_help1 (editor help dialog only)
     fun customRepositoriesHelp2(link: String): String // R.string.custom_repositories_help2 (%s — the wiki-page link label)
-    fun deleteCustomRepository(name: String): String   // R.string.delete_custom_repository (%s — delete confirmation)
     fun duplicateCustomRepository(name: String): String // R.string.duplicate_custom_repository (%s — host-layer duplicate-name toast, Task 3)
     val repositorySpecification: String                // R.string.repository_specification (manifest-URL field label)
     val packagesDir: String                             // R.string.packages_dir (package-directory field label)
@@ -1289,9 +1270,6 @@ interface Strings {
 
     // Task 23 — platform-dialog removal: Download's "proceed with downloading?" question (classic
     // askIfWantToProceed(), now DocumentSelectionDialog.ProceedWithDownload/AbOptionsDialog)
-    val downloadQuestionTitle: String            // R.string.download_question_title
-    fun downloadQuestionMessage(installAction: String): String // R.string.download_question_message
-    val doNotAskAgain: String                    // R.string.do_not_ask_again
 
     // Task 26 — platform-dialog removal: the verse-share quick sheet (classic ShareWidget's
     // AlertDialog). `shareLabel`/`copyLabel`/`showNotesLabel` above are reused as-is.
@@ -1413,6 +1391,32 @@ interface Strings {
     fun recommendGetIt(link: String): String // R.string.recommend_get_it
     val recommendShareLink: String // R.string.recommend_share_link
     val recommendQrCaption: String // R.string.recommend_qr_caption
+    // dialog copy: B3c
+    val installAction: String
+    fun installDocumentQuestion(name: String): String
+    val installFromFileQuestion: String
+    fun overwriteFilesDetail(files: String): String
+    val importStudyPadsQuestion: String
+    val importAction: String
+    val restoreBackupQuestion: String
+    val restoreBackupDetail: String
+    val updateDocumentQuestion: String
+    val updateAction: String
+    val downloadDocumentsQuestion: String
+    fun downloadPersecutionWarning(installAction: String): String
+    val downloadAction: String
+    val downloadDontAskAgain: String
+    val downloadDontAskAgainConsequence: String
+    val interruptedDownloadsLead: String
+    val interruptedDownloadsDetail: String
+    val externalLinkOpenQuestion: String
+    val openAction: String
+    fun deleteSearchIndexQuestion(name: String): String
+    fun removeCustomRepositoryQuestion(name: String): String
+    /** The EPUB/document update detail: the bookmark warning, why it matters and the backup advice. */
+    val epubUpgradeDetail: String get() =
+        "$epubUpgradeTitle $epubUpgradeWarning\n\n$epubUpgradeRecommendation"
+    // end dialog copy: B3c
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

@@ -31,10 +31,10 @@ object InterruptedInstallsNotice {
         val requests = interrupted()
         if (requests.isEmpty()) return
         val request = AppDialogRequest.Message(
-            title = strings.interruptedDownloadsTitle,
+            title = strings.interruptedDownloadsLead,
             // Built here, one document per line: a resource's own line breaks do not survive every platform's table.
-            message = strings.interruptedDownloadsMessage + "\n\n" + requests.joinToString("\n") { it.initials } +
-                "\n\n" + strings.interruptedDownloadsQuestion,
+            message = requests.joinToString("\n") { it.initials },
+            detail = strings.interruptedDownloadsDetail,
             confirmText = strings.downloadAgain,
             neutralText = strings.cancel,
         )

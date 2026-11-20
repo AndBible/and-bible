@@ -34,7 +34,7 @@ class FailClosedLinkRoutingTest {
             }
         }
         onNodeWithText("Read more").performClick()
-        onNodeWithText(iosStrings("en").externalLink).assertExists()
+        onNodeWithText(iosStrings("en").externalLinkOpenQuestion).assertExists()
         assertTrue(links.opened.isEmpty(), "must ask before opening")
     }
 }

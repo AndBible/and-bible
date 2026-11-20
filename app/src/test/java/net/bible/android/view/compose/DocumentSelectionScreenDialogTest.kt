@@ -131,7 +131,7 @@ class DocumentSelectionScreenDialogTest {
     @Test fun confirmDownload_showsTheMessage_okAnswersConfirm() {
         show(DocumentSelectionDialog.ConfirmDownload("Download King James Version"))
         compose.onNodeWithText("Download King James Version").assertExists()
-        compose.onNodeWithText("OK").performClick()
+        compose.onNodeWithText("Download", substring = false).performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }
@@ -185,12 +185,11 @@ class DocumentSelectionScreenDialogTest {
         assertEquals(1, dismissCalls)
     }
 
-    // Strings.deleteSearchIndexDoc already existed before this task (R.string.delete_search_index_doc,
-    // "Delete index of %s?") -- the SCREEN formats it from the bare docName the controller carries.
-    @Test fun confirmDeleteIndex_showsTheFormattedMessage_okAnswersConfirm() {
+    // The SCREEN formats the lead (R.string.delete_search_index_question) from the bare docName the controller carries.
+    @Test fun confirmDeleteIndex_showsTheFormattedMessage_deleteAnswersConfirm() {
         show(DocumentSelectionDialog.ConfirmDeleteIndex("King James Version"))
-        compose.onNodeWithText("Delete index of King James Version?").assertExists()
-        compose.onNodeWithText("OK").performClick()
+        compose.onNodeWithText("Delete the search index of “King James Version”?").assertExists()
+        compose.onNodeWithText("Delete").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }
@@ -219,18 +218,19 @@ class DocumentSelectionScreenDialogTest {
 
     @Test fun proceedWithDownload_showsTitleAndOptions_yesAnswersConfirmProceedYes() {
         show(DocumentSelectionDialog.ProceedWithDownload)
-        compose.onNodeWithText(androidString(net.bible.android.activity.R.string.download_question_title)).assertExists()
+        compose.onNodeWithText(androidString(net.bible.android.activity.R.string.download_documents_question)).assertExists()
         compose.onNodeWithText(
             androidString(net.bible.android.activity.R.string.install_zip), substring = true,
         ).assertExists()
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText(androidString(net.bible.android.activity.R.string.download_dont_ask_again_consequence)).assertExists()
+        compose.onNodeWithText("Download").performClick()
         assertEquals(ProceedAnswer.YES, confirmProceedAnswer)
         assertEquals(0, dismissProceedCalls)
     }
 
     @Test fun proceedWithDownload_doNotAskAgainAnswersConfirmProceedDontAskAgain() {
         show(DocumentSelectionDialog.ProceedWithDownload)
-        compose.onNodeWithText(androidString(net.bible.android.activity.R.string.do_not_ask_again)).performClick()
+        compose.onNodeWithText(androidString(net.bible.android.activity.R.string.download_dont_ask_again)).performClick()
         assertEquals(ProceedAnswer.DONT_ASK_AGAIN, confirmProceedAnswer)
         assertEquals(0, dismissProceedCalls)
     }

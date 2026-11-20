@@ -9,8 +9,8 @@ class FormatterTest {
     private fun fmt(template: String, vararg args: Any?): String = formatTemplate(template, args)
 
     @Test fun real_install_confirmation_substitutes_ordinary_string() {
-        val template = lookup("en", "install_do_you_want")
-        assertEquals("Do you want to install module (f-rawtext.zip)?", fmt(template, "f-rawtext.zip"))
+        val template = lookup("en", "install_document_question")
+        assertEquals("Install “f-rawtext.zip”?", fmt(template, "f-rawtext.zip"))
     }
 
     @Test fun ordinary_placeholders_consume_arguments_in_order() {

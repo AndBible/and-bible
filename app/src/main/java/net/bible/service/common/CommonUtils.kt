@@ -761,7 +761,10 @@ object CommonUtils : CommonUtilsBase() {
         "no" to R.string.no,
         "give_passphrase_for_module" to R.string.give_passphrase_for_module,
         "show_unlock_info" to R.string.show_unlock_info,
-        "try_again_passphrase" to R.string.try_again_passphrase,
+        "passphrase_did_not_work" to R.string.passphrase_did_not_work,
+        "try_again" to R.string.try_again,
+        "update_document_question" to R.string.update_document_question,
+        "update_action" to R.string.update_action,
         "warn_bad_document" to R.string.warn_bad_document,
         "module_about_copyright" to R.string.module_about_copyright,
         "unlock_info" to R.string.unlock_info,
@@ -774,7 +777,6 @@ object CommonUtils : CommonUtilsBase() {
         "help_read_more_link" to R.string.help_read_more_link,
         "bookmark_warning" to R.string.bookmark_warning,
         "bookmark_warning2" to R.string.bookmark_warning2,
-        "bookmark_warning3" to R.string.bookmark_warning3,
         "bookmark_warning4" to R.string.bookmark_warning4,
         "buy_development" to R.string.buy_development,
         "buy_development2" to R.string.buy_development2,
@@ -897,8 +899,9 @@ object CommonUtils : CommonUtilsBase() {
         if (isDiscrete || forceAsk) {
             activity.lifecycleScope.launch(Dispatchers.Main) {
                 if(Dialogs.simpleQuestion(activity,
-                        message = net.bible.android.view.activity.page.application.getString(R.string.external_link_question, link),
-                        title = net.bible.android.view.activity.page.application.getString(R.string.external_link),
+                        detail = link,
+                        title = net.bible.android.view.activity.page.application.getString(R.string.external_link_open_question),
+                        confirmText = net.bible.android.view.activity.page.application.getString(R.string.open_action),
                     )
                 ) {
                     openLinkNow(link)
@@ -1263,9 +1266,10 @@ object CommonUtils : CommonUtilsBase() {
                     // GlobalScope.launch(Dispatchers.Default) callers exist (SpeakControl.prepareForSpeaking).
                     val answer = dialogs.await(
                         AppDialogRequest.Confirm(
-                            title = activity.getString(R.string.permission_required),
-                            message = activity.getString(R.string.progress_status_permission),
-                            confirmText = activity.getString(R.string.okay),
+                            title = activity.getString(R.string.notification_permission_question),
+                            message = null,
+                            detail = activity.getString(R.string.notification_permission_detail),
+                            confirmText = activity.getString(R.string.allow_action),
                             dismissText = activity.getString(R.string.cancel),
                         ),
                     )

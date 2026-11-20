@@ -17,7 +17,7 @@
 package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.layout.RowScope
-import net.bible.sharedcore.ui.dialog.toAnswers
+import net.bible.sharedcore.ui.dialog.DialogAnswer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
@@ -39,7 +39,6 @@ import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionDialog
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.ProceedAnswer
-import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDocumentListScaffold
@@ -217,7 +216,7 @@ fun DocumentSelectionScreen(
         is DocumentSelectionDialog.ConfirmDownload -> AbMessageDialog(
             title = null,
             html = dialog.message,
-            confirmText = strings.okay,
+            confirmText = strings.downloadAction,
             onConfirm = onConfirmDialog,
             onDismissRequest = onDismissDialog,
             dismissText = strings.cancel,
@@ -233,16 +232,18 @@ fun DocumentSelectionScreen(
             dismissText = strings.cancel,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,
+            destructive = true,
         )
         // D8-3: one document at a time (NH rows 8034/9333); classic's own Okay/Cancel wording, "Cancel"
         // skipping only THIS document (onDismissDialog advances the controller's queue by one).
         is DocumentSelectionDialog.ConfirmDeleteIndex -> AbConfirmDialog(
             title = null,
-            message = strings.deleteSearchIndexDoc(dialog.docName),
-            confirmText = strings.okay,
+            message = strings.deleteSearchIndexQuestion(dialog.docName),
+            confirmText = strings.delete,
             dismissText = strings.cancel,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,
+            destructive = true,
         )
         // The download-errors summary (NH row 8234), Download-only -- ChooseDocument never triggers it.
         is DocumentSelectionDialog.Errors -> AbInfoDialog(
@@ -255,12 +256,16 @@ fun DocumentSelectionScreen(
         // default plus its own setOnCancelListener resuming false) -- cancellable stays the default
         // true, unlike ConfirmDownload's setCancelable(false).
         DocumentSelectionDialog.ProceedWithDownload -> AbOptionsDialog(
-            title = strings.downloadQuestionTitle,
-            message = strings.downloadQuestionMessage(strings.installZipTitle),
+            title = strings.downloadDocumentsQuestion,
+            message = strings.downloadPersecutionWarning(strings.installZipTitle),
             options = listOf(
-                SettingsItem.Choice(value = "yes", label = strings.yes),
-                SettingsItem.Choice(value = "dont_ask_again", label = strings.doNotAskAgain),
-            ).toAnswers(),
+                DialogAnswer(value = "yes", label = strings.downloadAction),
+                DialogAnswer(
+                    value = "dont_ask_again",
+                    label = strings.downloadDontAskAgain,
+                    consequence = strings.downloadDontAskAgainConsequence,
+                ),
+            ),
             onSelect = { value ->
                 onConfirmProceed(if (value == "dont_ask_again") ProceedAnswer.DONT_ASK_AGAIN else ProceedAnswer.YES)
             },

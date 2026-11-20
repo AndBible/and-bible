@@ -166,9 +166,9 @@ fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: 
     pending?.let { url ->
         val strings = LocalStrings.current
         AbConfirmDialog(
-            title = strings.externalLink,
-            message = strings.externalLinkQuestion(url),
-            confirmText = strings.okay,
+            title = strings.externalLinkOpenQuestion,
+            message = url,
+            confirmText = strings.openAction,
             dismissText = strings.cancel,
             onConfirm = { pending = null; onOpenExternal(url) },
             onDismiss = { pending = null },

@@ -169,10 +169,10 @@ class DocumentDialogsCore(
             }
             repeat = await {
                 AppDialogRequest.Confirm(
-                    title = table().fmt("try_again_passphrase"),
+                    title = table().text("passphrase_did_not_work"),
                     message = null,
-                    confirmText = table().fmt("yes"),
-                    dismissText = table().fmt("no"),
+                    confirmText = table().text("try_again"),
+                    dismissText = table().text("cancel"),
                     cancellable = false,
                 )
             } == AppDialogResult.Ok
@@ -189,7 +189,11 @@ class DocumentDialogsCore(
     )
     suspend fun confirmUpgrade(): Boolean = await {
         val t = table()
-        AppDialogRequest.Confirm(t.text("bookmark_warning"), "${t.text("bookmark_warning2")}<br><br>${t.text("bookmark_warning4")}<br><br>${t.text("bookmark_warning3")}", t.text("yes"), t.text("cancel"), cancellable = false)
+        AppDialogRequest.Confirm(
+            t.text("update_document_question"),
+            "${t.text("bookmark_warning")} ${t.text("bookmark_warning2")}<br><br>${t.text("bookmark_warning4")}",
+            t.text("update_action"), t.text("cancel"), cancellable = false,
+        )
     } == AppDialogResult.Ok
 
     /** The tutorial video link text: plain when the video is captioned in the app language (or the app is English), else with "(English)". */

@@ -147,11 +147,10 @@ class AppSettingsScreenDialogTest {
             askBeforeOpeningLink = true,
         )
         compose.onNodeWithText("here").performClick()
-        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.external_link_open_question)).assertExists()
         assertEquals(emptyList<String>(), opened)
 
-        val okNodes = compose.onAllNodesWithText(context.getString(R.string.okay))
-        okNodes[okNodes.fetchSemanticsNodes().size - 1].performClick()
+        compose.onNodeWithText(context.getString(R.string.open_action)).performClick()
         assertEquals(listOf("https://example.org/wiki"), opened)
         assertEquals(0, dismissCalls) // the help dialog itself is untouched by the link question
     }

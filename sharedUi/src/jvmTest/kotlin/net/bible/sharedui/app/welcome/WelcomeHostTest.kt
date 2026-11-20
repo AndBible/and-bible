@@ -113,9 +113,9 @@ class WelcomeHostTest {
         assertEquals(net.bible.sharedcore.nav.NavRoutes.download(firstDownload = true), route)
         assertEquals(listOf("initialize", "sync"), calls)
         onNodeWithTag("welcome-screen").assertDoesNotExist()
-        onNodeWithText(strings.downloadQuestionTitle).assertExists()
-        onNodeWithText(strings.yes).performClick()
-        onNodeWithText(strings.downloadQuestionTitle).assertDoesNotExist()
+        onNodeWithText(strings.downloadDocumentsQuestion).assertExists()
+        onNodeWithText(strings.downloadAction).performClick()
+        onNodeWithText(strings.downloadDocumentsQuestion).assertDoesNotExist()
         onNodeWithContentDescription(strings.languageLabel).assertExists()
     }
 
