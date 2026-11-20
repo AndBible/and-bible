@@ -318,9 +318,6 @@ interface Strings {
     val backupSaveToFiles: String             // R.string.backup_save_to_files
     val reorder: String                       // R.string.reorder
     val clearAutoAssignLabels: String         // R.string.clear_auto_assign_labels
-    fun deleteLabelConfirmation(name: String): String         // R.string.delete_label_confirmation
-    fun confirmDeleteOrphanedBookmarks(count: Int): String    // R.string.confirm_delete_orphaned_bookmarks
-    val deleteLabelAndBookmarks: String       // R.string.delete_label_and_bookmarks
     val deleteLabelOnly: String               // R.string.delete_label_only
     fun myDocumentPagesTitle(documentName: String): String    // R.string.my_document_pages_title
     val myDocumentExportSuccess: String       // R.string.my_document_export_success
@@ -898,7 +895,6 @@ interface Strings {
     val promptEditTitleBuiltIn: String            // R.string.built_in_prompt (top-bar title, built-in prompt)
     val copyToCustomizeLabel: String              // R.string.copy_to_customize (overflow item)
     val viewToolsMenuLabel: String                // R.string.ai_available_tools (overflow item, host navigates)
-    val discardChangesConfirmation: String        // R.string.discard_changes_confirmation
     // Action-verb confirm buttons (replace Yes/No in confirm dialogs)
     val delete: String                            // R.string.delete
     val discard: String                           // R.string.discard
@@ -1021,9 +1017,6 @@ interface Strings {
     val bookmarksSearchNotesHint: String              // R.string.filter_by_notes (notes-search field placeholder)
 
     // Task 13 — platform-dialog removal: Bookmarks delete confirm / ManageLabels reset confirm
-    fun confirmDeleteBookmarks(count: Int): String    // R.string.confirm_delete_bookmarks
-    val resetWorkspaceAutoAssignLabels: String        // R.string.reset_workspace_auto_assign_labels
-    val resetHideLabels: String                       // R.string.reset_hide_labels
 
     // Task 14 — platform-dialog removal: AI connection settings' "Reset usage data?" confirm
     val llmResetUsageConfirmTitle: String             // R.string.llm_reset_usage_confirm_title
@@ -1413,6 +1406,21 @@ interface Strings {
     fun recommendGetIt(link: String): String // R.string.recommend_get_it
     val recommendShareLink: String // R.string.recommend_share_link
     val recommendQrCaption: String // R.string.recommend_qr_caption
+    // dialog copy: B2a
+    val dialogDiscardChangesLead: String          // R.string.dialog_discard_changes_lead
+    val dialogKeepEditing: String                 // R.string.dialog_keep_editing
+    fun dialogLabelDeleteLead(name: String): String   // R.string.dialog_label_delete_lead
+    val dialogLabelDeleteDetail: String           // R.string.dialog_label_delete_detail
+    fun dialogLabelDeleteOrphansDetail(count: Int): String   // R.plurals.dialog_label_delete_orphans_detail
+    fun dialogLabelDeleteBoth(count: Int): String             // R.plurals.dialog_label_delete_both
+    val dialogLabelDeleteBothConsequence: String  // R.string.dialog_label_delete_both_consequence
+    val dialogLabelDeleteOnlyConsequence: String  // R.string.dialog_label_delete_only_consequence
+    fun dialogBookmarksRemoveLead(count: Int): String         // R.plurals.dialog_bookmarks_remove_lead
+    fun dialogBookmarksRemoveDetail(count: Int): String       // R.plurals.dialog_bookmarks_remove_detail
+    val dialogLabelsResetWorkspaceLead: String    // R.string.dialog_labels_reset_workspace_lead
+    val dialogLabelsResetHiddenLead: String       // R.string.dialog_labels_reset_hidden_lead
+    val dialogLabelsResetHiddenDetail: String     // R.string.dialog_labels_reset_hidden_detail
+    // end dialog copy: B2a
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

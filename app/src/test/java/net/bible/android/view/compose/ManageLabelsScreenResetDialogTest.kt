@@ -90,24 +90,23 @@ class ManageLabelsScreenResetDialogTest {
 
     @Test fun noDialogWhenNone() {
         show(ManageLabelsDialog.None)
-        compose.onNodeWithText("Do you want to", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("auto-assign", substring = true).assertDoesNotExist()
     }
 
     @Test fun workspaceKindShowsTheAutoAssignQuestion() {
         show(ManageLabelsDialog.ConfirmReset(ManageLabelsResetKind.WORKSPACE))
-        compose.onNodeWithText("Do you want to remove all auto-assign labels from this workspace?").assertExists()
-        compose.onNodeWithText("Reset").performClick()
+        compose.onNodeWithText("Remove all auto-assign labels from this workspace?").assertExists()
+        compose.onNodeWithText("Remove").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }
 
     @Test fun hideLabelsKindShowsTheHideLabelsQuestion() {
         show(ManageLabelsDialog.ConfirmReset(ManageLabelsResetKind.HIDE_LABELS))
-        // values-en/strings.xml overrides reset_hide_labels with different wording than the base
-        // values/strings.xml -- Robolectric resolves the "en" locale, so this is the real string a
-        // device shows, not the base resource's text (which the WORKSPACE case above happens to
-        // share with its values-en, so that assertion didn't need this note).
-        compose.onNodeWithText("Do you want to reset the hidden label settings?").assertExists()
+        compose.onNodeWithText("Show all hidden labels again?").assertExists()
+        compose.onNodeWithText("Your hidden-labels setting is reset.").assertExists()
+        compose.onNodeWithText("Reset").performClick()
+        assertEquals(1, confirmCalls)
     }
 
     @Test fun cancelAnswersDismiss() {

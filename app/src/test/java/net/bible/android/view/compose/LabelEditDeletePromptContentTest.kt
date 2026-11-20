@@ -18,7 +18,12 @@
 package net.bible.android.view.compose
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import net.bible.sharedui.components.dialog.DialogButtonRole
+import net.bible.sharedui.components.dialog.DialogButtonRoleKey
 import androidx.compose.ui.test.performClick
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
@@ -60,10 +65,13 @@ class LabelEditDeletePromptContentTest {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 LabelEditDeletePromptContent(
                     prompt = prompt,
-                    title = "Remove bookmark label \"Study\"?",
-                    orphanedMessage = if (prompt is DeletePrompt.Orphaned) "3 bookmarks would be orphaned" else null,
-                    deleteBothLabel = "Delete label and bookmarks",
+                    lead = "Delete the label \u201cStudy\u201d?",
+                    detail = if (prompt is DeletePrompt.Orphaned) "3 bookmarks have no other label."
+                    else "Its Study Pad notes are deleted too. This cannot be undone.",
+                    deleteBothLabel = "Delete label and 3 bookmarks",
+                    deleteBothConsequence = "The bookmarks and their notes are deleted.",
                     deleteOnlyLabel = "Delete label only",
+                    deleteOnlyConsequence = "The bookmarks stay, without a label.",
                     cancelLabel = "Cancel",
                     confirmLabel = "Delete",
                     onConfirm = { confirmCalls.add(it) },
@@ -73,27 +81,32 @@ class LabelEditDeletePromptContentTest {
         }
     }
 
-    // --- DeletePrompt.Orphaned: the AbOptionsDialog three-way ---------------------------------
+    private fun assertRole(text: String, role: DialogButtonRole) =
+        compose.onNodeWithText(text).assert(SemanticsMatcher.expectValue(DialogButtonRoleKey, role))
 
-    @Test fun orphaned_showsTitleMessageAndBothOptions() {
+    // --- DeletePrompt.Orphaned: two answer cards + Cancel -------------------------------------
+
+    @Test fun orphaned_showsLeadDetailAnswersAndConsequences() {
         show(DeletePrompt.Orphaned(3))
-        compose.onNodeWithText("Remove bookmark label \"Study\"?").assertExists()
-        compose.onNodeWithText("3 bookmarks would be orphaned").assertExists()
-        compose.onNodeWithText("Delete label and bookmarks").assertExists()
+        compose.onNodeWithText("Delete the label \u201cStudy\u201d?").assertExists()
+        compose.onNodeWithText("3 bookmarks have no other label.").assertExists()
+        compose.onNodeWithText("Delete label and 3 bookmarks").assertExists()
+        compose.onNodeWithText("The bookmarks and their notes are deleted.").assertExists()
         compose.onNodeWithText("Delete label only").assertExists()
+        compose.onNodeWithText("The bookmarks stay, without a label.").assertExists()
         compose.onNodeWithText("Cancel").assertExists()
     }
 
     @Test fun orphaned_deleteBoth_answersConfirmTrue() {
         show(DeletePrompt.Orphaned(3))
-        compose.onNodeWithText("Delete label and bookmarks").performClick()
+        compose.onNodeWithTag("dialog-answer-both").performClick()
         assertEquals(listOf(true), confirmCalls)
         assertEquals(0, dismissCalls)
     }
 
     @Test fun orphaned_deleteLabelOnly_answersConfirmFalse() {
         show(DeletePrompt.Orphaned(3))
-        compose.onNodeWithText("Delete label only").performClick()
+        compose.onNodeWithTag("dialog-answer-labelOnly").performClick()
         assertEquals(listOf(false), confirmCalls)
         assertEquals(0, dismissCalls)
     }
@@ -105,19 +118,19 @@ class LabelEditDeletePromptContentTest {
         assertEquals(1, dismissCalls)
     }
 
-    // --- DeletePrompt.Confirm: the plain 2-way, out of Task 22's scope but on the same seam ---
+    // --- DeletePrompt.Confirm: plain 2-way with a destructive Delete -------------------------
 
-    @Test fun confirm_showsTitle() {
+    @Test fun confirm_showsLeadAndDetail_noTitleRepeat() {
         show(DeletePrompt.Confirm)
-        compose.onNodeWithText("Remove bookmark label \"Study\"?").assertExists()
+        compose.onNodeWithText("Delete the label \u201cStudy\u201d?").assertExists()
+        compose.onNodeWithText("Its Study Pad notes are deleted too. This cannot be undone.").assertExists()
     }
 
-    @Test fun confirm_buttonsAreActionVerbNotYesNo() {
+    @Test fun confirm_deleteIsDestructive_cancelIsCancelRole() {
         show(DeletePrompt.Confirm)
-        compose.onNodeWithText("Delete").assertExists()
-        compose.onNodeWithText("Cancel").assertExists()
+        assertRole("Delete", DialogButtonRole.Destructive)
+        assertRole("Cancel", DialogButtonRole.Cancel)
         compose.onNodeWithText("Yes").assertDoesNotExist()
-        compose.onNodeWithText("No").assertDoesNotExist()
     }
 
     @Test fun confirm_delete_answersConfirmFalse() {

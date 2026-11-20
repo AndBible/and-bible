@@ -18,7 +18,11 @@
 package net.bible.android.view.compose
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onNodeWithText
+import net.bible.sharedui.components.dialog.DialogButtonRole
+import net.bible.sharedui.components.dialog.DialogButtonRoleKey
 import androidx.compose.ui.test.performClick
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
@@ -40,7 +44,7 @@ import org.robolectric.annotation.GraphicsMode
  * Task 13, Step 3: `NavHost.confirmDiscardLabelEdits` (classic `requestUp`'s discard-changes
  * `android.app.AlertDialog`) moved off the host into `LabelEditController.discardPrompt` and is
  * now rendered by [LabelEditScreen] itself -- unlike the delete prompt, this needed no new
- * `Strings.kt` entry (`discardChangesConfirmation` already existed), so the screen renders it
+ * `Strings.kt` entry (`dialogDiscardChangesLead`), so the screen renders it
  * directly rather than through a host slot.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -101,12 +105,14 @@ class LabelEditScreenDiscardDialogTest {
 
     @Test fun noDialogWhenNotAsked() {
         show(discardPrompt = false)
-        compose.onNodeWithText("Discard unsaved changes?").assertDoesNotExist()
+        compose.onNodeWithText("Discard changes?").assertDoesNotExist()
     }
 
     @Test fun discardPromptShowsTheQuestionAndAnswersConfirm() {
         show(discardPrompt = true)
-        compose.onNodeWithText("Discard unsaved changes?").assertExists()
+        compose.onNodeWithText("Discard changes?").assertExists()
+        compose.onNodeWithText("Discard")
+            .assert(SemanticsMatcher.expectValue(DialogButtonRoleKey, DialogButtonRole.Destructive))
         compose.onNodeWithText("Discard").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
@@ -114,7 +120,10 @@ class LabelEditScreenDiscardDialogTest {
 
     @Test fun noAnswersDismiss() {
         show(discardPrompt = true)
-        compose.onNodeWithText("Cancel").performClick()
+        compose.onNodeWithText("Keep editing")
+            .assert(SemanticsMatcher.expectValue(DialogButtonRoleKey, DialogButtonRole.Cancel))
+        compose.onNodeWithText("Cancel").assertDoesNotExist()
+        compose.onNodeWithText("Keep editing").performClick()
         assertEquals(0, confirmCalls)
         assertEquals(1, dismissCalls)
     }

@@ -316,9 +316,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val backupSaveToFiles: String get() = context.getString(R.string.backup_save_to_files)
     override val reorder: String get() = context.getString(R.string.reorder)
     override val clearAutoAssignLabels: String get() = context.getString(R.string.clear_auto_assign_labels)
-    override fun deleteLabelConfirmation(name: String): String = context.getString(R.string.delete_label_confirmation, name)
-    override fun confirmDeleteOrphanedBookmarks(count: Int): String = context.getString(R.string.confirm_delete_orphaned_bookmarks, count)
-    override val deleteLabelAndBookmarks: String get() = context.getString(R.string.delete_label_and_bookmarks)
     override val deleteLabelOnly: String get() = context.getString(R.string.delete_label_only)
     override fun myDocumentPagesTitle(documentName: String): String = context.getString(R.string.my_document_pages_title, documentName)
     override val myDocumentExportSuccess: String get() = context.getString(R.string.my_document_export_success)
@@ -845,7 +842,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val promptEditTitleBuiltIn: String get() = context.getString(R.string.built_in_prompt)
     override val copyToCustomizeLabel: String get() = context.getString(R.string.copy_to_customize)
     override val viewToolsMenuLabel: String get() = context.getString(R.string.ai_available_tools)
-    override val discardChangesConfirmation: String get() = context.getString(R.string.discard_changes_confirmation)
     override val delete: String get() = context.getString(R.string.delete)
     override val discard: String get() = context.getString(R.string.discard)
     override val remove: String get() = context.getString(R.string.remove)
@@ -952,11 +948,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val bookmarksSearchNotesHint: String get() = context.getString(R.string.filter_by_notes)
 
     // Task 13 — platform-dialog removal: Bookmarks delete confirm / ManageLabels reset confirm
-    override fun confirmDeleteBookmarks(count: Int): String =
-        context.getString(R.string.confirm_delete_bookmarks, count)
-    override val resetWorkspaceAutoAssignLabels: String
-        get() = context.getString(R.string.reset_workspace_auto_assign_labels)
-    override val resetHideLabels: String get() = context.getString(R.string.reset_hide_labels)
 
     override val llmResetUsageConfirmTitle: String get() = context.getString(R.string.llm_reset_usage_confirm_title)
     override val llmResetUsageConfirmMessage: String get() = context.getString(R.string.llm_reset_usage_confirm_message)
@@ -1334,4 +1325,24 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun recommendGetIt(link: String): String = context.getString(R.string.recommend_get_it, link)
     override val recommendShareLink: String get() = context.getString(R.string.recommend_share_link)
     override val recommendQrCaption: String get() = context.getString(R.string.recommend_qr_caption)
+
+    // dialog copy: B2a
+    override val dialogDiscardChangesLead: String get() = context.getString(R.string.dialog_discard_changes_lead)
+    override val dialogKeepEditing: String get() = context.getString(R.string.dialog_keep_editing)
+    override fun dialogLabelDeleteLead(name: String): String = context.getString(R.string.dialog_label_delete_lead, name)
+    override val dialogLabelDeleteDetail: String get() = context.getString(R.string.dialog_label_delete_detail)
+    override fun dialogLabelDeleteOrphansDetail(count: Int): String =
+        context.resources.getQuantityString(R.plurals.dialog_label_delete_orphans_detail, count, count)
+    override fun dialogLabelDeleteBoth(count: Int): String =
+        context.resources.getQuantityString(R.plurals.dialog_label_delete_both, count, count)
+    override val dialogLabelDeleteBothConsequence: String get() = context.getString(R.string.dialog_label_delete_both_consequence)
+    override val dialogLabelDeleteOnlyConsequence: String get() = context.getString(R.string.dialog_label_delete_only_consequence)
+    override fun dialogBookmarksRemoveLead(count: Int): String =
+        context.resources.getQuantityString(R.plurals.dialog_bookmarks_remove_lead, count, count)
+    override fun dialogBookmarksRemoveDetail(count: Int): String =
+        context.resources.getQuantityString(R.plurals.dialog_bookmarks_remove_detail, count, count)
+    override val dialogLabelsResetWorkspaceLead: String get() = context.getString(R.string.dialog_labels_reset_workspace_lead)
+    override val dialogLabelsResetHiddenLead: String get() = context.getString(R.string.dialog_labels_reset_hidden_lead)
+    override val dialogLabelsResetHiddenDetail: String get() = context.getString(R.string.dialog_labels_reset_hidden_detail)
+    // end dialog copy: B2a
 }

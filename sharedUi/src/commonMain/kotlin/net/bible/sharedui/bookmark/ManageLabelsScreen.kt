@@ -226,17 +226,19 @@ fun ManageLabelsScreen(
     }
 
     when (dialog) {
-        is ManageLabelsDialog.ConfirmReset -> AbConfirmDialog(
-            title = null,
-            message = when (dialog.kind) {
-                ManageLabelsResetKind.WORKSPACE -> strings.resetWorkspaceAutoAssignLabels
-                ManageLabelsResetKind.HIDE_LABELS -> strings.resetHideLabels
-            },
-            confirmText = strings.resetGeneric,
-            dismissText = strings.cancel,
-            onConfirm = onConfirmDialog,
-            onDismiss = onDismissDialog,
-        )
+        is ManageLabelsDialog.ConfirmReset -> {
+            val workspace = dialog.kind == ManageLabelsResetKind.WORKSPACE
+            AbConfirmDialog(
+                title = null,
+                message = if (workspace) strings.dialogLabelsResetWorkspaceLead else strings.dialogLabelsResetHiddenLead,
+                detail = if (workspace) null else strings.dialogLabelsResetHiddenDetail,
+                confirmText = if (workspace) strings.remove else strings.resetGeneric,
+                dismissText = strings.cancel,
+                destructive = workspace,
+                onConfirm = onConfirmDialog,
+                onDismiss = onDismissDialog,
+            )
+        }
         ManageLabelsDialog.None -> {}
     }
 }

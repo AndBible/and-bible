@@ -18,7 +18,11 @@
 package net.bible.android.view.compose
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onNodeWithText
+import net.bible.sharedui.components.dialog.DialogButtonRole
+import net.bible.sharedui.components.dialog.DialogButtonRoleKey
 import androidx.compose.ui.test.performClick
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
@@ -94,12 +98,15 @@ class BookmarksScreenDeleteDialogTest {
 
     @Test fun noDialogWhenNone() {
         show(BookmarksDialog.None)
-        compose.onNodeWithText("Do you want to remove", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("bookmarks?", substring = true).assertDoesNotExist()
     }
 
     @Test fun confirmDeleteShowsTheFormattedCountAndAnswersConfirm() {
         show(BookmarksDialog.ConfirmDelete(3))
-        compose.onNodeWithText("Do you want to remove 3 bookmarks and their notes?").assertExists()
+        compose.onNodeWithText("Remove 3 bookmarks?").assertExists()
+        compose.onNodeWithText("Their notes are removed too.").assertExists()
+        compose.onNodeWithText("Remove")
+            .assert(SemanticsMatcher.expectValue(DialogButtonRoleKey, DialogButtonRole.Destructive))
         compose.onNodeWithText("Remove").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)

@@ -434,9 +434,10 @@ private fun CustomPromptEditor(
     if (showDiscardConfirm) {
         AbConfirmDialog(
             title = null,
-            message = strings.discardChangesConfirmation,
+            message = strings.dialogDiscardChangesLead,
             confirmText = strings.discard,
-            dismissText = strings.cancel,
+            dismissText = strings.dialogKeepEditing,
+            destructive = true,
             onConfirm = { showDiscardConfirm = false; onDismiss() },
             onDismiss = { showDiscardConfirm = false },
         )

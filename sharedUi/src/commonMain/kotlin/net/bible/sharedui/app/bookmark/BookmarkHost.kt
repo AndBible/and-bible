@@ -1198,13 +1198,15 @@ class BookmarkHost(
     ) {
         LabelEditDeletePromptContent(
             prompt = prompt,
-            title = strings.deleteLabelConfirmation(labelName),
-            orphanedMessage = when (prompt) {
-                is DeletePrompt.Orphaned -> strings.confirmDeleteOrphanedBookmarks(prompt.count)
-                DeletePrompt.Confirm -> null
+            lead = strings.dialogLabelDeleteLead(labelName),
+            detail = when (prompt) {
+                is DeletePrompt.Orphaned -> strings.dialogLabelDeleteOrphansDetail(prompt.count)
+                DeletePrompt.Confirm -> strings.dialogLabelDeleteDetail
             },
-            deleteBothLabel = strings.deleteLabelAndBookmarks,
+            deleteBothLabel = (prompt as? DeletePrompt.Orphaned)?.let { strings.dialogLabelDeleteBoth(it.count) } ?: "",
+            deleteBothConsequence = strings.dialogLabelDeleteBothConsequence,
             deleteOnlyLabel = strings.deleteLabelOnly,
+            deleteOnlyConsequence = strings.dialogLabelDeleteOnlyConsequence,
             cancelLabel = strings.cancel,
             confirmLabel = strings.delete,
             onConfirm = onConfirm,
