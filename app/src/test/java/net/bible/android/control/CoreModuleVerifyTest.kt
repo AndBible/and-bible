@@ -22,11 +22,19 @@ class CoreModuleVerifyTest {
             val removed = module.includedModules.count { it.mappings.remove(key) != null }
             org.junit.Assert.assertEquals("exactly one explicit $type binding", 1, removed)
         }
+        // The add-on collection importer/reconciler take suspend-function parameters (#4162), which the verifier cannot reflect either.
+        for (type in listOf("AddonCollectionImporter", "AddonCollectionReconciler")) {
+            val key = "net.bible.service.addons.collections.$type::_root_"
+            val removed = module.includedModules.count { it.mappings.remove(key) != null }
+            org.junit.Assert.assertEquals("exactly one explicit $type binding", 1, removed)
+        }
         // androidContext() supplies Context/Application-typed constructor params;
         module.verify(
             extraTypes = listOf(
                 net.bible.service.cloudsync.SyncNowPorts::class,
                 net.bible.service.cloudsync.SyncNow::class,
+                net.bible.service.addons.collections.AddonCollectionImporter::class,
+                net.bible.service.addons.collections.AddonCollectionReconciler::class,
                 Application::class,
                 android.content.Context::class,
                 // OrderedLauncher is bound with the AppCoroutineScope explicitly; verify() only sees its declared CoroutineScope parameter.

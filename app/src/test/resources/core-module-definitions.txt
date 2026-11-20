@@ -44,6 +44,14 @@ net.bible.android.control.speak.SpeakSettingsStore::_root_
 net.bible.android.control.speak.SpeakTransportServiceImpl::_root_
 net.bible.android.control.versification.BibleTraverser::_root_
 net.bible.android.control.versification.BookInstallWatcher::_root_
+net.bible.android.control.widget.ControlSpeakWidgetSource::_root_
+net.bible.android.control.widget.ControlVerseWidgetSources::_root_
+net.bible.android.control.widget.LocalZone::_root_
+net.bible.android.control.widget.SpeakWidgetSource::_root_
+net.bible.android.control.widget.SpeakWidgetStateProducer::_root_
+net.bible.android.control.widget.VerseCandidates::_root_
+net.bible.android.control.widget.VerseWidgetSources::_root_
+net.bible.android.control.widget.WidgetStrings::_root_
 net.bible.android.platform.AndroidAddonCatalog::_root_
 net.bible.android.platform.AndroidHttpClients::_root_
 net.bible.android.platform.AndroidSyncScheduler::_root_
@@ -67,6 +75,9 @@ net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl::_root_
 net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton::_root_
 net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton::_root_
 net.bible.android.view.activity.workspaces.WorkspaceServiceImpl::_root_
+net.bible.service.addons.collections.AddonCollectionImporter::_root_
+net.bible.service.addons.collections.AddonCollectionReconcileDriver::_root_
+net.bible.service.addons.collections.AddonCollectionReconciler::_root_
 net.bible.service.cloudsync.CloudAdapterFactory::_root_
 net.bible.service.cloudsync.CloudSync::_root_
 net.bible.service.cloudsync.CloudSyncProvider::_root_
@@ -148,6 +159,7 @@ net.bible.sharedcore.window.WindowStateService::_root_
 net.bible.sharedcore.workspaces.WorkspaceService::_root_
 net.bible.sharedlogic.platform.AddonCatalog::_root_
 net.bible.sharedlogic.platform.BackgroundImageCatalog::_root_
+net.bible.sharedlogic.platform.CollectionPackSource::_root_
 net.bible.sharedlogic.platform.DistributedPlanCatalog::_root_
 net.bible.sharedlogic.platform.EpubStoreEdge::_root_
 net.bible.sharedlogic.platform.FirstLoadEdge::_root_
