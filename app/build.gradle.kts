@@ -631,6 +631,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material.icons.extended)  // Icons.Filled, Icons.AutoMirrored etc.
     debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+    testImplementation(libs.androidx.glance.appwidget.testing)
 
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
 

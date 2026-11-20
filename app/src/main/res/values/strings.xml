@@ -2531,4 +2531,5 @@
     <string name="new_sync_targets_lead">More of your data can now sync</string>
     <string name="new_sync_targets_detail">My Documents, AI settings and reading progress can sync too. Turn them on in the Device synchronization settings.</string>
     <!-- end dialog copy: B3b -->
+    <string name="widget_sleep_minutes">%1$d min</string>
 </resources>
