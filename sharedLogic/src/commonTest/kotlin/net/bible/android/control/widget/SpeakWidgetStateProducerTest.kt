@@ -143,4 +143,22 @@ class SpeakWidgetStateProducerTest {
         runCurrent()
         assertEquals("Psalm 23:1 · 34 % · WEB [fi]", p.state.value.statusLine)
     }
+
+    @Test fun failingReadKeepsPreviousStateAndRecovers() = runTest {
+        val source = FakeSource { currentTime }
+        var fail = false
+        val failing = object : SpeakWidgetSource by source {
+            override suspend fun facts() = if (fail) error("db gone") else source.facts()
+        }
+        val p = SpeakWidgetStateProducer(backgroundScope, failing, FakeWidgetStrings())
+        p.start(); runCurrent()
+        val good = p.state.value
+        fail = true
+        source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
+        assertEquals(good, p.state.value)
+        fail = false
+        source.facts = source.facts.copy(reference = "John 3:16")
+        source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
+        assertEquals("John 3:16", p.state.value.reference)
+    }
 }

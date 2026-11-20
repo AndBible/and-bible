@@ -661,6 +661,7 @@
     <string name="speak_next">Next</string>
     <string name="speak_previous">Previous</string>
     <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
+    <string name="widget_bookmark_helptext">Speak bookmarks shortcut buttons will appear here.</string>
     <!-- Home-screen widgets (#184) -->
     <string name="widget_speak_name">Speak</string>
     <string name="widget_speak_text_name">Speak with text</string>

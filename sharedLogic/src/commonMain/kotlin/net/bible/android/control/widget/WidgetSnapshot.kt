@@ -16,6 +16,8 @@
  */
 package net.bible.android.control.widget
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 /**
@@ -23,9 +25,10 @@ import kotlinx.serialization.Serializable
  * or SWORD modules, so every text it shows is prepared here. Bump [version] when a field changes meaning; the
  * extension ignores a snapshot with a version it does not know.
  */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class WidgetSnapshot(
-    val version: Int = VERSION,
+    @EncodeDefault val version: Int = VERSION,
     val generatedAt: Long,
     val speak: SpeakSnapshot,
     val listening: List<ListeningRowSnapshot>,

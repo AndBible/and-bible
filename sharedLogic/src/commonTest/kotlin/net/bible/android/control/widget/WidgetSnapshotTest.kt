@@ -42,6 +42,7 @@ class WidgetSnapshotTest {
         sources.labelMap[id] = LabelVerses("Memory", listOf(VerseRef("WEB", "KJV", 10, 10)))
         val snap = build()
         val json = Json.encodeToString(WidgetSnapshot.serializer(), snap)
+        assertTrue(json.contains("\"version\":1"), json)
         assertEquals(snap, Json.decodeFromString(WidgetSnapshot.serializer(), json))
         assertEquals("PAUSED", snap.speak.phase)
         assertEquals(listOf(true, false), snap.listening.map { it.current })

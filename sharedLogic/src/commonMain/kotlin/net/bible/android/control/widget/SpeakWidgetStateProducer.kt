@@ -26,8 +26,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /** Raw speak facts the producer turns into a [SpeakWidgetState]; everything platform specific lives behind this. */
 data class SpeakFacts(
@@ -77,12 +80,12 @@ class SpeakWidgetStateProducer(
     private val _state = MutableStateFlow(emptyState())
     val state: StateFlow<SpeakWidgetState> = _state.asStateFlow()
 
-    private var started = false
+    private val started = kotlinx.atomicfu.atomic(false)
+    private val rebuildLock = Mutex()
 
     /** Builds the first state and starts following [SpeakWidgetSource.changes]. Idempotent. */
     fun start() {
-        if (started) return
-        started = true
+        if (!started.compareAndSet(false, true)) return
         scope.launch { rebuild() }
         scope.launch {
             merge(source.changes, sleepTicker()).debounce(COALESCE_MS).collect { rebuild() }
@@ -101,8 +104,15 @@ class SpeakWidgetStateProducer(
         }
     }
 
-    private suspend fun rebuild() {
-        _state.value = build(source.facts())
+    /** Serialised so an older result never overwrites a newer one; a failing read keeps the previous state. */
+    private suspend fun rebuild() = rebuildLock.withLock {
+        try {
+            _state.value = build(source.facts())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // keep the last good state; the next event retries
+        }
     }
 
     private fun build(f: SpeakFacts): SpeakWidgetState {
