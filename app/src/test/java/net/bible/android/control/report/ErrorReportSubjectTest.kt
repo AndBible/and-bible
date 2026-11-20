@@ -54,6 +54,19 @@ class ErrorReportSubjectTest {
     }
 
     @Test
+    fun obfuscatedFrameBeforeAKeptNameFrameWins() {
+        // A class that kept its name (activity, $$serializer, Parcelable) can sit further down the stack than the
+        // real, obfuscated crash frame; the first of the two kinds is the location.
+        val e = throwable(
+            "boom",
+            StackTraceElement("android.os.Handler", "dispatchMessage", "Handler.java", 959),
+            StackTraceElement("t58", "j", mapId, 234),
+            StackTraceElement("net.bible.android.view.activity.MainActivity", "onCreate", "MainActivity.kt", 50),
+        )
+        assertEquals("$version boom:t58.j:234", errorReportSubject(version, e))
+    }
+
+    @Test
     fun noKnownFrameStillNamesTheVersionAndTheTopFrame() {
         val e = throwable(null, StackTraceElement("android.os.Looper", "loop", "Looper.java", 1), )
         assertEquals("$version java.lang.IllegalStateException:android.os.Looper.loop:1", errorReportSubject(version, e))

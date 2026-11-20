@@ -84,6 +84,10 @@ Tests: `bash scripts/test-retrace-crash.sh` (a real obfuscated trace from a rele
 | Samsung, Huawei, Amazon (manual builds) | the maintainer | run `scripts/archive-r8-mappings.sh <variant>...` (e.g. `standardSamsungRelease`) right after the build: `.local/r8-mappings/<versionCode>/<variant>/mapping-<commit>.txt.gz`; a mapping older than the HEAD commit is skipped, since its versionCode/commit key would be wrong |
 | F-Droid | F-Droid's build server | none needed: the `fdroid` flavour is not obfuscated |
 
+`make install-prod` (a release APK on a device) and `make bundle` do not archive the mapping. `make bundle`'s AAB
+carries it inside (`BUNDLE-METADATA/...`), but `install-prod` leaves it only in `app/build/outputs/mapping/<variant>/`:
+run `scripts/archive-r8-mappings.sh <variant>` right after it if that build's traces will ever need retracing.
+
 `.local/` is host scratch, not an archive: keep the mappings of released builds somewhere durable too (the GitHub
 release assets are durable; Play keeps its own copy).
 
