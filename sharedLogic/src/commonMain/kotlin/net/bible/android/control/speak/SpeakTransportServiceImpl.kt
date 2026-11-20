@@ -165,7 +165,18 @@ class SpeakTransportServiceImpl(
     }
 
     override fun speakFromBookmark(id: String) {
-        val dto = bookmarkCache[id] ?: return
+        val cached = bookmarkCache[id]
+        if (cached != null) return speakFrom(cached)
+        // Cache miss: the cache is filled only by the UI's list, and a widget tap can be the first action of the
+        // process. Look the bookmark up in the database instead.
+        scope.launch {
+            val list = rawSpeakBookmarks()
+            bookmarkCache = list.associateBy { it.id.toString() }
+            bookmarkCache[id]?.let(::speakFrom)
+        }
+    }
+
+    private fun speakFrom(dto: BookmarkEntities.BaseBookmarkWithNotes) {
         speakControl.speakFromBookmark(dto)
         maybeSyncToFront()
     }

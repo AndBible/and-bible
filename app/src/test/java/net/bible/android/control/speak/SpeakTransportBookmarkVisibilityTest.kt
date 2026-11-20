@@ -75,4 +75,35 @@ class SpeakTransportBookmarkVisibilityTest : SpeakIntegrationTestBase() {
         awaitTransport()
         assertFalse("Removing the last speech bookmark must hide the button", transport.state.value.bookmarkButtonVisible)
     }
+
+    /** A widget tap can be the first speech action of the process: the id must resolve without [speakBookmarks] having run. */
+    @Test
+    fun speakFromBookmarkResolvesAnIdTheCacheNeverSaw() {
+        val koin = GlobalContext.get()
+        val advanced = koin.get<AdvancedSpeakSettings>()
+        advanced.autoBookmark = true
+        val first = SpeakTransportServiceImpl(transportScope, fakePlatform, advanced, speakControl, bookmarkControl)
+        val launcher = koin.get<OrderedLauncher>()
+        awaitTransport()
+        val verse = (book.getKey("Gen.1.1") as RangedPassage).getVerseAt(0)
+        speakControl.speakBible(book, verse)
+        runBlocking { launcher.join(SPEAK_KEY) }
+        first.pause()
+        runBlocking { launcher.join(SPEAK_KEY) }
+        awaitTransport()
+        val bookmark = runBlocking { bookmarkControl.speakBookmarkForVerse(verse) }
+        assertNotNull(bookmark)
+        speakControl.stop(true)
+        runBlocking { launcher.join(SPEAK_KEY) }
+        first.close()
+
+        val fresh = SpeakTransportServiceImpl(transportScope, fakePlatform, advanced, speakControl, bookmarkControl)
+        this.transport = fresh
+        awaitTransport()
+        assertFalse(speakControl.isSpeaking)
+        fresh.speakFromBookmark(bookmark!!.id.toString())
+        awaitTransport()
+        runBlocking { launcher.join(SPEAK_KEY) }
+        assertTrue("speakFromBookmark must read the bookmark from the database on a cache miss", speakControl.isSpeaking)
+    }
 }

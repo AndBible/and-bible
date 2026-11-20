@@ -79,6 +79,17 @@
     <true/>
     <key>AndBibleICloudContainer</key>
     <string>$(ICLOUD_CONTAINER)</string>
+    <key>AppGroupIdentifier</key>
+    <string>$(APP_GROUP)</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>org.andbible.widget</string>
+            <key>CFBundleURLSchemes</key>
+            <array><string>andbible-widget</string></array>
+        </dict>
+    </array>
     <key>AndBibleCommit</key>
     <string>$(AND_BIBLE_COMMIT_HASH)</string>
     <key>BGTaskSchedulerPermittedIdentifiers</key>

@@ -26,7 +26,8 @@ case "$*" in
     [ -z "${STUB_ARCHIVE_SLEEP:-}" ] || sleep "$STUB_ARCHIVE_SLEEP"
     [ "${STUB_ARCHIVE_RC:-0}" = 0 ] || { echo "error: archive broke"; exit "$STUB_ARCHIVE_RC"; }
     ap=$(echo "$*" | sed -n 's/.*-archivePath \([^ ]*\).*/\1/p')
-    mkdir -p "$ap/Products/Applications/AndBible.app"; echo "x=1" > "$ap/Products/Applications/AndBible.app/Info.plist" ;;
+    mkdir -p "$ap/Products/Applications/AndBible.app"; echo "x=1" > "$ap/Products/Applications/AndBible.app/Info.plist"
+    [ "${STUB_NO_APPEX:-0}" = 1 ] || mkdir -p "$ap/Products/Applications/AndBible.app/PlugIns/AndBibleWidgets.appex" ;;
 *-exportArchive*)
     ep=$(echo "$*" | sed -n 's/.*-exportPath \([^ ]*\).*/\1/p')
     mkdir -p "$ep"
@@ -43,12 +44,21 @@ cat > "$T/bin/codesign" <<'EOS'
 echo "codesign $*" >> "$STUB_DIR/calls"
 case "$*" in
 *"--entitlements"*"--force"*|*"--force"*"--entitlements"*)
-    f=$(echo "$*" | sed -n 's/.*--entitlements \([^ ]*\).*/\1/p'); cp "$f" "$STUB_DIR/signed.entitlements" ;;
+    f=$(echo "$*" | sed -n 's/.*--entitlements \([^ ]*\).*/\1/p'); cp "$f" "$STUB_DIR/signed.entitlements"
+    case "$*" in *AndBibleWidgets.appex*) cp "$f" "$STUB_DIR/widgets.entitlements.copy" ;; esac ;;
+*"-dv"*AndBibleWidgets.appex*)
+    echo "Identifier=${STUB_APPEX_IDENT:-org.andbible.ios.widgets}" >&2
+    echo "Authority=${STUB_EXT_AUTH:-Apple Distribution: Tuomas (X6A6CDK8T7)}" >&2
+    echo "TeamIdentifier=${STUB_TEAM:-X6A6CDK8T7}" >&2 ;;
 *"-dv"*)
     echo "Identifier=${STUB_IDENT:-org.andbible.ios}" >&2
     echo "Authority=${STUB_AUTH:-Apple Distribution: Tuomas (X6A6CDK8T7)}" >&2
     echo "TeamIdentifier=${STUB_TEAM:-X6A6CDK8T7}" >&2 ;;
+*"-d --entitlements"*AndBibleWidgets.appex*)
+    [ "${STUB_NO_APPEX_GROUP:-0}" = 1 ] || printf '\t\t<string>group.org.andbible.ios%s</string>\n' "${STUB_APPEX_GROUP_SUFFIX:-}"
+    [ "${STUB_EXT_GTA:-absent}" = absent ] || echo "get-task-allow=$STUB_EXT_GTA" ;;
 *"-d --entitlements"*)
+    [ "${STUB_NO_APP_GROUP:-0}" = 1 ] || echo '<string>group.org.andbible.ios</string>'
     [ "${STUB_NO_ICLOUD:-0}" = 1 ] || echo '<string>iCloud.org.andbible.ios</string>'
     [ "${STUB_GTA:-false}" = absent ] || echo "get-task-allow=${STUB_GTA:-false}" ;;
 esac
@@ -65,6 +75,7 @@ EOS
 cat > "$T/bin/unzip" <<'EOS'
 #!/usr/bin/env bash
 mkdir -p Payload/AndBible.app
+[ "${STUB_IPA_NO_APPEX:-0}" = 1 ] || mkdir -p Payload/AndBible.app/PlugIns/AndBibleWidgets.appex
 printf 'CFBundleShortVersionString=%s\nCFBundleVersion=%s\n' "${STUB_IPA_VERSION:-6.0.1250}" "${STUB_IPA_BUILD:-2026.1105.120000}" > Payload/AndBible.app/Info.plist
 EOS
 cat > "$T/bin/hdiutil" <<'EOS'
@@ -90,10 +101,11 @@ mk_tree() {   # fresh Mac-like tree with synced files, key volume and matching x
     mkdir -p "$W/app/bibleview-js/node_modules" "$W/iosApp/Config" "$W/iosApp/iosApp" "$W/vol"
     : > "$W/app/bibleview-js/package-lock.json"
     cp "$REAL_REPO/iosApp/iosApp/iosApp.entitlements" "$W/iosApp/iosApp/"
+    mkdir -p "$W/iosApp/AndBibleWidgets"; cp "$REAL_REPO/iosApp/AndBibleWidgets/AndBibleWidgets.entitlements" "$W/iosApp/AndBibleWidgets/"
     printf 'MARKETING_VERSION = %s\nAND_BIBLE_COMMIT_HASH = %s\nAND_BIBLE_COMMIT_OVERRIDE = \n' "$VERSION" "$FULL" > "$W/iosApp/Config/Version.xcconfig"
     echo secret > "$W/vol/AuthKey_$KEYID.p8"
     export STUB_DIR
-    unset STUB_ARCHIVE_RC STUB_IDENT STUB_AUTH STUB_TEAM STUB_NO_ICLOUD STUB_GTA STUB_IPA_VERSION STUB_IPA_BUILD
+    unset STUB_NO_APPEX STUB_IPA_NO_APPEX STUB_APPEX_IDENT STUB_NO_APPEX_GROUP STUB_ARCHIVE_RC STUB_IDENT STUB_AUTH STUB_TEAM STUB_NO_ICLOUD STUB_GTA STUB_NO_APP_GROUP STUB_APPEX_GROUP_SUFFIX STUB_EXT_GTA STUB_EXT_AUTH STUB_IPA_VERSION STUB_IPA_BUILD
 }
 run_args() {   # run_args <args...> verbatim
     cd "$W" || return 1
@@ -138,9 +150,28 @@ test_entitlements_expanded() {
     grep -q '\$(' "$STUB_DIR/signed.entitlements" && return "$(fail "unexpanded variable")"
     return 0
 }
+test_missing_appex_in_archive_fails_naming_it() {
+    mk_tree; STUB_NO_APPEX=1 run; [ "$RC" != 0 ] || return "$(fail "archive without the extension accepted")"
+    grep -q 'AndBibleWidgets.appex' "$T/out.txt" || return "$(fail "message does not name the appex: $(cat "$T/out.txt")")"
+    [ ! -e "$STUB_DIR/upload-called" ] || return "$(fail "upload called")"
+    grep -q 'exportArchive' "$STUB_DIR/xcodebuild.argv" && return "$(fail "export ran without the extension")"
+    tail -1 "$(SUM)" | grep -q '^result=FAIL' || return "$(fail "no FAIL result")"
+    return 0
+}
+test_extension_signed_with_app_group() {
+    mk_tree; run; [ "$RC" = 0 ] || return "$(fail "run failed: $(cat "$T/out.txt")")"
+    grep -q 'codesign --force.*AndBibleWidgets.appex' "$STUB_DIR/calls" || return "$(fail "appex not re-signed")"
+    grep -q 'group.org.andbible.ios' "$STUB_DIR/signed.entitlements" || return "$(fail "app entitlements lack the app group")"
+    grep -q '\$(' "$STUB_DIR/signed.entitlements" && return "$(fail "unexpanded variable in app entitlements")"
+    # The extension's own entitlements file (widgets.entitlements) must carry the group and no unexpanded variable too.
+    [ -f "$STUB_DIR/widgets.entitlements.copy" ] || return "$(fail "widgets.entitlements content not captured")"
+    grep -q 'group.org.andbible.ios' "$STUB_DIR/widgets.entitlements.copy" || return "$(fail "widgets.entitlements lacks the app group")"
+    grep -q '\$(' "$STUB_DIR/widgets.entitlements.copy" && return "$(fail "unexpanded variable in widgets.entitlements")"
+    return 0
+}
 test_ipa_check_failure_blocks_upload() {
     local v
-    for v in "STUB_NO_ICLOUD=1" "STUB_GTA=true" "STUB_IDENT=org.other.app" "STUB_TEAM=ZZZZZZZZZZ" \
+    for v in "STUB_IPA_NO_APPEX=1" "STUB_APPEX_IDENT=org.andbible.ios.other" "STUB_NO_APPEX_GROUP=1" "STUB_APPEX_GROUP_SUFFIX=.evil" "STUB_NO_APP_GROUP=1" "STUB_EXT_GTA=true" "STUB_EXT_AUTH=Apple Development: x" "STUB_NO_ICLOUD=1" "STUB_GTA=true" "STUB_IDENT=org.other.app" "STUB_TEAM=ZZZZZZZZZZ" \
              "STUB_AUTH=Apple Development: x" "STUB_IPA_VERSION=1.0.0" "STUB_IPA_BUILD=1"; do
         mk_tree; export "$v"; run
         [ "$RC" != 0 ] || return "$(fail "$v accepted")"
@@ -225,7 +256,7 @@ test_bad_destination_refuses() {
 }
 mk_archive() {   # mk_archive <build> <version>: a previous run's archive on the Mac
     local app="$W/build/release/AndBible-$1.xcarchive/Products/Applications/AndBible.app"
-    mkdir -p "$app"; printf 'CFBundleVersion=%s\nCFBundleShortVersionString=%s\n' "$1" "$2" > "$app/Info.plist"
+    mkdir -p "$app/PlugIns/AndBibleWidgets.appex"; printf 'CFBundleVersion=%s\nCFBundleShortVersionString=%s\n' "$1" "$2" > "$app/Info.plist"
 }
 test_reuse_skips_archive_steps() {
     mk_tree; mk_archive "$BUILD" "$VERSION"; run_args "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" upload reuse
@@ -244,6 +275,14 @@ test_reuse_missing_archive_exits_3() {
     [ "$RC" = 3 ] || return "$(fail "rc=$RC, want 3: $(cat "$T/out.txt")")"
     called xcodebuild && return "$(fail "xcodebuild ran")"
     grep -q 'detach\|eject' "$STUB_DIR/detach.calls" || return "$(fail "volume not detached")"
+}
+test_reuse_archive_without_appex_exits_3() {
+    mk_tree; mk_archive "$BUILD" "$VERSION"; rm -rf "$W/build/release/AndBible-$BUILD.xcarchive/Products/Applications/AndBible.app/PlugIns"
+    run_args "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" upload reuse
+    [ "$RC" = 3 ] || return "$(fail "rc=$RC, want 3")"
+    grep -q 'AndBibleWidgets.appex' "$T/out.txt" || return "$(fail "message does not name the appex")"
+    called xcodebuild && return "$(fail "xcodebuild ran")"
+    return 0
 }
 test_reuse_version_mismatch_exits_3() {
     mk_tree; mk_archive "$BUILD" 6.0.1249; run_args "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" upload reuse
