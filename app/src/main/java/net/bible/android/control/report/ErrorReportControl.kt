@@ -517,15 +517,15 @@ const val TAG = "ErrorReportControl"
 
 /**
  * The bug report subject: the version, the exception message and the crash location. The location is the first
- * AndBible frame (`net.bible...`) of an unobfuscated build. Release builds are R8-obfuscated (#4160), so no frame
- * names `net.bible` there: the first obfuscated frame (its file is R8's `r8-map-id-...`) is used instead, which
- * `scripts/retrace-crash.sh` maps back with the build's mapping; failing both, the top frame.
+ * AndBible frame: `net.bible...` (unobfuscated build) or an obfuscated frame (its file is R8's `r8-map-id-...`,
+ * which `scripts/retrace-crash.sh` maps back with the build's mapping), whichever comes first. Release builds are
+ * R8-obfuscated (#4160) but some classes keep their name (activities, `$$serializer`, Parcelables) and can sit
+ * further down the stack than the real crash frame, so `net.bible` alone is not enough. Failing both, the top frame.
  */
 internal fun errorReportSubject(versionName: String, e: Throwable?): String {
     val stack = e?.stackTrace
     if (stack.isNullOrEmpty()) return versionName
-    val frame = stack.firstOrNull { it.className.contains("net.bible") }
-        ?: stack.firstOrNull { it.fileName?.startsWith("r8-map-id-") == true }
+    val frame = stack.firstOrNull { it.className.contains("net.bible") || it.fileName?.startsWith("r8-map-id-") == true }
         ?: stack.first()
     return "$versionName ${e.message ?: e.javaClass.name}:${frame.className}.${frame.methodName}:${frame.lineNumber}"
 }
