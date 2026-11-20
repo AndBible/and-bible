@@ -20,7 +20,9 @@ package net.bible.service.cloudsync
 import net.bible.sharedcore.log.Log
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection
+import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
+import net.bible.android.database.LogEntryTypes
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.service.common.ArchiveUtils
@@ -29,6 +31,7 @@ import net.bible.service.db.columnNamesJoined
 import net.bible.service.db.exec
 import net.bible.service.db.inTransaction
 import net.bible.service.db.queryLong
+import net.bible.service.db.queryRows
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.db.withCleanup
 import net.bible.service.common.createTempFile
@@ -76,11 +79,15 @@ private suspend fun writePatchData(
     }
 }
 
+/**
+ * Merges [tableDef]'s rows of the attached `patch` into the local database and returns the patch log entries that
+ * won (newer than the local entry, or with none here): exactly the entries the merge takes over into `LogEntry`.
+ */
 private suspend fun readPatchData(
     db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table,
     restoreDropped: Boolean = false,
-) = db.run {
+): List<LogEntry> = db.run {
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
     val idField2 = tableDef.idField2
@@ -134,6 +141,22 @@ private suspend fun readPatchData(
             """.trimIndent()
     )
 
+    // Read before they are taken over: afterwards they no longer compare newer than the local entries.
+    val applied = queryRows("""
+            SELECT pe.tableName, pe.entityId1, pe.entityId2, pe.type, pe.lastUpdated, pe.sourceDevice
+            FROM patch.LogEntry pe WHERE pe.tableName = '$table' AND ($select) IN ${where()}
+            """.trimIndent()
+    ) { st ->
+        LogEntry(
+            tableName = st.getText(0),
+            entityId1 = IdType.fromByteArray(if (st.isNull(1)) null else st.getBlob(1)) ?: IdType.empty(),
+            entityId2 = IdType.fromByteArray(if (st.isNull(2)) null else st.getBlob(2)) ?: IdType.empty(),
+            type = LogEntryTypes.valueOf(st.getText(3)),
+            lastUpdated = st.getLong(4),
+            sourceDevice = st.getText(5),
+        )
+    }
+
     exec("""
             INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry pe 
             WHERE pe.tableName = '$table' AND ($select) IN ${where()}
@@ -172,6 +195,7 @@ private suspend fun readPatchData(
             (SELECT $select FROM LogEntry pe WHERE pe.tableName = '$table' AND pe.type = 'DELETE')
             """.trimIndent())
     }
+    applied
 }
 
 /**
@@ -236,10 +260,15 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  * the local ids ([aliasIncomingIds], #3906), and child rows dropped earlier are restored from a re-send
  * (`readPatchData` `restoreDropped`, [idAliasChildTables]). [mapIncomingIds] false is the behaviour of older app versions; tests use
  * it to stand for one.
+ *
+ * Returns the log entries the merge took over, one per row (the last patch's entry when several patches name it),
+ * in patch and table order: what changed here. They carry the other device's edit times, which must not be compared
+ * with this device's sync watermark (#4151).
  */
 suspend fun applyPatchesForDatabase(
     dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: Path?, mapIncomingIds: Boolean = true,
-) {
+): List<LogEntry> {
+    val applied = LinkedHashMap<Triple<String, IdType, IdType>, LogEntry>()
     for(gzippedPatchFile in patchFiles.filterNotNull()) {
         val patchDbFile = createTempFile(env.tmpDir.toPath(), "downloaded-patch-${dbDef.categoryName}-", ".sqlite3")
         Log.i(TAG, "Applying patch file ${patchDbFile.name}")
@@ -252,7 +281,7 @@ suspend fun applyPatchesForDatabase(
                 db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
                 db.exec("PRAGMA foreign_keys=OFF;")
                 try {
-                    db.inTransaction<Unit> {
+                    val patchEntries = db.inTransaction<List<LogEntry>> {
                         // An incoming patch never carries add-on rows (each device builds them from its own
                         // module). Should one name an add-on row, the local add-on row wins: drop it from the patch.
                         val addonRows = stripAddonRows(this, dbDef.category, "patch")
@@ -260,11 +289,19 @@ suspend fun applyPatchesForDatabase(
                         val aliased = mapIncomingIds && dbDef.category.hasIdAliases
                         if (aliased) aliasIncomingIds(dbDef.category, "patch")
                         val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()
-                        for (tableDef in dbDef.tableDefinitions) {
-                            dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                            readPatchData(this, tableDef, restoreDropped = tableDef.tableName in restorable)
-                            dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+                        buildList {
+                            for (tableDef in dbDef.tableDefinitions) {
+                                dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
+                                addAll(readPatchData(this@inTransaction, tableDef, restoreDropped = tableDef.tableName in restorable))
+                                dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+                            }
                         }
+                    }
+                    // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one.
+                    for (e in patchEntries) {
+                        val key = Triple(e.tableName, e.entityId1, e.entityId2)
+                        applied.remove(key)
+                        applied[key] = e
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
@@ -276,6 +313,7 @@ suspend fun applyPatchesForDatabase(
             FileSystem.SYSTEM.delete(patchDbFile)
         }
     }
+    return applied.values.toList()
 }
 
 /** Records completion before notifying consumers. */

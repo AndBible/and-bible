@@ -15,11 +15,17 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.IdType
-import net.bible.android.database.LogEntry
-import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.SyncableRoomDatabase
+import net.bible.service.cloudsync.LAST_PATCH_WRITTEN_KEY
+import net.bible.service.cloudsync.LAST_SYNCHRONIZED_KEY
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.applyPatchesForDatabase
+import net.bible.service.cloudsync.createPatchForDatabase
+import net.bible.service.db.exec
+import net.bible.service.db.useWriterConnectionMarked
+import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseHost
 import net.bible.service.startup.ReadingAppInit
@@ -51,8 +57,8 @@ import kotlin.test.assertTrue
 /**
  * #4151: a highlight that a cloud sync applies (BibleBookmark + its notes + BibleBookmarkToLabel rows from another
  * device) must reach the open desktop reading pane without a reload. Drives the real desktop startup, the real
- * [HostReadingWindows] assembly and the real BOOKMARKS sync hook (`_reactToUpdates`, the call `CloudSync` makes
- * after applying a patch); only the web engine is a fake that records the evaluated JS.
+ * [HostReadingWindows] assembly, a real patch merged by [applyPatchesForDatabase] and the BOOKMARKS accessor's
+ * `reactToUpdates`, as `CloudSync` runs them; only the web engine is a fake that records the evaluated JS.
  */
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class SyncedBookmarkReachesOpenPaneTest {
@@ -128,28 +134,36 @@ class SyncedBookmarkReachesOpenPaneTest {
                 id
             }
 
-            // The rows another device wrote, as applying its patch leaves them in the local database.
+            // The other device's rows, as its patch carries them: edited (at 500) long before this device's sync watermark.
             val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+            val accessor = DatabaseContainer.getDatabaseAccessorFactories(DatabaseContainer.instance)
+                .map { it() }.single { it.category == SyncableDatabaseDefinition.BOOKMARKS }
+            val env = koin.get<AppEnvironment>()
             val label = BookmarkEntities.Label(name = "Synced label")
             val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
                 VerseRangeFactory.fromString(Versifications.instance().getVersification("KJV"), "Ps.33.7"), null, true, null,
             ).apply { notes = "Synced note" }
             dao.insert(label)
+            accessor.dao.clearLog()
+            accessor.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
             dao.insert(bookmark.bookmarkEntity)
             dao.insert(bookmark.noteEntity!!)
             dao.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.id, label.id))
-            val entries = listOf(
-                LogEntry("Label", label.id, IdType.empty(), LogEntryTypes.UPSERT, 0L, "other-device"),
-                LogEntry("BibleBookmark", bookmark.id, IdType.empty(), LogEntryTypes.UPSERT, 0L, "other-device"),
-                LogEntry("BibleBookmarkNotes", bookmark.id, IdType.empty(), LogEntryTypes.UPSERT, 0L, "other-device"),
-                LogEntry("BibleBookmarkToLabel", bookmark.id, label.id, LogEntryTypes.UPSERT, 0L, "other-device"),
-            )
+            accessor.localDb.useWriterConnectionMarked { it.exec("UPDATE LogEntry SET lastUpdated = 500, sourceDevice = 'other-device'") }
+            @Suppress("UNCHECKED_CAST")
+            val otherDevice = (accessor as SyncableDatabaseAccessor<SyncableRoomDatabase>).let {
+                SyncableDatabaseAccessor(it.localDb, it.dbFactory, { error("unused") }, it.localDbPath, it.category, deviceId = "other-device")
+            }
+            val patch = checkNotNull(createPatchForDatabase(otherDevice, env, false))
+            dao.delete(bookmark)
+            accessor.dao.clearLog()
+            accessor.dao.setConfig(LAST_SYNCHRONIZED_KEY, 1000L)
             val pane = fake.live(id)
             pane.evaluated.clear()
 
-            val accessor = DatabaseContainer.getDatabaseAccessorFactories(DatabaseContainer.instance)
-                .map { it() }.single { it.category == SyncableDatabaseDefinition.BOOKMARKS }
-            accessor._reactToUpdates!!.invoke(entries)
+            // What CloudSync does with a downloaded patch.
+            accessor.reactToUpdates(applyPatchesForDatabase(accessor, env, patch))
+            assertEquals(1, dao.bibleBookmarksByIds(listOf(bookmark.id)).size, "sanity: the patch was applied")
 
             val deadline = System.currentTimeMillis() + 10_000
             fun reached() = synchronized(pane.evaluated) { pane.evaluated.toList() }

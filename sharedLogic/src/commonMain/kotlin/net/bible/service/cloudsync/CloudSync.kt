@@ -1023,9 +1023,9 @@ class CloudSync(
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.size, it.file.createdTime)
         }
 
-        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray())
+        val applied = applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray())
         downloadedFiles.forEach { runCatching { FileSystem.SYSTEM.delete(it) } }
-        dbDef.reactToUpdates(lastSynchronized)
+        dbDef.reactToUpdates(applied)
         dbDef.dao.addStatuses(syncStatuses)
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, synchronizedAt)
     }
