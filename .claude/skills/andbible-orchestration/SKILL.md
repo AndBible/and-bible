@@ -65,6 +65,21 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 - **Holds on shared resources** (Windows VM token: `windows-vm`; Mac lock: `ios-mac`): keep a list; when the
   holder is merged, done or destroyed, message every waiting child "hold released".
 
+## Tracking
+
+- **The orchestrator owns every workstream in progress in its container**, not just the latest one:
+  a session that orchestrates widgets and add-on collections drives both to their final gates.
+- **Keep one tracking board per orchestrator container:** `docs/superpowers/status/<date>-<container>-orchestration.md`.
+  It lists:
+  - each workstream with its spec and plan paths and its waves;
+  - each child: its name, runner/model, tasks, base sha, state (planned / running / done / reviewing / merged /
+    destroyed), merge sha and gate result;
+  - Mac/VM holds, parked decisions (or a link to the decisions file), and the next action.
+- **Update it at every spawn, `done`, review verdict, merge and gate,** and commit it in the submodule with a
+  gitlink bump. It is the state that survives compaction and session restarts. After a compaction, re-read it
+  before acting, and check it against `jailbee inbox status` and git.
+  Why: 2026-11-20, the maintainer asked one session to orchestrate two workstreams across a compaction.
+
 ## Watching
 
 - **Quiet notes:** read child notes and routine statuses silently; tell the maintainer only questions,
