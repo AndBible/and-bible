@@ -52,6 +52,4 @@ class HostSettingsPlatform(
     }
     override fun onSystemBarSettingChanged() = Unit
     override val isDiscreteBuild: Boolean = false
-    override val confirmText: String get() = strings.okay
-    override val dismissText: String get() = strings.cancel
 }

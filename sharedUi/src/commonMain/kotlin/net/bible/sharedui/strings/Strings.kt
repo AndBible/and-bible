@@ -1429,6 +1429,8 @@ interface Strings {
     val backgroundImageDeleteLead: String
     val backgroundImageDeleteDetail: String
     val resetValuesLead: String
+    val revertSettingLead: String
+    val revertSettingConfirm: String
     val resetSettingsScreenLead: String
     val resetSettingsScreenDetail: String
     fun memorizeUnmarkLead(name: String): String

@@ -30,7 +30,7 @@ fun buildHostBindings() = module {
     single<ClipboardText> { AndroidClipboardText(androidContext()) }
     single<PlatformText> { AndroidPlatformText(androidContext()) }
     single<DebugActions> { AndroidDebugActions() }
-    single<SettingsPlatform> { AndroidSettingsPlatform(androidContext()) }
+    single<SettingsPlatform> { AndroidSettingsPlatform() }
     // A factory: the app settings service is host-held (one per host), never a process singleton; it caches four
     // JSword dictionary scans for its lifetime.
     single<net.bible.sharedcore.settings.DeviceLocalPrefs> { net.bible.android.view.activity.settings.AndroidDeviceLocalPrefs() }

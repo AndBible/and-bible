@@ -196,7 +196,7 @@ fun DailyReadingScreen(
             message = if (isReset) strings.resetPlanLead else strings.setCurrentDayLead(ui.dayDesc),
             detail = if (isReset) strings.resetPlanDetail else strings.setCurrentDayDetail,
             destructive = isReset,
-            confirmText = if (confirm == ConfirmKind.RESET) strings.resetGeneric else strings.setCurrentDayAction,
+            confirmText = if (isReset) strings.resetGeneric else strings.setCurrentDayAction,
             dismissText = strings.cancel,
             onConfirm = onConfirm,
             onDismiss = onDismissConfirm,

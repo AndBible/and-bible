@@ -117,12 +117,13 @@ class AppSettingsControllerTest {
         c.updateLabels(AppSettingsLabels.forTest().copy(
             screenTitle = "Asetukset",
             resetConfirmMessage = "Palautetaanko asetukset?",
+            resetConfirmDetail = "Ne palaavat oletusarvoihin.",
             nightModeTitle = "Teema",
         ))
         assertEquals("Asetukset", c.state.value.title)
         assertEquals("Teema", (c.state.value.items.single { it.key == "night_mode_pref3" } as SettingsItem.ListChoiceRow).title)
         assertEquals("manual", (c.state.value.items.single { it.key == "night_mode_pref3" } as SettingsItem.ListChoiceRow).selectedValue)
-        assertEquals(AppSettingsDialog.ConfirmReset("Palautetaanko asetukset?"), c.dialog.value)
+        assertEquals(AppSettingsDialog.ConfirmReset("Palautetaanko asetukset?", "Ne palaavat oletusarvoihin."), c.dialog.value)
     }
 
     @Test
@@ -354,6 +355,16 @@ class AppSettingsControllerTest {
         val c = controller(FakeAppSettingsService(snap()))
         c.requestReset()
         assertEquals(AppSettingsDialog.ConfirmReset(AppSettingsLabels.forTest().resetConfirmMessage), c.dialog.value)
+    }
+
+    @Test fun requestReset_carriesTheLabelsDetail() {
+        val labels = AppSettingsLabels.forTest().copy(resetConfirmDetail = "They return to defaults.")
+        val c = AppSettingsController(
+            FakeAppSettingsService(snap()), kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined),
+            labels, onNavigate = {},
+        )
+        c.requestReset()
+        assertEquals("They return to defaults.", (c.dialog.value as AppSettingsDialog.ConfirmReset).detail)
     }
 
     @Test fun showDiscreteHelp_showsHelpWithThePersecutionCatTitle() {

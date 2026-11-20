@@ -254,7 +254,7 @@ fun WorkspaceSelectorScreen(
             title = s.copySettingsTitle,
             options = cs.typeLabels.mapIndexed { i, label -> IndexedLabel(i, label) },
             selectedIds = emptyList(), idOf = { it.index.toString() }, labelOf = { it.label },
-            confirmText = s.okay, dismissText = s.cancel,
+            confirmText = s.copyLabel, dismissText = s.cancel,
             onConfirm = { ids -> onChooseCopyTypes(ids.map { it.toInt() }) },
             onDismiss = onCancelCopySettings, selectAllText = s.selectAll, selectNoneText = s.selectNone,
         )
@@ -262,14 +262,14 @@ fun WorkspaceSelectorScreen(
             title = s.copySettingsTitle,
             options = cs.typeLabels.mapIndexed { i, label -> IndexedLabel(i, label) },
             selectedIds = emptyList(), idOf = { it.index.toString() }, labelOf = { it.label },
-            confirmText = s.okay, dismissText = s.cancel,
+            confirmText = s.copyLabel, dismissText = s.cancel,
             onConfirm = { ids -> onChooseCopyTypes(ids.map { it.toInt() }) },
             onDismiss = onCancelCopySettings, selectAllText = s.selectAll, selectNoneText = s.selectNone,
         )
         is CopySettingsState.ChooseTargets -> AbMultiSelectDialog(
             title = s.copySettingsWorkspacesTitle,
             options = cs.targets, selectedIds = emptyList(), idOf = { it.id }, labelOf = { it.name },
-            confirmText = s.okay, dismissText = s.cancel,
+            confirmText = s.copyLabel, dismissText = s.cancel,
             onConfirm = onChooseCopyTargets, onDismiss = onCancelCopySettings,
             selectAllText = s.selectAll, selectNoneText = s.selectNone,
         )

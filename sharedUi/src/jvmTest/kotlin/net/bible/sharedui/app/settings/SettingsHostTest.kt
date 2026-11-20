@@ -87,8 +87,6 @@ class SettingsHostTest {
         platform = object : SettingsPlatform {
             override fun resetAllSettings() { calls += "reset" }
             override val isDiscreteBuild = discrete
-            override val confirmText = "OK-sys"
-            override val dismissText = "Cancel-sys"
         },
         links = object : ExternalLinks {
             override val askBeforeOpening = discrete

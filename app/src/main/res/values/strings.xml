@@ -2455,10 +2455,12 @@
     <string name="set_current_day_lead">Set %1$s as the current day?</string>
     <string name="set_current_day_detail">All previous days are marked as read.</string>
     <string name="plan_duplicate_user_plan_lead">A reading plan file has the same name as a built-in plan.</string>
-    <string name="plan_duplicate_user_plan_detail">It can’t be listed. Rename the file in the jsword/readingplan folder, keeping its .properties extension.</string>
+    <string name="plan_duplicate_user_plan_detail">The plan file can’t be listed. Rename the file in the jsword/readingplan folder, keeping its .properties extension.</string>
     <string name="background_image_delete_lead">Delete this background image?</string>
     <string name="background_image_delete_detail">Workspaces still using it will fall back to no image.</string>
     <string name="reset_values_lead">Reset all of these values?</string>
+    <string name="revert_setting_lead">Revert this setting to the inherited value?</string>
+    <string name="revert_setting_confirm">Revert</string>
     <string name="reset_settings_screen_lead">Reset the settings on this screen?</string>
     <string name="reset_settings_screen_detail">They return to their default values.</string>
     <string name="memorize_unmark_lead">Remove memorized status for “%s”?</string>

@@ -55,8 +55,6 @@ class InstallZipHostTest {
     private val settings = object : SettingsPlatform {
         override fun resetAllSettings() = Unit
         override val isDiscreteBuild: Boolean get() = discrete
-        override val confirmText = "OK"
-        override val dismissText = "Cancel"
     }
 
     private val platform = object : InstallZipHostPlatform {
