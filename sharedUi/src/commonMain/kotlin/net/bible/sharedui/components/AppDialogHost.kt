@@ -29,8 +29,11 @@ import net.bible.sharedcore.ai.AgentPermissionRequest
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
+import net.bible.sharedcore.ui.dialog.DialogPresentation
 import net.bible.sharedcore.ui.dialog.ShownDialog
 import net.bible.sharedui.ai.AgentPermissionDialog
+import net.bible.sharedui.components.dialog.AbDialogDetail
+import net.bible.sharedui.components.dialog.AbTextPage
 
 /**
  * Renders the head of `AppDialogController`'s queue, plus the agent permission prompt, per spec §7's
@@ -80,14 +83,35 @@ fun AppDialogHost(
             if (isSheet) LaunchedEffect(id) { onSheetOpening() }
             val cancel = { onRespond(id, AppDialogResult.Cancel) }
             when (request) {
-                is AppDialogRequest.Message -> AbMessageDialog(
+                is AppDialogRequest.Message -> if (request.presentation == DialogPresentation.Page) {
+                    AbTextPage(
+                        topic = request.title.orEmpty(), onClose = cancel,
+                        confirmText = request.confirmText.takeIf { request.dismissText != null },
+                        onConfirm = { onRespond(id, AppDialogResult.Ok) },
+                        destructive = request.destructive, dismissText = request.dismissText,
+                        cancellable = request.cancellable,
+                    ) {
+                        request.detail?.let { AbDialogDetail(it) }
+                        AbHtmlText(request.message)
+                    }
+                } else AbMessageDialog(
                     title = request.title, html = request.message, confirmText = request.confirmText,
                     onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
                     dismissText = request.dismissText, neutralText = request.neutralText,
                     onNeutral = { onRespond(id, AppDialogResult.Neutral) }, cancellable = request.cancellable,
                     detail = request.detail, destructive = request.destructive,
                 )
-                is AppDialogRequest.Confirm -> AbMessageDialog(
+                is AppDialogRequest.Confirm -> if (request.presentation == DialogPresentation.Page) {
+                    AbTextPage(
+                        topic = request.title.orEmpty(), onClose = cancel,
+                        confirmText = request.confirmText, onConfirm = { onRespond(id, AppDialogResult.Ok) },
+                        destructive = request.destructive, dismissText = request.dismissText,
+                        cancellable = request.cancellable,
+                    ) {
+                        request.detail?.let { AbDialogDetail(it) }
+                        request.message?.let { AbHtmlText(it) }
+                    }
+                } else AbMessageDialog(
                     title = request.title, html = request.message, confirmText = request.confirmText,
                     onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
                     dismissText = request.dismissText, cancellable = request.cancellable,
@@ -166,7 +190,16 @@ fun AppDialogHost(
                         },
                     )
                 }
-                is AppDialogRequest.Notice -> {
+                is AppDialogRequest.Notice -> if (request.presentation == DialogPresentation.Page) {
+                    // A page shows the Html blocks only (logo, QR code and icon lines are dialog furniture).
+                    AbTextPage(
+                        topic = request.title.orEmpty(), onClose = cancel,
+                        confirmText = request.confirmText.takeIf { request.dismissText != null },
+                        onConfirm = { onRespond(id, AppDialogResult.Ok) }, dismissText = request.dismissText,
+                    ) {
+                        request.blocks.filterIsInstance<AppDialogRequest.NoticeBlock.Html>().forEach { AbHtmlText(it.html) }
+                    }
+                } else {
                     val icons = LocalNoticeIcons.current
                     AbNoticeDialog(
                         title = request.title, showTitleLogo = request.showTitleLogo, blocks = request.blocks,

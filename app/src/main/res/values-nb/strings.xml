@@ -783,7 +783,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="error_skip">Hopp over</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Skadede data</string>
-  <string name="corrupt_database_message">Noen av dataene dine kunne ikke åpnes fordi databasefilen er skadet: %1$s.\n\nIngenting er endret eller slettet. Du kan sende en feilrapport for å hjelpe oss med å finne årsaken, åpne Sikkerhetskopiering for å ta en sikkerhetskopi eller gjenopprette en tidligere, eller tilbakestille de skadede dataene.\n\nTilbakestilling starter disse dataene tomme. Den skadede filen beholdes på denne enheten, omdøpt med \".corrupt-\" og datoen.</string>
   <string name="corrupt_database_reset">Tilbakestill skadede data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">De skadede dataene kunne ikke tilbakestilles: %1$s kunne ikke flyttes til side. Ingenting er endret. Du kan prøve igjen, sende en feilrapport eller bruke Sikkerhetskopiering.</string>

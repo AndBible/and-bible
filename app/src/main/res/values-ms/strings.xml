@@ -749,7 +749,6 @@
   <string name="error_skip">Langkau</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Data rosak</string>
-  <string name="corrupt_database_message">Sebahagian data anda tidak dapat dibuka kerana fail pangkalan datanya rosak: %1$s.\n\nTiada apa-apa yang diubah atau dipadamkan. Anda boleh menghantar laporan ralat untuk membantu kami mencari puncanya, membuka Sandaran &amp; Pulih untuk membuat sandaran atau memulihkan yang terdahulu, atau menetapkan semula data yang rosak.\n\nPenetapan semula memulakan data itu dalam keadaan kosong. Fail yang rosak disimpan pada peranti ini, dinamakan semula dengan \".corrupt-\" dan tarikh.</string>
   <string name="corrupt_database_reset">Tetapkan semula data yang rosak</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Data yang rosak tidak dapat ditetapkan semula: %1$s tidak dapat dialihkan ke tepi. Tiada apa-apa yang diubah. Anda boleh mencuba lagi, menghantar laporan ralat, atau menggunakan Sandaran &amp; Pulih.</string>

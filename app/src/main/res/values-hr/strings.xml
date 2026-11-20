@@ -804,7 +804,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="error_skip">Preskoči</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Oštećeni podaci</string>
-  <string name="corrupt_database_message">Neke vaše podatke nije bilo moguće otvoriti jer je datoteka baze podataka oštećena: %1$s.\n\nNišta nije promijenjeno niti izbrisano. Možete poslati izvješće o pogrešci kako biste nam pomogli pronaći uzrok, otvoriti Sigurnosna kopija i vraćanje kako biste napravili sigurnosnu kopiju ili vratili raniju, ili poništiti oštećene podatke.\n\nPoništavanje započinje te podatke praznima. Oštećena datoteka ostaje na ovom uređaju, preimenovana s \".corrupt-\" i datumom.</string>
   <string name="corrupt_database_reset">Poništi oštećene podatke</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Oštećene podatke nije bilo moguće poništiti: %1$s nije bilo moguće premjestiti sa strane. Ništa nije promijenjeno. Možete pokušati ponovno, poslati izvješće o pogrešci ili upotrijebiti Sigurnosna kopija i vraćanje.</string>

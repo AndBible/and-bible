@@ -795,7 +795,6 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="error_skip">Lewati</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Data rusak</string>
-  <string name="corrupt_database_message">Sebagian data Anda tidak dapat dibuka karena file basis datanya rusak: %1$s.\n\nTidak ada yang diubah atau dihapus. Anda dapat mengirim laporan kesalahan untuk membantu kami menemukan penyebabnya, membuka Cadangkan &amp; Pulihkan untuk membuat cadangan atau memulihkan cadangan sebelumnya, atau mengatur ulang data yang rusak.\n\nPengaturan ulang akan memulai data tersebut dalam keadaan kosong. File yang rusak tetap disimpan di perangkat ini, dengan nama diubah menjadi berakhiran \".corrupt-\" dan tanggal.</string>
   <string name="corrupt_database_reset">Atur ulang data yang rusak</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Data yang rusak tidak dapat diatur ulang: %1$s tidak dapat dipindahkan. Tidak ada yang diubah. Anda dapat mencoba lagi, mengirim laporan kesalahan, atau menggunakan Cadangkan &amp; Pulihkan.</string>

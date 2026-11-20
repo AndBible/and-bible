@@ -802,7 +802,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="error_skip">దాటవేయండి</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">దెబ్బతిన్న డేటా</string>
-  <string name="corrupt_database_message">మీ డేటాలో కొంత తెరవలేకపోయింది, ఎందుకంటే దాని డేటాబేస్ ఫైల్ దెబ్బతింది: %1$s.\n\nఏదీ మార్చబడలేదు, తొలగించబడలేదు. కారణం కనుగొనడంలో సహాయపడటానికి దోష నివేదికను పంపవచ్చు, బ్యాకప్ చేయడానికి లేదా మునుపటిదాన్ని పునరుద్ధరించడానికి బ్యాకప్ &amp; పునరుద్ధరించు తెరవవచ్చు, లేదా దెబ్బతిన్న డేటాను రీసెట్ చేయవచ్చు.\n\nరీసెట్ చేస్తే ఆ డేటా ఖాళీగా మొదలవుతుంది. దెబ్బతిన్న ఫైల్ ఈ పరికరంలోనే \".corrupt-\" మరియు తేదీతో పేరు మార్చబడి ఉంటుంది.</string>
   <string name="corrupt_database_reset">దెబ్బతిన్న డేటాను రీసెట్ చేయండి</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">దెబ్బతిన్న డేటాను రీసెట్ చేయలేకపోయింది: %1$s ను పక్కకు తరలించలేకపోయింది. ఏదీ మార్చబడలేదు. మళ్లీ ప్రయత్నించవచ్చు, దోష నివేదికను పంపవచ్చు లేదా బ్యాకప్ &amp; పునరుద్ధరించు ఉపయోగించవచ్చు.</string>

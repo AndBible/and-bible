@@ -811,7 +811,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="error_skip">Saltar</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Datos dañados</string>
-  <string name="corrupt_database_message">No se pudieron abrir algunos de tus datos porque su archivo de base de datos está dañado: %1$s.\n\nNo se ha cambiado ni borrado nada. Puedes enviar un informe de error para ayudarnos a encontrar la causa, abrir Copia de seguridad y restauración para hacer una copia o restaurar una anterior, o restablecer los datos dañados.\n\nAl restablecer, esos datos empiezan vacíos. El archivo dañado se conserva en este dispositivo, con el nombre cambiado a \".corrupt-\" y la fecha.</string>
   <string name="corrupt_database_reset">Restablecer datos dañados</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">No se pudieron restablecer los datos dañados: no se pudo apartar %1$s. No se ha cambiado nada. Puedes intentarlo de nuevo, enviar un informe de error o usar Copia de seguridad y restauración.</string>

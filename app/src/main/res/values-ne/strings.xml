@@ -751,7 +751,6 @@
   <string name="error_skip">छोड्नुहोस्</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">बिग्रिएको डेटा</string>
-  <string name="corrupt_database_message">तपाईंको केही डेटा खोल्न सकिएन किनभने त्यसको डेटाबेस फाइल बिग्रिएको छ: %1$s।\n\nकुनै कुरा परिवर्तन वा मेटिएको छैन। कारण पत्ता लगाउन हामीलाई सहयोग गर्न तपाईंले त्रुटि रिपोर्ट पठाउन सक्नुहुन्छ, ब्याकअप बनाउन वा पहिलेको ब्याकअप पुनर्स्थापना गर्न ब्याकअप र पुनर्स्थापना खोल्न सक्नुहुन्छ, वा बिग्रिएको डेटा रिसेट गर्न सक्नुहुन्छ।\n\nरिसेट गर्दा त्यो डेटा खाली अवस्थाबाट सुरु हुन्छ। बिग्रिएको फाइल यस उपकरणमा नै रहन्छ, जसको नाम \".corrupt-\" र मितिसहित परिवर्तन गरिन्छ।</string>
   <string name="corrupt_database_reset">बिग्रिएको डेटा रिसेट गर्नुहोस्</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">बिग्रिएको डेटा रिसेट गर्न सकिएन: %1$s लाई छेउमा सार्न सकिएन। कुनै कुरा परिवर्तन गरिएको छैन। तपाईं फेरि प्रयास गर्न, त्रुटि रिपोर्ट पठाउन, वा ब्याकअप र पुनर्स्थापना प्रयोग गर्न सक्नुहुन्छ।</string>

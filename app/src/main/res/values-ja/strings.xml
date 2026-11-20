@@ -749,7 +749,6 @@
   <string name="error_skip">スキップ</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">破損したデータ</string>
-  <string name="corrupt_database_message">データベースファイルが破損しているため、一部のデータを開けませんでした: %1$s。\n\n何も変更または削除されていません。エラーレポートを送信して原因の調査にご協力いただくか、「バックアップと復元」を開いてバックアップを作成したり以前のバックアップから復元したりできます。または、破損したデータをリセットできます。\n\nリセットすると、そのデータは空の状態から始まります。破損したファイルはこのデバイスに残り、名前に \".corrupt-\" と日付が付きます。</string>
   <string name="corrupt_database_reset">破損したデータをリセット</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">破損したデータをリセットできませんでした: %1$sを移動できませんでした。何も変更されていません。もう一度試すか、エラーレポートを送信するか、「バックアップと復元」をご利用ください。</string>

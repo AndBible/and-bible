@@ -812,7 +812,6 @@
   <string name="error_skip">தவிர்க்க</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">சேதமடைந்த தரவு</string>
-  <string name="corrupt_database_message">உங்கள் தரவில் சிலவற்றைத் திறக்க முடியவில்லை, ஏனெனில் அதன் தரவுத்தளக் கோப்பு சேதமடைந்துள்ளது: %1$s.\n\nஎதுவும் மாற்றப்படவில்லை, நீக்கப்படவில்லை. காரணத்தைக் கண்டறிய உதவ பிழை அறிக்கையை அனுப்பலாம், காப்புப்பிரதி எடுக்க அல்லது முந்தையதை மீட்டெடுக்க காப்பு நகல் &amp; மீட்டமைத்தல் பகுதியைத் திறக்கலாம், அல்லது சேதமடைந்த தரவை மீட்டமைக்கலாம்.\n\nமீட்டமைத்தால் அந்தத் தரவு காலியாகத் தொடங்கும். சேதமடைந்த கோப்பு இந்தச் சாதனத்திலேயே \".corrupt-\" மற்றும் தேதியுடன் பெயர் மாற்றப்பட்டு வைக்கப்படும்.</string>
   <string name="corrupt_database_reset">சேதமடைந்த தரவை மீட்டமை</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">சேதமடைந்த தரவை மீட்டமைக்க முடியவில்லை: %1$s ஐ ஒதுக்கி வைக்க முடியவில்லை. எதுவும் மாற்றப்படவில்லை. மீண்டும் முயலலாம், பிழை அறிக்கையை அனுப்பலாம், அல்லது காப்பு நகல் &amp; மீட்டமைத்தல் பகுதியைப் பயன்படுத்தலாம்.</string>

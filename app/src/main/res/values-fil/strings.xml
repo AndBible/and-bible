@@ -751,7 +751,6 @@
   <string name="error_skip">Laktawan</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Nasirang data</string>
-  <string name="corrupt_database_message">Hindi mabuksan ang ilan sa iyong data dahil nasira ang database file nito: %1$s.\n\nWalang binago o binura. Maaari kang magpadala ng ulat ng error para matulungan kaming hanapin ang sanhi, buksan ang Backup at I-restore para gumawa ng backup o mag-restore ng mas naunang bersyon, o i-reset ang nasirang data.\n\nAng pag-reset ay magsisimula sa data na iyon nang walang laman. Mananatili sa device na ito ang nasirang file, na may bagong pangalang may \".corrupt-\" at ang petsa.</string>
   <string name="corrupt_database_reset">I-reset ang nasirang data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Hindi na-reset ang nasirang data: hindi mailipat sa tabi ang %1$s. Walang binago. Maaari mong subukan muli, magpadala ng ulat ng error, o gamitin ang Backup at I-restore.</string>

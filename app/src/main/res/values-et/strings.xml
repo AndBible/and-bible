@@ -801,7 +801,6 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="error_skip">Jäta vahele</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Rikutud andmed</string>
-  <string name="corrupt_database_message">Osa su andmetest ei õnnestunud avada, sest nende andmebaasifail on rikutud: %1$s.\n\nMidagi ei ole muudetud ega kustutatud. Võid saata veaaruande, et aidata meil põhjust leida, avada Varundamine ja taastamine, et teha varukoopia või taastada varasem, või lähtestada rikutud andmed.\n\nLähtestamisel alustatakse neid andmeid tühjana. Rikutud fail jääb sellesse seadmesse alles, nimetatuna ümber lõpuga \".corrupt-\" ja kuupäev.</string>
   <string name="corrupt_database_reset">Lähtesta rikutud andmed</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Rikutud andmeid ei õnnestunud lähtestada: faili %1$s ei saanud kõrvale tõsta. Midagi ei muudetud. Võid proovida uuesti, saata veaaruande või kasutada Varundamine ja taastamine.</string>

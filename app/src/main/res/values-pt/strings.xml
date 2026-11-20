@@ -789,7 +789,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="error_skip">Passar à frente</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Dados danificados</string>
-  <string name="corrupt_database_message">Não foi possível abrir alguns dos seus dados porque o ficheiro da base de dados está danificado: %1$s.\n\nNada foi alterado nem apagado. Pode enviar um relatório de erros para nos ajudar a encontrar a causa, abrir Backup e Restauro para fazer uma cópia de segurança ou restaurar uma anterior, ou repor os dados danificados.\n\nA reposição inicia esses dados vazios. O ficheiro danificado é mantido neste dispositivo, renomeado com \".corrupt-\" e a data.</string>
   <string name="corrupt_database_reset">Repor dados danificados</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Não foi possível repor os dados danificados: não foi possível mover %1$s para o lado. Nada foi alterado. Pode tentar novamente, enviar um relatório de erros ou usar Backup e Restauro.</string>

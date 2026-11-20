@@ -815,7 +815,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="error_skip">Пропустить</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Повреждённые данные</string>
-  <string name="corrupt_database_message">Часть ваших данных не удалось открыть, потому что файл их базы данных повреждён: %1$s.\n\nНичего не было изменено или удалено. Вы можете отправить отчёт об ошибке, чтобы помочь нам найти причину, открыть «Бэкап &amp; Восстановление», чтобы сделать резервную копию или восстановить прежнюю, либо сбросить повреждённые данные.\n\nПосле сброса эти данные начинаются с чистого листа. Повреждённый файл остаётся на этом устройстве, его имя дополняется «.corrupt-» и датой.</string>
   <string name="corrupt_database_reset">Сбросить повреждённые данные</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Не удалось сбросить повреждённые данные: не удалось переместить %1$s. Ничего не было изменено. Вы можете повторить попытку, отправить отчёт об ошибке или воспользоваться «Бэкап &amp; Восстановление».</string>

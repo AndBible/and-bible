@@ -798,7 +798,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="error_skip">Vermy</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Beskadigde data</string>
-  <string name="corrupt_database_message">Sommige van jou data kon nie oopgemaak word nie omdat die databasislêer beskadig is: %1$s.\n\nNiks is verander of uitgevee nie. Jy kan \'n foutverslag stuur om ons te help om die oorsaak te vind, Rugsteun &amp; herstel oopmaak om \'n rugsteun te maak of \'n vroeëre een te herstel, of die beskadigde data terugstel.\n\nTerugstelling begin daardie data leeg. Die beskadigde lêer word op hierdie toestel gehou, hernoem met \".corrupt-\" en die datum.</string>
   <string name="corrupt_database_reset">Stel beskadigde data terug</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Die beskadigde data kon nie teruggestel word nie: %1$s kon nie eenkant toe geskuif word nie. Niks is verander nie. Jy kan weer probeer, \'n foutverslag stuur of Rugsteun &amp; herstel gebruik.</string>

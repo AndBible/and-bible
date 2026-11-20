@@ -784,7 +784,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="error_skip">Pomiń</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Uszkodzone dane</string>
-  <string name="corrupt_database_message">Nie udało się otworzyć części Twoich danych, ponieważ plik ich bazy danych jest uszkodzony: %1$s.\n\nNic nie zostało zmienione ani usunięte. Możesz wysłać raport o błędzie, aby pomóc nam znaleźć przyczynę, otworzyć Kopię zapasową, aby wykonać kopię lub przywrócić wcześniejszą, albo zresetować uszkodzone dane.\n\nResetowanie rozpoczyna te dane od zera. Uszkodzony plik pozostaje na tym urządzeniu, ze zmienioną nazwą zawierającą \".corrupt-\" i datę.</string>
   <string name="corrupt_database_reset">Zresetuj uszkodzone dane</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Nie udało się zresetować uszkodzonych danych: nie można było odsunąć na bok %1$s. Nic nie zostało zmienione. Możesz spróbować ponownie, wysłać raport o błędzie lub skorzystać z Kopii zapasowej.</string>

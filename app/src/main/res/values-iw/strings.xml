@@ -799,7 +799,6 @@
   <string name="error_skip">דלג</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">נתונים פגומים</string>
-  <string name="corrupt_database_message">לא ניתן היה לפתוח חלק מהנתונים שלך מפני שקובץ מסד הנתונים פגום: %1$s.\n\nדבר לא שונה ולא נמחק. אפשר לשלוח דוח שגיאה כדי לעזור לנו למצוא את הסיבה, לפתוח את גיבוי ושחזור כדי ליצור גיבוי או לשחזר גיבוי קודם, או לאפס את הנתונים הפגומים.\n\nאיפוס מתחיל את הנתונים הללו מחדש כשהם ריקים. הקובץ הפגום נשמר במכשיר זה, ושמו משונה ל-\".corrupt-\" ולתאריך.</string>
   <string name="corrupt_database_reset">איפוס הנתונים הפגומים</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">לא ניתן היה לאפס את הנתונים הפגומים: לא ניתן היה להזיז את %1$s הצידה. דבר לא שונה. אפשר לנסות שוב, לשלוח דוח שגיאה או להשתמש בגיבוי ושחזור.</string>

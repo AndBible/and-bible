@@ -795,7 +795,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="error_skip">Ohita</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Vioittuneet tiedot</string>
-  <string name="corrupt_database_message">Osaa tiedoistasi ei voitu avata, koska tietokantatiedosto on vioittunut: %1$s.\n\nMitään ei ole muutettu tai poistettu. Voit lähettää virheraportin, jotta löydämme syyn, avata Varmuuskopioi &amp; palauta -toiminnon varmuuskopion tekemiseksi tai aiemman palauttamiseksi, tai nollata vioittuneet tiedot.\n\nNollaus aloittaa nämä tiedot tyhjinä. Vioittunut tiedosto säilyy tällä laitteella, ja sen nimeen lisätään \".corrupt-\" ja päivämäärä.</string>
   <string name="corrupt_database_reset">Nollaa vioittuneet tiedot</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Vioittuneita tietoja ei voitu nollata: tiedostoa %1$s ei voitu siirtää sivuun. Mitään ei muutettu. Voit yrittää uudelleen, lähettää virheraportin tai käyttää Varmuuskopioi &amp; palauta -toimintoa.</string>

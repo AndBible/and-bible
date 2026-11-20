@@ -751,7 +751,6 @@
   <string name="error_skip">Spring over</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Beskadigede data</string>
-  <string name="corrupt_database_message">Nogle af dine data kunne ikke åbnes, fordi databasefilen er beskadiget: %1$s.\n\nIntet er blevet ændret eller slettet. Du kan sende en fejlrapport, så vi kan finde årsagen, åbne Sikkerhedskopi og gendannelse for at tage en sikkerhedskopi eller gendanne en tidligere, eller nulstille de beskadigede data.\n\nNulstilling starter disse data tomme. Den beskadigede fil beholdes på denne enhed, omdøbt med \".corrupt-\" og datoen.</string>
   <string name="corrupt_database_reset">Nulstil beskadigede data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">De beskadigede data kunne ikke nulstilles: %1$s kunne ikke flyttes til side. Intet er blevet ændret. Du kan prøve igen, sende en fejlrapport eller bruge Sikkerhedskopi og gendannelse.</string>

@@ -779,7 +779,6 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="error_skip">Ruka</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Data iliyoharibika</string>
-  <string name="corrupt_database_message">Baadhi ya data yako haikuweza kufunguliwa kwa sababu faili ya hifadhidata yake imeharibika: %1$s.\n\nHakuna kilichobadilishwa wala kufutwa. Unaweza kutuma ripoti ya hitilafu ili kutusaidia kupata chanzo, kufungua Hifadhi na Urejesho ili kuhifadhi nakala au kurejesha ya awali, au kuweka upya data iliyoharibika.\n\nKuweka upya huanza data hiyo ikiwa tupu. Faili iliyoharibika inabaki kwenye kifaa hiki, ikipewa jina jipya lenye \".corrupt-\" na tarehe.</string>
   <string name="corrupt_database_reset">Weka upya data iliyoharibika</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Data iliyoharibika haikuweza kuwekwa upya: %1$s haikuweza kuhamishwa pembeni. Hakuna kilichobadilishwa. Unaweza kujaribu tena, kutuma ripoti ya hitilafu, au kutumia Hifadhi na Urejesho.</string>

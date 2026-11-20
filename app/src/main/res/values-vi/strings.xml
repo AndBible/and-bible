@@ -749,7 +749,6 @@
   <string name="error_skip">Bỏ qua</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Dữ liệu bị hỏng</string>
-  <string name="corrupt_database_message">Một số dữ liệu của bạn không thể mở được vì tệp cơ sở dữ liệu bị hỏng: %1$s.\n\nKhông có gì bị thay đổi hay xóa. Bạn có thể gửi báo cáo lỗi để giúp chúng tôi tìm nguyên nhân, mở Sao lưu &amp; Khôi phục để sao lưu hoặc khôi phục bản trước đó, hoặc đặt lại dữ liệu bị hỏng.\n\nĐặt lại sẽ bắt đầu dữ liệu đó từ trạng thái trống. Tệp bị hỏng được giữ lại trên thiết bị này, được đổi tên với \".corrupt-\" và ngày tháng.</string>
   <string name="corrupt_database_reset">Đặt lại dữ liệu bị hỏng</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Không thể đặt lại dữ liệu bị hỏng: không thể di chuyển %1$s sang một bên. Không có gì bị thay đổi. Bạn có thể thử lại, gửi báo cáo lỗi hoặc dùng Sao lưu &amp; Khôi phục.</string>

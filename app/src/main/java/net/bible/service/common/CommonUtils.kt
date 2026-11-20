@@ -839,6 +839,7 @@ object CommonUtils : CommonUtilsBase() {
             message = html,
             confirmText = activity.getString(android.R.string.ok),
             cancellable = true,
+            presentation = net.bible.sharedcore.ui.dialog.DialogPresentation.Page,
         ))
     }
 

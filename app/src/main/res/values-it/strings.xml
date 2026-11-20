@@ -786,7 +786,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="error_skip">Salta</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Dati danneggiati</string>
-  <string name="corrupt_database_message">Alcuni dei tuoi dati non hanno potuto essere aperti perché il relativo file di database è danneggiato: %1$s.\n\nNiente è stato modificato o eliminato. Puoi inviare una segnalazione di errore per aiutarci a trovare la causa, aprire Backup e ripristino per fare un backup o ripristinarne uno precedente, oppure reimpostare i dati danneggiati.\n\nLa reimpostazione fa ripartire quei dati da zero. Il file danneggiato resta su questo dispositivo, rinominato con \".corrupt-\" e la data.</string>
   <string name="corrupt_database_reset">Reimposta i dati danneggiati</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Non è stato possibile reimpostare i dati danneggiati: %1$s non ha potuto essere spostato. Niente è stato modificato. Puoi riprovare, inviare una segnalazione di errore o usare Backup e ripristino.</string>

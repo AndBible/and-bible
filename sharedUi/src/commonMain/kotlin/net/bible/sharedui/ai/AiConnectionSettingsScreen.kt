@@ -63,7 +63,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
-import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.dialog.AbTextPage
 import net.bible.sharedui.components.AbListChoiceContent
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
@@ -263,11 +263,10 @@ fun AiConnectionSettingsScreen(
 
     if (disclaimerDialogOpen) {
         val strings = LocalStrings.current
-        AbInfoDialog(
-            title = strings.aiDisclaimerDialogTitle,
-            body = strings.aiDisclaimerBody,
-            onDismiss = { disclaimerDialogOpen = false },
-        )
+        // Long text, nothing to decide: a read-only full-screen page (dialog redesign B4).
+        AbTextPage(topic = strings.aiDisclaimerDialogTitle, onClose = { disclaimerDialogOpen = false }) {
+            Text(strings.aiDisclaimerBody)
+        }
     }
 
     // F32: AI-language picker. `currentAiLanguage` comes from the ORIGINAL (un-rewritten) `state`

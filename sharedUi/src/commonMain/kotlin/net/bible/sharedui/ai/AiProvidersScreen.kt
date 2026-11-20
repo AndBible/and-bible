@@ -55,6 +55,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.dialog.AbTextPage
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
@@ -179,14 +180,14 @@ fun AiProvidersScreen(
     }
 
     if (showAcceptDisclaimerDialog) {
-        AbConfirmDialog(
-            title = strings.aiDisclaimerAcceptTitle,
-            message = strings.aiDisclaimerBody,
+        // Long text with one real decision: a full-screen decision page, not a dialog (dialog redesign B4).
+        AbTextPage(
+            topic = strings.aiDisclaimerAcceptTitle,
+            onClose = onDismissAcceptDisclaimer,
             confirmText = strings.aiDisclaimerAccept,
-            dismissText = strings.cancel,
             onConfirm = onAcceptDisclaimer,
-            onDismiss = onDismissAcceptDisclaimer,
-        )
+            dismissText = strings.cancel,
+        ) { Text(strings.aiDisclaimerBody) }
     }
 }
 

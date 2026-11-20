@@ -793,7 +793,6 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="error_skip">Kihagyás</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Sérült adatok</string>
-  <string name="corrupt_database_message">Az adataid egy részét nem sikerült megnyitni, mert az adatbázisfájl sérült: %1$s.\n\nSemmi sem változott vagy törlődött. Küldhetsz hibajelentést, hogy segíts megtalálni az okot, megnyithatod a Biztonsági mentés és helyreállítás részt, hogy mentést készíts vagy egy korábbit visszaállíts, vagy alaphelyzetbe állíthatod a sérült adatokat.\n\nAz alaphelyzetbe állítás után ezek az adatok üresen indulnak. A sérült fájl megmarad ezen az eszközön, átnevezve \".corrupt-\" előtaggal és a dátummal.</string>
   <string name="corrupt_database_reset">Sérült adatok alaphelyzetbe állítása</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">A sérült adatokat nem sikerült alaphelyzetbe állítani: a(z) %1$s fájlt nem sikerült félretenni. Semmi sem változott. Próbálkozhatsz újra, küldhetsz hibajelentést, vagy használhatod a Biztonsági mentés és helyreállítás funkciót.</string>
