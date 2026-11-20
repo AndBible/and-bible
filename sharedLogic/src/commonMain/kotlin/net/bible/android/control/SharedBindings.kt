@@ -321,6 +321,12 @@ fun buildSharedBindings() = module {
     singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() }
     singleOf(::SpeakSettingsServiceImpl) { bind<SpeakSettingsService>() } onClose { it?.close() }
     singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() } onClose { it?.close() }
+    // Home-screen widgets (#184): WidgetStrings is bound per platform (Android: R.string, iOS: keyed strings).
+    single { net.bible.android.control.widget.ControlVerseWidgetSources(get(), get(), get(), get(), get<SaxTextPolicy>(), get(), get()) } bind net.bible.android.control.widget.VerseWidgetSources::class
+    single { net.bible.android.control.widget.VerseCandidates(get()) }
+    single { net.bible.android.control.widget.ControlSpeakWidgetSource(get(), get(), get(), get(), get(), get(), get<SaxTextPolicy>()) }
+        .onClose { it?.close() } bind net.bible.android.control.widget.SpeakWidgetSource::class
+    single { net.bible.android.control.widget.SpeakWidgetStateProducer(get<AppCoroutineScope>(), get(), get()) }
     singleOf(::WorkspaceServiceImpl) { bind<WorkspaceService>() }
     singleOf(::AiSettingsServiceImpl) { bind<AiSettingsService>() }
     singleOf(::LlmProviderServiceImpl) { bind<LlmProviderService>() }
