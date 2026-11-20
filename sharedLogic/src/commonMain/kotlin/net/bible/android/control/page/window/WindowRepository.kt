@@ -24,6 +24,8 @@ import net.bible.sharedlogic.sync.bookNameMonitor
 import net.bible.sharedlogic.sync.withMonitor
 import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlin.concurrent.Volatile
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CompletableDeferred
@@ -259,6 +261,24 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      * applies the result itself (the suspended load finds it claimed and skips its own apply).
      */
     fun initializeAtEdge() {
+        if(initialized) return
+        applyLock.withLock { initializeAtEdgeLocked() }
+    }
+
+    /**
+     * Serialises every apply phase ([initializeAtEdge]'s and [loadFromDb]'s) with the edge readers. Reentrant, so the
+     * guard in [initializeAtEdgeLocked] still sees a same-thread re-entry from inside an apply (and returns), while a
+     * reader on ANOTHER thread waits here until the apply in progress has finished, and then finds the repository
+     * loaded. Without it the second thread took the re-entrancy guard for itself and read a null [activeWindow]:
+     * a startup NPE in `NavHostComposeActivity.onCreate` (speak transport -> TTS manager -> activeWindow) while the
+     * speak widget's producer, off Main, ran the first load.
+     *
+     * No holder waits for Main while holding it: the edge read and the joined read run on the holder's own thread
+     * or on IO, and an apply is synchronous.
+     */
+    private val applyLock = reentrantLock()
+
+    private fun initializeAtEdgeLocked() {
         if(initialized) return
         val pending = pendingLoad
         if(pending == null && loadingFromDb) return // mid-apply: the re-entrancy guard, see [loadingFromDb]
@@ -575,8 +595,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      * A load whose read phase is running. Carries the restore epoch captured when it started: [loadedEpoch] only
      * takes it when the apply happens, so a save during the read still sees the pre-load epoch and the restore guard.
      * The join through [claim] protects a path with no production entry today (the first load is the edge); it is
-     * kept for the early-reader contract. A background reader that loses [claim] returns before Main's apply and
-     * can read a null active window, as the old lazy getter could.
+     * kept for the early-reader contract. Claims are made under [applyLock], so a reader that loses [claim] has
+     * waited for the winner's apply and finds the active window set.
      * [claim] makes the apply phase happen exactly once, whoever
      * gets there first: the suspended load, or an [activeWindow] reader that joined it.
      */
@@ -626,7 +646,9 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
                     throw e
                 }
             }
-            withContext(Dispatchers.Main.immediate) { if (pending.claim()) { beforeApply(); applyLoaded(loaded, startEpoch) } }
+            withContext(Dispatchers.Main.immediate) {
+                applyLock.withLock { if (pending.claim()) { beforeApply(); applyLoaded(loaded, startEpoch) } }
+            }
         } finally {
             if (pendingLoad === pending) pendingLoad = null
             loadingFromDb = false
