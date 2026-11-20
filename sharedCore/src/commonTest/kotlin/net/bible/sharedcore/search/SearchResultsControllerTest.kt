@@ -191,6 +191,23 @@ class SearchResultsControllerTest {
         assertEquals("x", fake.lastRequest?.query)
     }
 
+    @Test fun a_regex_search_asks_for_indexes_of_bibles_only() = runTest(UnconfinedTestDispatcher()) {
+        fake.unindexed = listOf("KJV", "StrongsGreek")
+        // StrongsGreek is a dictionary: the regex scan skips it, so it needs no index; KJV does.
+        assertEquals(listOf("KJV"), fake.unindexedAmong(listOf("KJV", "StrongsGreek"), regex = true))
+        assertEquals(listOf("KJV", "StrongsGreek"), fake.unindexedAmong(listOf("KJV", "StrongsGreek"), regex = false))
+
+        val c = SearchResultsController(fake, backgroundScope)
+        c.run(SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("ESV"), "", isRegex = true))
+        var asked: List<String>? = null
+        c.selectTranslations(listOf("KJV", "StrongsGreek")) { unindexed, _ -> asked = unindexed }
+        assertEquals(listOf("KJV"), asked)
+        fake.unindexed = listOf("StrongsGreek")
+        asked = null
+        c.selectTranslations(listOf("ESV", "StrongsGreek")) { unindexed, _ -> asked = unindexed }
+        assertEquals(null, asked, "a skipped document must not block the regex search")
+    }
+
     @Test fun selectTranslations_empty_is_noop() = runTest(UnconfinedTestDispatcher()) {
         val c = SearchResultsController(fake, backgroundScope)
         c.run(SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), "", isStrongsSearch = true))

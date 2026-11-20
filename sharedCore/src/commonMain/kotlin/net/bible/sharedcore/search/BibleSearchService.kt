@@ -17,13 +17,19 @@ interface BibleSearchService {
     fun persistSelection(translationIds: List<String>, strongsSearch: Boolean)
     /** The subset of [translationIds] that lack a usable search index. */
     fun unindexedAmong(translationIds: List<String>): List<String>
-    /**
-     * [unindexedAmong] for a search of the given kind. A regular-expression search scans Bibles only and skips every
-     * other document, so a skipped document needs no index and is never reported.
-     */
-    fun unindexedAmong(translationIds: List<String>, regex: Boolean): List<String> = unindexedAmong(translationIds)
     /** Runs potentially expensive Strong's sentinel queries; callers must dispatch off the UI thread. */
     fun unindexedStrongsAmong(translationIds: List<String>): List<String> = unindexedAmong(translationIds)
+}
+
+/**
+ * [BibleSearchService.unindexedAmong] for a search of the given kind. A regular-expression search scans Bibles only and
+ * skips every other document, so a skipped document needs no index and is never reported. An extension, not a member:
+ * a delegating `BibleSearchService` cannot bypass it.
+ */
+fun BibleSearchService.unindexedAmong(translationIds: List<String>, regex: Boolean): List<String> {
+    if (!regex) return unindexedAmong(translationIds)
+    val bibles = candidateBibles().mapTo(HashSet()) { it.id }
+    return unindexedAmong(translationIds.filter { it in bibles })
 }
 
 interface SearchIndexService {

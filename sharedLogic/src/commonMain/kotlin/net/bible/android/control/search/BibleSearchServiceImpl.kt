@@ -183,13 +183,6 @@ class BibleSearchServiceImpl(
             !isUsable(it)
         }
 
-    override fun unindexedAmong(translationIds: List<String>, regex: Boolean): List<String> =
-        unindexedAmong(if (regex) translationIds.filter { isBibleDocument(it) } else translationIds)
-
-    /** What [SearchControl.getMultiRegexResults] scans: a SWORD book of category Bible. */
-    private fun isBibleDocument(docId: String): Boolean =
-        (SwordDocumentFacade.getDocumentByInitials(docId) as? SwordBook)?.bookCategory == BookCategory.BIBLE
-
     override fun unindexedStrongsAmong(translationIds: List<String>): List<String> = translationIds.filter { id ->
         val book = SwordDocumentFacade.getDocumentByInitials(id)
         if (book == null || !isUsable(id)) true else try {

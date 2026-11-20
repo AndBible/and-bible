@@ -60,6 +60,7 @@ import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedcore.search.ReadingSearchRequest
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchDocumentCategory
+import net.bible.sharedcore.search.unindexedAmong
 import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchKind

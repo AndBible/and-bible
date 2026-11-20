@@ -199,7 +199,9 @@ time limit.
 
 Each platform uses its own regular-expression engine: Android uses Android's own (ICU-based) engine, desktop uses
 Java's, and iOS uses Kotlin/Native's. They agree on common syntax, but small differences in dialect are possible. On
-iOS, `(?-i)` and case-insensitive matching of non-Latin letters have not been verified yet.
+iOS (checked on the simulator), `(?-i)`, case-insensitive matching of Greek letters, the time limit and very long
+repetitions such as `(a|b)*` over a 100,000-character text behave as on the other platforms. Other non-Latin scripts
+and exotic syntax (lookbehind, Unicode properties) have not been compared engine by engine.
 
 After updating to the version that adds this feature, the existing search indexes are rebuilt once (the search screen
 shows the usual state that the index is not built). The index grows by about 25 %: for example the KJV index grows
