@@ -55,6 +55,7 @@ object LabelEditMapper {
             overrideMode = overrideModeFromInt(data.workspaceOverride?.overrideMode),
             isSpecialLabel = label.isSpecialLabel,
             isSpeakLabel = label.isSpeakLabel,
+            addonModule = data.addonModuleName,
         )
     }
 

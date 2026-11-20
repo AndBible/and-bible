@@ -43,6 +43,8 @@ object LabelEditContract {
         val suggestedName: String? = null,
         var workspaceOverride: WorkspaceEntities.WorkspaceLabelOverride? = null,
         var hasWorkspaceContext: Boolean = false,
+        /** The display name of the add-on module providing [label] (a read-only collection label), else null. */
+        val addonModuleName: String? = null,
     ) {
         fun toJSON(): String = AppJson.encodeToString(serializer(), this)
 

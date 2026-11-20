@@ -66,17 +66,26 @@ class ControlVerseWidgetSources(
     override suspend fun bibles(): List<VerseBible> =
         SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().map { it.asVerseBible() }
 
-    override suspend fun labels(): List<Pair<IdType, String>> =
-        bookmarkControl.assignableLabels().filter { !it.isSpecialLabel }.map { it.id to it.name }
+    /** The label's name, followed by the add-on module for a collection label ("Comfort · Memory verses"). */
+    private fun displayName(id: IdType, name: String, modules: Map<IdType, String>): String =
+        modules[id]?.let { coreStrings.addonLabelWithModule(name, it) } ?: name
+
+    /** Add-on collection labels are offered like the user's own ones (their verses come read-only from the module). */
+    override suspend fun labels(): List<Pair<IdType, String>> {
+        val modules = bookmarkControl.addonLabelModuleNames()
+        return bookmarkControl.assignableLabels().filter { !it.isSpecialLabel }.map { it.id to displayName(it.id, it.name, modules) }
+    }
 
     override suspend fun label(labelId: IdType): LabelVerses? {
         val label = bookmarkControl.labelById(labelId)?.takeIf { !it.isSpecialLabel } ?: return null
+        // getBibleBookmarksWithLabel applies BookmarkControl.hideStoodInFor: a collection verse the user has an own copy of
+        // (same label, same range) is listed once, as the copy.
         val refs = bookmarkControl.getBibleBookmarksWithLabel(label)
             .sortedWith { a, b -> a.verseRange.start.compareTo(b.verseRange.start) }
             .map {
                 VerseRef(it.playbackSettings?.bookId, it.verseRange.versification.name, it.verseRange.start.ordinal, it.verseRange.end.ordinal)
             }
-        return LabelVerses(label.name, refs)
+        return LabelVerses(displayName(label.id, label.name, bookmarkControl.addonLabelModuleNames()), refs)
     }
 
     override suspend fun partOrdinals(part: VerseSource.RandomPart, bible: VerseBible): VerseOrdinals {

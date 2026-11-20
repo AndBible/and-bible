@@ -365,10 +365,13 @@ class ManageLabelsController(
     fun toggleChecked(id: String) {
         val ctx = contextSelected()
         if (ctx.contains(id)) { ctx.remove(id); ensureNotContextPrimary(id) }
+        // An add-on label cannot be added to an own bookmark or auto-assigned (BookmarkControl refuses it); removing one stays possible.
+        else if (labels.any { it.id == id && it.isAddon }) return
         else { ctx.add(id); if (contextPrimary() == null && mode.primaryShown) setContextPrimary(id) }
         rebuild()
     }
     fun toggleAutoAssign(id: String) { // workspaceEdits row-icon toggle
+        if (labels.any { it.id == id && it.isAddon }) return
         if (autoAssign.contains(id)) { autoAssign.remove(id); ensureNotAutoAssignPrimary(id) }
         else { autoAssign.add(id); if (autoAssignPrimary == null) autoAssignPrimary = id }
         rebuild()
@@ -441,7 +444,9 @@ class ManageLabelsController(
         autoAssignPrimaryFlag: Boolean,
     ) {
         val i = labels.indexOfFirst { it.id == item.id }
-        if (i >= 0) labels[i] = item else labels.add(item)
+        // The editor's result knows nothing of the module: the add-on marking stays with the listed label.
+        val kept = if (item.addonModuleName == null && i >= 0) item.copy(addonModuleName = labels[i].addonModuleName) else item
+        if (i >= 0) labels[i] = kept else labels.add(kept)
         changed.add(item.id)
         if (selectedFlag) selected.add(item.id) else selected.remove(item.id)
         if (autoAssignFlag) autoAssign.add(item.id) else autoAssign.remove(item.id)

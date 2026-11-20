@@ -139,7 +139,7 @@ suspend fun readAddonLocalState(dbDef: SyncableDatabaseAccessor<*>): AddonLocalS
     return try {
         dbDef.localDb.useReaderConnectionMarked { c ->
             val columns = mutableMapOf<String, List<String>>()
-            AddonLocalState(ADDON_STATE_TABLES.associateWith { table ->
+            val rows = ADDON_STATE_TABLES.associateWith { table ->
                 c.queryRows("SELECT * FROM $table") { st ->
                     columns[table] = (0 until st.getColumnCount()).map { i -> st.getColumnName(i) }
                     (0 until st.getColumnCount()).map { i ->
@@ -151,7 +151,8 @@ suspend fun readAddonLocalState(dbDef: SyncableDatabaseAccessor<*>): AddonLocalS
                         }
                     }
                 }
-            })
+            }
+            AddonLocalState(rows, columns)
         }
     } catch (e: Exception) {
         net.bible.sharedcore.log.Log.e(EXCLUSION_TAG, "Could not read the add-on state to carry over", e)

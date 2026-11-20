@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
@@ -43,7 +44,8 @@ class ManageLabelsServiceImpl(
 
     // Off the main thread: the controller loads on the host's (Main) lifecycle scope.
     override suspend fun assignableLabels(): List<LabelItem> =
-        withContext(Dispatchers.IO) { bookmarkControl.assignableLabels() }.assignableLabelItems()
+        withContext(Dispatchers.IO) { bookmarkControl.assignableLabels() to bookmarkControl.addonLabelModuleNames() }
+            .let { (labels, modules) -> labels.assignableLabelItems(modules) }
 
     override suspend fun unlabeledLabel(): LabelItem =
         withContext(Dispatchers.IO) { bookmarkControl.labelUnlabelled() }.toLabelItem()
@@ -101,12 +103,12 @@ fun StudyPadSearchResult.toSearchResultRow(): ManageLabelsRow.SearchResult {
 }
 
 /** The label manager's list: every label but the Unlabeled special (classic: filter !isUnlabeledLabel). */
-fun List<BookmarkEntities.Label>.assignableLabelItems(): List<LabelItem> =
-    filter { !it.isUnlabeledLabel }.map { it.toLabelItem() }
+fun List<BookmarkEntities.Label>.assignableLabelItems(addonModules: Map<IdType, String> = emptyMap()): List<LabelItem> =
+    filter { !it.isUnlabeledLabel }.map { it.toLabelItem(addonModules[it.id]) }
 
 /** [LabelItem] view of a Room [BookmarkEntities.Label]. `overrideStyle` is always `null` here — the
  *  controller relinks it from [ManageLabelsService.overriddenLabelStyles] on every rebuild. */
-fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
+fun BookmarkEntities.Label.toLabelItem(addonModuleName: String? = null): LabelItem = LabelItem(
     id = id.toString(),
     name = displayName,
     color = color,
@@ -116,6 +118,7 @@ fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
     customIcon = customIcon,
     selectionStyle = displayStyle,
     wholeVerseStyle = displayStyleWholeVerse,
+    addonModuleName = addonModuleName,
 )
 
 /** The display style a `WorkspaceLabelOverride.overrideMode` int imposes, or `null` for no override.

@@ -99,6 +99,7 @@ class LabelEditGoldenTest {
             onToggleAutoAssignPrimary = {},
             onOverrideMode = {},
             onUp = {},
+            onOpenAddonModule = if (state.isAddon) ({}) else null,
             iconKeys = listOf("book", "cross", "star", "question", "robot", null),
             iconSlot = bookmarkIcon,
             actions = {},
@@ -202,4 +203,11 @@ class LabelEditGoldenTest {
                 )
             },
         )
+
+    /** An add-on collection label: no style sections, the identity row is not an editor, and the "From add-on" notice
+     *  with "Copy to my labels" takes their place; favourite and the workspace override stay. */
+    private fun addonSample() = sample(ws = true).copy(addonModule = "Memory verses", autoAssign = false, autoAssignPrimary = false)
+
+    @Test fun labelEdit_addon() =
+        captureMatrix("LabelEdit", "addon", heightDp = 1000, content = screen(addonSample(), workspaceExpanded = true))
 }

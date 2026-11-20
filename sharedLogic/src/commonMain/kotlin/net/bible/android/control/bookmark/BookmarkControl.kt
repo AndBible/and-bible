@@ -1256,6 +1256,19 @@ open class BookmarkControl constructor(
     /** The initials of the add-on module that provides label [id], or null for the user's own labels. */
     suspend fun addonModuleOfLabel(id: IdType): String? = if (id.isAddonId) addonDao.moduleOfLabel(id) else null
 
+    /** The display name of add-on module [initials] (its description), or the initials when it is not installed. */
+    fun addonModuleName(initials: String): String =
+        org.crosswire.jsword.book.Books.installed().getBook(initials)?.name?.takeIf { it.isNotBlank() } ?: initials
+
+    /** Module display names of every add-on label by label id, for label lists ("Name · Module"). */
+    suspend fun addonLabelModuleNames(): Map<IdType, String> =
+        addonDao.addonLabelModules().associate { it.labelId to addonModuleName(it.moduleInitials) }
+
+    /** Tells the user that a write to add-on content was refused (never a silent no-op): the `addon_read_only` toast. */
+    fun reportAddonReadOnly(e: AddonReadOnlyException) {
+        net.bible.android.control.event.UserMessages.toast(strings.addonReadOnly(e.moduleInitials.takeIf { it.isNotEmpty() }?.let(::addonModuleName) ?: ""))
+    }
+
     private suspend fun refuseAddonWrite(id: IdType): Nothing {
         val module = addonDao.moduleOfLabel(id) ?: addonDao.moduleOfBookmark(id) ?: ""
         Log.w(TAG, "Refused a write to add-on collection row $id ($module)")

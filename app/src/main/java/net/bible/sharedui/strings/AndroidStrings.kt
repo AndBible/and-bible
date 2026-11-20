@@ -1077,6 +1077,12 @@ class AndroidStrings(private val context: Context) : Strings {
     override val bookmarkStyleTagSelection: String get() = context.getString(R.string.bookmark_style_tag_selection)
     override val bookmarkStyleTagWholeVerse: String get() = context.getString(R.string.bookmark_style_tag_whole_verse)
     override val bookmarkStyleTagWorkspace: String get() = context.getString(R.string.bookmark_style_tag_workspace)
+    override fun addonLabelWithModule(label: String, module: String): String = context.getString(R.string.addon_label_with_module, label, module)
+    override fun addonLabelFromModule(module: String): String = context.getString(R.string.addon_label_from_module, module)
+    override val addonLabelFromModuleHint: String get() = context.getString(R.string.addon_label_from_module_hint)
+    override val addonLabelReadOnlyNote: String get() = context.getString(R.string.addon_label_read_only_note)
+    override val addonCopyToMyLabels: String get() = context.getString(R.string.addon_copy_to_my_labels)
+    override fun addonLabelCopied(name: String): String = context.getString(R.string.addon_label_copied, name)
     override val showStyleExamples: String get() = context.getString(R.string.show_style_examples)
 
     // Round 15a — the labels help legend

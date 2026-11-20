@@ -10,6 +10,8 @@ import kotlin.test.assertTrue
 import kotlin.test.assertIs
 
 class LabelEditControllerTest {
+    private val copied = mutableListOf<String>()
+
     private fun state() = LabelEditState(
         labelId = "L1", name = "Study", color = 1, customIcon = null,
         selectionStyle = BookmarkDisplayStyle.HIGHLIGHT, wholeVerseStyle = BookmarkDisplayStyle.UNDERLINE,
@@ -19,7 +21,10 @@ class LabelEditControllerTest {
         isSpecialLabel = false, isSpeakLabel = false,
     )
     private fun controller(s: LabelEditState = state(), orphans: Int = 0, onFinish: (LabelEditResult) -> Unit = {}) =
-        LabelEditController(s, object : LabelEditService { override suspend fun orphanedBookmarkCount(labelId: String) = orphans },
+        LabelEditController(s, object : LabelEditService {
+            override suspend fun orphanedBookmarkCount(labelId: String) = orphans
+            override suspend fun copyAddonLabel(labelId: String): String? { copied += labelId; return "Study (copy)" }
+        },
             CoroutineScope(Dispatchers.Unconfined), onFinish)
 
     @Test fun clearing_selection_clears_primary() {
@@ -171,5 +176,49 @@ class LabelEditControllerTest {
 
         c.save()
         assertEquals(BookmarkDisplayStyle.UNDERLINE, (result as LabelEditResult.Save).state.wholeVerseStyle)
+    }
+
+    private fun addonState() = state().copy(
+        addonModule = "Memory verses", isAssigning = true, hasWorkspaceContext = true, autoAssign = false,
+        autoAssignPrimary = false, thisBookmarkSelected = false, thisBookmarkPrimary = false,
+    )
+
+    @Test fun addon_label_is_read_only_but_keeps_favourite_and_workspace_override() {
+        val c = controller(addonState())
+        val s = c.state.value
+        assertFalse(s.nameEditable); assertFalse(s.styleEditable); assertFalse(s.deleteVisible)
+        assertFalse(s.thisBookmarkGroupVisible); assertFalse(s.autoAssignVisible)
+        assertTrue(s.favouriteVisible); assertTrue(s.workspaceGroupVisible)
+
+        c.setName("Hacked"); c.setColor(5); c.setCustomIcon("star"); c.setSelectionStyle(BookmarkDisplayStyle.HIDDEN)
+        c.setWholeVerseStyle(null); c.toggleAutoAssign(); c.toggleThisBookmarkSelected()
+        assertEquals(s, c.state.value)
+        assertFalse(c.isDirty())
+
+        c.toggleFavourite(); c.setOverrideMode(OverrideMode.HIDDEN)
+        assertTrue(c.state.value.favourite)
+        assertEquals(OverrideMode.HIDDEN, c.state.value.overrideMode)
+    }
+
+    @Test fun addon_label_cannot_be_deleted() {
+        val c = controller(addonState())
+        c.requestDelete()
+        assertNull(c.deletePrompt.value)
+        c.confirmDelete(deleteOrphaned = false) // must not report a delete either
+    }
+
+    @Test fun copy_to_my_labels_copies_and_finishes() {
+        var result: LabelEditResult? = null
+        val c = controller(addonState(), onFinish = { result = it })
+        c.copyToMyLabels()
+        assertEquals(listOf("L1"), copied)
+        assertEquals(LabelEditResult.Copied("Study (copy)"), result)
+    }
+
+    @Test fun copy_to_my_labels_is_ignored_for_an_own_label() {
+        var result: LabelEditResult? = null
+        val c = controller(onFinish = { result = it })
+        c.copyToMyLabels()
+        assertTrue(copied.isEmpty()); assertNull(result)
     }
 }

@@ -1083,11 +1083,14 @@ class BackupControl(
                         }
                     }
                     DatabaseContainer.resetOwned(token)
-                    for ((category, f) in plan.toImport) importDatabaseFile(category, f)
+                    var skippedAddonItems = 0L
+                    for ((category, f) in plan.toImport) skippedAddonItems += importDatabaseFile(category, f)
                     if (DatabaseContainer.ready) {
                         DatabaseContainer.instance
                         afterRestore(plan.restoredSelection)
                     }
+                    // Add-on collection rows of an imported backup belong to their module, so they are not imported.
+                    if (skippedAddonItems > 0) net.bible.android.control.event.UserMessages.toast(strings.addonItemsSkipped(skippedAddonItems.toInt()), long = true)
                 } catch (e: Throwable) {
                     // The host may already be destroyed when this fails; the log is the only trace of the half-done commit.
                     Log.e(TAG, "Zip restore failed while committing ${plan.toRestore.map { it.first }}", e)

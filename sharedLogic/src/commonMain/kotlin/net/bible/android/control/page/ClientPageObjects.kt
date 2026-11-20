@@ -369,6 +369,10 @@ class StudyPadDocument(
 private fun shownPrimaryLabelId(bookmark: BookmarkEntities.BaseBookmarkWithNotes): IdType? =
     bookmark.primaryLabelId?.takeUnless { it.isAddonId && it !in bookmark.labelIds.orEmpty() }
 
+/** `addonModule` of a bookmark for BibleView: non-null (empty: owner not known here) for a row of an add-on collection. */
+private fun addonModuleJson(bookmark: BookmarkEntities.BaseBookmarkWithNotes): String =
+    if (bookmark.id.isAddonId) wrapString("") else "null"
+
 class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val v11n: Versification? = null): SynchronousDocument {
 
     override val asHashMap: Map<String, String> get() {
@@ -404,6 +408,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "customIcon" to wrapString(bookmark.customIcon),
             "notesContentType" to wrapString(bookmark.notesContentType?.name),
             "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
+            "addonModule" to addonModuleJson(bookmark),
         )
     }
 }
@@ -440,6 +445,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "customIcon" to wrapString(bookmark.customIcon),
             "notesContentType" to wrapString(bookmark.notesContentType?.name),
             "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
+            "addonModule" to addonModuleJson(bookmark),
         )
     }
 }
@@ -461,6 +467,12 @@ data class ClientBookmarkLabel(
     val name: String,
     val style: ClientBookmarkStyle,
     val isRealLabel: Boolean,
+    /**
+     * Non-null when the label (or, on a bookmark, the row) belongs to an add-on collection module and is therefore
+     * read-only; BibleView hides delete and edit actions for it. Empty: the owning module is not known here
+     * (only the tagged id says so); BibleView only tests for non-null.
+     */
+    val addonModule: String? = null,
 ) {
     constructor(label: BookmarkEntities.Label): this(
         label.id,
@@ -474,6 +486,7 @@ data class ClientBookmarkLabel(
             isParagraphBreak = label.isParagraphBreakLabel,
         ),
         !label.isSpecialLabel && !label.new,
+        addonModule = if (label.id.isAddonId) "" else null,
     )
 }
 

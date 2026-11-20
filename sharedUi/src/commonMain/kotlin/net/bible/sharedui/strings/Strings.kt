@@ -1146,6 +1146,12 @@ interface Strings {
     val bookmarkStyleTagSelection: String             // R.string.bookmark_style_tag_selection
     val bookmarkStyleTagWholeVerse: String            // R.string.bookmark_style_tag_whole_verse
     val bookmarkStyleTagWorkspace: String             // R.string.bookmark_style_tag_workspace
+    fun addonLabelWithModule(label: String, module: String): String   // R.string.addon_label_with_module
+    fun addonLabelFromModule(module: String): String                  // R.string.addon_label_from_module
+    val addonLabelFromModuleHint: String                              // R.string.addon_label_from_module_hint
+    val addonLabelReadOnlyNote: String                                // R.string.addon_label_read_only_note
+    val addonCopyToMyLabels: String                                   // R.string.addon_copy_to_my_labels
+    fun addonLabelCopied(name: String): String                        // R.string.addon_label_copied
     val showStyleExamples: String                     // R.string.show_style_examples
 
     // Round 15a — the labels help legend
