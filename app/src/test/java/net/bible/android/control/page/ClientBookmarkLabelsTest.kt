@@ -4,6 +4,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.KJVA
+import org.crosswire.jsword.versification.system.Versifications
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -39,5 +40,21 @@ class ClientBookmarkLabelsTest {
         assertNull(GlobalContext.getOrNull())
         assertTrue(ClientBibleBookmark(bible(emptyList())).asJson.contains("'labels': [\"$UNLABELED_LABEL_ID\"]"))
         assertTrue(ClientGenericBookmark(generic(emptyList())).asJson.contains("'labels': [\"$UNLABELED_LABEL_ID\"]"))
+    }
+
+    /**
+     * "Open in My Notes" builds `my-notes://?ordinal=<originalOrdinalRange[0]>&v11n=<v11n>`: the ordinal is in the
+     * bookmark's own versification, so `v11n` must be that one even when no Bible is attached (a collection bookmark's
+     * copy, or an uninstalled module). With KJVA the KJV ordinal of John 3:16 opened Sirach 19:8.
+     */
+    @Test fun `v11n names the versification of originalOrdinalRange when the book is absent`() {
+        val kjv = Versifications.instance().getVersification("KJV")!!
+        val b = BookmarkEntities.BibleBookmarkWithNotes(
+            kjvOrdinalStart = 33095, kjvOrdinalEnd = 33095, ordinalStart = 27182, ordinalEnd = 27182,
+            v11n = kjv, playbackSettings = null, book = null, startOffset = null, endOffset = null,
+        ).apply { labelIds = emptyList() }
+        val map = ClientBibleBookmark(b).asHashMap
+        assertEquals("[27182,27182]", map["originalOrdinalRange"])
+        assertEquals("`KJV`", map["v11n"])
     }
 }

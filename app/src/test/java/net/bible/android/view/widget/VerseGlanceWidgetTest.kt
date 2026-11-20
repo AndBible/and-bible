@@ -143,7 +143,9 @@ class VerseGlanceWidgetTest {
         VerseWidgetConfigStore.save(context, 21, config)
         VerseWidgetConfigStore.save(context, 22, other)
         // ids swap, and a widget without a config is skipped
-        VerseWidgetReceiver().onRestored(context, intArrayOf(21, 22, 23), intArrayOf(22, 24, 25))
+        // The receiver's onRestored() is this call plus Glance's own redraw, which needs WorkManager and leaks an
+        // uncaught exception into later tests of the JVM when run in a unit test.
+        VerseWidgetConfigStore.moveIds(context, intArrayOf(21, 22, 23), intArrayOf(22, 24, 25))
         assertEquals(config, VerseWidgetConfigStore.load(context, 22))
         assertEquals(other, VerseWidgetConfigStore.load(context, 24))
         assertNull(VerseWidgetConfigStore.load(context, 21))

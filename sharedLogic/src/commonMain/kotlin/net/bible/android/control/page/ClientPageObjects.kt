@@ -391,7 +391,9 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "verseRangeAbbreviated" to wrapString(bookmark.verseRange.abbreviated),
             "text" to wrapString(bookmark.text),
             "osisRef" to wrapString(bookmark.verseRange.getOsisRef()),
-            "v11n" to wrapString((bookmark.book?.versification?: KJVA).name),
+            // The versification of originalOrdinalRange (the my-notes:// link pairs the two): the bookmark's own, which
+            // is the book's when one is attached. Not KJVA for a bookmark without a book: its ordinals are not KJVA.
+            "v11n" to wrapString(bookmark.v11n.name),
             "fullText" to wrapString(bookmark.fullText),
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
             "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),

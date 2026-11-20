@@ -21,11 +21,22 @@ import net.bible.android.control.widget.VerseChangeFrequency
 import net.bible.android.control.widget.VerseSource
 import net.bible.android.control.widget.VerseWidgetConfig
 import net.bible.android.database.IdType
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
 
 /** The configuration of each placed Verse widget, in a small preferences file keyed by app widget id. */
 object VerseWidgetConfigStore {
     private const val PREFS = "verse_widget_configs"
+
+    private val _version = MutableStateFlow(0L)
+
+    /**
+     * Counts the writes of any widget's configuration. A Glance session that is already running is not restarted by
+     * `update()`: its `provideGlance` body does not run again, only its composition. So a drawn widget watches this to
+     * load its configuration again, e.g. after the configuration screen saved (see [verseWidgetLoads]).
+     */
+    val version: StateFlow<Long> get() = _version
 
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -36,6 +47,7 @@ object VerseWidgetConfigStore {
     @Synchronized
     fun save(context: Context, appWidgetId: Int, config: VerseWidgetConfig) {
         prefs(context).edit().putString(appWidgetId.toString(), encode(config)).apply()
+        _version.value++
     }
 
     /**
@@ -56,6 +68,7 @@ object VerseWidgetConfigStore {
         moved.forEach { (old, _) -> edit.remove(old.toString()) }
         moved.forEach { (_, n) -> edit.putString(n.first.toString(), n.second) }
         edit.apply()
+        _version.value++
     }
 
     /** Moves the widget on to another verse of its period: shuffle count + 1. Returns the saved configuration. */
