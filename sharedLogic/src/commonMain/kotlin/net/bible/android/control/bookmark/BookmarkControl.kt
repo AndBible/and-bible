@@ -73,8 +73,8 @@ import net.bible.service.sword.SwordContentFacade
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
@@ -1297,7 +1297,8 @@ open class BookmarkControl constructor(
      * (with the workspace's auto-assign labels). Null when [addonBookmarkId] is not an add-on bookmark here.
      *
      * A Bible bookmark's document is [windowBible] (the Bible of the window the user tapped in, like any new
-     * bookmark), else the add-on row's own book, else none. Generic bookmarks keep the row's document.
+     * bookmark), else the add-on row's own book, else none. Callers pass `pageManager.currentBible` (the window's last
+     * Bible, also when it shows a commentary), intentionally unlike a text-selection bookmark. Generic bookmarks keep the row's document.
      */
     suspend fun newOwnBookmarkLike(addonBookmarkId: IdType, windowBible: AbstractPassageBook? = null): BaseBookmarkWithNotes? {
         if (!addonBookmarkId.isAddonId) return null
