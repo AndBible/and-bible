@@ -22,7 +22,7 @@ fun LabelEditDeletePromptContent(
     prompt: DeletePrompt,
     lead: String,
     detail: String,
-    deleteBothLabel: String,
+    deleteBothLabel: String?,
     deleteBothConsequence: String,
     deleteOnlyLabel: String,
     deleteOnlyConsequence: String,
@@ -36,7 +36,7 @@ fun LabelEditDeletePromptContent(
             title = lead,
             message = detail,
             options = listOf(
-                DialogAnswer("both", deleteBothLabel, deleteBothConsequence, destructive = true),
+                DialogAnswer("both", checkNotNull(deleteBothLabel) { "deleteBothLabel is required for DeletePrompt.Orphaned" }, deleteBothConsequence, destructive = true),
                 DialogAnswer("labelOnly", deleteOnlyLabel, deleteOnlyConsequence),
             ),
             onSelect = { value -> onConfirm(value == "both") },

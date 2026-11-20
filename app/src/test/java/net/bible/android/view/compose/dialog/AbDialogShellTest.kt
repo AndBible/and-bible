@@ -10,11 +10,20 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
+import net.bible.sharedui.components.AbMessageDialog
+import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.dialog.AbDialogButton
 import net.bible.sharedui.components.dialog.AbDialogShell
 import net.bible.sharedui.components.dialog.DialogButtonRole
@@ -171,6 +180,109 @@ class AbDialogShellTest {
         compose.onNodeWithTag("dialog-middle").performTouchInput { swipeUp() }
         compose.waitForIdle()
         compose.onAllNodesWithTag("dialog-divider-top").assertCountEquals(1)
+    }
+
+    /** The middle needs only 10dp: the unused part of its 56dp reserve must go back to the lead. */
+    @Ax5 @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun unusedMiddleReserveGoesBackToTheLead() {
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(
+                    onDismissRequest = {},
+                    buttons = {
+                        AbDialogButton("Later", DialogButtonRole.Neutral, {})
+                        AbDialogButton("Cancel", DialogButtonRole.Cancel, {})
+                        AbDialogButton("Delete", DialogButtonRole.Destructive, {})
+                    },
+                    lead = { Text(ax5Lead) },
+                    content = { Spacer(Modifier.height(10.dp)) },
+                )
+            }
+        }
+        compose.waitForIdle()
+        val d = compose.density.density
+        val lead = compose.onNodeWithTag("dialog-lead-area").rootBounds()
+        val middleH = compose.onNodeWithTag("dialog-middle-area").rootBounds().height
+        val buttonsTop = listOf("dialog-neutral", "dialog-dismiss", "dialog-confirm")
+            .minOf { compose.onNodeWithTag(it).rootBounds().top }
+        // room = what lies between the lead's top and the button row, minus the 10dp and 18dp gaps
+        val room = buttonsTop - 18 * d - lead.top - 10 * d
+        assertTrue("middle $middleH px should be ~10dp, not reserved 56dp", middleH < 20 * d)
+        assertTrue("lead ${lead.height} px must exceed room - 56dp (${room - 56 * d} px)", lead.height > room - 56 * d)
+    }
+
+    @Test fun emptyButtonRowHasNoGapAboveIt() {
+        var size = IntSize.Zero
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(
+                    onDismissRequest = {},
+                    buttons = {},
+                    lead = { Text("Lead") },
+                    modifier = Modifier.onGloballyPositioned { size = it.size },
+                )
+            }
+        }
+        compose.waitForIdle()
+        val d = compose.density.density
+        val leadH = compose.onNodeWithTag("dialog-lead").rootBounds().height
+        // padding 22 top + 14 bottom, no 18dp gap above an empty row
+        assertEquals(leadH + (22 + 14) * d, size.height.toFloat(), 2f)
+    }
+
+    @Test fun messageDialogPutsTenDpBetweenDetailAndHtmlBody() {
+        compose.setContent {
+            AbTheme {
+                AbMessageDialog(
+                    title = null, html = "Html body text", confirmText = "OK", onConfirm = {},
+                    onDismissRequest = {}, detail = "Detail text",
+                )
+            }
+        }
+        compose.waitForIdle()
+        val d = compose.density.density
+        val detail = compose.onNodeWithTag("dialog-detail").rootBounds()
+        val body = compose.onNodeWithText("Html body text").rootBounds()
+        assertEquals("gap between detail and body", 10 * d, body.top - detail.bottom, 2f * d)
+    }
+
+    @Test fun leadTopDividerAppearsAfterScrollingTheLead() {
+        show(lead = (1..60).joinToString("\n") { "Lead line $it" }, body = "Body")
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("dialog-lead-divider-top").assertCountEquals(0)
+        compose.onAllNodesWithTag("dialog-lead-divider-bottom").assertCountEquals(1)
+        compose.onNodeWithTag("dialog-lead").performTouchInput { swipeUp() }
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("dialog-lead-divider-top").assertCountEquals(1)
+    }
+
+    @Ax5 @Test fun multiSelectDialogWithManyOptionsScrollsToItsLastRowAtAx5() {
+        val options = (1..60).map { "Option $it" }
+        compose.setContent {
+            AbTheme {
+                AbMultiSelectDialog(
+                    title = "Choose options", options = options, selectedIds = emptyList(),
+                    idOf = { it }, labelOf = { it }, confirmText = "OK", dismissText = "Cancel",
+                    onConfirm = {}, onDismiss = {},
+                )
+            }
+        }
+        compose.waitForIdle()
+        // AbMultiSelectDialog's buttons are plain TextButtons (no dialog-confirm tags): find them by text.
+        compose.onNodeWithText("OK").assertIsDisplayed()
+        compose.onNodeWithText("Cancel").assertIsDisplayed()
+        compose.onAllNodesWithTag("dialog-divider-top").assertCountEquals(0)
+        compose.onAllNodesWithTag("dialog-divider-bottom").assertCountEquals(1)
+        var swipes = 0
+        // The middle is only ~56dp high at AX5 in this window, so each swipe moves little.
+        while (swipes < 400 && runCatching { compose.onNodeWithText("Option 60").assertIsDisplayed() }.isFailure) {
+            compose.onNodeWithTag("dialog-middle").performTouchInput { swipeUp() }
+            compose.waitForIdle()
+            swipes++
+        }
+        compose.onNodeWithText("Option 60").assertIsDisplayed()
+        compose.onAllNodesWithTag("dialog-divider-top").assertCountEquals(1)
+        compose.onNodeWithText("OK").assertIsDisplayed()
     }
 
     @Test fun scrimDismissCallsOnDismissRequest() {

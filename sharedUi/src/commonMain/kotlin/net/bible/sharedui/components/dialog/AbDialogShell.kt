@@ -80,7 +80,9 @@ private enum class ShellSlot { Icon, Lead, Middle, Buttons }
  *  - [onDismissRequest]: called for a scrim click or Back, when [properties] allow them;
  *  - [buttons]: the button row content, laid out in an end-aligned `FlowRow` that wraps on overflow;
  *  - [icon]: centred above the lead (the notice dialog's logo);
- *  - [lead]: the question or headline; it is shown in [abDialogLeadStyle];
+ *  - [lead]: the question or headline; it is shown in [abDialogLeadStyle]. The shell measures it intrinsically
+ *    (`maxIntrinsicHeight`), so it must support intrinsic measurement: no lazy list, `BoxWithConstraints` or
+ *    `SubcomposeLayout`. Plain text and simple layouts are fine;
  *  - [content]: the middle area (detail + body), shown in [abDialogBodyStyle]; it scrolls;
  *  - [properties]: only `dismissOnBackPress` and `dismissOnClickOutside` are forwarded to the platform dialog.
  *    The shell always sets `usePlatformDefaultWidth = false` (the width is ours), and ignores the other fields.
@@ -197,8 +199,10 @@ fun AbDialogShell(
                     if (iconP != null) used += iconP.height + gapLead
                     // 2. Middle minimum: the lead must leave this much (or the middle's natural height if smaller).
                     val middleM = slot(ShellSlot.Middle)
-                    // A fixed reserve: intrinsic measurement is not allowed for content that uses
-                    // SubcomposeLayout (BoxWithConstraints, lazy lists), which dialog content often does.
+                    // The middle gets a fixed reserve and is never measured intrinsically: its content is arbitrary
+                    // caller content and often uses SubcomposeLayout (BoxWithConstraints, lazy lists), which throws
+                    // on intrinsic queries. The lead is a headline, so its content can be required to support them;
+                    // that lets the shell ask its natural height and hand the middle's unused reserve back to it.
                     val middleReserve = if (middleM == null) 0 else MiddleMinHeight.roundToPx()
                     // 3. The middle is measured first, with the room left after the lead's wanted height (its natural
                     //    height, at most the 40% cap) but never less than its reserve; the lead then takes whatever the

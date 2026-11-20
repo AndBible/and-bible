@@ -20,7 +20,11 @@ import net.bible.sharedui.components.dialog.AbDialogShell
  * those caps are redundant now and are for the copy batches to remove (the multi-select and colour-picker dialogs
  * already pass none).
  *
- * The text bound is 10000dp: content taller than that is clipped, so a long text belongs on a text page.
+ * [title] is the shell's lead and is measured intrinsically: it must not use a lazy list, `BoxWithConstraints` or
+ * `SubcomposeLayout`. [text] has no such limit.
+ *
+ * The text bound is 10000dp: a plain content taller than that is cut off at the bound, while a lazy list or caller
+ * scroll inside it scrolls itself within the bound (nested scroll). A long text belongs on a text page.
  */
 @Composable
 fun AbAlertDialog(

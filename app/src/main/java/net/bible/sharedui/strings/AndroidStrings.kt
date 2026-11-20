@@ -947,8 +947,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val assignLabelsLabel: String get() = context.getString(R.string.assign_labels)
     override val bookmarksSearchNotesHint: String get() = context.getString(R.string.filter_by_notes)
 
-    // Task 13 — platform-dialog removal: Bookmarks delete confirm / ManageLabels reset confirm
-
     override val llmResetUsageConfirmTitle: String get() = context.getString(R.string.llm_reset_usage_confirm_title)
     override val llmResetUsageConfirmMessage: String get() = context.getString(R.string.llm_reset_usage_confirm_message)
 
@@ -1343,6 +1341,6 @@ class AndroidStrings(private val context: Context) : Strings {
         context.resources.getQuantityString(R.plurals.dialog_bookmarks_remove_detail, count, count)
     override val dialogLabelsResetWorkspaceLead: String get() = context.getString(R.string.dialog_labels_reset_workspace_lead)
     override val dialogLabelsResetHiddenLead: String get() = context.getString(R.string.dialog_labels_reset_hidden_lead)
-    override val dialogLabelsResetHiddenDetail: String get() = context.getString(R.string.dialog_labels_reset_hidden_detail)
+    override val dialogLabelsResetShownDetail: String get() = context.getString(R.string.dialog_labels_reset_shown_detail)
     // end dialog copy: B2a
 }
