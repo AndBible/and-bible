@@ -128,10 +128,11 @@ class BibleSearchServiceImpl(
         val dto = searchControl.getMultiRegexResults(
             request.translationIds, regex, request.bibleSection.toClassic(), request.currentBookName, budget,
         )
-        currentCoroutineContext().ensureActive()
+        val ctx = currentCoroutineContext()
+        ctx.ensureActive()
         val previews = PreviewReader(emptyList(), emptyList())
-        val main = dto.mainSearchResults.map { currentCoroutineContext().ensureActive(); it.toRow(previews, regex) }
-        val other = dto.otherSearchResults.map { currentCoroutineContext().ensureActive(); it.toRow(previews, regex) }
+        val main = dto.mainSearchResults.map { ctx.ensureActive(); it.toRow(previews, regex) }
+        val other = dto.otherSearchResults.map { ctx.ensureActive(); it.toRow(previews, regex) }
         return MultiSearchResults(main = main, other = other, total = dto.size, truncatedByTime = dto.truncatedByTime)
     }
 

@@ -32,6 +32,9 @@ import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchType
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleBook
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -116,7 +119,7 @@ class BibleSearchServiceImplRegexTest {
         }
     }
 
-    private fun isNt(ref: String) = (kjv.getKey(ref).first() as org.crosswire.jsword.passage.Verse).book >= org.crosswire.jsword.versification.BibleBook.MATT
+    private fun isNt(ref: String) = (kjv.getKey(ref).first() as Verse).book >= BibleBook.MATT
 
     @Test fun sectionsPartitionTheResults() {
         val all = refsOf(search(request("said:")))
@@ -131,19 +134,31 @@ class BibleSearchServiceImplRegexTest {
     }
 
     @Test fun unknownCurrentBookSkipsTheBookInsteadOfAbortingTheSearch() {
+        // Precondition: the restriction key really cannot be resolved for the fixture book (a LucidException,
+        // not a BookException), otherwise the assertion below proves nothing.
+        try {
+            kjv.getKey("Nonexistent Book")
+            fail("expected NoSuchKeyException")
+        } catch (expected: NoSuchKeyException) {
+        }
         val r = request("said:", SearchBibleSection.CURRENT_BOOK).copy(currentBookName = "Nonexistent Book")
         assertEquals(MultiSearchResults.EMPTY.total, search(r).total)
     }
 
     @Test fun cancellingTheCallerReturnsPromptly() {
-        val finished = runBlocking {
+        // `^([\w\s,;:.']+)*!` backtracks exponentially on any verse without a '!', so with a 1 h budget the scan can only
+        // end through the caller's cancellation (the budget's isCancelled).
+        val outcome = runBlocking {
             val job = launch(Dispatchers.Default) {
-                service().searchMulti(request("(?:\\w|\\s)*zzz(?:\\w|\\s)*qqq"), 1.hours)
+                service().searchMulti(request("^([\\w\\s,;:.']+)*!"), 1.hours)
             }
-            delay(50)
-            withTimeoutOrNull(5.seconds) { job.cancelAndJoin(); true }
+            delay(500)
+            val runningBeforeCancel = job.isActive
+            val returned = withTimeoutOrNull(5.seconds) { job.cancelAndJoin(); true }
+            runningBeforeCancel to returned
         }
-        assertEquals(true, finished)
+        assertTrue("the scan must still be running when it is cancelled", outcome.first)
+        assertEquals("cancelling must end the scan within the bound", true, outcome.second)
     }
 
     @Test fun exhaustedBudgetReportsTruncation() {
