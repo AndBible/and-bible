@@ -21,9 +21,15 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import net.bible.sharedcore.search.SearchDocumentCategory
 import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.sharedui.strings.LocalStrings
@@ -68,5 +74,18 @@ class SearchSettingsSlotTest {
         show(f)
         onAllNodesWithText(strings.searchWhere).assertCountEquals(1)
         onAllNodesWithText(strings.searchTypePrompt).assertCountEquals(0)
+    }
+
+    @Test
+    fun theRegexSwitchTogglesTheSessionStateAndDisablesTheTypeSegments() = runComposeUiTest {
+        val f = SearchFixture().apply { platform.info = epubInfo(false) }
+        show(f)
+        onNodeWithText(strings.phrase).assertIsEnabled()
+        onNodeWithText(strings.searchRegex).performClick()
+        assertTrue(f.state.searchRegex.value)
+        listOf(strings.allWords, strings.anyWord, strings.phrase).forEach { onNodeWithText(it).assertIsNotEnabled() }
+        onNodeWithText(strings.searchRegex).performClick()
+        assertFalse(f.state.searchRegex.value)
+        onNodeWithText(strings.phrase).assertIsEnabled()
     }
 }

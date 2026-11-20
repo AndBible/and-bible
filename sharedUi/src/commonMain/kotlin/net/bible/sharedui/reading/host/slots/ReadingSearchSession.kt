@@ -141,6 +141,8 @@ internal class ReadingSearchSession(
     }
 
     val searchType: MutableState<SearchType> = mutableStateOf(SearchType.ALL_WORDS)
+    /** Session-only, like [searchType]: the query is a regular expression over the stored verse texts. */
+    val searchRegex: MutableState<Boolean> = mutableStateOf(false)
     val searchSection: MutableState<SearchBibleSection> = mutableStateOf(SearchBibleSection.ALL)
     val searchTranslations: MutableState<List<String>> = mutableStateOf(emptyList())
 
@@ -643,6 +645,8 @@ internal class ReadingSearchSession(
             ),
             currentBookName = platform.currentBookName(),
             isStrongsSearch = strongsSearch,
+            // One-shot queries (Strong's, pre-decorated) are Lucene queries, never expressions.
+            isRegex = searchRegex.value && !preDecorated && !strongsSearch,
         )
     }
 

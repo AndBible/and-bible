@@ -71,6 +71,8 @@ internal fun SearchSettingsSlotContent(
                 selectedTranslationIds = state.searchTranslations.value,
                 currentBookName = currentBookName(),
                 onSearchType = { state.searchType.value = it },
+                regex = state.searchRegex.value,
+                onRegex = { state.searchRegex.value = it },
                 onBibleSection = { state.searchSection.value = it },
                 onTranslations = { ids -> state.setSearchTranslations(ids) },
             )
@@ -189,6 +191,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchSession, strings: String
         },
         loading = loading,
         error = error,
+        notice = if (results.truncatedByTime) strings.searchResultsTruncated else null,
         // "Nothing found" only once a search has actually finished: an empty list while loading is
         // not an empty result.
         empty = !loading && rows.isEmpty(),

@@ -20,6 +20,8 @@ package net.bible.sharedui.search
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -30,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchType
@@ -54,6 +58,8 @@ import net.bible.sharedui.strings.Strings
  * from the toolbar. Emits its three children as plain siblings — it introduces no layout node of
  * its own, so hosting it inside a `Column` renders exactly as the inlined body did.
  *
+ * @param onRegex the regular-expression switch row is shown only when this is non-null; while [regex] is
+ *   on the word-mode segments are disabled (the expression replaces them).
  * @param initiallyDialogOpen open the translations dialog on first composition (deterministic
  *   golden capture only; mirrors the `initiallyOpen`/`initiallyChooserOpen` patterns elsewhere).
  */
@@ -66,6 +72,8 @@ fun BibleSearchSettings(
     selectedTranslationIds: List<String>,
     currentBookName: String,
     onSearchType: (SearchType) -> Unit,
+    regex: Boolean = false,
+    onRegex: ((Boolean) -> Unit)? = null,
     onBibleSection: (SearchBibleSection) -> Unit,
     onTranslations: (List<String>) -> Unit,
     initiallyDialogOpen: Boolean = false,
@@ -96,8 +104,21 @@ fun BibleSearchSettings(
             SegmentedButton(
                 selected = searchType == type,
                 onClick = { onSearchType(type) },
+                enabled = !regex,
                 shape = SegmentedButtonDefaults.itemShape(index, types.size),
             ) { Text(typeLabels[index]) }
+        }
+    }
+
+    if (onRegex != null) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                .toggleable(value = regex, role = Role.Switch, onValueChange = onRegex)
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(strings.searchRegex, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            Switch(checked = regex, onCheckedChange = null)
         }
     }
 
@@ -144,12 +165,13 @@ fun bibleSearchSettingsSummary(
     availableTranslations: List<Pair<String, String>>,
     selectedTranslationIds: List<String>,
     currentBookName: String,
+    regex: Boolean = false,
 ): String {
     val types = SearchType.entries
     val typeLabels = listOf(strings.allWords, strings.anyWord, strings.phrase)
     val translationsSummary = translationsSummaryOf(strings, availableTranslations, selectedTranslationIds)
     return searchSectionLabel(strings, bibleSection, currentBookName) +
-        " · ${typeLabels[types.indexOf(searchType)]}" +
+        " · ${if (regex) strings.searchRegexSummary else typeLabels[types.indexOf(searchType)]}" +
         " · $translationsSummary"
 }
 

@@ -76,6 +76,8 @@ fun SearchScreen(
     currentBookName: String = "",
     onQueryChange: (String) -> Unit,
     onSearchType: (SearchType) -> Unit,
+    regex: Boolean = false,
+    onRegex: ((Boolean) -> Unit)? = null,
     onBibleSection: (SearchBibleSection) -> Unit,
     onTranslations: (List<String>) -> Unit,
     onSubmit: () -> Unit,
@@ -96,6 +98,7 @@ fun SearchScreen(
         availableTranslations = availableTranslations,
         selectedTranslationIds = selectedTranslationIds,
         currentBookName = currentBookName,
+        regex = regex,
     )
 
     AbScaffold(title = title, onNavigateUp = onNavigateUp, actions = { AbHelpOverflowMenu(DocsLink.SEARCH) }) { padding ->
@@ -146,6 +149,8 @@ fun SearchScreen(
                     selectedTranslationIds = selectedTranslationIds,
                     currentBookName = currentBookName,
                     onSearchType = onSearchType,
+                    regex = regex,
+                    onRegex = onRegex,
                     onBibleSection = onBibleSection,
                     onTranslations = onTranslations,
                 )

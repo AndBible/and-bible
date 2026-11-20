@@ -92,6 +92,8 @@ import net.bible.sharedui.reading.searchResultKeyCharacter
  * @param empty passed in rather than derived from the list, because "no rows" and "nothing searched
  *   yet" are different states to the caller.
  * @param listState hoisted so the host can restore the scroll position across a search (F25).
+ * @param notice a one-line note above the results (a regex search stopped at its time budget); not shown
+ *   while [loading].
  * @param onClose hides only the result sheet; it must not leave the toolbar's search mode.
  * @param error non-null shows a dialog **over a sheet that stays open**: unlike the old
  *   `SearchResultsComposeActivity`, which toasted and then `finish()`ed, there is nothing to finish.
@@ -106,6 +108,7 @@ fun SearchSheetContent(
     onDismissError: () -> Unit,
     onClose: () -> Unit,
     resultCount: Int = 0,
+    notice: String? = null,
     requestResultsFocus: Boolean = true,
     selection: MutableState<Int>? = null,
     onOpenResult: (Int) -> Unit = {},
@@ -150,6 +153,13 @@ fun SearchSheetContent(
             IconButton(onClick = onClose) {
                 Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
             }
+        }
+        if (notice != null && !loading) {
+            Text(
+                notice,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+            )
         }
         when {
             loading -> AbLoadingIndicator(Modifier.fillMaxWidth().padding(horizontal = 16.dp))

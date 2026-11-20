@@ -99,6 +99,7 @@ class SearchSheetGoldenTest {
         error: String? = null,
         empty: Boolean = false,
         rows: List<SwordResultRow> = this.rows,
+        notice: String? = null,
     ): @Composable () -> Unit = {
         val expanded = remember { mutableStateMapOf<String, Boolean>() }
         SearchSheetContent(
@@ -106,6 +107,7 @@ class SearchSheetGoldenTest {
             loading = loading,
             error = error,
             empty = empty,
+            notice = notice,
             listState = rememberLazyListState(),
             onDismissError = {},
             onClose = {},
@@ -152,4 +154,10 @@ class SearchSheetGoldenTest {
     // The error dialog replaces the old activity's toast-then-finish: the sheet stays open behind it.
     @Test fun error() =
         captureGolden("SearchSheet", "error", EDGE_MODE, content = sheet(error = "Search failed: index is corrupt"))
+
+    // A regex search that hit its time budget: the one-line notice sits above the (partial) results.
+    @Test fun resultsTruncatedNotice() = captureMatrix(
+        "SearchSheet", "resultsTruncatedNotice", heightDp = 400,
+        content = sheet(notice = "The search took too long and was stopped. Results are incomplete; try a simpler expression."),
+    )
 }

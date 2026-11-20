@@ -50,6 +50,7 @@ class BibleSearchSettingsGoldenTest {
         availableTranslations: List<Pair<String, String>> = translations,
         selectedTranslationIds: List<String> = listOf("esv"),
         currentBookName: String = "",
+        regex: Boolean = false,
     ): @Composable () -> Unit = {
         Column {
             BibleSearchSettings(
@@ -59,6 +60,8 @@ class BibleSearchSettingsGoldenTest {
                 selectedTranslationIds = selectedTranslationIds,
                 currentBookName = currentBookName,
                 onSearchType = {},
+                regex = regex,
+                onRegex = {},
                 onBibleSection = {},
                 onTranslations = {},
             )
@@ -101,4 +104,7 @@ class BibleSearchSettingsGoldenTest {
             "BibleSearchSettings", "noTranslationsSelected", EDGE_MODE,
             content = settings(selectedTranslationIds = emptyList()),
         )
+
+    // The switch on: the three word-mode segments are disabled and the switch reads as checked.
+    @Test fun regexOn() = captureMatrix("BibleSearchSettings", "regexOn", content = settings(regex = true))
 }

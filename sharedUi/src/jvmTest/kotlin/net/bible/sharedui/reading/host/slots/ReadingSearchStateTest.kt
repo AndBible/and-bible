@@ -699,4 +699,27 @@ class ReadingSearchStateTest {
         assertEquals(SearchBibleSection.ALL, s.searchSection.value)
         assertFalse(s.searchSettingsOpen.value)
     }
+
+    @Test
+    fun theRegexSwitchSetsIsRegexOnTheRequestButNeverOnOneShotQueries() {
+        val f = SearchFixture()
+        try {
+            assertFalse(f.state.buildSearchRequest("KJV", "said:").isRegex)
+            f.state.searchRegex.value = true
+            val request = f.state.buildSearchRequest("KJV", "said:")
+            assertTrue(request.isRegex)
+            assertEquals("said:", request.query)
+            // One-shot queries are not regular expressions: Strong's stays Lucene even with the switch on.
+            val kjv = fakeSearchBook("KJV")
+            f.platform.current = kjv
+            f.platform.documents["KJV"] = kjv
+            f.platform.documentInfos["KJV"] = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true)
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            val strongs = assertNotNull(f.state.lastSearchRequestForTest)
+            assertTrue(strongs.isStrongsSearch)
+            assertFalse(strongs.isRegex)
+        } finally {
+            f.state.dispose()
+        }
+    }
 }
