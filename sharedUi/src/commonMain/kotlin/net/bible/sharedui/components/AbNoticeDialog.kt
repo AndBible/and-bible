@@ -27,14 +27,9 @@ import net.bible.sharedui.generated.resources.Res
 import net.bible.sharedui.generated.resources.andbible_qr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -43,6 +38,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedui.components.dialog.AbDialogButton
+import net.bible.sharedui.components.dialog.AbDialogShell
+import net.bible.sharedui.components.dialog.DialogButtonRole
+import net.bible.sharedui.components.dialog.abDialogBodyStyle
 import net.bible.sharedui.theme.isPureMonochrome
 
 /**
@@ -67,9 +66,9 @@ val LocalNoticeIcons = staticCompositionLocalOf<NoticeIcons?> { null }
  * own spacing separates them, so a block's HTML carries no leading/trailing `<br><br>` of its own
  * (spec §6.1 "images are not the converter's job").
  *
- * Buttons follow [AbMessageDialog]'s mapping: [confirmText] is the M3 `confirmButton` (`Ok`),
- * [dismissText]/[neutralText] the `dismissButton` row (`Cancel`/`Neutral`) — same layout as
- * `AbMessageDialog`. There is no `cancellable` parameter: every one of today's three notices leaves
+ * Built on [AbDialogShell]: the title-logo goes in the shell's icon slot, [title] is the lead line and the
+ * blocks scroll in the middle area in body style. Buttons follow [AbMessageDialog]'s order: neutral, dismiss,
+ * then [confirmText] (Confirm role). There is no `cancellable` parameter: every one of today's three notices leaves
  * its platform dialog at the default `setCancelable(true)`, so back/scrim always answers
  * [onDismissRequest] here, exactly as [AbMessageDialog]'s own default does.
  */
@@ -89,20 +88,17 @@ fun AbNoticeDialog(
     moneyPainter: Painter? = null,
 ) {
     val logoFilter = if (isPureMonochrome()) ColorFilter.tint(MaterialTheme.colorScheme.onSurface) else null
-    AbAlertDialog(
+    AbDialogShell(
         onDismissRequest = onDismissRequest,
         icon = if (showTitleLogo && logoPainter != null) {
             { Image(logoPainter, contentDescription = null, modifier = Modifier.size(32.dp), colorFilter = logoFilter) }
         } else null,
-        title = if (title != null) { { Text(title) } } else null,
-        text = {
-            Column(
-                modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
+        lead = title?.let { t -> { Text(t) } },
+        content = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 blocks.forEach { block ->
                     when (block) {
-                        is AppDialogRequest.NoticeBlock.Html -> AbHtmlText(block.html)
+                        is AppDialogRequest.NoticeBlock.Html -> AbHtmlText(block.html, style = abDialogBodyStyle())
                         AppDialogRequest.NoticeBlock.Logo ->
                             if (logoPainter != null) {
                                 Image(
@@ -125,7 +121,7 @@ fun AbNoticeDialog(
                                 AppDialogRequest.NoticeIcon.Money -> moneyPainter
                             }
                             AbHtmlText(
-                                block.html, leadingIcon = iconPainter,
+                                block.html, style = abDialogBodyStyle(), leadingIcon = iconPainter,
                                 leadingIconTint = MaterialTheme.colorScheme.onSurface,
                             )
                         }
@@ -133,14 +129,10 @@ fun AbNoticeDialog(
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onConfirm) { Text(confirmText) } },
-        dismissButton = if (dismissText != null || neutralText != null) {
-            {
-                Row {
-                    if (neutralText != null) TextButton(onClick = onNeutral) { Text(neutralText) }
-                    if (dismissText != null) TextButton(onClick = onDismiss) { Text(dismissText) }
-                }
-            }
-        } else null,
+        buttons = {
+            if (neutralText != null) AbDialogButton(neutralText, DialogButtonRole.Neutral, onNeutral)
+            if (dismissText != null) AbDialogButton(dismissText, DialogButtonRole.Cancel, onDismiss)
+            AbDialogButton(confirmText, DialogButtonRole.Confirm, onConfirm)
+        },
     )
 }

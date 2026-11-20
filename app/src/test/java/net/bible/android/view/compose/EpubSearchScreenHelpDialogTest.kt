@@ -113,6 +113,9 @@ class EpubSearchScreenHelpDialogTest {
      *  dialog, reaches [onOpenExternal] directly (see `AppDialogHostTest
      *  .linkTapInsideTheDialogWindowReachesTheHost`'s kdoc for why this is now real coverage rather
      *  than the "Dialog-window limitation" this replaces). */
+    // A tall window: the help text is taller than the default 470dp window's dialog middle area, which scrolls now,
+    // and performLinkClick taps the link's glyph position, so the whole text must be on screen.
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h1200dp")
     @Test fun helpOpen_linkTapReachesOnOpenExternal() {
         show(helpOpen = true)
         compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).performLinkClick()
@@ -122,6 +125,9 @@ class EpubSearchScreenHelpDialogTest {
     /** C1: with [askBeforeOpeningLink], the same tap asks first -- OK opens it exactly once. The
      *  help dialog's own confirm button is ALSO labelled "OK" (`strings.okay`), so the question's
      *  button is picked out by taking the LAST match -- see `AppSettingsScreenDialogTest`'s equivalent test. */
+    // A tall window: the help text is taller than the default 470dp window's dialog middle area, which scrolls now,
+    // and performLinkClick taps the link's glyph position, so the whole text must be on screen.
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h1200dp")
     @Test fun helpOpen_askBeforeOpeningLink_asksThenOpensOnce() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         show(helpOpen = true, askBeforeOpeningLink = true)
