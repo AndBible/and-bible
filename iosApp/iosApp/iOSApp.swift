@@ -1,5 +1,6 @@
 import SwiftUI
 import SharedUi
+import WidgetKit
 import os
 
 @main
@@ -15,6 +16,8 @@ struct iOSApp: App {
         IosPlatformBootstrap.shared.installLogSink { appLog($0) }
         IosPlatformBootstrap.shared.installNotificationDelegate()
         IosPlatformBootstrap.shared.registerBackgroundTasks()
+        // The snapshot writer asks WidgetKit to reload the widget timelines after each write.
+        IosPlatformBootstrap.shared.setWidgetReloader { WidgetCenter.shared.reloadAllTimelines() }
         #if DEBUG
         IosPlatformBootstrap.shared.prepareFilesPortTestLaunch()
         ReadingAccessibilityProbe.installIfRequested()
@@ -23,6 +26,7 @@ struct iOSApp: App {
 
     /// Full-screen reading hides the status bar: the Kotlin side posts this notification (see IosStatusBar.kt).
     @State private var statusBarHidden = false
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -31,6 +35,10 @@ struct iOSApp: App {
                 .statusBarHidden(statusBarHidden)
                 .onReceive(NotificationCenter.default.publisher(for: Notification.Name("net.bible.andbible.statusBarHidden"))) {
                     statusBarHidden = ($0.userInfo?["hidden"] as? Bool) ?? false
+                }
+                .onChange(of: scenePhase) { phase in
+                    // Picks up Bibles a Verse widget asked for and a changed language.
+                    if phase == .active { IosPlatformBootstrap.shared.refreshWidgetSnapshot() }
                 }
                 .onOpenURL { url in
                     // Home-screen widget taps arrive as andbible-widget:// URLs; everything else is an incoming file.

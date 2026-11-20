@@ -27,6 +27,13 @@ targets:
           - PrivacyInfo.xcprivacy
       - path: iosApp/PrivacyInfo.xcprivacy
         buildPhase: resources
+      # The widget App Intents run in the app process (AudioPlaybackIntent), so their types are compiled into the app too
+      # (the extension supplies the button, the app the behaviour); SnapshotStore is what WidgetIntents.swift uses.
+      - path: AndBibleWidgets/WidgetIntents.swift
+      - path: AndBibleWidgets/SnapshotStore.swift
+      # Pure widget logic the unit tests reach through `@testable import iosApp`.
+      - path: AndBibleWidgets/Snapshot.swift
+      - path: AndBibleWidgets/VerseTimeline.swift
     # MARKETING_VERSION / CURRENT_PROJECT_VERSION / DEVELOPMENT_TEAM come from this xcconfig (it includes the
     # generated Version.xcconfig and the untracked Secrets.xcconfig.local). Do not set them in project.yml:
     # project.yml settings override xcconfig values.
@@ -206,7 +213,11 @@ targets:
   iosAppUnitTests:
     type: bundle.unit-test
     platform: iOS
-    sources: [iosAppUnitTests]
+    sources:
+      - iosAppUnitTests
+      # Kotlin's VerseSelector vectors (VerseSelectorVectorsTest): the Swift port must agree.
+      - path: test-fixtures/verse-selector-vectors.json
+        buildPhase: resources
     dependencies: [{target: iosApp}]
     settings:
       base:
