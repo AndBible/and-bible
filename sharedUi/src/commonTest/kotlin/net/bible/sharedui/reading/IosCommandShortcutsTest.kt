@@ -13,6 +13,14 @@ class IosCommandShortcutsTest {
         }
     }
 
+    /** #4168: Cmd+L is "go to reference" like Ctrl+L on the desktop, which sends the page's Ctrl+B (key chooser). */
+    @Test fun commandLOpensTheKeyChooserLikeDesktopControlL() {
+        assertEquals("CtrlKeyB", readingShortcut("KeyL", ctrl = false, alt = false, meta = true, iosCommandKeys = true))
+        assertNull(readingShortcut("KeyL", ctrl = false, alt = false, meta = true))
+        assertNull(readingShortcut("KeyL", ctrl = true, alt = false, meta = true, iosCommandKeys = true))
+        assertNull(readingShortcut("KeyL", ctrl = false, alt = true, meta = true, iosCommandKeys = true))
+    }
+
     @Test fun commandDoesNotClaimOtherCommandsOrMixedModifiers() {
         for (code in listOf("KeyG", "BracketLeft", "BracketRight", "KeyD", "Comma", "KeyC", "KeyW")) {
             assertNull(readingShortcut(code, ctrl = false, alt = false, meta = true, iosCommandKeys = true))
