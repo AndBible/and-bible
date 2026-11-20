@@ -55,11 +55,16 @@ case "$*" in
     echo "Authority=${STUB_AUTH:-Apple Distribution: Tuomas (X6A6CDK8T7)}" >&2
     echo "TeamIdentifier=${STUB_TEAM:-X6A6CDK8T7}" >&2 ;;
 *"-d --entitlements"*AndBibleWidgets.appex*)
-    [ "${STUB_NO_APPEX_GROUP:-0}" = 1 ] || printf '\t\t<string>group.org.andbible.ios%s</string>\n' "${STUB_APPEX_GROUP_SUFFIX:-}"
+    # Real codesign prints the whole plist as ONE XML line (see .local/release/testflight/*/ipa-entitlements.txt).
+    printf '<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>application-identifier</key><string>X6A6CDK8T7.org.andbible.ios.widgets</string>'
+    [ "${STUB_NO_APPEX_GROUP:-0}" = 1 ] || printf '<key>com.apple.security.application-groups</key><array><string>group.org.andbible.ios%s</string></array>' "${STUB_APPEX_GROUP_SUFFIX:-}"
+    printf '</dict></plist>\n'
     [ "${STUB_EXT_GTA:-absent}" = absent ] || echo "get-task-allow=$STUB_EXT_GTA" ;;
 *"-d --entitlements"*)
-    [ "${STUB_NO_APP_GROUP:-0}" = 1 ] || echo '<string>group.org.andbible.ios</string>'
-    [ "${STUB_NO_ICLOUD:-0}" = 1 ] || echo '<string>iCloud.org.andbible.ios</string>'
+    printf '<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>application-identifier</key><string>X6A6CDK8T7.org.andbible.ios</string>'
+    [ "${STUB_NO_ICLOUD:-0}" = 1 ] || printf '<key>com.apple.developer.icloud-container-identifiers</key><array><string>iCloud.org.andbible.ios</string></array>'
+    [ "${STUB_NO_APP_GROUP:-0}" = 1 ] || printf '<key>com.apple.security.application-groups</key><array><string>group.org.andbible.ios</string></array>'
+    printf '</dict></plist>\n'
     [ "${STUB_GTA:-false}" = absent ] || echo "get-task-allow=${STUB_GTA:-false}" ;;
 esac
 exit 0
