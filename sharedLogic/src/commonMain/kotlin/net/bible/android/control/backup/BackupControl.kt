@@ -18,6 +18,7 @@
 package net.bible.android.control.backup
 
 import okio.use
+import net.bible.sharedcore.ui.dialog.toAnswers
 import kotlinx.coroutines.IO
 import net.bible.sharedcore.platform.files.BackupFileSniffer
 import okio.FileSystem
@@ -221,7 +222,7 @@ class BackupControl(
                 options = listOf(
                     SettingsItem.Choice(SHARE_VALUE, strings.share),
                     SettingsItem.Choice(SAVE_VALUE, saveLabel),
-                ),
+                ).toAnswers(),
                 dismissText = null,
                 asActionSheet = true,
             ),
@@ -1104,7 +1105,7 @@ class BackupControl(
                 options = listOf(
                     SettingsItem.Choice(RESTORE_VALUE, strings.restore),
                     SettingsItem.Choice(IMPORT_VALUE, strings.import2),
-                ),
+                ).toAnswers(),
                 dismissText = strings.cancel,
                 asActionSheet = false,
             ),

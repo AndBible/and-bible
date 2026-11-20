@@ -18,6 +18,7 @@
 package net.bible.sharedui.ai
 
 import androidx.compose.foundation.clickable
+import net.bible.sharedcore.ui.dialog.toAnswers
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -457,7 +458,7 @@ fun AiPromptsScreen(
             options = listOf(
                 SettingsItem.Choice(value = "cascade", label = strings.deleteCategoryAndPromptsLabel),
                 SettingsItem.Choice(value = "keep", label = strings.deleteCategoryKeepPromptsLabel),
-            ),
+            ).toAnswers(),
             onSelect = { value -> deleteCategoryTarget = null; onDeleteCategory(cat.id, value == "cascade") },
             onDismissRequest = { deleteCategoryTarget = null },
             dismissText = strings.cancel,

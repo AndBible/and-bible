@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import androidx.compose.runtime.CompositionLocalProvider
+import net.bible.sharedcore.ui.dialog.toAnswers
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -60,7 +61,7 @@ class AbOptionsDialogLargeFontTest {
                         options = listOf(
                             SettingsItem.Choice(value = "yes", label = "Yes"),
                             SettingsItem.Choice(value = "dont_ask_again", label = "Do not ask again"),
-                        ),
+                        ).toAnswers(),
                         onSelect = {},
                         onDismissRequest = {},
                         dismissText = "Cancel",

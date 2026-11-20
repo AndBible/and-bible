@@ -17,6 +17,7 @@
 package net.bible.android.control.report
 
 import android.app.Activity
+import net.bible.sharedcore.ui.dialog.toAnswers
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -112,7 +113,7 @@ object ErrorReportControl {
                         options = listOf(
                             SettingsItem.Choice(REPORT_VALUE, context.getString(R.string.report_error)),
                             SettingsItem.Choice(BACKUP_VALUE, context.getString(R.string.backup_and_restore)),
-                        ),
+                        ).toAnswers(),
                         dismissText = context.getString(R.string.error_skip),
                         asActionSheet = true,
                         cancellable = isCancelable,
@@ -158,7 +159,7 @@ object ErrorReportControl {
                             SettingsItem.Choice(REPORT_VALUE, context.getString(R.string.report_error)),
                             SettingsItem.Choice(BACKUP_VALUE, context.getString(R.string.backup_and_restore)),
                             SettingsItem.Choice(RESET_VALUE, context.getString(R.string.corrupt_database_reset)),
-                        ),
+                        ).toAnswers(),
                         dismissText = context.getString(R.string.close),
                         asActionSheet = true,
                         cancellable = false,

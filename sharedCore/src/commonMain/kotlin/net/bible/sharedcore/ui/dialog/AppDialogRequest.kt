@@ -43,6 +43,8 @@ sealed interface AppDialogRequest {
         val dismissText: String? = null,
         val neutralText: String? = null,
         val cancellable: Boolean = false,
+        val detail: String? = null,
+        val destructive: Boolean = false,
     ) : AppDialogRequest
 
     /** Class B. [message] may be null (a title-only question, e.g. `simpleQuestion(message = null)`). */
@@ -52,6 +54,8 @@ sealed interface AppDialogRequest {
         val confirmText: String,
         val dismissText: String,
         val cancellable: Boolean = true,
+        val detail: String? = null,
+        val destructive: Boolean = false,
     ) : AppDialogRequest
 
     /** Class C, a sheet. */
@@ -107,7 +111,7 @@ sealed interface AppDialogRequest {
     data class Options(
         override val title: String?,
         val message: String?,
-        val options: List<SettingsItem.Choice>,
+        val options: List<DialogAnswer>,
         val dismissText: String?,
         val asActionSheet: Boolean,
         val cancellable: Boolean = true,

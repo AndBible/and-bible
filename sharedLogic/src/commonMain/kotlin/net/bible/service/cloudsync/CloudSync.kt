@@ -18,6 +18,7 @@
 package net.bible.service.cloudsync
 
 import kotlinx.coroutines.IO
+import net.bible.sharedcore.ui.dialog.toAnswers
 import okio.Path.Companion.toPath
 import okio.Path
 import okio.FileSystem
@@ -284,7 +285,7 @@ class CloudSync(
                     SettingsItem.Choice(FETCH_VALUE, strings.cloudFetchAndRestoreInitial),
                     SettingsItem.Choice(CREATE_VALUE, strings.cloudCreateNew),
                     SettingsItem.Choice(DISABLE_VALUE, strings.cloudDisableSync),
-                ),
+                ).toAnswers(),
                 dismissText = null,
                 asActionSheet = false,
                 cancellable = false,

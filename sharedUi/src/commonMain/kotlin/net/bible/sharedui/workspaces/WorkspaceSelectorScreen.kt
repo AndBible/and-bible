@@ -17,6 +17,7 @@
 package net.bible.sharedui.workspaces
 
 import androidx.compose.foundation.layout.Arrangement
+import net.bible.sharedcore.ui.dialog.toAnswers
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -285,7 +286,7 @@ fun WorkspaceSelectorScreen(
             options = listOf(
                 SettingsItem.Choice(value = "yes", label = s.yes),
                 SettingsItem.Choice(value = "no", label = s.no),
-            ),
+            ).toAnswers(),
             onSelect = { value -> onConfirmPendingSelect(value == "yes") },
             onDismissRequest = onDismissPendingSelect,
         )

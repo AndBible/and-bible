@@ -1,6 +1,7 @@
 package net.bible.sharedui.desktop.update
 
 import java.net.URI
+import net.bible.sharedcore.ui.dialog.toAnswers
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
@@ -60,7 +61,7 @@ class DesktopUpdatePrompts(
             val table = strings.current
             AppDialogRequest.Options(table.text("desktop_update_consent_title"), table.text("desktop_update_consent_message"),
                 listOf(SettingsItem.Choice("yes", table.text("desktop_update_consent_yes")),
-                    SettingsItem.Choice("no", table.text("desktop_update_consent_no"))),
+                    SettingsItem.Choice("no", table.text("desktop_update_consent_no"))).toAnswers(),
                 dismissText = null, asActionSheet = false, cancellable = false)
         })) {
             is AppDialogResult.Selected -> when (result.value) { "yes" -> true; "no" -> false; else -> null }
@@ -75,7 +76,7 @@ class DesktopUpdatePrompts(
                     SettingsItem.Choice("snooze_day", table.text("desktop_update_snooze_day")),
                     SettingsItem.Choice("snooze_week", table.text("desktop_update_snooze_week")),
                     SettingsItem.Choice("snooze_month", table.text("desktop_update_snooze_month")),
-                    SettingsItem.Choice("skip", table.text("desktop_update_skip"))),
+                    SettingsItem.Choice("skip", table.text("desktop_update_skip"))).toAnswers(),
                 dismissText = null, asActionSheet = false, cancellable = false,
                 checkboxLabel = table.text("desktop_update_dont_notify"))
         })

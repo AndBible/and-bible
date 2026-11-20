@@ -18,6 +18,7 @@
 package net.bible.service.common
 
 import net.bible.sharedcore.platform.files.BackupFileSniffer
+import net.bible.sharedcore.ui.dialog.toAnswers
 import okio.Path.Companion.toOkioPath
 import okio.source
 import android.Manifest
@@ -1228,7 +1229,7 @@ object CommonUtils : CommonUtilsBase() {
                     SettingsItem.Choice(proceedValue, application.getString(R.string.proceed_anyway)),
                     SettingsItem.Choice(dismissValue, application.getString(R.string.beta_notice_dismiss_until_update)),
                     SettingsItem.Choice(closeValue, application.getString(R.string.close)),
-                ),
+                ).toAnswers(),
                 dismissText = null,
                 asActionSheet = false,
                 cancellable = false,

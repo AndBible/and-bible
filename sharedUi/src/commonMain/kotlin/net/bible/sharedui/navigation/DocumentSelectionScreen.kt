@@ -17,6 +17,7 @@
 package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.layout.RowScope
+import net.bible.sharedcore.ui.dialog.toAnswers
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
@@ -259,7 +260,7 @@ fun DocumentSelectionScreen(
             options = listOf(
                 SettingsItem.Choice(value = "yes", label = strings.yes),
                 SettingsItem.Choice(value = "dont_ask_again", label = strings.doNotAskAgain),
-            ),
+            ).toAnswers(),
             onSelect = { value ->
                 onConfirmProceed(if (value == "dont_ask_again") ProceedAnswer.DONT_ASK_AGAIN else ProceedAnswer.YES)
             },

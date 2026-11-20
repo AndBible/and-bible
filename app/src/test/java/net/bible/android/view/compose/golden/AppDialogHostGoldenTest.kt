@@ -18,6 +18,7 @@
 package net.bible.android.view.compose.golden
 
 import net.bible.android.TEST_SDK
+import net.bible.sharedcore.ui.dialog.toAnswers
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.ShownDialog
@@ -81,7 +82,7 @@ class AppDialogHostGoldenTest {
         host(
             AppDialogRequest.Options(
                 title = "Restore or import?", message = "Choose what to do with this backup.",
-                options = listOf(SettingsItem.Choice("restore", "Restore"), SettingsItem.Choice("import", "Import")),
+                options = listOf(SettingsItem.Choice("restore", "Restore"), SettingsItem.Choice("import", "Import")).toAnswers(),
                 dismissText = "Cancel", asActionSheet = false,
             ),
         ).invoke()
@@ -93,7 +94,7 @@ class AppDialogHostGoldenTest {
                 title = "New version available",
                 message = "AndBible production-99999 is available. You have 6.0.1266.<br><br>" +
                     "You can turn update checks back on in Settings → Check for updates.",
-                options = listOf(SettingsItem.Choice("download", "Download"), SettingsItem.Choice("later", "Later")),
+                options = listOf(SettingsItem.Choice("download", "Download"), SettingsItem.Choice("later", "Later")).toAnswers(),
                 dismissText = null, asActionSheet = false, cancellable = false,
                 checkboxLabel = "Don't notify me about updates",
             ),
