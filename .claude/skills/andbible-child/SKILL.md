@@ -90,7 +90,9 @@ not repeated.
 
 ## `done` report
 
-Send with `--wait` (base skill). Use these headings; write "none" rather than dropping one.
+Send with `--wait` (base skill) as the `done` kind (`jailbee inbox send done ...`), never as a `note` or
+`message`: only `done` imports your branch (2026-11-21: three children sent the report as a note and sat idle).
+Use these headings; write "none" rather than dropping one.
 
 ```text
 Branch / HEAD: <branch> <sha>
