@@ -61,7 +61,7 @@ class WorkspaceSelectorSummaryTruncationTest {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 WorkspaceSelectorScreen(
-                    title = "Select workspace",
+                    title = "Manage workspaces",
                     workspaces = listOf(WorkspaceRowVd("1", "Study", summaryState.value, 0xFF2E7D32.toInt(), isCurrent = false)),
                     dirty = false, canDelete = true, filtering = false, query = "", searchModeActive = false,
                     copySettingsState = null, pendingSelectId = null,
