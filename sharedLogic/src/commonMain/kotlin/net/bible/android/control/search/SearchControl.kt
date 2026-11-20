@@ -20,6 +20,12 @@ import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import org.crosswire.jsword.index.IndexManagerFactory
+import org.crosswire.jsword.index.RegexSearchBudget
+import org.crosswire.jsword.index.RegexSearchResult
+import org.crosswire.jsword.index.RegexSearchableIndex
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
@@ -34,6 +40,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.fts.SearchFields
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 
 /** Data classes for multi-translation search results */
@@ -52,6 +59,8 @@ data class GroupedSearchResult(
 class MultiSearchResultsDto {
     val mainSearchResults = mutableListOf<GroupedSearchResult>()
     val otherSearchResults = mutableListOf<GroupedSearchResult>()
+    /** A regex scan ran out of its time budget before it had seen every verse. */
+    var truncatedByTime: Boolean = false
     val size: Int get() = mainSearchResults.size + otherSearchResults.size
 }
 
@@ -177,6 +186,99 @@ class SearchControl constructor(
             }
         }
 
+        groupAndSort(groupedResults, searchResults)
+
+        Log.i(TAG, "Multi-search found ${searchResults.size} unique verses")
+        searchResults
+    }
+
+    /**
+     * Regex search over the stored verse texts of the Bibles among [documentInitials], grouped like
+     * [getMultiSearchResults]. Other documents (commentaries, dictionaries, ...) are skipped: regex search is for Bible
+     * texts. One budget is shared by every translation, so the whole search stops at [budgetDuration] (or when the
+     * calling coroutine is cancelled); [MultiSearchResultsDto.truncatedByTime] then says the list is partial.
+     *
+     * Each translation is scanned on an abandonable worker ([scanWithinBudget]): a pattern the regex engine cannot be
+     * interrupted in (Android's ICU engine) ends the search [REGEX_ABANDON_GRACE] after the budget, as truncated, with
+     * the results of the translations scanned before it. A translation whose index fails makes the result partial, and
+     * when all of them fail the [BookException] is thrown (never an empty list). [bookLookup] is injectable for tests.
+     */
+    suspend fun getMultiRegexResults(
+        documentInitials: List<String>,
+        regex: Regex,
+        bibleSection: SearchBibleSection,
+        currentBookName: String?,
+        budgetDuration: Duration = REGEX_SEARCH_BUDGET,
+        bookLookup: (String) -> Book? = { SwordDocumentFacade.getDocumentByInitials(it) },
+    ): MultiSearchResultsDto = withContext(Dispatchers.IO) {
+        require(bibleSection != SearchBibleSection.CURRENT_BOOK || !currentBookName.isNullOrBlank()) {
+            "Searching the current book needs a book name"
+        }
+        val searchResults = MultiSearchResultsDto()
+        val books = documentInitials.mapNotNull { initials ->
+            (bookLookup(initials) as? SwordBook)?.takeIf { it.indexStatus == IndexStatus.DONE && it.bookCategory == BookCategory.BIBLE }
+        }
+        val outcome = scanWithinBudget(books, budgetDuration) { book, budget -> regexScanOf(book, regex, bibleSection, currentBookName, budget) }
+        val failures = outcome.results.mapNotNull { (_, scan) -> scan.error }
+        // Every translation that took part failed: that is an error, not an empty result.
+        if (!outcome.timedOut && failures.isNotEmpty() && outcome.results.all { (_, scan) -> scan.error != null }) throw failures.first()
+        // A translation that failed while others succeeded makes the list partial, which the notice says.
+        searchResults.truncatedByTime = outcome.timedOut || failures.isNotEmpty() ||
+            outcome.results.any { (_, scan) -> scan.result?.truncated == true }
+
+        val groupedResults = mutableMapOf<String, MutableList<TranslationMatch>>()
+        for ((book, scan) in outcome.results) {
+            val result = scan.result ?: continue
+            val count = minOf(result.keys.getCardinality(), MAX_SEARCH_RESULTS + 1)
+            val keyIterator = result.keys.iterator()
+            for (i in 0 until count) {
+                val key = keyIterator.next()
+                if (key is Verse) {
+                    val normalizedKey = "${key.book.ordinal}:${key.chapter}:${key.verse}"
+                    groupedResults.getOrPut(normalizedKey) { mutableListOf() }.add(TranslationMatch(book, key))
+                }
+            }
+        }
+        groupAndSort(groupedResults, searchResults)
+        Log.i(TAG, "Regex search found ${searchResults.size} unique verses, truncatedByTime=${searchResults.truncatedByTime}")
+        searchResults
+    }
+
+    /** The outcome of one translation's regex scan: [result] is null when the translation is skipped; [error] when its index failed. */
+    private class BookScan(val result: RegexSearchResult?, val error: Exception? = null)
+
+    /**
+     * One translation's regex scan. A translation that cannot take part (no regex index, the section does not exist in
+     * it) is skipped with a null result. An index that fails is not hidden as "nothing found": the scan carries the
+     * [BookScan.error] for [getMultiRegexResults] to report.
+     */
+    private fun regexScanOf(
+        book: SwordBook, regex: Regex, bibleSection: SearchBibleSection, currentBookName: String?, budget: RegexSearchBudget,
+    ): BookScan = try {
+        val index = IndexManagerFactory.getIndexManager().getIndex(book) as? RegexSearchableIndex
+        if (index == null) BookScan(null) else {
+            val restriction = when (bibleSection) {
+                SearchBibleSection.ALL -> null
+                SearchBibleSection.OT -> book.getKey(SEARCH_OT_RANGE)
+                SearchBibleSection.NT -> book.getKey(SEARCH_NT_RANGE)
+                SearchBibleSection.CURRENT_BOOK -> book.getKey(currentBookName!!)
+            }
+            BookScan(index.findRegex(regex, restriction, MAX_SEARCH_RESULTS + 1, budget))
+        }
+    } catch (e: NoSuchKeyException) {
+        // The section does not exist in this book's versification (or the book name is unknown): skip it.
+        Log.e(TAG, "No such section in ${book.initials}: ${e.message}")
+        BookScan(null)
+    } catch (e: BookException) {
+        Log.e(TAG, "Error regex-searching ${book.initials}: ${e.message}", e)
+        BookScan(null, e)
+    }
+
+    /** Splits the per-verse matches into Scripture and other rows and sorts both in canonical order. */
+    private fun groupAndSort(
+        groupedResults: Map<String, List<TranslationMatch>>,
+        searchResults: MultiSearchResultsDto,
+    ) {
         // Convert to list and sort
         for ((_, matches) in groupedResults) {
             val firstMatch = matches.first()
@@ -199,9 +301,6 @@ class SearchControl constructor(
             { it.normalizedVerse.chapter },
             { it.normalizedVerse.verse }
         ))
-
-        Log.i(TAG, "Multi-search found ${searchResults.size} unique verses")
-        searchResults
     }
 
     /** double spaces, :, and leading or trailing space cause lucene errors
@@ -271,6 +370,10 @@ class SearchControl constructor(
     companion object {
         private const val SEARCH_OLD_TESTAMENT = "+[Gen-Mal]"
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
+        private const val SEARCH_OT_RANGE = "Gen-Mal"
+        private const val SEARCH_NT_RANGE = "Mat-Rev"
+        /** Wall-clock limit of one regex search over all selected translations. */
+        val REGEX_SEARCH_BUDGET: Duration = 3.seconds
         const val SEARCH_TEXT = "SearchText"
         /** Section-less decorated query passed to the classic result adapter for highlighting. */
         const val SEARCH_HIGHLIGHT_TEXT = "SearchHighlightText"

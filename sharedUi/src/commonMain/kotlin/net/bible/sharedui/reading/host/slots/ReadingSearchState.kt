@@ -159,6 +159,7 @@ class ReadingSearchState(
     val controller get() = session.controller
     val queries get() = session.queries
     val searchType get() = session.searchType
+    val searchRegex get() = session.searchRegex
     val searchSection get() = session.searchSection
     val searchTranslations get() = session.searchTranslations
     val searchAvailableTranslations get() = session.searchAvailableTranslations

@@ -140,6 +140,10 @@ interface CoreStrings {
     val exportDestinationTitle: String // R.string.export_destination_title
     val exportDestinationMessage: String // R.string.export_destination_message
     fun searchUnsupportedSyntax(syntax: String): String // R.string.search_unsupported_syntax
+    fun searchInvalidRegex(engineMessage: String): String // R.string.search_invalid_regex
+    val searchRegexTooManyWildcards: String // R.string.search_regex_too_many_wildcards
+    val searchRegexNestedRepetition: String // R.string.search_regex_nested_repetition
+    val searchRegexBusy: String // R.string.search_regex_busy
     val memorizeWordVisibilityEntries: List<String> // R.array.memorize_word_visibility_entries
     val memorizeWordVisibilityValues: List<String> // R.array.memorize_word_visibility_values
     val cantChangeWholeVerse: String // R.string.cant_change_wholeverse

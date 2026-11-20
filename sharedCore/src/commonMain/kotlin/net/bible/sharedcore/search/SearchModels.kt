@@ -29,6 +29,8 @@ data class SearchRequest(
     val translationIds: List<String>,   // Book.initials; addressing key, never a list index
     val currentBookName: String,
     val isStrongsSearch: Boolean = false,
+    /** The query is a regular expression scanned over the stored verse texts, not a Lucene query. */
+    val isRegex: Boolean = false,
 )
 
 /** A selectable Bible for the results document selector. [id] is a Book.initials string (addressing key, never an index). */
@@ -44,6 +46,8 @@ data class MultiSearchResults(
     val main: List<SwordResultRow>,
     val other: List<SwordResultRow>,
     val total: Int,
+    /** A regex scan stopped at its time budget: the results are only those found so far. */
+    val truncatedByTime: Boolean = false,
 ) {
     companion object { val EMPTY = MultiSearchResults(emptyList(), emptyList(), 0) }
 }

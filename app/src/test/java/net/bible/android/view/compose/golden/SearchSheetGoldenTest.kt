@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.StyledRun
@@ -32,6 +33,7 @@ import net.bible.sharedui.search.BibleResultsActions
 import net.bible.sharedui.search.SearchSheetContent
 import net.bible.sharedui.search.SearchResultTargetMenuRows
 import net.bible.sharedui.search.bibleResultRows
+import net.bible.sharedui.strings.AndroidStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,6 +62,8 @@ class SearchSheetGoldenTest {
             StyledRun(after),
         ),
     )
+
+    private val strings = AndroidStrings(ApplicationProvider.getApplicationContext())
 
     private val rows = listOf(
         SwordResultRow(
@@ -99,6 +103,7 @@ class SearchSheetGoldenTest {
         error: String? = null,
         empty: Boolean = false,
         rows: List<SwordResultRow> = this.rows,
+        notice: String? = null,
     ): @Composable () -> Unit = {
         val expanded = remember { mutableStateMapOf<String, Boolean>() }
         SearchSheetContent(
@@ -106,6 +111,7 @@ class SearchSheetGoldenTest {
             loading = loading,
             error = error,
             empty = empty,
+            notice = notice,
             listState = rememberLazyListState(),
             onDismissError = {},
             onClose = {},
@@ -152,4 +158,10 @@ class SearchSheetGoldenTest {
     // The error dialog replaces the old activity's toast-then-finish: the sheet stays open behind it.
     @Test fun error() =
         captureGolden("SearchSheet", "error", EDGE_MODE, content = sheet(error = "Search failed: index is corrupt"))
+
+    // A regex search that hit its time budget: the one-line notice sits above the (partial) results.
+    @Test fun resultsTruncatedNotice() = captureMatrix(
+        "SearchSheet", "resultsTruncatedNotice", heightDp = 400,
+        content = sheet(notice = strings.searchResultsTruncated),
+    )
 }

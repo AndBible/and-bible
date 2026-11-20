@@ -26,6 +26,7 @@ import net.bible.sharedui.strings.AndroidStrings
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.not
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -46,6 +47,7 @@ class BibleSearchSettingsSummaryTest {
     private fun summary(
         bibleSection: SearchBibleSection,
         currentBookName: String,
+        regex: Boolean = false,
     ) = bibleSearchSettingsSummary(
         strings = strings,
         searchType = SearchType.ALL_WORDS,
@@ -53,6 +55,7 @@ class BibleSearchSettingsSummaryTest {
         availableTranslations = translations,
         selectedTranslationIds = listOf("esv"),
         currentBookName = currentBookName,
+        regex = regex,
     )
 
     @Test
@@ -76,5 +79,16 @@ class BibleSearchSettingsSummaryTest {
         assertThat(summary(SearchBibleSection.ALL, "Luke"), containsString(strings.searchAllBible))
         assertThat(summary(SearchBibleSection.OLD_TESTAMENT, "Luke"), containsString(strings.searchOldTestament))
         assertThat(summary(SearchBibleSection.NEW_TESTAMENT, "Luke"), containsString(strings.searchNewTestament))
+    }
+
+    // With the regex switch on, the word mode does not apply: the summary says "Regex" in its place.
+    @Test
+    fun theRegexSwitchReplacesTheWordModeInTheSummary() {
+        assertEquals(
+            "${strings.searchAllBible} · ${strings.searchRegexSummary} · ESV",
+            summary(SearchBibleSection.ALL, "", regex = true),
+        )
+        assertEquals("Regex", strings.searchRegexSummary)
+        assertThat(summary(SearchBibleSection.ALL, "", regex = true), not(containsString(strings.allWords)))
     }
 }

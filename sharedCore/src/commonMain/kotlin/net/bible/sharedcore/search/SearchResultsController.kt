@@ -108,7 +108,7 @@ class SearchResultsController(
         _loading.value = false
         _selectedTranslations.value = ids
         service.persistSelection(ids, isStrongsSearch)
-        val unindexed = service.unindexedAmong(ids)
+        val unindexed = service.unindexedAmong(ids, storedRequest?.isRegex == true)
         if (unindexed.isNotEmpty()) {
             onNeedIndex(unindexed, ids)
             return
