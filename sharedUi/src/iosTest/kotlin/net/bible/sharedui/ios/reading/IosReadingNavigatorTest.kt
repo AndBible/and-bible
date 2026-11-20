@@ -130,6 +130,7 @@ class IosReadingNavigatorTest {
                 downloadControl = { koin.get<DownloadControl>() },
                 fakeBooks = { koin.get<FakeBookFactory>() },
                 mainContext = Dispatchers.Unconfined,
+                openReadingSearch = {},
             )
             try {
                 runBlocking { Fixture(navigator, nav, shell, links, labels, host.hostState).block() }
@@ -150,16 +151,6 @@ class IosReadingNavigatorTest {
         key = "k", bookInitials = "X", ordinalStart = null, ordinalEnd = null, startOffset = null, endOffset = null,
         playbackSettings = null, primaryLabelId = primary,
     )
-
-    @Test
-    fun searchRouteMatchesAndroidSearchIntent() {
-        // An indexed Bible/commentary searches in place (the reading sheet), never through a route.
-        assertNull(searchRoute(indexDone = true, isEpub = false, isGeneralBook = false, initials = "KJV"))
-        assertEquals(NavRoutes.EPUB_SEARCH, searchRoute(indexDone = true, isEpub = true, isGeneralBook = false, initials = "E"))
-        assertNull(searchRoute(indexDone = false, isEpub = false, isGeneralBook = true, initials = "G"))
-        assertEquals(NavRoutes.searchIndex(searchDocument = "KJV"), searchRoute(false, false, false, "KJV"))
-        assertEquals(NavRoutes.searchIndex(searchDocument = null), searchRoute(false, false, false, null))
-    }
 
     /** Android's `composeSearch` opens the reading view's own search: no screen is navigated to. */
     @Test
@@ -192,6 +183,7 @@ class IosReadingNavigatorTest {
             fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
             mainContext = Dispatchers.Unconfined,
             chooserRequests = recording,
+            openReadingSearch = {},
         )
         withRequests.openWorkspaceSelector()
         assertEquals(listOf(ChooserKind.Workspace), kinds)
@@ -208,7 +200,6 @@ class IosReadingNavigatorTest {
         navigator.openChooseDocument("Bibles")
         navigator.openChooseDocument(null)
         navigator.openPromptEditor("p1")
-        navigator.openSearch(null)
         assertEquals(
             listOf(
                 NavRoutes.download(search = "KJV"),
@@ -219,7 +210,6 @@ class IosReadingNavigatorTest {
                 NavRoutes.chooseDocument("Bibles"),
                 NavRoutes.chooseDocument(null),
                 NavRoutes.promptEdit(promptId = "p1"),
-                NavRoutes.searchIndex(searchDocument = null),
             ),
             nav.routes,
         )
@@ -343,6 +333,7 @@ class IosReadingNavigatorTest {
         fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
         workspaceSettings = { settings },
         mainContext = Dispatchers.Unconfined,
+        openReadingSearch = {},
     )
 
     private fun Fixture.deliverWorkspace(labelIds: Set<IdType>, primary: IdType?, reset: Boolean = false) {

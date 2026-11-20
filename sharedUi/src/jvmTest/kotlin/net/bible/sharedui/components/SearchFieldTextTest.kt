@@ -13,9 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedcore.navigation.DictRow
-import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedui.navigation.ChooseDictionaryWordScreen
-import net.bible.sharedui.search.EpubSearchScreen
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
@@ -23,7 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Non-reading [AbSearchField] callers (dictionary word chooser, EPUB search, SWORD search): the controller's query comes
+ * Non-reading [AbSearchField] callers (the dictionary word chooser): the controller's query comes
  * back through `collectAsState` a dispatch after the keystroke. The echo is held in a queue at the real screen's
  * `query` / `onQueryChange` boundary; two keystrokes before the first echo must both survive. The reading toolbar's
  * search field is R3's and not covered here.
@@ -56,13 +54,6 @@ class SearchFieldTextTest {
         )
     }
 
-    private fun ComposeUiTest.showEpub(h: Harness) = mount {
-        EpubSearchScreen(
-            title = "EPUB", query = h.shown, mode = EpubSearchMode.ALL_WORDS,
-            onQueryChange = h::onChange, onMode = {}, onSubmit = {}, onHelp = {}, onNavigateUp = {},
-        )
-    }
-
     /** Types "a", lets the screen recompose with the echo still held, then types "b". */
     private fun ComposeUiTest.typeTwoBeforeEcho(h: Harness): String {
         val node = field()
@@ -85,14 +76,8 @@ class SearchFieldTextTest {
         assertEquals("ab", field().text())
     }
 
-    @Test fun epubSearchFieldKeepsBothKeystrokesWhileTheEchoIsDelayed() = runComposeUiTest {
-        val h = Harness(); showEpub(h)
-        assertEquals("ab", typeTwoBeforeEcho(h))
-        assertEquals("ab", field().text())
-    }
-
     @Test fun aStaleEchoDeliveredAloneNeverOverwritesNewerInput() = runComposeUiTest {
-        val h = Harness(); showEpub(h)
+        val h = Harness(); showDictionary(h)
         val node = field()
         node.performClick()
         node.performTextInput("a")

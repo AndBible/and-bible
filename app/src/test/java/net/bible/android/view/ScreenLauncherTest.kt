@@ -41,21 +41,11 @@ class ScreenLauncherTest {
 
     private val context get() = ApplicationProvider.getApplicationContext<android.content.Context>()
 
-    // The thirteen tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
+    // The tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
     // by nav-graph 3/5/6 Task 9, which deleted all thirteen reading-plan/search/settings host
     // Activities outright (targetFor throws for these Screens now -- see
     // ScreenLauncher.targetForMigratedScreen). Ten assert the MIGRATED route; the three whose
     // Screen is deliberately absent from MIGRATED assert that absence plus a throwing intentFor.
-
-    @Test
-    fun searchIndexProgress_isNotMigrated_argumentLessRouteHasNoSafeMeaning() {
-        // An argument-free index-progress route watches nothing and can route nowhere when
-        // indexing ends, so Screen.SearchIndexProgress is deliberately absent from MIGRATED; with
-        // the classic Activity gone, intentFor falls through to targetFor and throws.
-        // See NavHostRoutingGuardTest.searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt.
-        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.SearchIndexProgress))
-        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchIndexProgress) }
-    }
 
     @Test
     fun readingPlanSelector_routes_to_the_nav_graph() {
@@ -85,18 +75,13 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun searchIndex_routes_to_the_nav_graph() {
-        assertEquals(NavRoutes.searchIndex(), ScreenLauncher.MIGRATED[Screen.SearchIndex])
-    }
-
-    @Test
     fun standaloneResultsAreNoLongerLauncherScreens() {
         assertFalse(Screen.entries.any { it.name == "SearchResults" || it.name == "EpubSearchResults" })
     }
 
     @Test
-    fun epubSearch_routes_to_the_nav_graph() {
-        assertEquals(NavRoutes.EPUB_SEARCH, ScreenLauncher.MIGRATED[Screen.EpubSearch])
+    fun theRemovedFullScreenSearchScreensAreNoLongerLauncherScreens() {
+        assertFalse(Screen.entries.any { it.name in setOf("SearchIndex", "SearchIndexProgress", "EpubSearch") })
     }
 
     // Converted from `targetFor(Screen.MyDocuments) == MyDocumentsComposeActivity::class.java` to

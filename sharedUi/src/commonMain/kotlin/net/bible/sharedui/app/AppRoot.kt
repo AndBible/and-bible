@@ -28,8 +28,6 @@ import net.bible.sharedui.navigation.nav.ChooserNavDeps
 import net.bible.sharedui.navigation.nav.chooserNavGraph
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
 import net.bible.sharedui.readingplan.nav.readingPlanNavGraph
-import net.bible.sharedui.search.nav.SearchNavDeps
-import net.bible.sharedui.search.nav.searchNavGraph
 import net.bible.sharedui.settings.nav.SettingsNavDeps
 import net.bible.sharedui.settings.nav.settingsNavGraph
 import net.bible.sharedui.startup.nav.WelcomeNavDeps
@@ -43,7 +41,6 @@ class AppGraphs(
     val ai: AiNavDeps,
     val bookmark: BookmarkNavDeps,
     val readingPlan: ReadingPlanNavDeps,
-    val search: SearchNavDeps,
     val settings: SettingsNavDeps,
     val download: DownloadNavDeps,
     val myDocuments: MyDocumentsNavDeps,
@@ -85,7 +82,6 @@ fun AppRoot(
         aiNavGraph(navController, graphs.ai)
         bookmarkNavGraph(navController, graphs.bookmark)
         readingPlanNavGraph(navController, graphs.readingPlan)
-        searchNavGraph(navController, graphs.search)
         settingsNavGraph(navController, graphs.settings)
         downloadNavGraph(navController, graphs.download)
         myDocumentsNavGraph(navController, graphs.myDocuments)

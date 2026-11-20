@@ -26,9 +26,30 @@ class AppRoutesTest {
         assertEquals(NavRoutes.READING, navHostStartRoute("search/form", null, onMissing = { fail() }))
     }
 
+    /**
+     * #4170: the EPUB search form, the search-index prompt and its progress screen are gone. A restored or stale start
+     * route naming one (with the argument tails the index routes carried) must open reading, not crash the NavHost.
+     */
+    @Test
+    fun aRestoredRemovedFullScreenSearchRouteOpensReading() {
+        val stale = listOf(
+            "search/epub",
+            "search/index?searchText=love&highlightText=&searchDocument=ESV&selectedTranslations=ESV&isStrongsSearch=false",
+            "search/indexProgress?searchText=love&searchDocument=ESV&isStrongsSearch=true&readingSearchRequest=x",
+            "search/index",
+            "search/indexProgress",
+        )
+        for (route in stale) {
+            assertEquals(NavRoutes.READING, navHostStartRoute(route, null, onMissing = { fail() }), route)
+            assertEquals(NavRoutes.READING, navHostStartRoute(null, route, onMissing = { fail() }), route)
+        }
+    }
+
     @Test
     fun retiredRouteRedirectMatchesTheWholeBaseOnly() {
-        assertEquals(NavRoutes.EPUB_SEARCH, withoutRetiredRoute(NavRoutes.EPUB_SEARCH))
+        assertEquals(NavRoutes.AI_MODELS, withoutRetiredRoute(NavRoutes.AI_MODELS))
+        assertEquals("search/epubs", withoutRetiredRoute("search/epubs"))
+        assertEquals("search/indexed", withoutRetiredRoute("search/indexed"))
         assertEquals("search/formal", withoutRetiredRoute("search/formal"))
         assertEquals("settings?x=search/form", withoutRetiredRoute("settings?x=search/form"))
     }

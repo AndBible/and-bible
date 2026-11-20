@@ -109,10 +109,16 @@ fun isDailyReadingRoute(route: String): Boolean {
 }
 
 /** Base paths of destinations that no longer exist but may still arrive as a restored or stale start route. */
-private val RETIRED_ROUTE_BASES = setOf("search/form")
+private val RETIRED_ROUTE_BASES = setOf(
+    "search/form",
+    // #4170: the full-screen EPUB search form, the search-index prompt and its progress screen.
+    "search/epub",
+    "search/index",
+    "search/indexProgress",
+)
 
 /**
- * A start route naming a retired destination (the legacy search form, removed in #4164) would make the NavHost throw
+ * A start route naming a retired destination (the legacy search form, removed in #4164, and the EPUB search form, index prompt and index progress screens, removed in #4170) would make the NavHost throw
  * while building its graph, so it resolves to [NavRoutes.READING] instead: the reading view's own search sheet is what
  * every search entry point opens now. Any other route is returned unchanged.
  */

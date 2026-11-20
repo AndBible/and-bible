@@ -49,8 +49,7 @@ import net.bible.sharedui.strings.LocalStrings
  *
  * This is deliberately **not** `SearchIndexProgressScreen`, which is a full `AbScaffold` screen and
  * is shared with `ProgressStatusComposeActivity` (Batch 13 T7); making it sheet-shaped would break
- * that second caller. Only `ProgressRow` and the wording are reused. Likewise not
- * `SearchIndexScreen`, whose prompt is wrapped in its own scaffold for the standalone Activity.
+ * that second caller. Only `ProgressRow` and the wording are reused.
  *
  * There is **no "Continue in background" button**: in an Activity that button existed only to get
  * the user off a screen that owned the whole window, whereas here closing (or just dragging away
@@ -106,7 +105,7 @@ fun SearchIndexPanel(
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.height(16.dp))
-            // End-aligned, unlike SearchIndexScreen's start-aligned Row: the panel is as wide as the
+            // End-aligned: the panel is as wide as the
             // sheet, so the actions anchor to the trailing edge the way any Material action row does.
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onCancel) { Text(strings.cancel) }

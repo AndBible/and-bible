@@ -166,56 +166,23 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
-    fun searchIndexResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
-        // Also a real screen without arguments: classic `SearchIndexComposeActivity.kt:46` falls
-        // back to the CURRENT PAGE's document when SEARCH_DOCUMENT is absent, so an argument-free
-        // index prompt has a defined meaning ("index the book I am reading").
-        val intent = ScreenLauncher.intentFor(context, Screen.SearchIndex)
-        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
-        assertEquals(NavRoutes.searchIndex(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
-    }
-
-    /**
-     * The slice-5 twin of [rawLlmLogIsNotInMigratedAndIntentForThrows], and the reason
-     * `Screen.SearchIndexProgress` is deliberately absent from [ScreenLauncher.MIGRATED] even
-     * though its destination now exists in the graph: an ARGUMENT-FREE index-progress route has no
-     * safe meaning. Every real edge into that screen (classic
-     * `SearchIndexComposeActivity.kt:72`, now the graph's `SEARCH_INDEX_PATTERN` arm) builds a
-     * route carrying the chain's five arguments; a bare `ScreenLauncher.open(ctx,
-     * Screen.SearchIndexProgress)` would open a progress screen watching nothing, which then has
-     * no document to route onward to when indexing completes.
-     *
-     * Task 9 deleted the six search host Activities, so this now asserts exactly what the
-     * AI-cluster twin does: absent from MIGRATED, and `intentFor` falls through to `targetFor`,
-     * whose `targetForMigratedScreen` guard throws. (Between slice 5 and Task 9 it asserted the
-     * weaker "never the nav host with an argument-free route", because the classic Activity was
-     * still a legal fallback target; the guarantee that matters is unchanged, and is now stronger.)
-     */
-    @Test
-    fun searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
-        assertTrue(Screen.SearchIndexProgress !in ScreenLauncher.MIGRATED)
-        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchIndexProgress) }
-    }
-
-    @Test
-    fun epubSearchResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
-        // The EPUB search FORM is argument-free by construction — classic
-        // `EpubSearchComposeActivity` read no extras at all and took its document from the current
-        // page — so `NavRoutes.EPUB_SEARCH` is the whole route and a valid MIGRATED value. (Its two
-        // callers, `SearchControl.getSearchIntent` and classic `SearchIndexProgressComposeActivity`,
-        // both build it with no extras.)
-        val intent = ScreenLauncher.intentFor(context, Screen.EpubSearch)
-        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
-        assertEquals(NavRoutes.EPUB_SEARCH, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
-    }
-
-    @Test
     fun standaloneResultsAreNotScreenLauncherTargets() {
         assertFalse(Screen.entries.any { it.name in setOf("SearchResults", "EpubSearchResults") })
         val bases = registeredRoutePatterns().map { it.substringBefore('?') }
         assertFalse("search/results" in bases)
         assertFalse("search/epubResults" in bases)
         assertTrue(NavRoutes.READING_SEARCH_PATTERN in registeredRoutePatterns())
+    }
+
+    /** #4170: the EPUB search form, the index prompt and the index progress screen are not destinations any more. */
+    @Test
+    fun theRemovedFullScreenSearchRoutesAreNotRegisteredAndHaveNoScreenLauncherTarget() {
+        assertFalse(Screen.entries.any { it.name in setOf("SearchIndex", "SearchIndexProgress", "EpubSearch") })
+        val bases = registeredRoutePatterns().map { it.substringBefore('?') }
+        for (removed in listOf("search/epub", "search/index", "search/indexProgress")) {
+            assertFalse(removed in bases, "$removed is a removed route but a graph registers it")
+        }
+        assertFalse(bases.any { it.startsWith("search/") }, "no destination may live under the search/ prefix: $bases")
     }
 
     @Test
@@ -1108,36 +1075,6 @@ class NavHostRoutingGuardTest {
                 "bookmarkResults.pending, so the row the user taps would be published to a flow " +
                 "nobody reads and silently dropped -- see this test's kdoc. Offenders:\n" +
                 offenders.joinToString("\n"),
-        )
-    }
-
-    @Test
-    fun searchGraphRoutesResultsToReadingInsteadOfStandaloneDestinations() {
-        val graph = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/search/nav/SearchNavGraph.kt")
-        assertTrue(graph.isFile, "cannot find SearchNavGraph.kt at ${graph.absolutePath}")
-        val source = withoutComments(graph.readText())
-        assertTrue(source.contains("NavRoutes.readingSearch("), "search continuations must use the reading handoff")
-        for (removed in listOf("NavRoutes.SEARCH_RESULTS_PATTERN", "NavRoutes.EPUB_SEARCH_RESULTS_PATTERN", "NavRoutes.searchResults(", "NavRoutes.epubSearchResults(", "SearchResultsDeps", "EpubSearchResultsDeps", "SearchResultsScreen", "EpubSearchResultsScreen")) {
-            assertFalse(source.contains(removed), "standalone results route remains: $removed")
-        }
-    }
-
-    /**
-     * CR-2 review M6: the index-progress error's dismiss must leave the screen, so the route wires
-     * `controller::dismissErrorAndLeave`. The controller method is unit-tested on its own, but
-     * nothing else fails if the route is pointed back at `controller::dismissError`, which only
-     * clears the error and leaves the user stranded on the progress screen. Source-text pin on the
-     * real (uncommented) wiring line, since the graph is a Compose composable and cannot be driven
-     * here without a full nav host.
-     */
-    @Test
-    fun theIndexProgressErrorDismissalLeavesTheScreen() {
-        val graph = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/search/nav/SearchNavGraph.kt")
-        assertTrue(graph.isFile, "cannot find SearchNavGraph.kt at ${graph.absolutePath}")
-        val wiring = Regex("^\\s*onDismissError\\s*=\\s*controller::dismissErrorAndLeave\\s*,", RegexOption.MULTILINE)
-        assertTrue(
-            wiring.containsMatchIn(graph.readText()),
-            "SearchNavGraph.kt must wire onDismissError = controller::dismissErrorAndLeave",
         )
     }
 
