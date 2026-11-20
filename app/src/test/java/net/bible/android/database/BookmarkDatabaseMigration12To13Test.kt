@@ -17,6 +17,7 @@
 
 package net.bible.android.database
 
+import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import android.database.sqlite.SQLiteDatabase
 import androidx.room3.Room
 import androidx.room3.useReaderConnection
@@ -246,7 +247,7 @@ class BookmarkDatabaseMigration12To13Test {
         }
         assertEquals(1 to "0", columns["displayStyle"])
         assertEquals(0 to "1", columns["displayStyleWholeVerse"])
-        assertEquals(listOf(13), query("PRAGMA user_version") { it.getInt(0) })
+        assertEquals(listOf(BOOKMARK_DATABASE_VERSION), query("PRAGMA user_version") { it.getInt(0) })
     }
 
     @Test

@@ -48,6 +48,24 @@ import org.crosswire.jsword.passage.Key
 
 const val MAX_SEARCH_RESULTS = 100
 
+// Add-on collection rows (AddonCollectionEntities): an id carrying the add-on tag. For the stand-in queries below:
+// an add-on bookmark b is "stood in for" when a user bookmark u with exactly b's range carries one of b's add-on labels.
+private const val B_IS_ADDON = "substr(b.id, 5, 6) = X'$ADDON_ID_TAG_HEX'"
+private const val U_IS_OWN = "substr(u.id, 5, 6) != X'$ADDON_ID_TAG_HEX'"
+private const val BL_IS_ADDON = "substr(bl.labelId, 5, 6) = X'$ADDON_ID_TAG_HEX'"
+private const val SAME_BIBLE_RANGE = "u.kjvOrdinalStart = b.kjvOrdinalStart AND u.kjvOrdinalEnd = b.kjvOrdinalEnd AND u.startOffset IS b.startOffset AND u.endOffset IS b.endOffset"
+private const val SAME_GENERIC_RANGE = "u.bookInitials = b.bookInitials AND u.`key` = b.`key` AND u.ordinalStart IS b.ordinalStart AND u.ordinalEnd IS b.ordinalEnd AND u.startOffset IS b.startOffset AND u.endOffset IS b.endOffset"
+private const val BIBLE_STAND_IN_JOIN = """FROM BibleBookmark b
+    JOIN BibleBookmarkToLabel bl ON bl.bookmarkId = b.id
+    JOIN BibleBookmarkToLabel ul ON ul.labelId = bl.labelId
+    JOIN BibleBookmark u ON u.id = ul.bookmarkId
+    WHERE $B_IS_ADDON AND $BL_IS_ADDON AND $U_IS_OWN AND $SAME_BIBLE_RANGE"""
+private const val GENERIC_STAND_IN_JOIN = """FROM GenericBookmark b
+    JOIN GenericBookmarkToLabel bl ON bl.bookmarkId = b.id
+    JOIN GenericBookmarkToLabel ul ON ul.labelId = bl.labelId
+    JOIN GenericBookmark u ON u.id = ul.bookmarkId
+    WHERE $B_IS_ADDON AND $BL_IS_ADDON AND $U_IS_OWN AND $SAME_GENERIC_RANGE"""
+
 const val orderBy = """
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.kjvOrdinalStart END,
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.startOffset END,
@@ -411,6 +429,27 @@ interface BookmarkDao {
     @Update suspend fun update(entity: Label)
 
     @Delete suspend fun delete(b: Label)
+
+    /** The add-on Bible bookmarks among [ids] that a user bookmark stands in for (see `BIBLE_STAND_IN_JOIN`). */
+    @Query("SELECT DISTINCT b.id $BIBLE_STAND_IN_JOIN AND b.id IN (:ids)")
+    suspend fun stoodInBibleBookmarkIds(ids: List<IdType>): List<IdType>
+
+    @Query("SELECT DISTINCT b.id $GENERIC_STAND_IN_JOIN AND b.id IN (:ids)")
+    suspend fun stoodInGenericBookmarkIds(ids: List<IdType>): List<IdType>
+
+    /** The user bookmark standing in for add-on Bible bookmark [addonId], if any. */
+    @Query("SELECT u.id $BIBLE_STAND_IN_JOIN AND b.id = :addonId ORDER BY u.createdAt LIMIT 1")
+    suspend fun bibleStandInFor(addonId: IdType): IdType?
+
+    @Query("SELECT u.id $GENERIC_STAND_IN_JOIN AND b.id = :addonId ORDER BY u.createdAt LIMIT 1")
+    suspend fun genericStandInFor(addonId: IdType): IdType?
+
+    /** Add-on Bible bookmarks with exactly this range (candidates a user bookmark of this range may stand in for). */
+    @Query("SELECT * FROM BibleBookmarkWithNotes WHERE substr(id, 5, 6) = X'$ADDON_ID_TAG_HEX' AND kjvOrdinalStart = :kjvStart AND kjvOrdinalEnd = :kjvEnd AND startOffset IS :startOffset AND endOffset IS :endOffset")
+    suspend fun addonBibleBookmarksWithRange(kjvStart: Int, kjvEnd: Int, startOffset: Int?, endOffset: Int?): List<BibleBookmarkWithNotes>
+
+    @Query("SELECT * FROM GenericBookmarkWithNotes WHERE substr(id, 5, 6) = X'$ADDON_ID_TAG_HEX' AND bookInitials = :bookInitials AND `key` = :key AND ordinalStart IS :ordinalStart AND ordinalEnd IS :ordinalEnd AND startOffset IS :startOffset AND endOffset IS :endOffset")
+    suspend fun addonGenericBookmarksWithRange(bookInitials: String, key: String, ordinalStart: Int?, ordinalEnd: Int?, startOffset: Int?, endOffset: Int?): List<GenericBookmarkWithNotes>
 
     @Query("SELECT * FROM Label WHERE favourite=1")
     suspend fun favouriteLabels(): List<Label>

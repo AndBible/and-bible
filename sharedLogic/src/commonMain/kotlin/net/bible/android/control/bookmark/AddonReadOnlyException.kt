@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.android.control.bookmark
+
+/**
+ * A write that would change a row of an add-on bookmark collection (#4162): a label, bookmark, note, label link or
+ * StudyPad entry provided by the AND_BIBLE add-on module [moduleInitials] (empty when the owner is unknown). Such
+ * rows are read-only; the user copies the label ("Copy to my labels"), or adds own labels and notes to a collection
+ * verse, which [BookmarkControl] turns into a per-bookmark copy.
+ */
+class AddonReadOnlyException(val moduleInitials: String) :
+    IllegalStateException("Read-only content of add-on collection '$moduleInitials'")

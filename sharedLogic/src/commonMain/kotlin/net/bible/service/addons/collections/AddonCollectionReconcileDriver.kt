@@ -23,6 +23,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.log.Log
 import net.bible.sharedlogic.platform.CollectionPackSource
 
@@ -31,13 +32,15 @@ private const val TAG = "AddonCollectionDriver"
 /**
  * Runs [AddonCollectionReconciler.reconcile] when it may be needed: at start, whenever the add-on caches are cleared
  * (a module installed, removed or found at startup, including modules installed by document sync), and after a
- * restore or a sync sign-in replaced the databases. Requests are coalesced; runs wait until the databases are ready
+ * restore, a sync sign-in or a sync's initial download/merge replaced the databases. Requests are coalesced; runs wait until the databases are ready
  * and pass the container's write gate, so they never overlap a database replace.
  */
 class AddonCollectionReconcileDriver(
     private val reconciler: AddonCollectionReconciler,
     private val source: CollectionPackSource,
     private val scope: CoroutineScope,
+    /** Further events after which the bookmark database may have been replaced (a sync's initial download or merge). */
+    private val databaseReplaced: List<Events<Unit>> = emptyList(),
 ) {
     private val requests = Channel<Unit>(Channel.CONFLATED)
     private val started = atomic(false)
@@ -47,6 +50,7 @@ class AddonCollectionReconcileDriver(
         if (!started.compareAndSet(expect = false, update = true)) return
         source.reloaded.subscribe { request() }
         DatabaseContainer.databaseRestored.subscribe { request() }
+        databaseReplaced.forEach { events -> events.subscribe { request() } }
         scope.launch {
             for (unused in requests) {
                 try {

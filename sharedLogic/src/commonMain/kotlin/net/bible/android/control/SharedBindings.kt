@@ -319,7 +319,11 @@ fun buildSharedBindings() = module {
             onChanged = { changes -> get<BookmarkControl>().notifyAddonRowsChanged(changes) },
         )
     }
-    single { net.bible.service.addons.collections.AddonCollectionReconcileDriver(get(), get(), get<AppCoroutineScope>()) }
+    single {
+        net.bible.service.addons.collections.AddonCollectionReconcileDriver(
+            get(), get(), get<AppCoroutineScope>(), databaseReplaced = listOf(get<CloudSync>().workspaceRefreshRequired),
+        )
+    }
     singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
     singleOf(::ManageLabelsServiceImpl) { bind<ManageLabelsService>() }
     singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }

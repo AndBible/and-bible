@@ -206,6 +206,9 @@ class AddonCollectionSyncTest {
             c.queryLong("SELECT COUNT(*) FROM LogEntry WHERE substr(entityId1, 5, 6) = $addonTag")!!
     }
 
+    /** A count on a live device database, through its own connection (a raw second connection may meet its lock). */
+    private suspend fun countIn(db: SyncableDatabaseAccessor<*>, sql: String): Long = db.localDb.useWriterConnectionMarked { it.queryLong(sql)!! }
+
     private fun countIn(file: String, sql: String): Long = openSqlite(file).let { c -> try { c.queryLong(sql)!! } finally { c.close() } }
 
     private suspend fun addonLogEntries(dbDef: SyncableDatabaseAccessor<*>) =
@@ -233,9 +236,9 @@ class AddonCollectionSyncTest {
         applyPatchesForDatabase(d2, env, patch1)
         val d2db = d2.localDb
         assertEquals(listOf("Comfort", "Mine"), d2db.bookmarkDao().allLabelsSortedByName().map { it.name }.sorted())
-        assertEquals(3, countIn(d2.localDbPath, "SELECT COUNT(*) FROM BibleBookmark"))
+        assertEquals(3, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark"))
         assertEquals("the copy keeps its add-on label where the module is installed", 1,
-            countIn(d2.localDbPath, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = ${hex(own)} AND labelId = ${hex(addonLabel)}"))
+            countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = ${hex(own)} AND labelId = ${hex(addonLabel)}"))
         assertEquals(0, addonLogEntries(d2))
 
         uninstall(d1.localDb)
@@ -250,11 +253,11 @@ class AddonCollectionSyncTest {
         install(d1.localDb)
         val own = addOwnCopy(d1.localDb)
         applyPatchesForDatabase(d2, env, createPatchForDatabase(d1, env))
-        assertEquals(0, addonRowsIn(d2.localDbPath))
+        assertEquals(0, addonRowsIn(d2))
         assertEquals(listOf("Mine"), d2.localDb.bookmarkDao().allLabelsSortedByName().map { it.name })
-        assertEquals(1, countIn(d2.localDbPath, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)}"))
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)}"))
         assertEquals("the link to the missing add-on label is dropped", 0,
-            countIn(d2.localDbPath, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
+            countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
     }
 
     @Test
@@ -277,7 +280,7 @@ class AddonCollectionSyncTest {
         ArchiveUtils.gzipFile(File(patch).toOkioPath(), gz)
         applyPatchesForDatabase(d2, env, gz)
         assertEquals("Comfort", d2.localDb.bookmarkDao().labelById(addonLabel)!!.name)
-        assertEquals(1, countIn(d2.localDbPath, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(addonB1)}"))
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(addonB1)}"))
         assertEquals("Mine", d2.localDb.bookmarkDao().allLabelsSortedByName().single { !it.id.toHex().contains("add08c01a011") }.name)
         assertEquals(0, addonLogEntries(d2))
     }
@@ -311,7 +314,7 @@ class AddonCollectionSyncTest {
         assertEquals(1, countIn(snapshot.toString(), "SELECT COUNT(*) FROM Label WHERE name = 'Mine'"))
         assertTrue(countIn(snapshot.toString(), "SELECT COUNT(*) FROM LogEntry") > 0)
         // The live database still has its collection.
-        assertTrue(addonRowsIn(d1.localDbPath) > 0)
+        assertTrue(addonRowsIn(d1) > 0)
     }
 
     private suspend fun signedInAdapters(): Pair<WebDavCloudAdapter, WebDavCloudAdapter> {
