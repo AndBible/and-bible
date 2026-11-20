@@ -69,6 +69,7 @@ class StartupActivityWebViewGateTest {
         val request = webViewTooOldRequest(context, "com.google.android.webview", "$oldVersion.0.1234.0")!!
 
         assertFalse(request.cancellable)
+        assertEquals(context.getString(R.string.old_webview_question), request.title)
         assertEquals(context.getString(R.string.proceed_anyway), request.confirmText)
         assertEquals(context.getString(R.string.close), request.dismissText)
         assertTrue(

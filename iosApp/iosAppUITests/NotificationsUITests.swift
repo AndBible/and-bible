@@ -37,7 +37,7 @@ final class NotificationsUITests: RealAppUITestCase {
         let app = launch(["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV",
                           "-openRef", "John.3.16", "-incomingRuntimeTest", "-incomingFixture", "sword",
                           "-incomingRemoveFixtures", "-installCommitDelayMs", delayMs, "-notificationReset"] + extra + english)
-        XCTAssertTrue(app.staticTexts["Do you want to install module (f-rawtext.zip)?"].firstMatch.waitForExistence(timeout: 60))
+        XCTAssertTrue(app.staticTexts["Install “f-rawtext.zip”?"].firstMatch.waitForExistence(timeout: 60))
         return app
     }
 
@@ -48,7 +48,7 @@ final class NotificationsUITests: RealAppUITestCase {
     func test02FirstConfirmedInstallRequestsPermission() {
         let app = install()
         XCTAssertFalse(permission.exists, "The install confirmation must not itself request authorization")
-        app.buttons["OK"].firstMatch.tap()
+        app.buttons["Install"].firstMatch.tap()
         XCTAssertTrue(permission.waitForExistence(timeout: 30), "A confirmed user-started installation requests permission")
         shot(springboard, "notification-permission")
         permission.buttons["Allow"].tap()
@@ -81,7 +81,7 @@ final class NotificationsUITests: RealAppUITestCase {
 
     func test01SettingOffBeforeFirstInstallDoesNotRequestPermission() {
         let app = install(["-notificationSettingOff"])
-        app.buttons["OK"].firstMatch.tap()
+        app.buttons["Install"].firstMatch.tap()
         let progress = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS '[commit '")).firstMatch
         XCTAssertTrue(progress.waitForExistence(timeout: 60), "The actual installation must start")
         XCTAssertFalse(permission.waitForExistence(timeout: 5), "Disabled notifications must not request permission")
@@ -93,7 +93,7 @@ final class NotificationsUITests: RealAppUITestCase {
         try XCTSkipUnless(ProcessInfo.processInfo.environment["NOTIFICATION_DENIAL_TEST"] == "1",
                           "Run separately with a fresh app installation and NOTIFICATION_DENIAL_TEST=1")
         let app = install()
-        app.buttons["OK"].firstMatch.tap()
+        app.buttons["Install"].firstMatch.tap()
         XCTAssertTrue(permission.waitForExistence(timeout: 30))
         let deny = permission.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", "Don't Allow", "Don\u{2019}t Allow")).firstMatch
         let denyReady = deny.waitForExistence(timeout: 10)
@@ -119,7 +119,7 @@ final class NotificationsUITests: RealAppUITestCase {
     /// Requires a fresh install, so the real authorization prompt is observable before the long job.
     func testLongInstallCompletionNotifiesInBackground() {
         let app = install(delayMs: "3000")
-        app.buttons["OK"].firstMatch.tap()
+        app.buttons["Install"].firstMatch.tap()
         XCTAssertTrue(permission.waitForExistence(timeout: 30), "Fresh installation requests permission")
         permission.buttons["Allow"].tap()
         let progress = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS '[commit '")).firstMatch

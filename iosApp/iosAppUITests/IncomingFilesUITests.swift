@@ -79,9 +79,9 @@ final class IncomingFilesUITests: XCTestCase {
 
     private func confirmInstall(_ app: XCUIApplication, filename: String, expectError: Bool = false) {
         let message = app.staticTexts.matching(NSPredicate(format: "label == %@",
-            "Do you want to install module (\(filename))?")).firstMatch
+            "Install “\(filename)”?")).firstMatch
         requireVisible(message, app: app, step: "install-confirm-\(filename)")
-        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
+        let ok = app.buttons.matching(NSPredicate(format: "label == 'Install'")).firstMatch
         XCTAssertTrue(ok.isHittable && ok.isEnabled, "Production install confirmation is not usable")
         ok.tap()
         if !expectError {

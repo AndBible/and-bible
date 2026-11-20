@@ -343,7 +343,7 @@ internal fun webViewTooOldRequest(context: Context, packageName: String?, versio
         R.string.old_webview, versionName, MINIMUM_WEBVIEW_MAJOR_VERSION.toString(), context.getString(if (CommonUtils.isDiscrete) R.string.app_name_calculator else R.string.app_name_medium), playLink,
     )
     return AppDialogRequest.Confirm(
-        title = null,
+        title = context.getString(R.string.old_webview_question),
         message = msg,
         confirmText = context.getString(R.string.proceed_anyway),
         dismissText = context.getString(R.string.close),

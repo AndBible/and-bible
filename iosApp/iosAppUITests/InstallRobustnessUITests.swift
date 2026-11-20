@@ -48,10 +48,10 @@ final class InstallRobustnessUITests: RealAppUITestCase {
                           "-incomingRuntimeTest", "-incomingFixture", "sword", "-incomingRemoveFixtures",
                           "-installCommitDelayMs", "1500"])
         let message = app.staticTexts.matching(NSPredicate(format: "label == %@",
-            "Do you want to install module (f-rawtext.zip)?")).firstMatch
+            "Install “f-rawtext.zip”?")).firstMatch
         require(message.waitForExistence(timeout: 60), app, "install-confirm-f-rawtext.zip")
-        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
-        require(ok.isHittable && ok.isEnabled, app, "Unusable control: install OK")
+        let ok = app.buttons.matching(NSPredicate(format: "label == 'Install'")).firstMatch
+        require(ok.isHittable && ok.isEnabled, app, "Unusable control: install button")
         ok.tap()
 
         // 2. Wait until the debug progress marker proves the commit is mid-way (0 < percent < 100), then kill at once.

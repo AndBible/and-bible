@@ -136,9 +136,9 @@ class EpubSearchScreenHelpDialogTest {
         assertEquals(listOf("https://www.sqlite.org/fts5.html#full_text_query_syntax"), opened)
     }
 
-    /** C1: with [askBeforeOpeningLink], the same tap asks first -- OK opens it exactly once. The
-     *  help dialog's own confirm button is ALSO labelled "OK" (`strings.okay`), so the question's
-     *  button is picked out by taking the LAST match -- see `AppSettingsScreenDialogTest`'s equivalent test. */
+    /** C1: with [askBeforeOpeningLink], the same tap asks first -- Open opens it exactly once. The
+     *  question's confirm button is labelled `strings.openAction`, distinct from the help dialog's own
+     *  "OK", so it is found by its text -- see `AppSettingsScreenDialogTest`'s equivalent test. */
     // The help text is taller than the dialog middle area, which scrolls: performLinkClick scrolls the link into
     // view first, because it taps the link glyph position.
     @Test fun helpOpen_askBeforeOpeningLink_asksThenOpensOnce() {

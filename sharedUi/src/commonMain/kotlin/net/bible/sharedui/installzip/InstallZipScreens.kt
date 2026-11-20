@@ -120,7 +120,7 @@ fun InstallZipContent(
             is InstallUiState.FormatInfo -> AbConfirmDialog(
                 title = strings.installFromFileQuestion,
                 message = state.formatsText,
-                confirmText = strings.proceed,
+                confirmText = strings.chooseFileAction,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,

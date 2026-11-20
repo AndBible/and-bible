@@ -445,7 +445,6 @@
     <string name="download_source_last_updated">Document lists last updated: %s.</string>
     <string name="download_refreshing_book_list">Refreshing list of available documents from document servers…</string>
     <string name="download_source_message1">Documents are downloaded from the following sources:</string>
-    <string name="download_document_confirm_prefix">Download</string>
     <string name="error_downloading">An error occurred while downloading.  Please check your internet connection.</string>
     <string name="error_downloading_status">The server which hosts %1$s returned an error due to %2$s (%3$d).</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
@@ -1171,7 +1170,6 @@
     <string name="old_webview">Android WebView package is too old (%1$s). You need to upgrade your Android WebView package to at least version %2$s to use %3$s. For most devices this can be done via %4$s.</string>
     <string name="play">Google Play</string>
     <string name="proceed_anyway">Proceed anyway</string>
-    <string name="proceed">Proceed</string>
     <string name="rate_message5">
         Positive and detailed reviews help AndBible Open Source Project a lot. Thank you!
     </string>
@@ -2441,6 +2439,11 @@
     <string name="continue_action">Continue</string>
     <string name="delete_search_index_question">Delete the search index of “%s”?</string>
     <string name="remove_custom_repository_question">Remove the custom repository “%s”?</string>
+    <string name="download_document_question">Download “%s”?</string>
+    <string name="choose_file_action">Choose file</string>
+    <string name="old_webview_question">Use the app with an old WebView?</string>
+    <string name="incomplete_translation_question">Continue with a partial translation?</string>
+    <string name="rate_action">Rate</string>
     <!-- end dialog copy: B3c -->
     <!-- dialog copy: B2b -->
     <string name="my_document_delete_lead">Delete the document “%s”?</string>

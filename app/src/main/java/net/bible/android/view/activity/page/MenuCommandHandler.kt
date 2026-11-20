@@ -175,7 +175,7 @@ class MenuCommandHandler(
                         AppDialogRequest.Message(
                             title = hostActivity.getString(R.string.rate_question),
                             message = htmlMessage,
-                            confirmText = hostActivity.getString(if (isSamsung) R.string.okay else R.string.proceed_google_play),
+                            confirmText = hostActivity.getString(if (isSamsung) R.string.rate_action else R.string.proceed_google_play),
                             dismissText = hostActivity.getString(R.string.cancel),
                             cancellable = true,
                         ),

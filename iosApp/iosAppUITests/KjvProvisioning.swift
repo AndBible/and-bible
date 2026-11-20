@@ -122,7 +122,7 @@ extension RealAppUITestCase {
                           "-openDocument", "KJV", "-openRef", "John.3.16"])
         defer { app.terminate() }
         let prompt = app.staticTexts.matching(NSPredicate(format: "label == %@",
-            "Do you want to install module (h2-kjv.zip)?")).firstMatch
+            "Install “h2-kjv.zip”?")).firstMatch
         let missing = element(app, "incoming-fixture-missing")
         harnessRequire(waitUntil(timeout: 90) { prompt.exists || missing.exists }, app,
                        "HARNESS: production install prompt for the bundled KJV (or its absence marker)")
@@ -130,9 +130,9 @@ extension RealAppUITestCase {
             attachTree(app, "kjv-fixture-not-bundled")
             return false
         }
-        // The prompt's button, not a debug overlay text that also reads "OK".
-        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
-        harnessRequire(ok.waitForExistence(timeout: 30) && ok.isHittable && ok.isEnabled, app, "HARNESS: KJV install prompt OK")
+        // The prompt's button, not a debug overlay text.
+        let ok = app.buttons.matching(NSPredicate(format: "label == 'Install'")).firstMatch
+        harnessRequire(ok.waitForExistence(timeout: 30) && ok.isHittable && ok.isEnabled, app, "HARNESS: KJV install prompt Install")
         ok.tap()
         let overwrite = app.staticTexts["Overwrite files?"].firstMatch
         let installed = element(app, "incoming-cold-fixtures-installed")

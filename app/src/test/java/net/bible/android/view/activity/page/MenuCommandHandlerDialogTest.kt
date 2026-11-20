@@ -194,6 +194,8 @@ class MenuCommandHandlerDialogTest {
         org.junit.Assume.assumeTrue(BuildVariant.DistributionChannel.isSamsung)
         withPackageName("net.bible.android.activity") {
             handler.handleMenuRequest(R.id.rateButton)
+            val request = dialogs.pending.value!!.request as AppDialogRequest.Message
+            assertEquals(RuntimeEnvironment.getApplication().getString(R.string.rate_action), request.confirmText)
             dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
             idle()
             assertEquals("samsungapps://AppRating/net.bible.android.activity",

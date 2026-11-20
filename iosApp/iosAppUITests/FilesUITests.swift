@@ -569,18 +569,18 @@ final class FilesUITests: RealAppUITestCase {
             XCTAssertTrue(app.wait(for: .runningForeground, timeout: 30),
                           "Actual Files target did not bring AndBible to foreground")
             let confirmation = app.staticTexts.matching(NSPredicate(format: "label == %@",
-                "Do you want to install module (\(filename))?"))
+                "Install “\(filename)”?"))
             waitForSystemControl(confirmation.firstMatch, app: app, name: "os-files-production-confirmation",
                                  message: "Genuine Files handoff did not show the exact nonce installation confirmation")
             XCTAssertEqual(confirmation.count, 1)
             let confirmationScrolls = app.scrollViews.containing(.staticText, identifier:
-                "Do you want to install module (\(filename))?")
+                "Install “\(filename)”?")
             XCTAssertEqual(confirmationScrolls.count, 1, "Cannot uniquely scope the observed production confirmation")
             guard confirmationScrolls.count == 1 else { return }
-            let okayButtons = confirmationScrolls.firstMatch.buttons.matching(NSPredicate(format: "label == 'OK'"))
-            XCTAssertEqual(okayButtons.count, 1, "Production confirmation must expose one exact OK button")
-            guard okayButtons.count == 1 else { return }
-            let okay = okayButtons.firstMatch
+            let installButtons = confirmationScrolls.firstMatch.buttons.matching(NSPredicate(format: "label == 'Install'"))
+            XCTAssertEqual(installButtons.count, 1, "Production confirmation must expose one exact Install button")
+            guard installButtons.count == 1 else { return }
+            let okay = installButtons.firstMatch
             XCTAssertTrue(okay.isHittable && okay.isEnabled)
             guard okay.isHittable && okay.isEnabled else { return }
             okay.tap()
