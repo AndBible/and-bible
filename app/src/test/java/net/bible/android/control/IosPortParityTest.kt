@@ -33,6 +33,9 @@ class IosPortParityTest {
         // The cloud-sync trigger driver (#4025): a concrete class every platform binds in its own sync wiring (iOS in
         // buildIosSyncBindings, desktop inside DesktopSyncDriver), not a port of the shared graph.
         "net.bible.service.cloudsync.SyncTriggerDriver",
+        // The widget time-zone seam: Android binds it for its Glance widgets; iOS builds its own inline in
+        // IosWidgetSnapshotWriter (no other iOS consumer), so it is not an iOS port.
+        "net.bible.android.control.widget.LocalZone",
     )
 
     private fun bindingKeys(): Set<String> {

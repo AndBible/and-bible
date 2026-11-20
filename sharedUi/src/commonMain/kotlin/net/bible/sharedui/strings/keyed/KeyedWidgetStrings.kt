@@ -40,7 +40,7 @@ class KeyedWidgetStrings(private val table: () -> StringTable) : WidgetStrings {
     override val openAppToLoad: String get() = t.text("widget_open_app_to_load")
     override val openApp: String get() = t.text("widget_open_app")
     override val toggleSleepTimer: String get() = t.text("widget_toggle_sleep_timer")
-    override fun sleepMinutes(minutes: Int) = t.fmt("widget_sleep_minutes", minutes)
+    override fun sleepMinutes(minutes: Int) = t.fmt("speak_sleep_timer_minutes", minutes)
     override fun verseUnavailable(reason: VerseWidgetContent.Unavailable.Reason) = t.text(
         when (reason) {
             VerseWidgetContent.Unavailable.Reason.NO_BIBLE -> "widget_verse_unavailable_no_bible"

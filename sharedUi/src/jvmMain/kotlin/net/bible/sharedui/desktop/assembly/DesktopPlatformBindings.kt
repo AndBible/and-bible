@@ -237,6 +237,7 @@ fun desktopPlatformModule(
         single<CoreStrings> { KeyedCoreStrings { get<HostStringTableHolder>().current } }
         single<net.bible.service.cloudsync.host.HostSyncStrings> { hostSyncStrings(get<HostStringTableHolder>().current) }
         single<LlmStrings> { KeyedLlmStrings { get<HostStringTableHolder>().current } }
+        single<net.bible.android.control.widget.WidgetStrings> { net.bible.sharedui.strings.keyed.KeyedWidgetStrings { get<HostStringTableHolder>().current } }
         single<LabelNameStrings> { KeyedLabelNameStrings { get<HostStringTableHolder>().current } }
         single<SettingLabels> { KeyedSettingLabels { get<HostStringTableHolder>().current } }
         single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<HostStringTableHolder>().current } }
