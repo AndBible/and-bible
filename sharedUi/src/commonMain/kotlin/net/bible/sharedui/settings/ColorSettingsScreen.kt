@@ -86,7 +86,7 @@ fun ColorSettingsScreen(
     labels: ColorSettingsLabels,
     onUp: () -> Unit,
     onReset: () -> Unit,
-    // Final fix wave, Fix 4: classic (`ColorSettings.kt`'s AlertDialog + reset_are_you_sure) and
+    // Final fix wave, Fix 4: classic (`ColorSettings.kt`'s AlertDialog + reset_values_lead) and
     // TextDisplaySettingsScreen both confirm a colours/settings reset before firing it; this
     // screen's own reset never did (a pre-existing port-fidelity gap, not a deliberate choice --
     // see the final fix report). These three strings are the SAME resolved values
@@ -163,6 +163,7 @@ fun ColorSettingsScreen(
             message = resetConfirmMessage,
             confirmText = confirmLabel,
             dismissText = cancelLabel,
+            destructive = true,
             onConfirm = { onReset(); showResetConfirm = false },
             onDismiss = { showResetConfirm = false },
         )

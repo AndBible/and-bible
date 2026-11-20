@@ -112,12 +112,12 @@ fun Strings.buildTextDisplayControllerLabels() = TextDisplaySettingsLabels(
 @kotlin.native.HiddenFromObjC
 fun Strings.buildTextDisplayScreenLabels() = TextDisplaySettingsScreenLabels(
     resetContentDescription = resetSettings,
-    resetConfirmMessage = resetAreYouSure,
+    resetConfirmMessage = resetValuesLead,
     // No classic string exists for a single-row "revert to inherited?" confirmation (this
     // long-press interaction is new in the Compose screen -- classic's per-row reset lives
     // inside each value-editor dialog, with no separate confirm step). Reusing the generic
     // bulk-reset confirmation is an accepted, if imprecise, wording.
-    revertMessage = resetAreYouSure,
+    revertMessage = resetValuesLead,
     fontSizeDialogTitle = fontSizeTitle,
     topMarginDialogTitle = prefsTopMarginTitle,
     lineSpacingDialogTitle = lineSpacingTitle,
@@ -131,6 +131,7 @@ fun Strings.buildTextDisplayScreenLabels() = TextDisplaySettingsScreenLabels(
     badgeWorkspace = textOptionsInheritedWorkspace,
     badgeGlobal = textOptionsInheritedGlobal,
     okLabel = okay,
+    resetLabel = resetGeneric,
     cancelLabel = cancel,
 )
 
@@ -160,8 +161,8 @@ fun Strings.buildBackgroundImageChooserLabels() = BackgroundImageChooserLabels(
     import = backgroundImageImport,
     empty = backgroundImageEmpty,
     importing = backgroundImageImporting,
-    deleteTitle = backgroundImageDeleteTitle,
-    deleteConfirm = backgroundImageDeleteConfirm,
+    deleteTitle = backgroundImageDeleteLead,
+    deleteConfirm = backgroundImageDeleteDetail,
     delete = deleteLabel,
     cancel = cancel,
 )

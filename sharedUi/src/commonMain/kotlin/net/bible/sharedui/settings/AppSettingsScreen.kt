@@ -142,8 +142,10 @@ fun AppSettingsScreen(
         is AppSettingsDialog.ConfirmReset -> AbConfirmDialog(
             title = null,
             message = dialog.message,
+            detail = dialog.detail.ifEmpty { null },
             confirmText = strings.resetGeneric,
             dismissText = strings.cancel,
+            destructive = true,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,
         )

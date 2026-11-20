@@ -302,8 +302,8 @@ class SettingsHostTest {
             ),
             calls,
         )
-        assertEquals("OK-sys", deps.readingProgress.confirmText)
-        assertEquals("Cancel-sys", deps.readingProgress.dismissText)
+        assertEquals(strings.remove, deps.readingProgress.confirmText)
+        assertEquals(strings.cancel, deps.readingProgress.dismissText)
         deps.readingProgress.onShowHelp()
         assertEquals("help:READING_PROGRESS", calls.last())
     }

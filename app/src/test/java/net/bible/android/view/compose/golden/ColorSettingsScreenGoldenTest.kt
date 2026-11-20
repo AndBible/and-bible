@@ -73,7 +73,7 @@ class ColorSettingsScreenGoldenTest {
             onUp = {},
             onReset = {},
             resetConfirmMessage = "Reset colours?",
-            confirmLabel = "OK",
+            confirmLabel = "Reset",
             cancelLabel = "Cancel",
             onColorChange = { _, _ -> },
             onNoiseChange = { _, _ -> },

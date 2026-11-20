@@ -270,18 +270,21 @@ fun MyDocumentsScreen(
     }
     deleteFor?.let { item ->
         AbConfirmDialog(
-            title = null, message = s.deleteDocumentConfirmation(item.name),
-            confirmText = s.delete, dismissText = s.cancel,
+            title = null, message = s.deleteDocumentLead(item.name),
+            confirmText = s.delete, dismissText = s.cancel, destructive = true,
             onConfirm = { deleteFor = null; onDelete(item.id) }, onDismiss = { deleteFor = null },
         )
     }
     if (blockedAiDelete) {
-        AbErrorDialog(message = s.cannotDeleteAiDocuments, confirmText = s.okay, onDismiss = { blockedAiDelete = false })
+        AbErrorDialog(
+            message = s.cannotDeleteAiDocumentsLead, detail = s.cannotDeleteAiDocumentsDetail,
+            confirmText = s.okay, onDismiss = { blockedAiDelete = false },
+        )
     }
     if (confirmBatchDelete) {
         AbConfirmDialog(
             title = null, message = s.deleteDocumentsConfirmation,
-            confirmText = s.delete, dismissText = s.cancel,
+            confirmText = s.delete, dismissText = s.cancel, destructive = true,
             onConfirm = {
                 confirmBatchDelete = false
                 // Count the blocked rows BEFORE deleting. Safe to read from `documents`: a selection

@@ -799,7 +799,7 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
                     onReset = colorController::onReset,
                     // The SAME resolved strings TextDisplaySettingsScreen's own reset confirm gets.
                     resetConfirmMessage = screenLabels.resetConfirmMessage,
-                    confirmLabel = screenLabels.okLabel,
+                    confirmLabel = screenLabels.resetLabel,
                     cancelLabel = screenLabels.cancelLabel,
                     onColorChange = colorController::onColorChange,
                     onNoiseChange = colorController::onNoiseChange,

@@ -315,15 +315,26 @@ private fun ReadingTabBody(
     }
 
     if (confirmNewCycle) {
-        AbConfirmDialog(
-            title = strings.readingProgressNewCycle,
-            message = strings.readingProgressNewCycleConfirm,
-            confirmText = strings.okay,
-            dismissText = strings.cancel,
+        NewCycleConfirmDialog(
+            strings = strings,
             onConfirm = { confirmNewCycle = false; onNewCycle() },
             onDismiss = { confirmNewCycle = false },
         )
     }
+}
+
+/** The "start a new reading cycle" confirmation: a question lead, one line of consequence, a "Start" verb. */
+@Composable
+fun NewCycleConfirmDialog(strings: Strings, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AbConfirmDialog(
+        title = null,
+        message = strings.readingProgressNewCycleLead,
+        detail = strings.readingProgressNewCycleDetail,
+        confirmText = strings.readingProgressNewCycleStart,
+        dismissText = strings.cancel,
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+    )
 }
 
 @Composable

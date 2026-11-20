@@ -16,7 +16,8 @@ fun Strings.appSettingsLabels() = AppSettingsLabels(
     screenTitle = settings,
     fontSizePercentFormat = prefFontSizeMultiplierPercentFormat,
 
-    resetConfirmMessage = resetAppPrefs,
+    resetConfirmMessage = resetSettingsScreenLead,
+    resetConfirmDetail = resetSettingsScreenDetail,
 
     dictionariesCat = prefsDictionariesCat,
     behaviorCat = prefsBehaviorCustomizationCat,

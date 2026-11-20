@@ -132,12 +132,12 @@ fun buildTextDisplayControllerLabels(context: Context) = TextDisplaySettingsLabe
 
 fun buildTextDisplayScreenLabels(context: Context) = TextDisplaySettingsScreenLabels(
     resetContentDescription = context.getString(R.string.reset_settings),
-    resetConfirmMessage = context.getString(R.string.reset_are_you_sure),
+    resetConfirmMessage = context.getString(R.string.reset_values_lead),
     // No classic string exists for a single-row "revert to inherited?" confirmation (this
     // long-press interaction is new in the Compose screen -- classic's per-row reset lives
     // inside each value-editor dialog, with no separate confirm step). Reusing the generic
     // bulk-reset confirmation is an accepted, if imprecise, wording (see task report).
-    revertMessage = context.getString(R.string.reset_are_you_sure),
+    revertMessage = context.getString(R.string.reset_values_lead),
     fontSizeDialogTitle = context.getString(R.string.font_size_title),
     topMarginDialogTitle = context.getString(R.string.prefs_top_margin_title),
     lineSpacingDialogTitle = context.getString(R.string.line_spacing_title),
@@ -151,6 +151,7 @@ fun buildTextDisplayScreenLabels(context: Context) = TextDisplaySettingsScreenLa
     badgeWorkspace = context.getString(R.string.text_options_inherited_workspace),
     badgeGlobal = context.getString(R.string.text_options_inherited_global),
     okLabel = context.getString(R.string.okay),
+    resetLabel = context.getString(R.string.reset_generic),
     cancelLabel = context.getString(R.string.cancel),
 )
 
@@ -178,8 +179,8 @@ fun buildBackgroundImageChooserLabels(context: Context) = BackgroundImageChooser
     import = context.getString(R.string.background_image_import),
     empty = context.getString(R.string.background_image_empty),
     importing = context.getString(R.string.background_image_importing),
-    deleteTitle = context.getString(R.string.background_image_delete_title),
-    deleteConfirm = context.getString(R.string.background_image_delete_confirm),
+    deleteTitle = context.getString(R.string.background_image_delete_lead),
+    deleteConfirm = context.getString(R.string.background_image_delete_detail),
     delete = context.getString(R.string.delete),
     cancel = context.getString(R.string.cancel),
 )

@@ -41,7 +41,7 @@ class ReadingPlanSetCurrentDayDialogTest {
 
     @Test fun confirmationNamesTheViewedDay() = runComposeUiTest {
         show(ui("Day 10"))
-        val message = iosStrings("en").setCurrentDayQuestion("Day 10")
+        val message = iosStrings("en").setCurrentDayLead("Day 10")
         assertTrue(message.contains("Day 10"), message)
         assertFalse(message.contains("today"), message)
         onAllNodesWithText(message).assertCountEquals(1)

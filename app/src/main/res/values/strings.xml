@@ -356,7 +356,6 @@
     <string name="line_spacing_title">Line spacing</string>
     <string name="line_spacing_summary">Set the space between lines</string>
     <string name="select_none">Select none</string>
-    <string name="reset_are_you_sure">Are you sure that you want to reset all of these values?</string>
     <string name="window_pinning_menutitle">Window pinning</string>
     <string name="hide_window_buttons_title">Hide window buttons</string>
     <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the Bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
@@ -505,15 +504,8 @@
     <string name="rdg_plan_day">Day %s</string>
     <string name="rdg_plan_set_start_date">Set Start Date…</string>
     <string name="set_current_day">Set as current day…</string>
-    <string name="msg_set_current_day_reading_plan">This will set %1$s as the current day in this plan and mark all previous days as read. Continue?</string>
     <string name="done">Done</string>
-    <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
     <string name="import_reading_plan">Import reading plan…</string>
-    <string name="plan_duplicate_user_plan">
-        There is a user reading plan in sdcard
-        jsword/readingplan with the same name as an internal plan. It can not be listed here.
-        Please rename the file to something else, leaving it\'s file extension as .properties
-    </string>
     <string name="plan_name_y1ntpspr">NT, Psalms &amp; Proverbs in a Year</string>
     <string name="plan_description_y1ntpspr">
         Courtesy of HEARTLIGHT Internet Magazine,
@@ -1283,7 +1275,6 @@
     <string name="ios_fullscreen_hint">Double-tap or tap the button to exit full screen.</string>
     <string name="desktop_exit_fullscreen">Exit fullscreen</string>
     <string name="exit_fullscreen">Double-tap screen to exit fullscreen</string>
-    <string name="reset_app_prefs">Do you want to reset all global application preferences that are displayed on this screen to their default values?</string>
     <string name="label_red">Red</string>
     <string name="label_green">Green</string>
     <string name="label_blue">Blue</string>
@@ -1484,7 +1475,6 @@
     <string name="reading_progress_calendar">Reading Activity</string>
     <string name="reading_progress_cycle">Cycle %d</string>
     <string name="reading_progress_new_cycle">New Cycle</string>
-    <string name="reading_progress_new_cycle_confirm">Start a new reading cycle? This will begin tracking your progress from scratch, while preserving your previous cycle\'s data.</string>
     <string name="reading_progress_previous_cycle">Previous cycle</string>
     <string name="reading_progress_next_cycle">Next cycle</string>
 
@@ -1604,8 +1594,6 @@
     <string name="memorize_include_reference_summary">Add the verse reference (e.g. John 3:16) as the last item to memorize</string>
     <string name="reading_progress_settings">Progress &amp; memorization</string>
     <string name="reading_progress_settings_summary">Auto-tracking, memorization, and typing practice settings</string>
-    <string name="memorize_confirm_unmark">Remove memorized status for %s?</string>
-    <string name="memorize_confirm_remove_target">Remove memorization goal %s?</string>
     <string name="memorize_tab_reading">Reading</string>
     <string name="memorize_tab_memorization">Memorization</string>
     <string name="memorize_verses_memorized">Memorized</string>
@@ -2098,19 +2086,16 @@
     <string name="my_document_new_name">Document %d</string>
     <string name="my_document_create_title">Create new document</string>
     <string name="my_document_rename_title">Rename document</string>
-    <string name="my_document_delete_confirmation">Delete document \"%s\"?</string>
     <string name="show_secret">Show</string>
     <string name="hide_secret">Hide</string>
     <string name="ai_documents_name">AI Documents</string>
     <string name="ai_documents_description">Automatically generated documents from AI</string>
-    <string name="my_document_cannot_delete_ai_documents">AI Documents cannot be deleted while it contains pages. Delete the pages first.</string>
     <string name="my_document_save_changes">Save changes?</string>
     <string name="my_document_no_description">No description</string>
     <string name="my_document_edit_description">Edit description</string>
 
     <string name="my_document_pages_title">%s - Pages</string>
     <string name="my_document_page_rename_title">Rename page</string>
-    <string name="my_document_page_delete_confirmation">Delete page \"%s\"?</string>
     <string name="my_document_pages_delete_confirmation">Delete these pages?</string>
     <string name="my_documents_switch_document">Switch document</string>
     <string name="my_document_new_page_name">Page %1$d</string>
@@ -2245,8 +2230,6 @@
     <string name="background_image_import">Import from gallery…</string>
     <string name="background_image_empty">No imported images yet. Tap \"Import from gallery…\" to add one.</string>
     <string name="background_image_importing">Importing…</string>
-    <string name="background_image_delete_title">Delete image?</string>
-    <string name="background_image_delete_confirm">Delete this background image? Workspaces still using it will fall back to no image.</string>
     <string name="background_image_day">Background image (day)</string>
     <string name="background_image_night">Background image (night)</string>
     <string name="background_image_opacity_day">Background image opacity (day)</string>
@@ -2454,4 +2437,28 @@
     <string name="tutorial_title_31_ai_3_tools_data_permissions">AI assistant, part 3: tools, your data and permissions</string>
     <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI assistant, part 4: your own prompts, costs and sync</string>
     <!-- END generated by sitegen.app_toc, do not edit -->
+    <!-- dialog copy: B2b -->
+    <string name="my_document_delete_lead">Delete the document “%s”?</string>
+    <string name="my_document_page_delete_lead">Delete the page “%s”?</string>
+    <string name="my_document_cannot_delete_ai_lead">AI documents can’t be deleted while they contain pages.</string>
+    <string name="my_document_cannot_delete_ai_detail">Delete the pages first.</string>
+    <string name="reading_progress_new_cycle_lead">Start a new reading cycle?</string>
+    <string name="reading_progress_new_cycle_detail">Your progress is tracked from scratch. Your previous cycle’s data is kept.</string>
+    <string name="reading_progress_new_cycle_start">Start</string>
+    <string name="reset_plan_lead">Reset this plan?</string>
+    <string name="reset_plan_detail">Your start date and progress in this plan are cleared.</string>
+    <string name="set_current_day_lead">Set %1$s as the current day?</string>
+    <string name="set_current_day_detail">All previous days are marked as read.</string>
+    <string name="plan_duplicate_user_plan_lead">A reading plan file has the same name as a built-in plan.</string>
+    <string name="plan_duplicate_user_plan_detail">It can’t be listed. Rename the file in the jsword/readingplan folder, keeping its .properties extension.</string>
+    <string name="background_image_delete_lead">Delete this background image?</string>
+    <string name="background_image_delete_detail">Workspaces still using it will fall back to no image.</string>
+    <string name="reset_values_lead">Reset all of these values?</string>
+    <string name="reset_settings_screen_lead">Reset the settings on this screen?</string>
+    <string name="reset_settings_screen_detail">They return to their default values.</string>
+    <string name="memorize_unmark_lead">Remove memorized status for “%s”?</string>
+    <string name="memorize_remove_target_lead">Remove the memorization goal “%s”?</string>
+    <string name="dialog_apply">Apply</string>
+    <string name="dialog_dont_apply">Don’t apply</string>
+    <!-- /dialog copy: B2b -->
 </resources>

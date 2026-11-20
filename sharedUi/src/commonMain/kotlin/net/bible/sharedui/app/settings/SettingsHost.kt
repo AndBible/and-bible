@@ -193,11 +193,11 @@ class SettingsHost(
                 }
             },
             onShowHelp = { helpDialogs.show(HelpTopic.READING_PROGRESS) },
-            unmarkConfirmMessage = { rangeName -> strings.memorizeConfirmUnmark(rangeName) },
-            removeTargetConfirmMessage = { rangeName -> strings.memorizeConfirmRemoveTarget(rangeName) },
-            // Classic's android.R.string.ok / cancel: the SYSTEM strings, kept.
-            confirmText = platform.confirmText,
-            dismissText = platform.dismissText,
+            unmarkConfirmMessage = { rangeName -> strings.memorizeUnmarkLead(rangeName) },
+            removeTargetConfirmMessage = { rangeName -> strings.memorizeRemoveTargetLead(rangeName) },
+            // B2b: a verb on the destructive button (was the system OK / Cancel).
+            confirmText = strings.remove,
+            dismissText = strings.cancel,
         ),
         readingProgressResults = readingProgressResults,
         readingProgressSettings = ReadingProgressSettingsDeps(

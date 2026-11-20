@@ -75,6 +75,8 @@ data class TextDisplaySettingsScreenLabels(
     val badgeWorkspace: String,
     val badgeGlobal: String,
     val okLabel: String,
+    /** Confirm button of the reset and revert dialogs ("Reset"); [okLabel] stays the editors' OK. */
+    val resetLabel: String,
     val cancelLabel: String,
 )
 
@@ -225,8 +227,9 @@ fun TextDisplaySettingsScreen(
         AbConfirmDialog(
             title = null,
             message = dialogLabels.revertMessage,
-            confirmText = dialogLabels.okLabel,
+            confirmText = dialogLabels.resetLabel,
             dismissText = dialogLabels.cancelLabel,
+            destructive = true,
             onConfirm = { onRevert(pendingRevertKey); revertKey = null },
             onDismiss = { revertKey = null },
         )
@@ -236,8 +239,9 @@ fun TextDisplaySettingsScreen(
         AbConfirmDialog(
             title = null,
             message = dialogLabels.resetConfirmMessage,
-            confirmText = dialogLabels.okLabel,
+            confirmText = dialogLabels.resetLabel,
             dismissText = dialogLabels.cancelLabel,
+            destructive = true,
             onConfirm = { onReset(); showResetConfirm = false },
             onDismiss = { showResetConfirm = false },
         )
