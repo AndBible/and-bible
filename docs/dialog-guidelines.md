@@ -51,7 +51,7 @@ actions go to a sheet, answers to a dialog.
 
 ## Tokens
 
-All sizes live in `AbDialogTokens` (`AbDialogTokens.kt`); no dialog hard-codes one.
+All sizes live in `AbDialogTokens` (`AbDialogTokens.kt`); no component hard-codes one. The shell adds two height rules: the button row is never capped and never scrolls, the middle area keeps at least 56dp, and the lead line yields first (its cap is the smaller of 40% and what remains). Windows shorter than 420dp use a compact frame (8dp margin, 12dp top and 8dp bottom padding).
 
 - **Lead line:** 18sp / 25sp, medium, `onSurface`. Capped at 40% of the available height and scrolls inside the cap.
 - **Body:** 16sp / 23sp `onSurface`. **Detail:** 14sp / 20sp `onSurfaceVariant`.

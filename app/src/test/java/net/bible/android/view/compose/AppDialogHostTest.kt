@@ -171,8 +171,11 @@ class AppDialogHostTest {
         compose.waitForIdle()
         Espresso.pressBack()
         compose.waitForIdle()
-        // A click outside the dialog surface (the dialog window's root corner).
-        compose.onAllNodes(isRoot()).onLast().performTouchInput { click(Offset(1f, 1f)) }
+        // A touch outside the dialog window: the semantics injector cannot reach outside, so deliver it to the Dialog
+        // itself (as AbDialogShellTest.scrimDismissCallsOnDismissRequest does, where it provably dismisses).
+        val dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        dialog.onTouchEvent(android.view.MotionEvent.obtain(0, 0, android.view.MotionEvent.ACTION_DOWN, -200f, -200f, 0))
+        dialog.onTouchEvent(android.view.MotionEvent.obtain(0, 10, android.view.MotionEvent.ACTION_UP, -200f, -200f, 0))
         compose.waitForIdle()
         assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
         compose.onNodeWithText("Something failed").assertExists()

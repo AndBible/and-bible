@@ -88,6 +88,7 @@ class AbOptionsDialogTest {
             AbTheme { AbOptionsDialog("How should the two copies be reconciled?", null, cloudSync, {}, {}, dismissText = "Cancel") }
         }
         compose.waitForIdle()
+        compose.onNodeWithTag("dialog-dismiss").assertIsDisplayed() // without scrolling
         cloudSync.forEach { a ->
             compose.onNodeWithTag("dialog-answer-${a.value}").performScrollTo().assertIsDisplayed()
         }

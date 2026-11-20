@@ -15,7 +15,9 @@ import net.bible.sharedui.components.dialog.AbDialogShell
  *
  * The shell's middle area scrolls [text]. Many callers still wrap their text in their own `verticalScroll`
  * (or use a lazy list), which Compose forbids under an infinite bound; [text] is therefore measured with a
- * finite, very large bound, so their inner scroll never engages and the shell's scroll does the work.
+ * finite, very large bound, so their inner scroll normally never engages and the shell's scroll does the work. Callers that cap
+ * themselves (a `heightIn(max = ...)` list or picker) still scroll inside the shell's scrolling middle area;
+ * those caps are redundant now and are for the copy batches to remove.
  */
 @Composable
 fun AbAlertDialog(
