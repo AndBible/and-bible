@@ -42,7 +42,8 @@ preferences > Look & feel.
 
 ## The cursor
 
-When the Study Pad's label is ‘auto-assigned’, a green line (the cursor) marks where new
+When the Study Pad's label is [auto-assigned](labels.md#change-label-settings) in the current
+workspace, a green line (the cursor) marks where new
 bookmarks go. A new bookmark is inserted at the cursor, and the cursor moves past it, so
 bookmarks you add one after another stay in the order you added them. To move the cursor,
 tap the top edge of an entry: the line jumps there. Tap just below the last entry to put it at the

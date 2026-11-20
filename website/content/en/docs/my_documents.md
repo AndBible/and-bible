@@ -94,8 +94,6 @@ page, so everything on this page applies to them too:
 
 A key use of the import is to write on a computer: write a `.md` file in any text editor,
 import it, let [Cloud Sync](#cloud-sync) carry it to your other devices and read it on the phone.
-Writing on the phone also works, but is the minor case.
-
 
 Markdown export and import make a round trip for the content (page names may lose punctuation on the way). Export pages to files, edit them in any text
 editor or keep them as a backup, and bring them back with *Import files as document* (a new
