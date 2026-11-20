@@ -88,7 +88,7 @@ class AiConnectionSettingsScreenResetDialogTest {
     @Test fun confirmResetUsage_showsLeadDetailAndDestructiveResetButton_andAnswersConfirm() {
         show(AiConnectionDialog.ConfirmResetUsage)
         compose.onNodeWithText("Reset usage data?").assertExists()
-        compose.onNodeWithTag("dialog-detail").assertTextEquals("All cumulative usage data is cleared.")
+        compose.onNodeWithTag("dialog-detail").assertTextEquals("Token and cost totals go back to zero. This cannot be undone.")
         compose.onNodeWithTag("dialog-confirm").assertTextEquals("Reset").assert(
             SemanticsMatcher("role is Destructive") { it.config.getOrNull(DialogButtonRoleKey) == DialogButtonRole.Destructive },
         )

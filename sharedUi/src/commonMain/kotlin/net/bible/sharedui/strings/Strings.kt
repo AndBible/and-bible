@@ -1385,7 +1385,6 @@ interface Strings {
     val aiResetUsageDetail: String  // R.string.ai_reset_usage_detail
     val aiResetUsageButton: String  // R.string.ai_reset_usage_button
     val aiDisclaimerAccept: String  // R.string.ai_disclaimer_accept
-    val aiBugReportSendLead: String  // R.string.ai_bug_report_send_lead
     // end dialog copy: B3a
     // dialog copy: B3c
     val installAction: String
