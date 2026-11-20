@@ -137,13 +137,10 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val cloudFetchAndRestoreInitial: String get() = t.text("cloud_fetch_and_restore_initial")
     override val cloudCreateNew: String get() = t.text("cloud_create_new")
     override val cloudDisableSync: String get() = t.text("cloud_disable_sync")
-    override val syncCantFetch: String get() = t.text("sync_cant_fetch")
-    override val syncUpdateApp: String get() = t.text("sync_update_app")
     override val syncError: String get() = t.text("sync_error")
     override val okay: String get() = t.text("okay")
     override val cancel: String get() = t.text("cancel")
     override fun areYouSureMerge(contents: String): String = t.fmt("are_you_sure_merge", contents)
-    override fun syncDisabling(what: String): String = t.fmt("sync_disabling", what)
 
     override fun databaseTitle(dbFileName: String): String = t.text(when (dbFileName) {
         "bookmarks.sqlite3" -> "db_bookmarks"

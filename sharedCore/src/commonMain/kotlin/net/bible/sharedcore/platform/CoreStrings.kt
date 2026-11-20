@@ -93,13 +93,10 @@ interface CoreStrings {
     val cloudFetchAndRestoreInitial: String
     val cloudCreateNew: String
     val cloudDisableSync: String
-    val syncCantFetch: String
-    val syncUpdateApp: String
     val syncError: String
     val okay: String
     val cancel: String
     fun areYouSureMerge(contents: String): String
-    fun syncDisabling(what: String): String
 
     fun databaseTitle(dbFileName: String): String
     val share: String

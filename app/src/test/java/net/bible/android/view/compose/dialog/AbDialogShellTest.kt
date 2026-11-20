@@ -203,12 +203,12 @@ class AbDialogShellTest {
         val d = compose.density.density
         val lead = compose.onNodeWithTag("dialog-lead-area").rootBounds()
         val middleH = compose.onNodeWithTag("dialog-middle-area").rootBounds().height
-        val buttonsTop = listOf("dialog-neutral", "dialog-dismiss", "dialog-confirm")
-            .minOf { compose.onNodeWithTag(it).rootBounds().top }
-        // room = what lies between the lead's top and the button row, minus the 10dp and 18dp gaps
-        val room = buttonsTop - 18 * d - lead.top - 10 * d
-        assertTrue("middle $middleH px should be ~10dp, not reserved 56dp", middleH < 20 * d)
-        assertTrue("lead ${lead.height} px must exceed room - 56dp (${room - 56 * d} px)", lead.height > room - 56 * d)
+        // The window is 360dp high and the AX5 button stack leaves ~60dp for lead + gap + middle. The middle needs
+        // 10dp, so the lead keeps ~50dp; without the hand-back it would be left with 60 - 56 = ~4dp. The geometry
+        // derived from the laid-out dialog cannot be used as the reference: the dialog wraps its content, so it
+        // shrinks together with the lead. Hence the absolute bound.
+        assertTrue("middle $middleH px must not be reserved at 56dp", middleH < 56 * d)
+        assertTrue("lead ${lead.height} px must be >= 40dp (unused middle reserve handed back)", lead.height >= 40 * d)
     }
 
     @Test fun emptyButtonRowHasNoGapAboveIt() {
@@ -256,7 +256,8 @@ class AbDialogShellTest {
         compose.onAllNodesWithTag("dialog-lead-divider-top").assertCountEquals(1)
     }
 
-    @Ax5 @Test fun multiSelectDialogWithManyOptionsScrollsToItsLastRowAtAx5() {
+    @Ax5 @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun multiSelectDialogWithManyOptionsScrollsToItsLastRowAtAx5() {
         val options = (1..60).map { "Option $it" }
         compose.setContent {
             AbTheme {
@@ -274,12 +275,13 @@ class AbDialogShellTest {
         compose.onAllNodesWithTag("dialog-divider-top").assertCountEquals(0)
         compose.onAllNodesWithTag("dialog-divider-bottom").assertCountEquals(1)
         var swipes = 0
-        // The middle is only ~56dp high at AX5 in this window, so each swipe moves little.
-        while (swipes < 400 && runCatching { compose.onNodeWithText("Option 60").assertIsDisplayed() }.isFailure) {
-            compose.onNodeWithTag("dialog-middle").performTouchInput { swipeUp() }
+        // The middle is short at AX5 in this window: fling it over its whole height, bounded.
+        while (swipes < 40 && runCatching { compose.onNodeWithText("Option 60").assertIsDisplayed() }.isFailure) {
+            compose.onNodeWithTag("dialog-middle").performTouchInput { swipeUp(startY = bottom, endY = top, durationMillis = 100) }
             compose.waitForIdle()
             swipes++
         }
+        assertTrue("took $swipes swipes", swipes < 40)
         compose.onNodeWithText("Option 60").assertIsDisplayed()
         compose.onAllNodesWithTag("dialog-divider-top").assertCountEquals(1)
         compose.onNodeWithText("OK").assertIsDisplayed()

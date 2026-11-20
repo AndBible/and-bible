@@ -32,7 +32,7 @@ class IosSettingsPlatformTest {
                 override val wordLookupDictOptions = greekDictOptions
             }
             val service = AppSettingsServiceImpl(
-                dictionaries, db, local, strings, HostSettingsPlatform(strings, db, local, legacyImport = { null }),
+                dictionaries, db, local, strings, HostSettingsPlatform(db, local, legacyImport = { null }),
             )
             val controller = AppSettingsController(service, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
             fun row() = controller.state.value.items.single { it.key == "double_tap_to_fullscreen" } as SettingsItem.SwitchRow
@@ -55,7 +55,7 @@ class IosSettingsPlatformTest {
             val local = IosDeviceSettings(defaults)
             val db = MemorySettings()
             val strings = KeyedCoreStrings(StringTable.of("en", { it }, { key, _ -> key }, { emptyList() }))
-            val platform = HostSettingsPlatform(strings, db, local)
+            val platform = HostSettingsPlatform(db, local)
             for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode", "night_mode_pref3")) local.putString(key, "stored")
             db.setBoolean("navigate_to_verse_pref", true)
             db.setString("night_mode_pref3", "manual")

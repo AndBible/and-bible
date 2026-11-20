@@ -97,13 +97,10 @@ internal class StubCoreStrings : CoreStrings {
     override val cloudFetchAndRestoreInitial = "cloudFetchAndRestoreInitial"
     override val cloudCreateNew = "cloudCreateNew"
     override val cloudDisableSync = "cloudDisableSync"
-    override val syncCantFetch = "syncCantFetch"
-    override val syncUpdateApp = "syncUpdateApp"
     override val syncError = "syncError"
     override val okay = "okay"
     override val cancel = "cancel"
     override fun areYouSureMerge(contents: String): String = "areYouSureMerge ${contents}"
-    override fun syncDisabling(what: String): String = "syncDisabling ${what}"
     override fun databaseTitle(dbFileName: String): String = dbFileName
     override val share = "share"
     override val backupPhoneStorage = "backupPhoneStorage"

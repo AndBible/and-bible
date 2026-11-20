@@ -214,7 +214,7 @@ fun desktopMiscModule(): Module = module {
             },
             suggestedSubject = { table.current.fmt("bug_report_subject_suggestion", get<DesktopAppEnvironment>().versionName) },
             attachLine = { table.current.fmt("bug_report_attach_line", it) },
-            confirm = { ai ->
+            confirm = { _ ->
                 val strings = table.current
                 dialogs.await(AppDialogRequest.Confirm(
                     title = null,
