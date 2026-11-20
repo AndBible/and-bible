@@ -95,7 +95,8 @@ private val API_FORMATS = listOf("OPENAI", "ANTHROPIC")
  * public `updateField(field, value)` API, so there is nothing to gain from a second, shadow enum
  * here; this also keeps the call site a direct pass-through: `onField = controller::updateField`).
  *
- * F31: [showAcceptDisclaimerDialog] renders the "Accept AI disclaimer" `AbConfirmDialog` (replacing
+ * F31: [showAcceptDisclaimerDialog] renders the AI disclaimer `AbConfirmDialog` (title `ai_disclaimer_accept_title`, confirm button
+ * `ai_disclaimer_accept` "I accept"; replacing
  * classic's `AlertDialog.Builder`-based accept flow, ported from `AiSettingsFragmentBase`). The host
  * gates opening the add-provider dialog / Quick-setup wizard on `LlmProviderService.disclaimerAccepted()`
  * and stashes the pending continuation while the dialog is shown; [onAcceptDisclaimer] must reach

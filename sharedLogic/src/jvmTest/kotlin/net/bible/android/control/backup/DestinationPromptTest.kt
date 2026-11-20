@@ -13,7 +13,6 @@ import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.files.DeliveryDestinations
 import net.bible.sharedcore.platform.files.SaveOrShare
-import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -47,7 +46,7 @@ class DestinationPromptTest {
         dirs = stub<AppDirectories>(),
     )
 
-    private fun labels(request: AppDialogRequest.Options) = request.options.map { (it as SettingsItem.Choice).label }
+    private fun labels(request: AppDialogRequest.Options) = request.options.map { it.label }
 
     @Test
     fun saveOnlyPlatformSkipsThePromptAndSaves() = runTest {

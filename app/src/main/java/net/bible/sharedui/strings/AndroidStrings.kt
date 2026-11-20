@@ -1351,6 +1351,5 @@ class AndroidStrings(private val context: Context) : Strings {
     override val aiResetUsageDetail: String get() = context.getString(R.string.ai_reset_usage_detail)
     override val aiResetUsageButton: String get() = context.getString(R.string.ai_reset_usage_button)
     override val aiDisclaimerAccept: String get() = context.getString(R.string.ai_disclaimer_accept)
-    override val aiBugReportSendLead: String get() = context.getString(R.string.ai_bug_report_send_lead)
     // end dialog copy: B3a
 }
