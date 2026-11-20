@@ -1358,8 +1358,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">செயலி வேறெங்கோ திறக்கப்பட்டிருக்கிறது</string>
   <string name="open_here">இங்கேயே திற</string>
-  <string name="external_link">வெளி இணைப்பு</string>
-  <string name="external_link_question">இது வெளி இணைப்பு %s ஐ உலாவியில் திறக்கும். தொடர விரும்புகிறீர்களா?</string>
   <string name="external_link_dont_ask_again">%s க்கு மீண்டும் கேட்காதே</string>
   <string name="nameless">தலைப்பு வரையறுக்கப்படவில்லை</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ஒரு-தட்டல் செயல்கள் (விவிலியங்கள்)</string>

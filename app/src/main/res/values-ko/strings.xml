@@ -1357,8 +1357,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">앱이 다른 곳에서 열렸습니다</string>
   <string name="open_here">여기서 열기</string>
-  <string name="external_link">외부 링크</string>
-  <string name="external_link_question">브라우저 애플리케이션에서 외부 링크 %s을(를) 열립니다. 계속하시겠습니까?</string>
   <string name="external_link_dont_ask_again">%s에 대해 다시 묻지 않음</string>
   <string name="nameless">제목 없음</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">한 번 탭 동작 (성경)</string>

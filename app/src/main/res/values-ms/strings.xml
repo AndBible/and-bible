@@ -1222,8 +1222,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikasi dibuka di tempat lain</string>
   <string name="open_here">Buka di sini</string>
-  <string name="external_link">Pautan luaran</string>
-  <string name="external_link_question">Ini akan membuka pautan luaran %s dalam aplikasi penyemak imbas, adakah anda ingin meneruskan?</string>
   <string name="external_link_dont_ask_again">Jangan tanya lagi untuk %s</string>
   <string name="nameless">Tajuk tidak ditakrifkan</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tindakan satu ketukan (Alkitab)</string>

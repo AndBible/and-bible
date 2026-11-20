@@ -1349,8 +1349,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Додаток відкрито в іншому місці</string>
   <string name="open_here">Відкрити тут</string>
-  <string name="external_link">Зовнішнє посилання</string>
-  <string name="external_link_question">Зовнішнє посилання %s відкриється в браузері. Відкрити?</string>
   <string name="external_link_dont_ask_again">Більше не питати про %s</string>
   <string name="nameless">Назва не визначена</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Дії одним дотиком (Біблії)</string>

@@ -1274,8 +1274,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Appen åpnet et annet sted</string>
   <string name="open_here">Åpne her</string>
-  <string name="external_link">Ekstern lenke</string>
-  <string name="external_link_question">Dette vil åpne ekstern lenke %s i et nettleserprogram, vil du fortsette?</string>
   <string name="external_link_dont_ask_again">Ikke spør igjen for %s</string>
   <string name="nameless">Tittel ikke definert</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Éntrykkhandlinger (Bibler)</string>

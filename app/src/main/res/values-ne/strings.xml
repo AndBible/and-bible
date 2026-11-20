@@ -1224,8 +1224,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">अनुप्रयोग अन्यत्र खुलेको छ</string>
   <string name="open_here">यहाँ खोल्नुहोस्</string>
-  <string name="external_link">बाह्य लिङ्क</string>
-  <string name="external_link_question">यसले ब्राउजर अनुप्रयोगमा बाह्य लिङ्क %s खोल्नेछ, के तपाईं जारी राख्न चाहनुहुन्छ?</string>
   <string name="external_link_dont_ask_again">%s का लागि फेरि नसोध्नुहोस्</string>
   <string name="nameless">शीर्षक परिभाषित गरिएको छैन</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">एक-ट्याप कार्यहरू (बाइबलहरू)</string>

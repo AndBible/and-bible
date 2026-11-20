@@ -1295,8 +1295,6 @@ Wenn Google Drive verwendet wird, hat %s nur Zugriff auf Dateien der Anwendung, 
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Die Anwendung ist woanders geöffnet</string>
   <string name="open_here">Hier öffnen</string>
-  <string name="external_link">Externe Verknüpfung</string>
-  <string name="external_link_question">Das wird die externe Verknüpfung %s in einem Browserfenster öffnen, möchtest du fortfahren?</string>
   <string name="external_link_dont_ask_again">Für %s nicht mehr fragen</string>
   <string name="nameless">Title not defined</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Aktionen durch Antippen (Bibelmodule)</string>

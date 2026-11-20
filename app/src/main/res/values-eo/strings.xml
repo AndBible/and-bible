@@ -1290,8 +1290,6 @@ Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu priva
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikaĵo malfermita ie alie</string>
   <string name="open_here">Malfermi tie ĉi</string>
-  <string name="external_link">Ekstera ligilo</string>
-  <string name="external_link_question">Tio ĉi malfermos la eksteran ligilon %s per aplikaĵo de retfoliumilo, ĉu pluigi?</string>
   <string name="external_link_dont_ask_again">Ne demandu denove por %s</string>
   <string name="nameless">Neniu titolo</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Agoj je unufoja frapeto (Biblioj)</string>

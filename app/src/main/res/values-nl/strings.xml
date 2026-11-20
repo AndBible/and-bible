@@ -1325,8 +1325,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">App ergens anders geopend</string>
   <string name="open_here">Hier openen</string>
-  <string name="external_link">Externe link</string>
-  <string name="external_link_question">Externe link %s wordt geopend in een browser, wil je verder gaan?</string>
   <string name="external_link_dont_ask_again">Niet meer vragen voor %s</string>
   <string name="nameless">Titel niet gedefinieerd</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acties met één klik (Bijbels)</string>

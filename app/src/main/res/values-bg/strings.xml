@@ -1224,8 +1224,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Приложението е отворено другаде</string>
   <string name="open_here">Отвори тук</string>
-  <string name="external_link">Външна връзка</string>
-  <string name="external_link_question">Това ще отвори външната връзка %s в браузър приложение. Желаете ли да продължите?</string>
   <string name="external_link_dont_ask_again">Не питай отново за %s</string>
   <string name="nameless">Заглавието не е зададено</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия с едно докосване (Библии)</string>

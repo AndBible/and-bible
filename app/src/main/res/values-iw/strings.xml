@@ -1290,8 +1290,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">היישום נפתח במקום אחר</string>
   <string name="open_here">פתח כאן</string>
-  <string name="external_link">קישור חיצוני</string>
-  <string name="external_link_question">פעולה זו תפתח את הקישור החיצוני %s בדפדפן, האם ברצונך להמשיך?</string>
   <string name="external_link_dont_ask_again">אל תשאל שוב עבור %s</string>
   <string name="nameless">הכותרת אינה מוגדרת</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">פעולות בהקשה אחת (תנ\"כים)</string>

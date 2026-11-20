@@ -1364,8 +1364,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplicație deschisă în altă parte</string>
   <string name="open_here">Deschide aici</string>
-  <string name="external_link">Legătură externă</string>
-  <string name="external_link_question">Acest lucru va deschide legătura externă %s într-o aplicație de navigare în internet, vrei să continui?</string>
   <string name="external_link_dont_ask_again">Nu mai întreba pentru %s</string>
   <string name="nameless">Titlu necunoscut</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acțiuni cu o singură atingere (Biblii)</string>

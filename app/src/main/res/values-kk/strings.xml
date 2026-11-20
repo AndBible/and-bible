@@ -164,7 +164,6 @@
   <string name="line_spacing_title">Жол арасын кеңейту</string>
   <string name="line_spacing_summary">Жол арасындағы бос орынды орнатыңыз</string>
   <string name="select_none">Ешқайсысын таңдамау</string>
-  <string name="reset_are_you_sure">Барлық параметрлерді қайта қалпына келтіргіңіз келетініне сенімдісіз бе? </string>
   <string name="window_pinning_menutitle">Терезені бекіту</string>
   <string name="hide_window_buttons_title">Терезе түймелерін жасырыңыз</string>
   <string name="hide_window_buttons_summary">Киелі Кітаптың көріністерінің оң жағында көрсетілген терезенің түймелері жасырылған. Төменгі жағындағы навигациялық шарлау жолағы әлі де көрсетіледі, оларды ұзақ басып терезенің қалқымалы мәзірін аша аласыз.</string>
@@ -195,6 +194,7 @@
   <string name="window_color_settings_title">Терезе түсінің параметрлері</string>
   <string name="workspace_color_settings_title">Жұмыс кеңістігі түстерінің дефолт параметрлері</string>
   <string name="color_workspace">Жұмыс кеңістігінің түсі</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
   <string name="color_text">Мәтін түсі</string>
   <string name="color_background">Артқы аясының түсі</string>
   <string name="colors_day_mode_title">Күн режимі</string>
@@ -224,7 +224,6 @@
   <string name="download_source_last_updated">Құжаттар тізімі соңғы рет:%s жаңартылды.</string>
   <string name="download_refreshing_book_list">Қол жетімді құжаттардың тізімін құжат серверлерінен жаңарту </string>
   <string name="download_source_message1">Құжаттар келесі көздерден жүктеледі:</string>
-  <string name="download_document_confirm_prefix">Жүктеу</string>
   <string name="error_downloading">Жүктеу барысында қате пайда болды. Өтінеміз, интернет байланысыңызды тексеріңіз.</string>
   <string name="error_downloading_status">Қондыратын сервер %1$s себебіне байланысты қатені қайтарды %2$s (%3$d).</string>
   <string name="storage_space_warning">Компьютердің жергілікті жадының жеткіліксіздігі. </string>
@@ -234,8 +233,6 @@
   <string name="chooce_language_hint">Тіл</string>
   <string name="one_more_back_press">Қолданбаны жабу үшін артқа батырмасын қайта басыңыз</string>
   <string name="document_filter_results">%dқұжаттар</string>
-  <string name="download_question_title">Құжаттарды жүктеуді жалғастырғыңыз келе ме?</string>
-  <string name="do_not_ask_again">Иә, басқа сұрамаңыз </string>
   <string name="recommended_document">Ұсынылады!</string>
   <string name="about_version_history">Тарих нұсқасы:%s</string>
   <string name="download_errors">Жүктеу қателері</string>
@@ -251,10 +248,8 @@
   <string name="checking_zip_file">Берілген файл тексерілуде ...</string>
   <string name="invalid_module">Файлдың мазмұнында жарамды SWORD модулі жоқ</string>
   <string name="install_zip_title">Өтінемін күте тұрыңыз. Файлдан модульдер жүктелуде.</string>
-  <string name="overwrite_files">Келесі файлдар бұрыннан бар:%s Қайта үстінен жазу керек пе?</string>
   <string name="overwrite_files_title">Файлдарды қайта үстінен жазу керек пе?</string>
   <string name="could_not_overwrite_files">Файлдарды қайта жазу мүмкін болмады: %s.  Одан басқа орнату сәтті өтті.</string>
-  <string name="install_do_you_want">Модуль орнатқыңыз келе ме (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Оқу Жоспары</string>
   <string name="reading_plans_plural">Оқу Жоспарлары</string>
@@ -263,12 +258,7 @@
   <string name="rdg_plan_set_start_date">Басталу Күнін Орнату...</string>
   <string name="set_current_day">Ағымдағы күн ретінде орнату…</string>
   <string name="done">Орындалды</string>
-  <string name="reset_plan_question">Осы жоспарды қайта қалпына келтіргіңіз келетініне сенімдісіз бе?</string>
   <string name="import_reading_plan">Оқу жоспарын импорттау...</string>
-  <string name="plan_duplicate_user_plan">
-SD картасында пайдаланушының оқу жоспары бар,
-jsword/ оқу жоспарының аталуы ішкі жоспарының аталуымен бірдей. Оны мұнда тізімдеуге болмайды.
-Файлдың атын басқасына өзгертіңіз, файл байланыс кеңейтілімін .properties ретінде қалдырыңыз</string>
   <string name="plan_name_y1ntpspr">Жылына ЖӨ, Забур Жырлары &amp; Нақыл Сөздер</string>
   <string name="plan_description_y1ntpspr">
 HEARTLIGHT Интернет Журналдың әдептілігі,
@@ -301,7 +291,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="delete_index">Іздеу индексін жою</string>
   <string name="about">Туралы</string>
   <string name="delete_doc">Жою %s?</string>
-  <string name="delete_search_index_doc">%s? индексін жою</string>
   <!--Verse context menu-->
   <string name="notes">Ескертпелер мен сілтемелер</string>
   <string name="share_verse">Бөлісу...</string>
@@ -337,7 +326,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="bookmark_warning2">
 Құжат құрылымы өзгерсе, бұл құжатты жаңартуға болады.
     бұл бетбелгілердің/ескертпелердің орындары құжат ішінде жылжиды немесе толығымен жоғалады. </string>
-  <string name="bookmark_warning3">Модульді әлі де жаңартқыңыз келе ме?</string>
   <string name="bookmark_warning4">Жаңарту алдында модульдің сақтық көшірмесін жасау ұсынылады.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Күн реті</string>
@@ -489,7 +477,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Дерекқор Файлды Қалпына келтіріңіз</string>
-  <string name="restore_confirmation">Менің жазбаларым, бетбелгілерім, оқу планшеттерді, оқитын жоспарларымды және жұмыс кеңістіктерімді қайта жазу керек па?</string>
   <string name="restore_success">Менің Жазбаларым, Бетбелгілерім, Оқу Планшеттерім, Оқу Жоспарлары мен Жұмыс Кеңістіктері қалпына сәтті келтірілді</string>
   <string name="downloading_backup">Сақтық көшірме файлы жүктелуде…</string>
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
@@ -673,7 +660,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="give_passphrase_for_module">Құжат %s шифрланған, бұғаттан шығару үшін кодтық сөз қажет.</string>
   <string name="unlock_module">Модульдің құпия сөзін орнатыңыз</string>
   <string name="unlock_info">Шифрланған модуль ақпаратты бұғаттан шығару</string>
-  <string name="try_again_passphrase">Құпия сөзді қабылдамады, қайталап көрдіңіз бе?</string>
   <string name="show_unlock_info">Модуль және; ақпаратты бұғаттан шығару</string>
   <string name="prefs_show_error_box_title">Javascript қате терезесін көрсету</string>
   <string name="prefs_show_error_box_summary">Bible View-де JavaScript қателерін түзету кезінде әзірлеушілері үшін пайдалы. Бұл қосымшаның жұмысын баяулатады.</string>
@@ -681,7 +667,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="active_window_indicator_summary">Қай терезенің белсенді екенін анықтауға көмектесу үшін, терезенің бұрыштарын бөлекте</string>
   <string name="app_licence_title">Бастапқы Лицензия Ашық</string>
   <string name="how_to_contribute">Қалай үлес қосып беруге болады?</string>
-  <string name="confirm_delete_bookmarks">Бетбелгілер мен олардың жазбаларын алып тастағыңыз келе ме%d?</string>
   <string name="module_size_megabytes">%.1fМБ</string>
   <string name="tell_friend_title">Досыңа ұсыну</string>
   <string name="tell_friend_message1">Мен сізге ұсынғым келеді%s.</string>
@@ -709,8 +694,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="old_webview">Android WebView бумасы тым ескі (%1$s). %3$s қолдану үшін Android WebView бумасын кем дегенде %2$s нұсқасына жаңартуыңыз қажет. Көптеген құрылғылар үшін бұл %4$s арқылы жасауға болады.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Кез келген жағдайда жалғастыру</string>
-  <string name="proceed">Жалғастыру</string>
-  <string name="rate_title">Бағалау және шолу қолданбасы</string>
   <string name="rate_message5">
 Оң және егжей-тегжейлі шолулар AndBible Open Source жобасына көп көмектеседі. Рақмет сізге!</string>
   <string name="rate_message6">Теріс шолу жасамас бұрын, келесілерді ескеріңіз:</string>
@@ -744,7 +727,6 @@ Google Play -ге өтіңіз
   <string name="primary_label">Негізгі белгі</string>
   <string name="favourite_label">Таңдаулы белгі</string>
   <string name="edit_label">Белгіні өңдеу</string>
-  <string name="delete_label_confirmation">«%s» Бетбелгі белгісін алып тастағыңыз келе ме? Сонымен қатар Study Pad -пен байланысты барлық жазбалар жойылады.</string>
   <string name="active_labels">Таңдалған белгілер</string>
   <string name="recent_labels">Соңғы белгілер</string>
   <string name="other_labels">Басқа белгілер</string>
@@ -752,7 +734,6 @@ Google Play -ге өтіңіз
   <string name="book_menu_group_by_category">Кітаптарды санаттары бойынша топтастыру</string>
   <string name="book_menu_show_long_book_name">Ұзын кітап атын көрсетіңіз</string>
   <string name="reset_workspace_labels">Осы жұмыс кеңістігі үшін автоматты тағайындау мен таңдаулы параметрлерді қалпына келтіргіңіз келе ме?</string>
-  <string name="reset_hide_labels">Көрсетілген белгілердің параметрлерін жасыру параметрін қалпына келтіргіңіз келе ме?</string>
   <string name="reorder">Қайта тапсырыс беру</string>
   <string name="system_items">Жүйелік әрекеттер</string>
   <string name="system_items1">Көбірек</string>
@@ -763,7 +744,6 @@ Google Play -ге өтіңіз
   <string name="prefs_double_tap_to_fullscreen_summary">Терезені екі рез түртіп толық бейне режиміне өтіңіз</string>
   <string name="toggle_fullscreen">Толық бейне беті</string>
   <string name="exit_fullscreen">Толық бейне бетінен шығу үшін бейне бетін екі рез түртіңіз</string>
-  <string name="reset_app_prefs">Бұл бейнеде көрсетілетін барлық жаһанды қолданбаның параметрлерін әдепкі мәндеріне қайтарғыңыз келе ме?</string>
   <string name="label_red">Қызыл</string>
   <string name="label_green">Жасыл</string>
   <string name="label_blue">Көк</string>
@@ -793,9 +773,7 @@ Google Play -ге өтіңіз
   <string name="strongs_links">Сілтемелер</string>
   <string name="strongs_text_and_links">Мәтін мен Сілтемелер</string>
   <string name="verse_tip">Ішінара немесе көптеген аяттарды таңдау үшін Сіз Киелі кітаптың мәтінін ұзақ басуыңызға болады</string>
-  <string name="permission_required">Рұқсат қажет</string>
   <string name="labels_search_hint">Іздеу</string>
-  <string name="progress_status_permission">Хабарландыруларды көрсету үшін (жүктеп алу күйі, өңдеу, сөйлеу күйі) рұқсатыңыз қажет.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Қарапайым калькулятор</string>
   <string name="prefs_persecution_cat">Қуғынға ұшырағандарға арналған параметрлер</string>
@@ -837,7 +815,6 @@ Google Play -ге өтіңіз
   <string name="custom_repositories_create_button_label">Пайдаланушы репозиторийін қосыңыз</string>
   <string name="custom_repositories_info_button_label">Ақпарат</string>
   <string name="repository_specification">Репозиторий URL</string>
-  <string name="delete_custom_repository">Пайдаланушы репозиторийін жойғыңыз келе ме %s?</string>
   <string name="custom_repositories_help1">Жаңа пайдаланушы репозиторийін қосу үшін теріңіз немесе көшіріңіз &amp; реттелетін репозитарий URL мекенжайын осы жерге қойыңыз.</string>
   <string name="custom_repositories_help2">Пайдаланушы репозиторийлері туралы қосымша ақпаратты мына жерден оқи аласыз %s.</string>
   <string name="custom_repositories_help0">Пайдаланушы репозитарийлерін орнату арқылы құжаттарды сыртқы реттелетін репозитарийлерден орнатуға болады.</string>
@@ -858,9 +835,6 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="db_repositories">Репозиторийлер және қатысты параметрлер</string>
   <string name="db_bookmarks">Бетбелгілер, Менің жазбаларым, белгілер және оқу тақталары</string>
   <string name="synchronizing">Синхрондау...</string>
-  <string name="overrideBackup">
-Бұл құрылғы синхрондалмаған бар дерекқор бұлтта табылған.
-Деректер базасы %s бар.  Сіз не істегіңіз келеді?</string>
   <string name="reading_plans_content">Оқу жоспарлары және олардың күйлері</string>
   <string name="bookmarks_contents">Бетбелгілер, белгілер және оқу тақталары</string>
   <string name="workspaces_contents">Жұмыс кеңістігі және Windows</string>
@@ -871,7 +845,6 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="cloud_sync_title">Құрылғыны синхрондау</string>
   <string name="reset_sync">Шығу</string>
   <string name="prefs_reset_sync_summary">Қадамдастыруды өшіріп, қатысты параметрлерді қалпына келтіріңіз.</string>
-  <string name="sync_confirmation">Жүйеден шығып, синхрондауды қалпына келтіргіңіз келетініне сенімдісіз бе?</string>
   <string name="cloud_info">Бұлттық ақпарат</string>
   <string name="cloud_info_summary">Бұлттық қоймадағы деректер: %s Мб</string>
   <string name="sync_adapter">Синхрондау сервері</string>
@@ -883,13 +856,6 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="synchronization_categories">Синхрондау категориялары</string>
   <string name="sync_general_settings">Ақпарат &amp; жалпы параметрлер</string>
   <string name="sync_introduction">Кіріспе</string>
-  <string name="are_you_sure">Сіз сенімдісіз бе?</string>
-  <string name="are_you_sure_reset_local">Қазіргі уақытта бұлттық қызметте сақталған мазмұнмен бұл сіздің жергілікті дерекқорыңызды %s қалпына келтіреді. </string>
-  <string name="are_you_sure_reset_cloud">Осы құрылғыдағы мазмұнмен бұл бұлттық дерекқорды %sқалпына келтіреді.  </string>
-  <string name="sync_cant_fetch">Бұлтта сақталған дерекқордың немесе патч файлының нұсқасы осы қолданба қолдайтын нұсқасынан жоғары.</string>
-  <string name="sync_disabling">Синхрондау әзірге %s өшірілуде.</string>
-  <string name="sync_update_app">Синхрондауды жалғастыру үшін қолданбаны жаңартыңыз.</string>
-  <string name="sign_in_failed">Синхрондау серверіне кіру сәтсіз аяқталды.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Бұлтты синхрондауды өшіру. Қалпына келтіргеннен кейін қолмен қайта қосу керек.</string>
   <string name="report">Есеп беру</string>
@@ -904,8 +870,6 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Қолданба басқа жерде ашылды</string>
   <string name="open_here">Осы жерден ашыңыз</string>
-  <string name="external_link">Сыртқы сілтеме</string>
-  <string name="external_link_question">Бұл браузер қолданбасында сыртқы сілтемені %s ашады, жалғастырғыңыз келе ме?</string>
   <string name="nameless">Тақырып анықталмаған</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Бір рет түрту әрекеттері (Киелі кітап)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Бір рет түрту әрекеттері (Басқа)</string>
@@ -947,6 +911,8 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <!--I3b legacy migration-->
   <!--H2: platform-neutral iOS recommendation.-->
   <!--I2c-B-->
+  <!--dialog copy: B3a-->
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">Бастау</string>
   <string name="user_guide_section_reading_workspace">Оқу және жұмыс кеңістігі</string>
@@ -1024,4 +990,12 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="tutorial_title_31_ai_3_tools_data_permissions">Жасанды интеллект көмекшісі, 3-бөлім: құралдар, деректеріңіз және рұқсаттар</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Жасанды интеллект көмекшісі, 4-бөлім: өз сұрауларыңыз, шығындар және синхрондау</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <!--end dialog copy: B3b-->
 </resources>

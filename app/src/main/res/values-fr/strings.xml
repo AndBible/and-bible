@@ -1332,8 +1332,6 @@ Lors de l’utilisation de Google Drive, l’accès à %s n’est accordé qu’
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Application ouverte ailleurs</string>
   <string name="open_here">Ouvrir ici</string>
-  <string name="external_link">Lien externe</string>
-  <string name="external_link_question">Cela ouvrira un lien externe %s dans un navigateur. Souhaitez-vous continuer ?</string>
   <string name="external_link_dont_ask_again">Ne plus demander pour %s</string>
   <string name="nameless">Titre non définis</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Actions d’une seule touche (Bibles)</string>

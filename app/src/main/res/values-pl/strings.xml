@@ -1286,8 +1286,6 @@ Podczas korzystania z Dysku Google, aplikacja %s otrzymuje uprawnienie na dostę
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikacja jest otwarta gdzieś indziej</string>
   <string name="open_here">Otwórz tutaj</string>
-  <string name="external_link">Odnośnik zewnętrzny</string>
-  <string name="external_link_question">Zostanie otwarty odnośnik zewnętrzny %s w przeglądarce, czy kontynuować?</string>
   <string name="external_link_dont_ask_again">Nie pytaj ponownie o %s</string>
   <string name="nameless">Brak tytułu</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcje pojedynczego stuknięcia (Biblie)</string>

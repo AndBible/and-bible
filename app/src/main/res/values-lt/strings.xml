@@ -1355,8 +1355,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Programėlė atverta kitur</string>
   <string name="open_here">Atverti čia</string>
-  <string name="external_link">Išorinė nuoroda</string>
-  <string name="external_link_question">Tai naršyklės programėlėje atvers išorinę nuorodą %s. Ar norite tęsti?</string>
   <string name="external_link_dont_ask_again">Daugiau neklausti dėl %s</string>
   <string name="nameless">Nėra pavadinimo</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Vieno bakstelėjimo veiksmai (Biblijos)</string>

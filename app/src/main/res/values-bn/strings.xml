@@ -1321,8 +1321,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">অ্যাপ অন্য কোথাও খোলা হয়েছে</string>
   <string name="open_here">এখানে খুলুন</string>
-  <string name="external_link">বাহ্যিক লিঙ্ক</string>
-  <string name="external_link_question">এটি একটি ব্রাউজার অ্যাপ্লিকেশনে বাহ্যিক লিঙ্ক খুলবে%s, আপনি কি চালিয়ে যেতে চান?</string>
   <string name="external_link_dont_ask_again">%s-এর জন্য আর জিজ্ঞাসা করবেন না</string>
   <string name="nameless">শিরোনাম সংজ্ঞায়িত নয়</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ওয়ান-ট্যাপ অ্যাকশন (বাইবেল)</string>

@@ -1319,8 +1319,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">L\'app è aperta altrove</string>
   <string name="open_here">Apri qui</string>
-  <string name="external_link">Collegamento esterno</string>
-  <string name="external_link_question">Questo aprirà il collegamento esterno %s in un\'applicazione browser, vuoi continuare?</string>
   <string name="external_link_dont_ask_again">Non chiedere più per %s</string>
   <string name="nameless">Titolo non specificato</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Azioni con un solo tocco (Bibbie)</string>

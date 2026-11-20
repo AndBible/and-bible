@@ -1335,8 +1335,6 @@ http://www.heartlight.org 准予使用
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">程式已於別處開啟</string>
   <string name="open_here">此處開啟</string>
-  <string name="external_link">外部連結</string>
-  <string name="external_link_question">這樣會以瀏覽器開啟外部連結%s。你要繼續嗎？</string>
   <string name="external_link_dont_ask_again">不再詢問 %s</string>
   <string name="nameless">標題尚未定義</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">一鍵功能 (聖經)</string>

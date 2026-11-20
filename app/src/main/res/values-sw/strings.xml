@@ -1273,8 +1273,6 @@ Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili z
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Programu imefunguliwa mahali pengine</string>
   <string name="open_here">Fungua hapa</string>
-  <string name="external_link">Kiungo cha nje</string>
-  <string name="external_link_question">Hii itafungua kiungo cha nje %s katika programu ya kivinjari, je, unataka kuendelea?</string>
   <string name="external_link_dont_ask_again">Usiulize tena kwa %s</string>
   <string name="nameless">Kichwa hakibainishwi</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Vitendo vya gonga-moja (Biblia)</string>
