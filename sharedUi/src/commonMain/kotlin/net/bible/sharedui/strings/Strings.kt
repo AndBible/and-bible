@@ -327,7 +327,6 @@ interface Strings {
     val downloadTitle: String             // R.string.download
     val progressStatus: String             // R.string.progress_status
     val errorDownloading: String             // R.string.error_downloading
-    val downloadDocumentConfirmPrefix: String             // R.string.download_document_confirm_prefix
     val downloadDialogMessage: String             // R.string.download_dialog_message
     val downloadErrors: String             // R.string.download_errors
     fun failedRepositoriesMessage(repositories: String): String             // R.string.failed_repositories_message
@@ -1094,7 +1093,6 @@ interface Strings {
 
     // Task B1 (InstallZip Plan B) — Compose install UI (progress + decision dialogs)
     val installZipTitle: String                    // R.string.install_zip (FormatInfo prelude dialog title)
-    val proceed: String                             // R.string.proceed (FormatInfo confirm button)
     val overwriteFilesTitle: String                 // R.string.overwrite_files_title
     val epubUpgradeTitle: String                    // R.string.bookmark_warning (first sentence of the EpubUpgrade detail)
     val epubUpgradeWarning: String                  // R.string.bookmark_warning2
@@ -1432,6 +1430,11 @@ interface Strings {
     /** The EPUB/document update detail: the bookmark warning, why it matters and the backup advice. */
     val epubUpgradeDetail: String get() =
         "$epubUpgradeTitle $epubUpgradeWarning\n\n$epubUpgradeRecommendation"
+    fun downloadDocumentQuestion(name: String): String
+    val chooseFileAction: String
+    val oldWebviewQuestion: String
+    val incompleteTranslationQuestion: String
+    val rateAction: String
     // end dialog copy: B3c
 }
 

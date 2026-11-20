@@ -49,9 +49,9 @@ final class FeatureScreensUITests: RealAppUITestCase {
     private func confirmInstalls(_ app: XCUIApplication, _ filenames: [String]) {
         for filename in filenames {
             let message = app.staticTexts.matching(NSPredicate(format: "label == %@",
-                "Do you want to install module (\(filename))?")).firstMatch
+                "Install “\(filename)”?")).firstMatch
             harnessRequire(message.waitForExistence(timeout: 60), app, "install-confirm-\(filename)")
-            tapRequired(app, app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch, "install-ok-\(filename)")
+            tapRequired(app, app.buttons.matching(NSPredicate(format: "label == 'Install'")).firstMatch, "install-ok-\(filename)")
         }
     }
 
@@ -60,7 +60,7 @@ final class FeatureScreensUITests: RealAppUITestCase {
         let app = launch(["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16",
                           "-incomingRuntimeTest", "-incomingFixture", aliases, "-incomingRemoveFixtures"])
         confirmInstalls(app, filenames)
-        let prompt = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Do you want to install module'")).firstMatch
+        let prompt = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Install “'")).firstMatch
         _ = waitUntil(timeout: 60) { !prompt.exists }
         // The debug harness tags the screen once every offered fixture is registered; the chooser launch below still
         // proves the install (row present).

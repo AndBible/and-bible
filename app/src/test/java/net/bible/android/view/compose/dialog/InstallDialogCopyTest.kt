@@ -122,5 +122,11 @@ class InstallDialogCopyTest {
         show(InstallUiState.FormatInfo("ZIP, SWORD"))
         assertLead("Install documents from a file?")
         compose.onNodeWithTag("dialog-detail").assertTextEquals("ZIP, SWORD")
+        compose.onNodeWithTag("dialog-confirm").assertTextEquals("Choose file")
+    }
+
+    @Test fun downloadQuestionNamesTheActionAndQuotesTheDocument() {
+        assertEquals("Download “King James Version”?", strings.downloadDocumentQuestion("King James Version"))
+        assertEquals("Download", strings.downloadAction)
     }
 }

@@ -35,7 +35,6 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -511,8 +510,7 @@ class ReadingHostSlotsTest {
         onNodeWithText("Example link").performClick()
         assertTrue(links.opened.isEmpty(), "discrete mode must ask before opening")
         onNodeWithText(strings.externalLinkOpenQuestion).assertExists()
-        // two OK buttons now (help + question); the question's is the last one composed
-        onAllNodesWithText(strings.okay).onLast().performClick()
+        onNodeWithText(strings.openAction).performClick()
         assertEquals(listOf("https://example.org/x"), links.opened)
     }
 

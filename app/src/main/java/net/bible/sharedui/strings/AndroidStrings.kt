@@ -325,7 +325,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val downloadTitle: String get() = context.getString(R.string.download)
     override val progressStatus: String get() = context.getString(R.string.progress_status)
     override val errorDownloading: String get() = context.getString(R.string.error_downloading)
-    override val downloadDocumentConfirmPrefix: String get() = context.getString(R.string.download_document_confirm_prefix)
     override val downloadDialogMessage: String get() = context.getString(R.string.download_dialog_message)
     override val downloadErrors: String get() = context.getString(R.string.download_errors)
     override fun failedRepositoriesMessage(repositories: String): String = context.getString(R.string.failed_repositories_message, repositories)
@@ -1026,7 +1025,6 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Task B1 (InstallZip Plan B) — Compose install UI
     override val installZipTitle: String get() = context.getString(R.string.install_zip)
-    override val proceed: String get() = context.getString(R.string.proceed)
     override val overwriteFilesTitle: String get() = context.getString(R.string.overwrite_files_title)
     override val epubUpgradeTitle: String get() = context.getString(R.string.bookmark_warning)
     override val epubUpgradeWarning: String get() = context.getString(R.string.bookmark_warning2)
@@ -1360,5 +1358,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override val openAction: String get() = context.getString(R.string.open_action)
     override fun deleteSearchIndexQuestion(name: String): String = context.getString(R.string.delete_search_index_question, name)
     override fun removeCustomRepositoryQuestion(name: String): String = context.getString(R.string.remove_custom_repository_question, name)
+    override fun downloadDocumentQuestion(name: String): String = context.getString(R.string.download_document_question, name)
+    override val chooseFileAction: String get() = context.getString(R.string.choose_file_action)
+    override val oldWebviewQuestion: String get() = context.getString(R.string.old_webview_question)
+    override val incompleteTranslationQuestion: String get() = context.getString(R.string.incomplete_translation_question)
+    override val rateAction: String get() = context.getString(R.string.rate_action)
     // end dialog copy: B3c
 }

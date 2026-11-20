@@ -83,7 +83,7 @@ fun computeDisplayedDocuments(
  * text exactly as it did before this task and hands over the result. [ConfirmDeleteIndex] is the one
  * exception -- its queue is resolved entirely from this controller's own [DocRow] cache (see
  * [deleteIndex]), so it carries only the bare document name and the SCREEN formats the sentence via
- * `Strings.deleteSearchIndexQuestion`, an entry that already existed before this task.
+ * `Strings.deleteSearchIndexQuestion`.
  */
 sealed interface DocumentSelectionDialog {
     data object None : DocumentSelectionDialog

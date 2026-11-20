@@ -216,7 +216,7 @@ class CommonUtilsDialogsTest {
         val retry = dialogs.pending.value!!.request as AppDialogRequest.Confirm
         assertEquals(application.getString(R.string.passphrase_did_not_work), retry.title)
         assertNull(retry.message)
-        assertEquals("Try again", retry.confirmText)
+        assertEquals(application.getString(R.string.try_again), retry.confirmText)
         assertEquals(application.getString(R.string.cancel), retry.dismissText)
         assertFalse(retry.cancellable)
         respondHead(AppDialogResult.Cancel)
@@ -325,7 +325,7 @@ class CommonUtilsDialogsTest {
         val result = async { CommonUtils.checkPoorTranslations(activity) }
         advance()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
-        assertNull(head.title)
+        assertEquals(application.getString(R.string.incomplete_translation_question), head.title)
         assertFalse(head.cancellable)
         assertEquals(3, head.options.size)
         val labels = head.options.map { it.label }

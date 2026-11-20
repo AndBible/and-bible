@@ -71,9 +71,9 @@ final class ImportedFontUITests: RealAppUITestCase {
     func testImportedFontIsOfferedRenderedAndPersists() {
         var app = launch(["-standardTestFixture", "-resetDatabases", "-incomingRuntimeTest", "-incomingRemoveFixtures", "-incomingFixture", "font",
                           "-readingAccessibilityProbe", "-openRef", "John.3.16"])
-        let confirmation = app.staticTexts["Do you want to install module (StudyMono.ttf)?"].firstMatch
+        let confirmation = app.staticTexts["Install “StudyMono.ttf”?"].firstMatch
         XCTAssertTrue(confirmation.waitForExistence(timeout: 60), "Production font install confirmation")
-        tapLabel(app, "OK")
+        tapLabel(app, "Install")
         XCTAssertTrue(element(app, "incoming-cold-fixtures-installed").waitForExistence(timeout: 90), "Production installer registered the imported font")
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 90))
         openFonts(app)

@@ -1226,7 +1226,7 @@ object CommonUtils : CommonUtilsBase() {
         val closeValue = "close"
         val result = dialogs.await(
             AppDialogRequest.Options(
-                title = null,
+                title = application.getString(R.string.incomplete_translation_question),
                 message = msg,
                 options = listOf(
                     SettingsItem.Choice(proceedValue, application.getString(R.string.proceed_anyway)),

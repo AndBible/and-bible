@@ -758,7 +758,7 @@ class DownloadHost(
                     // M4: this plain-text message (a document's `name` can itself contain "<...>") goes through
                     // AbMessageDialog, which always parses its body as HTML -- I2's helper keeps it literal instead
                     // of silently dropping an unknown "tag".
-                    plainTextToHtml(strings.downloadDocumentConfirmPrefix + " " + documentToDownload.name),
+                    plainTextToHtml(strings.downloadDocumentQuestion(documentToDownload.name)),
                 )
             }
         }

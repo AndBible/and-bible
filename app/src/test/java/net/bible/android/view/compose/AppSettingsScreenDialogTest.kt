@@ -135,11 +135,11 @@ class AppSettingsScreenDialogTest {
         assertEquals(listOf("https://example.org/wiki"), opened)
     }
 
-    /** C1: with [askBeforeOpeningLink], the same tap asks first -- OK opens it exactly once, and the
-     *  help dialog stays open underneath, untouched. The help dialog's own confirm button is ALSO
-     *  labelled "OK" (both reuse `strings.okay`), so the question's button is picked out by taking
-     *  the LAST match: `AbLinkRouting` draws the question's window strictly after the help dialog's
-     *  own, same "later window sits on top" mechanism the production fix relies on. */
+    /** C1: with [askBeforeOpeningLink], the same tap asks first -- Open opens it exactly once, and the
+     *  help dialog stays open underneath, untouched. The question's confirm button is labelled
+     *  `strings.openAction`, distinct from the help dialog's own "OK", so it is found by its text;
+     *  `AbLinkRouting` draws the question's window strictly after the help dialog's own, the "later
+     *  window sits on top" mechanism the production fix relies on. */
     @Test fun discreteHelp_askBeforeOpeningLink_asksThenOpensOnce() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         show(
