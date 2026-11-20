@@ -223,22 +223,26 @@ private suspend fun createTriggersForTable(
         " AND EXISTS (SELECT 1 FROM $parent WHERE id = OLD.$column)"
     }
 
+    // Add-on collection rows are never logged (they never leave the device), whatever path writes them.
+    val notAddonNew = addonRowTriggerCondition(dbDef.category, this, "NEW")
+    val notAddonOld = addonRowTriggerCondition(dbDef.category, this, "OLD")
+
     db.exec("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName $whenCondition 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName $whenCondition$notAddonNew 
             BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
             END;
         """.trimIndent()
     )
     db.exec("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName $whenCondition 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName $whenCondition$notAddonOld 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
             END;
         """.trimIndent()
     )
     db.exec("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName $whenCondition$parentsExist 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName $whenCondition$parentsExist$notAddonOld 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc, '$deviceId'); 
             END;

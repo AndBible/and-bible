@@ -40,9 +40,12 @@ import kotlin.time.Clock
 
 private suspend fun writePatchData(
     db: PooledConnection,
+    category: SyncableDatabaseDefinition,
     tableDef: SyncableDatabaseDefinition.Table,
     lastPatchWritten: Long
 ) = db.run {
+    // Never an add-on collection row (they are not logged either; this also covers carried children).
+    val notAddon = addonRowExclusion(category, tableDef)
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
     val idField2 = tableDef.idField2
@@ -57,7 +60,7 @@ private suspend fun writePatchData(
     exec("""
             INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN 
             (SELECT $select FROM LogEntry pe WHERE tableName = '$table' AND type = 'UPSERT' 
-            AND lastUpdated > $lastPatchWritten)
+            AND lastUpdated > $lastPatchWritten)$notAddon
             """.trimIndent())
     exec("""
             INSERT INTO patch.LogEntry SELECT * FROM LogEntry 
@@ -68,7 +71,7 @@ private suspend fun writePatchData(
     for ((parent, column) in tableDef.parents) {
         exec("""
             INSERT OR IGNORE INTO patch.$table ($cols) SELECT $cols FROM $table
-            WHERE $column IN (SELECT id FROM patch.$parent)
+            WHERE $column IN (SELECT id FROM patch.$parent)$notAddon
             """.trimIndent())
     }
 }
@@ -196,8 +199,10 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppE
             db.exec("PRAGMA patch.foreign_keys=OFF;")
             db.inTransaction<Unit> {
                 for (tableDef in dbDef.tableDefinitions) {
-                    writePatchData(this, tableDef, lastPatchWritten)
+                    writePatchData(this, dbDef.category, tableDef, lastPatchWritten)
                 }
+                // Defence in depth: the log never names an add-on row, but nothing of one may leave the device.
+                stripAddonRows(this, dbDef.category, "patch")
             }
         }
     }
@@ -248,6 +253,10 @@ suspend fun applyPatchesForDatabase(
                 db.exec("PRAGMA foreign_keys=OFF;")
                 try {
                     db.inTransaction<Unit> {
+                        // An incoming patch never carries add-on rows (each device builds them from its own
+                        // module). Should one name an add-on row, the local add-on row wins: drop it from the patch.
+                        val addonRows = stripAddonRows(this, dbDef.category, "patch")
+                        if (addonRows > 0) Log.w(TAG, "Ignored $addonRows add-on rows in an incoming ${dbDef.categoryName} patch")
                         val aliased = mapIncomingIds && dbDef.category.hasIdAliases
                         if (aliased) aliasIncomingIds(dbDef.category, "patch")
                         val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()

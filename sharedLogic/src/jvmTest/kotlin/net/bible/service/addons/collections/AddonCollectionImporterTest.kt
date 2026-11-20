@@ -35,6 +35,12 @@ class AddonCollectionImporterTest {
     private fun d(id: net.bible.android.database.IdType, module: String = "Manna") = addonId(module, id).toHex()
 
     @Test
+    fun addonTablesAreNotSyncedTables() {
+        val synced = net.bible.service.cloudsync.SyncableDatabaseDefinition.ALL.flatMap { c -> c.tables.map { it.tableName } }
+        for (table in net.bible.service.cloudsync.ADDON_LOCAL_TABLES) assertFalse(table in synced, table)
+    }
+
+    @Test
     fun addonIdIsTaggedDeterministicAndModuleSpecific() {
         val a = addonId("Manna", Src.b1)
         assertEquals(a, addonId("Manna", Src.b1))
