@@ -194,6 +194,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val exportDestinationTitle: String get() = t.text("export_destination_title")
     override val exportDestinationMessage: String get() = t.text("export_destination_message")
     override fun searchUnsupportedSyntax(syntax: String): String = t.fmt("search_unsupported_syntax", syntax)
+    override fun searchInvalidRegex(engineMessage: String): String = t.fmt("search_invalid_regex", engineMessage)
     override val memorizeWordVisibilityEntries: List<String> get() = t.array("memorize_word_visibility_entries")
     override val memorizeWordVisibilityValues: List<String> get() = t.array("memorize_word_visibility_values")
     override val cantChangeWholeVerse: String get() = t.text("cant_change_wholeverse")

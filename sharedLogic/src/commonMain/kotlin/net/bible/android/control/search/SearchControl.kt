@@ -19,7 +19,15 @@ package net.bible.android.control.search
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
+import org.crosswire.jsword.index.IndexManagerFactory
+import org.crosswire.jsword.index.RegexSearchBudget
+import org.crosswire.jsword.index.RegexSearchableIndex
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
@@ -52,6 +60,8 @@ data class GroupedSearchResult(
 class MultiSearchResultsDto {
     val mainSearchResults = mutableListOf<GroupedSearchResult>()
     val otherSearchResults = mutableListOf<GroupedSearchResult>()
+    /** A regex scan ran out of its time budget before it had seen every verse. */
+    var truncatedByTime: Boolean = false
     val size: Int get() = mainSearchResults.size + otherSearchResults.size
 }
 
@@ -177,6 +187,66 @@ class SearchControl constructor(
             }
         }
 
+        groupAndSort(groupedResults, searchResults)
+
+        Log.i(TAG, "Multi-search found ${searchResults.size} unique verses")
+        searchResults
+    }
+
+    /**
+     * Regex search over the stored verse texts of [documentInitials], grouped like [getMultiSearchResults]. One
+     * [budget] is shared by every translation, so the whole search stops at [REGEX_SEARCH_BUDGET] (or when the
+     * calling coroutine is cancelled); [MultiSearchResultsDto.truncatedByTime] then says the list is partial.
+     */
+    suspend fun getMultiRegexResults(
+        documentInitials: List<String>,
+        regex: Regex,
+        bibleSection: SearchBibleSection,
+        currentBookName: String?,
+        budgetDuration: Duration = REGEX_SEARCH_BUDGET,
+    ): MultiSearchResultsDto = withContext(Dispatchers.IO) {
+        val searchResults = MultiSearchResultsDto()
+        val context = currentCoroutineContext()
+        val budget = RegexSearchBudget(TimeSource.Monotonic.markNow() + budgetDuration, isCancelled = { !context.isActive })
+        val groupedResults = mutableMapOf<String, MutableList<TranslationMatch>>()
+
+        for (initials in documentInitials) {
+            val book = SwordDocumentFacade.getDocumentByInitials(initials) as? SwordBook ?: continue
+            if (book.indexStatus != IndexStatus.DONE) continue
+            val index = IndexManagerFactory.getIndexManager().getIndex(book) as? RegexSearchableIndex ?: continue
+            val restriction = when (bibleSection) {
+                SearchBibleSection.ALL -> null
+                SearchBibleSection.OT -> book.getKey(SEARCH_OT_RANGE)
+                SearchBibleSection.NT -> book.getKey(SEARCH_NT_RANGE)
+                SearchBibleSection.CURRENT_BOOK -> currentBookName?.let { book.getKey(it) }
+            }
+            val result = try {
+                index.findRegex(regex, restriction, MAX_SEARCH_RESULTS + 1, budget)
+            } catch (e: BookException) {
+                Log.e(TAG, "Error regex-searching ${book.initials}: ${e.message}")
+                continue
+            }
+            if (result.truncated) searchResults.truncatedByTime = true
+            val count = minOf(result.keys.getCardinality(), MAX_SEARCH_RESULTS + 1)
+            val keyIterator = result.keys.iterator()
+            for (i in 0 until count) {
+                val key = keyIterator.next()
+                if (key is Verse) {
+                    val normalizedKey = "${key.book.ordinal}:${key.chapter}:${key.verse}"
+                    groupedResults.getOrPut(normalizedKey) { mutableListOf() }.add(TranslationMatch(book, key))
+                }
+            }
+        }
+        groupAndSort(groupedResults, searchResults)
+        Log.i(TAG, "Regex search found ${searchResults.size} unique verses, truncatedByTime=${searchResults.truncatedByTime}")
+        searchResults
+    }
+
+    /** Splits the per-verse matches into Scripture and other rows and sorts both in canonical order. */
+    private fun groupAndSort(
+        groupedResults: Map<String, List<TranslationMatch>>,
+        searchResults: MultiSearchResultsDto,
+    ) {
         // Convert to list and sort
         for ((_, matches) in groupedResults) {
             val firstMatch = matches.first()
@@ -199,9 +269,6 @@ class SearchControl constructor(
             { it.normalizedVerse.chapter },
             { it.normalizedVerse.verse }
         ))
-
-        Log.i(TAG, "Multi-search found ${searchResults.size} unique verses")
-        searchResults
     }
 
     /** double spaces, :, and leading or trailing space cause lucene errors
@@ -271,6 +338,10 @@ class SearchControl constructor(
     companion object {
         private const val SEARCH_OLD_TESTAMENT = "+[Gen-Mal]"
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
+        private const val SEARCH_OT_RANGE = "Gen-Mal"
+        private const val SEARCH_NT_RANGE = "Mat-Rev"
+        /** Wall-clock limit of one regex search over all selected translations. */
+        val REGEX_SEARCH_BUDGET: Duration = 20.seconds
         const val SEARCH_TEXT = "SearchText"
         /** Section-less decorated query passed to the classic result adapter for highlighting. */
         const val SEARCH_HIGHLIGHT_TEXT = "SearchHighlightText"

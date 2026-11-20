@@ -43,6 +43,7 @@ import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import kotlin.time.Duration
 import net.bible.sharedcore.search.SearchType as SharedSearchType
 import net.bible.sharedcore.search.SearchBibleSection as SharedSearchBibleSection
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
@@ -76,12 +77,17 @@ class BibleSearchServiceImpl(
             request.currentBookName,
         )
 
-    override suspend fun searchMulti(request: SearchRequest): MultiSearchResults = withContext(Dispatchers.IO) {
+    override suspend fun searchMulti(request: SearchRequest): MultiSearchResults =
+        searchMulti(request, SearchControl.REGEX_SEARCH_BUDGET)
+
+    /** [regexBudget] is injectable for tests; production uses [SearchControl.REGEX_SEARCH_BUDGET]. */
+    suspend fun searchMulti(request: SearchRequest, regexBudget: Duration): MultiSearchResults = withContext(Dispatchers.IO) {
         // Result previews read the hit books: a restored results route must not read an enciphered book locked
         // (an empty/garbage preview, cached by readOsisFragment and by the results controller).
         net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
         // Section-decorated query drives the Lucene search (unchanged from the classic path); the
         // section-less variant supplies the words/lemmas that are actually highlighted in previews.
+        if (request.isRegex) return@withContext searchRegex(request, regexBudget)
         val decorated = decorate(request)
         val highlightString = searchControl.highlightSearchString(request.query, request.searchType.toClassic())
 
@@ -104,6 +110,26 @@ class BibleSearchServiceImpl(
         val main = dto.mainSearchResults.map { it.toRow(previews) }
         val other = dto.otherSearchResults.map { it.toRow(previews) }
         MultiSearchResults(main = main, other = other, total = dto.size)
+    }
+
+    /**
+     * The regex path: the query reaches [Regex] exactly as typed (no Lucene decoration, so `:` and `[...]` are
+     * regex syntax), case-insensitive like the other searches.
+     */
+    private suspend fun searchRegex(request: SearchRequest, budget: Duration): MultiSearchResults {
+        if (request.query.isBlank()) return MultiSearchResults.EMPTY
+        val regex = try {
+            Regex(request.query, RegexOption.IGNORE_CASE)
+        } catch (e: IllegalArgumentException) {
+            throw SearchSyntaxException(strings.searchInvalidRegex(e.message ?: ""), e)
+        }
+        val dto = searchControl.getMultiRegexResults(
+            request.translationIds, regex, request.bibleSection.toClassic(), request.currentBookName, budget,
+        )
+        val previews = PreviewReader(emptyList(), emptyList())
+        val main = dto.mainSearchResults.map { it.toRow(previews, regex) }
+        val other = dto.otherSearchResults.map { it.toRow(previews, regex) }
+        return MultiSearchResults(main = main, other = other, total = dto.size, truncatedByTime = dto.truncatedByTime)
     }
 
     override fun containsNonScripture(): Boolean = searchControl.currentDocumentContainsNonScripture()
@@ -152,12 +178,12 @@ class BibleSearchServiceImpl(
         return book !is SwordBook || book.isEpub || hasUsableSearchIndex(book)
     }
 
-    private fun GroupedSearchResult.toRow(previews: PreviewReader): SwordResultRow {
+    private fun GroupedSearchResult.toRow(previews: PreviewReader, regex: Regex? = null): SwordResultRow {
         val matches = translationMatches.map { tm ->
             TranslationMatchVd(
                 translationId = tm.book.initials,
                 abbreviation = tm.book.abbreviation,
-                preview = previews.previewFor(tm.book, tm.key),
+                preview = previews.previewFor(tm.book, tm.key).let { if (regex != null) highlightRegexMatches(it, regex) else it },
             )
         }
         return SwordResultRow(

@@ -274,6 +274,7 @@ class KeyedStringsTest {
         assertText("exportDestinationTitle", core.exportDestinationTitle, filled = false)
         assertText("exportDestinationMessage", core.exportDestinationMessage, filled = false)
         assertText("searchUnsupportedSyntax", core.searchUnsupportedSyntax("x"))
+        assertText("searchInvalidRegex", core.searchInvalidRegex("x"))
         assertList("memorizeWordVisibilityEntries", core.memorizeWordVisibilityEntries)
         assertList("memorizeWordVisibilityValues", core.memorizeWordVisibilityValues)
         listOf("READINGPLANS", "BOOKMARKS", "WORKSPACES", "MYDOCUMENTS", "AI_SETTINGS", "PROGRESS").forEach {
