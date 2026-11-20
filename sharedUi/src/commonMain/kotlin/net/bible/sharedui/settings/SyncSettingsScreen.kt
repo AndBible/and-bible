@@ -94,7 +94,7 @@ fun SyncSettingsScreen(
         is SyncDialog.EnableDocuments -> AbConfirmDialog(
             title = d.title,
             message = d.message,
-            confirmText = strings.okay,
+            confirmText = strings.syncStartSyncing,
             dismissText = strings.cancel,
             onConfirm = onConfirmEnableDocuments,
             onDismiss = onDismissDialog,
@@ -102,15 +102,18 @@ fun SyncSettingsScreen(
         is SyncDialog.ResetConfirm -> AbConfirmDialog(
             title = null,
             message = d.message,
-            confirmText = strings.okay,
+            detail = strings.syncResetDetail,
+            confirmText = strings.resetGeneric,
             dismissText = strings.cancel,
+            destructive = true,
             onConfirm = onConfirmReset,
             onDismiss = onDismissDialog,
         )
         is SyncDialog.ForgetCertificate -> AbConfirmDialog(
             title = null,
             message = d.message,
-            confirmText = strings.okay,
+            detail = strings.webdavForgetCertificateDetail,
+            confirmText = strings.webdavForgetCertificateConfirm,
             dismissText = strings.cancel,
             onConfirm = onConfirmForgetCertificate,
             onDismiss = onDismissDialog,

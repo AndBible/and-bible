@@ -73,7 +73,7 @@ class LiveLanguageUiTest {
                     net.bible.sharedui.settings.SyncSettingsScreen(
                         uiState = net.bible.sharedcore.settings.SyncSettingsUiState(
                             screen = SettingsScreenState(strings.settings, emptyList()),
-                            dialog = net.bible.sharedcore.settings.SyncDialog.ResetConfirm(strings.resetSettings),
+                            dialog = net.bible.sharedcore.settings.SyncDialog.ResetConfirm(strings.cloudSyncTitle),
                         ),
                         onUp = null, onSwitch = { _, _ -> }, onListChoice = { _, _ -> },
                         onTextInput = { _, _ -> }, onNavigate = {}, onConfirmReset = {},
@@ -82,11 +82,11 @@ class LiveLanguageUiTest {
                 }
             }
         }
-        onAllNodesWithText(iosStrings("en").resetSettings).assertCountEquals(1)
+        onAllNodesWithText(iosStrings("en").cloudSyncTitle).assertCountEquals(1)
         language = "fi"
         waitForIdle()
-        onAllNodesWithText(iosStrings("fi").resetSettings).assertCountEquals(1)
-        onAllNodesWithText(iosStrings("en").resetSettings).assertCountEquals(0)
+        onAllNodesWithText(iosStrings("fi").cloudSyncTitle).assertCountEquals(1)
+        onAllNodesWithText(iosStrings("en").cloudSyncTitle).assertCountEquals(0)
     }
 
     @Test

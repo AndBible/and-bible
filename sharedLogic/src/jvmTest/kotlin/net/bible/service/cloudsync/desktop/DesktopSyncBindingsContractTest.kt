@@ -222,10 +222,10 @@ class DesktopSyncBindingsContractTest {
                     if (!cancelled) {
                         val shown = dialogs.pending.first { it != null }!!
                         val message = assertIs<net.bible.sharedcore.ui.dialog.AppDialogRequest.Message>(shown.request)
-                        assertTrue(message.message.contains("server unavailable"))
+                        assertTrue(message.detail.orEmpty().contains("server unavailable"))
                         val failure = center.items.value.single { it.state == net.bible.android.control.activity.ActivityState.FAILED }
                         assertEquals(net.bible.android.control.activity.ActivityKind.SYNC, failure.kind)
-                        assertEquals(message.message, failure.message)
+                        assertEquals(message.message + " " + message.detail, failure.message)
                         dialogs.respond(shown.id, net.bible.sharedcore.ui.dialog.AppDialogResult.Ok)
                     }
                     sync.running.first { !it }

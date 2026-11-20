@@ -33,6 +33,7 @@ import org.junit.After
 import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -77,7 +78,9 @@ class CloudSyncAskInitialSyncOperationTest {
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
-        assertEquals(activity.getString(R.string.cloud_sync_title), head.title)
+        val contents = net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")
+        assertEquals(activity.getString(R.string.cloud_existing_data_lead, contents), head.title)
+        assertNull("the lead is the title; there is no separate message", head.message)
         assertFalse(head.asActionSheet)
         assertFalse(head.cancellable)
         assertEquals(4, head.options.size)
@@ -90,7 +93,18 @@ class CloudSyncAskInitialSyncOperationTest {
             ),
             head.options.map { it.label },
         )
-        assertTrue(head.message!!.contains(net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")))
+        assertTrue(head.title!!.contains(contents))
+        assertEquals(
+            listOf(
+                activity.getString(R.string.cloud_merge_consequence),
+                activity.getString(R.string.cloud_fetch_consequence),
+                activity.getString(R.string.cloud_create_consequence),
+                activity.getString(R.string.cloud_disable_consequence),
+            ),
+            head.options.map { it.consequence },
+        )
+        // Fetch and create overwrite one side, so they are the harmful answers.
+        assertEquals(listOf(false, true, true, false), head.options.map { it.destructive })
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
         assertNull(answer.await())
     }
@@ -106,13 +120,16 @@ class CloudSyncAskInitialSyncOperationTest {
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[1].value))
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
-        assertEquals(activity.getString(R.string.are_you_sure), confirm.title)
-        assertEquals(activity.getString(R.string.okay), confirm.confirmText)
-        assertEquals(activity.getString(R.string.cancel), confirm.dismissText)
+        assertNull(confirm.title)
+        assertNotEquals(activity.getString(R.string.are_you_sure), confirm.message)
         assertEquals(
-            activity.getString(R.string.are_you_sure_reset_local, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
+            activity.getString(R.string.cloud_replace_local_lead, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
             confirm.message,
         )
+        assertEquals(activity.getString(R.string.cloud_replace_local_detail), confirm.detail)
+        assertEquals(activity.getString(R.string.cloud_replace_confirm), confirm.confirmText)
+        assertEquals(activity.getString(R.string.cancel), confirm.dismissText)
+        assertTrue(confirm.destructive)
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
         assertEquals(CloudSync.InitialOperation.FETCH_INITIAL, answer.await())
     }
@@ -142,13 +159,15 @@ class CloudSyncAskInitialSyncOperationTest {
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[2].value))
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
-        assertEquals(activity.getString(R.string.are_you_sure), confirm.title)
-        assertEquals(activity.getString(R.string.okay), confirm.confirmText)
-        assertEquals(activity.getString(R.string.cancel), confirm.dismissText)
+        assertNull(confirm.title)
         assertEquals(
-            activity.getString(R.string.are_you_sure_reset_cloud, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
+            activity.getString(R.string.cloud_replace_cloud_lead, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
             confirm.message,
         )
+        assertEquals(activity.getString(R.string.cloud_replace_cloud_detail), confirm.detail)
+        assertEquals(activity.getString(R.string.cloud_replace_confirm), confirm.confirmText)
+        assertEquals(activity.getString(R.string.cancel), confirm.dismissText)
+        assertTrue(confirm.destructive)
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
         assertEquals(CloudSync.InitialOperation.CREATE_NEW, answer.await())
     }
@@ -176,12 +195,18 @@ class CloudSyncAskInitialSyncOperationTest {
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
-        assertEquals(activity.getString(R.string.are_you_sure), confirm.title)
+        assertNull(confirm.title)
         assertEquals(
-            activity.getString(R.string.are_you_sure_merge, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
+            activity.getString(R.string.cloud_merge_lead, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
             confirm.message,
         )
-        assertTrue(confirm.message!!.contains("will be kept"))
+        assertEquals(
+            activity.getString(R.string.are_you_sure_merge, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
+            confirm.detail,
+        )
+        assertTrue(confirm.detail!!.contains("will be kept"))
+        assertEquals(activity.getString(R.string.cloud_merge_confirm), confirm.confirmText)
+        assertFalse(confirm.destructive)
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
         assertEquals(CloudSync.InitialOperation.MERGE, answer.await())
     }

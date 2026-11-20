@@ -93,7 +93,6 @@ internal class ActivityTestStrings : CoreStrings {
     // Mirrors the English resource webdav_untrusted_certificate_message_device (KeyedStringsTest checks the resource itself).
     override fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String =
         "The certificate of $host is not trusted by this device. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: $subject\nIssuer: $issuer\nValid: $from – $until\nSHA-256: $fingerprint"
-    override val signInFailed = "signInFailed"
     override val cloudSyncTitle = "cloudSyncTitle"
     override val cloudMergeData = "cloudMergeData"
     override val cloudFetchAndRestoreInitial = "cloudFetchAndRestoreInitial"
@@ -105,10 +104,7 @@ internal class ActivityTestStrings : CoreStrings {
     override val okay = "okay"
     override val cancel = "cancel"
     override val areYouSure = "areYouSure"
-    override fun overrideBackup(contents: String): String = "overrideBackup ${contents}"
     override fun areYouSureMerge(contents: String): String = "areYouSureMerge ${contents}"
-    override fun areYouSureResetLocal(what: String): String = "areYouSureResetLocal ${what}"
-    override fun areYouSureResetCloud(what: String): String = "areYouSureResetCloud ${what}"
     override fun syncDisabling(what: String): String = "syncDisabling ${what}"
     override fun databaseTitle(dbFileName: String): String = dbFileName
     override val share = "share"
@@ -131,7 +127,6 @@ internal class ActivityTestStrings : CoreStrings {
     override val loadingBackup = "loadingBackup"
     override val restoreUnsuccessfull = "restoreUnsuccessfull"
     override val restoreSuccess = "restoreSuccess"
-    override val restoreConfirmation = "restoreConfirmation"
     override val restore = "restore"
     override val import2 = "import2"
     override val resetDatabaseSuccess = "resetDatabaseSuccess"
@@ -141,9 +136,6 @@ internal class ActivityTestStrings : CoreStrings {
     override fun backupEmailMessage2(name: String): String = "backupEmailMessage2 ${name}"
     override fun backupModulesEmailSubject2(name: String): String = "backupModulesEmailSubject2 ${name}"
     override fun backupModulesEmailMessage2(name: String, modules: String): String = "backupModulesEmailMessage2 ${name} ${modules}"
-    override fun overwriteSomething(contents: String): String = "overwriteSomething ${contents}"
-    override fun askRestoreOrImport(contents: String): String = "askRestoreOrImport ${contents}"
-    override fun resetDatabaseConfirm(name: String): String = "resetDatabaseConfirm ${name}"
     override fun backupModulesConflict(first: String, second: String, file: String): String = "backupModulesConflict ${first} ${second} ${file}"
     override fun backupModulesConflictBook(name: String, version: String, folder: String): String = "backupModulesConflictBook ${name} ${version} ${folder}"
     override fun backupFileInfo(version: Int, size: String): String = "backupFileInfo ${version} ${size}"
@@ -187,4 +179,30 @@ internal class ActivityTestStrings : CoreStrings {
     override val prefsNotesContentTypeValues: List<String> = listOf("prefsNotesContentTypeValues")
     override val prefsDisplayColorModeNames: List<String> = listOf("prefsDisplayColorModeNames")
     override val prefsDisplayColorModeValues: List<String> = listOf("prefsDisplayColorModeValues")
+
+    // dialog copy: B3b
+    override fun cloudExistingDataLead(contents: String): String = "cloudExistingDataLead ${contents}"
+    override val cloudMergeConsequence = "cloudMergeConsequence"
+    override val cloudFetchConsequence = "cloudFetchConsequence"
+    override val cloudCreateConsequence = "cloudCreateConsequence"
+    override val cloudDisableConsequence = "cloudDisableConsequence"
+    override fun cloudMergeLead(contents: String): String = "cloudMergeLead ${contents}"
+    override val cloudMergeConfirm = "cloudMergeConfirm"
+    override val cloudReplaceConfirm = "cloudReplaceConfirm"
+    override fun cloudReplaceLocalLead(contents: String): String = "cloudReplaceLocalLead ${contents}"
+    override val cloudReplaceLocalDetail = "cloudReplaceLocalDetail"
+    override fun cloudReplaceCloudLead(contents: String): String = "cloudReplaceCloudLead ${contents}"
+    override val cloudReplaceCloudDetail = "cloudReplaceCloudDetail"
+    override val signInFailedLead = "signInFailedLead"
+    override fun syncTooOldLead(contents: String): String = "syncTooOldLead ${contents}"
+    override val syncTooOldDetail = "syncTooOldDetail"
+    override fun backupReplaceLead(contents: String): String = "backupReplaceLead ${contents}"
+    override val backupReplaceDetail = "backupReplaceDetail"
+    override fun resetDatabaseLead(name: String): String = "resetDatabaseLead ${name}"
+    override val resetDatabaseDetail = "resetDatabaseDetail"
+    override val resetDatabaseButton = "resetDatabaseButton"
+    override val restoreAllLead = "restoreAllLead"
+    override fun restoreOrImportLead(contents: String): String = "restoreOrImportLead ${contents}"
+    override val restoreConsequence = "restoreConsequence"
+    override val importConsequence = "importConsequence"
 }

@@ -179,8 +179,6 @@ interface Strings {
     val webdavCertificateTitle: String
     val invalidUrlMessage: String
     val documentSyncManageSummary: String
-    val webdavForgetCertificateMessage: String
-    val syncConfirmation: String
     val documentSyncManageTitle: String
     val documentSyncTitle: String
     val documentSyncAutoUploadTitle: String
@@ -342,9 +340,6 @@ interface Strings {
     val cloudDocSyncNowDelete: String             // R.string.cloud_doc_sync_now_delete
     val cloudDocSyncNowCountNone: String             // R.string.cloud_doc_sync_now_count_none
     val cloudDocRescan: String             // R.string.cloud_doc_rescan
-    fun cloudDocRemoveAllConfirm(name: String): String             // R.string.cloud_doc_remove_all_confirm
-    fun cloudDocRemoveCloudConfirm(name: String): String             // R.string.cloud_doc_remove_cloud_confirm
-    fun cloudDocPurgeConfirm(name: String): String             // R.string.cloud_doc_purge_confirm
     val cloudDocFilterAll: String             // R.string.cloud_doc_filter_all
     val cloudDocFilterInstalled: String             // R.string.cloud_doc_filter_installed
     val cloudDocFilterCloud: String             // R.string.cloud_doc_filter_cloud
@@ -1413,6 +1408,20 @@ interface Strings {
     fun recommendGetIt(link: String): String // R.string.recommend_get_it
     val recommendShareLink: String // R.string.recommend_share_link
     val recommendQrCaption: String // R.string.recommend_qr_caption
+    // dialog copy: B3b
+    val syncStartSyncing: String                           // R.string.sync_start_syncing
+    val syncResetLead: String                              // R.string.sync_reset_lead
+    val syncResetDetail: String                            // R.string.sync_reset_detail
+    val webdavForgetCertificateLead: String                // R.string.webdav_forget_certificate_lead
+    val webdavForgetCertificateDetail: String              // R.string.webdav_forget_certificate_detail
+    val webdavForgetCertificateConfirm: String             // R.string.webdav_forget_certificate_confirm
+    fun cloudDocRemoveAllLead(name: String): String        // R.string.cloud_doc_remove_all_lead
+    fun cloudDocRemoveCloudLead(name: String): String      // R.string.cloud_doc_remove_cloud_lead
+    fun cloudDocPurgeLead(name: String): String            // R.string.cloud_doc_purge_lead
+    val cloudDocRemoveAllDetail: String                    // R.string.cloud_doc_remove_all_detail
+    val cloudDocRemoveCloudDetail: String                  // R.string.cloud_doc_remove_cloud_detail
+    val cloudDocPurgeDetail: String                        // R.string.cloud_doc_purge_detail
+    val cloudDocBlockConfirmButton: String                 // R.string.cloud_doc_block_confirm_button
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

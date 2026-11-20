@@ -22,7 +22,7 @@ class IosPlatformTextTest {
                     formatTemplate(lookupPlural(language, "cloud_doc_sync_now_count_size", count), arrayOf(count, "5 MB")),
                     text.plural(PluralKey.CLOUD_DOC_SYNC_NOW_COUNT_SIZE, count, count, "5 MB"),
                 )
-                assertEquals(holder.current.plural("cloud_doc_bulk_remove_all_confirm", count),
+                assertEquals(holder.current.plural("cloud_doc_bulk_remove_all_lead", count),
                     text.plural(PluralKey.CLOUD_DOC_BULK_REMOVE_CONFIRM, count, count))
             }
         }

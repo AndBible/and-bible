@@ -97,8 +97,9 @@ class ReadingAppBootstrapSyncNoticeTest {
         activity.readingAppBootstrap.showNewSyncTargetsNotice()
 
         val request = dialogs.pending.value!!.request as AppDialogRequest.Confirm
-        assertEquals(activity.getString(R.string.new_sync_targets_notice_title), request.title)
-        assertEquals(activity.getString(R.string.new_sync_targets_notice_message), request.message)
+        assertNull("a lead line, not a title plus a repeat", request.title)
+        assertEquals(activity.getString(R.string.new_sync_targets_lead), request.message)
+        assertEquals(activity.getString(R.string.new_sync_targets_detail), request.detail)
         assertEquals(activity.getString(R.string.open_settings), request.confirmText)
         assertEquals(activity.getString(R.string.dismiss), request.dismissText)
         assertEquals("setCancelable(false), as today", false, request.cancellable)

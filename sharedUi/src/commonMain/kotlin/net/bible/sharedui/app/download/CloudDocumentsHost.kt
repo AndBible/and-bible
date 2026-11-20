@@ -354,11 +354,11 @@ class CloudDocumentsHost(
             CloudDocAction.REMOVE_CLOUD -> {
                 val enabled = documentSyncSettings.enabled
                 val message =
-                    if (enabled) strings.cloudDocRemoveAllConfirm(item.name) else strings.cloudDocRemoveCloudConfirm(item.name)
+                    if (enabled) strings.cloudDocRemoveAllLead(item.name) else strings.cloudDocRemoveCloudLead(item.name)
                 controller.requestConfirmRemove(listOf(initials), message, allDevices = enabled)
             }
             CloudDocAction.PURGE -> {
-                controller.requestConfirmPurge(listOf(initials), strings.cloudDocPurgeConfirm(item.name))
+                controller.requestConfirmPurge(listOf(initials), strings.cloudDocPurgeLead(item.name))
             }
         }
     }
