@@ -164,11 +164,12 @@ class BibleSearchServiceImplRegexTest {
     }
 
     @Test fun cancellingTheCallerReturnsPromptly() {
-        // `^([\w\s,;:.']+)*!` backtracks exponentially on any verse without a '!', so with a 1 h budget the scan can only
-        // end through the caller's cancellation (the budget's isCancelled).
+        // `^.*.*.*.*.*.*.*.*!` (no group, so the nested-repetition pre-check lets it through) takes ~n^8 steps on any verse
+        // without a '!', so with a 1 h budget the scan can only end through the caller's cancellation (the budget's
+        // isCancelled).
         val outcome = runBlocking {
             val job = launch(Dispatchers.Default) {
-                service().searchMulti(request("^([\\w\\s,;:.']+)*!"), 1.hours)
+                service().searchMulti(request("^.*.*.*.*.*.*.*.*!"), 1.hours)
             }
             delay(500)
             val runningBeforeCancel = job.isActive
