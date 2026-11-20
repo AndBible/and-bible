@@ -33,6 +33,7 @@ import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.log.Log
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.koin.mp.KoinPlatform
 
 /**
@@ -102,8 +103,9 @@ class BookmarkCreation(
     fun bookmarkAddonVerse(addonBookmarkId: IdType) {
         val initialLabels = session.workspaceSettings.autoAssignLabels
         val primaryLabelId = session.workspaceSettings.autoAssignPrimaryLabel
+        val windowBible = session.window.pageManager.currentBible.currentDocument as? AbstractPassageBook
         bookmarkJsActions.launch(session.window.id) {
-            val bookmark = bookmarkControl.newOwnBookmarkLike(addonBookmarkId) ?: return@launch
+            val bookmark = bookmarkControl.newOwnBookmarkLike(addonBookmarkId, windowBible) ?: return@launch
             if (primaryLabelId != null && !primaryLabelId.isAddonId && bookmarkControl.labelById(primaryLabelId) != null) {
                 bookmark.primaryLabelId = primaryLabelId
             }
