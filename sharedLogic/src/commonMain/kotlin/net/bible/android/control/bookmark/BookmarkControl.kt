@@ -152,8 +152,7 @@ open class BookmarkControl constructor(
         }.map { it.entityId1 }
 
         for(studyPadTextEntryId in studyPadTextEntryTextUpserts) {
-            // A text row the merge took over may be gone again (foreign-key clean-up: its entry was deleted here).
-            val withText = dao.studyPadTextEntryById(studyPadTextEntryId) ?: continue
+            val withText = dao.studyPadTextEntryById(studyPadTextEntryId)!!
             emitChange(BookmarkChange.StudyPadOrder(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
         }
 
