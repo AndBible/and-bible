@@ -50,8 +50,8 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import net.bible.sharedui.components.DialogEdgeToEdge
+import net.bible.sharedui.components.textPageDialogProperties
 import net.bible.sharedui.components.NoDialogDim
 import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.strings.LocalStrings
@@ -94,11 +94,7 @@ fun AbTextPage(
     val mono = isPureMonochrome()
     Dialog(
         onDismissRequest = { if (cancellable) onClose() else onBack?.invoke() },
-        properties = DialogProperties(
-            dismissOnBackPress = cancellable || onBack != null,
-            dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false,
-        ),
+        properties = textPageDialogProperties(dismissOnBackPress = cancellable || onBack != null),
     ) {
         // The page is opaque and full-screen, so the platform dim would only tint the bars' areas.
         NoDialogDim()

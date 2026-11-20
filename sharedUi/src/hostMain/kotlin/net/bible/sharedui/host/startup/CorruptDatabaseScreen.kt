@@ -129,12 +129,11 @@ internal fun CorruptDatabaseScreen(
             .testTag("corrupt-database").verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(strings.corruptDatabaseTitle, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
+        Text(strings.corruptDatabaseHeadline, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
         Text(
-            strings.corruptDatabaseLead(databases.joinToString { it.fileName }),
-            style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground,
+            strings.corruptDatabaseFilesDetail(databases.joinToString { it.fileName }),
+            color = MaterialTheme.colorScheme.onBackground,
         )
-        Text(strings.corruptDatabaseDetail, color = MaterialTheme.colorScheme.onBackground)
         if (resetFailure != null) {
             Text(resetFailure, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("corrupt-database-reset-failed"))
         }

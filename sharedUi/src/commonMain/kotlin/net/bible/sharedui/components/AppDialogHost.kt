@@ -84,7 +84,6 @@ fun AppDialogHost(
             val cancel = { onRespond(id, AppDialogResult.Cancel) }
             when (request) {
                 is AppDialogRequest.Message -> if (request.presentation == DialogPresentation.Page) {
-                    require(request.neutralText == null) { "A page has no neutral button" }
                     AbTextPage(
                         topic = request.title, onClose = cancel,
                         confirmText = request.confirmText.takeIf { request.dismissText != null },
@@ -192,10 +191,6 @@ fun AppDialogHost(
                     )
                 }
                 is AppDialogRequest.Notice -> if (request.presentation == DialogPresentation.Page) {
-                    require(request.neutralText == null) { "A page has no neutral button" }
-                    require(request.blocks.all { it is AppDialogRequest.NoticeBlock.Html }) {
-                        "A page shows Html blocks only (logo, QR code and icon lines are dialog furniture)"
-                    }
                     AbTextPage(
                         topic = request.title, onClose = cancel,
                         confirmText = request.confirmText.takeIf { request.dismissText != null },
