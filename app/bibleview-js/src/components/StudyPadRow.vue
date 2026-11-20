@@ -116,11 +116,11 @@ const bookmarkEntry = computed(() => props.journalEntry as StudyPadBibleBookmark
 const genericBookmarkEntry = computed(() => props.journalEntry as StudyPadGenericBookmarkItem)
 const textEntry = computed(() => props.journalEntry as StudyPadTextItem)
 
-// Add-on StudyPad: layout and text entries are locked. Add-on bookmark rows are read-only too, while the
-// user's own copies (addonModule null) stay editable and deletable. Expand/collapse is per-device state and stays.
+// Add-on StudyPad: layout, text entries and bookmark rows are all read-only (an add-on StudyPad holds only add-on
+// rows). Expand/collapse is per-device state and stays.
 const padReadOnly = computed(() => readOnlyStudyPad(props.label));
 const entryReadOnly = computed(() =>
-    props.journalEntry.type === "journal" ? padReadOnly.value : isAddonBookmark(props.journalEntry));
+    padReadOnly.value || (props.journalEntry.type !== "journal" && isAddonBookmark(props.journalEntry)));
 const deleteHidden = computed(() => entryReadOnly.value);
 
 const android = inject(androidKey)!;

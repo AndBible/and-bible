@@ -17,7 +17,6 @@
 
 package net.bible.service.llm.tools.read
 
-import org.koin.mp.KoinPlatform
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
@@ -98,7 +97,6 @@ object GetBookmarksWithLabelTool : Tool, KoinComponent {
     """)
 
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-    private val bookmarkControl get() = KoinPlatform.getKoin().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override fun formatArgsForLog(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
@@ -134,10 +132,9 @@ object GetBookmarksWithLabelTool : Tool, KoinComponent {
                 ?: return ToolResult.error("Label not found: ${args.labelId}", "LABEL_NOT_FOUND")
 
             // Get Bible bookmarks with this label
-            // As the label's list shows them: an add-on bookmark the user's copy stands in for is left out.
-            val bibleBookmarks = bookmarkControl.hideStoodInFor(dao.bookmarksWithLabel(label), inLabel = label.id)
+            val bibleBookmarks = dao.bookmarksWithLabel(label)
             // Get generic bookmarks with this label
-            val genericBookmarks = bookmarkControl.hideStoodInFor(dao.genericBookmarksWithLabel(label), inLabel = label.id)
+            val genericBookmarks = dao.genericBookmarksWithLabel(label)
 
             val results = mutableListOf<BookmarkEntry>()
 

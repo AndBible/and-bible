@@ -871,7 +871,7 @@
     <!-- Info line in the label editor of a read-only add-on label. %1$s: the module name. -->
     <string name="addon_label_from_module">From add-on %1$s</string>
     <string name="addon_label_from_module_hint">Open the add-on in the document manager</string>
-    <string name="addon_label_read_only_note">This label, its bookmarks and its StudyPad belong to the add-on and cannot be edited. You can mark it as a favourite, choose how this workspace shows it, and add your own labels and notes to its verses.</string>
+    <string name="addon_label_read_only_note">This label, its bookmarks and its StudyPad belong to the add-on and cannot be edited. You can mark it as a favourite, choose how this workspace shows it, and bookmark its verses for yourself.</string>
     <string name="addon_copy_to_my_labels">Copy to my labels</string>
     <!-- %1$s: name of the new, editable label. -->
     <string name="addon_label_copied">Copied to your label \"%1$s\"</string>

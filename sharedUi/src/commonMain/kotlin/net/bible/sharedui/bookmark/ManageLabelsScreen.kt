@@ -336,7 +336,7 @@ private fun LabelItemRow(
     strings: Strings,
 ) {
     val label = row.label
-    // An add-on collection label reads "Name · Module" and is read-only: no auto-assign, and not newly assignable.
+    // An add-on collection label reads "Name · Module" and is read-only: no auto-assign, and not assignable.
     val displayName = label.addonModuleName?.let { strings.addonLabelWithModule(label.name, it) } ?: label.name
     // Identity and preview markers share the editor resolver: ink in MONO, legacy accent otherwise.
     val glyphTint = bookmarkMarkerTint(label.color)
@@ -366,8 +366,8 @@ private fun LabelItemRow(
                 Checkbox(
                     checked = row.checked,
                     onCheckedChange = { onToggleChecked(label.id) },
-                    // BookmarkControl refuses adding an add-on label to an own bookmark; removing it stays possible.
-                    enabled = !(mode == ManageLabelsMode.ASSIGN && label.isAddon && !row.checked),
+                    // BookmarkControl refuses an add-on label on an own bookmark.
+                    enabled = !(mode == ManageLabelsMode.ASSIGN && label.isAddon),
                     // The row's own tap opens the label, so the checkbox cannot merge into it:
                     // it keeps its own node and takes the label's name.
                     modifier = Modifier.semantics { contentDescription = label.name },

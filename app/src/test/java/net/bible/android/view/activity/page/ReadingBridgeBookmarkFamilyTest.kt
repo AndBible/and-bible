@@ -55,6 +55,8 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import net.bible.android.database.bookmarks.isAddonId
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -203,6 +205,60 @@ class ReadingBridgeBookmarkFamilyTest {
         assertEquals(1, toasts.size)
         assertTrue(toasts.single(), toasts.single().contains("cannot be changed"))
         assertEquals(listOf(l1.id), runBlocking { control.labelsForBookmark(b) }.map { it.id })
+    }
+
+    /** An add-on collection bookmark (an add-on derived id, inserted as the importer does, past BookmarkControl). */
+    private fun addonBookmark(ref: String): BibleBookmarkWithNotes = runBlocking {
+        val range = VerseRangeFactory.fromString(Versifications.instance().getVersification("KJV"), ref)
+        val b = BibleBookmarkWithNotes(range, null, false, null).apply {
+            id = net.bible.service.addons.collections.addonId("Manna", net.bible.android.database.IdType())
+            startOffset = 3
+            endOffset = 9
+        }
+        dao.insert(b.bookmarkEntity)
+        dao.bibleBookmarkById(b.id)!!
+    }
+
+    private fun toastsDuring(block: () -> Unit): List<String> {
+        val toasts = mutableListOf<String>()
+        val sub = net.bible.android.control.event.UserMessages.messages.subscribe {
+            (it as? net.bible.android.control.event.UserMessage.Toast)?.let { t -> t.text?.let(toasts::add) }
+        }
+        try { block() } finally { sub.cancel() }
+        return toasts
+    }
+
+    @Test fun assignLabelsOnAnAddonBookmarkDoesNotOpenTheChooser() {
+        val addon = addonBookmark("Ps 119:3")
+        navigator.stub { onBlocking { assignLabels(any(), any()) } doReturn listOf(label("L1").id) }
+        val toasts = toastsDuring { runBlocking { BookmarkCreation(session, control).assignLabels(addon) } }
+        com.nhaarman.mockitokotlin2.verifyBlocking(navigator, com.nhaarman.mockitokotlin2.never()) { assignLabels(any(), any()) }
+        assertEquals(1, toasts.size)
+        assertTrue(runBlocking { control.labelsForBookmark(addon) }.isEmpty())
+    }
+
+    @Test fun bookmarkAddonVerseMakesAnOwnBookmarkOfTheSameRange() {
+        val l1 = label("L1")
+        session.workspaceSettings.autoAssignLabels = mutableSetOf(l1.id)
+        val addon = addonBookmark("Ps 119:3")
+        bridge.bookmarkAddonVerse(addon.id.toString())
+        drain()
+        val own = runBlocking { control.allBibleBookmarks() }.single { it.id != addon.id }
+        assertFalse(own.id.isAddonId)
+        assertEquals(addon.kjvOrdinalStart, own.kjvOrdinalStart)
+        assertEquals(addon.kjvOrdinalEnd, own.kjvOrdinalEnd)
+        assertEquals(3, own.startOffset)
+        assertEquals(9, own.endOffset)
+        assertFalse(own.wholeVerse)
+        assertEquals(listOf(l1.id), runBlocking { control.labelsForBookmark(own) }.map { it.id })
+        assertEquals("the add-on bookmark is untouched", addon, runBlocking { dao.bibleBookmarkById(addon.id) })
+    }
+
+    @Test fun bookmarkAddonVerseOnAnOwnBookmarkDoesNothing() {
+        val b = bookmark("Ps 119:1")
+        bridge.bookmarkAddonVerse(b.id.toString())
+        drain()
+        assertEquals(listOf(b.id), runBlocking { control.allBibleBookmarks() }.map { it.id })
     }
 
     @Test fun assignLabelsAppliesTheChosenLabels() {

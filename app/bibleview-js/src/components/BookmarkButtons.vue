@@ -28,7 +28,7 @@
           <FontAwesomeIcon icon="info-circle"/>
         </div>
         <div
-            v-if="!inBookmarkModal"
+            v-if="!inBookmarkModal && !readOnly"
             class="bookmark-button"
             @click.stop="$emit('edit-clicked')"
             :style="buttonColor(primaryLabel.color)"
@@ -47,6 +47,14 @@
             :style="buttonColor(primaryLabel.color)"
         >
           <FontAwesomeIcon icon="share-alt"/>
+        </div>
+        <div
+            v-if="readOnly"
+            class="bookmark-button bookmark-this-verse"
+            @click.stop="bookmarkThisVerse"
+            :style="buttonColor(primaryLabel.color)"
+            :title="strings.addonBookmarkThisVerse">
+          <FontAwesomeIcon :icon="faBookmark"/>
         </div>
         <div
             v-if="!readOnly"
@@ -111,7 +119,7 @@ import {ColorParam} from "@/types/common";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
 import {isBibleBookmark} from "@/composables/bookmarks";
 import {isAddonBookmark} from "@/composables/addon";
-import {faIcons} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faIcons} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{
     bookmark: BaseBookmark
@@ -126,9 +134,15 @@ const emit = defineEmits(["close-bookmark", "edit-clicked", 'info-clicked']);
 
 const areYouSure = ref<InstanceType<typeof AreYouSure> | null>(null);
 const bookmark = computed(() => props.bookmark);
-// Add-on collection bookmarks are read-only: no delete, no row-writing settings.
+// Add-on collection bookmarks are read-only: no note, label, delete or row-writing settings. "Bookmark this verse"
+// makes the user's own bookmark of the same range instead (both are shown, as two bookmarks of one verse are).
 const readOnly = computed(() => isAddonBookmark(props.bookmark));
 const android = inject(androidKey)!;
+
+function bookmarkThisVerse() {
+    android.bookmarkAddonVerse(bookmark.value);
+    emit("close-bookmark");
+}
 
 function toggleWholeVerse() {
     android.setBookmarkWholeVerse(bookmark.value, !bookmark.value.wholeVerse);

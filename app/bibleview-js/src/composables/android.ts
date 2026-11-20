@@ -73,6 +73,7 @@ export type BibleJavascriptInterface = {
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     copyVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
+    bookmarkAddonVerse: (bookmarkId: IdType) => void,
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addParagraphBreakBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addGenericParagraphBreakBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
@@ -415,6 +416,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.addBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1, addNote);
     }
 
+    /** "Bookmark this verse" on a read-only add-on collection bookmark: a new own bookmark of the same range. */
+    function bookmarkAddonVerse(bookmark: BaseBookmark) {
+        window.android.bookmarkAddonVerse(bookmark.id);
+    }
+
     function addGenericBookmark(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number, addNote: boolean = false) {
         window.android.addGenericBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1, addNote);
     }
@@ -715,6 +721,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         shareVerse,
         copyVerse,
         addBookmark,
+        bookmarkAddonVerse,
         addGenericBookmark,
         addParagraphBreakBookmark,
         addGenericParagraphBreakBookmark,

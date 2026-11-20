@@ -99,12 +99,9 @@ class EmptyAddonCollectionException(moduleInitials: String, reason: String) :
  * - Special labels (speak, unlabeled, paragraph break, AI) are never imported: links to the paragraph-break and
  *   unlabeled labels point at the device's own label (created first, as an ordinary logged row, when the device has
  *   none: [ensureSpecialLabels]); speak and AI links are dropped. A verse left with no collection label is not imported.
- * - User rows are never written: not by [replace], [remove] or [sweep]. A user's link to (or primary label of) an add-on
- *   label that is gone stays as it is: the module may come back (an update that uninstalls first, storage not mounted,
- *   a reinstall) and the dangling reference is kept by sync's foreign-key clean-up. A full-row update of such a user row
- *   with the dangling primary label does NOT pass in SQLite (the foreign key fails), so
- *   [BookmarkControl.updateBookmarkRow] works around it instead of the importer clearing the reference. Clearing it here would be an unlogged write that the next logged edit of the row spreads to every
- *   device.
+ * - User rows are never written: not by [replace], [remove] or [sweep]. No user row references an add-on row (they are
+ *   strictly read-only: BookmarkControl refuses every association with them, and sync strips any that arrives), so
+ *   removing a module's rows touches nothing of the user's.
  * - Ownership is recorded in `AddonCollectionRow`, the version and hash in `AddonCollectionModule`.
  * - Writes run with the sync triggers disabled, so no add-on row (and no cascade it causes) reaches `LogEntry`.
  * - [replace] and [remove] are each one transaction: a failure leaves the previous content.
@@ -176,8 +173,8 @@ class AddonCollectionImporter(
     /**
      * One writer transaction with the sync triggers disabled and foreign keys off: deletes [moduleInitials]'s owned
      * rows (when given), runs [body], then removes unowned add-on rows and the add-on rows' own dangling references.
-     * Foreign keys are off so that replacing a module's rows never cascades into user rows (a user bookmark's link
-     * to an add-on label survives an update that keeps the label, or a removal).
+     * Foreign keys are off so that deleting a module's rows cascades nowhere: the clean-up below removes exactly the
+     * add-on rows' own dangling references, and nothing else.
      */
     private suspend fun writeLocal(moduleInitials: String?, attach: Path? = null, body: suspend PooledConnection.() -> Unit): Long {
         val db = bookmarkDb()
@@ -262,8 +259,7 @@ class AddonCollectionImporter(
 
     /**
      * Add-on rows that no module owns; add-on rows' references to rows that are gone (a link to a special label this
-     * device lacks); ownership records of rows that are gone. In this order. Never a user row, nor a user row's
-     * reference to an add-on row.
+     * device lacks); ownership records of rows that are gone. In this order. Never a user row.
      */
     private fun cleanups(): List<Cleanup> = buildList {
         for (table in SYNCED_TABLES.reversed()) {

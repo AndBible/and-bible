@@ -33,6 +33,12 @@ class BibleBridgeDecoderTest {
         assertEquals(listOf("addBookmark" to listOf<Any?>("KJV", 5, 7, true)), bridge.calls)
     }
 
+    @Test fun decodesBookmarkAddonVerse() {
+        assertTrue(decode("bookmarkAddonVerse", "b1"))
+        assertEquals(listOf("bookmarkAddonVerse" to listOf<Any?>("b1")), bridge.calls)
+        assertFailsWith<BridgeArgumentException> { decode("bookmarkAddonVerse", null) }
+    }
+
     @Test fun nullableStringAcceptsNull() {
         decode("saveBookmarkNote", "b1", null)
         assertEquals(listOf<Any?>("b1", null), bridge.calls.single().second)
@@ -108,7 +114,7 @@ class BibleBridgeDecoderTest {
     }
 
     @Test fun tableHas87MethodsAndDeferredOnesStartWithACallId() {
-        assertEquals(88, BibleBridgeDecoder.entries.size)
+        assertEquals(89, BibleBridgeDecoder.entries.size)
         assertEquals(5, BibleBridgeDecoder.deferredMethods.size)
         BibleBridgeDecoder.deferredMethods.forEach { assertEquals('L', BibleBridgeDecoder.entries.getValue(it).kinds.first(), it) }
     }

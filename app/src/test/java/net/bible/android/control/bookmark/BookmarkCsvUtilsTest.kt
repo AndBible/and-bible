@@ -40,6 +40,8 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Assert.*
+import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.isAddonId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -216,6 +218,27 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         val importedBookmark = allBookmarks.find { it.notes == "Test note" }
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Custom icon should be set", "star", importedBookmark?.customIcon)
+    }
+
+    /** A CSV made from an add-on collection: its rows become own bookmarks in an own label, never the add-on rows. */
+    @Test
+    fun importOfAnAddonCollectionCsvMakesOwnBookmarksAndLabels(): Unit = runBlocking {
+        val dao = net.bible.service.db.DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        val addonLabel = BookmarkEntities.Label(id = net.bible.service.addons.collections.addonId("Manna", IdType()), name = "Comfort")
+        dao.insert(addonLabel)
+        val addonRowId = net.bible.service.addons.collections.addonId("Manna", IdType())
+        val csvContent = """osisRef;bibleRef;document;book;chapterStart;verseStart;chapterEnd;verseEnd;id;ordinalStart;ordinalEnd;createdAt;lastUpdatedOn;startOffset;endOffset;labels;notes;customIcon
+Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;$addonRowId;1;1;2022-01-01T00:00:00Z;2022-01-01T00:00:00Z;;;Comfort;Test note;"""
+
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8)).source(), bookmarkControl)
+
+        assertEquals(listOf<String>(), result.errorMessages)
+        val imported = bookmarkControl.allBibleBookmarks().single { it.notes == "Test note" }
+        assertFalse(imported.id.isAddonId)
+        val labels = bookmarkControl.labelsForBookmark(imported)
+        assertEquals(listOf("Comfort"), labels.map { it.name })
+        assertFalse(labels.single().id.isAddonId)
+        dao.delete(addonLabel)
     }
 
     @Test

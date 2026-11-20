@@ -154,6 +154,10 @@ internal class BookmarkBridgeFamily(
         creation.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }
 
+    fun bookmarkAddonVerse(bookmarkId: String) {
+        creation.bookmarkAddonVerse(IdType(bookmarkId))
+    }
+
     fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
         creation.makeBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }

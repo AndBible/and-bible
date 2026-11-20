@@ -377,6 +377,7 @@ class ReadingBridge(
 
     override fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = contentFamily.copyVerse(bookInitials, startOrdinal, endOrdinal)
     override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = bookmarks.addBookmark(bookInitials, startOrdinal, endOrdinal, addNote)
+    override fun bookmarkAddonVerse(bookmarkId: String) = bookmarks.bookmarkAddonVerse(bookmarkId)
     override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = bookmarks.addGenericBookmark(bookInitials, osisRef, startOrdinal, endOrdinal, addNote)
     override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = bookmarks.addParagraphBreakBookmark(bookInitials, startOrdinal, endOrdinal)
     override fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) = bookmarks.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal)

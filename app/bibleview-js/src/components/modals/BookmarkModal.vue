@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <ModalDialog v-if="showBookmark && bookmark" @close="closeBookmark" wide :locate-top="locateTop" :edit="!infoShown">
+  <ModalDialog v-if="showBookmark && bookmark" @close="closeBookmark" wide :locate-top="locateTop" :edit="!infoShown && !readOnly">
     <template #title-div>
       <div class="bookmark-title" style="width: calc(100% - 80px);">
         <div class="overlay"/>
@@ -34,7 +34,7 @@
     </template>
 
     <template #extra-buttons>
-      <div class="modal-action-button" @click="toggleInfo" @mousedown="toggleInfo" @touchstart="toggleInfo">
+      <div v-if="!readOnly || bookmarkNotes" class="modal-action-button" @click="toggleInfo" @mousedown="toggleInfo" @touchstart="toggleInfo">
         <template v-if="infoShown">
           <FontAwesomeIcon icon="edit"/>
         </template>
@@ -51,7 +51,8 @@
         :content-type="bookmark?.notesContentType"
         :note-editor-context="bookmark ? { entityType: 'BOOKMARK_NOTE', entityId: bookmark.id } : null"
         @save="changeNote"
-        show-placeholder
+        :show-placeholder="!readOnly"
+        :read-only="readOnly"
         :edit-directly="editDirectly"
     >
       {{ strings.editBookmarkPlaceholder }}
@@ -116,6 +117,7 @@ import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {BaseBookmark} from "@/types/client-objects";
 import {isAiDocMarker, isBibleBookmark, isGenericBookmark, resolveIcon} from "@/composables/bookmarks";
+import {isAddonBookmark} from "@/composables/addon";
 
 const showBookmark = ref(false);
 const android = inject(androidKey)!;
@@ -149,6 +151,8 @@ const customIcon = computed(() => {
 });
 
 const bookmarkNotes = computed(() => bookmark.value?.notes ?? null);
+// An add-on collection bookmark is read-only: its note is shown, never edited, and its labels do not change.
+const readOnly = computed(() => isAddonBookmark(bookmark.value));
 let originalNotes: string | null = null;
 
 type BookmarkOpenIntent = {
@@ -180,11 +184,12 @@ function openPendingBookmark() {
     }
     bookmarkId.value = intent.id;
     originalNotes = bm.notes;
-    infoShown.value = !intent.openNotes && (intent.openInfo || !bm.notes);
-    editDirectly.value = !infoShown.value && !bm.notes;
+    const addon = isAddonBookmark(bm);
+    infoShown.value = addon ? (intent.openInfo || !bm.notes) : !intent.openNotes && (intent.openInfo || !bm.notes);
+    editDirectly.value = !addon && !infoShown.value && !bm.notes;
     locateTop.value = intent.locateTop;
     showBookmark.value = true;
-    if (intent.openLabels && !intent.openNotes) {
+    if (intent.openLabels && !intent.openNotes && !addon) {
         const generation = openGeneration;
         void nextTick(() => {
             if (generation === openGeneration && showBookmark.value) {
@@ -246,7 +251,7 @@ const {waitForClick} = clickWaiter();
 async function toggleInfo(event: MouseEvent | TouchEvent) {
     if (!await waitForClick(event)) return;
     infoShown.value = !infoShown.value
-    editDirectly.value = !infoShown.value && !bookmarkNotes.value;
+    editDirectly.value = !readOnly.value && !infoShown.value && !bookmarkNotes.value;
 }
 </script>
 

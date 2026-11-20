@@ -25,7 +25,9 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkJsActions
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.isAddonId
 import net.bible.android.view.activity.page.Selection
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.log.Log
@@ -77,7 +79,7 @@ class BookmarkCreation(
 
         // Write in this window's order on the application scope; the click event follows the write.
         bookmarkJsActions.launch(session.window.id) {
-            if (primaryLabelId != null) {
+            if (primaryLabelId != null && !primaryLabelId.isAddonId) {
                 val label = bookmarkControl.labelById(primaryLabelId)
                 if (label != null) {
                     bookmark.primaryLabelId = primaryLabelId
@@ -88,6 +90,24 @@ class BookmarkCreation(
             if (initialLabels.isEmpty() || openNotes) {
                 session.emit(BibleViewEvents.bookmarkClicked(bookmark.id.toString(), openNotes))
             }
+        }
+    }
+
+    /**
+     * "Bookmark this verse" on an add-on collection bookmark: the user's own new bookmark of the same range, with the
+     * workspace's auto-assign labels (add-on labels among them are dropped), opened like any new bookmark. The add-on
+     * bookmark itself is read-only and stays as it is.
+     */
+    fun bookmarkAddonVerse(addonBookmarkId: IdType) {
+        val initialLabels = session.workspaceSettings.autoAssignLabels
+        val primaryLabelId = session.workspaceSettings.autoAssignPrimaryLabel
+        bookmarkJsActions.launch(session.window.id) {
+            val bookmark = bookmarkControl.newOwnBookmarkLike(addonBookmarkId) ?: return@launch
+            if (primaryLabelId != null && !primaryLabelId.isAddonId && bookmarkControl.labelById(primaryLabelId) != null) {
+                bookmark.primaryLabelId = primaryLabelId
+            }
+            bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+            session.emit(BibleViewEvents.bookmarkClicked(bookmark.id.toString(), false))
         }
     }
 
@@ -109,7 +129,7 @@ class BookmarkCreation(
         )
 
         bookmarkJsActions.launch(session.window.id) {
-            if (primaryLabelId != null) {
+            if (primaryLabelId != null && !primaryLabelId.isAddonId) {
                 val label = bookmarkControl.labelById(primaryLabelId)
                 if (label != null) {
                     bookmark.primaryLabelId = primaryLabelId
@@ -143,13 +163,22 @@ class BookmarkCreation(
      * thread (the chooser is UI); the database work moves to IO.
      */
     suspend fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) {
-        val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
+        val labels = withContext(Dispatchers.IO) {
+            try {
+                // An add-on collection bookmark is read-only: the chooser is not offered at all.
+                bookmarkControl.requireOwnRows(bookmark.id)
+            } catch (e: net.bible.android.control.bookmark.AddonReadOnlyException) {
+                bookmarkControl.reportAddonReadOnly(e)
+                return@withContext null
+            }
+            bookmarkControl.labelsForBookmark(bookmark).map { it.id }
+        } ?: return
         val chosen = session.navigator.assignLabels(bookmark, labels) ?: return
         withContext(Dispatchers.IO) {
             try {
                 bookmarkControl.addOrUpdateBookmark(bookmark, chosen.toSet())
             } catch (e: net.bible.android.control.bookmark.AddonReadOnlyException) {
-                bookmarkControl.reportAddonReadOnly(e) // e.g. removing the collection label of a collection bookmark
+                bookmarkControl.reportAddonReadOnly(e) // e.g. an add-on label put on the bookmark
             }
         }
     }

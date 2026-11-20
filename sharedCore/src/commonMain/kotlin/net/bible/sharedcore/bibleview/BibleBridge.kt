@@ -57,6 +57,8 @@ interface BibleBridge {
     fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int)
     fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int)
     fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean)
+    /** A new own bookmark of exactly the range of add-on collection bookmark [bookmarkId] ("Bookmark this verse"). */
+    fun bookmarkAddonVerse(bookmarkId: String)
     fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean)
     fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int)
     fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int)

@@ -27,14 +27,16 @@ import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
 
 /**
- * Add-on collection rows (spec 2026-11-20-addon-bookmark-collections-design) never leave the device through sync:
- * every device builds them from its own installed module. A row of a synced bookmark table is an add-on row when its
- * first sync key carries the add-on id tag ([isAddonIdSql]); a user's own link row to an add-on label (first key: the
- * user's bookmark) is not one and syncs normally.
+ * Add-on collection rows (spec 2026-11-20-addon-bookmark-collections-design) never leave the device through sync, and
+ * no user row ever references one: every device builds them from its own installed module, and they are strictly
+ * read-only (BookmarkControl refuses every new association with them). A row of a synced bookmark table is an add-on
+ * row when its first sync key carries the add-on id tag ([isAddonIdSql]).
  *
  * Layers: the sync triggers skip add-on rows ([addonRowTriggerCondition]), patches are written without them, incoming
  * patches are stripped of them before they are read ([stripAddonRows]), and whole-database snapshots (the initial
  * upload, a downloaded initial file, the merge snapshot) are stripped too, together with the per-device add-on tables.
+ * The same strip removes any user row's reference to an add-on id ([userRefsToAddonRowsStatements]): such a row can
+ * only come from another device or an older build, and must not create the association here.
  */
 private const val EXCLUSION_TAG = "AddonRowsExclusion"
 
@@ -48,60 +50,73 @@ val SyncableDatabaseDefinition.hasAddonRows: Boolean get() = this == SyncableDat
 fun addonRowTriggerCondition(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table, prefix: String): String =
     if (!category.hasAddonRows) "" else " AND NOT (${isAddonIdSql("$prefix.${table.idField1}")})"
 
-/** Column of [table] that references a label, where a user row may point at an add-on label. */
-private fun addonLabelReference(table: String): String? = when (table) {
-    "BibleBookmarkToLabel", "GenericBookmarkToLabel" -> "labelId"
-    "BibleBookmark", "GenericBookmark" -> "primaryLabelId"
-    else -> null
-}
-
-/**
- * Extra condition for the foreign-key clean-up of an applied patch (`pragma_foreign_key_check(...) fk`): a user row
- * whose missing parent is an add-on label is kept. Add-on labels are not in the database for a while (after an
- * initial download or a merge, until the reconciler has re-imported them) or not at all (the module is not installed
- * here); a user's link to (or primary label of) an add-on label must not be lost in the first case, and is harmless
- * in the second. Nothing removes such references (AddonCollectionImporter never writes user rows).
- */
-fun keepUserRefsToAddonLabels(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table): String {
-    if (!category.hasAddonRows) return ""
-    val column = addonLabelReference(table.tableName) ?: return ""
-    val name = table.tableName
-    return " AND NOT (fk.parent = 'Label' AND EXISTS (SELECT 1 FROM $name t WHERE t.rowid = fk.rowid AND ${isAddonIdSql("t.$column")}))"
-}
-
 /** `AND NOT <add-on row>` for a query over [table] (alias-free column names); empty for other categories. */
 fun addonRowExclusion(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table): String =
     if (!category.hasAddonRows) "" else " AND NOT (${isAddonIdSql(table.idField1)})"
+
+/** What a strip statement removes: an add-on row (or its log entry), a per-device add-on table row, or a user row's reference. */
+private enum class StripKind { ADDON_ROW, LOCAL_STATE, USER_REF }
 
 /**
  * The strip statements for the tables that exist in [schema] ([existing]: a downloaded file may be empty or of an older
  * schema; it is migrated later).
  */
-private fun stripStatements(category: SyncableDatabaseDefinition, schema: String, wholeDatabase: Boolean, existing: Set<String>): List<String> = buildList {
+private fun stripStatements(category: SyncableDatabaseDefinition, schema: String, wholeDatabase: Boolean, existing: Set<String>): List<Pair<String, StripKind>> = buildList {
     val tables = category.tables.filter { it.tableName in existing }
     for (table in tables.reversed()) {
-        add("DELETE FROM $schema.${table.tableName} WHERE ${isAddonIdSql(table.idField1)}")
+        add("DELETE FROM $schema.${table.tableName} WHERE ${isAddonIdSql(table.idField1)}" to StripKind.ADDON_ROW)
     }
     val names = tables.joinToString(",") { "'${it.tableName}'" }
-    if ("LogEntry" in existing && tables.isNotEmpty()) add("DELETE FROM $schema.LogEntry WHERE tableName IN ($names) AND ${isAddonIdSql("entityId1")}")
-    if (wholeDatabase) ADDON_LOCAL_TABLES.filter { it in existing }.forEach { add("DELETE FROM $schema.$it") }
+    if ("LogEntry" in existing && tables.isNotEmpty()) add("DELETE FROM $schema.LogEntry WHERE tableName IN ($names) AND ${isAddonIdSql("entityId1")}" to StripKind.ADDON_ROW)
+    userRefsToAddonRowsStatements(schema, existing).forEach { add(it to StripKind.USER_REF) }
+    if (wholeDatabase) ADDON_LOCAL_TABLES.filter { it in existing }.forEach { add("DELETE FROM $schema.$it" to StripKind.LOCAL_STATE) }
+}
+
+/**
+ * Statements that remove every user row's reference to an add-on id from the bookmark database attached as [schema]
+ * ([existing]: its tables): a user bookmark's link to an add-on label (with its log entry), a user's StudyPad text
+ * entry in an add-on label (with its text and log entries), and a user bookmark's add-on primary label (set to NULL,
+ * as deleting that label would). Such a row never arises on this build (BookmarkControl refuses it); an incoming patch
+ * or file from another device or an older build could still carry one, and where the module is installed here it would
+ * pass the foreign-key check and make the association. Where it is not installed, the plain foreign-key clean-up would
+ * delete the whole user bookmark instead of only its primary label.
+ */
+private fun userRefsToAddonRowsStatements(schema: String, existing: Set<String>): List<String> = buildList {
+    val log = "LogEntry" in existing
+    for (link in listOf("BibleBookmarkToLabel", "GenericBookmarkToLabel").filter { it in existing }) {
+        if (log) add("DELETE FROM $schema.LogEntry WHERE tableName = '$link' AND ${isAddonIdSql("entityId2")}")
+        add("DELETE FROM $schema.$link WHERE ${isAddonIdSql("labelId")}")
+    }
+    if ("StudyPadTextEntry" in existing) {
+        val userEntries = "SELECT id FROM $schema.StudyPadTextEntry WHERE ${isAddonIdSql("labelId")} AND NOT (${isAddonIdSql("id")})"
+        if (log) add("DELETE FROM $schema.LogEntry WHERE tableName IN ('StudyPadTextEntry','StudyPadTextEntryText') AND entityId1 IN ($userEntries)")
+        if ("StudyPadTextEntryText" in existing) add("DELETE FROM $schema.StudyPadTextEntryText WHERE studyPadTextEntryId IN ($userEntries)")
+        add("DELETE FROM $schema.StudyPadTextEntry WHERE id IN ($userEntries)")
+    }
+    for (bookmark in listOf("BibleBookmark", "GenericBookmark").filter { it in existing }) {
+        add("UPDATE $schema.$bookmark SET primaryLabelId = NULL WHERE primaryLabelId IS NOT NULL AND ${isAddonIdSql("primaryLabelId")}")
+    }
 }
 
 private const val TABLE_NAMES_SQL = "SELECT name FROM %s.sqlite_master WHERE type = 'table'"
 
 /**
- * Deletes add-on rows and their log entries from the database attached as [schema] on [conn] (an incoming patch, a
- * merge snapshot). With [wholeDatabase] the per-device add-on tables are emptied too. Returns the number of rows
- * removed from the synced tables and the log. No-op for categories without add-on rows.
+ * Deletes add-on rows and their log entries, and user rows' references to add-on rows
+ * ([userRefsToAddonRowsStatements]), from the database attached as [schema] on [conn] (a patch, a merge snapshot, a
+ * file being imported). With [wholeDatabase] the per-device add-on tables are emptied too. Returns the number of
+ * add-on rows removed from the synced tables and the log. No-op for categories without add-on rows.
  */
 suspend fun stripAddonRows(conn: PooledConnection, category: SyncableDatabaseDefinition, schema: String, wholeDatabase: Boolean = false): Long {
     if (!category.hasAddonRows) return 0
     var removed = 0L
+    var refs = 0L
     val existing = conn.queryRows(TABLE_NAMES_SQL.replace("%s", schema)) { it.getText(0) }.toSet()
-    for (sql in stripStatements(category, schema, wholeDatabase, existing)) {
+    for ((sql, kind) in stripStatements(category, schema, wholeDatabase, existing)) {
         conn.exec(sql)
-        if (!sql.contains(".Addon")) removed += conn.queryLong("SELECT changes()") ?: 0L
+        val changed = conn.queryLong("SELECT changes()") ?: 0L
+        when (kind) { StripKind.ADDON_ROW -> removed += changed; StripKind.USER_REF -> refs += changed; StripKind.LOCAL_STATE -> {} }
     }
+    if (refs > 0) net.bible.sharedcore.log.Log.w(EXCLUSION_TAG, "Removed $refs user rows' references to add-on rows from $schema")
     return removed
 }
 
@@ -109,13 +124,16 @@ suspend fun stripAddonRows(conn: PooledConnection, category: SyncableDatabaseDef
 fun stripAddonRows(conn: SQLiteConnection, category: SyncableDatabaseDefinition, wholeDatabase: Boolean = true): Long {
     if (!category.hasAddonRows) return 0
     var removed = 0L
+    var refs = 0L
     val existing = conn.queryRows(TABLE_NAMES_SQL.replace("%s", "main")) { it.getText(0) }.toSet()
     conn.exec("PRAGMA foreign_keys=OFF")
-    for (sql in stripStatements(category, "main", wholeDatabase, existing)) {
+    for ((sql, kind) in stripStatements(category, "main", wholeDatabase, existing)) {
         conn.exec(sql)
-        if (!sql.contains(".Addon")) removed += conn.queryLong("SELECT changes()") ?: 0L
+        val changed = conn.queryLong("SELECT changes()") ?: 0L
+        when (kind) { StripKind.ADDON_ROW -> removed += changed; StripKind.USER_REF -> refs += changed; StripKind.LOCAL_STATE -> {} }
     }
     if (removed > 0) net.bible.sharedcore.log.Log.w(EXCLUSION_TAG, "Removed $removed add-on rows from a ${category.name} database file")
+    if (refs > 0) net.bible.sharedcore.log.Log.w(EXCLUSION_TAG, "Removed $refs user rows' references to add-on rows from a ${category.name} database file")
     return removed
 }
 

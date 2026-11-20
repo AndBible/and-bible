@@ -135,7 +135,7 @@ object BridgeGenerationPolicy {
         "removeBookmarkLabel", "removeGenericBookmarkLabel", "updateOrderNumber", "updateStudyPadTextEntry",
         "updateStudyPadTextEntryText", "updateBookmarkToLabel", "updateGenericBookmarkToLabel", "setAsPrimaryLabel",
         "setAsPrimaryLabelGeneric", "toggleBookmarkLabel", "toggleGenericBookmarkLabel", "setBookmarkCustomIcon",
-        "setGenericBookmarkCustomIcon", "setBookmarkWholeVerse", "setGenericBookmarkWholeVerse",
+        "setGenericBookmarkCustomIcon", "setBookmarkWholeVerse", "setGenericBookmarkWholeVerse", "bookmarkAddonVerse",
         // Bookmark and memorization data and verse sharing, addressed by book + ordinals.
         "addBookmark", "addGenericBookmark", "addParagraphBreakBookmark", "addGenericParagraphBreakBookmark",
         "createWholePageBookmark", "shareBookmarkVerse", "shareVerse", "copyVerse",
