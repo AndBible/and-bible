@@ -54,6 +54,8 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.size
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.widget.LocalZone
@@ -90,23 +92,54 @@ class VerseGlanceWidget : GlanceAppWidget() {
         WidgetUpdater.mono.value = entry.mono
         val koin = KoinPlatform.getKoin()
         val strings = koin.get<WidgetStrings>()
-        var config: VerseWidgetConfig? = null
-        var content: VerseWidgetContent? = null
-        if (entry.appOpens) {
-            // A widget that lost its configuration (restore, cleared data) gets a default instead of staying empty.
-            config = VerseWidgetConfigStore.loadOrSaveDefault(context, appWidgetId, ::defaultVerseWidgetConfig)
+        // A widget that lost its configuration (restore, cleared data) gets a default instead of staying empty.
+        val loads = if (entry.appOpens) verseWidgetLoads(context, appWidgetId, ::defaultVerseWidgetConfig) { config ->
             val now = System.currentTimeMillis()
             val zone = koin.get<LocalZone>()
-            content = withContext(Dispatchers.IO) { koin.get<VerseCandidates>().content(config, now, zone) }
+            val content = withContext(Dispatchers.IO) { koin.get<VerseCandidates>().content(config, now, zone) }
             VerseWidgetScheduler.schedule(context, appWidgetId, VerseSelector.nextPeriodStart(now, zone, config.frequency))
-        }
+            content
+        } else null
         provideContent {
             AbWidgetTheme(WidgetUpdater.mono.collectAsState().value) {
-                if (!entry.appOpens || config == null || content == null) AttentionGlanceContent()
-                else VerseWidgetBody(content, config, strings, appWidgetId, LocalSize.current.width, LocalSize.current.height)
+                // The loaded verse follows the saved configuration: a running session is not restarted by update().
+                val load = loads?.let { it.updates.collectAsState(it.initial).value }
+                if (load == null) AttentionGlanceContent()
+                else VerseWidgetBody(load.content, load.config, strings, appWidgetId, LocalSize.current.width, LocalSize.current.height)
             }
         }
     }
+}
+
+/** A widget's configuration with the content drawn from it. */
+class VerseWidgetLoad(val config: VerseWidgetConfig, val content: VerseWidgetContent)
+
+/** The first [VerseWidgetLoad] of a widget and the ones that follow each write of a configuration. */
+class VerseWidgetLoads(val initial: VerseWidgetLoad, val updates: Flow<VerseWidgetLoad>)
+
+/**
+ * Loads the configuration of [appWidgetId] (saving [default] when it has none) and its content through [loadContent],
+ * and again after every later write to [VerseWidgetConfigStore]. `GlanceAppWidget.update` does not rerun
+ * `provideGlance` of a session that is still running, only recomposes it; a configuration read once at the top of
+ * `provideGlance` therefore stayed stale when the configuration screen saved right after the first draw (the widget
+ * kept showing the default "Random verse" until the next save).
+ */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+suspend fun verseWidgetLoads(
+    context: Context,
+    appWidgetId: Int,
+    default: () -> VerseWidgetConfig,
+    loadContent: suspend (VerseWidgetConfig) -> VerseWidgetContent,
+): VerseWidgetLoads {
+    suspend fun load(): VerseWidgetLoad {
+        val config = VerseWidgetConfigStore.loadOrSaveDefault(context, appWidgetId, default)
+        return VerseWidgetLoad(config, loadContent(config))
+    }
+    val initial = load()
+    // StateFlow replays its current value, so the first emission loads once more (the same content, unless a write came
+    // in during the first load, which this catches): cheaper than tracking which version the first load saw.
+    val updates = VerseWidgetConfigStore.version.mapLatest { load() }
+    return VerseWidgetLoads(initial, updates)
 }
 
 /** A fresh configuration: a random verse from the whole Bible, daily, with its own seed. */
