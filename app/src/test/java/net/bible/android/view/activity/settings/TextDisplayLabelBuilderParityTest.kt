@@ -67,4 +67,11 @@ class TextDisplayLabelBuilderParityTest {
 
     @Test fun chooserLabelsMatch() =
         assertSameLabels("chooser", buildBackgroundImageChooserLabels(context), strings.buildBackgroundImageChooserLabels())
+
+    @Test fun singleRowRevertHasItsOwnLeadNotTheBulkResetLead() {
+        listOf(buildTextDisplayScreenLabels(context), strings.buildTextDisplayScreenLabels()).forEach {
+            assertEquals("Revert this setting to the inherited value?", it.revertMessage)
+            assertTrue(it.revertMessage != it.resetConfirmMessage, "single-row revert must not reuse the bulk reset lead")
+        }
+    }
 }
