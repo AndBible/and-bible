@@ -309,4 +309,30 @@ class CachedKeyPageTest {
             manager.destroy()
         }
     }
+
+    /**
+     * `currentDocument` is read from IO workers (Window.loadText) while the main thread may clear the page's
+     * document. The removed-document branch used to test `_currentDocument` and then dereference it with `!!`,
+     * so a clear between the two reads crashed with an uncaught NPE on the IO worker. The second read of the
+     * "does not exist" marker (the removed-document check) is where this test clears the document.
+     */
+    @Test
+    fun currentDocumentSurvivesTheDocumentBeingClearedMidRead() {
+        val page = createPageManager().currentGeneralBook
+        val meta = mock(BookMetaData::class.java)
+        var markerReads = 0
+        `when`(meta.getProperty("AndBibleDoesNotExist")).thenAnswer {
+            // 1st read: placeholder check at the top of the getter; 2nd: the removed-document check.
+            if (++markerReads == 2) page.onlySetCurrentDocument(null)
+            null
+        }
+        val book = mock(Book::class.java).apply {
+            `when`(bookMetaData).thenReturn(meta)
+            `when`(initials).thenReturn("NOTINSTALLEDXYZ") // not special, not installed: isRemoved
+        }
+        page.onlySetCurrentDocument(book)
+
+        page.currentDocument // must not throw
+        assertThat(markerReads, equalTo(2))
+    }
 }
