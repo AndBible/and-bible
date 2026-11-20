@@ -46,6 +46,8 @@ import platform.Foundation.timeIntervalSince1970
  * Start it with [start] once startup is Ready (phase 2 of the startup join: the databases and a default Bible exist),
  * never earlier; see the `ios-startup-is-databases-only-until-phase-2` memory.
  */
+@OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@kotlin.native.HiddenFromObjC
 class IosWidgetSnapshotWriter(
     private val producer: SpeakWidgetStateProducer,
     private val candidates: VerseCandidates,

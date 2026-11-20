@@ -33,7 +33,7 @@ import org.crosswire.jsword.versification.system.Versifications
  * caller opens in the ACTIVE window. It must not go through `LinkControl`, which opens in the links window when
  * "open links in a dedicated window" is on.
  */
-object WidgetPassage {
+internal object WidgetPassage {
     private const val TAG = "WidgetPassage"
 
     /** The target of [action], or null when the key cannot be resolved. */
