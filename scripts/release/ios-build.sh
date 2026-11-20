@@ -7,7 +7,8 @@
 # Usage: scripts/release/ios-build.sh [--export-only] [--dry-run] [--reuse <build>]
 #   --export-only    archive and export the IPA but do not upload it
 #   --dry-run        print the steps (the key as <session>/AuthKey.p8); run no ssh or mac-remote except `check`
-#   --reuse <build>  export/upload the Mac's existing archive of <build> (archive.sh `reuse`); exit 3 = no such archive
+#   --reuse <build>  export/upload the Mac's existing archive of <build> (archive.sh `reuse`); exit 3 = no such archive, or an archive without
+#                   the widget extension (AndBibleWidgets.appex; archive afresh instead)
 # Writes .local/release/<versionCode>/ios/artifact.env (COMMIT, VERSION_CODE, VERSION_NAME, BUILD, UPLOADED) once the
 # archive exists. Refuses a dirty tree (parent status incl. jsword/kdom gitlinks; docs/superpowers and
 # app/src/test/roborazzi ignored).
@@ -151,7 +152,8 @@ have_ev=0
 mkdir -p "$EVID_LOCAL"
 for cap in "$MR_LOCAL"/runs/*/run/step*/release/testflight-"$BUILD"; do
     [ -d "$cap" ] || continue
-    for f in "$cap"/*.log "$cap"/summary.txt "$cap"/release.entitlements "$cap"/ipa-entitlements.txt; do
+    for f in "$cap"/*.log "$cap"/summary.txt "$cap"/release.entitlements "$cap"/widgets.entitlements \
+               "$cap"/ipa-entitlements.txt "$cap"/ipa-widgets-entitlements.txt; do
         [ -f "$f" ] && cp "$f" "$EVID_LOCAL" && have_ev=1
     done
 done

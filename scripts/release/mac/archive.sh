@@ -153,14 +153,22 @@ EXT="$SAPP/PlugIns/$EXT_NAME"
 EXT_SIG=$(codesign -dv --verbose=4 "$EXT" 2>&1)
 codesign -d --entitlements :- "$EXT" 2>/dev/null > "$OUT/ipa-widgets-entitlements.txt"
 ext_sig_has() { echo "$EXT_SIG" | grep -qxF "$1"; }
-ext_group() { grep -q "$APP_GROUP" "$OUT/ipa-widgets-entitlements.txt"; }
+# Exact string element (a longer group id such as group.org.andbible.ios.evil must not pass), tolerant of indentation.
+has_group() { sed 's/^[[:space:]]*//;s/[[:space:]]*$//' "$1" | grep -qxF "<string>$APP_GROUP</string>"; }
+ext_group() { has_group "$OUT/ipa-widgets-entitlements.txt"; }
+app_group() { has_group "$OUT/ipa-entitlements.txt"; }
+ext_sig_starts() { echo "$EXT_SIG" | grep "^Authority=" | grep -q "^$1"; }
+ext_gta_not_true() { [ "$(plutil -extract get-task-allow raw -o - "$OUT/ipa-widgets-entitlements.txt" 2>/dev/null)" != true ]; }
 check extension-identifier ext_sig_has "Identifier=$EXT_ID"
 check extension-team ext_sig_has "TeamIdentifier=$TEAM"
 check extension-group ext_group
+check extension-authority ext_sig_starts "Authority=Apple Distribution:"
+check extension-get-task-allow ext_gta_not_true
 check identifier sig_has "Identifier=$BUNDLE_ID"
 check team sig_has "TeamIdentifier=$TEAM"
 check authority sig_starts "Authority=Apple Distribution:"
 check icloud ents_has "$ICLOUD"
+check app-group app_group
 check get-task-allow gta_not_true
 check version plist_is CFBundleShortVersionString "$VERSION"
 check build plist_is CFBundleVersion "$BUILD"
