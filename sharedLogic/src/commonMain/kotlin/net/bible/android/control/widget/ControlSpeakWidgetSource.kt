@@ -73,7 +73,11 @@ class ControlSpeakWidgetSource(
     private val coreStrings: CoreStrings,
     private val saxTextPolicy: SaxTextPolicy,
 ) : SpeakWidgetSource {
-    /** Reads the speak state from [speakControl] (a final class, hence the function parameters above). */
+    /**
+     * Reads the speak state from [speakControl] (a final class, hence the function parameters above). While the TTS
+     * manager has not been created nothing can be speaking or paused, so this reports STOPPED without creating it:
+     * creating it reads the active window's document, which forces the window repository's first load.
+     */
     constructor(
         speakControl: SpeakControl,
         bookmarkControl: BookmarkControl,
@@ -83,7 +87,7 @@ class ControlSpeakWidgetSource(
         coreStrings: CoreStrings,
         saxTextPolicy: SaxTextPolicy,
     ) : this(
-        { speakControl.isSpeaking }, { speakControl.isPaused }, { speakControl.sleepTimerActivationTime },
+        { speakControl.ttsStarted && speakControl.isSpeaking }, { speakControl.ttsStarted && speakControl.isPaused }, { speakControl.sleepTimerActivationTime },
         bookmarkControl, advancedSpeakSettings, bibleTraverser, settings, coreStrings, saxTextPolicy,
     )
 

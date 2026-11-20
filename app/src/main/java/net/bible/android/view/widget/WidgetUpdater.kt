@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.widget
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,6 +31,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.widget.SpeakWidgetState
 import net.bible.android.control.widget.SpeakWidgetStateProducer
 import net.bible.android.control.widget.WidgetStrings
@@ -96,10 +99,56 @@ object WidgetUpdater {
         }
     }
 
-    /** Stops following the speak services; the widgets keep their last drawing. */
+    /** Whether a Speak, Speak with text or Listening list widget instance is placed; replaceable in tests. */
+    internal var hasSpeakWidgets: (Context) -> Boolean = { context ->
+        // The platform's own widget ids, not Glance's DataStore mapping: that is empty until a receiver got its first
+        // broadcast (e.g. right after upgrading from the RemoteViews widgets).
+        val manager = AppWidgetManager.getInstance(context)
+        speakReceivers.any { manager.getAppWidgetIds(ComponentName(context, it)).isNotEmpty() }
+    }
+
+    private val speakReceivers = listOf(
+        SpeakWidgetManager.SmallSpeakControlWidget::class.java,
+        SpeakWidgetManager.MiddleSpeakControlWidget::class.java,
+        SpeakWidgetManager.LargeSpeakControlWidget::class.java,
+        SpeakWidgetManager.SpeakTextControlWidget::class.java,
+        SpeakWidgetManager.SpeakBookmarkWidget::class.java,
+    )
+
+    /**
+     * Cold-start entry: starts the producer only when a speak widget exists. Without one nothing reads the speak
+     * state, and the first read builds the TTS manager and loads the window repository, which must not happen as a
+     * side effect of every app start.
+     */
+    fun startIfSpeakWidgetsPresent(context: Context) {
+        val app = context.applicationContext
+        KoinPlatform.getKoin().get<AppCoroutineScope>().launch {
+            if (runCatching { hasSpeakWidgets(app) }.getOrDefault(false)) start(app)
+        }
+    }
+
+    /** Stops the producer when the last speak widget was removed. */
+    suspend fun stopIfNoSpeakWidgets(context: Context) {
+        val app = context.applicationContext
+        if (runCatching { hasSpeakWidgets(app) }.getOrDefault(true)) return
+        // Re-check under the lock so a widget added meanwhile (whose start() waits for it) is not stopped after it started.
+        stopUnless(app)
+    }
+
+    @Synchronized
+    private fun stopUnless(app: Context) {
+        val still = runCatching { hasSpeakWidgets(app) }.getOrDefault(true)
+        if (!still) stop()
+    }
+
+    /**
+     * Stops following the speak services; the widgets keep their last drawing. Does nothing when [start] never ran:
+     * resolving the producer builds the speak services, which a cold start without a speak widget must not do (#184).
+     */
     @Synchronized
     fun stop() {
-        job?.cancel(); job = null
+        val running = job ?: return
+        running.cancel(); job = null
         runCatching { KoinPlatform.getKoin().get<SpeakWidgetStateProducer>().stop() }
     }
 

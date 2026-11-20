@@ -926,20 +926,12 @@ object CommonUtils : CommonUtilsBase() {
     private val readingAppInitPlatform: ReadingAppInitPlatform by lazy { net.bible.android.platform.AndroidReadingAppInitPlatform() }
     val isOnyxDevice get() = Build.BRAND.lowercase() == "onyx"
 
-    /**
-     * Off in unit tests ([net.bible.android.TestBibleApplication]): the widget producer resolves `SpeakControl` in the
-     * background at app start, freezing the SpeakPlatform it captures before a test swaps in a fake one, and its Glance
-     * redraws throw from Robolectric's missing `goAsync` result into the next test's uncaught-exception check.
-     */
-    @androidx.annotation.VisibleForTesting
-    internal var speakWidgetsEnabled = true
-
     /** Creates the TTS notification manager and the speak widget manager once; call on the main thread. */
     internal fun startPlatformServices() {
         if (ttsNotificationManager == null) {
             ttsNotificationManager = TextToSpeechNotificationManager()
         }
-        if(speakWidgetsEnabled && !BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
+        if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
             ttsWidgetManager = SpeakWidgetManager()
         }
     }
