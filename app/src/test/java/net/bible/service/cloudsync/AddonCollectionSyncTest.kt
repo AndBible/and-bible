@@ -321,10 +321,9 @@ class AddonCollectionSyncTest {
             db.bookmarkDao().insert(BookmarkEntities.Label(name = "Mine"))
             db.close()
         }
-        val addonRowsInExport = addonRowsIn(export.absolutePath)
-        assertTrue(addonRowsInExport > 0)
-        // The count of skipped rows is returned, for the UI to explain an import that brought nothing.
-        assertEquals(addonRowsInExport, importDatabaseFile(category, export.toOkioPath()))
+        // The count of skipped items (1 label, 2 bookmarks, 1 StudyPad entry) is returned, for the UI to explain an
+        // import that brought nothing.
+        assertEquals(4L, importDatabaseFile(category, export.toOkioPath()))
         assertEquals(0, addonRowsIn(b))
         assertTrue((b.localDb as BookmarkDatabase).bookmarkDao().allLabelsSortedByName().any { it.name == "Mine" })
     }

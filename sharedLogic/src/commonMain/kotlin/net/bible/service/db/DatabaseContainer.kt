@@ -61,6 +61,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.createTriggers
 import net.bible.service.cloudsync.dropTriggers
+import net.bible.service.cloudsync.refreshSyncTriggers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -280,8 +281,7 @@ class DatabaseContainer private constructor() {
                 container = DatabaseContainer()
                 if (!host.isRunningTests) {
                     for (dbDef in getDatabaseAccessorFactories(container).map { it.invoke() }) {
-                        dropTriggers(dbDef)
-                        createTriggers(dbDef)
+                        refreshSyncTriggers(dbDef)
                     }
                 }
                 container.settingsStore.load()

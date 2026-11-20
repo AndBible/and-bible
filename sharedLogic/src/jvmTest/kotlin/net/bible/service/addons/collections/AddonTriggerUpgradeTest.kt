@@ -18,8 +18,7 @@
 package net.bible.service.addons.collections
 
 import kotlinx.coroutines.test.runTest
-import net.bible.service.cloudsync.createTriggers
-import net.bible.service.cloudsync.dropTriggers
+import net.bible.service.cloudsync.refreshSyncTriggers
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
 import net.bible.shareddata.fixtures.createFromExport
@@ -58,9 +57,7 @@ class AddonTriggerUpgradeTest {
             db.sql("DELETE FROM Label", "DELETE FROM LogEntry")
 
             // ...after it (what DatabaseContainer.create runs for every category), never.
-            val acc = accessor(db, path)
-            dropTriggers(acc)
-            createTriggers(acc)
+            refreshSyncTriggers(accessor(db, path))
             db.sql(
                 "INSERT INTO Label (id, name) VALUES (${hex(addonLabel)}, 'Comfort')",
                 "UPDATE Label SET name = 'Renamed' WHERE id = ${hex(addonLabel)}",

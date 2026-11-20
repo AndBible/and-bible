@@ -17,6 +17,8 @@
 
 package net.bible.service.addons.collections
 
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.sync.Mutex
@@ -71,12 +73,20 @@ class AddonCollectionReconciler(
     /** Version and content hash per module whose import failed in this process. Guarded by [mutex]. */
     private val failedImports = mutableMapOf<String, Pair<String, String>>()
 
+    /** Set when the add-on caches were reloaded (a module installed again): failed imports are tried again. */
+    private val retryFailed = atomic(false)
+
+    init {
+        source.reloaded.subscribe { retryFailed.value = true }
+    }
+
     /** Reconciles once; returns whether any add-on row changed. */
     suspend fun reconcile(): Boolean = mutex.withLock {
         withContext(Dispatchers.IO) { reconcileLocked() }
     }
 
     private suspend fun reconcileLocked(): Boolean {
+        if (retryFailed.getAndSet(false)) failedImports.clear()
         val refs = try { source.collections() } catch (e: Exception) {
             Log.e(TAG, "Could not list add-on collections", e); return false
         }.distinctBy { it.moduleInitials }
@@ -104,10 +114,14 @@ class AddonCollectionReconciler(
             try {
                 importer.replace(ref, hash)
                 failedImports.remove(ref.moduleInitials)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                // The previous content (if any) stays: replace is one transaction. Not tried again for this content.
+                // The previous content (if any) stays: replace is one transaction. The file itself is the likely cause
+                // (nothing to import, a newer schema, damage): not tried again for this content until the add-ons are
+                // reloaded or the app restarts. A transient I/O failure (e.g. a full disk) is tried again next time.
                 Log.e(TAG, "Could not import add-on collection ${ref.moduleInitials} ${ref.version}", e)
-                failedImports[ref.moduleInitials] = ref.version to hash
+                if (e !is okio.IOException) failedImports[ref.moduleInitials] = ref.version to hash
                 if (previous != null) keptStale = true
                 continue
             }

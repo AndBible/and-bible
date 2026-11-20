@@ -1309,6 +1309,8 @@ open class BookmarkControl constructor(
     private suspend fun updateBookmarkRow(entity: net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmark) {
         if (!hasMissingAddonPrimaryLabel(entity)) return dao.update(entity)
         bookmarkDb.useWriterConnectionMarked<Unit> { conn ->
+            // Inside a transaction the pragma would silently not apply and the update would fail on the foreign key.
+            check(!conn.inTransaction()) { "updateBookmarkRow inside a transaction" }
             conn.withCleanup<Unit>("PRAGMA foreign_keys=ON;") {
                 conn.exec("PRAGMA foreign_keys=OFF;")
                 dao.update(entity)
@@ -1458,7 +1460,9 @@ open class BookmarkControl constructor(
         if (!isAddonLabel(labelId)) throw IllegalArgumentException("Not an add-on label: $labelId")
         val source = dao.labelById(labelId) ?: throw IllegalArgumentException("No label $labelId")
         val taken = dao.allLabelsSortedByName().map { it.name }.toSet()
-        val name = generateSequence(source.name) { strings.addonLabelCopyName(it) }.first { it !in taken }
+        // Bounded: a translation that does not change the name must not loop forever.
+        val name = generateSequence(source.name) { strings.addonLabelCopyName(it) }.take(50).firstOrNull { it !in taken }
+            ?: generateSequence(2) { it + 1 }.map { "${source.name} $it" }.first { it !in taken }
         val label = source.copy(id = IdType(), name = name, favourite = false)
         // One transaction: a failure leaves no half-made (synced) label.
         val newBookmarks = bookmarkDb.useWriterConnectionMarked { conn -> conn.inTransaction { copyAddonLabelRows(labelId, label) } }

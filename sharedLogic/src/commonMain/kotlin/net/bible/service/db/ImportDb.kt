@@ -32,6 +32,9 @@ import okio.Path
 
 private const val TAG = "ImportDb"
 
+/** The tables whose add-on rows [importDatabaseFile] counts as skipped items. */
+private val ADDON_ITEM_TABLES = setOf("Label", "BibleBookmark", "GenericBookmark", "StudyPadTextEntry")
+
 suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: Path, strings: CoreStrings): String = withContext(Dispatchers.IO) {
     val dbDef = category.accessor
     val importDbFile = dbDef.dbFactory(dbFile.toString())
@@ -56,8 +59,9 @@ suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: Path,
  * into the local database with `INSERT OR IGNORE`: rows already present locally win. One transaction; a failure
  * rolls the whole import back and is rethrown.
  *
- * Returns the number of add-on collection rows of [dbFile] that were not imported (an export of an add-on StudyPad:
- * its rows belong to the module, see `AddonCollectionImporter`), so the UI can tell the user why nothing came in.
+ * Returns the number of add-on collection items of [dbFile] (labels, bookmarks, StudyPad text entries) that were not
+ * imported (an export of an add-on StudyPad: its rows belong to the module, see `AddonCollectionImporter`), for the
+ * UI to tell the user why they did not come in.
  *
  * Natural-key rows of [dbFile] that exist locally under another id are first mapped to the local id with their
  * children ([aliasIncomingIds], #3906), so an imported page of the other AI Documents book lands under the local book
@@ -86,7 +90,9 @@ suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Pat
                             INSERT OR IGNORE INTO $table ($cols)
                             SELECT $cols FROM import.$table WHERE 1${addonRowExclusion(category, tableDef)}
                         """.trimIndent())
-                        if (category.hasAddonRows) skipped += queryLong("SELECT COUNT(*) FROM import.$table WHERE ${isAddonIdSql(tableDef.idField1)}") ?: 0L
+                        if (category.hasAddonRows && table in ADDON_ITEM_TABLES) {
+                            skipped += queryLong("SELECT COUNT(*) FROM import.$table WHERE ${isAddonIdSql(tableDef.idField1)}") ?: 0L
+                        }
                     }
                     if (skipped > 0) Log.i(TAG, "Skipped $skipped add-on collection rows of the imported file")
                     skipped

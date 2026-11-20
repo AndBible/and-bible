@@ -467,4 +467,29 @@ class AddonCollectionBookmarkControlTest {
         val data = (result as net.bible.service.llm.tools.ToolResult.Success).data as net.bible.service.llm.tools.read.GetBookmarksWithLabelTool.Result
         assertEquals(setOf(copy.id, b2), data.bookmarks.map { it.id }.toSet())
     }
+
+    /** The app's wiring: the importer creates a missing paragraph-break label through BookmarkControl (its lock, its event). */
+    @Test
+    fun importThroughBookmarkControlCreatesTheParagraphBreakLabel() = run {
+        db.useWriterConnectionMarked { it.exec("DELETE FROM Label WHERE id = X'${net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID.toHex()}'") }
+        val v2 = File.createTempFile("collection-pb-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
+        File(collection.toString()).copyTo(v2, overwrite = true)
+        DatabaseContainer.instance.getBookmarkDb(v2.absolutePath).also { f ->
+            try {
+                f.useWriterConnectionMarked {
+                    it.exec("INSERT INTO Label (id, name) VALUES (X'AAAAAAAAAAAA4AAA8AAAAAAAAAAAAAAA', '${net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME}')")
+                    it.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'${srcB1.toHex()}', X'AAAAAAAAAAAA4AAA8AAAAAAAAAAAAAAA')")
+                }
+            } finally { f.close() }
+        }
+        seen.clear()
+        AddonCollectionImporter({ db }, env, ensureSpecialLabels = { control.ensureSpecialLabels(it) })
+            .replace(CollectionPackRef(module, "Manna verses", "2.0", v2.toOkioPath()), "hash-pb")
+        val pb = net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
+        assertEquals(net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME, dao.labelById(pb)?.name)
+        assertTrue(dao.getBibleBookmarkToLabel(b1, pb) != null)
+        assertTrue(seen.filterIsInstance<BookmarkChange.LabelUpserted>().any { it.label.id == pb })
+        assertTrue(log().any { it.tableName == "Label" && it.entityId1 == pb })
+        assertTrue(log().none { it.entityId1.isAddonId })
+    }
 }

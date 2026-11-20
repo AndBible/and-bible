@@ -286,6 +286,12 @@ class AddonCollectionReconcilerTest {
         source.refs = listOf(ref("Manna", file), ref("Empty", empty, version = "2.0"))
         reconciler.reconcile()
         assertEquals(1, copiesOpened)
+        reconciler.reconcile()
+        assertEquals(1, copiesOpened)
+        // The add-ons were reloaded (e.g. the module installed again): tried again.
+        (source.reloaded as EventSource<Unit>).emit(Unit)
+        reconciler.reconcile()
+        assertEquals(2, copiesOpened)
     }
 
     /** Sync review Minor 4: an unchanged file (same size and modification time) is not hashed again. */

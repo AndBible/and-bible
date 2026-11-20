@@ -266,6 +266,15 @@ suspend fun createTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.u
     }
 }
 
+/**
+ * Replaces [dbDef]'s sync triggers with the current ones (`DatabaseContainer.create` on every start): an upgraded
+ * database's older triggers (e.g. without the add-on row condition) never stay.
+ */
+suspend fun refreshSyncTriggers(dbDef: SyncableDatabaseAccessor<*>) {
+    dropTriggers(dbDef)
+    createTriggers(dbDef)
+}
+
 suspend fun dropTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.useWriterConnectionMarked { db ->
     for(tableDef in dbDef.tableDefinitions) {
         dropTriggersForTable(db, tableDef)
