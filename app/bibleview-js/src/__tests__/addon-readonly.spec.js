@@ -160,6 +160,9 @@ describe("StudyPadRow in an add-on StudyPad", () => {
             global: {provide: {[androidKey]: android, [exportModeKey]: ref(false)}, stubs: {FontAwesomeIcon: ButtonIcon, BookmarkText: true, EditableText: true}},
         });
         await w.find(".menu > div").trigger("click");
+        // the row's button bar did open (info stays available) ...
+        expect(w.find(".icon-info-circle").exists()).toBe(true);
+        // ... but offers no way to delete the add-on bookmark or detach its add-on label
         expect(w.find(".icon-trash").exists()).toBe(false);
         expect(android.removeBookmark).not.toHaveBeenCalled();
         expect(android.removeBookmarkLabel).not.toHaveBeenCalled();

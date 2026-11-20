@@ -44,6 +44,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
+import {isAddonLabel} from "@/composables/addon";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 const props = withDefaults(defineProps<{
@@ -123,7 +124,9 @@ const labels = computed<LabelAndStyle[]>(() => {
     // TODO: add frequent
     return sortBy(
         Array.from(shown).map(
-            (labelId: IdType) => bookmarkLabels.get(labelId)!).filter(v => v),
+            (labelId: IdType) => bookmarkLabels.get(labelId)!)
+            // Quick-assign chips must not offer add-on labels on own bookmarks: Kotlin always refuses them.
+            .filter(v => v && !(isAddonLabel(v) && !isAssigned(v.id))),
         ["name"]
     );
 });
