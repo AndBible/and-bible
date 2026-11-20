@@ -142,6 +142,10 @@ interface CoreStrings {
     fun addonReadOnly(module: String): String
     /** After an import: [count] add-on collection items were not imported. */
     fun addonItemsSkipped(count: Int): String
+    /** Toast for a refused write when the owning add-on module is unknown. */
+    val addonReadOnlyUnknown: String
+    /** Toast when "Copy to my labels" failed. */
+    val addonLabelCopyFailed: String
     val exportedStudypadsSubject: String // R.string.exported_studypads_subject
     fun exportedStudypadsMessage(appName: String): String // R.string.exported_studypads_message
     val sendExportFile: String // R.string.send_export_file

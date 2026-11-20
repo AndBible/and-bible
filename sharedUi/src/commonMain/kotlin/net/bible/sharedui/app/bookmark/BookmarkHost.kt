@@ -835,13 +835,22 @@ class BookmarkHost(
                     } else {
                         dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
                     }
-                    if (earlyWrite) bookmarkControl.insertOrUpdateLabel(updatedLabel)
+                    if (earlyWrite) saveLabelReportingReadOnly(updatedLabel)
                     else bookmarkControl.notifyLabelChanged(updatedLabel)
                     controller.refresh() // Re-derive the indicator after persistence.
                 }
             } else if (earlyWrite) {
-                orderedLauncher.launch("workspace") { bookmarkControl.insertOrUpdateLabel(updatedLabel) }
+                orderedLauncher.launch("workspace") { saveLabelReportingReadOnly(updatedLabel) }
             }
+        }
+    }
+
+    /** Saves [label]; a refused write to add-on content is told to the user, never a silent no-op. */
+    private suspend fun saveLabelReportingReadOnly(label: BookmarkEntities.Label) {
+        try {
+            bookmarkControl.insertOrUpdateLabel(label)
+        } catch (e: AddonReadOnlyException) {
+            bookmarkControl.reportAddonReadOnly(e)
         }
     }
 
@@ -1153,7 +1162,10 @@ class BookmarkHost(
                         manageLabelsSession?.second?.controller?.reloadLabels()
                         UserMessages.toast(strings.addonLabelCopied(result.name))
                     }
-                    onResult(NavLabelEditResult.Cancelled)
+                    // Unsaved editor changes (the favourite toggle) are saved first, never silently dropped.
+                    val unsaved = result.unsavedState
+                    if (unsaved == null) onResult(NavLabelEditResult.Cancelled)
+                    else onResult(NavLabelEditResult.Saved(LabelEditMapper.applyToData(labelData, unsaved).toJSON()))
                 }
             }
         }.also { labelEditSession = data to it }

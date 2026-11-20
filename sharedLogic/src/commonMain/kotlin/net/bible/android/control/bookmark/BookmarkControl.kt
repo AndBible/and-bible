@@ -750,11 +750,23 @@ open class BookmarkControl constructor(
         addLabels(bookmark)
     }
 
+    /**
+     * Saves a note on the user's copy of an add-on bookmark. The views already dropped the add-on original when the copy
+     * was made, and a note save announces only a note change of an id they do not know yet, so the copy is announced
+     * whole (a first note on a collection verse would otherwise leave the verse without any bookmark until reload).
+     */
+    private suspend fun saveNoteOnOwnCopy(copy: BaseBookmarkWithNotes, save: suspend (IdType) -> Unit) {
+        save(copy.id)
+        val fresh = (dao.bibleBookmarkById(copy.id) ?: dao.genericBookmarkById(copy.id)) ?: return
+        refreshTextAndLabels(fresh)
+        emitChange(BookmarkChange.BookmarksUpserted(listOf(fresh)))
+    }
+
     suspend fun saveBibleBookmarkNote(bookmarkId: IdType, note: String?): Unit = deferringEffects {
         if (bookmarkId.isAddonId) {
             val addon = dao.bibleBookmarkById(bookmarkId) ?: refuseAddonWrite(bookmarkId)
             if (note == addon.notes && dao.bibleStandInFor(bookmarkId) == null) return@deferringEffects // nothing to own
-            return@deferringEffects saveBibleBookmarkNote(ownCopyOfBookmark(addon).id, note)
+            return@deferringEffects saveNoteOnOwnCopy(ownCopyOfBookmark(addon)) { saveBibleBookmarkNote(it, note) }
         }
         if(note == null) {
             dao.deleteBookmarkNotes(bookmarkId)
@@ -772,7 +784,7 @@ open class BookmarkControl constructor(
         if (bookmarkId.isAddonId) {
             val addon = dao.genericBookmarkById(bookmarkId) ?: refuseAddonWrite(bookmarkId)
             if (note == addon.notes && dao.genericStandInFor(bookmarkId) == null) return@deferringEffects // nothing to own
-            return@deferringEffects saveGenericBookmarkNote(ownCopyOfBookmark(addon).id, note)
+            return@deferringEffects saveNoteOnOwnCopy(ownCopyOfBookmark(addon)) { saveGenericBookmarkNote(it, note) }
         }
         if(note == null) {
             dao.deleteGenericBookmarkNotes(bookmarkId)
@@ -1268,7 +1280,15 @@ open class BookmarkControl constructor(
 
     /** Tells the user that a write to add-on content was refused (never a silent no-op): the `addon_read_only` toast. */
     fun reportAddonReadOnly(e: AddonReadOnlyException) {
-        net.bible.android.control.event.UserMessages.toast(strings.addonReadOnly(e.moduleInitials.takeIf { it.isNotEmpty() }?.let(::addonModuleName) ?: ""))
+        val module = e.moduleInitials.takeIf { it.isNotEmpty() }
+        net.bible.android.control.event.UserMessages.toast(
+            if (module == null) strings.addonReadOnlyUnknown else strings.addonReadOnly(addonModuleName(module))
+        )
+    }
+
+    /** Tells the user that "Copy to my labels" failed. */
+    fun reportAddonCopyFailed() {
+        net.bible.android.control.event.UserMessages.toast(strings.addonLabelCopyFailed)
     }
 
     private suspend fun refuseAddonWrite(id: IdType): Nothing {

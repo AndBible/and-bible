@@ -877,8 +877,15 @@
     <string name="addon_label_copied">Copied to your label \"%1$s\"</string>
     <!-- Toast when a change to add-on collection content is refused. %1$s: the module name or initials. -->
     <string name="addon_read_only">This content comes from the add-on %1$s and cannot be changed. Use \"Copy to my labels\" to get an editable copy.</string>
+    <!-- Same as addon_read_only when the add-on that owns the content is unknown. -->
+    <string name="addon_read_only_unknown">This content comes from an add-on and cannot be changed. Use \"Copy to my labels\" to get an editable copy.</string>
+    <!-- Toast when "Copy to my labels" fails. -->
+    <string name="addon_label_copy_failed">Could not copy the label</string>
     <!-- After a backup restore or StudyPad import. %1$d: the number of skipped items. -->
-    <string name="addon_items_skipped">%1$d add-on collection items were skipped. Use \"Copy to my labels\" on the label to get your own copy.</string>
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d add-on collection item was skipped. Use \"Copy to my labels\" on the label to get your own copy.</item>
+        <item quantity="other">%1$d add-on collection items were skipped. Use \"Copy to my labels\" on the label to get your own copy.</item>
+    </plurals>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
     <string name="bookmarks_db_stats">\"%1$s\" and %2$s other Label(s) / StudyPad/(s) and %3$s Bookmarks</string>

@@ -32,6 +32,7 @@ class LabelEditServiceImpl(private val bookmarkControl: BookmarkControl) : Label
         throw e
     } catch (e: Exception) {
         net.bible.sharedcore.log.Log.e("LabelEditService", "Could not copy add-on label $labelId", e)
+        bookmarkControl.reportAddonCopyFailed()
         null
     }
 }

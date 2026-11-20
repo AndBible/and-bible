@@ -50,6 +50,9 @@ import net.bible.service.db.openSqlite
 import net.bible.service.db.queryLong
 import net.bible.service.db.sqliteDriverFactory
 import net.bible.service.db.useWriterConnectionMarked
+import net.bible.android.control.backup.BackupControl
+import net.bible.service.installzip.DefaultInstallCommitter
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ui.dialog.AppDialogController
@@ -326,6 +329,33 @@ class AddonCollectionSyncTest {
         assertEquals(4L, importDatabaseFile(category, export.toOkioPath()))
         assertEquals(0, addonRowsIn(b))
         assertTrue((b.localDb as BookmarkDatabase).bookmarkDao().allLabelsSortedByName().any { it.name == "Mine" })
+    }
+
+    @Test
+    fun aStudyPadImportThatSkippedAddonRowsToastsTheCount() = run {
+        val unzip = File(CommonUtils.tmpDir, "studypad-import-${UUID.randomUUID()}").also { it.mkdirs() }
+        val dbDir = File(unzip, "db").also { it.mkdirs() }
+        val export = File(dbDir, BookmarkDatabase.dbFileName).also { files += it }
+        open(export.absolutePath).also { db ->
+            install(db)
+            db.bookmarkDao().insert(BookmarkEntities.Label(name = "Mine"))
+            db.close()
+        }
+        val toasts = mutableListOf<String>()
+        val sub = net.bible.android.control.event.UserMessages.messages.subscribe {
+            (it as? net.bible.android.control.event.UserMessage.Toast)?.let { t -> t.text?.let(toasts::add) }
+        }
+        try {
+            DefaultInstallCommitter(
+                get(BackupControl::class.java), get(CoreStrings::class.java), env,
+                clearAddonCaches = {},
+            ).commitStudyPad(unzip.toOkioPath())
+            assertEquals(1, toasts.size)
+            assertTrue(toasts.single(), toasts.single().contains("4 add-on collection items were skipped"))
+        } finally {
+            sub.cancel()
+            unzip.deleteRecursively()
+        }
     }
 
     /** Sync review Minor 3: favourites and expand state of add-on rows are this device's own and survive an initial download. */

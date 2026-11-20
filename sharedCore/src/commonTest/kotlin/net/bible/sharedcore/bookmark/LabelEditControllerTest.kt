@@ -215,6 +215,16 @@ class LabelEditControllerTest {
         assertEquals(LabelEditResult.Copied("Study (copy)"), result)
     }
 
+    @Test fun copy_with_unsaved_favourite_hands_the_state_to_the_host_instead_of_dropping_it() {
+        var result: LabelEditResult? = null
+        val c = controller(addonState(), onFinish = { result = it })
+        c.toggleFavourite()
+        c.copyToMyLabels()
+        val copiedResult = result as LabelEditResult.Copied
+        assertEquals(c.state.value, copiedResult.unsavedState)
+        assertEquals(true, copiedResult.unsavedState?.favourite != addonState().favourite)
+    }
+
     @Test fun a_second_copy_tap_while_the_first_runs_makes_no_second_copy() {
         val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
         var finishes = 0

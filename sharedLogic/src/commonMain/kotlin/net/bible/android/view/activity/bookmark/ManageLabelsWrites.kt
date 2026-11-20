@@ -84,6 +84,7 @@ class ManageLabelsWrites(
                 }
                 result.complete(idRemap)
             } catch (e: Throwable) {
+                if (e is net.bible.android.control.bookmark.AddonReadOnlyException) bookmarkControl.reportAddonReadOnly(e)
                 started.value = false
                 result.completeExceptionally(e)
                 throw e
