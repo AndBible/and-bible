@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.assembly
 
+import net.bible.sharedcore.ui.dialog.toAnswers
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakPhrases
 import net.bible.android.control.speak.SpeakPlatform
@@ -201,7 +202,7 @@ fun desktopMiscModule(): Module = module {
                 }
                 while (true) {
                     val answer = dialogs.await(AppDialogRequest.Options(strings.text("bug_report_manual_title"),
-                        strings.manualSendText(info), actions, strings.text("okay"), asActionSheet = false))
+                        strings.manualSendText(info), actions.toAnswers(), strings.text("okay"), asActionSheet = false))
                     if (answer !is AppDialogResult.Selected) break
                     when (answer.value) {
                         "address" -> clipboard.write("", info.address)

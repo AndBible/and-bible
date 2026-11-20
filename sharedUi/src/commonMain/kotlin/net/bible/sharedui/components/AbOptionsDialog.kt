@@ -41,7 +41,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogProperties
-import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.DialogAnswer
 import net.bible.sharedui.theme.LocalDisableAnimations
 
 /**
@@ -52,7 +52,7 @@ import net.bible.sharedui.theme.LocalDisableAnimations
 fun AbOptionsDialog(
     title: String?,
     message: String?,
-    options: List<SettingsItem.Choice>,
+    options: List<DialogAnswer>,
     onSelect: (String) -> Unit,
     onDismissRequest: () -> Unit,
     dismissText: String? = null,

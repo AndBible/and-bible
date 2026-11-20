@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import androidx.compose.runtime.Composable
+import net.bible.sharedcore.ui.dialog.toAnswers
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
@@ -259,7 +260,7 @@ class AppDialogHostTest {
         show(ShownDialog(41, AppDialogRequest.Options(
             title = context.getString(R.string.corrupt_database_title),
             message = net.bible.sharedcore.ui.dialog.plainTextToHtml(plain),
-            options = listOf(SettingsItem.Choice("reset", context.getString(R.string.corrupt_database_reset))),
+            options = listOf(SettingsItem.Choice("reset", context.getString(R.string.corrupt_database_reset))).toAnswers(),
             dismissText = context.getString(R.string.close), asActionSheet = true, cancellable = false,
         )))
         compose.onNodeWithText(plain).assertExists()
@@ -271,7 +272,7 @@ class AppDialogHostTest {
         // Options.message has an HTML contract; showErrorDialog escapes its plain text before it gets here.
         show(ShownDialog(42, AppDialogRequest.Options(
             title = null, message = "Failed<br><br><b>Backup &amp; Restore</b>",
-            options = listOf(SettingsItem.Choice("report", "Send report")),
+            options = listOf(SettingsItem.Choice("report", "Send report")).toAnswers(),
             dismissText = "Skip", asActionSheet = true, cancellable = false,
         )))
         compose.onNodeWithText("Failed\n\nBackup & Restore").assertExists()
@@ -284,7 +285,7 @@ class AppDialogHostTest {
     @Test fun optionsCheckboxIsReturnedWithTheSelectedValue() {
         show(ShownDialog(42, AppDialogRequest.Options(
             title = "Question", message = null,
-            options = listOf(SettingsItem.Choice("a", "Answer")),
+            options = listOf(SettingsItem.Choice("a", "Answer")).toAnswers(),
             dismissText = "Cancel", asActionSheet = false, checkboxLabel = "Remember",
         )))
         compose.onNodeWithText("Remember").performClick()
@@ -295,7 +296,7 @@ class AppDialogHostTest {
     @Test fun optionsCheckboxStartsUnchecked() {
         show(ShownDialog(43, AppDialogRequest.Options(
             title = "Question", message = null,
-            options = listOf(SettingsItem.Choice("a", "Answer")),
+            options = listOf(SettingsItem.Choice("a", "Answer")).toAnswers(),
             dismissText = "Cancel", asActionSheet = false, checkboxLabel = "Remember",
         )))
         compose.onNodeWithText("Answer").performClick()
@@ -305,7 +306,7 @@ class AppDialogHostTest {
     @Test fun aNewOptionsDialogDoesNotInheritTheCheckedOptOut() {
         val request = AppDialogRequest.Options(
             title = "Question", message = null,
-            options = listOf(SettingsItem.Choice("a", "Answer")),
+            options = listOf(SettingsItem.Choice("a", "Answer")).toAnswers(),
             dismissText = null, asActionSheet = true, checkboxLabel = "Remember",
         )
         val current = mutableStateOf(ShownDialog(42, request))
@@ -332,7 +333,7 @@ class AppDialogHostTest {
                 6,
                 AppDialogRequest.Options(
                     "Restore or import?", null,
-                    listOf(SettingsItem.Choice("restore", "Restore"), SettingsItem.Choice("import", "Import")),
+                    listOf(SettingsItem.Choice("restore", "Restore"), SettingsItem.Choice("import", "Import")).toAnswers(),
                     dismissText = "Cancel", asActionSheet = false,
                 ),
             ),
@@ -349,7 +350,7 @@ class AppDialogHostTest {
                 7,
                 AppDialogRequest.Options(
                     "Crash!", null,
-                    listOf(SettingsItem.Choice("report", "Send report"), SettingsItem.Choice("backup", "Backup & restore")),
+                    listOf(SettingsItem.Choice("report", "Send report"), SettingsItem.Choice("backup", "Backup & restore")).toAnswers(),
                     dismissText = "Skip", asActionSheet = true, cancellable = false,
                 ),
             ),
@@ -368,7 +369,7 @@ class AppDialogHostTest {
                 8,
                 AppDialogRequest.Options(
                     "Crash!", null,
-                    listOf(SettingsItem.Choice("report", "Send report")),
+                    listOf(SettingsItem.Choice("report", "Send report")).toAnswers(),
                     dismissText = "Skip", asActionSheet = true, cancellable = false,
                 ),
             ),
@@ -390,7 +391,7 @@ class AppDialogHostTest {
                 9,
                 AppDialogRequest.Options(
                     "Save or share?", null,
-                    listOf(SettingsItem.Choice("share", "Share"), SettingsItem.Choice("save", "Save")),
+                    listOf(SettingsItem.Choice("share", "Share"), SettingsItem.Choice("save", "Save")).toAnswers(),
                     dismissText = null, asActionSheet = true,
                 ),
             ),

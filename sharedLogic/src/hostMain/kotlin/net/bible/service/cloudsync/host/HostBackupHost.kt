@@ -1,6 +1,7 @@
 package net.bible.service.cloudsync.host
 
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
+import net.bible.sharedcore.ui.dialog.toAnswers
 import net.bible.android.control.backup.BackupHost
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.files.FileDelivery
@@ -45,7 +46,7 @@ class HostBackupHost(
             options = listOf(
                 net.bible.sharedcore.settings.SettingsItem.Choice("report", reportText()),
                 net.bible.sharedcore.settings.SettingsItem.Choice("backup", backupText()),
-            ), dismissText = skipText(), asActionSheet = true,
+            ).toAnswers(), dismissText = skipText(), asActionSheet = true,
         ))
         errorReportAction((result as? net.bible.sharedcore.ui.dialog.AppDialogResult.Selected)?.value, cause,
             { HostErrorReportHooks.report?.invoke(it) }, { HostErrorReportHooks.backup?.invoke() })

@@ -3,6 +3,7 @@
 package net.bible.sharedui.app.bookmark
 
 import androidx.compose.material3.Text
+import net.bible.sharedcore.ui.dialog.toAnswers
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import net.bible.sharedcore.bookmark.DeletePrompt
@@ -39,7 +40,7 @@ fun LabelEditDeletePromptContent(
             options = listOf(
                 SettingsItem.Choice(value = "both", label = deleteBothLabel),
                 SettingsItem.Choice(value = "labelOnly", label = deleteOnlyLabel),
-            ),
+            ).toAnswers(),
             onSelect = { value -> onConfirm(value == "both") },
             onDismissRequest = onDismiss,
             dismissText = cancelLabel,
