@@ -16,6 +16,8 @@
  */
 package net.bible.sharedui.navigation
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpMenuItem
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -179,6 +181,7 @@ fun GridChoosePassageScreen(
 fun GridOptionsOverflow(ui: GridUi, options: GridOptions, onToggle: (GridOption) -> Unit) {
     val strings = LocalStrings.current
     AbOverflowMenu(contentDescription = null) { close ->
+        AbHelpMenuItem(DocsLink.NAVIGATION, close)
         if (ui.showDeutToggle) {
             AbMenuItem(
                 text = if (options.showScripture) strings.deuterocanonical else strings.bible,

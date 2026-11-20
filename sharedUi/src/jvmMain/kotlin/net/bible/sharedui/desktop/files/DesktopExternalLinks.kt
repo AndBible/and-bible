@@ -1,5 +1,6 @@
 package net.bible.sharedui.desktop.files
 
+import net.bible.sharedcore.links.TrustedLinkDomains
 import java.awt.Desktop
 import java.net.URI
 import kotlinx.coroutines.CoroutineScope
@@ -24,11 +25,14 @@ class DesktopExternalLinks(
     },
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     osName: String = System.getProperty("os.name").orEmpty(),
+    /** The user's trusted hosts (#4155); resolved lazily, after the settings store exists. */
+    private val trust: () -> TrustedLinkDomains? = { null },
 ) : ExternalLinks {
     /** The freedesktop portal and `xdg-open` exist on Linux/Unix only; Windows and macOS go straight to `Desktop`. */
     private val freedesktop = osName.lowercase().let { !it.startsWith("windows") && !it.startsWith("mac") }
 
     override val askBeforeOpening: Boolean get() = false
+    override val trustedDomains: TrustedLinkDomains? get() = trust()
     override fun open(url: String) {
         val uri = parse(url) ?: return
         scope.launch { launch(uri) }

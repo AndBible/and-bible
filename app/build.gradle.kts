@@ -376,6 +376,10 @@ android {
 
         create("fdroid") {
             dimension = dimDistributionChannelName
+            // F-Droid builds the release from source on its own build server, so its R8 mapping never reaches us and
+            // obfuscated crash reports from F-Droid users could not be retraced: keep this flavour unobfuscated (#4160,
+            // docs/r8-obfuscation.md). Play's obfuscation threshold does not apply here.
+            proguardFile("proguard-fdroid.pro")
         }
 
         create("samsung") {

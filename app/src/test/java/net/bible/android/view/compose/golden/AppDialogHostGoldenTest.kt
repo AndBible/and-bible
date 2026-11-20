@@ -23,6 +23,9 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.ShownDialog
 import net.bible.sharedui.components.AppDialogHost
+import net.bible.sharedui.app.ports.externalLinkQuestion
+import net.bible.sharedui.strings.AndroidStrings
+import androidx.test.core.app.ApplicationProvider
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -99,6 +102,12 @@ class AppDialogHostGoldenTest {
                 checkboxLabel = "Don't notify me about updates",
             ),
         ).invoke()
+    }
+
+    /** #4155: the external-link question with "Don't ask again for <host>", built by the shared builder. */
+    @Test fun externalLinkWithTrust() = captureMatrix("AppDialogHost", "external_link_trust") {
+        val strings = AndroidStrings(ApplicationProvider.getApplicationContext())
+        host(externalLinkQuestion(strings, "https://www.youtube.com/watch?v=abc", "www.youtube.com")).invoke()
     }
 
     @Test fun progress() = captureMatrix("AppDialogHost", "progress") {

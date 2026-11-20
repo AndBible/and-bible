@@ -20,8 +20,8 @@ bug round.
 
 1. Open bugs with board fields: `docs/superpowers/triage/snapshot/index.tsv` + `board.json`
    (`Type: Bug`, not Done). Re-check live state with `gh issue view <n>`.
-2. Drop issues an earlier round already handled. Fixed issues stay open until they reach the
-   default branch, so check all three: `git log --all --oneline --grep="<n>"` (a fix commit
+2. Drop issues an earlier round already handled. A fixed issue may still be open (a missed close,
+   issue-management Flow 4), so check all three: `git log --all --oneline --grep="<n>"` (a fix commit
    may not name the issue with `#`), the `docs/superpowers` log, and the issue comments
    (`gh issue view <n> --json comments`: a "Fixed: ..." / "already fixed" comment or a
    `_— bug-fix round_` signature means it is done).
@@ -71,8 +71,7 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
 
 - Keep `max_running_children` children busy and **1–2 spawns queued**, no more; spawn the next
   one whenever a child is merged.
-- Assign each issue to the publishing account as soon as its child is spawned (`jailbee issue assign <n> --me`,
-  published right away when the grant allows; issue-management Flow 3, "Assign when work starts").
+- Assign each issue and set it In progress as soon as its child is spawned (issue-management Flow 4, step 1).
 - Runner: chosen as **andbible-orchestration** says. The script's default is the `claude-jb` codex profile,
   tier opus; override with e.g. `RUNNER="--agent claude --model opus" MODEL_NAME="Claude Opus"`. The script
   spawns a `fork` of HEAD; never add a bare `--new` to `SPAWN_FLAGS`.

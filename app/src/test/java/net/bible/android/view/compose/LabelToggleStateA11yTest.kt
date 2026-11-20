@@ -133,11 +133,15 @@ class LabelToggleStateA11yTest {
         compose.onNodeWithContentDescription(context.getString(R.string.favourite_label)).assertIsOn()
     }
 
+    // w600dp: a narrow (<480dp) ASSIGN list has no primary column since issue #4153.
+    @Config(qualifiers = "w600dp")
     @Test fun theBookmarkIsSelectedForThePrimaryLabel() {
         setScreen(primary = true, mode = ManageLabelsMode.ASSIGN)
         compose.onNodeWithContentDescription(context.getString(R.string.primary_label)).assertIsSelected()
     }
 
+    // w600dp: a narrow (<480dp) ASSIGN list has no primary column since issue #4153.
+    @Config(qualifiers = "w600dp")
     @Test fun theBookmarkIsNotSelectedForANonPrimaryLabel() {
         setScreen(primary = false, mode = ManageLabelsMode.ASSIGN)
         compose.onNodeWithContentDescription(context.getString(R.string.primary_label)).assertIsNotSelected()

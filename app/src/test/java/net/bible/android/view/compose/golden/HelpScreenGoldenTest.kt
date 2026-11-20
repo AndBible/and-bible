@@ -21,9 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import net.bible.android.TEST_SDK
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.app.ports.HelpAndTips
 import net.bible.sharedui.help.HelpScreen
+import net.bible.sharedui.help.HelpTab
 import net.bible.sharedui.help.nav.HelpNavDeps
 import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
@@ -44,7 +46,7 @@ import org.robolectric.annotation.GraphicsMode
 class HelpScreenGoldenTest {
     private val catalog = HelpNavDeps({}, {}, { emptyList() }, { "Version 6.0.0" }, {})
 
-    private fun screen(tab: Int): @Composable () -> Unit = {
+    private fun screen(tab: HelpTab): @Composable () -> Unit = {
         val context = LocalContext.current
         val strings = LocalStrings.current
         HelpScreen(
@@ -67,7 +69,7 @@ class HelpScreenGoldenTest {
             sections = listOf(UserGuideToc.Section("Study Tools", "user_guide_section_study_tools", listOf(aiPage))),
             tutorialVideos = catalog.tutorialVideos("en"),
             versionText = "Version 6.0.0",
-            initialTab = 1,
+            initialTab = HelpTab.UserGuide,
             onOpenUrl = {},
             onUp = {},
         )
@@ -78,22 +80,41 @@ class HelpScreenGoldenTest {
     private fun tutorialCatalog(): @Composable () -> Unit = {
         HelpScreen(
             tips = emptyList(), sections = emptyList(), tutorialVideos = catalog.tutorialVideos("en"),
-            versionText = "Version 6.0.0", initialTab = 1, initialShowVideos = true, onOpenUrl = {}, onUp = {},
+            versionText = "Version 6.0.0", initialTab = HelpTab.UserGuide, initialShowVideos = true, onOpenUrl = {}, onUp = {},
         )
     }
 
     @Test fun tutorialCatalog_matrix() = captureMatrix("HelpScreen", "tutorialCatalog", heightDp = 3300, content = tutorialCatalog())
 
-    @Test fun tips_matrix() = captureMatrix("HelpScreen", "tips", heightDp = 2600, content = screen(0))
+    @Test fun tips_matrix() = captureMatrix("HelpScreen", "tips", heightDp = 2600, content = screen(HelpTab.Tips))
 
-    @Test fun userGuide_matrix() = captureMatrix("HelpScreen", "userGuide", heightDp = 3800, content = screen(1))
+    @Test fun userGuide_matrix() = captureMatrix("HelpScreen", "userGuide", heightDp = 3800, content = screen(HelpTab.UserGuide))
 
     @Test fun userGuide_mono() {
-        MONO_MODES.forEach { mode -> captureGolden("HelpScreen", "userGuide", mode, heightDp = 3800, content = screen(1)) }
+        MONO_MODES.forEach { mode -> captureGolden("HelpScreen", "userGuide", mode, heightDp = 3800, content = screen(HelpTab.UserGuide)) }
     }
 
     @Test fun userGuideManyEpisodes_mono() {
         MONO_MODES.forEach { mode -> captureGolden("HelpScreen", "userGuideManyEpisodes", mode, heightDp = 900, content = manyEpisodes()) }
+    }
+
+    /** #4159: opened for a help topic (Cloud Sync): scrolled to its page, the page and its two video rows highlighted. */
+    private fun highlighted(): @Composable () -> Unit = {
+        HelpScreen(
+            tips = emptyList(),
+            sections = UserGuideToc.sections,
+            tutorialVideos = catalog.tutorialVideos("en"),
+            versionText = "Version 6.0.0",
+            highlight = DocsLink.CLOUD_SYNC,
+            onOpenUrl = {},
+            onUp = {},
+        )
+    }
+
+    @Test fun userGuideHighlighted_matrix() = captureMatrix("HelpScreen", "userGuideHighlighted", heightDp = 800, content = highlighted())
+
+    @Test fun userGuideHighlighted_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("HelpScreen", "userGuideHighlighted", mode, heightDp = 800, content = highlighted()) }
     }
 
     @Test fun tutorialCatalog_mono() {

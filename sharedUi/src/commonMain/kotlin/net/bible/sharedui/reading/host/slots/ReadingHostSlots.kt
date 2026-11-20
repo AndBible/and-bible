@@ -107,15 +107,13 @@ class ReadingHostSlots(
     internal val activeWindowPosition: () -> Int,
     internal val currentDocumentInitials: () -> String?,
     internal val workspaceWriteScope: CoroutineScope = scope,
-    /** The app language tag; picks the caption language of the Speak tutorial link. */
-    internal val appLanguage: () -> String = { "en" },
 ) {
     private val textSettings = TextSettingsEditorState(
         hostState, textDisplaySettingsService, scope, strings, imagePicker, thumbnailFor,
     )
 
     private val speak = SpeakSettingsState(
-        hostState, speakSettingsService, strings, appLanguage, externalLinks, speakPlatform, gridPassages,
+        hostState, speakSettingsService, strings, externalLinks, speakPlatform, gridPassages,
     )
 
     /** The Speak sheet's page stack (test-only reads of which page is open). */

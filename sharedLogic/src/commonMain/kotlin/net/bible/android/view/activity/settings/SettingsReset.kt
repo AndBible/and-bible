@@ -59,7 +59,9 @@ object SettingsReset {
         "font_size_multiplier",
         "bible_view_swipe_mode",
         "experimental_features",
-        "notes_content_type"
+        "notes_content_type",
+        // #4155: the trusted link hosts are an application preference too; reset trusts nothing again.
+        "trusted_link_domains",
     )
 
     /** Clears the original typed DB keys and device-local keys; callers own UI refresh. */

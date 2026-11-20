@@ -120,6 +120,35 @@ class AppSettingsServiceImplTest {
         assertTrue(service.snapshot.value.discreteMode)
     }
 
+    @Test fun trustedDomainsRowTracksRuntimeDiscreteModeWithoutLosingDomains() {
+        val prefs = CommonUtils.realSharedPreferences
+        val original = prefs.getBoolean("discrete_mode", false)
+        val key = net.bible.sharedcore.links.TrustedLinkDomains.KEY
+        val domains = CommonUtils.settings.getStringSet(key)
+        val job = kotlinx.coroutines.Job()
+        try {
+            prefs.edit().putBoolean("discrete_mode", false).commit()
+            CommonUtils.settings.setStringSet(key, setOf("example.org"))
+            val service = AppSettingsServiceImpl(FakeDictionaryOptionsProvider())
+            val controller = net.bible.sharedcore.settings.AppSettingsController(
+                service, kotlinx.coroutines.CoroutineScope(job + kotlinx.coroutines.Dispatchers.Unconfined),
+                net.bible.sharedcore.settings.AppSettingsLabels.forTest(), onNavigate = {},
+            )
+            fun visible() = controller.state.value.items.single { it.key == key }.visible
+            assertTrue(visible())
+            service.setBool("discrete_mode", true)
+            assertTrue(CommonUtils.isDiscrete)
+            assertFalse(visible())
+            assertEquals(setOf("example.org"), service.snapshot.value.trustedLinkDomains)
+            service.setBool("discrete_mode", false)
+            assertTrue(visible())
+        } finally {
+            job.cancel()
+            prefs.edit().putBoolean("discrete_mode", original).commit()
+            CommonUtils.settings.setStringSet(key, domains)
+        }
+    }
+
     @Test fun normalKey_einkMode_writesToSettingsDb_notRealShared() {
         val service = AppSettingsServiceImpl()
 

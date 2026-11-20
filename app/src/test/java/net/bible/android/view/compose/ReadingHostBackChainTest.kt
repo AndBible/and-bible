@@ -577,6 +577,45 @@ class ReadingHostBackChainTest {
     }
 
     @Test
+    fun historyStepDoesNotClaimToHandleBackWithoutNavigating() {
+        val activity = host()
+        val manager = historyManager()
+        val window = CommonUtils.windowControl.activeWindow
+        val key = org.crosswire.jsword.passage.DefaultLeafKeyList("result", "result")
+        var availabilityReads = 0
+        val book = org.crosswire.jsword.book.sword.SwordGenBook(
+            org.crosswire.jsword.book.sword.SwordBookMetaData(
+                "[HistoryRace]\nModDrv=RawGenBook\nDescription=History race\nCategory=Generic Books\nAndBibleMyDocument=1\n".toByteArray(),
+                "HistoryRace.conf",
+            ),
+            object : org.crosswire.jsword.book.sword.NullBackend() {
+                override fun readIndex(): org.crosswire.jsword.passage.Key = key
+                override fun contains(key: org.crosswire.jsword.passage.Key?) = ++availabilityReads == 1
+            },
+        )
+        Books.installed().addBook(book)
+        try {
+            manager.restoreFrom(window, listOf(net.bible.android.database.WorkspaceEntities.HistoryItem(
+                window.id, net.bible.android.database.DbDate(1_000), book.initials, "result", null,
+            )))
+            val handled = activity.readingBackChain.single { it.name == "history" }.run()
+
+            assertTrue("A single availability check can restore the still-existing page", handled)
+            assertEquals(book, window.pageManager.currentPage.currentDocument)
+            manager.restoreFrom(window, listOf(net.bible.android.database.WorkspaceEntities.HistoryItem(
+                window.id, net.bible.android.database.DbDate(1_000), book.initials, "result", null,
+            )))
+            assertFalse("A disappeared destination falls through to default Back handling",
+                activity.readingBackChain.single { it.name == "history" }.run())
+            assertFalse("Chooser cancellation also reports that nothing was restored", activity.goBackInHistory())
+        } finally {
+            manager.clear()
+            book.deactivate(null)
+            Books.installed().removeBook(book)
+        }
+    }
+
+    @Test
     fun backOnAnEmptyHistoryWarnsBeforeItExits() {
         val activity = host()
         // No history pushed: the chain falls through to the double-back warning.

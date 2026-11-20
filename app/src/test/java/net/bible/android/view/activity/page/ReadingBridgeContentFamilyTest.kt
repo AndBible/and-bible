@@ -18,7 +18,8 @@
 
 package net.bible.android.view.activity.page
 
-import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedcore.docs.HelpLinks
 import android.app.Activity
 import android.content.Intent
 import com.nhaarman.mockitokotlin2.any
@@ -356,11 +357,11 @@ class ReadingBridgeContentFamilyTest {
         assertEquals(listOf<Pair<String?, String>>("Title" to "<b>x</b>"), sheets.helps.toList())
     }
 
-    @Test fun helpBookmarksShowsTheBookmarksHelpWithTheTutorialLink() {
+    @Test fun helpBookmarksShowsTheBookmarksHelpWithTheUserGuideLink() {
         bridge.helpBookmarks()
         val (title, html) = sheets.helps.single()
         assertEquals(testCoreStrings().bookmarksAndMyNotesTitle, title)
-        assertTrue(html.contains(TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS, "en")))
+        assertTrue(html.contains("<a href=\"${HelpLinks.url(DocsLink.BOOKMARKS)}\">${testCoreStrings().helpInUserGuide}</a>"))
         assertTrue(html.contains(testCoreStrings().verseTip))
     }
 

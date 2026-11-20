@@ -173,7 +173,7 @@ class DiscreteSpeakRegressionTest {
         }
     }
 
-    @Test fun activityMenuDefaultTracksDiscreteAndExplicitChoiceWinsInSettings() {
+    @Test fun activityMenuDefaultIsOnOnEveryAndroidFlavorAndExplicitChoiceWinsInSettings() {
         val settings = get<AppSettings>(AppSettings::class.java)
         val default = get<ActivityMenuDefault>(ActivityMenuDefault::class.java)
         for (discreteMode in listOf(false, true)) {
@@ -181,8 +181,8 @@ class DiscreteSpeakRegressionTest {
             settings.removeBoolean(ActivityMenuPreference.KEY)
             val preference = ActivityMenuPreference(settings, default)
             val service = AppSettingsServiceImpl(activityMenu = preference)
-            // The discrete flavor is discrete regardless of the preference, so its default is always true.
-            val expectedDefault = discreteMode || net.bible.service.common.BuildVariant.Appearance.isDiscrete
+            // #4157: on by default for standard and discrete alike.
+            val expectedDefault = true
             assertEquals(expectedDefault, preference.enabled.value)
             assertEquals(expectedDefault, service.snapshot.value.showActivityInMenu)
             service.setBool(ActivityMenuPreference.KEY, !expectedDefault)

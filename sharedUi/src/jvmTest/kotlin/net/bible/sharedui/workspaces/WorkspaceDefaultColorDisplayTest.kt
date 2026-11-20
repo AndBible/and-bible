@@ -18,6 +18,7 @@ package net.bible.sharedui.workspaces
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -47,6 +48,7 @@ import net.bible.sharedui.theme.keepsDefaultWorkspaceColor
 import net.bible.sharedui.theme.monoInk
 import net.bible.sharedui.theme.monoPaper
 import net.bible.sharedui.theme.ringFraction
+import net.bible.sharedui.theme.systemColorSchemeProvider
 import net.bible.sharedui.theme.workspaceDisplayArgb
 import net.bible.sharedui.theme.workspacePickerStartArgb
 import kotlin.test.Test
@@ -73,18 +75,19 @@ class WorkspaceDefaultColorDisplayTest {
 
     /** Centre colour and dashed-ring fraction of every workspace dot, rendered at density 3. */
     private fun ComposeUiTest.dots(
-        dark: Boolean, mode: DisplayColorMode, content: @Composable () -> Unit,
+        dark: Boolean, mode: DisplayColorMode, useSystemColors: Boolean = false,
+        ringColor: Color? = null, content: @Composable () -> Unit,
     ): List<Pair<Color, Float>> {
         setContent {
             CompositionLocalProvider(LocalStrings provides iosStrings("en"), LocalDensity provides Density(3f)) {
-                AbTheme(darkTheme = dark, seedArgb = activeSeed, colorMode = mode, disableAnimations = true) {
+                AbTheme(darkTheme = dark, seedArgb = activeSeed, colorMode = mode, disableAnimations = true, useSystemColors = useSystemColors) {
                     Box(Modifier.width(360.dp)) { content() }
                 }
             }
         }
         waitForIdle()
         val ringPx = WORKSPACE_DEFAULT_RING_WIDTH.value * 3f
-        val ring = expectedRing(dark, mode)
+        val ring = ringColor ?: expectedRing(dark, mode)
         return onAllNodesWithTag(WORKSPACE_COLOR_DOT_TAG, useUnmergedTree = true).fetchSemanticsNodes().indices.map {
             val image = onAllNodesWithTag(WORKSPACE_COLOR_DOT_TAG, useUnmergedTree = true)[it].captureToImage()
             val pixels = image.toPixelMap()
@@ -123,20 +126,43 @@ class WorkspaceDefaultColorDisplayTest {
         if (!mode.isInkBase) assertEquals(0f, chosenRing, "chosen ring fraction ($mode, dark=$dark)")
     }
 
-    private fun assertSelector(dark: Boolean, mode: DisplayColorMode) = runComposeUiTest {
-        val dots = dots(dark, mode) {
-            WorkspaceSelectorScreen(
-                title = "Select workspace", workspaces = rows, dirty = false, canDelete = true,
-                filtering = false, query = "", searchModeActive = false,
-                copySettingsState = null, pendingSelectId = null,
-                onQueryChange = {}, onOpenSearch = {}, onCloseSearch = {},
-                onMove = { _, _ -> }, onSelect = {}, onRename = { _, _ -> },
-                onClone = { _, _ -> }, onDelete = {}, onEditSettings = {}, onCopySettings = {},
-                onCopySettingsToGlobal = {}, onChooseCopyTypes = {}, onChooseCopyTargets = {},
-                onCancelCopySettings = {}, onCreate = {}, onSave = {}, onCancel = {},
-                onConfirmPendingSelect = {}, onDismissPendingSelect = {}, onHelp = {}, onNavigateUp = {},
-            )
+    @Composable
+    private fun selector() {
+        WorkspaceSelectorScreen(
+            title = "Select workspace", workspaces = rows, dirty = false, canDelete = true,
+            filtering = false, query = "", searchModeActive = false,
+            copySettingsState = null, pendingSelectId = null,
+            onQueryChange = {}, onOpenSearch = {}, onCloseSearch = {},
+            onMove = { _, _ -> }, onSelect = {}, onRename = { _, _ -> },
+            onClone = { _, _ -> }, onDelete = {}, onEditSettings = {}, onCopySettings = {},
+            onCopySettingsToGlobal = {}, onChooseCopyTypes = {}, onChooseCopyTargets = {},
+            onCancelCopySettings = {}, onCreate = {}, onSave = {}, onCancel = {},
+            onConfirmPendingSelect = {}, onDismissPendingSelect = {}, onHelp = {}, onNavigateUp = {},
+        )
+    }
+
+    @Test
+    fun selectorAndQuickDefaultDotsFollowSystemSchemeWithoutBorrowingActiveSeed() {
+        val saved = systemColorSchemeProvider
+        val fill = Color(0xFFCCDDEE)
+        val ring = Color(0xFF123456)
+        systemColorSchemeProvider = { lightColorScheme(primaryContainer = fill, outline = ring) }
+        try {
+            for (quick in listOf(false, true)) runComposeUiTest {
+                val rendered = dots(false, DisplayColorMode.NORMAL, useSystemColors = true, ringColor = ring) {
+                    if (quick) WorkspaceQuickContent(rows = rows, onSelect = {}) else selector()
+                }
+                assertEquals(listOf(Color(chosen), fill), rendered.map { it.first })
+                assertTrue(rendered[1].second in 0.25f..0.85f, "default keeps a dashed system outline")
+                assertEquals(0f, rendered[0].second, "chosen colour keeps no default ring")
+            }
+        } finally {
+            systemColorSchemeProvider = saved
         }
+    }
+
+    private fun assertSelector(dark: Boolean, mode: DisplayColorMode) = runComposeUiTest {
+        val dots = dots(dark, mode) { selector() }
         assertDots(dark, mode, dots)
     }
 

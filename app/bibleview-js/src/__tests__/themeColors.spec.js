@@ -52,7 +52,7 @@ const EXPECTED_FALLBACKS = {
         {property: "--ab-on-primary-container", fallback: "#e2e2e2"},
     ],
     "../components/BibleView.vue": [
-        {property: "--ab-primary-container", fallback: "rgba(196, 196, 255, 0.8)"},
+        {property: "--ab-primary", fallback: "rgba(196, 196, 255, 0.8)"},
         {property: "--ab-primary", fallback: "rgba(0, 0, 255, 0.6)"},
         {property: "--ab-on-primary-container", fallback: "#d5d5d5"},
     ],
@@ -576,9 +576,10 @@ describe("bounded theme chrome contrast and geometry", () => {
         expect(rule).toContain(`radial-gradient(circle at ${centre}, transparent calc(var(--corner-radius) - 0.5px), currentColor calc(var(--corner-radius) * var(--corner-softness)))`);
         // Soft, 32px corner in colored modes; a crisp, smaller 16px one in monochrome and color e-ink
         // (gradients dither badly there, and a hard edge reads larger than a soft one).
-        for (const mode of ["", "night"]) {
+        // Night is larger (48px, #4154); the light theme must stay at 32px.
+        for (const [mode, radius] of [["", "32px"], ["night", "48px"], ["noAnimation", "32px"], ["noAnimation night", "48px"]]) {
             const winner = winning(css, selector.slice(1), mode, "div");
-            expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["32px", "1.4"]);
+            expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual([radius, "1.4"]);
         }
         // COLOR_EINK arrives with the pure ink base classes (#4069).
         for (const mode of ["monochrome", "monochrome night", "monochrome colorEink pureMonochrome", "monochrome colorEink pureMonochrome night"]) {
@@ -591,6 +592,8 @@ describe("bounded theme chrome contrast and geometry", () => {
         expect(winning(css, selector.slice(1), "monochrome colorEink pureMonochrome", "div").color).toBe("black");
         expect(winning(css, selector.slice(1), "monochrome colorEink pureMonochrome night", "div").color).toBe("white");
         expect(winning(css, selector.slice(1), "", "div").color).toContain("var(--ab-primary, rgba(0, 0, 255, 0.6))");
+        // Night uses the bright primary, not the dark container that vanished on dark workspaces (#4154).
+        expect(winning(css, selector.slice(1), "night", "div").color).toContain("var(--ab-primary, rgba(196, 196, 255, 0.8))");
     });
     it("keeps only the bottom corners above the bottom window's bar, via --corner-bottom-offset", () => {
         const css = componentCss("BibleView.vue");

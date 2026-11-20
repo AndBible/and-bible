@@ -275,18 +275,7 @@ object BugReport {
         "Exception occurred preparing error text:" + e.message
     }
 
-    private fun getSubject(e: Throwable?): String? {
-        if (e == null || e.stackTrace.isEmpty()) {
-            return applicationVersionName
-        }
-        val stack = e.stackTrace
-        for (elt in stack) {
-            if (elt.className.contains("net.bible")) {
-                return "$applicationVersionName ${e.message}:${elt.className}.${elt.methodName}:${elt.lineNumber}"
-            }
-        }
-        return e.message
-    }
+    private fun getSubject(e: Throwable?): String = errorReportSubject(applicationVersionName, e)
 
     private fun getScreenShot(activity: Activity?): Bitmap? {
         val view = activity?.window?.decorView?.rootView?: return null
@@ -527,3 +516,18 @@ $crashAttachments
 }
 
 const val TAG = "ErrorReportControl"
+
+/**
+ * The bug report subject: the version, the exception message and the crash location. The location is the first
+ * AndBible frame: `net.bible...` (unobfuscated build) or an obfuscated frame (its file is R8's `r8-map-id-...`,
+ * which `scripts/retrace-crash.sh` maps back with the build's mapping), whichever comes first. Release builds are
+ * R8-obfuscated (#4160) but some classes keep their name (activities, `$$serializer`, Parcelables) and can sit
+ * further down the stack than the real crash frame, so `net.bible` alone is not enough. Failing both, the top frame.
+ */
+internal fun errorReportSubject(versionName: String, e: Throwable?): String {
+    val stack = e?.stackTrace
+    if (stack.isNullOrEmpty()) return versionName
+    val frame = stack.firstOrNull { it.className.contains("net.bible") || it.fileName?.startsWith("r8-map-id-") == true }
+        ?: stack.first()
+    return "$versionName ${e.message ?: e.javaClass.name}:${frame.className}.${frame.methodName}:${frame.lineNumber}"
+}

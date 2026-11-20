@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.readingplan
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpOverflowMenu
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -59,7 +61,7 @@ fun ReadingPlanSelectorScreen(
     val strings = LocalStrings.current
     var confirmResetCode by remember { mutableStateOf<String?>(null) }
 
-    AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
+    AbScaffold(title = title, onNavigateUp = onNavigateUp, actions = { AbHelpOverflowMenu(DocsLink.READING_PLANS) }) { padding ->
         val listState = rememberLazyListState()
         LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState)) {
             items(plans, key = { it.planCode }) { plan ->

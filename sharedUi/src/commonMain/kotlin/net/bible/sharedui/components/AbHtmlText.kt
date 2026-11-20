@@ -20,6 +20,8 @@
 package net.bible.sharedui.components
 
 import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedcore.links.ExternalLinkDecision
+import net.bible.sharedcore.links.ExternalLinkPolicy
 import androidx.compose.foundation.Image
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -56,6 +58,9 @@ import androidx.compose.foundation.text.InlineTextContent
 import net.bible.sharedcore.ui.dialog.HtmlRun
 import net.bible.sharedcore.ui.dialog.parseHtmlRuns
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedcore.docs.HelpLinks
+import androidx.compose.runtime.rememberUpdatedState
 
 private const val LEADING_ICON_ID = "leadingIcon"
 
@@ -70,6 +75,31 @@ private const val LEADING_ICON_ID = "leadingIcon"
  */
 fun interface AbLinkOpener { fun open(url: String) }
 val LocalAbLinkOpener = staticCompositionLocalOf<AbLinkOpener?> { null }
+
+/**
+ * Opens Help & tips for a help topic (#4159): the User guide tab scrolled to the topic's page, highlighted. Each host
+ * root provides it (Android `ProvideAppLocals`, the desktop/iOS `HostApp`); a help link ([HelpLinks]) clicked anywhere
+ * under it stays in the app. Null (a preview, a host that cannot navigate) falls back to the topic's guide page.
+ */
+fun interface HelpOpener { fun open(topic: DocsLink) }
+val LocalHelpOpener = staticCompositionLocalOf<HelpOpener?> { null }
+
+/**
+ * The link opener for a Compose item: [LocalAbLinkOpener] when an [AbLinkRouting] provides one (it handles help
+ * links), otherwise help links through [LocalHelpOpener] and everything else through `LocalUriHandler`.
+ */
+@Composable
+fun rememberLinkOpener(): (String) -> Unit {
+    val opener = LocalAbLinkOpener.current
+    val help = LocalHelpOpener.current
+    val uriHandler = LocalUriHandler.current
+    return { url ->
+        if (opener != null) opener.open(url) else {
+            val topic = HelpLinks.parse(url)
+            if (topic != null && help != null) help.open(topic) else uriHandler.openUri(HelpLinks.externalUrl(url))
+        }
+    }
+}
 
 /**
  * Builds the [AnnotatedString] for a dialog's HTML body. Every link is a [LinkAnnotation.Url] with
@@ -116,12 +146,11 @@ fun AbHtmlText(
     leadingIconTint: Color = LocalContentColor.current,
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
-    val opener = LocalAbLinkOpener.current
-    val fallback = LocalUriHandler.current
-    val text = remember(html, linkColor, opener, leadingIcon) {
+    val open by rememberUpdatedState(rememberLinkOpener())
+    val text = remember(html, linkColor, leadingIcon) {
         buildAnnotatedString {
             if (leadingIcon != null) appendInlineContent(LEADING_ICON_ID, "[icon]")
-            append(htmlToAnnotatedString(html, linkColor) { u -> opener?.open(u) ?: fallback.openUri(u) })
+            append(htmlToAnnotatedString(html, linkColor) { u -> open(u) })
         }
     }
     val inlineContent = if (leadingIcon != null) {
@@ -155,13 +184,36 @@ fun AbHtmlText(
  * hidden behind an unrelated request and never needs a second "priority" queue slot.
  */
 @Composable
-fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: @Composable () -> Unit) {
+fun AbLinkRouting(
+    askFirst: Boolean,
+    onOpenExternal: (String) -> Unit,
+    /** Closes the dialog that holds the links before a help link opens Help & tips (it would cover the help screen). */
+    onInAppHelp: () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
     var pending by remember { mutableStateOf<String?>(null) }
     // A fresh AbLinkOpener every recomposition (never remember-keyed on askFirst/onOpenExternal):
     // both are read fresh here, so this can never close over a stale isDiscrete/callback the way
     // keying on them could if a caller passes a fresh lambda identity every recomposition (the
     // common case) while some OTHER key held remember from recomputing.
-    val opener = AbLinkOpener { url -> if (askFirst) pending = url else onOpenExternal(url) }
+    // A help link (#4159) stays in the app: no "open external link?" question. Without a help opener it falls back to
+    // the topic's guide page, which is external and goes through the policy like any other link.
+    // #4155: the shared ExternalLinkPolicy decides. askFirst is the discrete flag here, so a question never offers
+    // "Don't ask again" (discrete always asks) and trusted hosts play no part; the queued askers handle those.
+    val helpOpener = LocalHelpOpener.current
+    val opener = AbLinkOpener { url ->
+        val topic = HelpLinks.parse(url)
+        if (topic != null && helpOpener != null) {
+            onInAppHelp()
+            helpOpener.open(topic)
+        } else {
+            val target = HelpLinks.externalUrl(url)
+            when (ExternalLinkPolicy.decide(target, askRequested = askFirst, discrete = askFirst, trusted = emptySet())) {
+                ExternalLinkDecision.Open -> onOpenExternal(target)
+                is ExternalLinkDecision.Ask -> pending = target
+            }
+        }
+    }
     CompositionLocalProvider(LocalAbLinkOpener provides opener, content = content)
     pending?.let { url ->
         val strings = LocalStrings.current

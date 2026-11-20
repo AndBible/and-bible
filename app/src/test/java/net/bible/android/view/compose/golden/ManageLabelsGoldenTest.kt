@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose.golden
 
+import com.github.takahirom.roborazzi.RoborazziComposeSizeOption
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
@@ -350,7 +351,8 @@ class ManageLabelsGoldenTest {
      * this comment. So **the 110dp tag cap IS still exercisable** -- in WORKSPACE, whose 132dp
      * column is wider than the cap, the cap rather than the column is what stops an intrinsic-width
      * tag from winning the space contest; ASSIGN's 88dp column is narrower than the cap and binds
-     * first, same as before.
+     * first, same as before. (Since issue #4153 a 320dp ASSIGN list draws no trailing grid, so these
+     * ASSIGN figures describe the 480dp-and-up layout; at 320dp its column runs from x=96 to the edge.)
      *
      * What this capture nonetheless does NOT exercise the cap with: the tag text now comes from
      * `Strings` (the axis words), and the golden harness has no fixture-only string override point,
@@ -475,6 +477,7 @@ class ManageLabelsGoldenTest {
     ) = Column {
         ManageLabelsSearchOptionsSheetContent(
             mode = mode,
+            rowTogglesShown = mode != ManageLabelsMode.ASSIGN,
             searchMode = searchMode,
             filters = filters,
             onSetSearchMode = {},
@@ -491,9 +494,7 @@ class ManageLabelsGoldenTest {
         }
     }
 
-    /** ASSIGN: two match-mode rows (no content option) plus the filter section, with the auto-add
-     *  filter ON and the favourite one OFF -- so the image shows both switch states and both icon
-     *  states (filled bolt, hollow heart) in one capture. */
+    /** Narrow ASSIGN: two match-mode rows, no content option and no filters for hidden row states. */
     @Test fun manageLabelsSearchOptions_assign() {
         captureGolden("ManageLabelsSearchOptions", "assign", EDGE_MODE, heightDp = 500) {
             searchOptionsContent(ManageLabelsMode.ASSIGN, filters = setOf(LabelFilter.AUTO_ADD))
@@ -536,7 +537,37 @@ class ManageLabelsGoldenTest {
      *  empty rather than shifting its 🔖 left. Read the columns, not the icons. */
     @Test fun manageLabels_iconGrid() =
         captureMatrix(
-            "ManageLabels", "iconGrid", heightDp = 800,
+            "ManageLabels", "iconGrid",
+            // 480dp, not the harness's 320dp: since issue #4153 a narrow ASSIGN list draws no
+            // trailing grid at all (manageLabelsRowTogglesShown), so the grid this golden is about
+            // only exists from NarrowAssignMaxWidth up. The narrow case is manageLabels_assign_narrowLongNames.
+            captureOptions = listOf(RoborazziComposeSizeOption(widthDp = 480, heightDp = 800)),
             content = screen(ManageLabelsMode.ASSIGN, rows = iconGridRows()),
+        )
+
+    /** Issue #4153: the bookmark's label picker at the 320dp phone width. No ⚡/♥/🔖 columns (they
+     *  live in the label's editor there), so a long name gets the row from the glyph to the edge and
+     *  may wrap to a second line before it is ellipsized. */
+    private fun narrowLongNameRows(): List<ManageLabelsRow> = listOf(
+        ManageLabelsRow.Header(LabelCategory.ACTIVE),
+        ManageLabelsRow.Item(
+            label = label("N1", "Promises and blessings of the covenant", favourite = true),
+            checked = true, isAutoAssign = true, isPrimary = true, highlighted = false,
+        ),
+        ManageLabelsRow.Header(LabelCategory.OTHER),
+        ManageLabelsRow.Item(
+            label = label("N2", "Lessons on prayer, faith and perseverance from the parables of Jesus", color = AbColor.palette[1]),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label("N3", "Short", color = AbColor.palette[2]),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
+    )
+
+    @Test fun manageLabels_assign_narrowLongNames() =
+        captureMatrix(
+            "ManageLabels", "assign_narrowLongNames", heightDp = 600,
+            content = screen(ManageLabelsMode.ASSIGN, rows = narrowLongNameRows()),
         )
 }

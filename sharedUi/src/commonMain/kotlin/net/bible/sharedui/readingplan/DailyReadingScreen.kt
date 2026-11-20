@@ -1,7 +1,7 @@
 package net.bible.sharedui.readingplan
 
-import net.bible.sharedcore.docs.TutorialVideos
-import net.bible.sharedui.components.AbWatchVideoMenuItem
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpMenuItem
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -146,7 +146,7 @@ fun DailyReadingScreen(
                             onClick = { close(); onImportPlan() },
                             icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
                         )
-                        AbWatchVideoMenuItem(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS, close)
+                        AbHelpMenuItem(DocsLink.READING_PLANS, close)
                     }
                 },
             )

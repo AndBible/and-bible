@@ -52,14 +52,18 @@ class HistoryManager constructor(
     private var isGoingBack = false
 
     // reverse so most recent items are at top rather than end
-    fun getHistory(windowId: IdType): List<HistoryItem> = historySnapshot(windowId).asReversed()
+    fun getHistory(windowId: IdType): List<HistoryItem> = historySnapshot(windowId).filter { it.isAvailable() }.asReversed()
 
     private fun historySnapshot(windowId: IdType): List<HistoryItem> = withMonitor(historyLock) {
         windowHistoryStackMap[windowId]?.toList() ?: emptyList()
     }
 
+    // Never read a document under historyLock: the backend may need database access.
+    private fun HistoryItem.isAvailable(): Boolean = this !is KeyHistoryItem || isAvailable
+
     fun getEntities(windowId: IdType): List<WorkspaceEntities.HistoryItem> {
         var lastItem: KeyHistoryItem? = null
+        // Persist the raw snapshot: an empty MyDocument index during sync is not proof of deletion.
         // Key/document access may be expensive: only copying the stack needs the history monitor.
         return historySnapshot(windowId).mapNotNull {
             if (it is KeyHistoryItem) {
@@ -108,7 +112,7 @@ class HistoryManager constructor(
 
     fun canGoBack(): Boolean {
         val windowId = windowControl.activeWindow.id
-        return withMonitor(historyLock) { windowHistoryStackMap[windowId]?.isNotEmpty() == true }
+        return historySnapshot(windowId).any { it.isAvailable() }
     }
 
     /**
@@ -121,7 +125,7 @@ class HistoryManager constructor(
         val activeWindow = window ?: windowControl.activeWindow
         if (withMonitor(historyLock) { isGoingBack }) return
         val item = createHistoryItem(activeWindow, screenToken)
-        add(activeWindow.id, item)
+        if (item != null && item.isAvailable()) add(activeWindow.id, item)
     }
 
     fun popHistoryItem() {
@@ -162,7 +166,8 @@ class HistoryManager constructor(
         return historyItem
     }
 
-    fun goBack() {
+    /** Returns false when no surviving destination could be replayed. */
+    fun goBack(): Boolean {
         val windowId = windowControl.activeWindow.id
         val previousItem = withMonitor(historyLock) {
             if (isGoingBack) return@withMonitor null
@@ -170,12 +175,19 @@ class HistoryManager constructor(
             if (stack.isNullOrEmpty()) return@withMonitor null
             isGoingBack = true
             stack.removeAt(stack.lastIndex)
-        } ?: return
+        } ?: return false
 
         try {
-            // Navigation can re-enter history recording; never call it while holding the monitor.
-            Log.i(TAG, "Going back to:$previousItem")
-            previousItem.revertTo()
+            var destination = previousItem
+            // Replay validates the destination too: a history sheet/precheck can outlive its page.
+            while (!destination.tryRevertTo()) {
+                destination = withMonitor(historyLock) {
+                    windowHistoryStackMap[windowId]?.let { stack ->
+                        if (stack.isEmpty()) null else stack.removeAt(stack.lastIndex)
+                    }
+                } ?: return false
+            }
+            Log.i(TAG, "Went back to:$destination")
 
             // Leave the screen on top when it is not the reading view. Both questions are asked
             // of the platform: leaving is a HOST operation (a classic Activity finishes, the
@@ -186,6 +198,7 @@ class HistoryManager constructor(
             if (!platform.isOnReadingScreen()) {
                 platform.leaveCurrentScreen()
             }
+            return true
         } finally {
             withMonitor(historyLock) { isGoingBack = false }
         }

@@ -114,7 +114,7 @@ opens [Download Documents](documents.md#download-documents) and `Bookmarks` open
 | `Study Pads` | Opens the list of labels to choose a [Study Pad](study_pads.md) from |
 | `Device synchronization` | Shown only where it is available |
 | `Read/Memory Progress` | [Reading progress](reading_progress.md) and [memorization](memorize.md) |
-| `Help & tips` | Short help topics with links to the manual and the tutorial videos, and the app version |
+| `Help & tips` | The user guide contents with the tutorial videos, and short help topics (Tips) with the app version |
 | `Buy development work` | Opens the development shop in your browser (Android only) |
 | `Questions?` | Opens the [support page](support.md) in your browser |
 | `Recommend to a friend` | A QR code and a link to share, see [Sharing on Android](support.md#sharing-on-android) |
@@ -211,10 +211,11 @@ For more information about managing workspaces, see [Workspaces](workspaces.md).
 
 When sync is configured, **Sync now** is the first row of this section.
 
-On desktop and iOS (including iOS on a Mac) the top right three-dot menu (⋮)
+The top right three-dot menu (⋮)
 can show what the app is doing in the background, such as downloads, search
-indexing and sync. On Android the same information is shown as system
-notifications, so this is off by default there. Turn it on or off with
+indexing and sync. This is on by default on every platform. On Android it
+complements the system notifications, which are not affected by this setting.
+Turn it on or off with
 *Show background activity in the menu* in the *Look & feel* section of the
 application settings (see [Appearance and settings](look_and_feel.md#look-feel)).
 

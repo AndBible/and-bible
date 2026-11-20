@@ -26,8 +26,8 @@ class TutorialVideosEpisodesTest {
         val episodes = episodesDir() ?: return
         val folders = episodes.listFiles { f -> f.isDirectory && File(f, "youtube.yaml").isFile }!!
             .map { it.name }
-            // The placeholder has its own constant, and the PoC is not part of the series.
-            .filter { it != "placeholder-coming-soon" && it != "poc-title-bar-search" }
+            // The placeholder has its own constant; the PoC and the 6.0 teaser are not part of the series.
+            .filter { it != "placeholder-coming-soon" && it != "poc-title-bar-search" && it != "teaser-6-0" }
             .toSortedSet()
         val registry = TutorialVideos.Episode.entries.map { it.slug }.toSortedSet()
         assertEquals(registry, folders)

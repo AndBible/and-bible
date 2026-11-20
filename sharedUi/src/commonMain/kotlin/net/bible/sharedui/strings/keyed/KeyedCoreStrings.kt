@@ -201,6 +201,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val help: String get() = t.text("help")
     override val helpMemorizeText: String get() = t.text("help_memorize_text")
     override val helpReadMoreLink: String get() = t.text("help_read_more_link")
+    override val helpInUserGuide: String get() = t.text("help_in_user_guide")
     override val verseTip: String get() = t.text("verse_tip")
     override val helpBookmarksText: String get() = t.text("help_bookmarks_text")
     override val watchTutorialVideo: String get() = t.text("watch_tutorial_video")

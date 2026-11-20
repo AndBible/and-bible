@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.nav.ports
 
-import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.HelpLinks
 import net.bible.android.AppDialogControllerResetRule
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -40,10 +40,9 @@ class AndroidHelpDialogsTest {
         val notice = assertIs<AppDialogRequest.Notice>(assertNotNull(dialogs.pending.value).request)
         val html = assertIs<AppDialogRequest.NoticeBlock.Html>(notice.blocks.first()).html
         assertContains(html, "<b>${activity.getString(R.string.help_workspaces_title)}</b>")
-        assertContains(html, "href=\"${DocsLink.WORKSPACES.url}\"")
-        assertContains(html, "href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES, "en")}\"")
-        // English app: the video label carries no "(English)" qualifier.
-        assertContains(html, ">${activity.getString(R.string.watch_tutorial_video_plain)}</a>")
+        // #4159: one link into the in-app user guide's Workspaces page (with its video) instead of video + manual.
+        assertContains(html, "<a href=\"${HelpLinks.url(DocsLink.WORKSPACES)}\">${activity.getString(R.string.help_in_user_guide)}</a>")
+        assertFalse(html.contains("youtube"))
         assertIs<AppDialogRequest.NoticeBlock.IconLine>(notice.blocks.last())
     }
 

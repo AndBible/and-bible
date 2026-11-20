@@ -42,7 +42,7 @@ import net.bible.service.common.displayName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import net.bible.sharedcore.bookmark.BookmarksController
-import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.bookmark.DeletePrompt
 import net.bible.sharedcore.bookmark.LabelEditController
 import net.bible.sharedcore.bookmark.LabelEditResult as ControllerLabelEditResult
@@ -270,6 +270,7 @@ class BookmarkHost(
                 iconSlot = { customIcon, tint, studyPadMode ->
                     icons.ManageLabelIcon(customIcon, tint, studyPadMode)
                 },
+                onRowTogglesShownChange = { manageLabelsRowTogglesShown = it },
                 actions = { controller -> ManageLabelsActions(controller) },
                 searchActions = { controller ->
                     NewLabelIcon(onClick = controller::newLabel)
@@ -628,6 +629,8 @@ class BookmarkHost(
 
     /** Raised from the ManageLabels overflow; rendered host-level in [Overlays]. */
     internal var manageLabelsHelpOpen by mutableStateOf(false)
+    // Published by the constrained list, not inferred from this overlay's window.
+    private var manageLabelsRowTogglesShown by mutableStateOf(true)
     internal var manageLabelsExportOpen by mutableStateOf(false)
 
     private fun manageLabelsControllerFor(
@@ -1259,6 +1262,7 @@ class BookmarkHost(
             manageLabelsSession?.second?.let { session ->
                 ManageLabelsHelpDialog(
                     mode = session.controller.mode,
+                    rowTogglesShown = manageLabelsRowTogglesShown,
                     title = manageLabelsTitle(session.data.mode),
                     // Classic showed this only for WORKSPACE and HIDE, the two scoped
                     // settings (`ManageLabelsComposeActivity.kt:254-263`).
@@ -1270,10 +1274,10 @@ class BookmarkHost(
                             if (session.data.isWindow) strings.settingScopeWindow else strings.settingScopeWorkspace,
                         )
                     } else null,
-                    // STUDYPAD keeps its own video; the other three modes use the
-                    // Labels & highlights one. Don't collapse this to one episode.
-                    videoEpisode = if (session.controller.mode == ManageLabelsMode.STUDYPAD) TutorialVideos.Episode.TUTORIAL_11_STUDY_PADS
-                    else TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+                    // STUDYPAD keeps its own guide page; the other three modes use the
+                    // Labels & highlights one. Don't collapse this to one topic.
+                    helpTopic = if (session.controller.mode == ManageLabelsMode.STUDYPAD) DocsLink.STUDY_PADS
+                    else DocsLink.LABELS,
                     onDismiss = { manageLabelsHelpOpen = false },
                 )
             }

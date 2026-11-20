@@ -60,9 +60,10 @@ import net.bible.sharedui.strings.LocalStrings
 @Composable
 fun ManageLabelsHelpDialog(
     mode: ManageLabelsMode,
+    rowTogglesShown: Boolean,
     title: String,
     scopeSentence: String?,
-    videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode,
+    helpTopic: net.bible.sharedcore.docs.DocsLink,
     onDismiss: () -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -73,11 +74,12 @@ fun ManageLabelsHelpDialog(
         ManageLabelsMode.STUDYPAD -> strings.studyPadsHelpText
     }
     val body = if (scopeSentence != null) "$intro\n\n$scopeSentence" else intro
+    // The list owns this decision: a pane can be narrower than either host or dialog window.
     AbInfoDialog(
         title = title,
         body = body,
         onDismiss = onDismiss,
-        videoEpisode = videoEpisode,
+        helpTopic = helpTopic,
         content = if (mode == ManageLabelsMode.STUDYPAD) null else {
             {
                 Spacer(Modifier.height(12.dp))
@@ -93,12 +95,18 @@ fun ManageLabelsHelpDialog(
                         // this row too, matching all five icon rows below it.
                         HelpRow({ Checkbox(checked = true, onCheckedChange = null) }, strings.manageLabelsHelpCheckbox)
                     }
-                    if (mode.primaryShown) {
+                    // Issue #4153: a narrow ASSIGN list draws none of these three glyphs, and the
+                    // legend never names a glyph that is not on screen -- so it says where they went.
+                    if (mode.primaryShown && rowTogglesShown) {
                         HelpRow({ Icon(Icons.Filled.Bookmark, null) }, strings.manageLabelsHelpPrimary)
                     }
-                    if (mode.workspaceEdits) {
+                    if (mode.workspaceEdits && rowTogglesShown) {
                         HelpRow({ Icon(AbIcons.BoltOutline, null) }, strings.manageLabelsHelpAutoAssign)
                         HelpRow({ Icon(Icons.Filled.Favorite, null) }, strings.manageLabelsHelpFavourite)
+                    }
+                    if (!rowTogglesShown) {
+                        Text(strings.manageLabelsHelpNarrowToggles, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(8.dp))
                     }
                     if (mode.styleTagsShown) {
                         // TextFormat, not Tune: this row is about the style EXAMPLES, and after

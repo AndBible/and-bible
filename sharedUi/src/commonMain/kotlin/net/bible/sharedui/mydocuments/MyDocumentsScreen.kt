@@ -16,6 +16,8 @@
  */
 package net.bible.sharedui.mydocuments
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpOverflowMenu
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -126,6 +128,7 @@ fun MyDocumentsScreen(
             if (!searchModeActive) {
                 AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
                 AbActionIcon(Icons.Filled.Add, s.newItem) { createOpen = true }
+                AbHelpOverflowMenu(DocsLink.MY_DOCUMENTS)
             }
         },
         selectionActions = {

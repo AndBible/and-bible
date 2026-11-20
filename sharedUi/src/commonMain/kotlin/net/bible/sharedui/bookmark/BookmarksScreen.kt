@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.bookmark
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpMenuItem
 import net.bible.sharedui.theme.inkBookmarkLabelColors
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -183,6 +185,7 @@ fun BookmarksScreen(
                 onClick = onCycleSort,
             )
             AbOverflowMenu(contentDescription = null) { close ->
+                AbHelpMenuItem(DocsLink.BOOKMARKS, close)
                 AbMenuItem(
                     text = strings.showNotesLabel,
                     onClick = { close(); onToggleShowNotes() },

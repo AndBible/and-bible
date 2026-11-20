@@ -28,7 +28,7 @@ class HelpAndTipsTest {
     @Test fun optionalSponsorDoesNotRemoveHelpDocsOrVersionAndDefaultsToAndroidBehavior() {
         val table = StringTable("en", { it }, { key, args -> key + args.joinToString() }, { n, _ -> n }, { emptyList() })
         val core = DocumentDialogsCore(AppDialogController(), { table })
-        val items = listOf(DocumentDialogsCore.HelpItem("Navigation", "Body", docUrl = DocsLink.NAVIGATION.url))
+        val items = listOf(DocumentDialogsCore.HelpItem("Navigation", "Body", DocsLink.NAVIGATION))
         val android = core.helpNotice(items, versionMsg = "Version 1")
         assertTrue(android.blocks.any { it is AppDialogRequest.NoticeBlock.IconLine })
         val ios = core.helpNotice(items, versionMsg = "Version 1", includeSponsor = false)
@@ -36,7 +36,7 @@ class HelpAndTipsTest {
         val html = ios.blocks.filterIsInstance<AppDialogRequest.NoticeBlock.Html>().map { it.html }
         assertEquals(3, html.size)
         assertContains(html[0], "<b>Navigation</b>")
-        assertContains(html[0], DocsLink.NAVIGATION.url)
+        assertContains(html[0], net.bible.sharedcore.docs.HelpLinks.url(DocsLink.NAVIGATION))
         assertContains(html[1], DocsLinks.BASE_URL)
         assertEquals("<i>Version 1</i>", html[2])
         assertFalse(html.joinToString().contains("shop.andbible.org"))

@@ -75,7 +75,6 @@ import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentLogSnapshot
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingModelVd
-import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.settings.BackgroundImageOption
 import net.bible.sharedcore.settings.ColorField
@@ -728,23 +727,23 @@ class ReadingHostSlotsTest {
     // ---- speak settings ----------------------------------------------------------------------
 
     @Test
-    fun speakHelpHtmlContainsTheVideoLink() {
+    fun speakHelpHtmlLinksTheUserGuideSpeakPage() {
         val (slots, _) = slots()
         slots.showSpeakHelp()
         val speakHtml = slots.speakHelp.value
         assertTrue(
-            speakHtml != null && speakHtml.contains("<a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK, "en")}\">${strings.watchTutorialVideoPlain}</a>"),
-            "speak help must link the Speak tutorial, was: $speakHtml",
+            speakHtml != null && speakHtml.contains("<a href=\"${net.bible.sharedcore.docs.HelpLinks.url(net.bible.sharedcore.docs.DocsLink.SPEAK)}\">${strings.helpInUserGuide}</a>"),
+            "speak help must link the guide's Speak page, was: $speakHtml",
         )
         slots.showAdvancedSpeakHelp()
         val advancedHtml = slots.speakHelp.value
         assertTrue(
             advancedHtml != null &&
-                advancedHtml.contains("<a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK, "en")}\">${strings.watchTutorialVideoPlain}</a>") &&
+                advancedHtml.contains("<a href=\"${net.bible.sharedcore.docs.HelpLinks.url(net.bible.sharedcore.docs.DocsLink.SPEAK)}\">${strings.helpInUserGuide}</a>") &&
                 advancedHtml.contains(strings.speakHelpAutoBookmark) &&
                 advancedHtml.contains(strings.speakHelpPlaybackSettings) &&
                 advancedHtml.contains(strings.speakHelpPlaybackSettingsExample),
-            "advanced help must carry the video link and all three explanations, was: $advancedHtml",
+            "advanced help must carry the help link and all three explanations, was: $advancedHtml",
         )
     }
 
