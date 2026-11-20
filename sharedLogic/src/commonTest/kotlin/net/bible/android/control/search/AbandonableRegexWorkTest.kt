@@ -231,4 +231,61 @@ class AbandonableRegexWorkTest {
         }
         assertEquals(0, abandonedRegexWorkRunning)
     }
+
+    // ---- the priority of an abandoned worker ----
+
+    private class FakePriority : RegexWorkerPriority {
+        val events = mutableListOf<String>()
+        override fun begin(): Any? { events += "begin"; return "h" }
+        override fun lower(handle: Any?) { events += "lower:$handle" }
+        override fun restore(handle: Any?) { events += "restore:$handle" }
+    }
+
+    private suspend fun <T> withFakePriority(fake: FakePriority, block: suspend () -> T): T {
+        val original = regexWorkerPriority
+        regexWorkerPriority = fake
+        try { return block() } finally { regexWorkerPriority = original }
+    }
+
+    @Test fun anAbandonedScanIsLoweredAndRestoredWhenItsEngineReturns() = realTime {
+        waitForNoAbandonedWork()
+        val fake = FakePriority()
+        val blocker = Blocker()
+        withFakePriority(fake) {
+            try {
+                scanWithinBudget(listOf("A"), 100.milliseconds, grace = 100.milliseconds) { _, budget -> blocker.block(budget); "x" }
+                assertEquals(listOf("begin", "lower:h"), fake.events.toList())
+            } finally {
+                released(blocker)
+            }
+            withTimeoutOrNull(5.seconds) { while (fake.events.size < 3) delay(10) }
+            assertEquals(listOf("begin", "lower:h", "restore:h"), fake.events.toList())
+        }
+    }
+
+    @Test fun anAbandonedHighlightIsLoweredAndRestored() = realTime {
+        waitForNoAbandonedWork()
+        val fake = FakePriority()
+        val blocker = Blocker()
+        withFakePriority(fake) {
+            try {
+                highlightWithinAllowance(listOf(StyledText.plain("a")), 100.milliseconds, grace = 100.milliseconds) { t, budget -> blocker.block(budget); t }
+                assertEquals(listOf("begin", "lower:h"), fake.events.toList())
+            } finally {
+                released(blocker)
+            }
+            withTimeoutOrNull(5.seconds) { while (fake.events.size < 3) delay(10) }
+            assertEquals("restore:h", fake.events.last())
+        }
+    }
+
+    @Test fun aWorkerThatFinishesInTimeIsNeverLowered() = realTime {
+        val fake = FakePriority()
+        withFakePriority(fake) {
+            scanWithinBudget(listOf("A", "B"), 5.seconds) { item, _ -> item }
+            highlightWithinAllowance(listOf(StyledText.plain("a")), 5.seconds) { t, _ -> t }
+        }
+        assertTrue(fake.events.none { it.startsWith("lower") }, "events: ${fake.events}")
+        assertTrue(fake.events.none { it.startsWith("restore") }, "nothing lowered, so nothing to restore: ${fake.events}")
+    }
 }

@@ -154,7 +154,11 @@ The three search types treat what you type differently:
 
 ### Regular expressions
 
-In the search settings of the reading screen, the **Regular expression** switch (below the search type row) makes
+**Experimental.** Regular-expression search is experimental. A pattern that the safety check described below misses
+can, on Android, keep computing in the background until you restart the app, and regular-expression search is refused
+while it does.
+
+In the search settings of the reading screen, the **Regular expression (experimental)** switch (below the search type row) makes
 AndBible read what you type as a regular expression instead of search words. While the switch is on, the three search
 types (`Phrase`, `All words`, `Any word`) are disabled, because they do not apply; the settings summary shows `Regex`.
 The older search form that some menus and links open does not have this switch yet.
@@ -197,7 +201,8 @@ words. An expression with more than six open-ended wildcards (`.*`, `\w+`, `[^,]
 Small bounded repeats such as `(\d{1,3}\.){3}` are fine. This check is not a proof, and a slow expression
 that it lets through is still stopped at the time limit. On Android the regular-expression engine cannot be
 interrupted: such an expression is abandoned after about 3 seconds, but its computation keeps running in the
-background until it finishes, which may be never. While one is running, a new regular-expression search is refused
+background until it finishes, which may be never (AndBible gives that background work the lowest thread priority, so it
+disturbs the rest of the app as little as possible, but it still uses a processor core). While one is running, a new regular-expression search is refused
 with a message that asks you to try again in a moment or restart the app. Desktop and iOS stop the match itself at the
 time limit.
 
