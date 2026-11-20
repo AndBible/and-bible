@@ -49,7 +49,7 @@ class HelpLinkOpenerTest {
         }
         compose.onNodeWithText("help me").performClick()
         val context = ApplicationProvider.getApplicationContext<android.app.Application>()
-        compose.onNodeWithText(context.getString(R.string.external_link)).assertDoesNotExist()
+        compose.onNodeWithText(context.getString(R.string.external_link_open_question)).assertDoesNotExist()
         val started = assertNotNull(shadowOf(context).nextStartedActivity)
         assertEquals(NavHostComposeActivity::class.java.name, started.component?.className)
         assertEquals(NavRoutes.help(DocsLink.SPEAK), started.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))

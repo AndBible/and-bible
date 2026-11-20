@@ -38,8 +38,9 @@ class FailClosedLinkRoutingTest {
             }
         }
         onNodeWithText("Read more").performClick()
-        onNodeWithText(strings.externalLinkQuestion(url)).assertExists()
-        onNodeWithText(strings.okay).performClick()
+        onNodeWithText(strings.externalLinkOpenQuestion).assertExists()
+        onNodeWithText(url).assertExists()
+        onNodeWithText(strings.openAction).performClick()
         kotlin.test.assertEquals(listOf(url), links.opened)
     }
 

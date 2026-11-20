@@ -91,13 +91,19 @@ class ExternalLinksTrustTest {
             val links = Links(discrete, TrustedLinkDomains(MemoryAppSettings()))
             val dialogs = AppDialogController()
             links.confirmAndOpen(url, dialogs) { strings }
-            val message = when (val question = dialogs.shownRequest()) {
-                is AppDialogRequest.Confirm -> question.message
-                is AppDialogRequest.Options -> question.message
+            val shown = when (val question = dialogs.shownRequest()) {
+                is AppDialogRequest.Confirm -> {
+                    assertEquals(strings.openAction, question.confirmText)
+                    question.title to question.detail
+                }
+                is AppDialogRequest.Options -> {
+                    assertEquals(listOf(strings.openAction), question.options.map { it.label })
+                    question.title to net.bible.sharedcore.ui.dialog.parseHtmlRuns(question.message!!).joinToString("") { it.text }
+                }
                 else -> error("unexpected question: $question")
             }
-            assertEquals(strings.externalLinkQuestion(url),
-                net.bible.sharedcore.ui.dialog.parseHtmlRuns(message!!).joinToString("") { it.text })
+            assertEquals(strings.externalLinkOpenQuestion, shown.first)
+            assertEquals(url, shown.second)
             dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
             assertEquals(listOf(url), links.opened)
         }

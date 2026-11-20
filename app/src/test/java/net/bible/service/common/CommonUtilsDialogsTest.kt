@@ -326,7 +326,8 @@ class CommonUtilsDialogsTest {
             val question = dialogs.pending.value!!.let { (it.request as? AppDialogRequest.Localized)?.resolve() ?: it.request }
             question as AppDialogRequest.Options
             assertEquals(application.getString(R.string.external_link_dont_ask_again, "www.youtube.com"), question.checkboxLabel)
-            assertEquals(application.getString(R.string.external_link_question, url), question.message)
+            assertEquals(application.getString(R.string.external_link_open_question), question.title)
+            assertEquals(url, net.bible.sharedcore.ui.dialog.parseHtmlRuns(question.message!!).joinToString("") { it.text })
             assertNull(shadowOf(activity).nextStartedActivityForResult)
 
             dialogs.respond(dialogs.pending.value!!.id,
@@ -375,7 +376,7 @@ class CommonUtilsDialogsTest {
         testDispatcher.scheduler.advanceUntilIdle()
         val request = dialogs.pending.value!!.request
         val question = (request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
-        assertEquals(application.getString(R.string.external_link_question, url),
+        assertEquals(url,
             net.bible.sharedcore.ui.dialog.parseHtmlRuns(question.message!!).joinToString("") { it.text })
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
         assertEquals(url, shadowOf(activity).nextStartedActivityForResult.intent.data.toString())
