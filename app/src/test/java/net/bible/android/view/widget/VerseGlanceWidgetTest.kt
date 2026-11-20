@@ -137,4 +137,27 @@ class VerseGlanceWidgetTest {
         assertTrue("shuffling reaches other verses", picks.toSet().size > 1)
         assertNull(VerseWidgetConfigStore.shuffle(context, 99))
     }
+
+    @Test fun restoredWidgetsKeepTheirConfigUnderTheNewIds() {
+        val other = config.copy(seed = 77L)
+        VerseWidgetConfigStore.save(context, 21, config)
+        VerseWidgetConfigStore.save(context, 22, other)
+        // ids swap, and a widget without a config is skipped
+        VerseWidgetReceiver().onRestored(context, intArrayOf(21, 22, 23), intArrayOf(22, 24, 25))
+        assertEquals(config, VerseWidgetConfigStore.load(context, 22))
+        assertEquals(other, VerseWidgetConfigStore.load(context, 24))
+        assertNull(VerseWidgetConfigStore.load(context, 21))
+        assertNull(VerseWidgetConfigStore.load(context, 25))
+    }
+
+    @Test fun aDefaultIsOnlyStoredWhenNoConfigExists() {
+        val chosen = config.copy(seed = 5L)
+        // nothing saved: the default is stored and returned, and is stable
+        val first = VerseWidgetConfigStore.loadOrSaveDefault(context, 31) { config.copy(seed = 6L) }
+        assertEquals(config.copy(seed = 6L), first)
+        assertEquals(first, VerseWidgetConfigStore.loadOrSaveDefault(context, 31) { error("not needed") })
+        // a config saved by the configure screen is never replaced, the default is not even built
+        VerseWidgetConfigStore.save(context, 32, chosen)
+        assertEquals(chosen, VerseWidgetConfigStore.loadOrSaveDefault(context, 32) { error("not needed") })
+    }
 }

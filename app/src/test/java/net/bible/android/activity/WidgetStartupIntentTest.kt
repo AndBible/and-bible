@@ -34,9 +34,9 @@ class WidgetStartupIntentTest {
     fun speechWidgetContentOpensStartupWithoutInstalledModules() = withoutInstalledModules {
         val state = net.bible.android.view.widget.stoppedState()
         val widgets: List<Pair<String, @androidx.compose.runtime.Composable () -> Unit>> = listOf(
-            "speak" to { net.bible.android.view.widget.SpeakStripContent(state, strings, 334.dp) },
-            "speak text" to { net.bible.android.view.widget.SpeakTextContent(state, strings, 334.dp, 182.dp) },
-            "listening list" to { net.bible.android.view.widget.ListeningListContent(state, strings, 334.dp, 182.dp) },
+            "speak" to { net.bible.android.view.widget.SpeakStripContent(state, strings, 280.dp) },
+            "speak text" to { net.bible.android.view.widget.SpeakTextContent(state, strings, 280.dp, 130.dp) },
+            "listening list" to { net.bible.android.view.widget.ListeningListContent(state, strings, 280.dp, 130.dp) },
         )
         for ((name, content) in widgets) {
             val view = net.bible.android.view.widget.renderWidget(app, 334, 182, content = content)

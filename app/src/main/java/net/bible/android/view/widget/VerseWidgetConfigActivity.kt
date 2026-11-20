@@ -25,6 +25,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import android.content.Context
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +34,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.control.widget.VerseCandidates
 import net.bible.android.control.widget.VerseWidgetConfig
 import net.bible.android.control.widget.VerseWidgetSources
+import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.sharedui.AbAppTheme
 import org.koin.mp.KoinPlatform
@@ -47,13 +49,18 @@ class VerseWidgetConfigActivity : ComponentActivity() {
     private var existing: VerseWidgetConfig? = null
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
+    /** Follows the in-app language, like [net.bible.android.view.activity.base.ActivityBase]. */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.localized(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appWidgetId = intent?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
             ?: AppWidgetManager.INVALID_APPWIDGET_ID
         // Backing out must leave the widget unplaced.
         setResult(Activity.RESULT_CANCELED, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId))
-        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) { finish(); return }
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID || !isVerseWidget(appWidgetId)) { finish(); return }
         existing = VerseWidgetConfigStore.load(this, appWidgetId)
         setContent {
             AbAppTheme {
@@ -81,6 +88,10 @@ class VerseWidgetConfigActivity : ComponentActivity() {
             }
         }
     }
+
+    /** Only a Verse widget is configured here; a launcher or another app could send any id. */
+    private fun isVerseWidget(id: Int): Boolean =
+        AppWidgetManager.getInstance(this).getAppWidgetInfo(id)?.provider?.className == VerseWidgetReceiver::class.java.name
 
     private fun save(config: VerseWidgetConfig) {
         VerseWidgetConfigStore.save(this, appWidgetId, config)

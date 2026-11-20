@@ -105,7 +105,7 @@ class LocaleWithoutRestartTest {
     @Test fun theSpeakWidgetTitleFollowsALanguageChange() {
         val strings = net.bible.android.platform.AndroidWidgetStrings(app)
         fun title() = net.bible.android.view.widget.renderWidget(app, 334, 182) {
-            net.bible.android.view.widget.SpeakTextContent(net.bible.android.view.widget.stoppedState(), strings, 334.dp, 182.dp)
+            net.bible.android.view.widget.SpeakTextContent(net.bible.android.view.widget.stoppedState(), strings, 280.dp, 130.dp)
         }.texts()
         val english = app.getString(R.string.app_name_medium)
         assertTrue(title().contains(english))

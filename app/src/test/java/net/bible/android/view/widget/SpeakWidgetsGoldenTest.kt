@@ -21,16 +21,17 @@ class SpeakWidgetsGoldenTest {
 
     @Test fun speakStrips_allModes() {
         for (mode in WidgetMode.entries) {
-            for ((cells, w) in listOf(2 to 162, 3 to 248, 4 to 334, 5 to 420)) {
-                captureWidget(context, "speak_${cells}x1_speaking", w, 86, mode) { SpeakStripContent(speakingState(), strings, w.dp) }
-                captureWidget(context, "speak_${cells}x1_stopped", w, 86, mode) { SpeakStripContent(stoppedState(), strings, w.dp) }
+            for ((cells, w) in listOf(1 to 56, 2 to 162, 3 to 210, 4 to 280, 5 to 350)) {
+                val h = if (cells == 1) 56 else 86
+                captureWidget(context, "speak_${cells}x1_speaking", w, h, mode) { SpeakStripContent(speakingState(), strings, w.dp) }
+                captureWidget(context, "speak_${cells}x1_stopped", w, h, mode) { SpeakStripContent(stoppedState(), strings, w.dp) }
             }
         }
     }
 
     @Test fun speakTextWidgets_allModes() {
         for (mode in WidgetMode.entries) {
-            for ((name, size) in listOf("3x2" to (248 to 182), "4x2" to (334 to 182), "4x3" to (334 to 278))) {
+            for ((name, size) in listOf("2x2" to (130 to 130), "3x2" to (210 to 130), "4x2" to (280 to 130), "4x3" to (280 to 200))) {
                 val (w, h) = size
                 captureWidget(context, "speaktext_${name}_speaking", w, h, mode) { SpeakTextContent(speakingState(), strings, w.dp, h.dp) }
                 captureWidget(context, "speaktext_${name}_stopped", w, h, mode) { SpeakTextContent(stoppedState(), strings, w.dp, h.dp) }

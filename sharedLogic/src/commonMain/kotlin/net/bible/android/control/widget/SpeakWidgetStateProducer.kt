@@ -109,7 +109,8 @@ class SpeakWidgetStateProducer(
         }
         while (true) {
             val current = job.value
-            if (current != null && !current.isCompleted) {
+            // A cancelled run still unwinding (isCancelled, not yet completed) is not running; a LAZY one not yet started is.
+            if (current != null && !current.isCompleted && !current.isCancelled) {
                 fresh.cancel()
                 return
             }

@@ -31,7 +31,9 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
+import androidx.glance.layout.Box
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import net.bible.android.control.widget.SpeakPhase
@@ -40,16 +42,19 @@ import net.bible.android.control.widget.WidgetStrings
 import net.bible.android.activity.R
 
 /**
- * The Speak widget: one strip, 2x1 to 5x1 cells. The legacy Small, Middle and Large providers render it too.
+ * The Speak widget: one strip, 1x1 (play only, for an old Small widget placed that small) and 2x1 to 5x1 cells. The legacy Small, Middle and Large providers render it too.
  * Content by width: [stripColumns].
  */
 class SpeakGlanceWidget : GlanceAppWidget() {
-    override val sizeMode = SizeMode.Responsive(SPEAK_BREAKPOINT_DP.map { DpSize(it.dp, 40.dp) }.toSet())
+    override val sizeMode = SizeMode.Responsive((listOf(SPEAK_TINY_DP) + SPEAK_BREAKPOINT_DP).map { DpSize(it.dp, 40.dp) }.toSet())
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideWidgetContent(context) { state, strings ->
         SpeakStripContent(state, strings, LocalSize.current.width)
     }
 }
+
+/** Side of the small transport buttons: six of them plus the play button fit the 250 dp of a 4x1 strip. */
+private val BTN = 26.dp
 
 /** What a Speak strip of [width] shows. */
 @Composable
@@ -57,9 +62,15 @@ fun SpeakStripContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp
     val columns = stripColumns(width)
     val speaking = state.phase == SpeakPhase.SPEAKING
     val percentFraction = (state.percent ?: 0) / 100f
+    if (columns == 1) {
+        WidgetRoot(openAppAction(), padding = 4.dp) {
+            Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.Center) { SpeakPlayButton(state, 32.dp) }
+        }
+        return
+    }
     WidgetRoot(openAppAction(), padding = 10.dp) {
         Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            SpeakPlayButton(state, if (columns >= 4) 52.dp else 44.dp)
+            SpeakPlayButton(state, if (columns >= 4) 44.dp else 40.dp)
             Gap(8.dp)
             Column(modifier = GlanceModifier.defaultWeight()) {
                 when (columns) {
@@ -85,8 +96,8 @@ fun SpeakStripContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp
                             WidgetText(state.title ?: state.reference ?: strings.continueListening, size = 13, bold = true)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            RewindButton(30.dp); PrevButton(30.dp); StopButton(30.dp); NextButton(30.dp); ForwardButton(30.dp)
-                            SleepToggleButton(state, 30.dp)
+                            RewindButton(BTN); PrevButton(BTN); StopButton(BTN); NextButton(BTN); ForwardButton(BTN)
+                            SleepToggleButton(state, BTN)
                         }
                         if (state.percent != null) WidgetProgressBar(percentFraction)
                     }
@@ -94,15 +105,19 @@ fun SpeakStripContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp
             }
             if (columns == 3) {
                 Gap(4.dp)
-                PrevButton(30.dp); NextButton(30.dp); SleepToggleButton(state, 30.dp)
+                PrevButton(BTN); NextButton(BTN); SleepToggleButton(state, BTN)
             }
         }
     }
 }
 
 /** "34 % · WEB" while speaking, "Paused" when paused, otherwise the translation of the position it would resume from. */
-private fun compactSubline(state: SpeakWidgetState, strings: WidgetStrings, speaking: Boolean): String = when {
-    speaking -> listOfNotNull(state.percent?.let { "$it %" }, state.translation).joinToString(" · ")
-    state.phase == SpeakPhase.PAUSED -> strings.paused
-    else -> state.translation ?: ""
+@Composable
+private fun compactSubline(state: SpeakWidgetState, strings: WidgetStrings, speaking: Boolean): String {
+    val percentPattern = str(R.string.widget_percent)
+    return when {
+        speaking -> listOfNotNull(state.percent?.let { percentPattern.format(it) }, state.translation).joinToString(" · ")
+        state.phase == SpeakPhase.PAUSED -> strings.paused
+        else -> state.translation ?: ""
+    }
 }

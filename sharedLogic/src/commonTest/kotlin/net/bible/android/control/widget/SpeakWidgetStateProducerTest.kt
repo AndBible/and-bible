@@ -190,6 +190,22 @@ class SpeakWidgetStateProducerTest {
         scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
     }
 
+    @Test fun startRightAfterCancellationDoesNotTreatTheCancellingRunAsRunning() = runTest {
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        val source = FakeSource { currentTime }
+        val p = SpeakWidgetStateProducer(scope, source, FakeWidgetStrings())
+        p.start(); runCurrent()
+        val first = source.factsCalls
+        // DatabaseResetter cancels, and a widget draw calls start() before the cancelled run has unwound (no runCurrent here)
+        scope.coroutineContext[kotlinx.coroutines.Job]!!.children.forEach { it.cancel() }
+        p.start(); runCurrent()
+        assertTrue(source.factsCalls > first, "start() while the old run is only cancelling must start a new run")
+        source.facts = source.facts.copy(reference = "John 3:16")
+        source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
+        assertEquals("John 3:16", p.state.value.reference)
+        scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
+    }
+
     @Test fun startWhileRunningIsIdempotentAndStopEndsFollowing() = runTest {
         val (p, source) = producer()
         p.start(); runCurrent()

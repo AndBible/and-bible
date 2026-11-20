@@ -47,11 +47,17 @@ import net.bible.android.activity.R
 import net.bible.android.control.widget.SpeakPhase
 import net.bible.android.control.widget.SpeakWidgetState
 
-/** Width at which a Speak strip gains its next feature set (2x1, 3x1, 4x1, 5x1), see the spec's catalogue. */
-internal val SPEAK_BREAKPOINT_DP = listOf(110, 200, 290, 380)
+/**
+ * Width at which a Speak strip gains its next feature set (2x1, 3x1, 4x1, 5x1): the launcher's minimum width of n
+ * cells, 70 n - 30 dp. Narrower than the first one (an old Small widget can be one cell, 40 dp) is the play-only strip.
+ */
+internal val SPEAK_BREAKPOINT_DP = listOf(110, 180, 250, 320)
 
-/** Number of cells-wide a strip of [width] shows: 2..5. */
-internal fun stripColumns(width: Dp): Int = SPEAK_BREAKPOINT_DP.indexOfLast { width >= it.dp }.coerceAtLeast(0) + 2
+/** Width of the play-only strip (1x1), the smallest an old Small widget could be placed at. */
+internal const val SPEAK_TINY_DP = 40
+
+/** Number of cells-wide a strip of [width] shows: 1 (play only) .. 5. */
+internal fun stripColumns(width: Dp): Int = SPEAK_BREAKPOINT_DP.indexOfLast { width >= it.dp } + 2
 
 /** An action that opens the app the same way the launcher does (through the startup gate, see #887). */
 @Composable

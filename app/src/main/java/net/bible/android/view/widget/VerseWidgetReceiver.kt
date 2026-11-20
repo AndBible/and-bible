@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Provider of the Verse widget. Besides Glance's own updates it redraws every Verse widget at a period boundary
- * ([VerseWidgetScheduler]) and when the date, time or time zone changes (a day then starts at another instant).
+ * ([VerseWidgetScheduler]) and when the time or time zone changes (a day then starts at another instant).
  */
 class VerseWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = VerseGlanceWidget()
@@ -37,7 +37,8 @@ class VerseWidgetReceiver : GlanceAppWidgetReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
-            VerseWidgetScheduler.ACTION_PERIOD, Intent.ACTION_DATE_CHANGED, Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_TIME_CHANGED -> {
+            // No DATE_CHANGED: it is not delivered to manifest receivers on API 26+; the period alarm covers midnight.
+            VerseWidgetScheduler.ACTION_PERIOD, Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_TIME_CHANGED -> {
                 val pending = goAsync()
                 scope.launch {
                     try { glanceAppWidget.updateAll(context) } finally { pending.finish() }
@@ -45,6 +46,12 @@ class VerseWidgetReceiver : GlanceAppWidgetReceiver() {
             }
             else -> super.onReceive(context, intent)
         }
+    }
+
+    /** The launcher restored widgets from a backup under new ids: bring their settings along. */
+    override fun onRestored(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {
+        super.onRestored(context, oldWidgetIds, newWidgetIds)
+        VerseWidgetConfigStore.moveIds(context, oldWidgetIds, newWidgetIds)
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {

@@ -92,9 +92,7 @@ class VerseGlanceWidget : GlanceAppWidget() {
         var content: VerseWidgetContent? = null
         if (entry.appOpens) {
             // A widget that lost its configuration (restore, cleared data) gets a default instead of staying empty.
-            config = VerseWidgetConfigStore.load(context, appWidgetId) ?: defaultVerseWidgetConfig().also {
-                VerseWidgetConfigStore.save(context, appWidgetId, it)
-            }
+            config = VerseWidgetConfigStore.loadOrSaveDefault(context, appWidgetId, ::defaultVerseWidgetConfig)
             val now = System.currentTimeMillis()
             val zone = koin.get<LocalZone>()
             content = withContext(Dispatchers.IO) { koin.get<VerseCandidates>().content(config, now, zone) }
@@ -124,6 +122,10 @@ fun verseConfigIntent(context: Context, appWidgetId: Int): Intent =
         .setData(Uri.parse("andbible-widget://verse-config/$appWidgetId"))
 
 private val VERSE_ID = ActionParameters.Key<Int>("appWidgetId")
+// The verse drawn on the widget, passed to the speak action so it speaks what the user sees.
+private val SPEAK_BIBLE = ActionParameters.Key<String>("speakBible")
+private val SPEAK_V11N = ActionParameters.Key<String>("speakV11n")
+private val SPEAK_ORDINAL = ActionParameters.Key<Int>("speakOrdinal")
 
 /** Draws [content] for the widget [appWidgetId]; a Verse or the reason there is none. */
 @Composable
@@ -178,7 +180,12 @@ fun VerseWidgetBody(
                         if (config.showButtons) {
                             WidgetIconButton(
                                 R.drawable.ic_widget_speaker, str(R.string.widget_speak_verse), 32.dp,
-                                actionRunCallback<VerseSpeakAction>(androidx.glance.action.actionParametersOf(VERSE_ID to appWidgetId)),
+                                actionRunCallback<VerseSpeakAction>(androidx.glance.action.actionParametersOf(
+                                    VERSE_ID to appWidgetId,
+                                    SPEAK_BIBLE to (content.ref.bookInitials ?: ""),
+                                    SPEAK_V11N to content.ref.v11nName,
+                                    SPEAK_ORDINAL to content.ref.startOrdinal,
+                                )),
                             )
                             WidgetIconButton(
                                 R.drawable.ic_widget_shuffle, str(R.string.widget_shuffle), 32.dp,
@@ -202,25 +209,23 @@ class VerseShuffleAction : ActionCallback {
 }
 
 /**
- * Speaks the shown verse the way the verse menu's Speak does: a speech in progress is paused for the next one, then
+ * Speaks the verse that was drawn (it comes in the action parameters, so a period change between draw and tap cannot swap it) the way the verse menu's Speak does: a speech in progress is paused for the next one, then
  * `SpeakControl.speakBible`.
  */
 class VerseSpeakAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        val appWidgetId = parameters[VERSE_ID] ?: GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
+        val initials = parameters[SPEAK_BIBLE]?.takeIf { it.isNotEmpty() } ?: return
+        val v11nName = parameters[SPEAK_V11N] ?: return
+        val ordinal = parameters[SPEAK_ORDINAL] ?: return
         val ok = withContext(Dispatchers.Main.immediate) { CommonUtils.initializeAppForHeadlessEntry() }
         if (!ok) return
         val koin = KoinPlatform.getKoin()
-        val config = VerseWidgetConfigStore.load(context, appWidgetId) ?: return
-        val content = koin.get<VerseCandidates>().content(config, System.currentTimeMillis(), koin.get<LocalZone>())
-        val verse = content as? VerseWidgetContent.Verse ?: return
-        val initials = verse.ref.bookInitials ?: return
         val book = Books.installed().getBook(initials) as? SwordBook ?: return
-        val v11n = Versifications.instance().getVersification(verse.ref.v11nName)
+        val v11n = Versifications.instance().getVersification(v11nName)
         withContext(Dispatchers.Main) {
             val speak = koin.get<SpeakControl>().asReadingSpeaker()
             if (speak.isSpeaking) speak.pauseForNextSpeech()
-            speak.speakBible(book, Verse(v11n, verse.ref.startOrdinal).toV11n(book.versification))
+            speak.speakBible(book, Verse(v11n, ordinal).toV11n(book.versification))
         }
     }
 }

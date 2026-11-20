@@ -35,9 +35,15 @@ import androidx.glance.layout.height
 import net.bible.android.control.widget.SpeakWidgetState
 import net.bible.android.control.widget.WidgetStrings
 
-/** Width from which the text widget shows its status line (4 cells), and height from which it is the 3-row layout. */
-internal const val TEXT_WIDE_DP = 290
-internal const val TEXT_TALL_DP = 240
+/**
+ * Width from which the text widget shows its status line (4 cells), and height from which it is the 3-row layout:
+ * the launcher's minimum size of n cells, 70 n - 30 dp.
+ */
+internal const val TEXT_WIDE_DP = 250
+internal const val TEXT_TALL_DP = 180
+
+/** Width from which the text widget is the 3-cell layout; an old Speak text widget could be placed 2 cells wide (80 dp). */
+internal const val TEXT_MEDIUM_DP = 180
 
 /**
  * Speak with text: the verse being read with the transport controls. 3x2 (title, verse, prev / play / next),
@@ -45,7 +51,7 @@ internal const val TEXT_TALL_DP = 240
  */
 class SpeakTextGlanceWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Responsive(
-        setOf(DpSize(180.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, TEXT_TALL_DP.dp)),
+        setOf(DpSize(80.dp, 110.dp), DpSize(TEXT_MEDIUM_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, TEXT_TALL_DP.dp)),
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideWidgetContent(context) { state, strings ->
@@ -55,9 +61,24 @@ class SpeakTextGlanceWidget : GlanceAppWidget() {
 
 @Composable
 fun SpeakTextContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp, height: Dp) {
+    val narrow = width < TEXT_MEDIUM_DP.dp
     val wide = width >= TEXT_WIDE_DP.dp
     val tall = height >= TEXT_TALL_DP.dp
-    WidgetRoot(openAppAction()) {
+    if (narrow) {
+        // 2 cells wide: the verse and a play button, nothing else fits.
+        WidgetRoot(openAppAction(), padding = 8.dp) {
+            Column(modifier = GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(modifier = GlanceModifier.defaultWeight()) {
+                    WidgetText(state.verseText.ifEmpty { state.statusLine }, size = 13, maxLines = 3)
+                }
+                Spacer(GlanceModifier.height(4.dp))
+                SpeakPlayButton(state, 36.dp)
+            }
+        }
+        return
+    }
+    // The smallest 2-row widget is 110 dp high: tighter padding, a 13 sp verse of at most 2 lines and 36 dp play button fit it.
+    WidgetRoot(openAppAction(), padding = if (tall) 12.dp else 8.dp) {
         Column(modifier = GlanceModifier.fillMaxWidth()) {
             Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = GlanceModifier.defaultWeight()) {
@@ -68,7 +89,7 @@ fun SpeakTextContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp,
             Spacer(GlanceModifier.height(4.dp))
             Column(modifier = GlanceModifier.defaultWeight()) {
                 // Nothing spoken yet (stopped): say where Speak would continue, instead of an empty box.
-                WidgetText(state.verseText.ifEmpty { state.statusLine }, size = 15, maxLines = if (tall) 8 else 4)
+                WidgetText(state.verseText.ifEmpty { state.statusLine }, size = if (tall) 15 else 13, maxLines = if (tall) 8 else 2)
                 if (tall) state.nextVerseText?.let {
                     Spacer(GlanceModifier.height(4.dp))
                     WidgetText(it, size = 13, dim = true, maxLines = 3)
@@ -83,7 +104,7 @@ fun SpeakTextContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp,
             Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 if (tall) { SleepToggleButton(state, 32.dp); RewindButton(32.dp) }
-                PrevButton(32.dp); Gap(4.dp); SpeakPlayButton(state, 44.dp); Gap(4.dp); NextButton(32.dp)
+                PrevButton(if (tall) 32.dp else 28.dp); Gap(4.dp); SpeakPlayButton(state, if (tall) 44.dp else 36.dp); Gap(4.dp); NextButton(if (tall) 32.dp else 28.dp)
                 if (tall) { ForwardButton(32.dp); StopButton(32.dp) }
             }
         }

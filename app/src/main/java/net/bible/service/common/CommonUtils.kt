@@ -364,7 +364,11 @@ object CommonUtils : CommonUtilsBase() {
         private inline fun <T> orDefaultIfDbNotReady(default: T, read: () -> T): T =
             try { read() } catch (e: DataBaseNotReady) { default }
 
-        override fun setString(key: String, value: String?) = store.setString(key, value)
+        override fun setString(key: String, value: String?) {
+            store.setString(key, value)
+            // The home-screen widgets draw in grey scale in monochrome mode; redraw them with the new mode.
+            if (key == "display_color_mode") net.bible.android.view.widget.WidgetUpdater.refreshForColorMode()
+        }
         override fun setLong(key: String, value: Long?) = store.setLong(key, value)
         override fun setInt(key: String, value: Int?) = store.setLong(key, value?.toLong())
         override fun setBoolean(key: String, value: Boolean?) {

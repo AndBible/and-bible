@@ -156,7 +156,6 @@
             >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.DATE_CHANGED" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
@@ -170,6 +169,7 @@
             android:name="net.bible.android.view.widget.VerseWidgetConfigActivity"
             android:exported="true"
             android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             >
             <intent-filter>

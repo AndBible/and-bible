@@ -33,14 +33,37 @@ object VerseWidgetConfigStore {
     fun load(context: Context, appWidgetId: Int): VerseWidgetConfig? =
         prefs(context).getString(appWidgetId.toString(), null)?.let { runCatching { decode(it) }.getOrNull() }
 
+    @Synchronized
     fun save(context: Context, appWidgetId: Int, config: VerseWidgetConfig) {
         prefs(context).edit().putString(appWidgetId.toString(), encode(config)).apply()
     }
 
+    /**
+     * The saved configuration, or [default] saved and returned when there is none. The check and the save are one step,
+     * so a draw that started before the configure screen saved cannot overwrite the user's choice with the default.
+     */
+    @Synchronized
+    fun loadOrSaveDefault(context: Context, appWidgetId: Int, default: () -> VerseWidgetConfig): VerseWidgetConfig =
+        load(context, appWidgetId) ?: default().also { save(context, appWidgetId, it) }
+
+    /** After a backup restore: the configuration of each old widget id moves to its new id. */
+    @Synchronized
+    fun moveIds(context: Context, oldIds: IntArray, newIds: IntArray) {
+        val prefs = prefs(context)
+        val edit = prefs.edit()
+        // Read all first: an old id can equal another widget's new id.
+        val moved = oldIds.zip(newIds).mapNotNull { (old, new) -> prefs.getString(old.toString(), null)?.let { old to (new to it) } }
+        moved.forEach { (old, _) -> edit.remove(old.toString()) }
+        moved.forEach { (_, n) -> edit.putString(n.first.toString(), n.second) }
+        edit.apply()
+    }
+
     /** Moves the widget on to another verse of its period: shuffle count + 1. Returns the saved configuration. */
+    @Synchronized
     fun shuffle(context: Context, appWidgetId: Int): VerseWidgetConfig? =
         load(context, appWidgetId)?.let { it.copy(shuffleCount = it.shuffleCount + 1) }?.also { save(context, appWidgetId, it) }
 
+    @Synchronized
     fun delete(context: Context, appWidgetId: Int) {
         prefs(context).edit().remove(appWidgetId.toString()).apply()
     }

@@ -38,7 +38,7 @@ import org.koin.mp.KoinPlatform
 /** Whether the app opened for a widget draw (#4112: false means damaged data) and whether the monochrome setting is on. */
 internal data class WidgetEntry(val appOpens: Boolean, val mono: Boolean)
 
-/** Opens the app headlessly (on Main, like the earlier receivers: the speak services need a Looper thread) and reads the colour setting; never throws. */
+/** Opens the app headlessly (on Main, like the earlier receivers: the speak services need a Looper thread) and reads the colour setting; damaged data (#4112) is reported as [WidgetEntry.appOpens] false, any other failure of the open propagates, an unreadable colour setting counts as off. */
 internal suspend fun widgetEntry(): WidgetEntry = withContext(Dispatchers.Main.immediate) {
     val ok = CommonUtils.initializeAppForHeadlessEntry()
     WidgetEntry(ok, ok && runCatching { CommonUtils.settings.monochromeMode }.getOrDefault(false))
@@ -79,7 +79,8 @@ object WidgetUpdater {
         val koin = KoinPlatform.getKoin()
         val producer = koin.get<SpeakWidgetStateProducer>()
         producer.start()
-        if (job?.isActive == true) return
+        // A job that was cancelled (the DatabaseResetter cancels the app scope's children) is not running even while it unwinds.
+        if (job?.let { !it.isCompleted && !it.isCancelled } == true) return
         val app = context.applicationContext
         job = koin.get<AppCoroutineScope>().launch {
             producer.state.collect { runCatching { refreshSpeakWidgets(app) } }
@@ -99,6 +100,12 @@ object WidgetUpdater {
         val koin = KoinPlatform.getKoin()
         koin.get<SpeakWidgetStateProducer>().refreshForLocale()
         koin.get<AppCoroutineScope>().launch { runCatching { refreshAll(app) } }
+    }
+
+    /** Redraws every widget after the display colour mode changed (monochrome widgets are drawn in grey scale). */
+    fun refreshForColorMode() {
+        val app = net.bible.android.BibleApplication.application
+        runCatching { KoinPlatform.getKoin().get<AppCoroutineScope>().launch { runCatching { refreshAll(app) } } }
     }
 
     private suspend fun refreshSpeakWidgets(context: Context) {
