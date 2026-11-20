@@ -102,8 +102,6 @@ class AndroidLlmStrings(private val context: Context) : LlmStrings {
     override val easySetupFreeTier: String get() = context.getString(R.string.easy_setup_free_tier)
     override val easySetupGeminiDesc: String get() = context.getString(R.string.easy_setup_gemini_desc)
     override val easySetupOpenaiDesc: String get() = context.getString(R.string.easy_setup_openai_desc)
-    override fun llmContinueIterationsMessage(a1: Int, a2: Int): String = context.getString(R.string.llm_continue_iterations_message, a1, a2)
-    override val llmContinueIterationsTitle: String get() = context.getString(R.string.llm_continue_iterations_title)
     override fun llmCostTotal(a1: String): String = context.getString(R.string.llm_cost_total, a1)
     override val llmDefaultDocumentTitle: String get() = context.getString(R.string.llm_default_document_title)
     override val llmDefaultStudypadOpened: String get() = context.getString(R.string.llm_default_studypad_opened)
@@ -121,9 +119,7 @@ class AndroidLlmStrings(private val context: Context) : LlmStrings {
     override val llmUsageSummaryDefault: String get() = context.getString(R.string.llm_usage_summary_default)
     override fun llmUsageSummaryFormat(a1: Long, a2: Long, a3: String): String = context.getString(R.string.llm_usage_summary_format, a1, a2, a3)
     override val okay: String get() = context.getString(R.string.okay)
-    override fun permissionAlwaysAllowConfirm(a1: String): String = context.getString(R.string.permission_always_allow_confirm, a1)
     override val permissionAlwaysAllowConfirmResetHint: String get() = context.getString(R.string.permission_always_allow_confirm_reset_hint)
-    override val permissionAlwaysAllowConfirmTitle: String get() = context.getString(R.string.permission_always_allow_confirm_title)
     override val promptCategoryFavorites: String get() = context.getString(R.string.prompt_category_favorites)
     override val promptCategoryGeneral: String get() = context.getString(R.string.prompt_category_general)
     override val promptCategoryNotes: String get() = context.getString(R.string.prompt_category_notes)
@@ -216,4 +212,9 @@ class AndroidLlmStrings(private val context: Context) : LlmStrings {
         get() = context.resources.openRawResource(R.raw.llm_agent_system_prompt).bufferedReader().use { it.readText() }
     override val defaultTextTransformationSystemPrompt: String
         get() = context.resources.openRawResource(R.raw.llm_text_transformation_system_prompt).bufferedReader().use { it.readText() }
+    override fun llmContinueIterationsLead(a1: Int): String = context.getString(R.string.llm_continue_iterations_lead, a1)
+    override fun llmContinueIterationsDetail(a1: Int): String = context.getString(R.string.llm_continue_iterations_detail, a1)
+    override val llmContinueButton: String get() = context.getString(R.string.llm_continue_button)
+    override fun permissionAlwaysAllowLead(a1: String): String = context.getString(R.string.permission_always_allow_lead, a1)
+    override val permissionAlwaysAllowButton: String get() = context.getString(R.string.permission_always_allow_button)
 }

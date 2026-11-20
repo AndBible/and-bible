@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -51,8 +52,13 @@ class AndroidAgentPlatform : AgentPlatform {
             Dialogs.AgentPermissionResult.DENY -> ToolPermissionAnswer.DENY
         }
 
-    override suspend fun askQuestion(title: String?, message: String): Boolean =
-        Dialogs.simpleQuestion(BibleApplication.application, title = title, message = message)
+    override suspend fun askQuestion(title: String?, message: String, confirmText: String?): Boolean =
+        Dialogs.simpleQuestion(
+            BibleApplication.application,
+            title = title,
+            message = message,
+            confirmText = confirmText ?: BibleApplication.application.getString(R.string.okay),
+        )
 
     override fun showShortMessage(message: String) {
         Toast.makeText(BibleApplication.application, message, Toast.LENGTH_SHORT).show()

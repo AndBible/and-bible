@@ -420,8 +420,9 @@ private fun ModelFormDialog(
     val id = state.id
     if (showDeleteConfirm && id != null) {
         AbConfirmDialog(
-            title = null,
-            message = strings.modelDeleteConfirm(editedModel?.displayName ?: state.modelId),
+            title = strings.modelDeleteLead(editedModel?.displayName ?: state.modelId),
+            message = "",
+            destructive = true,
             confirmText = strings.delete,
             dismissText = strings.cancel,
             onConfirm = {

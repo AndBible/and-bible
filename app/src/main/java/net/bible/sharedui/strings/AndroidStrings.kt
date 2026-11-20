@@ -702,14 +702,12 @@ class AndroidStrings(private val context: Context) : Strings {
     override val providerEndpointHint: String get() = context.getString(R.string.ai_provider_endpoint_hint)
     override val providerEndpointDescription: String get() = context.getString(R.string.ai_provider_endpoint_description)
     override val providerApiFormatLabel: String get() = context.getString(R.string.ai_provider_api_format)
-    override fun providerDeleteConfirm(name: String): String = context.getString(R.string.ai_provider_delete_confirm, name)
     override val apiKeyInstructionsPrefix: String get() = context.getString(R.string.easy_setup_api_key_instructions)
 
     // Batch 9b — AiModelsScreen
     override val aiModelsTitle: String get() = context.getString(R.string.ai_models_category)
     override val addModel: String get() = context.getString(R.string.add_model)
     override val editModelTitle: String get() = context.getString(R.string.edit_model_title)
-    override fun modelDeleteConfirm(name: String): String = context.getString(R.string.model_delete_confirm, name)
     override val modelSetDefault: String get() = context.getString(R.string.model_set_default)
     override val modelSelectProviderLabel: String get() = context.getString(R.string.model_select_provider)
     override val modelSupportedBadge: String get() = context.getString(R.string.model_supported_badge)
@@ -773,7 +771,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val deleteCategoryAndPromptsLabel: String get() = context.getString(R.string.delete_category_and_prompts)
     override val hidePromptLabel: String get() = context.getString(R.string.ai_hide_prompt)
     override val restoreLabel: String get() = context.getString(R.string.restore)
-    override val deletePromptConfirmMessage: String get() = context.getString(R.string.delete_prompt_confirm_message)
     override val moveToCategoryLabel: String get() = context.getString(R.string.move_to_category)
 
     // Batch 12e-A — reading-view AI dialogs (LlmDialogHelper) + Plan B agent-log panel
@@ -895,7 +892,6 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Batch 9 fix D1 — Quick-setup accept-disclaimer Compose dialog (F31)
     override val aiDisclaimerAcceptTitle: String get() = context.getString(R.string.ai_disclaimer_accept_title)
-    override val aiDisclaimerAcceptButton: String get() = context.getString(R.string.ai_disclaimer_accept_button)
 
     // Batch 9 fix C2 — AiPrompts help dialog "Read more" link (F30)
     override val helpReadMoreLink: String get() = context.getString(R.string.help_read_more_link)
@@ -950,7 +946,6 @@ class AndroidStrings(private val context: Context) : Strings {
     // Task 13 — platform-dialog removal: Bookmarks delete confirm / ManageLabels reset confirm
 
     override val llmResetUsageConfirmTitle: String get() = context.getString(R.string.llm_reset_usage_confirm_title)
-    override val llmResetUsageConfirmMessage: String get() = context.getString(R.string.llm_reset_usage_confirm_message)
 
     override val importPromptsEditableLabel: String get() = context.getString(R.string.import_prompts_editable)
     override val importPromptsAddonLabel: String get() = context.getString(R.string.import_prompts_addon)
@@ -1345,4 +1340,17 @@ class AndroidStrings(private val context: Context) : Strings {
     override val dialogLabelsResetHiddenLead: String get() = context.getString(R.string.dialog_labels_reset_hidden_lead)
     override val dialogLabelsResetHiddenDetail: String get() = context.getString(R.string.dialog_labels_reset_hidden_detail)
     // end dialog copy: B2a
+    // dialog copy: B3a
+    override val aiCannotBeUndoneDetail: String get() = context.getString(R.string.ai_cannot_be_undone_detail)
+    override val aiRawLogDeleteLead: String get() = context.getString(R.string.ai_raw_log_delete_lead)
+    override fun providerDeleteLead(name: String): String = context.getString(R.string.ai_provider_delete_lead, name)
+    override val providerDeleteDetail: String get() = context.getString(R.string.ai_provider_delete_detail)
+    override fun modelDeleteLead(name: String): String = context.getString(R.string.ai_model_delete_lead, name)
+    override fun aiPromptDeleteNamedLead(name: String): String = context.getString(R.string.ai_prompt_delete_named_lead, name)
+    override val aiPromptDeleteLead: String get() = context.getString(R.string.ai_prompt_delete_lead)
+    override val aiResetUsageDetail: String get() = context.getString(R.string.ai_reset_usage_detail)
+    override val aiResetUsageButton: String get() = context.getString(R.string.ai_reset_usage_button)
+    override val aiDisclaimerAccept: String get() = context.getString(R.string.ai_disclaimer_accept)
+    override val aiBugReportSendLead: String get() = context.getString(R.string.ai_bug_report_send_lead)
+    // end dialog copy: B3a
 }

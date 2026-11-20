@@ -51,7 +51,7 @@ class DesktopAgentPlatform(
             AgentPermissionChoice.ALLOW_ALWAYS -> ToolPermissionAnswer.ALLOW_ALWAYS
             AgentPermissionChoice.DENY -> ToolPermissionAnswer.DENY
         }
-    override suspend fun askQuestion(title: String?, message: String): Boolean =
-        dialogs.await(AppDialogRequest.Confirm(title = title, message = message, confirmText = text("okay"), dismissText = text("cancel"))) == AppDialogResult.Ok
+    override suspend fun askQuestion(title: String?, message: String, confirmText: String?): Boolean =
+        dialogs.await(AppDialogRequest.Confirm(title = title, message = message, confirmText = confirmText ?: text("okay"), dismissText = text("cancel"))) == AppDialogResult.Ok
     override fun showShortMessage(message: String) = notifier.showInfo(message)
 }

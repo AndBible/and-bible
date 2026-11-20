@@ -51,7 +51,8 @@ object AiBugReport {
         val confirmed = Dialogs.simpleQuestion(
             activity,
             message = activity.getString(R.string.bug_report_email_text),
-            title = activity.getString(R.string.send_ai_bug_report_title),
+            title = activity.getString(R.string.ai_bug_report_send_lead),
+            confirmText = activity.getString(R.string.llm_continue_button),
         )
         if (!confirmed) return
 
@@ -86,7 +87,8 @@ object AiBugReport {
         val confirmed = Dialogs.simpleQuestion(
             activity,
             message = activity.getString(R.string.bug_report_email_text),
-            title = activity.getString(R.string.send_ai_bug_report_title),
+            title = activity.getString(R.string.ai_bug_report_send_lead),
+            confirmText = activity.getString(R.string.llm_continue_button),
         )
         if (!confirmed) return
 

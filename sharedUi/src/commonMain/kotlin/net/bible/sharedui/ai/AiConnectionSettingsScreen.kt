@@ -353,8 +353,10 @@ fun AiConnectionSettingsScreen(
             val strings = LocalStrings.current
             AbConfirmDialog(
                 title = strings.llmResetUsageConfirmTitle,
-                message = strings.llmResetUsageConfirmMessage,
-                confirmText = strings.okay,
+                message = "",
+                detail = strings.aiResetUsageDetail,
+                destructive = true,
+                confirmText = strings.aiResetUsageButton,
                 dismissText = strings.cancel,
                 onConfirm = onConfirmDialog,
                 onDismiss = onDismissDialog,

@@ -113,9 +113,9 @@ class IosAgentPlatform(
             AgentPermissionChoice.DENY -> ToolPermissionAnswer.DENY
         }
 
-    override suspend fun askQuestion(title: String?, message: String): Boolean =
+    override suspend fun askQuestion(title: String?, message: String, confirmText: String?): Boolean =
         dialogs.await(
-            AppDialogRequest.Confirm(title = title, message = message, confirmText = text("okay"), dismissText = text("cancel")),
+            AppDialogRequest.Confirm(title = title, message = message, confirmText = confirmText ?: text("okay"), dismissText = text("cancel")),
         ) == AppDialogResult.Ok
 
     override fun showShortMessage(message: String) = notifier.showInfo(message)
