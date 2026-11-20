@@ -263,10 +263,13 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  *
  * Returns the log entries the merge took over, one per row (the last patch's entry when several patches name it),
  * in patch and table order: what changed here. They carry the other device's edit times, which must not be compared
- * with this device's sync watermark (#4151).
+ * with this device's sync watermark (#4151). [onPatchApplied] gets each patch's entries as soon as that patch has
+ * committed, outside the writer connection, so a later patch's failure cannot hide changes already in the database
+ * (a retry re-applies them as no-ops and would never report them).
  */
 suspend fun applyPatchesForDatabase(
     dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: Path?, mapIncomingIds: Boolean = true,
+    onPatchApplied: suspend (List<LogEntry>) -> Unit = {},
 ): List<LogEntry> {
     val applied = LinkedHashMap<Triple<String, IdType, IdType>, LogEntry>()
     for(gzippedPatchFile in patchFiles.filterNotNull()) {
@@ -275,13 +278,13 @@ suspend fun applyPatchesForDatabase(
         ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
         // Let's apply possible migrations first
         createWithSchema(dbDef, patchDbFile)
-        dbDef.localDb.useWriterConnectionMarked { db ->
+        val patchEntries = dbDef.localDb.useWriterConnectionMarked { db ->
             // ATTACH inside the protected region, as in createPatchForDatabase.
             db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
                 db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
                 db.exec("PRAGMA foreign_keys=OFF;")
                 try {
-                    val patchEntries = db.inTransaction<List<LogEntry>> {
+                    db.inTransaction<List<LogEntry>> {
                         // An incoming patch never carries add-on rows (each device builds them from its own
                         // module). Should one name an add-on row, the local add-on row wins: drop it from the patch.
                         val addonRows = stripAddonRows(this, dbDef.category, "patch")
@@ -297,12 +300,6 @@ suspend fun applyPatchesForDatabase(
                             }
                         }
                     }
-                    // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one.
-                    for (e in patchEntries) {
-                        val key = Triple(e.tableName, e.entityId1, e.entityId2)
-                        applied.remove(key)
-                        applied[key] = e
-                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
                     throw e
@@ -312,6 +309,13 @@ suspend fun applyPatchesForDatabase(
         if(!env.isDebugMode) {
             FileSystem.SYSTEM.delete(patchDbFile)
         }
+        // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one.
+        for (e in patchEntries) {
+            val key = Triple(e.tableName, e.entityId1, e.entityId2)
+            applied.remove(key)
+            applied[key] = e
+        }
+        onPatchApplied(patchEntries)
     }
     return applied.values.toList()
 }

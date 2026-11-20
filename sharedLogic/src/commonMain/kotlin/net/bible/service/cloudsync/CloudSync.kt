@@ -1023,9 +1023,10 @@ class CloudSync(
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.size, it.file.createdTime)
         }
 
-        val applied = applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray())
+        // Each patch is reported as soon as it has committed: should a later one fail, the retry re-applies the earlier
+        // ones as no-ops and would never report them (#4151).
+        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray(), onPatchApplied = { dbDef.reactToUpdates(it) })
         downloadedFiles.forEach { runCatching { FileSystem.SYSTEM.delete(it) } }
-        dbDef.reactToUpdates(applied)
         dbDef.dao.addStatuses(syncStatuses)
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, synchronizedAt)
     }

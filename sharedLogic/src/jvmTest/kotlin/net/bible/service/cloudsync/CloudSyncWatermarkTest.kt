@@ -242,12 +242,13 @@ class CloudSyncWatermarkTest {
         assertEquals(300L, f.db.dao.syncStatus("remote-device", 2L)?.appliedDate)
     }
 
+    private class LateHighlight(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val label: BookmarkEntities.Label)
+
     /**
-     * #4151: the other device edited before this device's last download started, but uploaded its patch only after
-     * it (or its clock is behind). The patch is applied, so the open views must hear about every row it took over;
-     * the author's edit time must not be compared with this device's watermark.
+     * Stages, as patch "late" (uploaded at 2000), a highlight with a note and a label that the other device made at
+     * 500, while this device's last download started at 1000; the local database has neither the bookmark nor a log.
      */
-    @Test fun appliedPatchIsReportedAlthoughItsEditsPredateTheWatermark() = withFixture { f ->
+    private suspend fun stageLateHighlightPatch(f: Fixture): LateHighlight {
         val dao = f.container.bookmarkDb.bookmarkDao()
         val label = BookmarkEntities.Label(name = "synced label")
         dao.insert(label)
@@ -260,7 +261,6 @@ class CloudSyncWatermarkTest {
         dao.insert(bookmark.bookmarkEntity)
         dao.insert(bookmark.noteEntity!!)
         dao.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.id, label.id))
-        // Edited at 500 on the other device; this device's last download started at 1000; the patch was uploaded at 2000.
         f.db.localDb.useWriterConnectionMarked { it.exec("UPDATE LogEntry SET lastUpdated = 500, sourceDevice = 'remote-device'") }
         @Suppress("UNCHECKED_CAST")
         val remote = (f.db as SyncableDatabaseAccessor<net.bible.android.database.SyncableRoomDatabase>).let {
@@ -271,20 +271,54 @@ class CloudSyncWatermarkTest {
         f.db.dao.clearLog()
         f.db.dao.setConfig(LAST_SYNCHRONIZED_KEY, 1000L)
         f.adapter.files = listOf(CloudFile("late", "1.${f.db.version()}.sqlite3.gz", 1L, 2000L, "remote-folder"))
+        return LateHighlight(bookmark, label)
+    }
 
+    private suspend fun reportedDuring(block: suspend () -> Unit): List<net.bible.android.database.LogEntry> {
         val reported = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.database.LogEntry>()
         val subscription = DatabaseContainer.bookmarksSynced.subscribe { reported.addAll(it) }
-        try {
-            f.cloud.synchronize()
-        } finally { subscription.cancel() }
+        try { block() } finally { subscription.cancel() }
+        return reported
+    }
 
-        assertEquals(bookmark.id, dao.bibleBookmarksByIds(listOf(bookmark.id)).single().id, "sanity: the patch was applied")
+    private fun assertHighlightReported(h: LateHighlight, reported: List<net.bible.android.database.LogEntry>) {
         assertEquals(
-            setOf("BibleBookmark" to bookmark.id, "BibleBookmarkNotes" to bookmark.id, "BibleBookmarkToLabel" to bookmark.id),
+            setOf("BibleBookmark" to h.bookmark.id, "BibleBookmarkNotes" to h.bookmark.id, "BibleBookmarkToLabel" to h.bookmark.id),
             reported.filter { it.tableName != "Label" }.map { it.tableName to it.entityId1 }.toSet(),
             "every row the patch applied must be reported: $reported",
         )
-        assertEquals(label.id, reported.single { it.tableName == "BibleBookmarkToLabel" }.entityId2)
+        assertEquals(h.label.id, reported.single { it.tableName == "BibleBookmarkToLabel" }.entityId2)
+    }
+
+    /**
+     * #4151: the other device edited before this device's last download started, but uploaded its patch only after
+     * it (or its clock is behind). The patch is applied, so the open views must hear about every row it took over;
+     * the author's edit time must not be compared with this device's watermark.
+     */
+    @Test fun appliedPatchIsReportedAlthoughItsEditsPredateTheWatermark() = withFixture { f ->
+        val h = stageLateHighlightPatch(f)
+        val reported = reportedDuring { f.cloud.synchronize() }
+        val dao = f.container.bookmarkDb.bookmarkDao()
+        assertEquals(h.bookmark.id, dao.bibleBookmarksByIds(listOf(h.bookmark.id)).single().id, "sanity: the patch was applied")
+        assertHighlightReported(h, reported)
+
+        // Applied again (a lost status), the patch changes nothing and reports nothing.
+        f.db.dao.setConfig(LAST_SYNCHRONIZED_KEY, 1000L)
+        f.db.localDb.useWriterConnectionMarked { it.exec("DELETE FROM SyncStatus") }
+        assertEquals(emptyList(), reportedDuring { f.cloud.synchronize() })
+    }
+
+    /** A later patch fails: the committed earlier one is reported now, since its retry re-applies it as a no-op. */
+    @Test fun committedPatchIsReportedAlthoughALaterPatchFails() = withFixture { f ->
+        val h = stageLateHighlightPatch(f)
+        val broken = "${f.env.tmpDir}/broken.sqlite3.gz".toPath()
+        FileSystem.SYSTEM.write(broken) { writeUtf8("not a gzip patch") }
+        f.adapter.patches["broken"] = broken
+        f.adapter.files += CloudFile("broken", "2.${f.db.version()}.sqlite3.gz", 1L, 3000L, "remote-folder")
+        val reported = reportedDuring { f.cloud.synchronize() }
+        assertEquals(1, f.container.bookmarkDb.bookmarkDao().bibleBookmarksByIds(listOf(h.bookmark.id)).size, "sanity: patch 1 committed")
+        assertNull(f.db.dao.syncStatus("remote-device", 2L), "sanity: patch 2 failed")
+        assertHighlightReported(h, reported)
     }
 
     @Test fun foregroundTransportFailureReportsOneSyncError() = withFixture { f ->

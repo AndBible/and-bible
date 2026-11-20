@@ -18,7 +18,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.service.cloudsync.LAST_PATCH_WRITTEN_KEY
-import net.bible.service.cloudsync.LAST_SYNCHRONIZED_KEY
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.applyPatchesForDatabase
@@ -86,6 +85,8 @@ class SyncedBookmarkReachesOpenPaneTest {
         assertNull(KoinPlatform.getKoinOrNull(), "a Koin context leaked into this test")
         Dispatchers.setMain(main)
         previousHost = runCatching { DatabaseContainer.host }.getOrNull()
+        // Drop BookmarkControls of earlier desktop startups in this JVM: only this test's control may hear the sync.
+        DatabaseContainer.resetBookmarksSyncedForTest()
         root = Files.createTempDirectory("synced-bookmark-pane")
     }
 
@@ -134,7 +135,7 @@ class SyncedBookmarkReachesOpenPaneTest {
                 id
             }
 
-            // The other device's rows, as its patch carries them: edited (at 500) long before this device's sync watermark.
+            // The other device's rows, as its patch carries them (edited at 500, an old timestamp).
             val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
             val accessor = DatabaseContainer.getDatabaseAccessorFactories(DatabaseContainer.instance)
                 .map { it() }.single { it.category == SyncableDatabaseDefinition.BOOKMARKS }
@@ -157,7 +158,6 @@ class SyncedBookmarkReachesOpenPaneTest {
             val patch = checkNotNull(createPatchForDatabase(otherDevice, env, false))
             dao.delete(bookmark)
             accessor.dao.clearLog()
-            accessor.dao.setConfig(LAST_SYNCHRONIZED_KEY, 1000L)
             val pane = fake.live(id)
             pane.evaluated.clear()
 
