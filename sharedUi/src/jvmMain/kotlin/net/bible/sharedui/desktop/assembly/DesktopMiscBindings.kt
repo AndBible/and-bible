@@ -202,7 +202,7 @@ fun desktopMiscModule(): Module = module {
                 }
                 while (true) {
                     val answer = dialogs.await(AppDialogRequest.Options(strings.text("bug_report_manual_title"),
-                        strings.manualSendText(info), actions.toAnswers(), strings.text("okay"), asActionSheet = false))
+                        strings.manualSendText(info), actions.toAnswers(), strings.text("done"), asActionSheet = false))
                     if (answer !is AppDialogResult.Selected) break
                     when (answer.value) {
                         "address" -> clipboard.write("", info.address)
@@ -217,14 +217,16 @@ fun desktopMiscModule(): Module = module {
             confirm = { ai ->
                 val strings = table.current
                 dialogs.await(AppDialogRequest.Confirm(
-                    strings.text(if (ai) "send_ai_bug_report_title" else "bug_report_email_title"),
-                    strings.text("bug_report_desktop_text"), strings.text("okay"), strings.text("cancel"),
+                    title = null,
+                    message = strings.text(if (ai) "send_ai_bug_report_title" else "bug_report_email_title"),
+                    confirmText = strings.text("bug_report_continue"), dismissText = strings.text("cancel"),
+                    detail = strings.text("bug_report_desktop_text"),
                 )) == AppDialogResult.Ok
             },
             failure = { error ->
                 Log.w(TAG, "Report preparation failed", error)
                 val strings = table.current
-                dialogs.await(AppDialogRequest.Message(strings.text("error"), strings.text("bug_report_prepare_failed"), strings.text("okay")))
+                dialogs.await(AppDialogRequest.Message(null, strings.text("bug_report_prepare_failed"), strings.text("okay")))
             },
             introduction = { table.current.text("report_bug_line_1") },
             crashFile = Path.of(dirs.internalFilesDir.toString()).resolve("logs").resolve("last_crash.txt"),

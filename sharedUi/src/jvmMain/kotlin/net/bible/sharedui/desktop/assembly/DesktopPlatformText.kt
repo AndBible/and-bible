@@ -43,10 +43,10 @@ class DesktopPlatformText(
         val name = when (key) {
             PluralKey.CLOUD_DOC_SYNC_NOW_COUNT -> "cloud_doc_sync_now_count"
             PluralKey.CLOUD_DOC_SYNC_NOW_COUNT_SIZE -> "cloud_doc_sync_now_count_size"
-            PluralKey.CLOUD_DOC_BULK_BLOCK_CONFIRM -> "cloud_doc_bulk_block_confirm"
-            PluralKey.CLOUD_DOC_BULK_REMOVE_CONFIRM -> "cloud_doc_bulk_remove_all_confirm"
-            PluralKey.CLOUD_DOC_BULK_REMOVE_CLOUD_CONFIRM -> "cloud_doc_bulk_remove_cloud_confirm"
-            PluralKey.CLOUD_DOC_BULK_PURGE_CONFIRM -> "cloud_doc_bulk_purge_confirm"
+            PluralKey.CLOUD_DOC_BULK_BLOCK_CONFIRM -> "cloud_doc_bulk_block_lead"
+            PluralKey.CLOUD_DOC_BULK_REMOVE_CONFIRM -> "cloud_doc_bulk_remove_all_lead"
+            PluralKey.CLOUD_DOC_BULK_REMOVE_CLOUD_CONFIRM -> "cloud_doc_bulk_remove_cloud_lead"
+            PluralKey.CLOUD_DOC_BULK_PURGE_CONFIRM -> "cloud_doc_bulk_purge_lead"
         }
         return table().pluralFormat(name, count, *args)
     }

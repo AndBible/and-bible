@@ -18,7 +18,7 @@
 package net.bible.service.cloudsync
 
 import kotlinx.coroutines.IO
-import net.bible.sharedcore.ui.dialog.toAnswers
+import net.bible.sharedcore.ui.dialog.DialogAnswer
 import okio.Path.Companion.toPath
 import okio.Path
 import okio.FileSystem
@@ -217,9 +217,9 @@ class CloudSync(
         if(!success) {
             if (errorMessage == null) Log.w(TAG, "Sync sign-in did not succeed (background=$background, cancelled by user=$cancelledByUser)")
             if (!background && !cancelledByUser) {
-                val message = strings.signInFailed + " " + (errorMessage ?: "")
-                onForegroundFailure(message)
-                dialogs.await(AppDialogRequest.Message(null, message, strings.okay, cancellable = false))
+                val lead = strings.signInFailedLead
+                onForegroundFailure(if (errorMessage.isNullOrBlank()) lead else "$lead $errorMessage")
+                dialogs.await(AppDialogRequest.Message(null, lead, strings.okay, cancellable = false, detail = errorMessage?.takeIf { it.isNotBlank() }))
             }
         }
         return success
@@ -278,14 +278,14 @@ class CloudSync(
         val containsStr = strings.syncCategoryContents(category.name)
         val dialogResult = dialogs.await(
             AppDialogRequest.Options(
-                title = strings.cloudSyncTitle,
-                message = strings.overrideBackup(containsStr),
+                title = strings.cloudExistingDataLead(containsStr),
+                message = null,
                 options = listOf(
-                    SettingsItem.Choice(MERGE_VALUE, strings.cloudMergeData),
-                    SettingsItem.Choice(FETCH_VALUE, strings.cloudFetchAndRestoreInitial),
-                    SettingsItem.Choice(CREATE_VALUE, strings.cloudCreateNew),
-                    SettingsItem.Choice(DISABLE_VALUE, strings.cloudDisableSync),
-                ).toAnswers(),
+                    DialogAnswer(MERGE_VALUE, strings.cloudMergeData, strings.cloudMergeConsequence),
+                    DialogAnswer(FETCH_VALUE, strings.cloudFetchAndRestoreInitial, strings.cloudFetchConsequence, destructive = true),
+                    DialogAnswer(CREATE_VALUE, strings.cloudCreateNew, strings.cloudCreateConsequence, destructive = true),
+                    DialogAnswer(DISABLE_VALUE, strings.cloudDisableSync, strings.cloudDisableConsequence),
+                ),
                 dismissText = null,
                 asActionSheet = false,
                 cancellable = false,
@@ -298,12 +298,21 @@ class CloudSync(
             else -> null // "Cancel & disable synchronization", or (uncancellable) Cancel/back/scrim.
         }
         if (q1 != null) {
-            val msgString = when (q1) {
-                InitialOperation.MERGE -> strings.areYouSureMerge(containsStr)
-                InitialOperation.FETCH_INITIAL -> strings.areYouSureResetLocal(containsStr)
-                InitialOperation.CREATE_NEW -> strings.areYouSureResetCloud(containsStr)
+            val request = when (q1) {
+                InitialOperation.MERGE -> AppDialogRequest.Confirm(
+                    title = null, message = strings.cloudMergeLead(containsStr), confirmText = strings.cloudMergeConfirm,
+                    dismissText = strings.cancel, detail = strings.areYouSureMerge(containsStr),
+                )
+                InitialOperation.FETCH_INITIAL -> AppDialogRequest.Confirm(
+                    title = null, message = strings.cloudReplaceLocalLead(containsStr), confirmText = strings.cloudReplaceConfirm,
+                    dismissText = strings.cancel, detail = strings.cloudReplaceLocalDetail, destructive = true,
+                )
+                InitialOperation.CREATE_NEW -> AppDialogRequest.Confirm(
+                    title = null, message = strings.cloudReplaceCloudLead(containsStr), confirmText = strings.cloudReplaceConfirm,
+                    dismissText = strings.cancel, detail = strings.cloudReplaceCloudDetail, destructive = true,
+                )
             }
-            val confirmed = dialogs.await(AppDialogRequest.Confirm(strings.areYouSure, msgString, strings.okay, strings.cancel)) == AppDialogResult.Ok
+            val confirmed = dialogs.await(request) == AppDialogResult.Ok
             if (!confirmed) return null
         }
         return q1
@@ -512,7 +521,7 @@ class CloudSync(
             runCatching { FileSystem.SYSTEM.delete(tmpFile) }
             // A merge holds the database replace: it shows the message itself once the replace has ended.
             if (failWithoutMessage) throw IncompatiblePatchVersion()
-            dialogs.await(AppDialogRequest.Message(null, cantFetchString(strings.syncCategoryContents(dbDef.category.name)), strings.okay, cancellable = false))
+            dialogs.await(tooOldMessage(dbDef))
             dbDef.category.setSyncEnabled(settings, false)
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > $localVersion")
             throw CancelStartedSync()
@@ -674,7 +683,7 @@ class CloudSync(
                 }
             }
         } catch (e: IncompatiblePatchVersion) {
-            dialogs.await(AppDialogRequest.Message(null, cantFetchString(strings.syncCategoryContents(dbDef.category.name)), strings.okay, cancellable = false))
+            dialogs.await(tooOldMessage(dbDef))
             throw CancelStartedSync()
         } catch (e: IOException) {
             logSyncFailure(dbDef, "merge", e, "probably network down")
@@ -907,6 +916,11 @@ class CloudSync(
             Log.i(TAG, "Synchronization complete in ${(Clock.System.now().toEpochMilliseconds() - timerStart)/1000.0} seconds.")
         }
     }
+
+    private fun tooOldMessage(dbDef: SyncableDatabaseAccessor<*>) = AppDialogRequest.Message(
+        title = null, message = strings.syncTooOldLead(strings.syncCategoryContents(dbDef.category.name)),
+        confirmText = strings.okay, cancellable = false, detail = strings.syncTooOldDetail,
+    )
 
     private fun cantFetchString(contentDescription: String): String {
        val s1 = strings.syncCantFetch

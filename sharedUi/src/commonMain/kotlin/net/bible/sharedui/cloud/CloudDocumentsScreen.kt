@@ -204,35 +204,39 @@ fun CloudDocumentsScreen(
                 selectedIds = preChecked,
                 idOf = { it.first },
                 labelOf = { it.second },
-                confirmText = strings.okay,
+                confirmText = strings.cloudDocSyncNow,
                 dismissText = strings.cancel,
                 onConfirm = { ids -> onSyncNowConfirm(rows.indices.map { it.toString() in ids }) },
                 onDismiss = onSyncNowDismiss,
             )
         }
-        // The remove/purge question (NH rows 8574/8586); classic's own title/Okay/Cancel wording.
-        // The title is one of two ALREADY-EXISTING strings (also used as the per-row action label),
-        // picked here in the SCREEN from the bare `allDevices` flag the controller carries.
+        // The remove/purge/block questions: the controller's message is the lead line (it names the document or
+        // the count); the consequence line is static per kind and is picked here in the SCREEN from the bare
+        // `allDevices` flag the controller carries.
         is CloudDocumentsDialog.ConfirmRemove -> AbConfirmDialog(
-            title = if (dialog.allDevices) strings.cloudActionRemoveAllDevices else strings.cloudActionRemoveCloud,
+            title = null,
             message = dialog.message,
-            confirmText = strings.okay,
+            detail = if (dialog.allDevices) strings.cloudDocRemoveAllDetail else strings.cloudDocRemoveCloudDetail,
+            confirmText = strings.remove,
             dismissText = strings.cancel,
+            destructive = true,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,
         )
         is CloudDocumentsDialog.ConfirmPurge -> AbConfirmDialog(
-            title = strings.cloudActionPurge,
+            title = null,
             message = dialog.message,
-            confirmText = strings.okay,
+            detail = strings.cloudDocPurgeDetail,
+            confirmText = strings.remove,
             dismissText = strings.cancel,
+            destructive = true,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,
         )
         is CloudDocumentsDialog.ConfirmBlock -> AbConfirmDialog(
-            title = strings.cloudActionBlock,
+            title = null,
             message = dialog.message,
-            confirmText = strings.okay,
+            confirmText = strings.cloudDocBlockConfirmButton,
             dismissText = strings.cancel,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,

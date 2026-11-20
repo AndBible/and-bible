@@ -18,6 +18,7 @@
 package net.bible.android.control.backup
 
 import okio.use
+import net.bible.sharedcore.ui.dialog.DialogAnswer
 import net.bible.sharedcore.ui.dialog.toAnswers
 import kotlinx.coroutines.IO
 import net.bible.sharedcore.platform.files.BackupFileSniffer
@@ -499,8 +500,11 @@ class BackupControl(
         notifier.showError(message)
     }
 
-    private suspend fun confirm(message: String): Boolean = dialogs.await(AppDialogRequest.Confirm(
-        title = strings.areYouSure, message = message, confirmText = strings.okay, dismissText = strings.cancel,
+    private suspend fun confirm(
+        lead: String, detail: String? = null, confirmText: String, destructive: Boolean = false,
+    ): Boolean = dialogs.await(AppDialogRequest.Confirm(
+        title = null, message = lead, confirmText = confirmText, dismissText = strings.cancel,
+        detail = detail, destructive = destructive,
     )) == AppDialogResult.Ok
 
     /** Test hook: called with the module files of a SWORD book after they are listed and before they are zipped. */
@@ -985,9 +989,10 @@ class BackupControl(
                         askIfRestoreOrImport(category, backupFile)
                     override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition) =
                         confirm(
-                            strings.overwriteSomething(
-                                strings.syncCategoryContents(category.name)
-                            )
+                            lead = strings.backupReplaceLead(strings.syncCategoryContents(category.name)),
+                            detail = strings.backupReplaceDetail,
+                            confirmText = strings.cloudReplaceConfirm,
+                            destructive = true,
                         )
                 })
                 Log.i(TAG, "Restored database successfully")
@@ -1096,16 +1101,14 @@ class BackupControl(
         val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
             " (${bookmarksDbStats(category, backupFile, strings)})"
         } else ""
-        val message =
-            strings.askRestoreOrImport(strings.syncCategoryContents(category.name) + contents)
         val result = dialogs.await(
             AppDialogRequest.Options(
-                title = strings.syncCategoryContents(category.name),
-                message = message,
+                title = strings.restoreOrImportLead(strings.syncCategoryContents(category.name) + contents),
+                message = null,
                 options = listOf(
-                    SettingsItem.Choice(RESTORE_VALUE, strings.restore),
-                    SettingsItem.Choice(IMPORT_VALUE, strings.import2),
-                ).toAnswers(),
+                    DialogAnswer(RESTORE_VALUE, strings.restore, strings.restoreConsequence, destructive = true),
+                    DialogAnswer(IMPORT_VALUE, strings.import2, strings.importConsequence),
+                ),
                 dismissText = strings.cancel,
                 asActionSheet = false,
             ),
@@ -1122,8 +1125,9 @@ class BackupControl(
         source: PickedSource
     ): Boolean {
         val result2 = dialogs.await(AppDialogRequest.Message(
-            title = null, message = strings.restoreConfirmation,
-            confirmText = strings.okay, dismissText = strings.cancel, cancellable = true,
+            title = null, message = strings.restoreAllLead,
+            confirmText = strings.cloudReplaceConfirm, dismissText = strings.cancel, cancellable = true,
+            destructive = true,
         ))
         if(result2 != AppDialogResult.Ok) return false
         var result: Boolean
@@ -1529,7 +1533,12 @@ class BackupControl(
         syncCategory: SyncableDatabaseDefinition?
     ) {
         val dbName = strings.databaseTitle(dbFileName)
-        val confirmed = confirm(strings.resetDatabaseConfirm(dbName))
+        val confirmed = confirm(
+            lead = strings.resetDatabaseLead(dbName),
+            detail = strings.resetDatabaseDetail,
+            confirmText = strings.resetDatabaseButton,
+            destructive = true,
+        )
         if (!confirmed) return
 
         withContext(Dispatchers.IO) {

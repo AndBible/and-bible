@@ -89,7 +89,6 @@ interface CoreStrings {
     fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
     /** H2: device-neutral wording of [webDavUntrustedCertificateMessage] for iOS ("this device" instead of "Android"). */
     fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
-    val signInFailed: String
     val cloudSyncTitle: String
     val cloudMergeData: String
     val cloudFetchAndRestoreInitial: String
@@ -101,10 +100,7 @@ interface CoreStrings {
     val okay: String
     val cancel: String
     val areYouSure: String
-    fun overrideBackup(contents: String): String
     fun areYouSureMerge(contents: String): String
-    fun areYouSureResetLocal(what: String): String
-    fun areYouSureResetCloud(what: String): String
     fun syncDisabling(what: String): String
 
     fun databaseTitle(dbFileName: String): String
@@ -130,7 +126,6 @@ interface CoreStrings {
     val loadingBackup: String
     val restoreUnsuccessfull: String
     val restoreSuccess: String
-    val restoreConfirmation: String
     val restore: String
     val import2: String
     val resetDatabaseSuccess: String
@@ -140,9 +135,6 @@ interface CoreStrings {
     fun backupEmailMessage2(name: String): String
     fun backupModulesEmailSubject2(name: String): String
     fun backupModulesEmailMessage2(name: String, modules: String): String
-    fun overwriteSomething(contents: String): String
-    fun askRestoreOrImport(contents: String): String
-    fun resetDatabaseConfirm(name: String): String
     fun backupModulesConflict(first: String, second: String, file: String): String // R.string.backup_modules_conflict
     fun backupModulesConflictBook(name: String, version: String, folder: String): String // R.string.backup_modules_conflict_book
     fun backupFileInfo(version: Int, size: String): String
@@ -188,4 +180,30 @@ interface CoreStrings {
     val prefsNotesContentTypeValues: List<String> // R.array.prefs_notes_content_type_values
     val prefsDisplayColorModeNames: List<String> // R.array.prefs_display_color_mode_names
     val prefsDisplayColorModeValues: List<String> // R.array.prefs_display_color_mode_values
+
+    // dialog copy: B3b
+    fun cloudExistingDataLead(contents: String): String
+    val cloudMergeConsequence: String
+    val cloudFetchConsequence: String
+    val cloudCreateConsequence: String
+    val cloudDisableConsequence: String
+    fun cloudMergeLead(contents: String): String
+    val cloudMergeConfirm: String
+    val cloudReplaceConfirm: String
+    fun cloudReplaceLocalLead(contents: String): String
+    val cloudReplaceLocalDetail: String
+    fun cloudReplaceCloudLead(contents: String): String
+    val cloudReplaceCloudDetail: String
+    val signInFailedLead: String
+    fun syncTooOldLead(contents: String): String
+    val syncTooOldDetail: String
+    fun backupReplaceLead(contents: String): String
+    val backupReplaceDetail: String
+    fun resetDatabaseLead(name: String): String
+    val resetDatabaseDetail: String
+    val resetDatabaseButton: String
+    val restoreAllLead: String
+    fun restoreOrImportLead(contents: String): String
+    val restoreConsequence: String
+    val importConsequence: String
 }

@@ -47,7 +47,7 @@ class DestinationPromptTest {
         dirs = stub<AppDirectories>(),
     )
 
-    private fun labels(request: AppDialogRequest.Options) = request.options.map { (it as SettingsItem.Choice).label }
+    private fun labels(request: AppDialogRequest.Options) = request.options.map { (it as net.bible.sharedcore.ui.dialog.DialogAnswer).label }
 
     @Test
     fun saveOnlyPlatformSkipsThePromptAndSaves() = runTest {

@@ -171,11 +171,11 @@ fun Strings.syncSettingsLabels() = SyncSettingsLabels(
     wifiOnlySummary = documentSyncWifiOnlySummary,
     manageTitle = documentSyncManageTitle,
     manageSummary = documentSyncManageSummary,
-    resetConfirmMessage = syncConfirmation,
+    resetConfirmMessage = syncResetLead,
     invalidUrlMessage = invalidUrlMessage,
     documentsEnableDialogTitle = documentSyncEnableDialogTitle,
     certificateTitle = webdavCertificateTitle,
-    forgetCertificateMessage = webdavForgetCertificateMessage,
+    forgetCertificateMessage = webdavForgetCertificateLead,
     httpsRequiredMessage = webdavHttpsRequired,
 )
 

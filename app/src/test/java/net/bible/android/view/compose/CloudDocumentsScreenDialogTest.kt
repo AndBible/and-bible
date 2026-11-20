@@ -17,7 +17,10 @@
 
 package net.bible.android.view.compose
 
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import net.bible.android.TEST_SDK
@@ -30,6 +33,8 @@ import net.bible.sharedcore.navigation.DocGroupKey
 import net.bible.sharedcore.navigation.defaultArrangement
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.cloud.CloudDocumentsScreen
+import net.bible.sharedui.components.dialog.DialogButtonRole
+import net.bible.sharedui.components.dialog.DialogButtonRoleKey
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -44,7 +49,7 @@ import org.robolectric.annotation.GraphicsMode
  * `cloudDocumentsConfirmPurge` moved their `AlertDialog.Builder` questions into
  * `CloudDocumentsController.dialog` (extending the pre-existing `syncNowDialog` into one
  * `CloudDocumentsDialog` sum type). This proves [CloudDocumentsScreen] renders `ConfirmRemove`/
- * `ConfirmPurge` with the right title/message and answers `onConfirmDialog`/`onDismissDialog` --
+ * `ConfirmPurge` with the lead line, the consequence line and the verb button and answers `onConfirmDialog`/`onDismissDialog` --
  * `SyncNow`'s own rendering (an `AbMultiSelectSheet`) is unchanged and already covered by
  * `CloudDocumentsGoldenTest`/`CloudDocumentsControllerRebuildIsolationTest`.
  */
@@ -108,46 +113,65 @@ class CloudDocumentsScreenDialogTest {
         }
     }
 
+    private fun confirmRole() = compose.onNodeWithTag("dialog-confirm").fetchSemanticsNode().config.getOrNull(DialogButtonRoleKey)
+
     @Test fun noneShowsNoDialog() {
         show(CloudDocumentsDialog.None)
         compose.onNodeWithText("Remove from cloud").assertDoesNotExist()
+        compose.onNodeWithTag("dialog-confirm").assertDoesNotExist()
     }
 
-    @Test fun confirmRemove_cloudOnly_showsTheCloudTitle_okAnswersConfirm() {
-        show(CloudDocumentsDialog.ConfirmRemove(listOf("KJV"), "Remove KJV from the cloud?", allDevices = false))
-        compose.onNodeWithText("Remove from cloud").assertExists()
-        compose.onNodeWithText("Remove KJV from the cloud?").assertExists()
-        compose.onNodeWithText("OK").performClick()
+    @Test fun confirmRemove_cloudOnly_showsLeadAndDetail_removeIsDestructiveAndConfirms() {
+        show(CloudDocumentsDialog.ConfirmRemove(listOf("KJV"), "Remove \u201cKJV\u201d from the cloud?", allDevices = false))
+        compose.onNodeWithText("Remove \u201cKJV\u201d from the cloud?").assertExists()
+        compose.onNodeWithTag("dialog-detail")
+            .assertTextEquals("Copies on this device are kept. Devices with document sync on will remove them too.")
+        compose.onNodeWithTag("dialog-confirm").assertTextEquals("Remove")
+        assertEquals(DialogButtonRole.Destructive, confirmRole())
+        compose.onNodeWithTag("dialog-confirm").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }
 
-    @Test fun confirmRemove_allDevices_showsTheAllDevicesTitle() {
-        show(CloudDocumentsDialog.ConfirmRemove(listOf("KJV", "ESV"), "Remove 2 documents?", allDevices = true))
-        compose.onNodeWithText("Remove from all devices").assertExists()
-        compose.onNodeWithText("Remove 2 documents?").assertExists()
+    @Test fun confirmRemove_allDevices_hasTheAllDevicesDetail() {
+        show(CloudDocumentsDialog.ConfirmRemove(listOf("KJV", "ESV"), "Remove 2 documents from the cloud and all your devices?", allDevices = true))
+        compose.onNodeWithText("Remove 2 documents from the cloud and all your devices?").assertExists()
+        compose.onNodeWithTag("dialog-detail")
+            .assertTextEquals("This also deletes the copies on this device and on every other device with document sync on.")
+        assertEquals(DialogButtonRole.Destructive, confirmRole())
     }
 
     @Test fun confirmRemove_cancelAnswersDismiss_notConfirm() {
-        show(CloudDocumentsDialog.ConfirmRemove(listOf("KJV"), "Remove KJV from the cloud?", allDevices = false))
-        compose.onNodeWithText("Cancel").performClick()
+        show(CloudDocumentsDialog.ConfirmRemove(listOf("KJV"), "Remove \u201cKJV\u201d from the cloud?", allDevices = false))
+        compose.onNodeWithTag("dialog-dismiss").performClick()
         assertEquals(0, confirmCalls)
         assertEquals(1, dismissCalls)
     }
 
-    @Test fun confirmPurge_showsTheTitleAndMessage_okAnswersConfirm() {
-        show(CloudDocumentsDialog.ConfirmPurge(listOf("KJV"), "Permanently remove KJV from the cloud history?"))
-        compose.onNodeWithText("Remove from cloud history").assertExists()
-        compose.onNodeWithText("Permanently remove KJV from the cloud history?").assertExists()
-        compose.onNodeWithText("OK").performClick()
+    @Test fun confirmPurge_showsLeadAndDetail_removeIsDestructiveAndConfirms() {
+        show(CloudDocumentsDialog.ConfirmPurge(listOf("KJV"), "Permanently remove \u201cKJV\u201d from the cloud history?"))
+        compose.onNodeWithText("Permanently remove \u201cKJV\u201d from the cloud history?").assertExists()
+        compose.onNodeWithTag("dialog-detail")
+            .assertTextEquals("A device that still has a copy may upload it again on its next sync.")
+        compose.onNodeWithTag("dialog-confirm").assertTextEquals("Remove")
+        assertEquals(DialogButtonRole.Destructive, confirmRole())
+        compose.onNodeWithTag("dialog-confirm").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }
 
     @Test fun confirmPurge_cancelAnswersDismiss() {
-        show(CloudDocumentsDialog.ConfirmPurge(listOf("KJV"), "Permanently remove KJV?"))
-        compose.onNodeWithText("Cancel").performClick()
+        show(CloudDocumentsDialog.ConfirmPurge(listOf("KJV"), "Permanently remove \u201cKJV\u201d?"))
+        compose.onNodeWithTag("dialog-dismiss").performClick()
         assertEquals(0, confirmCalls)
         assertEquals(1, dismissCalls)
+    }
+
+    @Test fun confirmBlock_hasNoDetail_andANonDestructiveVerbButton() {
+        show(CloudDocumentsDialog.ConfirmBlock(listOf("KJV"), "Stop syncing 1 document to the cloud?"))
+        compose.onNodeWithText("Stop syncing 1 document to the cloud?").assertExists()
+        compose.onNodeWithTag("dialog-detail").assertDoesNotExist()
+        compose.onNodeWithTag("dialog-confirm").assertTextEquals("Don\u2019t sync")
+        assertEquals(DialogButtonRole.Confirm, confirmRole())
     }
 }

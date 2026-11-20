@@ -164,8 +164,38 @@ class BackupControlTest {
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
         assertEquals(2, head.options.size)
+        // B3b: the question is the lead (title), each answer says what it does, restore is the harmful one.
+        assertNull(head.message)
+        val contents = net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")
+        assertEquals(activity.getString(R.string.restore_or_import_lead, contents), head.title)
+        assertEquals(
+            listOf(activity.getString(R.string.restore_consequence), activity.getString(R.string.import_consequence)),
+            head.options.map { it.consequence },
+        )
+        assertEquals(listOf(true, false), head.options.map { it.destructive })
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
         assertEquals(true, answer.await())
+    }
+
+    // -- resetDatabase confirmation (B3b) --
+
+    @Test
+    fun resetDatabaseAsksWithAQuotedLeadAConsequenceAndADestructiveResetButton() = runTest {
+        val activity = activity()
+        val backupControl = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java)
+        val job = async { backupControl.resetDatabase("bookmarks.sqlite3", null) }
+        advanceUntilIdle()
+        val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
+        val name = net.bible.test.testCoreStrings().databaseTitle("bookmarks.sqlite3")
+        assertNull("a lead line, not an 'Are you sure?' title", confirm.title)
+        assertTrue(confirm.message!!, confirm.message!!.contains("\u201c$name\u201d"))
+        assertNotNull(confirm.detail)
+        assertEquals(activity.getString(R.string.reset_database_detail), confirm.detail)
+        assertEquals("Reset", confirm.confirmText)
+        assertEquals(activity.getString(R.string.cancel), confirm.dismissText)
+        assertTrue(confirm.destructive)
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
+        job.await() // declined: nothing is reset
     }
 
     @Test

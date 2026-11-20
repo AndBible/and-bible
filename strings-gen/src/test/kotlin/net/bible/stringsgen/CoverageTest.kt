@@ -44,8 +44,8 @@ class CoverageTest {
     @Test fun real_base_has_the_expected_plurals() {
         val p = parsePluralsXml(baseXml.readText())
         assertEquals(setOf(
-            "multi_search_verse_count", "multi_search_translation_count", "cloud_doc_sync_now_count", "cloud_doc_sync_now_count_size", "cloud_doc_bulk_remove_all_confirm",
-            "cloud_doc_bulk_remove_cloud_confirm", "cloud_doc_bulk_purge_confirm", "cloud_doc_bulk_block_confirm",
+            "multi_search_verse_count", "multi_search_translation_count", "cloud_doc_sync_now_count", "cloud_doc_sync_now_count_size", "cloud_doc_bulk_remove_all_lead",
+            "cloud_doc_bulk_remove_cloud_lead", "cloud_doc_bulk_purge_lead", "cloud_doc_bulk_block_lead",
             "legacy_notice_bookmarks_skipped",
         ), p.keys)
         assertTrue(p.values.all { "one" in it && "other" in it }, "each plural must have one+other")

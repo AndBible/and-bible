@@ -314,8 +314,9 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
 
         appDialogs.post(
             AppDialogRequest.Confirm(
-                title = host.getString(R.string.new_sync_targets_notice_title),
-                message = host.getString(R.string.new_sync_targets_notice_message),
+                title = null,
+                message = host.getString(R.string.new_sync_targets_lead),
+                detail = host.getString(R.string.new_sync_targets_detail),
                 confirmText = host.getString(R.string.open_settings),
                 dismissText = host.getString(R.string.dismiss),
                 cancellable = false,

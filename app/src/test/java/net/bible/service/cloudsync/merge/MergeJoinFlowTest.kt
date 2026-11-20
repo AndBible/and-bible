@@ -303,7 +303,7 @@ class MergeJoinFlowTest {
         assertFalse(category.isSyncEnabled(settings))
         val messages = seenDialogs.filterIsInstance<AppDialogRequest.Message>()
         assertEquals("exactly one 'update the app' message", 1, messages.size)
-        assertTrue(messages.single().message.contains(net.bible.test.testCoreStrings().syncUpdateApp))
+        assertTrue(messages.single().detail!!.contains(net.bible.test.testCoreStrings().syncTooOldDetail))
         assertEquals(emptyList<String>(), mergeTempFiles())
     }
 
@@ -332,7 +332,7 @@ class MergeJoinFlowTest {
         assertFalse(category.isSyncEnabled(settings))
         val messages = seenDialogs.filterIsInstance<AppDialogRequest.Message>()
         assertEquals("exactly one 'update the app' message", 1, messages.size)
-        assertTrue(messages.single().message, messages.single().message.contains(net.bible.test.testCoreStrings().syncUpdateApp))
+        assertTrue(messages.single().message, messages.single().detail!!.contains(net.bible.test.testCoreStrings().syncTooOldDetail))
     }
 
     @Test fun noCloudFolderNoQuestion() = runTest(testDispatcher, timeout = 120.seconds) {
