@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import kotlinx.coroutines.Dispatchers
@@ -94,6 +95,30 @@ object WidgetUpdater {
         job = koin.get<AppCoroutineScope>().launch {
             producer.state.collect { runCatching { refreshSpeakWidgets(app) } }
         }
+    }
+
+    /** Whether a Speak, Speak with text or Listening list widget instance is placed; replaceable in tests. */
+    internal var hasSpeakWidgets: suspend (Context) -> Boolean = { context ->
+        val manager = GlanceAppWidgetManager(context)
+        listOf(SpeakGlanceWidget::class.java, SpeakTextGlanceWidget::class.java, ListeningListGlanceWidget::class.java)
+            .any { manager.getGlanceIds(it).isNotEmpty() }
+    }
+
+    /**
+     * Cold-start entry: starts the producer only when a speak widget exists. Without one nothing reads the speak
+     * state, and the first read builds the TTS manager and loads the window repository, which must not happen as a
+     * side effect of every app start.
+     */
+    fun startIfSpeakWidgetsPresent(context: Context) {
+        val app = context.applicationContext
+        KoinPlatform.getKoin().get<AppCoroutineScope>().launch {
+            if (runCatching { hasSpeakWidgets(app) }.getOrDefault(false)) start(app)
+        }
+    }
+
+    /** Stops the producer when the last speak widget was removed. */
+    suspend fun stopIfNoSpeakWidgets(context: Context) {
+        if (!runCatching { hasSpeakWidgets(context.applicationContext) }.getOrDefault(true)) stop()
     }
 
     /** Stops following the speak services; the widgets keep their last drawing. */

@@ -174,7 +174,6 @@ open class TestBibleApplication : BibleApplication() {
         }))
         MyDocumentBookManager.launcher = aiLauncher
         beforeAppStartup()
-        CommonUtils.speakWidgetsEnabled = false
         CommonUtils.initializeApp()
         // The background snapshot load builds Koin singles (PromptService launches collectors on the AppCoroutineScope
         // it resolves then). A test body that swaps that binding must not race it: finish the load before the test starts.
@@ -341,6 +340,9 @@ open class TestBibleApplication : BibleApplication() {
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.ActivityMenuPreference::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakSettingsServiceImpl::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakTransportServiceImpl::class) }
+        // The producer keeps the AppCoroutineScope it was built with, which the fixture replaces after a terminate.
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.widget.SpeakWidgetStateProducer::class) }
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.widget.ControlSpeakWidgetSource::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakControl::class) }
         cleanup { SpeakChanges.resetSubscribersForTest() }
         cleanup { SpeakSettingsChanges.resetSubscribersForTest() }

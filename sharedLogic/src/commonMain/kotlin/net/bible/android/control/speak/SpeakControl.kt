@@ -85,6 +85,9 @@ class SpeakControl constructor(
 
     private var originalSettingsBeforeMemLoop: SpeakSettings? = null
     private var ttsInitialized = false
+
+    /** Whether the TTS service manager has been created. Observers (the home-screen widgets) must not be the ones to create it. */
+    val ttsStarted: Boolean get() = ttsInitialized
     private val ttsServiceManager: TextToSpeechServiceManager get () {
         if(!ttsInitialized)
             ttsInitialized = true

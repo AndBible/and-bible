@@ -121,6 +121,9 @@ class SpeakWidgetStateProducer(
         }
     }
 
+    /** Whether a run is active (started and not stopped or cancelled). */
+    val isRunning: Boolean get() = job.value?.let { !it.isCompleted && !it.isCancelled } == true
+
     /** Stops following the source; [state] keeps its last value. [start] may be called again. */
     fun stop() {
         job.getAndSet(null)?.cancel()

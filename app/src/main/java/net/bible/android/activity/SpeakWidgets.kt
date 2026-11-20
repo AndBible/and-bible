@@ -23,6 +23,10 @@ import net.bible.android.view.widget.ListeningListGlanceWidget
 import net.bible.android.view.widget.SpeakGlanceWidget
 import net.bible.android.view.widget.SpeakTextGlanceWidget
 import net.bible.android.view.widget.WidgetUpdater
+import android.content.Context
+import kotlinx.coroutines.launch
+import net.bible.sharedcore.platform.AppCoroutineScope
+import org.koin.mp.KoinPlatform
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 
@@ -33,6 +37,17 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
  * new Speak, Speak with text and Listening list widgets they map to).
  */
 class SpeakWidgetManager {
+    /** A speak-state widget provider; stops the producer when its last instance was removed. */
+    abstract class SpeakWidgetReceiver : GlanceAppWidgetReceiver() {
+        override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+            super.onDeleted(context, appWidgetIds)
+            val pending = goAsync()
+            KoinPlatform.getKoin().get<AppCoroutineScope>().launch {
+                try { WidgetUpdater.stopIfNoSpeakWidgets(context) } finally { pending.finish() }
+            }
+        }
+    }
+
     companion object {
         var instance: SpeakWidgetManager? = null
         const val TAG = "SpeakWidget"
@@ -45,7 +60,7 @@ class SpeakWidgetManager {
             throw IllegalStateException("This is singleton!")
         }
         instance = this
-        WidgetUpdater.start(app)
+        WidgetUpdater.startIfSpeakWidgetsPresent(app)
     }
 
     /** Re-draws the widget texts from the current resources (called when the app language changes). */
@@ -57,27 +72,27 @@ class SpeakWidgetManager {
     }
 
     /** The old Small widget; renders the Speak widget. Hidden from the widget picker. */
-    class SmallSpeakControlWidget : GlanceAppWidgetReceiver() {
+    class SmallSpeakControlWidget : SpeakWidgetReceiver() {
         override val glanceAppWidget: GlanceAppWidget = SpeakGlanceWidget()
     }
 
     /** The old Middle widget; renders the Speak widget. Hidden from the widget picker. */
-    class MiddleSpeakControlWidget : GlanceAppWidgetReceiver() {
+    class MiddleSpeakControlWidget : SpeakWidgetReceiver() {
         override val glanceAppWidget: GlanceAppWidget = SpeakGlanceWidget()
     }
 
     /** The Speak widget (the old Large widget's class). */
-    class LargeSpeakControlWidget : GlanceAppWidgetReceiver() {
+    class LargeSpeakControlWidget : SpeakWidgetReceiver() {
         override val glanceAppWidget: GlanceAppWidget = SpeakGlanceWidget()
     }
 
     /** The Speak with text widget (the old Text widget's class). */
-    class SpeakTextControlWidget : GlanceAppWidgetReceiver() {
+    class SpeakTextControlWidget : SpeakWidgetReceiver() {
         override val glanceAppWidget: GlanceAppWidget = SpeakTextGlanceWidget()
     }
 
     /** The Listening list widget (the old speak bookmarks widget's class). */
-    class SpeakBookmarkWidget : GlanceAppWidgetReceiver() {
+    class SpeakBookmarkWidget : SpeakWidgetReceiver() {
         override val glanceAppWidget: GlanceAppWidget = ListeningListGlanceWidget()
     }
 }
