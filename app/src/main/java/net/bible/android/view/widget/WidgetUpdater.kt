@@ -26,6 +26,7 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.control.widget.SpeakWidgetState
@@ -53,9 +54,10 @@ internal suspend fun GlanceAppWidget.provideWidgetContent(
     content: @Composable (SpeakWidgetState, WidgetStrings) -> Unit,
 ) {
     val entry = widgetEntry()
+    WidgetUpdater.mono.value = entry.mono
     if (entry.appOpens) WidgetUpdater.start(context)
     provideContent {
-        AbWidgetTheme(entry.mono) {
+        AbWidgetTheme(WidgetUpdater.mono.collectAsState().value) {
             if (!entry.appOpens) AttentionGlanceContent() else {
                 val koin = KoinPlatform.getKoin()
                 val state by koin.get<SpeakWidgetStateProducer>().state.collectAsState()
@@ -72,6 +74,13 @@ internal suspend fun GlanceAppWidget.provideWidgetContent(
  */
 object WidgetUpdater {
     private var job: Job? = null
+
+    /**
+     * The monochrome setting as the widgets last saw it. Read inside the composition: a Glance session that is still
+     * alive (while speaking, and shortly after a draw) is recomposed by an update without running `provideGlance`
+     * again, so a value captured there would stay stale.
+     */
+    internal val mono = MutableStateFlow(false)
 
     /** Starts the producer and the redraw loop; idempotent. */
     @Synchronized
@@ -104,8 +113,11 @@ object WidgetUpdater {
 
     /** Redraws every widget after the display colour mode changed (monochrome widgets are drawn in grey scale). */
     fun refreshForColorMode() {
-        val app = net.bible.android.BibleApplication.application
-        runCatching { KoinPlatform.getKoin().get<AppCoroutineScope>().launch { runCatching { refreshAll(app) } } }
+        runCatching {
+            val app = net.bible.android.BibleApplication.application
+            mono.value = CommonUtils.settings.monochromeMode
+            KoinPlatform.getKoin().get<AppCoroutineScope>().launch { runCatching { refreshAll(app) } }
+        }
     }
 
     private suspend fun refreshSpeakWidgets(context: Context) {

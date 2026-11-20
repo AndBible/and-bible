@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -86,6 +87,7 @@ class VerseGlanceWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
         val entry = widgetEntry()
+        WidgetUpdater.mono.value = entry.mono
         val koin = KoinPlatform.getKoin()
         val strings = koin.get<WidgetStrings>()
         var config: VerseWidgetConfig? = null
@@ -99,7 +101,7 @@ class VerseGlanceWidget : GlanceAppWidget() {
             VerseWidgetScheduler.schedule(context, appWidgetId, VerseSelector.nextPeriodStart(now, zone, config.frequency))
         }
         provideContent {
-            AbWidgetTheme(entry.mono) {
+            AbWidgetTheme(WidgetUpdater.mono.collectAsState().value) {
                 if (!entry.appOpens || config == null || content == null) AttentionGlanceContent()
                 else VerseWidgetBody(content, config, strings, appWidgetId, LocalSize.current.width, LocalSize.current.height)
             }

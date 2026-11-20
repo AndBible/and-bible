@@ -30,6 +30,7 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import net.bible.android.control.widget.SpeakWidgetState
@@ -79,7 +80,8 @@ fun SpeakTextContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp,
     }
     // The smallest 2-row widget is 110 dp high: tighter padding, a 13 sp verse of at most 2 lines and 36 dp play button fit it.
     WidgetRoot(openAppAction(), padding = if (tall) 12.dp else 8.dp) {
-        Column(modifier = GlanceModifier.fillMaxWidth()) {
+        // fillMaxSize: the verse (weighted) then shrinks to what the title and controls leave, instead of the column overflowing.
+        Column(modifier = GlanceModifier.fillMaxSize()) {
             Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = GlanceModifier.defaultWeight()) {
                     WidgetText(state.title ?: strings.appName, size = 13, bold = true)
