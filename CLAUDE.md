@@ -43,6 +43,9 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 - **Appearance dimension**: `standard` (normal) vs `discrete` (calculator disguise for persecution-sensitive areas)
 - **Distribution dimension**: `googleplay`, `fdroid`, `github`, `samsung`, `huawei`, `amazon`, `accrescent`
 
+Release builds are R8-obfuscated (all flavours but `fdroid`): keep rules for reflective code, where each release's
+`mapping.txt` goes and how to retrace a crash (`scripts/retrace-crash.sh`) are in [docs/r8-obfuscation.md](docs/r8-obfuscation.md).
+
 ### Common Build Commands
 
 **Vue.js Development (works offline after initial setup)**

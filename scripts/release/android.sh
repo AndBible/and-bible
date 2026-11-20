@@ -5,9 +5,12 @@
 #
 # Usage: scripts/release/android.sh build|upload|verify|reusable [--dry-run]
 #   build     gradle-release.sh bundleStandardGoogleplayRelease (signing properties from the bundle session), copy the AAB
-#             to .local/release/<versionCode>/android/andbible-<versionName>.aab, verify, write artifact.env
-#   verify    the AAB is signed by the bundle keystore's certificate (alias andbible), its versionCode/versionName equal
-#             version.properties, and its SHA-256 equals artifact.env (when present)
+#             to .local/release/<versionCode>/android/andbible-<versionName>.aab and the R8 mapping.txt next to it as
+#             mapping-<versionName>.txt (release builds are obfuscated, #4160; docs/r8-obfuscation.md), verify, write
+#             artifact.env
+#   verify    the AAB is signed by the bundle keystore's certificate (alias andbible), carries the R8 mapping that Play
+#             deobfuscates crashes with, its versionCode/versionName equal version.properties, and its SHA-256 equals
+#             artifact.env (when present)
 #   upload    verify, then fastlane supply to track internal (release status completed, every --skip_upload_* true)
 #   reusable  exit 0 iff artifact.env matches HEAD, version.properties and the AAB's SHA-256 (no secrets needed)
 #   --dry-run print the build/upload commands (secrets as <session>/...) and run nothing
@@ -41,6 +44,10 @@ OUT="$REPO/.local/release/$VC/android"
 AAB="$OUT/andbible-$VN.aab"
 ENVF="$OUT/artifact.env"
 GRADLE_OUT="$REPO/app/build/outputs/bundle/standardGoogleplayRelease"
+GRADLE_MAPPING="$REPO/app/build/outputs/mapping/standardGoogleplayRelease/mapping.txt"
+MAPPING="$OUT/mapping-$VN.txt"
+# AGP stores the R8 mapping in the bundle here; Play reads it from the uploaded AAB.
+AAB_MAPPING_ENTRY=BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map
 head10() { git -C "$REPO" rev-parse --short=10 HEAD; }
 sha() { sha256sum "$1" | cut -d' ' -f1; }
 envval() { sed -n "s/^$1=//p" "$ENVF" 2>/dev/null | head -n 1; }
@@ -83,6 +90,8 @@ verify() {
     name=$(bundletool_dump "$AAB" /manifest/@android:versionName) || die "bundletool dump failed"
     [ "$code" = "$VC" ] || die "AAB versionCode $code != version.properties $VC"
     [ "$name" = "$VN" ] || die "AAB versionName $name != $VN"
+    python3 -I -c 'import sys, zipfile; sys.exit(0 if sys.argv[2] in zipfile.ZipFile(sys.argv[1]).namelist() else 1)' \
+        "$AAB" "$AAB_MAPPING_ENTRY" || die "the AAB has no $AAB_MAPPING_ENTRY: Play could not deobfuscate its crashes"
     echo "android: verified $AAB (certificate ${fp_key:0:11}...${fp_key: -11}, versionCode $VC, versionName $VN)"
 }
 
@@ -96,14 +105,14 @@ build() {
     local head0 n props
     if [ "$DRY" = 1 ]; then
         echo "[dry-run] ANDBIBLE_SIGNING_PROPERTIES=<session>/keystore.properties $GRADLE_RELEASE bundleStandardGoogleplayRelease > $OUT/gradle.log"
-        echo "[dry-run] cp $GRADLE_OUT/*.aab $AAB; verify; write $ENVF"
+        echo "[dry-run] cp $GRADLE_OUT/*.aab $AAB; cp $GRADLE_MAPPING $MAPPING; verify; write $ENVF"
         return 0
     fi
     props=$(secrets_member keystore.properties) || die "no open secrets bundle"
     check_clean
     head0=$(git -C "$REPO" rev-parse HEAD)
     mkdir -p "$OUT"
-    rm -f "$ENVF" "$AAB" "$GRADLE_OUT"/*.aab
+    rm -f "$ENVF" "$AAB" "$MAPPING" "$GRADLE_OUT"/*.aab "$GRADLE_MAPPING"
     echo "android: building bundleStandardGoogleplayRelease $VN ($VC), log $OUT/gradle.log"
     ANDBIBLE_SIGNING_PROPERTIES="$props" "$GRADLE_RELEASE" bundleStandardGoogleplayRelease > "$OUT/gradle.log" 2>&1 \
         || die "Gradle failed; see $OUT/gradle.log"
@@ -112,7 +121,9 @@ build() {
     shopt -s nullglob; local aabs=("$GRADLE_OUT"/*.aab); shopt -u nullglob
     n=${#aabs[@]}
     [ "$n" = 1 ] || die "expected one AAB in $GRADLE_OUT, found $n"
+    [ -s "$GRADLE_MAPPING" ] || die "no R8 mapping at $GRADLE_MAPPING (is the release build still minified?)"
     cp "${aabs[0]}" "$AAB"
+    cp "$GRADLE_MAPPING" "$MAPPING"
     verify
     { echo "COMMIT=$(head10)"; echo "VERSION_CODE=$VC"; echo "VERSION_NAME=$VN"; echo "SHA256=$(sha "$AAB")"; } > "$ENVF"
     echo "android: built $AAB"

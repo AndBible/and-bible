@@ -73,7 +73,9 @@ reminders. Exit 0 only when every requested branch passed.
 
 - Android: `.local/release/<versionCode>/android/andbible-<versionName>.aab` and `artifact.env` (commit, versionCode,
   versionName, SHA-256); the AAB is checked against the bundle keystore's certificate and `version.properties` before
-  upload.
+  upload, and must carry the R8 mapping (`BUNDLE-METADATA/.../proguard.map`; Play de-obfuscates its crash reports with
+  it). The build's `mapping-<versionName>.txt` is kept next to the AAB; `scripts/retrace-crash.sh` finds it by the
+  map id in a stack trace (`docs/r8-obfuscation.md`).
 - iOS: the TestFlight evidence as before in `.local/release/testflight/<build>/` (`summary.txt` last line `result=PASS
   upload` | `result=PASS export` | `result=FAIL <step>`; trust it and the rc). `ios/artifact.env` records the build
   number of this commit. The iOS log prints `mac asckey volumes after detach: ...`; if a WARNING says the detach
@@ -123,6 +125,8 @@ Commit in the `docs/superpowers` submodule, then the gitlink bump in and-bible. 
 - `scripts/mac-remote.sh cleanup` after an iOS run. The run capture in `.local/mac/<container>/runs/<id>/` (about 490 MB
   with the xcarchive) is scratch: delete it after the status entry. Keep `.local/release/testflight/<build>/` only as long
   as the status entry needs it.
-- `.local/release/<versionCode>/`: keep the last two versions' AABs (retries need the latest); delete older ones.
+- `.local/release/<versionCode>/`: keep the last two versions' AABs (retries need the latest); delete older ones, but
+  keep each version's `android/mapping-<versionName>.txt` (`gzip` it): crash traces of that release need it
+  (`docs/r8-obfuscation.md`).
 - Remind the maintainer of the host lines the summary prints: `jailbee unmount release-secrets <container>` and, after an
   Android run, `jailbee net egress rm <host> <container>` for the three Play hosts.

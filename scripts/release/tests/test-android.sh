@@ -22,10 +22,15 @@ genkey "$T/sess/andbible.p12" release && genkey "$T/foreign/andbible.p12" foreig
 printf 'storeFile=andbible.p12\nstorePassword=%s\nkeyAlias=andbible\nkeyPassword=%s\n' "$PW" "$PW" > "$T/sess/keystore.properties"
 printf '{"type": "service_account", "private_key": "%s"}\n' "$SENTINEL" > "$T/sess/play-service-account.json"
 echo "$PW" > "$T/pwfile"
-# Two fake "AABs": jars signed with the release key and with a foreign key.
-echo x > "$T/jar/BundleConfig.pb"; (cd "$T/jar" && jar cf ../good.aab BundleConfig.pb)
+# Fake "AABs": jars signed with the release key and with a foreign key, carrying the R8 mapping where AGP puts it;
+# nomap.aab is release-signed but has no mapping (Play could not deobfuscate its crashes).
+echo x > "$T/jar/BundleConfig.pb"; (cd "$T/jar" && jar cf ../nomap.aab BundleConfig.pb)
+mkdir -p "$T/jar/BUNDLE-METADATA/com.android.tools.build.obfuscation"
+echo "net.bible.A -> a:" > "$T/jar/BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map"
+(cd "$T/jar" && jar cf ../good.aab BundleConfig.pb BUNDLE-METADATA)
 cp "$T/good.aab" "$T/foreign.aab"
 jarsigner -keystore "$T/sess/andbible.p12" -storepass:file "$T/pwfile" "$T/good.aab" andbible >/dev/null 2>&1
+jarsigner -keystore "$T/sess/andbible.p12" -storepass:file "$T/pwfile" "$T/nomap.aab" andbible >/dev/null 2>&1
 jarsigner -keystore "$T/foreign/andbible.p12" -storepass:file "$T/pwfile" "$T/foreign.aab" andbible >/dev/null 2>&1
 rm "$T/pwfile"
 
@@ -34,6 +39,8 @@ cat > "$T/gradle-release" <<'EOS'
 printf 'gradle-release %s props=%s\n' "$*" "$ANDBIBLE_SIGNING_PROPERTIES" >> "$STUB_DIR/argv"
 d="$REPO_ROOT/app/build/outputs/bundle/standardGoogleplayRelease"; mkdir -p "$d"
 cp "${STUB_AAB:?}" "$d/app-standard-googleplay-release.aab"
+m="$REPO_ROOT/app/build/outputs/mapping/standardGoogleplayRelease"; rm -rf "$m"
+[ -n "${STUB_NO_MAPPING:-}" ] || { mkdir -p "$m"; echo "mapping-of-this-build" > "$m/mapping.txt"; }
 [ -z "${STUB_GRADLE_COMMIT:-}" ] || git -C "$REPO_ROOT" -c user.email=t@t -c user.name=t commit -q --allow-empty -m during
 exit "${STUB_GRADLE_RC:-0}"
 EOS
@@ -85,6 +92,21 @@ test_build_writes_artifact_env() {
         || return "$(fail "artifact.env: $(cat "$o/artifact.env")")"
     grep -q "props=$T/sess/keystore.properties" "$STUB_DIR/argv" || return "$(fail "props path not passed by env")"
     grep -q "gradle-release bundleStandardGoogleplayRelease props" "$STUB_DIR/argv" || return "$(fail "gradle argv")"
+}
+test_build_keeps_the_mapping() {
+    mk_repo; run build
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    grep -qx mapping-of-this-build "$(OUT)/mapping-6.0.1261-beta.txt" 2>/dev/null || return "$(fail "mapping not kept")"
+}
+test_build_fails_without_mapping() {
+    mk_repo; STUB_NO_MAPPING=1 run build
+    [ "$RC" != 0 ] && grep -q 'mapping' "$T/out" || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    [ ! -e "$(OUT)/artifact.env" ] || return "$(fail "artifact.env written without a mapping")"
+}
+test_build_fails_when_aab_lacks_mapping() {
+    mk_repo; STUB_AAB="$T/nomap.aab" run build
+    [ "$RC" != 0 ] && grep -q 'proguard.map' "$T/out" || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    [ ! -e "$(OUT)/artifact.env" ] || return "$(fail "artifact.env written for an AAB without a mapping")"
 }
 test_upload_targets_internal_with_all_skips() {
     mk_repo; run build; run upload
