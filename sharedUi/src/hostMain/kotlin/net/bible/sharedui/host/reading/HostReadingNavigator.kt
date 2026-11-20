@@ -50,6 +50,8 @@ import net.bible.sharedui.host.app.HostNavShell
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.bridge.ReadingNavigator
 import net.bible.sharedui.reading.host.ReadingHostState
+import net.bible.sharedui.reading.toolbar.activateWindowOf
+import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -80,7 +82,7 @@ internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boo
  * destination's result collectors ([HostReadingResults]); this class only records, through [chooserRequests], which
  * window asked.
  *
- * @param hostState the reading host's sheets (kept for the sheets the navigator will open instead of routing)
+ * @param hostState the reading host's sheets: a Bible or commentary key chooser is its passage quick sheet
  * @param openReadingSearch where [openSearch] goes first (in-place search); see the constructor
  * @param links where [openExternalUrl] and [openWebLink] go
  * @param labelResults the app's `manageLabels` result channel
@@ -89,7 +91,7 @@ internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boo
 @kotlin.native.HiddenFromObjC
 class HostReadingNavigator(
     private val shell: HostNavShell,
-    @Suppress("unused") private val hostState: ReadingHostState,
+    private val hostState: ReadingHostState,
     private val links: ExternalLinks,
     private val labelResults: NavResultChannel<ManageLabelsResult>,
     private val downloadControl: () -> DownloadControl,
@@ -172,9 +174,10 @@ class HostReadingNavigator(
 
     override fun startKeyChooser(page: CurrentPage) {
         when (page) {
+            // The passage quick sheet a title tap opens (#4169): there is no full-screen book grid.
             is CurrentBiblePage, is CurrentCommentaryPage -> onMain {
-                chooserRequests.asked(ChooserKind.Passage, page.pageManager)
-                shell.navigate(NavRoutes.gridChoosePassage(isScripture = true))
+                activateWindowOf(page)
+                hostState.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
             }
             is CurrentDictionaryPage -> onMain {
                 chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)

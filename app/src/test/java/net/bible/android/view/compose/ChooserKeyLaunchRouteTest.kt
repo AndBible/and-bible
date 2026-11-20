@@ -50,15 +50,7 @@ class ChooserKeyLaunchRouteTest {
         assertEquals(ActivityBase.STD_REQUEST_CODE, started.requestCode)
     }
 
-    @Test
-    fun theBibleAndCommentaryChoosersOpenTheScriptureGrid() {
-        val activity = host()
-        val pages = CommonUtils.windowControl.activeWindowPageManager
-        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(pages.currentBible)
-        assertLaunched(activity, NavRoutes.gridChoosePassage(isScripture = true))
-        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(pages.currentCommentary)
-        assertLaunched(activity, NavRoutes.gridChoosePassage(isScripture = true))
-    }
+    // The Bible and commentary choosers open the passage quick sheet, not a route (#4169): KeyChooserSheetEntryPointsTest.
 
     @Test
     fun theDictionaryAndMapChoosersOpenTheirRoutes() {

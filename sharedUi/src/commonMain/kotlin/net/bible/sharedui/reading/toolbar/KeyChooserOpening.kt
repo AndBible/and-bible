@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.reading.toolbar
 
+import net.bible.android.control.page.CurrentPage
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.KeyChooserRoute
@@ -50,4 +51,16 @@ suspend fun resolveKeyChooserOpening(
     val keys = resolveKeys(sheet.kind)
     if (!stillCurrent()) return null
     return if (sheet.kind == KeyChooserKind.Grid || keys.isNotEmpty()) KeyChooserOpening.Sheet(sheet.kind, keys) else KeyChooserOpening.FullScreen
+}
+
+/**
+ * Makes [page]'s window the active one, so a key-chooser quick sheet opened for it answers it: the sheets read and
+ * apply to the active window. Every Bible/commentary key-chooser entry point opens the passage sheet (#4169), also one
+ * asked for by a window that is not active (the page's Ctrl+B in another pane, `CurrentPageManager`'s auto-open).
+ */
+@kotlin.native.HiddenFromObjC
+fun activateWindowOf(page: CurrentPage) {
+    val window = page.pageManager.window
+    val repository = window.windowRepository
+    if (repository.activeWindow !== window) repository.activeWindow = window
 }

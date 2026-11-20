@@ -6,13 +6,15 @@ To open a bible reference, simply click on the book name at the top of the scree
 
 [![AndBible Header Reference](images/header-reference.png){ height="100" }](images/header-reference.png)
 
-The *Book Chooser* will open where you can select any book that is available in
-the current document. For example, in regular Bible documents you will be able
+The *Book Chooser* will open as a sheet over the reading view, where you can
+select any book that is available in the current document. The keyboard
+shortcuts (**Ctrl+B**, **Ctrl+L** on the desktop, **Cmd+B** on iOS) and a switch to
+a document that does not contain your current reference open the same sheet. For example, in regular Bible documents you will be able
 to see all 66 books of the Bible, but if you go to the *Book Chooser* when the
 active window is a smaller commentary, it will only show the books that are
 available in that commentary.
 
-After you select the book, it will take you to the next screen where you can
+After you select the book, the sheet moves on to the chapters, where you can
 select the chapter. When you pick the book you are reading, the chapter you are
 reading (and, on the verse screen, the verse) is highlighted and scrolled into
 view, so a long book such as Psalms opens near your place:
@@ -25,7 +27,7 @@ screen and open the Bible to the selected reference.
 ### Book Chooser Customizations
 
 A few customization options are available in the top right vertical three-dot menu
-of the *Book Chooser* screen:
+of the *Book Chooser*:
 
 > - **Alphabetical Order:** Enabling this option will display the books in
 >     alphabetical order. (Starting with numbers - i.e. 1 Chronicles)

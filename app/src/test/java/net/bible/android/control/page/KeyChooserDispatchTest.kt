@@ -60,9 +60,7 @@ class KeyChooserDispatchTest {
         if (page !is CurrentGeneralBookPage) assertEquals(ActivityBase.STD_REQUEST_CODE, started.requestCode)
     }
 
-    @Test fun bibleUsesScriptureGrid() = assertRoute({ it.currentBible }, NavRoutes.gridChoosePassage(isScripture = true))
-    @Test fun commentaryUsesScriptureGrid() = assertRoute({ it.currentCommentary }, NavRoutes.gridChoosePassage(isScripture = true))
-    @Test fun myNotesInheritCommentaryChooser() = assertRoute({ it.currentMyNotePage }, NavRoutes.gridChoosePassage(isScripture = true))
+    // Bible, commentary and my-note pages open the passage quick sheet (#4169): KeyChooserSheetEntryPointsTest.
     @Test fun dictionaryUsesDictionaryChooser() = assertRoute({ it.currentDictionary }, NavRoutes.CHOOSE_DICTIONARY_WORD)
     @Test fun mapUsesMapChooser() = assertRoute({ it.currentMap }, NavRoutes.CHOOSE_MAP_KEY)
     @Test fun plainGeneralBookUsesGeneralBookChooser() = assertRoute({ it.currentGeneralBook }, NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
@@ -160,6 +158,14 @@ class KeyChooserDispatchTest {
         assertTrue(holder.currentActivity === other, "fixture must publish a different foreground host")
         assertNull(shadowOf(touched).nextStartedActivityForResult, "caller must be the first launch")
         assertNull(shadowOf(other).nextStartedActivityForResult)
+        // A page with a full-screen chooser: a Bible or commentary page opens the passage quick sheet instead (#4169).
+        for (manager in setOf(touched.hostWindowRepository.activeWindow.pageManager,
+                net.bible.service.common.CommonUtils.windowControl.activeWindowPageManager)) {
+            CurrentPageManager::class.java.getDeclaredField("currentPage").apply {
+                isAccessible = true
+                set(manager, manager.currentDictionary)
+            }
+        }
         try {
             withForeignSingleton(other) {
                 touched.readingCommands.composeStartKeyChooser()
