@@ -30,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.widget.SpeakWidgetState
@@ -101,7 +100,7 @@ object WidgetUpdater {
     }
 
     /** Whether a Speak, Speak with text or Listening list widget instance is placed; replaceable in tests. */
-    internal var hasSpeakWidgets: suspend (Context) -> Boolean = { context ->
+    internal var hasSpeakWidgets: (Context) -> Boolean = { context ->
         // The platform's own widget ids, not Glance's DataStore mapping: that is empty until a receiver got its first
         // broadcast (e.g. right after upgrading from the RemoteViews widgets).
         val manager = AppWidgetManager.getInstance(context)
@@ -138,14 +137,18 @@ object WidgetUpdater {
 
     @Synchronized
     private fun stopUnless(app: Context) {
-        val still = runCatching { runBlocking { hasSpeakWidgets(app) } }.getOrDefault(true)
+        val still = runCatching { hasSpeakWidgets(app) }.getOrDefault(true)
         if (!still) stop()
     }
 
-    /** Stops following the speak services; the widgets keep their last drawing. */
+    /**
+     * Stops following the speak services; the widgets keep their last drawing. Does nothing when [start] never ran:
+     * resolving the producer builds the speak services, which a cold start without a speak widget must not do (#184).
+     */
     @Synchronized
     fun stop() {
-        job?.cancel(); job = null
+        val running = job ?: return
+        running.cancel(); job = null
         runCatching { KoinPlatform.getKoin().get<SpeakWidgetStateProducer>().stop() }
     }
 

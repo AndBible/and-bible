@@ -55,17 +55,50 @@ class WidgetStartupTest {
     @After fun tearDown() {
         WidgetUpdater.hasSpeakWidgets = originalHook
         WidgetUpdater.stop()
+        // Tests that construct a SpeakWidgetManager must not leave the singleton behind for the next test class in this JVM.
+        SpeakWidgetManager.instance?.destroy()
+    }
+
+    @Test fun removingTheLastWidgetOfAnAppThatNeverStartedTheProducerDoesNotCreateIt() = runBlocking {
+        val original = koin.get<SpeakWidgetStateProducer>()
+        var resolutions = 0
+        val counting = org.koin.dsl.module { single<SpeakWidgetStateProducer> { resolutions++; original } }
+        org.koin.core.context.loadKoinModules(counting)
+        try {
+            WidgetUpdater.hasSpeakWidgets = { false }
+            WidgetUpdater.stopIfNoSpeakWidgets(context) // the producer was never started: nothing to stop, nothing to build
+            assertEquals("stop() resolved (built) the speak widget state producer", 0, resolutions)
+        } finally {
+            org.koin.core.context.unloadKoinModules(counting)
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<SpeakWidgetStateProducer> { original } })
+        }
+    }
+
+    @Test fun controlSourceReportsSpeakingWhenTheTtsFlagIsTrueAndTheManagerIsSpeaking() = runBlocking {
+        val speak = koin.get<SpeakControl>()
+        val manager = koin.get<net.bible.service.device.speak.TextToSpeechServiceManager>()
+        val flag = SpeakControl::class.java.getDeclaredField("ttsInitialized").apply { isAccessible = true }
+        val speaking = net.bible.service.device.speak.TextToSpeechServiceManager::class.java.getDeclaredField("isSpeaking")
+            .apply { isAccessible = true } // private set: the manager's own speaking flag
+        val (flagBefore, speakingBefore) = flag.getBoolean(speak) to speaking.getBoolean(manager)
+        try {
+            flag.setBoolean(speak, true)
+            speaking.setBoolean(manager, true)
+            assertTrue(speak.ttsStarted)
+            assertEquals(SpeakPhase.SPEAKING, koin.get<ControlSpeakWidgetSource>().facts().phase)
+        } finally { // singletons outlive the test in a shared JVM
+            flag.setBoolean(speak, flagBefore)
+            speaking.setBoolean(manager, speakingBefore)
+        }
     }
 
     @Test fun coldStartWithoutASpeakWidgetNeitherStartsTheProducerNorCreatesTheTtsManager() = runBlocking {
-        WidgetUpdater.hasSpeakWidgets = { false }
-        val scopeJob = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>().coroutineContext[kotlinx.coroutines.Job]!!
-        val before = scopeJob.children.toSet()
+        // The decision job may finish before a snapshot of the scope's children could see it: observe it through the hook.
+        val asked = kotlinx.coroutines.CompletableDeferred<Unit>()
+        WidgetUpdater.hasSpeakWidgets = { asked.complete(Unit); false }
         SpeakWidgetManager() // what startPlatformServices does on Main at every cold start
-        // Join exactly the start-decision job the manager launched: deterministic, no sleeping.
-        val decision = scopeJob.children.toSet() - before
-        assertTrue("the start decision job was not launched", decision.isNotEmpty())
-        assertNotNull("the start decision never finished", withTimeoutOrNull(10_000) { decision.forEach { it.join() }; true })
+        assertNotNull("the start decision never ran", withTimeoutOrNull(10_000) { asked.await(); true })
+        kotlinx.coroutines.delay(300) // the job's only remaining step is the (negative) decision; a start would show now
         assertFalse(koin.get<SpeakWidgetStateProducer>().isRunning)
         assertFalse(koin.get<SpeakControl>().ttsStarted)
     }
@@ -112,6 +145,8 @@ class WidgetStartupTest {
         org.robolectric.shadows.ShadowLog.clear()
         run {
             val receiver = SpeakWidgetManager.LargeSpeakControlWidget()
+            // Reflective: ShadowBroadcastPendingResult is package-private in Robolectric 4.14.1 (gradle/libs.versions.toml);
+            // revisit this lookup when that version is bumped.
             // As in a real broadcast: one PendingResult, which Glance's onDeleted takes with goAsync() (a second goAsync() is null).
             val create = Class.forName("org.robolectric.shadows.ShadowBroadcastPendingResult").declaredMethods
                 .first { it.name == "create" }.apply { isAccessible = true }

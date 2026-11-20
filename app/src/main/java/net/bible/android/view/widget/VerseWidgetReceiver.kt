@@ -39,9 +39,10 @@ class VerseWidgetReceiver : GlanceAppWidgetReceiver() {
         when (intent.action) {
             // No DATE_CHANGED: it is not delivered to manifest receivers on API 26+; the period alarm covers midnight.
             VerseWidgetScheduler.ACTION_PERIOD, Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_TIME_CHANGED -> {
+                // goAsync() is null when the receiver was not started by a broadcast; the update then runs unguarded.
                 val pending = goAsync()
                 scope.launch {
-                    try { glanceAppWidget.updateAll(context) } finally { pending.finish() }
+                    try { glanceAppWidget.updateAll(context) } finally { pending?.finish() }
                 }
             }
             else -> super.onReceive(context, intent)
