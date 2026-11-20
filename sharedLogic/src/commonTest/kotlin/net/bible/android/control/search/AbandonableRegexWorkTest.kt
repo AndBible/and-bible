@@ -191,10 +191,14 @@ class AbandonableRegexWorkTest {
     @Test fun waitingForTheCountPicksUpAWorkerThatStopsWithinThePatience() = realTime {
         waitForNoAbandonedWork()
         val blocker = Blocker()
-        scanWithinBudget(listOf("A"), 50.milliseconds, grace = 50.milliseconds) { _, budget -> blocker.block(budget); "x" }
-        assertEquals(1, abandonedRegexWorkRunning)
-        launch { delay(150); blocker.release.value = true }
-        assertEquals(true, awaitNoAbandonedRegexWork(10.seconds))
+        try {
+            scanWithinBudget(listOf("A"), 50.milliseconds, grace = 50.milliseconds) { _, budget -> blocker.block(budget); "x" }
+            assertEquals(1, abandonedRegexWorkRunning)
+            launch { delay(150); blocker.release.value = true }
+            assertEquals(true, awaitNoAbandonedRegexWork(10.seconds))
+        } finally {
+            released(blocker)
+        }
     }
 
     @Test fun finishedAndFailedWorkIsNeverCounted() = realTime {

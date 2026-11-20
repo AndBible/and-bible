@@ -914,7 +914,7 @@ internal class ReadingSearchSession(
             // A selection holding more than one unindexed translation chains to the next one instead
             // of letting `onIndexingFinished` re-run against only the just-built translation.
             val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) {
-                if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(it)
+                if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(it, searchRegex.value)
             }
             if (next != null) {
                 controller.promptIndexFor(next, keepInterceptedSearch = true, preserveHidden = true)

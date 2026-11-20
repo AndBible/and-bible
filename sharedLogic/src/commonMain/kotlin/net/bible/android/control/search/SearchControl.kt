@@ -218,7 +218,7 @@ class SearchControl constructor(
         val outcome = scanWithinBudget(books, budgetDuration) { book, budget -> regexScanOf(book, regex, bibleSection, currentBookName, budget) }
         val failures = outcome.results.mapNotNull { (_, scan) -> scan.error }
         // Every translation that took part failed: that is an error, not an empty result.
-        if (failures.isNotEmpty() && outcome.results.all { (_, scan) -> scan.error != null }) throw failures.first()
+        if (!outcome.timedOut && failures.isNotEmpty() && outcome.results.all { (_, scan) -> scan.error != null }) throw failures.first()
         // A translation that failed while others succeeded makes the list partial, which the notice says.
         searchResults.truncatedByTime = outcome.timedOut || failures.isNotEmpty() ||
             outcome.results.any { (_, scan) -> scan.result?.truncated == true }

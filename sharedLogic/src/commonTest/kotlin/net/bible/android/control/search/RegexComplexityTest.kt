@@ -32,7 +32,7 @@ class RegexComplexityTest {
 
     @Test fun allowsEverydayPatterns() {
         assertFine(
-            "light: and there was light", "[Gg]od said", "said:", "\\bLord\\b.{0,40}\\bGod\\b", "(ab|cd)+", "(\\d{1,3}\\.){3}\\d{1,3}", "(\\w+\\s){2}",
+            "light: and there was light", "[Gg]od said", "said:", "\\bLord\\b.{0,40}\\bGod\\b", "(ab|cd)+", "(\\d{1,3}\\.){3}\\d{1,3}", "\\w+\\s\\w+\\s", ".*a.*b.*c", 
             "(a?)+", "(?:the|a) (?:man|woman)s?", "^([A-Z][a-z]+ )?said", ".*said.*", "a+b*c?", "(a+)b", "(a+)(b+)", "(a+)?", "(foo)*",
         )
     }
@@ -43,10 +43,15 @@ class RegexComplexityTest {
     }
 
     @Test fun readsBoundedQuantifiersByTheirUpperLimit() {
-        assertFine("(a+){2}", "(a+){1,9}", "(a{1,9}){9}", "(a{2}){20}", "x{3,5}")
-        assertNested("(a+){10}", "(a+){2,10}", "(a+){5,}", "(a{10}){10}")
+        assertFine("(a{1,9}){9}", "(a{2}){20}", "x{3,5}")
+        assertNested("(a+){2}", "(a+){1,9}", "(\\w+\\s){2}", "(.*a){9}", "(.*,){5}x", "(a+){10}", "(a+){2,10}", "(a+){5,}", "(a{10}){10}")
         // Not a quantifier: kept as literal text, so nothing is repeated.
         assertFine("(a+){x}", "(a+){,5}", "(a+){1,2,3}", "(a+){")
+    }
+
+    @Test fun refusesManyOpenEndedRepetitions() {
+        assertNested(".*.*.*.*.*.*.*!", "a+b+c+d+e+f+g+", "\\w*\\w*\\w*\\w*\\w*\\w*\\w*")
+        assertFine(".*.*.*.*.*.*!", "[a-z]+ [a-z]+ [a-z]+")
     }
 
     @Test fun survivesMalformedPatterns() {

@@ -16,6 +16,9 @@
  */
 package net.bible.android.control.search
 
+/** More open-ended repetitions (`*`, `+`, `{n,}`) than this in one pattern are refused: `.*.*.*.*.*.*.*!` is polynomial of a high degree. */
+private const val MAX_OPEN_ENDED = 6
+
 /** A repetition counts as "large" from this many repeats up (or unbounded): `{10,}`, `{3,50}`, `*`, `+`. */
 private const val LARGE_REPEAT = 10
 
@@ -25,14 +28,16 @@ private const val LARGE_REPEAT = 10
  * Android's ICU regex engine cannot be interrupted, so such a pattern would keep a thread at full CPU until the process
  * dies; it is rejected before it runs, on every platform (so that the behaviour does not depend on the engine).
  *
- * Bounded repetitions of small size stay allowed (`(\d{1,3}\.){3}`, `(\w+\s){2}`), as does a repeated group without an
- * inner repetition (`(ab|cd)+`). Character classes, escapes and `\Q..\E` are skipped, so `[(+*]+` is fine. This is not
+ * A group with a large inner repetition that is repeated at all (`(\w+\s){2}`) is refused too, since the cost multiplies.
+ * Bounded small repetitions stay allowed (`(\d{1,3}\.){3}`), as does a repeated group without an inner repetition
+ * (`(ab|cd)+`). More than 6 open-ended repetitions in one pattern are refused. Character classes, escapes and `\Q..\E` are skipped, so `[(+*]+` is fine. This is not
  * a proof: overlapping alternatives such as `(a|aa)+` still pass, and are left to the time limit of the engines that
  * can be interrupted.
  */
 internal fun hasNestedRepetition(pattern: String): Boolean {
     // One flag per open group: does it contain a large repetition, at any depth? (Outside every group nothing can nest.)
     val groups = ArrayList<Boolean>()
+    var openEnded = 0
     var i = 0
     while (i < pattern.length) {
         when (pattern[i]) {
@@ -49,14 +54,15 @@ internal fun hasNestedRepetition(pattern: String): Boolean {
                 val inner = if (groups.isEmpty()) false else groups.removeAt(groups.size - 1)
                 val q = quantifierAt(pattern, i)
                 val large = q != null && q.large
-                if (inner && large) return true
-                if (q != null) i = q.end
+                if (inner && q != null && q.repeats) return true
+                if (q != null) { i = q.end; if (q.unbounded && ++openEnded > MAX_OPEN_ENDED) return true }
                 if (groups.isNotEmpty() && (inner || large)) groups[groups.size - 1] = true
             }
             '*', '+', '{' -> {
                 val q = quantifierAt(pattern, i)
                 if (q == null) i++ else {
                     i = q.end
+                    if (q.unbounded && ++openEnded > MAX_OPEN_ENDED) return true
                     if (q.large && groups.isNotEmpty()) groups[groups.size - 1] = true
                 }
             }
@@ -66,16 +72,18 @@ internal fun hasNestedRepetition(pattern: String): Boolean {
     return false
 }
 
-private class Quantifier(val large: Boolean, val end: Int)
+private class Quantifier(val large: Boolean, val unbounded: Boolean, val repeats: Boolean, val end: Int)
 
 /** The quantifier starting at [start] (`*`, `+`, `?`, `{n}`, `{n,}`, `{n,m}`, with a lazy or possessive suffix), or null. */
 private fun quantifierAt(p: String, start: Int): Quantifier? {
     if (start >= p.length) return null
     var i = start
     val large: Boolean
+    val unbounded: Boolean
+    val repeats: Boolean // can run more than once: an inner repetition under it multiplies
     when (p[i]) {
-        '*', '+' -> { large = true; i++ }
-        '?' -> { large = false; i++ }
+        '*', '+' -> { large = true; unbounded = true; repeats = true; i++ }
+        '?' -> { large = false; unbounded = false; repeats = false; i++ }
         '{' -> {
             val close = p.indexOf('}', i)
             if (close < 0) return null
@@ -83,13 +91,15 @@ private fun quantifierAt(p: String, start: Int): Quantifier? {
             val parts = body.split(',')
             if (parts.size > 2 || parts[0].isEmpty() || parts.any { it.isNotEmpty() && !it.all { c -> c in '0'..'9' } }) return null
             val max = if (parts.size == 1) parts[0].toLongOrNull() else parts[1].takeIf { it.isNotEmpty() }?.toLongOrNull()
-            large = parts.size == 2 && parts[1].isEmpty() || (max ?: Long.MAX_VALUE) >= LARGE_REPEAT
+            unbounded = parts.size == 2 && parts[1].isEmpty()
+            large = unbounded || (max ?: Long.MAX_VALUE) >= LARGE_REPEAT
+            repeats = unbounded || (max ?: Long.MAX_VALUE) >= 2
             i = close + 1
         }
         else -> return null
     }
     if (i < p.length && (p[i] == '?' || p[i] == '+')) i++
-    return Quantifier(large, i)
+    return Quantifier(large, unbounded, repeats, i)
 }
 
 /** The index after the character class that opens at [start] (nested classes, escapes and a leading `]` handled). */
