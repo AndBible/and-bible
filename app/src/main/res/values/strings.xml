@@ -2425,7 +2425,7 @@
     <string name="cloud_merge_consequence">Both sides are kept; where an item changed on both, the newer change wins.</string>
     <string name="cloud_fetch_consequence">Replaces the data on this device with the cloud copy.</string>
     <string name="cloud_create_consequence">Replaces the cloud copy with the data on this device.</string>
-    <string name="cloud_disable_consequence">Nothing is changed.</string>
+    <string name="cloud_disable_consequence">Sync stays off for this data.</string>
     <string name="cloud_merge_lead">Merge your %s with the cloud?</string>
     <string name="cloud_merge_confirm">Merge</string>
     <string name="cloud_replace_confirm">Replace</string>
