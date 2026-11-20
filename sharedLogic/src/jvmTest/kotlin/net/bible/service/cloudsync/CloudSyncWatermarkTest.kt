@@ -242,6 +242,51 @@ class CloudSyncWatermarkTest {
         assertEquals(300L, f.db.dao.syncStatus("remote-device", 2L)?.appliedDate)
     }
 
+    /**
+     * #4151: the other device edited before this device's last download started, but uploaded its patch only after
+     * it (or its clock is behind). The patch is applied, so the open views must hear about every row it took over;
+     * the author's edit time must not be compared with this device's watermark.
+     */
+    @Test fun appliedPatchIsReportedAlthoughItsEditsPredateTheWatermark() = withFixture { f ->
+        val dao = f.container.bookmarkDb.bookmarkDao()
+        val label = BookmarkEntities.Label(name = "synced label")
+        dao.insert(label)
+        f.db.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            org.crosswire.jsword.passage.VerseRangeFactory.fromString(
+                org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV"), "Ps.33.7",
+            ), null, true, null,
+        ).apply { notes = "synced note" }
+        dao.insert(bookmark.bookmarkEntity)
+        dao.insert(bookmark.noteEntity!!)
+        dao.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.id, label.id))
+        // Edited at 500 on the other device; this device's last download started at 1000; the patch was uploaded at 2000.
+        f.db.localDb.useWriterConnectionMarked { it.exec("UPDATE LogEntry SET lastUpdated = 500, sourceDevice = 'remote-device'") }
+        @Suppress("UNCHECKED_CAST")
+        val remote = (f.db as SyncableDatabaseAccessor<net.bible.android.database.SyncableRoomDatabase>).let {
+            SyncableDatabaseAccessor(it.localDb, it.dbFactory, { error("unused") }, it.localDbPath, it.category, deviceId = "remote-device")
+        }
+        f.adapter.patches["late"] = checkNotNull(createPatchForDatabase(remote, f.env, false))
+        dao.delete(bookmark)
+        f.db.dao.clearLog()
+        f.db.dao.setConfig(LAST_SYNCHRONIZED_KEY, 1000L)
+        f.adapter.files = listOf(CloudFile("late", "1.${f.db.version()}.sqlite3.gz", 1L, 2000L, "remote-folder"))
+
+        val reported = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.database.LogEntry>()
+        val subscription = DatabaseContainer.bookmarksSynced.subscribe { reported.addAll(it) }
+        try {
+            f.cloud.synchronize()
+        } finally { subscription.cancel() }
+
+        assertEquals(bookmark.id, dao.bibleBookmarksByIds(listOf(bookmark.id)).single().id, "sanity: the patch was applied")
+        assertEquals(
+            setOf("BibleBookmark" to bookmark.id, "BibleBookmarkNotes" to bookmark.id, "BibleBookmarkToLabel" to bookmark.id),
+            reported.filter { it.tableName != "Label" }.map { it.tableName to it.entityId1 }.toSet(),
+            "every row the patch applied must be reported: $reported",
+        )
+        assertEquals(label.id, reported.single { it.tableName == "BibleBookmarkToLabel" }.entityId2)
+    }
+
     @Test fun foregroundTransportFailureReportsOneSyncError() = withFixture { f ->
         val messages = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.control.event.UserMessage>()
         val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
