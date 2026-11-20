@@ -1,29 +1,31 @@
 import SwiftUI
 import WidgetKit
 
-/// Placeholder widget so the extension bundle is valid before the real widgets (Task 13) land.
-struct PlaceholderWidget: Widget {
-    struct Provider: TimelineProvider {
-        func placeholder(in context: Context) -> Entry { Entry(date: Date()) }
-        func getSnapshot(in context: Context, completion: @escaping (Entry) -> Void) { completion(Entry(date: Date())) }
-        func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
-            completion(Timeline(entries: [Entry(date: Date())], policy: .never))
-        }
-    }
-    struct Entry: TimelineEntry { let date: Date }
-
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "AndBiblePlaceholder", provider: Provider()) { _ in
-            Text("AndBible")
-        }
-        .configurationDisplayName("AndBible")
-        .supportedFamilies([.systemSmall])
+/// iOS 17+: the Verse widget is configurable through App Intents ("Edit Widget").
+@available(iOS 17.0, *)
+struct AndBibleWidgetsBundle17: WidgetBundle {
+    var body: some Widget {
+        SpeakWidget()
+        ListeningListWidget()
+        VerseWidget()
+        SpeakLockScreenWidget()
     }
 }
 
-@main
-struct AndBibleWidgetsBundle: WidgetBundle {
+/// iOS 16: the same widgets, with the fixed Verse widget (same kind, no configuration).
+struct AndBibleWidgetsBundle16: WidgetBundle {
     var body: some Widget {
-        PlaceholderWidget()
+        SpeakWidget()
+        ListeningListWidget()
+        VerseWidgetLegacy()
+        SpeakLockScreenWidget()
+    }
+}
+
+/// `WidgetBundleBuilder` has no `if #available`, so the entry point picks the bundle.
+@main
+struct AndBibleWidgetsEntry {
+    static func main() {
+        if #available(iOS 17.0, *) { AndBibleWidgetsBundle17.main() } else { AndBibleWidgetsBundle16.main() }
     }
 }

@@ -153,8 +153,9 @@ EXT="$SAPP/PlugIns/$EXT_NAME"
 EXT_SIG=$(codesign -dv --verbose=4 "$EXT" 2>&1)
 codesign -d --entitlements :- "$EXT" 2>/dev/null > "$OUT/ipa-widgets-entitlements.txt"
 ext_sig_has() { echo "$EXT_SIG" | grep -qxF "$1"; }
-# Exact string element (a longer group id such as group.org.andbible.ios.evil must not pass), tolerant of indentation.
-has_group() { sed 's/^[[:space:]]*//;s/[[:space:]]*$//' "$1" | grep -qxF "<string>$APP_GROUP</string>"; }
+# Exact string element: the closing </string> rejects a longer id such as group.org.andbible.ios.evil. Real codesign
+# prints the plist as a single XML line, so no whole-line match (-x).
+has_group() { grep -qF "<string>$APP_GROUP</string>" "$1"; }
 ext_group() { has_group "$OUT/ipa-widgets-entitlements.txt"; }
 app_group() { has_group "$OUT/ipa-entitlements.txt"; }
 ext_sig_starts() { echo "$EXT_SIG" | grep "^Authority=" | grep -q "^$1"; }

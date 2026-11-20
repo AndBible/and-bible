@@ -30,6 +30,13 @@ class WidgetUrlTest {
         assertEquals(WidgetUrl.parseReadLink(read), WidgetUrl.parse(widget))
     }
 
+    @Test fun speakPassageCarriesTheReadLink() {
+        val link = "https%3A%2F%2Fread.andbible.org%2FJohn%25203%3A16%3Fdocument%3DKJV%26v11n%3DKJVA%26ordinal%3D12"
+        assertEquals(WidgetUrlAction.SpeakPassage(john), WidgetUrl.parse("andbible-widget://speak-passage?link=$link"))
+        assertEquals(WidgetUrlAction.Invalid, WidgetUrl.parse("andbible-widget://speak-passage"))
+        assertEquals(WidgetUrlAction.Invalid, WidgetUrl.parse("andbible-widget://speak-passage?link=https%3A%2F%2Fevil.example%2Fx"))
+    }
+
     @Test fun openLinkWithoutOptionalParameters() {
         assertEquals(
             WidgetUrlAction.OpenPassage("Gen.1.1", null, null, null),

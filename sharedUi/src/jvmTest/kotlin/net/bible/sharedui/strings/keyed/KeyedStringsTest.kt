@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.strings.keyed
 
+import net.bible.android.control.widget.asMap
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.service.llm.AgentTool
@@ -115,6 +116,19 @@ class KeyedStringsTest {
         language = "fi"
         assertNotEquals(english, strings.settings)
         assertEquals(lookup("fi", "settings"), strings.settings)
+    }
+
+    @Test
+    fun widgetStringsAnswerRealTextForEveryKey() {
+        val w = KeyedWidgetStrings(table)
+        val map = w.asMap()
+        assertEquals(net.bible.android.control.widget.WidgetStringKeys.all.toSet(), map.keys)
+        map.forEach { (k, v) -> assertText("widget string $k", v, filled = false) }
+        assertText("continueFrom", w.continueFrom("Psalm 23:1", "WEB"))
+        assertTrue("Psalm 23:1" in w.continueFrom("Psalm 23:1", "WEB") && "WEB" in w.continueFrom("Psalm 23:1", "WEB"))
+        assertText("statusLine", w.statusLine("Psalm 23:1", 34, "WEB"))
+        assertTrue("34" in w.statusLine("Psalm 23:1", 34, "WEB"))
+        assertText("sleepMinutes", w.sleepMinutes(5))
     }
 
     @Test

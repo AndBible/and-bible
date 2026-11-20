@@ -58,6 +58,24 @@ object IosPlatformBootstrap {
      */
     fun openWidgetUrl(url: String) = net.bible.sharedui.platform.widget.IosWidgetUrls.open(url)
 
+    /**
+     * Rewrites the widget snapshot now (Swift calls it when the app becomes active: picks up Bibles the widget
+     * extension asked for and a changed language). No-op until reading is ready, and until the snapshot writer has
+     * started; never throws.
+     */
+    fun refreshWidgetSnapshot() {
+        net.bible.sharedui.platform.widget.IosWidgetRefresh.runWhenReady(
+            ready = { net.bible.sharedui.host.app.HostReadingReady.isReady },
+        ) {
+            KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedui.platform.widget.IosWidgetSnapshotWriter>()?.writeNow()
+        }
+    }
+
+    /** Swift sets this to a closure reloading all widgets (`true`) or only the speak-state ones (`false`). */
+    fun setWidgetReloader(reload: (Boolean) -> Unit) {
+        net.bible.sharedui.platform.widget.IosWidgetBridge.reloadTimelines = reload
+    }
+
     /** Shared with the UI, confined to Main; background checks never mutate its launch accounting. */
     internal val crashTracker by lazy { net.bible.sharedui.ios.startup.IosCrashTracker(net.bible.sharedcore.platform.IosDeviceSettings()) }
     val backgroundRefresh: BackgroundRefresh by lazy { IosBackgroundRefresh(MainScope()) }
@@ -102,7 +120,6 @@ object IosPlatformBootstrap {
      * No-op before Koin starts.
      */
     fun startForegroundSync() {
-        net.bible.sharedui.platform.widget.IosWidgetUrls.flush()
         KoinPlatform.getKoinOrNull()?.getOrNull<IosSyncTriggers>()?.start()
     }
 

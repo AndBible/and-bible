@@ -18,7 +18,9 @@ package net.bible.android.control.speak
 
 import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.platform.AppCoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,6 +33,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.sharedcore.event.Subscriptions
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
@@ -63,7 +66,13 @@ class SpeakTransportServiceImpl(
     private val bookmarkControl: BookmarkControl,
 ) : SpeakTransportService {
 
-    /** Cached id → bookmark for [speakFromBookmark]; refreshed by [speakBookmarks]. */
+    /**
+     * Cached id → bookmark for [speakFromBookmark]; refreshed by [speakBookmarks] and by a cache-miss lookup.
+     * Written from the caller's context and from the IO hop of [speakFromBookmark], hence [Volatile]. Ordering
+     * caveat: concurrent refreshes may finish out of order, so the last writer wins and the map can briefly be
+     * one refresh stale; a miss simply triggers another database lookup.
+     */
+    @Volatile
     private var bookmarkCache: Map<String, BookmarkEntities.BaseBookmarkWithNotes> = emptyMap()
 
     /** Cached visibility, refreshed after bookmark writes rather than on every speech progress event. */
@@ -170,9 +179,18 @@ class SpeakTransportServiceImpl(
         // Cache miss: the cache is filled only by the UI's list, and a widget tap can be the first action of the
         // process. Look the bookmark up in the database instead.
         scope.launch {
-            val list = rawSpeakBookmarks()
-            bookmarkCache = list.associateBy { it.id.toString() }
-            bookmarkCache[id]?.let(::speakFrom)
+            // Only the database read runs off Main; speakFrom touches the speak engine and must run on Main.
+            val found = withContext(Dispatchers.Default) {
+                val list = rawSpeakBookmarks()
+                val map = list.associateBy { it.id.toString() }
+                bookmarkCache = map
+                map[id]
+            }
+            if (found == null) {
+                Log.w(TAG, "speakFromBookmark: bookmark $id not found after cache refresh")
+                return@launch
+            }
+            withContext(Dispatchers.Main) { speakFrom(found) }
         }
     }
 
@@ -208,6 +226,8 @@ class SpeakTransportServiceImpl(
     }
 
     companion object {
+        private const val TAG = "SpeakTransportService"
+
         /** The live process-wide service, set on construction (never instantiated from outside Koin); null before first use. */
         @Volatile var instance: SpeakTransportServiceImpl? = null
     }

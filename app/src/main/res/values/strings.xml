@@ -674,6 +674,7 @@
     <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
     <string name="widget_listening_list_empty_title">No speak bookmarks yet</string>
     <string name="widget_listening_list_empty_text">Bookmarks with the Speak label appear here. Turn on automatic bookmarks in the speak settings, or add the label to any bookmark.</string>
+    <string name="widget_open_app">Open AndBible</string>
     <string name="widget_open_app_to_load">Open AndBible to load verses</string>
     <string name="widget_verse_unavailable_no_bible">Install a Bible to see verses here</string>
     <string name="widget_verse_unavailable_label_missing">The label of this widget no longer exists. Tap to choose verses.</string>

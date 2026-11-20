@@ -18,6 +18,9 @@
 package net.bible.sharedui.platform.widget
 
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.speak.SpeakTransportService
 import org.koin.mp.KoinPlatform
@@ -62,12 +65,32 @@ object IosWidgetUrls {
                     }
                     if (!opened) Log.w(TAG, "widget passage not found: $action")
                 }
+                is WidgetUrlAction.SpeakPassage -> speakPassage(action.passage)
                 WidgetUrlAction.Invalid -> Unit
             }
         }.onFailure { Log.e(TAG, "widget url failed: $action", it) }
     }
 
-    private fun SpeakTransportService.run(command: SpeakCommand) {
+    /** Speaks [passage] from its first verse like the verse menu's Speak; Main thread. Logs and returns when it is no Bible verse. */
+    internal fun speakPassage(passage: WidgetUrlAction.OpenPassage) {
+        val target = WidgetPassage.resolve(passage)
+        val book = target?.document as? org.crosswire.jsword.book.sword.SwordBook
+        val verse = target?.key?.let { org.crosswire.jsword.passage.KeyUtil.getVerse(it) }
+        if (book == null || verse == null) {
+            Log.w(TAG, "widget passage cannot be spoken: $passage")
+            return
+        }
+        KoinPlatform.getKoin().get<net.bible.android.control.speak.SpeakControl>().speakBible(book, verse)
+    }
+
+    /** Same as the Android widget's sleep button: timer off, or back to the last used length. */
+    private fun toggleSleepTimer() {
+        val settings = SpeakSettings.load()
+        settings.sleepTimer = if (settings.sleepTimer > 0) 0 else settings.lastSleepTimer
+        settings.save()
+    }
+
+    internal fun SpeakTransportService.run(command: SpeakCommand) {
         val s = state.value
         when (command) {
             SpeakCommand.TOGGLE -> if (s.speaking) pause() else if (s.paused) continueAfterPause() else speakAny()
@@ -78,6 +101,7 @@ object IosWidgetUrls {
             SpeakCommand.NEXT_VERSE -> nextVerse()
             SpeakCommand.REWIND -> rewind()
             SpeakCommand.FORWARD -> forward()
+            SpeakCommand.SLEEP -> toggleSleepTimer()
         }
     }
 }

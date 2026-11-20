@@ -40,10 +40,15 @@ class WidgetSnapshotTest {
     @Test fun snapshotRoundTripsJson() = runTest {
         val id = IdType()
         sources.labelMap[id] = LabelVerses("Memory", listOf(VerseRef("WEB", "KJV", 10, 10)))
-        val snap = build()
+        val built = build()
+        val snap = built.snapshot
         val json = Json.encodeToString(WidgetSnapshot.serializer(), snap)
         assertTrue(json.contains("\"version\":1"), json)
+        assertTrue(!json.contains("pools"), "pools live in their own file: $json")
         assertEquals(snap, Json.decodeFromString(WidgetSnapshot.serializer(), json))
+        val poolsJson = Json.encodeToString(WidgetPools.serializer(), built.poolsFile)
+        assertTrue(poolsJson.contains("\"version\":1") && poolsJson.contains("label:$id"), poolsJson)
+        assertEquals(built.poolsFile, Json.decodeFromString(WidgetPools.serializer(), poolsJson))
         assertEquals("PAUSED", snap.speak.phase)
         assertEquals(listOf(true, false), snap.listening.map { it.current })
         assertEquals(null, snap.listening[1].percent)
@@ -83,7 +88,7 @@ class WidgetSnapshotTest {
     }
 
     @Test fun stringsContainAllWidgetKeys() = runTest {
-        val snap = build()
+        val snap = build().snapshot
         WidgetStringKeys.all.forEach { assertTrue(it in snap.strings, "missing $it") }
         assertEquals("Speak", snap.strings[WidgetStringKeys.SPEAK_NAME])
         assertEquals(WidgetStringKeys.all.size, snap.strings.size)
@@ -96,7 +101,7 @@ class WidgetSnapshotTest {
         sources.labelMap.remove(id)
         val snap = build()
         assertTrue(snap.pools.none { it.sourceKey == "label:$id" })
-        assertTrue(snap.labels.none { it.id == id.toString() })
+        assertTrue(snap.snapshot.labels.none { it.id == id.toString() })
     }
 
     @Test fun emptyLabelHasNoPool() = runTest {
@@ -110,6 +115,6 @@ class WidgetSnapshotTest {
         sources.installed.clear()
         val snap = build()
         assertTrue(snap.pools.isEmpty())
-        assertEquals(null, snap.defaultBible)
+        assertEquals(null, snap.snapshot.defaultBible)
     }
 }

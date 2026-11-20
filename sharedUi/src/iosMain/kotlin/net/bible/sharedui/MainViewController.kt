@@ -256,6 +256,9 @@ fun MainViewController(): UIViewController {
             onDispose { cancel() }
         }
         LaunchedEffect(Unit) {
+            // Widget links queued while the app was starting run first, before the slower sync scheduling below.
+            runCatching { net.bible.sharedui.platform.widget.IosWidgetUrls.flush() }
+                .onFailure { nsLog("widget url flush failed: ${it.stackTraceToString()}") }
             // Off main: schedule() reads AppSettings (database-backed) and resolves Koin definitions.
             withContext(Dispatchers.Default) {
                 runCatching { IosPlatformBootstrap.scheduleBackgroundSync() }
@@ -264,6 +267,14 @@ fun MainViewController(): UIViewController {
             // Main thread: the triggers read the application state and register UIKit observers.
             runCatching { IosPlatformBootstrap.startForegroundSync() }
                 .onFailure { nsLog("foreground sync start failed: ${it.stackTraceToString()}") }
+        }
+        LaunchedEffect(Unit) {
+            // Home-screen widget snapshot: starts once reading is ready (databases open, window repository loaded and a
+            // default Bible known), off Main because the first snapshot reads SWORD modules.
+            withContext(Dispatchers.Default) {
+                runCatching { net.bible.sharedui.platform.widget.IosWidgetIntents.startWriter() }
+                    .onFailure { if (it is CancellationException) throw it; nsLog("widget snapshot writer failed: ${it.stackTraceToString()}") }
+            }
         }
         LaunchedEffect(Unit) {
             // showPending logs its own failures, but the setup around it (Koin, string table, dialogs) can throw too, and

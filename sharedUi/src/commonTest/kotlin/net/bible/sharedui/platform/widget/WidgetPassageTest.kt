@@ -40,11 +40,20 @@ class WidgetPassageTest {
         assertEquals("Gen.1.1", seen?.key?.getOsisRef())
     }
 
+    @Test fun negativeOrdinalIsDropped() {
+        val target = assertNotNull(WidgetPassage.resolve(WidgetUrlAction.OpenPassage("Gen.3.16", null, "KJVA", -1)))
+        assertNull(target.ordinal)
+    }
+
     @Test fun unresolvableKeyOpensNothing() {
         var called = false
         val opened = WidgetPassage.open(WidgetUrlAction.OpenPassage("zzz nonsense 99:99", null, null, null)) { _, _ -> called = true }
         assertFalse(opened)
         assertFalse(called)
         assertNull(WidgetPassage.resolve(WidgetUrlAction.OpenPassage("zzz nonsense 99:99", null, null, null)))
+        // A key without a colon takes the other branch (no document derivation) and must fail just as cleanly.
+        called = false
+        assertFalse(WidgetPassage.open(WidgetUrlAction.OpenPassage("nonsense", null, null, null)) { _, _ -> called = true })
+        assertFalse(called)
     }
 }
