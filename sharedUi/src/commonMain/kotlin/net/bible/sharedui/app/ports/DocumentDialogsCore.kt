@@ -182,7 +182,6 @@ class DocumentDialogsCore(
         return false
     }
 
-    /** A short help [message] with its "read more" docs link and, when [videoUrl] is given, a tutorial video link. */
     /** A help blurb with one "Help in the user guide" link (#4159): Help & tips at [topic]'s guide page and videos. */
     fun helpDialog(title: String, message: String, topic: DocsLink) = AppDialogRequest.Message(
         title,

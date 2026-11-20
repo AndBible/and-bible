@@ -545,7 +545,7 @@ private fun HostAppContent(
     }
     ActivityRootHost(activityWiring) {
     // #4159: help items anywhere in the app open Help & tips at their topic.
-    CompositionLocalProvider(net.bible.sharedui.components.LocalHelpOpener provides net.bible.sharedui.components.HelpOpener { shell.navigate(NavRoutes.help(it)) }) {
+    CompositionLocalProvider(net.bible.sharedui.components.LocalHelpOpener provides net.bible.sharedui.components.HelpOpener { navController.navigate(NavRoutes.help(it)) { launchSingleTop = true } }) {
     AppRoot(
         navController = navController,
         startRoute = route,

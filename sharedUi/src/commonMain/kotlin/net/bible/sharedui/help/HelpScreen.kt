@@ -199,17 +199,17 @@ private fun UserGuideTab(
     val listState = rememberLazyListState()
     val highlightedStem = highlight?.let { topic -> UserGuideToc.pageFor(topic)?.stem?.takeIf { stem -> sections.any { s -> s.pages.any { it.stem == stem } } } }
     val noAnimations = LocalDisableAnimations.current
-    // Once per opening (survives rotation): the user may scroll away afterwards.
-    var scrolledToHighlight by rememberSaveable { mutableStateOf(false) }
+    // Once per topic (survives rotation): the user may scroll away afterwards; a new topic scrolls again.
+    var scrolledToHighlight by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(highlightedStem) {
-        if (highlightedStem == null || scrolledToHighlight) return@LaunchedEffect
+        if (highlightedStem == null || scrolledToHighlight == highlightedStem) return@LaunchedEffect
         val index = guideItemIndex(sections, hasWatchInOrder = onWatchInOrder != null, stem = highlightedStem)
         if (index != null) {
             // One row above the page: its section header (or the previous page's last row) stays in view as context.
             val target = (index - 1).coerceAtLeast(0)
             if (noAnimations) listState.scrollToItem(target) else listState.animateScrollToItem(target)
         }
-        scrolledToHighlight = true
+        scrolledToHighlight = highlightedStem
     }
     LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         item {

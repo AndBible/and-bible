@@ -198,9 +198,9 @@ fun CustomRepositoryEditorScreen(
         AbInfoDialog(
             title = strings.customRepositories,
             body = "${strings.customRepositoriesHelp0}\n\n${strings.customRepositoriesHelp1}\n\n" +
-                strings.customRepositoriesHelp2(strings.helpReadMoreLink),
+                strings.customRepositoriesHelp2(strings.helpInUserGuide),
             onDismiss = { showHelp = false },
-            readMoreLabel = strings.helpReadMoreLink,
+            readMoreLabel = strings.helpInUserGuide,
             readMoreUrl = customRepositoriesHelpUrl,
         )
     }

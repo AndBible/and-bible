@@ -90,4 +90,38 @@ class HelpLinkRoutingTest {
         onNodeWithText(strings.helpInUserGuide).performClick()
         assertEquals(listOf(DocsLink.NOTES), topics)
     }
+
+    @Test fun aHelpLinkInAnAppDialogAnswersTheDialogBeforeOpeningHelp() = runComposeUiTest {
+        val events = mutableListOf<String>()
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings, LocalHelpOpener provides HelpOpener { events += "help:$it" }) {
+                AppDialogHost(
+                    shown = net.bible.sharedcore.ui.dialog.ShownDialog(7, net.bible.sharedcore.ui.dialog.AppDialogRequest.Message(
+                        "Help", "Body <a href=\"${HelpLinks.url(DocsLink.DOCUMENT_SYNC)}\">guide</a>", "OK", cancellable = true,
+                    )),
+                    permission = null,
+                    onRespond = { id, result -> events += "respond:$id:$result" },
+                    onPermissionChoice = {}, onPermissionDismiss = {}, onOpenExternal = { events += "external:$it" },
+                )
+            }
+        }
+        onNodeWithText("guide", substring = true).performClick()
+        assertEquals(listOf("respond:7:${net.bible.sharedcore.ui.dialog.AppDialogResult.Cancel}", "help:${DocsLink.DOCUMENT_SYNC}"), events)
+    }
+
+    @Test fun anInfoDialogClosesItselfBeforeOpeningHelp() = runComposeUiTest {
+        val events = mutableListOf<String>()
+        show(Links(false), { events += "help:$it" }) {
+            AbInfoDialog(title = "T", body = "Body", onDismiss = { events += "dismiss" }, helpTopic = DocsLink.LABELS)
+        }
+        onNodeWithText(strings.helpInUserGuide).performClick()
+        assertEquals(listOf("dismiss", "help:${DocsLink.LABELS}"), events)
+    }
+
+    @Test fun aHelpLinkWithAnUnknownTopicNeverLeavesAsTheRawScheme() = runComposeUiTest {
+        val links = Links(askBeforeOpening = false)
+        show(links, null) { AbHtmlText("<a href=\"andbible-help:NO_SUCH\">Help</a>") }
+        onNodeWithText("Help").performClick()
+        assertEquals(listOf(net.bible.sharedcore.docs.DocsLinks.BASE_URL), links.opened)
+    }
 }

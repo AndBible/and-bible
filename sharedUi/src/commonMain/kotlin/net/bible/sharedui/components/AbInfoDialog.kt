@@ -91,7 +91,11 @@ fun AbInfoDialog(
                         text = readMoreLabel,
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable { open(readMoreUrl) },
+                        // A help link (#4159) closes this dialog first: Help & tips opens under the dialog otherwise.
+                        modifier = Modifier.clickable {
+                            if (net.bible.sharedcore.docs.HelpLinks.isHelpUrl(readMoreUrl)) onDismiss()
+                            open(readMoreUrl)
+                        },
                     )
                 }
                 if (helpTopic != null) {
@@ -100,7 +104,7 @@ fun AbInfoDialog(
                         text = LocalStrings.current.helpInUserGuide,
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable { open(net.bible.sharedcore.docs.HelpLinks.url(helpTopic)) },
+                        modifier = Modifier.clickable { onDismiss(); open(net.bible.sharedcore.docs.HelpLinks.url(helpTopic)) },
                     )
                 }
             }

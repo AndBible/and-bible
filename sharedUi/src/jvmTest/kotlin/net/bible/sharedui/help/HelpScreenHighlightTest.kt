@@ -86,4 +86,31 @@ class HelpScreenHighlightTest {
         show(null)
         onAllNodes(highlighted).assertCountEquals(0)
     }
+
+    /** The real screen has the "watch in order" row above the guide; the scroll index must account for it. */
+    @Test fun withTheWatchInOrderRowTheTopicIsStillScrolledTo() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = false) {
+                    HelpScreen(
+                        tips = emptyList(), sections = UserGuideToc.sections,
+                        tutorialVideos = listOf(VideoRowUi("Episode", "https://v")), versionText = "V",
+                        highlight = DocsLink.FAQ, onOpenUrl = {}, onUp = {},
+                    )
+                }
+            }
+        }
+        onNodeWithText("Frequently Asked Questions").assertIsDisplayed().assert(highlighted)
+    }
+
+    @Test fun guideItemIndexCountsEveryRowBeforeThePage() {
+        val sections = UserGuideToc.sections
+        val first = sections.first().pages.first()
+        // intro, home, header -> 3 (and 4 with the watch-in-order row)
+        assertEquals(3, guideItemIndex(sections, hasWatchInOrder = false, stem = first.stem))
+        assertEquals(4, guideItemIndex(sections, hasWatchInOrder = true, stem = first.stem))
+        val second = sections.first().pages[1]
+        assertEquals(4 + 1 + first.episodes.size, guideItemIndex(sections, hasWatchInOrder = true, stem = second.stem))
+        assertEquals(null, guideItemIndex(sections, hasWatchInOrder = true, stem = "nope"))
+    }
 }

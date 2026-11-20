@@ -116,9 +116,9 @@ fun CustomRepositoriesScreen(
     if (showHelp) {
         AbInfoDialog(
             title = strings.customRepositories,
-            body = "${strings.customRepositoriesHelp0}\n\n${strings.customRepositoriesHelp2(strings.helpReadMoreLink)}",
+            body = "${strings.customRepositoriesHelp0}\n\n${strings.customRepositoriesHelp2(strings.helpInUserGuide)}",
             onDismiss = { showHelp = false },
-            readMoreLabel = strings.helpReadMoreLink,
+            readMoreLabel = strings.helpInUserGuide,
             readMoreUrl = customRepositoriesHelpUrl,
         )
     }

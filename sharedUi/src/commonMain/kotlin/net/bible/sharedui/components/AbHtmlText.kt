@@ -94,11 +94,7 @@ fun rememberLinkOpener(): (String) -> Unit {
     return { url ->
         if (opener != null) opener.open(url) else {
             val topic = HelpLinks.parse(url)
-            when {
-                topic == null -> uriHandler.openUri(url)
-                help != null -> help.open(topic)
-                else -> uriHandler.openUri(topic.url)
-            }
+            if (topic != null && help != null) help.open(topic) else uriHandler.openUri(HelpLinks.externalUrl(url))
         }
     }
 }
@@ -186,7 +182,13 @@ fun AbHtmlText(
  * hidden behind an unrelated request and never needs a second "priority" queue slot.
  */
 @Composable
-fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: @Composable () -> Unit) {
+fun AbLinkRouting(
+    askFirst: Boolean,
+    onOpenExternal: (String) -> Unit,
+    /** Closes the dialog that holds the links before a help link opens Help & tips (it would cover the help screen). */
+    onInAppHelp: () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
     var pending by remember { mutableStateOf<String?>(null) }
     // A fresh AbLinkOpener every recomposition (never remember-keyed on askFirst/onOpenExternal):
     // both are read fresh here, so this can never close over a stale isDiscrete/callback the way
@@ -197,8 +199,11 @@ fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: 
     val helpOpener = LocalHelpOpener.current
     val opener = AbLinkOpener { url ->
         val topic = HelpLinks.parse(url)
-        if (topic != null && helpOpener != null) helpOpener.open(topic) else {
-            val target = topic?.url ?: url
+        if (topic != null && helpOpener != null) {
+            onInAppHelp()
+            helpOpener.open(topic)
+        } else {
+            val target = HelpLinks.externalUrl(url)
             if (askFirst) pending = target else onOpenExternal(target)
         }
     }

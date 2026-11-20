@@ -238,6 +238,7 @@ internal class SpeakSettingsState(
             AbLinkRouting(
                 askFirst = externalLinks.askBeforeOpening,
                 onOpenExternal = { externalLinks.open(it) },
+                onInAppHelp = { help.value = null },
             ) {
                 AbMessageDialog(
                     title = null,

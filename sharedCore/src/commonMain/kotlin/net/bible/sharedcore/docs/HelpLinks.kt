@@ -15,6 +15,12 @@ object HelpLinks {
     /** The topic of an [url] made by [url]; null for any other URL or an unknown topic name. */
     fun parse(url: String): DocsLink? =
         if (!isHelpUrl(url)) null else DocsLink.entries.firstOrNull { it.name == url.removePrefix(SCHEME) }
+
+    /**
+     * Where a help link goes when the app cannot open Help & tips: its topic's guide page, or the guide's home for a
+     * help link with an unknown topic (never the raw `andbible-help:` URL). Other URLs are returned unchanged.
+     */
+    fun externalUrl(url: String): String = if (!isHelpUrl(url)) url else parse(url)?.url ?: DocsLinks.BASE_URL
 }
 
 /** The User guide tab page that covers [topic] (the page of an anchored link); null when the guide has no such page. */

@@ -52,7 +52,7 @@ fun NavGraphBuilder.helpNavGraph(navController: NavHostController, deps: HelpNav
         route = NavRoutes.HELP_PATTERN,
         arguments = listOf(navArgument(NavRoutes.ARG_HELP_TOPIC) { type = NavType.StringType; nullable = true; defaultValue = null }),
     ) { entry ->
-        val topic = remember(entry) { NavRoutes.helpTopic(entry.arguments?.read { getStringOrNull(NavRoutes.ARG_HELP_TOPIC) }) }
+        val topic = NavRoutes.helpTopic(entry.arguments?.read { getStringOrNull(NavRoutes.ARG_HELP_TOPIC) })
         val strings = LocalStrings.current
         LaunchedEffect(strings.helpAndTips) { deps.setWindowTitle(strings.helpAndTips) }
         val tips = remember(strings) { deps.tips() }
