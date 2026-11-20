@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,12 +44,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import net.bible.sharedui.components.DialogSystemBarIcons
 import net.bible.sharedui.components.NoDialogDim
 import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.strings.LocalStrings
@@ -67,14 +70,15 @@ private val PageMaxWidth = 720.dp
  *  - [confirmText] set: a decision page with [dismissText] (required) and the filled [confirmText] button, which is
  *    destructive when [destructive];
  *  - [onClose]: ✕, Back (when [cancellable]) and the footer's dismiss button;
- *  - a non-cancellable page hides ✕, and Back does nothing unless [onBack] is set.
+ *  - a non-cancellable page hides ✕, and Back does nothing unless [onBack] is set;
+ *  - a null or blank [topic] omits the heading (✕ alone).
  *
  * The text column is capped at 720dp and centred; the page keeps clear of the system bars.
- * In pure monochrome the page is paper with ink rules, with no platform dim.
+ * The window is edge-to-edge with no platform dim; in pure monochrome the page is paper with ink rules.
  */
 @Composable
 fun AbTextPage(
-    topic: String,
+    topic: String?,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
     confirmText: String? = null,
@@ -94,9 +98,14 @@ fun AbTextPage(
             dismissOnBackPress = cancellable || onBack != null,
             dismissOnClickOutside = false,
             usePlatformDefaultWidth = false,
+            // Edge-to-edge: the window (and its surface) also covers the status and navigation bar areas;
+            // the content keeps clear of them with the safeDrawing padding below.
+            decorFitsSystemWindows = false,
         ),
     ) {
-        if (mono) NoDialogDim()
+        // The page is opaque and full-screen, so the platform dim would only tint the bars' areas.
+        NoDialogDim()
+        DialogSystemBarIcons(darkIcons = MaterialTheme.colorScheme.surface.luminance() > 0.5f)
         val rule = if (mono) monoInk(LocalIsDarkTheme.current) else MaterialTheme.colorScheme.outlineVariant
         Surface(
             modifier = modifier.fillMaxSize().testTag("text-page"),
@@ -113,7 +122,9 @@ fun AbTextPage(
                             Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
                         }
                     }
-                    Text(
+                    if (topic.isNullOrBlank()) {
+                        Spacer(Modifier.weight(1f))
+                    } else Text(
                         topic,
                         modifier = Modifier.weight(1f).padding(start = if (cancellable) 4.dp else 16.dp, end = 16.dp)
                             .testTag("page-topic").semantics { heading() },

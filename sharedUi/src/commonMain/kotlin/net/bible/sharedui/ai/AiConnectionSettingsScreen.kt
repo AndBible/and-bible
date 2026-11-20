@@ -82,7 +82,7 @@ private const val KEY_RAW_LOG_RETENTION = "raw_log_retention"
 private const val KEY_AI_LANGUAGE = "ai_language"
 
 /** [SettingsItem.InfoRow.onClickKey] the controller sets on the disclaimer row (F28); clicking it
- *  opens [AbInfoDialog] with the full disclaimer text rather than being forwarded to [onNavigate]. */
+ *  opens [AbTextPage] with the full disclaimer text rather than being forwarded to [onNavigate]. */
 private const val KEY_DISCLAIMER = "ai_disclaimer_warning"
 
 /** A synthetic page key: the "Custom language…" text-input page has no settings row of its own —
@@ -160,7 +160,7 @@ fun AiConnectionSettingsScreen(
      *  `{ onBack -> BackHandler(onBack = onBack) }`; other hosts/tests may leave the default no-op. */
     backHandler: @Composable (onBack: () -> Unit) -> Unit = {},
     /** Test-only seam (matches `initiallyXxxOpen` elsewhere, e.g. `SearchScreen`'s
-     *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbInfoDialog] open
+     *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbTextPage] open
      *  without a click-simulation harness (this module has no Compose UI-test dependency). */
     initiallyDisclaimerDialogOpen: Boolean = false,
     /** Test-only seam: capture the [CustomPromptEditor] (agent system prompt) open, e.g. with a

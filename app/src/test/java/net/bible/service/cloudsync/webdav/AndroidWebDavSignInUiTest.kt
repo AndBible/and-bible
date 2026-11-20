@@ -44,6 +44,7 @@ class AndroidWebDavSignInUiTest {
                 s
             }
             val prompt = shown.request as AppDialogRequest.Confirm
+            assertEquals(net.bible.sharedcore.ui.dialog.DialogPresentation.Page, prompt.presentation)
             val text = parseHtmlRuns(prompt.message!!).joinToString("") { it.text }
             val lines = text.lines()
             assertTrue(text, lines.any { it.startsWith("Subject: O=AndBible test server,CN=10.0.2.2 <x>") })
