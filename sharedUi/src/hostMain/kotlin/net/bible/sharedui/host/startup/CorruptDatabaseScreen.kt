@@ -131,9 +131,10 @@ internal fun CorruptDatabaseScreen(
     ) {
         Text(strings.corruptDatabaseTitle, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
         Text(
-            strings.corruptDatabaseMessage(databases.joinToString { it.fileName }),
-            color = MaterialTheme.colorScheme.onBackground,
+            strings.corruptDatabaseLead(databases.joinToString { it.fileName }),
+            style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground,
         )
+        Text(strings.corruptDatabaseDetail, color = MaterialTheme.colorScheme.onBackground)
         if (resetFailure != null) {
             Text(resetFailure, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("corrupt-database-reset-failed"))
         }

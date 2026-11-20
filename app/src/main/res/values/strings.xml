@@ -902,7 +902,8 @@
     <string name="error_skip">Skip</string>
     <!-- #4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names. -->
     <string name="corrupt_database_title">Damaged data</string>
-    <string name="corrupt_database_message_short">The data file %1$s is damaged and could not be opened. Nothing has been changed or deleted. Resetting starts it empty and keeps the damaged file on this device.</string>
+    <string name="corrupt_database_lead">Damaged data files: %1$s</string>
+    <string name="corrupt_database_detail">They could not be opened. Nothing has been changed or deleted. Resetting starts them empty and keeps each damaged file on this device, renamed with .corrupt- and the date.</string>
     <string name="corrupt_database_reset">Reset damaged data</string>
     <!-- #4112: the reset of damaged data failed. %1$s is the database file name. -->
     <string name="corrupt_database_reset_failed">The damaged data could not be reset: %1$s could not be moved aside. Nothing was changed. You can try again, send an error report, or use Backup &amp; Restore.</string>

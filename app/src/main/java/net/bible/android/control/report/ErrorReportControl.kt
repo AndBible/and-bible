@@ -154,7 +154,10 @@ object ErrorReportControl {
                 val dialogResult = dialogs.await(
                     AppDialogRequest.Options(
                         title = context.getString(R.string.corrupt_database_title),
-                        message = plainTextToHtml(context.getString(R.string.corrupt_database_message_short, names)),
+                        message = plainTextToHtml(
+                            context.getString(R.string.corrupt_database_lead, names) + "\n\n" +
+                                context.getString(R.string.corrupt_database_detail),
+                        ),
                         options = listOf(
                             SettingsItem.Choice(REPORT_VALUE, context.getString(R.string.report_error)),
                             SettingsItem.Choice(BACKUP_VALUE, context.getString(R.string.backup_and_restore)),

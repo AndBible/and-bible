@@ -10,6 +10,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedcore.ui.dialog.parseHtmlRuns
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -32,6 +33,7 @@ class IosWebDavCertificatePromptTest {
             runCurrent()
             val shown = assertNotNull(dialogs.pending.value)
             val prompt = assertIs<AppDialogRequest.Confirm>(shown.request)
+            assertEquals(net.bible.sharedcore.ui.dialog.DialogPresentation.Page, prompt.presentation)
             val text = parseHtmlRuns(assertNotNull(prompt.message)).joinToString("") { it.text }
             assertTrue("this device" in text, text)
             assertFalse("Android" in text, text)

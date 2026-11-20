@@ -84,8 +84,9 @@ fun AppDialogHost(
             val cancel = { onRespond(id, AppDialogResult.Cancel) }
             when (request) {
                 is AppDialogRequest.Message -> if (request.presentation == DialogPresentation.Page) {
+                    require(request.neutralText == null) { "A page has no neutral button" }
                     AbTextPage(
-                        topic = request.title.orEmpty(), onClose = cancel,
+                        topic = request.title, onClose = cancel,
                         confirmText = request.confirmText.takeIf { request.dismissText != null },
                         onConfirm = { onRespond(id, AppDialogResult.Ok) },
                         destructive = request.destructive, dismissText = request.dismissText,
@@ -103,7 +104,7 @@ fun AppDialogHost(
                 )
                 is AppDialogRequest.Confirm -> if (request.presentation == DialogPresentation.Page) {
                     AbTextPage(
-                        topic = request.title.orEmpty(), onClose = cancel,
+                        topic = request.title, onClose = cancel,
                         confirmText = request.confirmText, onConfirm = { onRespond(id, AppDialogResult.Ok) },
                         destructive = request.destructive, dismissText = request.dismissText,
                         cancellable = request.cancellable,
@@ -191,9 +192,12 @@ fun AppDialogHost(
                     )
                 }
                 is AppDialogRequest.Notice -> if (request.presentation == DialogPresentation.Page) {
-                    // A page shows the Html blocks only (logo, QR code and icon lines are dialog furniture).
+                    require(request.neutralText == null) { "A page has no neutral button" }
+                    require(request.blocks.all { it is AppDialogRequest.NoticeBlock.Html }) {
+                        "A page shows Html blocks only (logo, QR code and icon lines are dialog furniture)"
+                    }
                     AbTextPage(
-                        topic = request.title.orEmpty(), onClose = cancel,
+                        topic = request.title, onClose = cancel,
                         confirmText = request.confirmText.takeIf { request.dismissText != null },
                         onConfirm = { onRespond(id, AppDialogResult.Ok) }, dismissText = request.dismissText,
                     ) {

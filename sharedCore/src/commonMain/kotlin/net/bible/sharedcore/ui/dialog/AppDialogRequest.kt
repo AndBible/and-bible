@@ -178,6 +178,11 @@ sealed interface AppDialogRequest {
  * How a [AppDialogRequest.Message], [AppDialogRequest.Confirm] or [AppDialogRequest.Notice] is shown:
  * [Dialog] is the centred dialog; [Page] is the full-screen text page (`AbTextPage`) for long text. A page keeps the
  * request's buttons and answers: a request with a dismiss text is a decision page, one without is read-only.
+ *
+ * A page has no neutral button, and a [AppDialogRequest.Notice] page shows only [AppDialogRequest.NoticeBlock.Html]
+ * blocks and is always cancellable (a notice has no `cancellable` flag); the host rejects a page request that sets
+ * [AppDialogRequest.Message.neutralText] / [AppDialogRequest.Notice.neutralText] or has other blocks.
+ * A null title omits the page heading.
  */
 enum class DialogPresentation { Dialog, Page }
 
