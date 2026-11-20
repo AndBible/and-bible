@@ -208,7 +208,7 @@ class VerseShuffleAction : ActionCallback {
 class VerseSpeakAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         val appWidgetId = parameters[VERSE_ID] ?: GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
-        val ok = withContext(Dispatchers.IO) { CommonUtils.initializeAppForHeadlessEntry() }
+        val ok = withContext(Dispatchers.Main.immediate) { CommonUtils.initializeAppForHeadlessEntry() }
         if (!ok) return
         val koin = KoinPlatform.getKoin()
         val config = VerseWidgetConfigStore.load(context, appWidgetId) ?: return

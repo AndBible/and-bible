@@ -66,7 +66,7 @@ class VerseWidgetConfigActivity : ComponentActivity() {
             }
         }
         lifecycleScope.launch {
-            val ok = withContext(Dispatchers.IO) { CommonUtils.initializeAppForHeadlessEntry() }
+            val ok = withContext(Dispatchers.Main.immediate) { CommonUtils.initializeAppForHeadlessEntry() }
             if (!ok) { finish(); return@launch }
             options = withContext(Dispatchers.IO) {
                 val koin = KoinPlatform.getKoin()

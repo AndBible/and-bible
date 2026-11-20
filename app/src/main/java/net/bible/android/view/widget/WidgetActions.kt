@@ -75,7 +75,7 @@ object WidgetCommands {
  * could be opened: a damaged-data widget (#4112) must not touch the databases, and its buttons are not drawn anyway.
  */
 private suspend fun runWhenAppOpens(block: suspend () -> Unit) {
-    val ok = withContext(Dispatchers.IO) { CommonUtils.initializeAppForHeadlessEntry() }
+    val ok = withContext(Dispatchers.Main.immediate) { CommonUtils.initializeAppForHeadlessEntry() }
     if (!ok) return
     withContext(Dispatchers.Main.immediate) { block() }
 }
@@ -119,7 +119,7 @@ class ToggleSleepTimerAction : ActionCallback {
 class SpeakFromBookmarkAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         val id = parameters[BOOKMARK_ID] ?: return
-        val ok = withContext(Dispatchers.IO) { CommonUtils.initializeAppForHeadlessEntry() }
+        val ok = withContext(Dispatchers.Main.immediate) { CommonUtils.initializeAppForHeadlessEntry() }
         if (!ok) return
         val override = WidgetCommands.override
         if (override != null) { override.speakFromBookmark(id); return }

@@ -38,8 +38,8 @@ import org.koin.mp.KoinPlatform
 /** Whether the app opened for a widget draw (#4112: false means damaged data) and whether the monochrome setting is on. */
 internal data class WidgetEntry(val appOpens: Boolean, val mono: Boolean)
 
-/** Opens the app headlessly (on IO) and reads the colour setting; never throws. */
-internal suspend fun widgetEntry(): WidgetEntry = withContext(Dispatchers.IO) {
+/** Opens the app headlessly (on Main, like the earlier receivers: the speak services need a Looper thread) and reads the colour setting; never throws. */
+internal suspend fun widgetEntry(): WidgetEntry = withContext(Dispatchers.Main.immediate) {
     val ok = CommonUtils.initializeAppForHeadlessEntry()
     WidgetEntry(ok, ok && runCatching { CommonUtils.settings.monochromeMode }.getOrDefault(false))
 }
