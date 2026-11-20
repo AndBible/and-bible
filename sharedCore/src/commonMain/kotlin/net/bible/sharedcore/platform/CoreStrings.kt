@@ -134,6 +134,8 @@ interface CoreStrings {
     fun backupModulesConflictBook(name: String, version: String, folder: String): String // R.string.backup_modules_conflict_book
     fun backupFileInfo(version: Int, size: String): String
     fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String // R.string.bookmarks_db_stats
+    /** The name of the user's copy of an add-on collection label [name] when [name] is taken. */
+    fun addonLabelCopyName(name: String): String
     val exportedStudypadsSubject: String // R.string.exported_studypads_subject
     fun exportedStudypadsMessage(appName: String): String // R.string.exported_studypads_message
     val sendExportFile: String // R.string.send_export_file

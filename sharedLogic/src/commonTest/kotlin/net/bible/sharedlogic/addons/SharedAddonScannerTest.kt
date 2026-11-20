@@ -79,6 +79,19 @@ class SharedAddonScannerTest {
         assertEquals("0", refs[1].version)
     }
 
+    /** A collection module that needs a newer app (`AndBibleMinimumVersion`) is not offered by the platform's add-on filter. */
+    @Test fun collectionNeedingANewerAppIsHidden() {
+        touch("/mods/ok/m.db")
+        touch("/mods/new/n.db")
+        val ok = fakeAddonBook("Ok", "/mods/ok", labels = listOf("m.db"))
+        val newer = FakeAddonBook(FakeAddonMetaData("Newer", "/mods/new", mapOf("AndBibleProvidesLabels" to listOf("n.db")),
+            mapOf("AndBibleMinimumVersion" to "5000")))
+        val filter = net.bible.service.sword.AndBibleAddonFilter { 1000 }
+        assertEquals(listOf("Ok"), SharedAddonScanner({ listOf(ok, newer).filter { filter.test(it) } }, fs).collections().map { it.moduleInitials })
+        val updated = net.bible.service.sword.AndBibleAddonFilter { 5000 }
+        assertEquals(listOf("Ok", "Newer"), SharedAddonScanner({ listOf(ok, newer).filter { updated.test(it) } }, fs).collections().map { it.moduleInitials })
+    }
+
     @Test fun collectionSourceReadsLiveAndFiresReloadedFromCatalogClearCaches() {
         touch("/mods/ok/m.db")
         val scanner = SharedAddonScanner({ listOf(fakeAddonBook("M", "/mods/ok", labels = listOf("m.db"))) }, fs)

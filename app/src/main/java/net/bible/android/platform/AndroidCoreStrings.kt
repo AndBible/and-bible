@@ -190,6 +190,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
         context.getString(R.string.backup_modules_conflict_book, name, version, folder)
     override fun backupFileInfo(version: Int, size: String): String = context.getString(R.string.backup_file_info, version, size)
     override fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String = context.getString(R.string.bookmarks_db_stats, firstLabel, labels, bookmarks)
+    override fun addonLabelCopyName(name: String): String = context.getString(R.string.addon_label_copy_name, name)
     override val exportedStudypadsSubject: String get() = context.getString(R.string.exported_studypads_subject)
     override fun exportedStudypadsMessage(appName: String): String = context.getString(R.string.exported_studypads_message, appName)
     override val sendExportFile: String get() = context.getString(R.string.send_export_file)

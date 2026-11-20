@@ -257,13 +257,19 @@ class AddonCollectionSyncTest {
         assertEquals(listOf("Mine"), d2.localDb.bookmarkDao().allLabelsSortedByName().map { it.name })
         assertEquals("the user's bookmark arrives (its primary label is an add-on label it lacks)", 1,
             countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)}"))
-        // Kept until the reconciler knows no installed module provides the label (it may just not be imported yet)...
+        // The link and the primary label are kept as they came: the module may be installed here later, and a
+        // reconciliation after the sync (a sweep) never writes the user's rows (sync review IMPORTANT 1).
         assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
-        // ...then the sweep drops the link and the primary label, never the bookmark; unlogged.
+        d2.localDb.useWriterConnectionMarked { it.exec("DELETE FROM LogEntry") }
         AddonCollectionImporter({ d2.localDb }, env).sweep()
-        assertEquals(0, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
-        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId IS NULL"))
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId = ${hex(addonLabel)}"))
+        assertEquals("the sweep wrote nothing", 0, countIn(d2, "SELECT COUNT(*) FROM LogEntry"))
         assertEquals(0, addonLogEntries(d2))
+        // A later edit on d2 sends the row as it is: d1's primary label is not overwritten with NULL.
+        d2.localDb.useWriterConnectionMarked { it.exec("UPDATE BibleBookmark SET lastUpdatedOn = 77 WHERE id = ${hex(own)}") }
+        val back = gunzip(createPatchForDatabase(d2, env)!!)
+        assertEquals(1, countIn(back, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId = ${hex(addonLabel)}"))
     }
 
     /** Review Focus 3 / an initial download: the patch arrives before the reconciler has re-imported the module here. */
@@ -315,9 +321,32 @@ class AddonCollectionSyncTest {
             db.bookmarkDao().insert(BookmarkEntities.Label(name = "Mine"))
             db.close()
         }
-        importDatabaseFile(category, export.toOkioPath())
+        val addonRowsInExport = addonRowsIn(export.absolutePath)
+        assertTrue(addonRowsInExport > 0)
+        // The count of skipped rows is returned, for the UI to explain an import that brought nothing.
+        assertEquals(addonRowsInExport, importDatabaseFile(category, export.toOkioPath()))
         assertEquals(0, addonRowsIn(b))
         assertTrue((b.localDb as BookmarkDatabase).bookmarkDao().allLabelsSortedByName().any { it.name == "Mine" })
+    }
+
+    /** Sync review Minor 3: favourites and expand state of add-on rows are this device's own and survive an initial download. */
+    @Test
+    fun initialDownloadSwapKeepsThisDevicesAddonState() = run {
+        val d1 = device("d1")
+        install(d1.localDb)
+        d1.localDb.useWriterConnectionMarked { c ->
+            c.exec("INSERT INTO AddonLabelLocalState (labelId, favourite) VALUES (${hex(addonLabel)}, 1)")
+            c.exec("INSERT INTO AddonLinkLocalState (bookmarkId, labelId, expandContent) VALUES (${hex(addonB1)}, ${hex(addonLabel)}, 0)")
+        }
+        // The cloud's initial file: another device's database.
+        val cloudDevice = device("d2")
+        cloudDevice.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "Cloud"))
+        val downloaded = tmp("initial-").also { it.delete() }
+        cloudDevice.localDb.useWriterConnectionMarked { it.exec("VACUUM INTO '${downloaded.absolutePath}'") }
+        cloud.swapInInitialDb(d1, downloaded.toOkioPath()) {}
+        assertEquals(1, countIn(d1, "SELECT COUNT(*) FROM Label WHERE name = 'Cloud'"))
+        assertEquals(1, countIn(d1, "SELECT COUNT(*) FROM AddonLabelLocalState WHERE labelId = ${hex(addonLabel)} AND favourite = 1"))
+        assertEquals(1, countIn(d1, "SELECT COUNT(*) FROM AddonLinkLocalState WHERE bookmarkId = ${hex(addonB1)} AND expandContent = 0"))
     }
 
     @Test
