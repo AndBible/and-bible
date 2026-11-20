@@ -17,11 +17,9 @@
 
 package net.bible.sharedui.platform.widget
 
-import net.bible.android.control.link.BibleLink
-import net.bible.android.control.link.LinkControl
+import net.bible.android.control.page.window.WindowControl
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.speak.SpeakTransportService
-import org.crosswire.jsword.book.Books
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSThread
 import platform.darwin.dispatch_async
@@ -30,47 +28,43 @@ import platform.darwin.dispatch_get_main_queue
 /**
  * Executes the `andbible-widget://` URLs a widget tap sends to the app (Swift's `onOpenURL`). A tap on a cold launch
  * arrives before Koin and the databases exist, so the action waits in [pending] until [flush] runs once startup is
- * Ready; an action that arrives later runs at once. Main thread only (the entry hops to it).
+ * Ready; an action that arrives later runs at once. "Ready" is the [ready] flag, not "Koin exists": a headless intent
+ * leaves the process with Koin up and no UI, and the databases and window repository are not loaded then. Main thread
+ * only (the entry hops to it).
  */
 object IosWidgetUrls {
     private const val TAG = "IosWidgetUrls"
-    private val pending = ArrayDeque<WidgetUrlAction>()
+    private val queue = WidgetUrlQueue(::execute)
 
     /** Swift's entry. Invalid URLs are logged and dropped. */
     fun open(url: String) {
         val run = {
             val action = WidgetUrl.parse(url)
             if (action == WidgetUrlAction.Invalid) Log.w(TAG, "ignored widget url: $url")
-            else if (!tryRun(action)) pending.addLast(action)
+            else queue.submit(action)
         }
         if (NSThread.isMainThread) run() else dispatch_async(dispatch_get_main_queue()) { run() }
     }
 
-    /** Runs the actions that arrived before startup finished. Call on Main when startup is Ready. */
-    fun flush() {
-        while (pending.isNotEmpty()) {
-            if (!tryRun(pending.first())) return
-            pending.removeFirst()
-        }
-    }
+    /** Runs the actions that arrived before startup finished, and all later ones at once. Call on Main when startup is Ready. */
+    fun flush() = queue.markReady()
 
-    /** False when Koin is not up yet (the action must wait); true when it ran or failed for good. */
-    private fun tryRun(action: WidgetUrlAction): Boolean {
-        val koin = KoinPlatform.getKoinOrNull() ?: return false
+    private fun execute(action: WidgetUrlAction) {
+        val koin = KoinPlatform.getKoinOrNull() ?: return
         runCatching {
             when (action) {
                 is WidgetUrlAction.Speak -> koin.get<SpeakTransportService>().run(action.command)
                 is WidgetUrlAction.SpeakBookmark -> koin.get<SpeakTransportService>().speakFromBookmark(action.id)
                 is WidgetUrlAction.OpenPassage -> {
-                    val book = action.document?.let { Books.installed().getBook(it) }
-                    koin.get<LinkControl>().loadApplicationUrl(
-                        BibleLink("content", action.key, action.v11n, forceDoc = book != null), book,
-                    )
+                    // The active window, like Android's openDeepLink; LinkControl would use the links window.
+                    val opened = WidgetPassage.open(action) { doc, key ->
+                        koin.get<WindowControl>().activeWindowPageManager.setCurrentDocumentAndKey(doc, key)
+                    }
+                    if (!opened) Log.w(TAG, "widget passage not found: $action")
                 }
                 WidgetUrlAction.Invalid -> Unit
             }
         }.onFailure { Log.e(TAG, "widget url failed: $action", it) }
-        return true
     }
 
     private fun SpeakTransportService.run(command: SpeakCommand) {

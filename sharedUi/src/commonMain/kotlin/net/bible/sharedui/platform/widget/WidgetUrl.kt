@@ -40,7 +40,9 @@ enum class SpeakCommand(val wire: String) {
 
 /**
  * Parser of the widget URL scheme (`andbible-widget://open?link=<url>`, `.../speak/<command>`,
- * `.../bookmark/<id>`). Pure and platform-independent; the iOS app executes the result
+ * `.../bookmark/<id>`). The inner `link` of an `open` URL must be fully percent-encoded by the sender (`&`, `?`, `=`
+ * and `#` included): Swift's `URLComponents`/`URLQueryItem` leave those unescaped, so the widget extension encodes it
+ * itself, and an unencoded `&` ends the link. Pure and platform-independent; the iOS app executes the result
  * (`IosWidgetUrls`).
  */
 object WidgetUrl {
@@ -91,12 +93,15 @@ object WidgetUrl {
         var i = 0
         while (i < s.length) {
             val c = s[i]
-            val hex = if (c == '%' && i + 2 < s.length) s.substring(i + 1, i + 3).toIntOrNull(16) else null
+            val hex = if (c == '%' && i + 2 < s.length) s.substring(i + 1, i + 3).takeIf(::isHexPair)?.toInt(16) else null
             if (hex != null) { out.add(hex.toByte()); i += 3 }
             else { c.toString().encodeToByteArray().forEach(out::add); i++ }
         }
         return out.toByteArray().decodeToString()
     }
+
+    /** Exactly two hex digits: `toIntOrNull(16)` alone would accept a sign (`%-1`, `%+f`). */
+    private fun isHexPair(s: String) = s.length == 2 && s.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }
 
     private class ByteArrayBuilder {
         private val list = ArrayList<Byte>()

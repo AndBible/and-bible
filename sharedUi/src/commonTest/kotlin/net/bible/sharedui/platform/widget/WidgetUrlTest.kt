@@ -67,4 +67,11 @@ class WidgetUrlTest {
             WidgetUrl.parseReadLink("https://read.andbible.org/Joh%203:16%20%C3%A4"),
         )
     }
+
+    @Test fun percentEscapesNeedTwoHexDigits() {
+        // "%-1" / "%+f" parse as hex ints with a sign; they must stay literal.
+        assertEquals(WidgetUrlAction.SpeakBookmark("a%-1b"), WidgetUrl.parse("andbible-widget://bookmark/a%-1b"))
+        assertEquals(WidgetUrlAction.SpeakBookmark("a%+fb"), WidgetUrl.parse("andbible-widget://bookmark/a%+fb"))
+        assertEquals(WidgetUrlAction.SpeakBookmark("A"), WidgetUrl.parse("andbible-widget://bookmark/%41"))
+    }
 }
