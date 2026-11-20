@@ -159,12 +159,15 @@ AndBible read what you type as a regular expression instead of search words. Whi
 types (`Phrase`, `All words`, `Any word`) are disabled, because they do not apply; the settings summary shows `Regex`.
 The older search form that some menus and links open does not have this switch yet.
 
-The expression is matched against the written verse text of the selected translations. It does not match Strong's
-numbers or notes. Matches are highlighted in the results.
+The expression is matched against the written verse text of the selected Bibles. Regular-expression search covers
+Bible translations only: commentaries, dictionaries and other documents among the selected ones are skipped. It does
+not match Strong's numbers or notes. Matches are highlighted in the results.
 
 - The match is case-insensitive by default. Start the expression with `(?-i)` to make it case-sensitive.
 - Accents and other diacritics are not folded: `e` does not match `é`.
 - The verse text is searched as it is written, so punctuation follows the word without a space: use `said:`, not `said :`.
+  The stored text is reconstructed from the module's markup, so in rare cases its spacing can still differ from what
+  the reading screen shows; a `\s*` in the expression tolerates that.
 
 Examples:
 
@@ -178,10 +181,14 @@ translation.
 
 A regular-expression search has a time limit of 3 seconds for the whole search, across all selected translations. When
 it runs out, you get the results found so far and the notice "The search took too long and was stopped. Results are
-incomplete; try a simpler expression." Try a simpler expression to get complete results.
+incomplete; try a simpler expression." Try a simpler expression to get complete results. A very slow expression cannot
+always be interrupted inside the regular-expression engine: the search then stops waiting for it after about
+3 seconds and shows the notice, while the device may keep computing briefly in the background. Highlighting the
+matches has its own short time limit; results it does not reach are shown without highlights.
 
-Android and desktop use the Kotlin/Java regular-expression engine. iOS uses the Kotlin/Native engine, which is mostly
-the same; small differences are possible on iOS.
+Each platform uses its own regular-expression engine: Android uses Android's own (ICU-based) engine, desktop uses
+Java's, and iOS uses Kotlin/Native's. They agree on common syntax, but small differences in dialect are possible. On
+iOS, `(?-i)` and case-insensitive matching of non-Latin letters have not been verified yet.
 
 After updating to the version that adds this feature, the existing search indexes are rebuilt once (the search screen
 shows the usual state that the index is not built). The index grows by about 25 %: for example the KJV index grows
