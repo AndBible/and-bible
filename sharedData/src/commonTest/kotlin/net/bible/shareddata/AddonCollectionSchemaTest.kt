@@ -45,8 +45,8 @@ class AddonCollectionSchemaTest {
             val bookmark = IdType()
             dao.upsertModule(AddonCollectionModule("Manna", "1.0", "abc", 7))
             dao.insertRows(listOf(
-                AddonCollectionRow("Manna", "Label", label, null),
-                AddonCollectionRow("Manna", "BibleBookmark", bookmark, null),
+                AddonCollectionRow("Manna", "Label", label),
+                AddonCollectionRow("Manna", "BibleBookmark", bookmark),
                 AddonCollectionRow("Manna", "BibleBookmarkToLabel", bookmark, label),
             ))
             assertTrue(dao.isAddonLabel(label))
@@ -58,6 +58,9 @@ class AddonCollectionSchemaTest {
             assertNull(dao.moduleOfLabel(IdType()))
             assertEquals(setOf(label), dao.addonLabelIds())
             assertEquals("1.0", dao.module("Manna")!!.version)
+            // The ownership key is unique also for single-key rows (no second key): a repeated row replaces.
+            dao.insertRows(listOf(AddonCollectionRow("Manna", "Label", label), AddonCollectionRow("Manna", "Label", label)))
+            assertEquals(1, dao.rowsOf("Manna").count { it.tableName == "Label" })
 
             dao.upsertLabelLocalState(AddonLabelLocalState(label, favourite = true))
             assertEquals(listOf(label), dao.favouriteAddonLabelIds())

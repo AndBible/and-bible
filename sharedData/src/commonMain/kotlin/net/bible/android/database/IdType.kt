@@ -95,7 +95,14 @@ class MyUUID(
     )
 
     companion object {
-        fun randomUUID(): MyUUID = fromByteArray(secureRandomBytes(16))
+        /**
+         * A random RFC 4122 version 4 UUID (version and variant bits set). The fixed version nibble keeps new ids
+         * disjoint from add-on collection ids, whose tag puts a non-4 nibble there (`ADDON_ID_TAG_HEX`).
+         */
+        fun randomUUID(): MyUUID = fromByteArray(secureRandomBytes(16).also {
+            it[6] = ((it[6].toInt() and 0x0F) or 0x40).toByte()
+            it[8] = ((it[8].toInt() and 0x3F) or 0x80).toByte()
+        })
         fun fromString(name: String): MyUUID {
             val components = name.split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             require(components.size == 5) { "Invalid UUID string: $name" }

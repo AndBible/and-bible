@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 14,
-    "identityHash": "f796eb4457911bf0811c458a893e0917",
+    "identityHash": "a8e06592ae797a244f97bf3ba25b2ef3",
     "entities": [
       {
         "tableName": "BibleBookmark",
@@ -787,7 +787,7 @@
       },
       {
         "tableName": "AddonCollectionRow",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleInitials` TEXT NOT NULL, `tableName` TEXT NOT NULL, `id1` BLOB NOT NULL, `id2` BLOB, `rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleInitials` TEXT NOT NULL, `tableName` TEXT NOT NULL, `id1` BLOB NOT NULL, `id2` BLOB NOT NULL, `rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
           {
             "fieldPath": "moduleInitials",
@@ -810,7 +810,8 @@
           {
             "fieldPath": "id2",
             "columnName": "id2",
-            "affinity": "BLOB"
+            "affinity": "BLOB",
+            "notNull": true
           },
           {
             "fieldPath": "rowId",
@@ -1061,7 +1062,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f796eb4457911bf0811c458a893e0917')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a8e06592ae797a244f97bf3ba25b2ef3')"
     ]
   }
 }

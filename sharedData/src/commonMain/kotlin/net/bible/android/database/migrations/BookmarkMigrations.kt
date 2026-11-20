@@ -270,7 +270,7 @@ private val labelDisplayStyleEnum = makeMigration(12..13) { db ->
  */
 private val addonCollectionTables = makeMigration(13..14) { db ->
     db.execSQL("CREATE TABLE IF NOT EXISTS `AddonCollectionModule` (`moduleInitials` TEXT NOT NULL, `version` TEXT NOT NULL, `contentHash` TEXT NOT NULL, `importedAt` INTEGER NOT NULL, PRIMARY KEY(`moduleInitials`))")
-    db.execSQL("CREATE TABLE IF NOT EXISTS `AddonCollectionRow` (`moduleInitials` TEXT NOT NULL, `tableName` TEXT NOT NULL, `id1` BLOB NOT NULL, `id2` BLOB, `rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
+    db.execSQL("CREATE TABLE IF NOT EXISTS `AddonCollectionRow` (`moduleInitials` TEXT NOT NULL, `tableName` TEXT NOT NULL, `id1` BLOB NOT NULL, `id2` BLOB NOT NULL, `rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
     db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_AddonCollectionRow_tableName_id1_id2` ON `AddonCollectionRow` (`tableName`, `id1`, `id2`)")
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_AddonCollectionRow_moduleInitials` ON `AddonCollectionRow` (`moduleInitials`)")
     db.execSQL("CREATE TABLE IF NOT EXISTS `AddonLabelLocalState` (`labelId` BLOB NOT NULL, `favourite` INTEGER NOT NULL, PRIMARY KEY(`labelId`))")

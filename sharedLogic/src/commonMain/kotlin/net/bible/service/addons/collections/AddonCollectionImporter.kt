@@ -33,6 +33,7 @@ import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
+import net.bible.android.database.bookmarks.ADDON_ROW_NO_ID2_SQL
 import net.bible.android.database.bookmarks.isAddonIdSql
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -216,7 +217,7 @@ class AddonCollectionImporter(
             // A row with this id here can only be a stale add-on row (a restored backup, an imported export of a
             // collection): ids derived for a module belong to it. REPLACE (foreign keys off: no cascade) takes it over.
             exec("INSERT OR REPLACE INTO main.$name ($cols) SELECT $cols FROM addon.$name")
-            val id2 = table.idField2?.let { "t.$it" } ?: "NULL"
+            val id2 = table.idField2?.let { "t.$it" } ?: ADDON_ROW_NO_ID2_SQL
             exec(
                 "INSERT OR REPLACE INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) " +
                     "SELECT ?, '$name', t.${table.idField1}, $id2 FROM addon.$name t",

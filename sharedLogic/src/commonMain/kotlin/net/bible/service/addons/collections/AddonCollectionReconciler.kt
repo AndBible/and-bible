@@ -125,7 +125,7 @@ class AddonCollectionReconciler(
         fun AddonCollectionRow.key() = Triple(tableName, id1, id2)
         val afterKeys = after.map { it.key() }.toSet()
         fun entry(r: AddonCollectionRow, type: LogEntryTypes) =
-            LogEntry(r.tableName, r.id1, r.id2 ?: IdType.empty(), type, 0, "addon:${r.moduleInitials}")
+            LogEntry(r.tableName, r.id1, r.syncId2, type, 0, "addon:${r.moduleInitials}")
         return before.filter { it.key() !in afterKeys }.map { entry(it, LogEntryTypes.DELETE) } +
             after.map { entry(it, LogEntryTypes.UPSERT) }
     }

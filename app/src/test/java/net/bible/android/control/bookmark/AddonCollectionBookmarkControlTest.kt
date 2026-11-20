@@ -15,6 +15,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
 import net.bible.android.database.bookmarks.BookmarkEntities.EditActionMode
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.LabelType
+import net.bible.android.database.bookmarks.ADDON_ROW_NO_ID2_SQL
 import net.bible.android.database.bookmarks.isAddonId
 import net.bible.service.addons.collections.AddonCollectionImporter
 import net.bible.service.addons.collections.addonId
@@ -249,7 +250,7 @@ class AddonCollectionBookmarkControlTest {
         db.useWriterConnectionMarked { c ->
             c.exec("INSERT INTO Label (id, name) VALUES (X'${l2.toHex()}', 'Second')")
             c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'${b1.toHex()}', X'${l2.toHex()}')")
-            c.exec("INSERT INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) VALUES ('$module', 'Label', X'${l2.toHex()}', NULL)")
+            c.exec("INSERT INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) VALUES ('$module', 'Label', X'${l2.toHex()}', $ADDON_ROW_NO_ID2_SQL)")
             c.exec("INSERT INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) VALUES ('$module', 'BibleBookmarkToLabel', X'${b1.toHex()}', X'${l2.toHex()}')")
         }
         val own = ownLabel()

@@ -21,6 +21,7 @@ import androidx.room3.Entity
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
 import net.bible.android.database.IdType
+import net.bible.android.database.MyUUID
 
 /**
  * Add-on bookmark collections (spec 2026-11-20-addon-bookmark-collections-design): an AND_BIBLE add-on module
@@ -42,8 +43,9 @@ class AddonCollectionEntities {
 
     /**
      * Ownership of one imported row: [tableName] is a synced bookmark table and ([id1], [id2]) its sync key
-     * (`SyncableDatabaseDefinition.Table.idField1`/`idField2`; [id2] null for single-key tables). A row listed here
-     * belongs to module [moduleInitials]: it is read-only, never logged for sync and deleted with the module.
+     * (`SyncableDatabaseDefinition.Table.idField1`/`idField2`; [id2] is [ADDON_ROW_NO_ID2] for single-key tables, not
+     * NULL, so the unique index also covers them). A row listed here belongs to module [moduleInitials]: it is
+     * read-only, never logged for sync and deleted with the module.
      */
     @Entity(
         indices = [
@@ -55,9 +57,12 @@ class AddonCollectionEntities {
         val moduleInitials: String,
         val tableName: String,
         val id1: IdType,
-        val id2: IdType?,
+        val id2: IdType = ADDON_ROW_NO_ID2,
         @PrimaryKey(autoGenerate = true) val rowId: Long = 0,
-    )
+    ) {
+        /** [id2] as a sync key: empty for single-key tables (as `LogEntry.entityId2`). */
+        val syncId2: IdType get() = if (id2 == ADDON_ROW_NO_ID2) IdType.empty() else id2
+    }
 
     /** Per-device, user-chosen state of an add-on label that would otherwise live on the (read-only) label row. */
     @Entity
@@ -78,6 +83,12 @@ class AddonCollectionEntities {
         val expandContent: Boolean,
     )
 }
+
+/** [AddonCollectionEntities.AddonCollectionRow.id2] of a single-key table's row: sixteen zero bytes (never a real id). */
+val ADDON_ROW_NO_ID2: IdType = IdType(MyUUID(0L, 0L))
+
+/** [ADDON_ROW_NO_ID2] as an SQL literal. */
+const val ADDON_ROW_NO_ID2_SQL = "X'00000000000000000000000000000000'"
 
 /**
  * Bytes 5..10 (SQL `substr` positions, 1-based) of every id derived for an add-on collection row
