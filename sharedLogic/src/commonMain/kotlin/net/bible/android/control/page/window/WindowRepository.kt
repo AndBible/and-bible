@@ -274,14 +274,19 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      * speak widget's producer, off Main, ran the first load.
      *
      * No holder waits for Main while holding it: the edge read and the joined read run on the holder's own thread
-     * or on IO, and an apply is synchronous.
+     * or on IO, and an apply is synchronous. A holder does wait for the database (the edge read, including
+     * `awaitPersisted`) and for Koin creation monitors (the apply resolves `HistoryManager`, `CurrentPageManager` and
+     * what `Window` injects). Hence the rule: nothing an apply calls may resolve a Koin single whose constructor reads
+     * [activeWindow] (such as `TextToSpeechServiceManager`): its creator holds that single's monitor while it waits
+     * here, which would deadlock. A waiter can be Main, blocked for the whole of a background edge read; before this
+     * lock that Main reader crashed instead.
      */
     private val applyLock = reentrantLock()
 
     private fun initializeAtEdgeLocked() {
         if(initialized) return
         val pending = pendingLoad
-        if(pending == null && loadingFromDb) return // mid-apply: the re-entrancy guard, see [loadingFromDb]
+        if(pending == null && loadingFromDb) return // same-thread re-entry from inside an apply (only the holder of applyLock gets here)
         val createIfMissing = if(pending == null) beginInitialize() else false
         if(pending == null) loadingFromDb = true
         try {
@@ -631,8 +636,11 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     private suspend fun loadFromDb(workspaceId: IdType?, createIfMissing: Boolean, beforeApply: () -> Unit = {}) = loadMutex.withLock {
         val startEpoch = DatabaseContainer.replaceEpoch
         val pending = PendingLoad(startEpoch)
-        pendingLoad = pending
-        loadingFromDb = true
+        // Published together under [applyLock]: an edge reader inside it never sees one without the other.
+        applyLock.withLock {
+            pendingLoad = pending
+            loadingFromDb = true
+        }
         try {
             Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
             val loader = currentLoader()
@@ -650,8 +658,10 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
                 applyLock.withLock { if (pending.claim()) { beforeApply(); applyLoaded(loaded, startEpoch) } }
             }
         } finally {
-            if (pendingLoad === pending) pendingLoad = null
-            loadingFromDb = false
+            applyLock.withLock {
+                if (pendingLoad === pending) pendingLoad = null
+                loadingFromDb = false
+            }
         }
     }
 

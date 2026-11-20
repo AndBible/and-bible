@@ -134,18 +134,30 @@ class WindowRepositoryEarlyReaderTest {
         val loader = HoldingLoader(realLoader(f.persistence), f.persistence)
         f.repo.loaderOverride = loader
         val first = java.util.concurrent.CompletableFuture<Window>()
-        Thread {
-            try { first.complete(f.repo.activeWindow) } catch (e: Throwable) { first.completeExceptionally(e) }
-        }.start()
-        runBlocking { withTimeout(10_000) { loader.entered.await() } }
-        assertFalse("the first reader's load has not finished", f.repo.initialized)
-        Thread { Thread.sleep(200); loader.release.complete(Unit) }.start()
-        val second = f.repo.activeWindow
-        val firstWindow = first.get(10, java.util.concurrent.TimeUnit.SECONDS)
-        assertEquals("both readers see the same loaded window", firstWindow, second)
-        assertEquals("the second reader must not start its own read", 1, loader.calls)
-        val ids = f.repo.windowList.map { it.id }
-        assertEquals(ids.distinct(), ids)
+        val testThread = Thread.currentThread()
+        try {
+            Thread {
+                try { first.complete(f.repo.activeWindow) } catch (e: Throwable) { first.completeExceptionally(e) }
+            }.start()
+            runBlocking { withTimeout(10_000) { loader.entered.await() } }
+            assertFalse("the first reader's load has not finished", f.repo.initialized)
+            // Lets the first read go only once this thread is parked waiting for it (or after 5 s, so a regression to
+            // the early return still fails, and a hang still ends): no fixed sleep decides the ordering.
+            Thread {
+                val deadline = System.currentTimeMillis() + 5_000
+                while (testThread.state != Thread.State.WAITING && testThread.state != Thread.State.BLOCKED &&
+                    System.currentTimeMillis() < deadline) Thread.sleep(5)
+                loader.release.complete(Unit)
+            }.start()
+            val second = f.repo.activeWindow
+            val firstWindow = first.get(10, java.util.concurrent.TimeUnit.SECONDS)
+            assertEquals("both readers see the same loaded window", firstWindow, second)
+            assertEquals("the second reader must not start its own read", 1, loader.calls)
+            val ids = f.repo.windowList.map { it.id }
+            assertEquals(ids.distinct(), ids)
+        } finally {
+            loader.release.complete(Unit) // never leave the first reader holding the repository's apply lock
+        }
     }
 
     /** Breaks if the reader's apply and the suspended load's apply both run (each clears and re-appends). */
