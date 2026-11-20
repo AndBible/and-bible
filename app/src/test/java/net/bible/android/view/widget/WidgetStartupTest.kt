@@ -17,7 +17,6 @@
 package net.bible.android.view.widget
 
 import android.content.Context
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.android.TEST_SDK
@@ -59,11 +58,14 @@ class WidgetStartupTest {
     }
 
     @Test fun coldStartWithoutASpeakWidgetNeitherStartsTheProducerNorCreatesTheTtsManager() = runBlocking {
-        val asked = CompletableDeferred<Unit>()
-        WidgetUpdater.hasSpeakWidgets = { asked.complete(Unit); false }
+        WidgetUpdater.hasSpeakWidgets = { false }
+        val scopeJob = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>().coroutineContext[kotlinx.coroutines.Job]!!
+        val before = scopeJob.children.toSet()
         SpeakWidgetManager() // what startPlatformServices does on Main at every cold start
-        assertNotNull("the start decision was never taken", withTimeoutOrNull(10_000) { asked.await() })
-        Thread.sleep(300)
+        // Join exactly the start-decision job the manager launched: deterministic, no sleeping.
+        val decision = scopeJob.children.toSet() - before
+        assertTrue("the start decision job was not launched", decision.isNotEmpty())
+        assertNotNull("the start decision never finished", withTimeoutOrNull(10_000) { decision.forEach { it.join() }; true })
         assertFalse(koin.get<SpeakWidgetStateProducer>().isRunning)
         assertFalse(koin.get<SpeakControl>().ttsStarted)
     }
@@ -87,12 +89,51 @@ class WidgetStartupTest {
         val producer = koin.get<SpeakWidgetStateProducer>()
         WidgetUpdater.hasSpeakWidgets = { true }
         WidgetUpdater.start(context)
-        val sc = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
-        assertTrue("scope active=${sc.coroutineContext[kotlinx.coroutines.Job]!!.isActive}", producer.isRunning)
+        assertTrue(producer.isRunning)
         WidgetUpdater.stopIfNoSpeakWidgets(context) // one widget remains
         assertTrue(producer.isRunning)
         WidgetUpdater.hasSpeakWidgets = { false }
         WidgetUpdater.stopIfNoSpeakWidgets(context)
         assertFalse(producer.isRunning)
+    }
+
+    @Test fun defaultDetectionSeesPlacedWidgetsOfLegacyReceiverClassesWithoutGlanceMapping() = runBlocking {
+        assertFalse(WidgetUpdater.hasSpeakWidgets(context))
+        val manager = org.robolectric.Shadows.shadowOf(android.appwidget.AppWidgetManager.getInstance(context))
+        manager.createWidget(SpeakWidgetManager.SmallSpeakControlWidget::class.java, android.R.layout.simple_list_item_1)
+        assertTrue(WidgetUpdater.hasSpeakWidgets(context))
+    }
+
+    @Test fun deletingTheLastWidgetStopsTheProducerWithoutThrowing() = runBlocking {
+        val producer = koin.get<SpeakWidgetStateProducer>()
+        WidgetUpdater.start(context)
+        assertTrue(producer.isRunning)
+        WidgetUpdater.hasSpeakWidgets = { false }
+        org.robolectric.shadows.ShadowLog.clear()
+        run {
+            val receiver = SpeakWidgetManager.LargeSpeakControlWidget()
+            // As in a real broadcast: one PendingResult, which Glance's onDeleted takes with goAsync() (a second goAsync() is null).
+            val create = Class.forName("org.robolectric.shadows.ShadowBroadcastPendingResult").declaredMethods
+                .first { it.name == "create" }.apply { isAccessible = true }
+            val pending = create.invoke(null, 0, null, null, false)
+            android.content.BroadcastReceiver::class.java.getMethod("setPendingResult", android.content.BroadcastReceiver.PendingResult::class.java)
+                .invoke(receiver, pending)
+            receiver.onDeleted(context, intArrayOf(1))
+            assertNotNull(withTimeoutOrNull(10_000) { while (producer.isRunning) kotlinx.coroutines.delay(20); true })
+            kotlinx.coroutines.delay(200) // an exception after the stop (the old pending.finish()) lands here
+        }
+        // AppCoroutineScope logs what escapes a launched job; the old pending.finish() on a null PendingResult did.
+        val escaped = org.robolectric.shadows.ShadowLog.getLogsForTag("AppCoroutineScope").mapNotNull { it.throwable }
+        assertTrue("escaped: $escaped", escaped.isEmpty())
+    }
+
+    @Test fun widgetAddedWhileStopIsDecidingKeepsTheProducerRunning() = runBlocking {
+        val producer = koin.get<SpeakWidgetStateProducer>()
+        WidgetUpdater.start(context)
+        var calls = 0
+        // First answer (outside the lock) says none left; the re-check inside the lock sees the new widget.
+        WidgetUpdater.hasSpeakWidgets = { calls++ > 0 }
+        WidgetUpdater.stopIfNoSpeakWidgets(context)
+        assertTrue(producer.isRunning)
     }
 }

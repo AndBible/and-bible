@@ -16,20 +16,23 @@
  */
 package net.bible.android.view.widget
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.widget.SpeakWidgetState
 import net.bible.android.control.widget.SpeakWidgetStateProducer
 import net.bible.android.control.widget.WidgetStrings
@@ -99,10 +102,19 @@ object WidgetUpdater {
 
     /** Whether a Speak, Speak with text or Listening list widget instance is placed; replaceable in tests. */
     internal var hasSpeakWidgets: suspend (Context) -> Boolean = { context ->
-        val manager = GlanceAppWidgetManager(context)
-        listOf(SpeakGlanceWidget::class.java, SpeakTextGlanceWidget::class.java, ListeningListGlanceWidget::class.java)
-            .any { manager.getGlanceIds(it).isNotEmpty() }
+        // The platform's own widget ids, not Glance's DataStore mapping: that is empty until a receiver got its first
+        // broadcast (e.g. right after upgrading from the RemoteViews widgets).
+        val manager = AppWidgetManager.getInstance(context)
+        speakReceivers.any { manager.getAppWidgetIds(ComponentName(context, it)).isNotEmpty() }
     }
+
+    private val speakReceivers = listOf(
+        SpeakWidgetManager.SmallSpeakControlWidget::class.java,
+        SpeakWidgetManager.MiddleSpeakControlWidget::class.java,
+        SpeakWidgetManager.LargeSpeakControlWidget::class.java,
+        SpeakWidgetManager.SpeakTextControlWidget::class.java,
+        SpeakWidgetManager.SpeakBookmarkWidget::class.java,
+    )
 
     /**
      * Cold-start entry: starts the producer only when a speak widget exists. Without one nothing reads the speak
@@ -118,7 +130,16 @@ object WidgetUpdater {
 
     /** Stops the producer when the last speak widget was removed. */
     suspend fun stopIfNoSpeakWidgets(context: Context) {
-        if (!runCatching { hasSpeakWidgets(context.applicationContext) }.getOrDefault(true)) stop()
+        val app = context.applicationContext
+        if (runCatching { hasSpeakWidgets(app) }.getOrDefault(true)) return
+        // Re-check under the lock so a widget added meanwhile (whose start() waits for it) is not stopped after it started.
+        stopUnless(app)
+    }
+
+    @Synchronized
+    private fun stopUnless(app: Context) {
+        val still = runCatching { runBlocking { hasSpeakWidgets(app) } }.getOrDefault(true)
+        if (!still) stop()
     }
 
     /** Stops following the speak services; the widgets keep their last drawing. */

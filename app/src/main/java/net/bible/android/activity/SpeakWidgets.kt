@@ -41,10 +41,9 @@ class SpeakWidgetManager {
     abstract class SpeakWidgetReceiver : GlanceAppWidgetReceiver() {
         override fun onDeleted(context: Context, appWidgetIds: IntArray) {
             super.onDeleted(context, appWidgetIds)
-            val pending = goAsync()
-            KoinPlatform.getKoin().get<AppCoroutineScope>().launch {
-                try { WidgetUpdater.stopIfNoSpeakWidgets(context) } finally { pending.finish() }
-            }
+            // No goAsync(): Glance's own onDeleted already took the broadcast's PendingResult. Stopping the producer
+            // is best effort; a process killed before it ran has nothing left to stop.
+            KoinPlatform.getKoin().get<AppCoroutineScope>().launch { WidgetUpdater.stopIfNoSpeakWidgets(context) }
         }
     }
 

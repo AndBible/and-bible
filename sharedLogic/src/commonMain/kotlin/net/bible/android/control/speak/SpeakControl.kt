@@ -84,6 +84,7 @@ class SpeakControl constructor(
     private var _speakPageManager: CurrentPageManager? = null
 
     private var originalSettingsBeforeMemLoop: SpeakSettings? = null
+    @kotlin.concurrent.Volatile
     private var ttsInitialized = false
 
     /** Whether the TTS service manager has been created. Observers (the home-screen widgets) must not be the ones to create it. */
