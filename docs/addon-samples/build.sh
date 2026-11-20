@@ -6,7 +6,7 @@
 # Serve the output over HTTPS to use it as an AndBible custom repository (see docs/addon-modules.md).
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
-out="${1:-$here/repo}"
+out="$(realpath -m "${1:-$here/repo}")"
 rm -rf "$out"
 mkdir -p "$out/packages" "$out/mods.d"
 for module in collection-sample prompt-sample; do

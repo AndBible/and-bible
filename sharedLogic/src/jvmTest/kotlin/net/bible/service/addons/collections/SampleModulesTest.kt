@@ -66,8 +66,9 @@ class SampleModulesTest {
             assertEquals(6, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel l JOIN Label x ON x.id = l.labelId WHERE x.name = 'Comfort'"))
             assertEquals(4, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel l JOIN Label x ON x.id = l.labelId WHERE x.name = 'John study'"))
             assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(PARAGRAPH_BREAK_LABEL_ID)}"))
-            // Every Bible bookmark points at a real verse (a stale ordinal would be 0, the book's intro slot).
-            assertEquals(0, local.count("SELECT COUNT(*) FROM BibleBookmark WHERE kjvOrdinalStart <= 0"))
+            // The text view finds bookmarks by KJVA ordinal (the Apocrypha shift the New Testament): John 3:16 and Ps 23:1.
+            assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmark WHERE kjvOrdinalStart = 33095 AND kjvOrdinalEnd = 33095 AND ordinalStart = 27182"))
+            assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmark WHERE kjvOrdinalStart = 14758 AND ordinalStart = 14758"))
             assertEquals(0, local.count("SELECT COUNT(*) FROM LogEntry"))
         } finally {
             local.close()

@@ -17,18 +17,19 @@ latest = max(int(f.split(".")[0]) for f in os.listdir(schema_dir))
 schema = json.load(open(os.path.join(schema_dir, f"{latest}.json")))["database"]
 target = os.path.join(here, "collection-sample/modules/genbook/rawgenbook/mannasample/and-bible/manna.sqlite3")
 
-# KJV ordinals (JSword numbering, as stored in BibleBookmark.kjvOrdinalStart/End), checked with the app's versification.
+# (KJV ordinal, KJVA ordinal) per verse. A bookmark stores both: ordinalStart/End in its own versification (KJV) and
+# kjvOrdinalStart/End in KJVA (the Apocrypha shift the New Testament), which the text view queries. Checked with JSword.
 ORDINALS = {
-    "John 1:1": 27089,
-    "John 3:16": 27182,
-    "John 14:27": 27752,
-    "John 15:5": 27762,
-    "John 16:33": 27818,
-    "Ps 23:1": 14758,
-    "Ps 23:4": 14761,
-    "Ps 46:1": 15160,
-    "Ps 91:1": 15986,
-    "Ps 121:1": 16702,
+    "John 1:1": (27089,33002),
+    "John 3:16": (27182,33095),
+    "John 14:27": (27752,33665),
+    "John 15:5": (27762,33675),
+    "John 16:33": (27818,33731),
+    "Ps 23:1": (14758,14758),
+    "Ps 23:4": (14761,14761),
+    "Ps 46:1": (15160,15160),
+    "Ps 91:1": (15986,15986),
+    "Ps 121:1": (16702,16702),
 }
 
 def uid(n):  # fixed, readable UUIDs: the ids are derived per module on import, but stay stable across re-exports
@@ -68,11 +69,11 @@ def main():
         n += 1
         b = uid(n)
         ids[(ref, label)] = b
-        o = ORDINALS[ref]
+        o, k = ORDINALS[ref]
         db.execute(
             "INSERT INTO BibleBookmark (kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, id, createdAt, "
             "primaryLabelId, lastUpdatedOn, wholeVerse) VALUES (?, ?, ?, ?, 'KJV', ?, ?, ?, ?, 1)",
-            (o, o, o, o, b, 1795000000000 + n, primary, 1795000000000 + n))
+            (k, k, o, o, b, 1795000000000 + n, primary, 1795000000000 + n))
         db.execute("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId, orderNumber) VALUES (?, ?, ?)", (b, label, order))
         if ref in NOTES:
             db.execute("INSERT INTO BibleBookmarkNotes (bookmarkId, notes) VALUES (?, ?)", (b, NOTES[ref]))
