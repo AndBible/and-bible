@@ -352,6 +352,8 @@ open class BookmarkControl constructor(
                 is BibleBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
                         val cursor = workspaceSettings?.studyPadCursors[labelId]
+                        // The cursor is a display position: legacy `-1` orders must be real positions first.
+                        if (cursor != null) sanitizeStudyPadOrder(labelId)
                         val maxOrder = dao.countStudyPadEntities(labelId)
                         val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
@@ -365,6 +367,8 @@ open class BookmarkControl constructor(
                 is GenericBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
                         val cursor = workspaceSettings?.studyPadCursors[labelId]
+                        // The cursor is a display position: legacy `-1` orders must be real positions first.
+                        if (cursor != null) sanitizeStudyPadOrder(labelId)
                         val maxOrder = dao.countStudyPadEntities(labelId)
                         val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {

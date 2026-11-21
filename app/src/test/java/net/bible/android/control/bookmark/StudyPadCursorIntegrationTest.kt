@@ -515,6 +515,33 @@ class StudyPadCursorIntegrationTest {
         assertBookmarkOrder(bookmark, label, 0)
     }
 
+    @Test
+    fun testAddBookmarkAtCursorWithLegacyUnorderedEntries() = runTest {
+        val label = createTestLabel()
+        val b1 = createTestBookmark()
+        val b2 = createTestBookmark()
+        val b3 = createTestBookmark()
+        for (b in listOf(b1, b2, b3)) bookmarkControl!!.setLabelsForBookmark(b, listOf(label))
+
+        // Legacy data from before study pad ordering: every entry has orderNumber -1.
+        val dao = net.bible.service.db.DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        val links = dao.getBookmarkToLabelsForLabel(label.id)
+        links.forEach { it.orderNumber = -1 }
+        dao.updateBibleBookmarkToLabels(links)
+
+        // Cursor between the second and third entry in display order.
+        workspaceSettings.setStudyPadCursor(label.id, 2)
+
+        val newBookmark = createTestBookmark()
+        bookmarkControl!!.setLabelsForBookmark(newBookmark, listOf(label))
+
+        assertBookmarkOrder(newBookmark, label, 2)
+        assertBookmarkOrder(b3, label, 3)
+        Assert.assertEquals(3, workspaceSettings.studyPadCursors[label.id])
+        val orders = dao.getBookmarkToLabelsForLabel(label.id).map { it.orderNumber }.sorted()
+        Assert.assertEquals(listOf(0, 1, 2, 3), orders)
+    }
+
     // ========== HELPER METHODS ==========
 
     private fun createTestLabel(): Label {
