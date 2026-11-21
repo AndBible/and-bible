@@ -213,6 +213,15 @@ AndBibleProvidesFont=Outside;../../secret.txt
         assertEquals(book / "sub/a.js", routes().resolve("/module/KJV/sub//a.js").file())
     }
 
+    @Test fun moduleAbsoluteSourceResolvesUnderTheBook() {
+        // #4185: `<img src="/images/x.jpg"/>` in a ThML module reaches the route as `/module/<initials>//images/x.jpg`.
+        assertEquals(book / "sub/a.js", routes().resolve("/module/KJV//sub/a.js").file())
+        assertEquals(book / "sub/a.js", routes().resolve("/module/KJV///sub/a.js").file())
+        assertEquals(book / "sub/a.js", routes().resolve("/fonts/KJV//sub/a.js").file())
+        for (p in listOf("/module/KJV//../secret.txt", "/module/KJV//sub/../../secret.txt", "/module/KJV//C:/secret.txt", "/module/KJV//"))
+            assertNull(routes().resolve(p), p)
+    }
+
     @Test fun unknownModuleAndRoute404() {
         val r = routes()
         for (p in listOf("/module/NOPE/pic.png", "/features/NOPE/feat.js", "/fonts/NOPE/a.ttf", "/module//pic.png",
