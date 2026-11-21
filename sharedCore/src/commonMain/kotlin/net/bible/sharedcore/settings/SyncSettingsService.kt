@@ -76,7 +76,7 @@ enum class ApplyResult {
     Applied,
     /** Sign-in failed or the backend is unavailable: nothing was persisted, the changes may be retried. */
     SignInFailed,
-    /** The user cancelled the join plan: offs are persisted, the ons were turned off again. Nothing is left to retry. */
+    /** The user cancelled the join plan, or planning failed (the user was told): offs are persisted, the ons were turned off again. Nothing is left to retry. */
     Cancelled,
 }
 
