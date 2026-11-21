@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">インデックスの作成が完了すると、検索画面に移動します。</string>
   <string name="index_create">作成</string>
   <string name="rebuild_index">インデックスを再構築</string>
-  <string name="search_in">%s で検索</string>
   <string name="do_in_background">バックグラウンドで続行</string>
   <string name="rebuild_index_button">再構築</string>
   <string name="creating_index_for">%s のインデックスを作成中…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%2$s で %1$s 件の結果</string>
   <!--Tasks-->
   <string name="progress_status">進捗状況</string>
-  <string name="task_kill_warning">完了前に他のアプリに切り替えると、これらの処理が終了する場合があります。</string>
   <string name="no_tasks_running">現在実行中のタスクはありません。</string>
   <!--Search-->
   <string name="search_words_group_prompt">聖句を検索</string>
@@ -1219,8 +1217,6 @@
   <string name="install_failed_reason">次の理由によりモジュールのインストールに失敗しました: %s。</string>
   <string name="no_file_manager">ファイルを選択するためのアプリが見つかりませんでした。ファイルマネージャーをインストールしてから、もう一度お試しください。</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">別の場所でアプリが開かれました</string>
-  <string name="open_here">ここで開く</string>
   <string name="external_link_dont_ask_again">%s については今後確認しない</string>
   <string name="nameless">タイトルが未定義です</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ワンタップ操作（聖書）</string>

@@ -426,8 +426,7 @@ class ReadingCommands(
      * retargeted into a hosted Compose activity's search; returns whether it did. Same "leading
      * guard, fall through to classic otherwise" idiom as [composeSearchIfHosted] — `LinkControl`
      * calls this only once it has already decided the search document is indexed (the not-indexed
-     * branch keeps classic's `Screen.SearchIndex` route unconditionally: prompting to index a
-     * document other than the active window's is Task 11's machinery, which does not exist yet).
+     * branch is handled by the caller, not here).
      *
      * A `false` return means the caller MUST use its own classic fallback — this is not just "no
      * host mounted" any more: [ComposeReadingViewHost.openSearchStrongs] also returns `false` (and
@@ -518,24 +517,17 @@ class ReadingCommands(
     }
 
     /**
-     * The Compose toolbar title's TAP. Round 15b Task 9: with a Compose host mounted, the three key
-     * choosers simple enough for a sheet (`KeyChooserRoute`, spec §4.6) now open over the reading
-     * view instead of starting their full screen; everything else takes the classic path below,
-     * unchanged.
+     * The Compose toolbar title's TAP. With a Compose host mounted, the key choosers simple enough
+     * for a sheet (`KeyChooserRoute`, spec §4.6) open over the reading view; everything else goes
+     * through [net.bible.android.platform.AndroidKeyChooserLauncher], the entry every other key-chooser
+     * caller uses too.
      *
-     * Three separate conditions fall through to the classic path. Two are real cases, not
-     * belt-and-braces: a page shape `KeyChooserRoute` deliberately keeps on its own screen
-     * (dictionary, StudyPad, my-document, multi-document), and a chosen kind whose key list is
-     * EMPTY — where both chooser activities apply a fallback selection and finish without drawing
-     * anything, which a sheet cannot reproduce (E3). The third, no host mounted yet, is defensive
-     * rather than reachable in practice: this method's only caller is the Compose toolbar's title
-     * tap ([ComposeReadingViewHost.install]'s `onTitleTap`), wired inside `install()` itself, so the
-     * host is already non-null by the time this can fire.
-     *
-     * The `KeyChooserLauncher` fallback preserves `CurrentPageManager`'s auto-open behavior. (`BibleJavascriptInterface.refChooserDialog`, which this
-     * note used to list alongside it because it needed an Activity result, no longer does:
-     * nav-graph slice 7 Task 10 moved it onto [ComposeReadingViewHost.openVerseChooserSheetForResult],
-     * a `CompletableDeferred` the sheet's own selection callback completes.)
+     * Three conditions fall through to the launcher: a page shape `KeyChooserRoute` deliberately keeps
+     * on its own screen (dictionary, StudyPad, my-document, multi-document); a map or general book
+     * whose key list is EMPTY, for which the launcher shows nothing either (#4172: there is no
+     * full-screen map or general-book chooser any more, and an empty sheet with only a ✕ would be no
+     * better); and no host mounted yet, which is defensive rather than reachable: this method's only
+     * caller is the Compose toolbar's title tap, wired inside `ComposeReadingViewHost.install()`.
      */
     internal fun composeStartKeyChooser() {
         val host = composeReadingViewHost
@@ -633,7 +625,7 @@ class ReadingCommands(
     // --- reading-host re-typing T8c: the three activity-result arms both hosts now share ---------
     //
     // Classic `MainBibleActivity.onActivityResult`'s `MyDocumentPages`, `MyDocuments` and
-    // `PassageGrid`/`Bookmarks`/`ReadingProgress` arms, lifted here VERBATIM and delegated to from
+    // `Bookmarks`/`ReadingProgress` arms, lifted here VERBATIM and delegated to from
     // the Activity, for the reason T8b's step 0 lifted the key-chooser appliers into
     // [KeyChooserResults]: these four screens are destinations of `NavHostComposeActivity`'s OWN
     // graph now, so on the reading host their results arrive in-graph through a `NavResultChannel`
@@ -699,8 +691,8 @@ class ReadingCommands(
 
     /**
      * Classic `MainBibleActivity.onActivityResult`'s shared
-     * [ActivityResultKind.PassageGrid]/[ActivityResultKind.Bookmarks]/[ActivityResultKind.ReadingProgress]
-     * arm, line for line -- the memorize special case first, then the verse / key+book pair.
+     * [ActivityResultKind.Bookmarks]/[ActivityResultKind.ReadingProgress] arm (it also served the
+     * full-screen passage grid, removed by #4169), line for line -- the memorize special case first, then the verse / key+book pair.
      *
      * @return true when [extras] was applied, so a caller can tell "applied" from "not mine" rather
      *   than assuming. Classic has no such caller and simply `return`s.

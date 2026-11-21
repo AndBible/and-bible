@@ -528,6 +528,32 @@ androidComponents {
             variant.outputs.forEach { it.versionName.set(productionVersionName) }
         }
     }
+    // Every minified build checks that R8 kept the no-argument constructors libraries call by reflection (Room
+    // *_Impl, WorkManager InputMerger, androidx.startup Initializer). A missing one crash-looped 6.0.1279 at
+    // startup (#4175); see app/proguard-rules.pro and docs/r8-obfuscation.md.
+    onVariants(selector().all()) { variant ->
+        if (!variant.isMinifyEnabled) return@onVariants
+        val cap = variant.name.replaceFirstChar { it.uppercase() }
+        val minifyTask = "minify${cap}WithR8"
+        val mapping = variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.OBFUSCATION_MAPPING_FILE)
+        // R8's DEX output (shared by the APK and the AAB). An internal AGP path: if AGP moves it, the script finds no
+        // DEX and exits 2, so the build fails loudly instead of passing unchecked.
+        val dexDir = layout.buildDirectory.dir("intermediates/dex/${variant.name}/$minifyTask")
+        val check = tasks.register<Exec>("checkR8ReflectiveConstructors$cap") {
+            group = "verification"
+            description = "Fails when R8 removed a constructor that a library calls by reflection (#4175)."
+            val script = rootProject.file("scripts/check-r8-reflective-constructors.py")
+            inputs.file(script)
+            inputs.file(mapping)
+            inputs.dir(dexDir)
+            dependsOn(minifyTask) // dexDir has no producer wiring of its own
+            commandLine("python3", "-I", script.absolutePath, mapping.get().asFile.absolutePath,
+                "--dex-dir", dexDir.get().asFile.absolutePath)
+        }
+        tasks.matching { it.name == minifyTask }.configureEach { finalizedBy(check) }
+        // A failing check must not leave a fresh APK/AAB in the outputs folders.
+        tasks.matching { it.name == "package$cap" || it.name == "package${cap}Bundle" || it.name == "bundle$cap" }.configureEach { dependsOn(check) }
+    }
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
     // Replace only the "standard" prefix, in order to preserve any
@@ -631,6 +657,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material.icons.extended)  // Icons.Filled, Icons.AutoMirrored etc.
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Glance 1.1.1 pulls WorkManager 2.7.1 (and room-runtime 2.2.5) from 2021; declare a maintained one (#4175).
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     testImplementation(libs.androidx.glance.appwidget.testing)

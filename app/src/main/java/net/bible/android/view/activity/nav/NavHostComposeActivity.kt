@@ -136,7 +136,9 @@ import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.device.EXTRA_OPEN_ACTIVITY_LIST
 import net.bible.service.device.ScreenSettings
+import net.bible.service.device.consumeActivityListRequest
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.sharedcore.event.Subscriptions
@@ -179,11 +181,9 @@ import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.nav.readingNavGraph
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
-import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
-import net.bible.sharedcore.nav.PassageResult
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.getKoin
 
@@ -288,11 +288,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
 
-    /** The passage grid's versification/book-list source, classic
-     *  `GridChoosePassageComposeActivity.kt:43`. `documentControl`/`downloadControl` above are the
-     *  document chooser's own two, shared with Download. */
-    private val navigationControl: NavigationControl by inject()
-
     /** The workspace cluster's two Koin services, classic `WorkspaceSelectorComposeActivity.kt:56`
      *  and `TextDisplaySettingsComposeActivity.kt:102`. The text-display one is the CONCRETE impl,
      *  not the `TextDisplaySettingsService` interface: the HIDELABELS bridge needs
@@ -396,6 +391,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var intentArrival = 0L
 
     private fun applyNewIntent(intent: Intent) {
+        // #4174: the progress notification asks for the background-activity list on top of reading.
+        intent.consumeActivityListRequest(getKoin().getOrNull())
         // The route check comes FIRST: a route-less new intent must not become this Activity's
         // intent. It no longer THROWS on the next onCreate -- T8b turned that requireNotNull into a
         // loud default (see navHostStartRoute) -- but letting one through would still replace a
@@ -1714,9 +1711,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * separate Activity rather than a nav-graph destination: `ChooseDocument` (the document sheet's
      * full-screen footer row, `AndroidReadingNavigator.openChooseDocument`,
      * `ReadingCommands.startDocumentChooser`, `MenuCommandHandler`'s `chooseDocumentButton`),
-     * `ChooseDictionaryWord` and `ChooseMapKey` (`KeyChooserRoute.sheetFor` deliberately returns
-     * null for the dictionary, so that chooser is ALWAYS the full screen), `ChooseGeneralBookKey`
-     * and `GridChoosePassage`. With this host as the launcher and nothing overriding
+     * `ChooseDictionaryWord` (`KeyChooserRoute.sheetFor` deliberately returns null for the
+     * dictionary, so that chooser is ALWAYS the full screen), and, until #4172 and #4169 removed
+     * them, `ChooseMapKey`, `ChooseGeneralBookKey` and the full-screen passage grid. With this host as the launcher and nothing overriding
      * `onActivityResult`, every one of those results fell through `ActivityBase`'s
      * `resultByCode[requestCode - ASYNC_REQUEST_CODE_START]` miss to `super` and was discarded in
      * silence -- the batch's Ruling D failure, and the same defect step 0 fixed one level up.
@@ -2029,9 +2026,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             collectorFor(keyChooserResults, ReadingResultKind.KeyChooser) { result, code ->
                 deliverReadingResult(code, RESULT_OK, NavResultIntents.forKeyChooser(result))
             },
-            collectorFor(passageResults, ReadingResultKind.PassageGrid) { result, code ->
-                deliverReadingResult(code, RESULT_OK, NavResultIntents.forPassage(result))
-            },
             collectorFor(documentResults, ReadingResultKind.ChooseDocument) { result, code ->
                 deliverReadingResult(code, RESULT_OK, NavResultIntents.forDocument(result))
             },
@@ -2110,8 +2104,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 readingCommands.applyChosenGenBookKey(book, key)
             }
             ActivityResultKind.Bookmarks,
-            ActivityResultKind.ReadingProgress,
-            ActivityResultKind.PassageGrid -> {
+            ActivityResultKind.ReadingProgress -> {
                 if (!readingCommands.applyChosenPassageResult(kind, extras)) {
                     Log.w(TAG_READING_RESULTS, "A $kind answer named nothing to open; not applied.")
                 }
@@ -2138,7 +2131,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * its next resume, a selection the user made minutes earlier on an unrelated screen.
      *
      * The kinds a SEPARATE Activity can still produce are the only ones handled: `ChooseDocument`,
-     * `GenBookKey` (general book, dictionary and map all share that shape) and `PassageGrid`.
+     * `GenBookKey` (general book, dictionary and map all share that shape).
      * `MyDocumentPages`, `MyDocuments`, `Bookmarks` and `ReadingProgress` are destinations of THIS
      * host's own graph, so their results are delivered in-graph by `NavResultChannel` and cannot
      * arrive here; one that does means a second host instance was created, and it is logged rather
@@ -2176,9 +2169,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             ActivityResultKind.GenBookKey -> {
                 val (book, key) = KeyChooserResults.genBookKeyFrom(extras)
                 readingCommands.applyChosenGenBookKey(book, key)
-            }
-            ActivityResultKind.PassageGrid -> {
-                extras.getString("verse")?.let { readingCommands.applyChosenVerse(it) }
             }
             else -> Log.w(
                 TAG_START_ROUTE,
@@ -2410,7 +2400,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         ReadingResultKind.Bookmarks -> bookmarkResults
         ReadingResultKind.MyDocuments -> myDocumentsResults
         ReadingResultKind.KeyChooser -> keyChooserResults
-        ReadingResultKind.PassageGrid -> passageResults
         ReadingResultKind.ChooseDocument -> documentResults
         ReadingResultKind.Workspace -> workspaceResults
     }
@@ -3016,9 +3005,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // #4176: crash safe mode; ActivityBase hands over before anything below reads the (uninitialised) app.
+        if (net.bible.android.control.report.StartupCrashGuard.safeMode) {
+            super.onCreate(savedInstanceState)
+            return
+        }
         // A state loss is recoverable; a launch crash loop is not.
         // After process death the system re-delivers the ORIGINAL launch intent; its link was already applied.
         if (savedInstanceState != null) intent.removeExtra("openLink")
+        if (savedInstanceState == null) intent.consumeActivityListRequest(getKoin().getOrNull())
+        else intent.removeExtra(EXTRA_OPEN_ACTIVITY_LIST)
         val launchRoute = intent.getStringExtra(EXTRA_ROUTE)
         pendingReadingSearchRoute = if (savedInstanceState != null) savedInstanceState.getString("pending_reading_search")
             else launchRoute?.takeIf { it.substringBefore('?') == "reading/search" }
@@ -3031,7 +3027,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
         // #4112: damaged user data; the startup's recovery question has taken over and this host is finishing.
-        if (routedToDamagedDataRecovery) return
+        if (routedAwayAtStart) return
         applyComposeHostWindowSetup()
         // F59 (T9 walk, spec §3.1.1): the manifest keeps `adjustResize` on this Activity's block
         // (a manifest attribute cannot be per-API). F59 fix round 2 (extra adversarial
@@ -3219,7 +3215,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             myDocumentPages = myDocumentPagesResults,
                             myDocuments = myDocumentsResults,
                             keyChooser = keyChooserResults,
-                            passage = passageResults,
                             document = documentResults,
                             installZip = installZipResults,
                             workspace = workspaceResults,
@@ -3462,20 +3457,21 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     // --- Download cluster (DownloadHost, CloudDocumentsHost) --------------------------------------
-    // The download, custom repository, progress status and cloud documents destinations' deps, sessions, controllers
+    // The download, custom repository and cloud documents destinations' deps, sessions, controllers
     // and menus live in `appHosts.download` and `appHosts.cloudDocuments` (`:sharedUi`,
     // `net.bible.sharedui.app.download`). `repositoryEditorResults` stays declared above: the channel guards read it.
 
     // --- Chooser cluster (ChooserHost) -----------------------------------------------------------
-    // The five chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
-    // `net.bible.sharedui.app.chooser`). The three result channels stay declared here: `KeyChooserResults` is a
+    // The four chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
+    // `net.bible.sharedui.app.chooser`). The two result channels stay declared here: `KeyChooserResults` is a
     // frozen `page` contract and the reading destination's collectors read them.
 
-    // ——— The chooser cluster's three result channels ————————————————————————————————————————————
-    // THREE channels for FIVE destinations (design §6.2) -- see `ChooserNavDeps`' own kdoc: the three
-    // key choosers already produce an identical payload consumed by a single arm.
+    // ——— The chooser cluster's two result channels ——————————————————————————————————————————————
+    // TWO channels for FOUR destinations (design §6.2; the passage grid's own went with it, #4169) -- see
+    // `ChooserNavDeps`' own kdoc: the three key choosers already produce an identical payload consumed by
+    // a single arm.
     //
-    // Every result on these three channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
+    // Every result on these channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
     // the reading destination (`readingResultCollectors`), which packs it back into the classic
     // chooser's Intent and applies it through `deliverReadingResult`. An abandoned chooser is answered
     // as a cancel by `answerAbandonedReadingRequests`.
@@ -3488,10 +3484,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // defined.
 
     private val keyChooserResults = NavResultChannel<KeyChooserResult> {
-        error("slice 7 destinations are only entered in-graph")
-    }
-
-    private val passageResults = NavResultChannel<PassageResult> {
         error("slice 7 destinations are only entered in-graph")
     }
 
@@ -3556,7 +3548,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * result (see `WorkspaceHost.onHostDestroy`, which discards the workspaces it cloned).
      */
     override fun onDestroy() {
-        if (routedToDamagedDataRecovery) {
+        if (routedAwayAtStart) {
             super.onDestroy()
             return
         }

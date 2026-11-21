@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
   <string name="index_create">Sukurti</string>
   <string name="rebuild_index">Perkurti indeksą</string>
-  <string name="search_in">Ieškoti čia: %s</string>
   <string name="do_in_background">Tęsti fone</string>
   <string name="rebuild_index_button">Perkurti</string>
   <string name="creating_index_for">Kuriamas %s indeksas…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">Rezultatų (%1$s): %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Pažanga</string>
-  <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
   <string name="no_tasks_running">Šiuo metu nevykdomi jokie darbai.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Ieškoti eilučių</string>
@@ -1352,8 +1350,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="install_failed_reason">Nepavyko įdiegti modulio dėl šios priežasties: %s.</string>
   <string name="no_file_manager">Nerasta programėlė failui pasirinkti. Įdiekite failų tvarkyklę ir bandykite dar kartą.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Programėlė atverta kitur</string>
-  <string name="open_here">Atverti čia</string>
   <string name="external_link_dont_ask_again">Daugiau neklausti dėl %s</string>
   <string name="nameless">Nėra pavadinimo</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Vieno bakstelėjimo veiksmai (Biblijos)</string>

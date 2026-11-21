@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka Hledat.</string>
   <string name="index_create">Vytvořit</string>
   <string name="rebuild_index">Znovu vytvořit index</string>
-  <string name="search_in">Hledat v %s</string>
   <string name="do_in_background">Pokračovat na pozadí</string>
   <string name="rebuild_index_button">Znovu vytvořit</string>
   <string name="creating_index_for">Vytváří se index pro %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s výsledků v %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Průběh</string>
-  <string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>
   <string name="no_tasks_running">Nejsou spuštěny žádné úlohy.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Hledat verše</string>
@@ -1356,8 +1354,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="install_failed_reason">Instalace modulu selhala; důvod: %s.</string>
   <string name="no_file_manager">Nebyla nalezena žádná aplikace pro výběr souboru. Nainstalujte prosím správce souborů a zkuste to znovu.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikace spuštěna jinde</string>
-  <string name="open_here">Otevřít zde</string>
   <string name="external_link_dont_ask_again">Příště se neptat pro %s</string>
   <string name="nameless">Titulek není definován</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akce na jedno kliknutí (Bible)</string>

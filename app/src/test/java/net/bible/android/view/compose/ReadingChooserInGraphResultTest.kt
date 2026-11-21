@@ -45,7 +45,6 @@ import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.nav.WorkspaceResult
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -172,25 +171,6 @@ class ReadingChooserInGraphResultTest {
     }
 
     @Test
-    fun aPassageChosenInGraphMovesTheActiveWindow() {
-        val activity = composedReadingHost()
-        activity.startActivityForResult(
-            NavHostComposeActivity.intentFor(activity, NavRoutes.gridChoosePassage(isScripture = true)),
-            ActivityBase.STD_REQUEST_CODE,
-        )
-        idle(); val nav = nav(activity)
-        assertEquals(NavRoutes.gridChoosePassage(isScripture = true).substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
-
-        channel<PassageResult>(activity, "passageResults").deliver(nav, nav.currentBackStackEntry, PassageResult("Ps.23.1"))
-        idle()
-
-        assertEquals(
-            "Ps.23.1",
-            (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).getOsisID(),
-        )
-    }
-
-    @Test
     fun aWorkspacePickedInGraphIsSwitchedToWithoutWaitingForOnResume() {
         val activity = composedReadingHost()
         val target = WorkspaceEntities.Workspace(name = "slice 8 target").also {
@@ -226,19 +206,19 @@ class ReadingChooserInGraphResultTest {
     fun anAwaitedKeyChooserSelfLaunchNavigatesInsteadOfReachingThePlatform() {
         val activity = composedReadingHost()
         // `lifecycleScope` is `Main.immediate`: the launch runs up to awaitIntent's suspension, i.e.
-        // through startActivityForResult, before it returns. Asserted BEFORE any idle: composing the
-        // real general-book chooser needs a general book in the active window (classic's `doc!!`
-        // fallback in `generalBookKeyResult`), which the test modules do not provide.
+        // through startActivityForResult, before it returns. Asserted BEFORE any idle, before the
+        // dictionary chooser composes (the general-book chooser this used, removed in #4172, shared
+        // its channel and collector).
         var result: ActivityResult? = null
         val job = activity.lifecycleScope.launch {
-            result = activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
+            result = activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.CHOOSE_DICTIONARY_WORD))
         }
         assertEquals(
             "F53's interception must now cover the key chooser -- it has a collector",
             null,
             shadowOf(activity).nextStartedActivityForResult,
         )
-        assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, nav(activity).currentDestination?.route)
+        assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, nav(activity).currentDestination?.route)
         // Back out before the chooser ever composes; the abandonment answer resumes the await, so
         // no coroutine is left parked for tearDown.
         nav(activity).popBackStack()

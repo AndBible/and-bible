@@ -39,8 +39,16 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 class SpeakWidgetManager {
     /** A speak-state widget provider; stops the producer when its last instance was removed. */
     abstract class SpeakWidgetReceiver : GlanceAppWidgetReceiver() {
+        override fun onReceive(context: Context, intent: android.content.Intent) {
+            // #4176: the crash safe mode switched off androidx.startup (no WorkManager): Glance cannot draw.
+            if (net.bible.android.control.report.StartupCrashGuard.safeModeWithoutProviders(context)) return
+            super.onReceive(context, intent)
+        }
+
         override fun onDeleted(context: Context, appWidgetIds: IntArray) {
             super.onDeleted(context, appWidgetIds)
+            // #4176: a safe-mode process has no Koin; nothing was started there.
+            if (net.bible.android.control.report.StartupCrashGuard.safeMode) return
             // No goAsync(): Glance's own onDeleted already took the broadcast's PendingResult. Stopping the producer
             // is best effort; a process killed before it ran has nothing left to stop.
             KoinPlatform.getKoin().get<AppCoroutineScope>().launch { WidgetUpdater.stopIfNoSpeakWidgets(context) }

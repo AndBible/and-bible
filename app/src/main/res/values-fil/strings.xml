@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kapag natapos na ang pag-index, dadalhin ka sa screen ng paghahanap.</string>
   <string name="index_create">Gumawa</string>
   <string name="rebuild_index">Itayo muli ang index</string>
-  <string name="search_in">Hanapin sa %s</string>
   <string name="do_in_background">Magpatuloy sa background</string>
   <string name="rebuild_index_button">Itayo muli</string>
   <string name="creating_index_for">Gumagawa ng index para sa %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s mga resulta sa %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
-  <string name="task_kill_warning">Maaaring materminate ang mga matagalang gawaing ito kung lumipat ka sa ibang application bago pa matapos ang mga ito.</string>
   <string name="no_tasks_running">Walang mga gawaing isinasagawa ngayon.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Maghanap ng mga talata</string>
@@ -1221,8 +1219,6 @@
   <string name="install_failed_reason">Nabigo ang pag-install ng module dahil sa sumusunod na dahilan: %s.</string>
   <string name="no_file_manager">Walang nahanap na app para pumili ng file. Mangyaring mag-install ng file manager at subukang muli.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Binuksan ang app sa ibang lugar</string>
-  <string name="open_here">Buksan dito</string>
   <string name="external_link_dont_ask_again">Huwag nang magtanong para sa %s</string>
   <string name="nameless">Hindi natukoy ang pamagat</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Mga one-tap na aksyon (Mga Bibliya)</string>

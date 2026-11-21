@@ -34,7 +34,7 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
  * Activity that no longer exists. Reaching them is a host call (`showHistorySheet()`,
  * `showSpeakTransport()`), not a launch.
  */
-enum class Screen { Calculator, SearchIndexProgress, SearchIndex, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, EpubSearch, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
+enum class Screen { Calculator, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseDictionaryWord, ChooseDocument, Download, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup }
 
 /**
  * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
@@ -87,22 +87,6 @@ object ScreenLauncher {
         // plan/day (HistoryManager's stored intent) build NavRoutes.dailyReading(plan, day)
         // directly, bypassing this map.
         Screen.ReadingPlan to NavRoutes.dailyReading(),
-        // — slice 5: the search cluster (part A) —
-        // Argument-free: SearchIndexComposeActivity.kt:46 falls back to the CURRENT page's
-        // document when SEARCH_DOCUMENT is absent, so "index the book I am reading" is a defined
-        // meaning. Callers that name a document build NavRoutes.searchIndex(searchDocument = ...).
-        Screen.SearchIndex to NavRoutes.searchIndex(),
-        // Screen.SearchIndexProgress is deliberately NOT here, for the same reason as
-        // Screen.RawLlmLog above: an argument-free index-progress route watches nothing and has
-        // nowhere to route when indexing completes. Every real edge into it (the graph's
-        // SEARCH_INDEX_PATTERN arm, classic SearchIndexComposeActivity.kt:72) builds a route
-        // carrying the chain's five arguments.
-        // — slice 5: the search cluster (part B) —
-        // Argument-free by construction: classic EpubSearchComposeActivity read NO extras at all
-        // and took its document from the current page, so NavRoutes.EPUB_SEARCH is the whole route.
-        // Both of its callers (SearchControl.getSearchIntent, classic
-        // SearchIndexProgressComposeActivity) build it with no extras.
-        Screen.EpubSearch to NavRoutes.EPUB_SEARCH,
         // — slice 6: the settings cluster (part A) —
         // The REFRESH_DISPLAY_ON_FINISH edge survives this row untouched: MenuCommandHandler.kt:182-186
         // launches Screen.Settings with that request code through startActivityForResult, and the
@@ -172,14 +156,6 @@ object ScreenLauncher {
         // absent here and falls through to targetFor instead, which now throws (nav-graph slice 4
         // Task 9 deleted classic CustomRepositoryEditorComposeActivity).
         Screen.CustomRepositories to NavRoutes.customRepositories(),
-        // — nav-graph slice 4, Task 4: the notification-launched progress screen —
-        // The ARGUMENT-FREE progress-status route, correctly so: classic
-        // ProgressStatusComposeActivity read no extras at all, and its only inbound edge --
-        // ProgressNotificationManager's getActivity PendingIntent -- cannot carry one either. This
-        // is the whole point of the seam: intentFor now returns a nav-host Intent carrying
-        // EXTRA_ROUTE instead of an Intent naming the classic Activity directly, with no change to
-        // ProgressNotificationManager itself.
-        Screen.ProgressStatus to NavRoutes.progressStatus(),
         // — nav-graph slice 4, Task 6: the My-Documents list —
         // The ARGUMENT-FREE My-Documents route, correctly so: NavRoutes.MY_DOCUMENTS_PATTERN takes
         // no argument at all, and classic MyDocumentsComposeActivity read no extras either. This
@@ -193,21 +169,16 @@ object ScreenLauncher {
         // takes no argument at all, and classic CloudDocumentsComposeActivity read none either.
         // `targetFor`'s own CloudDocuments arm returned the real CloudDocumentsComposeActivity class
         // until nav-graph slice 4 Task 9 deleted it and pointed the arm at targetForMigratedScreen,
-        // the same shape Screen.CustomRepositories/Screen.ProgressStatus now share.
+        // the same shape Screen.CustomRepositories now shares.
         Screen.CloudDocuments to NavRoutes.cloudDocuments(),
-        // — nav-graph slice 8, Task B7: slice 7's seven destinations —
+        // — nav-graph slice 8, Task B7: slice 7's destinations (the general-book and map key choosers left in #4172) —
         // Every live caller builds its route directly (B3-B6); these rows are the routing default for
         // a bare Screen.X. Each argument-free form is a real state, not a missing argument:
-        //  - GridChoosePassageBook: isScripture=false is the grid's non-scripture mode; the scripture
-        //    callers (CurrentBiblePage/CurrentCommentaryPage) pass gridChoosePassage(isScripture = true).
         //  - ChooseDocument: no type means "the saved filter" (chooseDocumentInitialTypeFilter).
         //  - TextDisplaySettings: no scope means GLOBAL, exactly what a bare classic launch opened
         //    (TextDisplaySettingsComposeActivityBareIntentTest).
         // Their targetFor arms keep the Activity bodies until Task F6 deletes the Activities.
-        Screen.ChooseGeneralBookKey to NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
-        Screen.ChooseMapKey to NavRoutes.CHOOSE_MAP_KEY,
         Screen.ChooseDictionaryWord to NavRoutes.CHOOSE_DICTIONARY_WORD,
-        Screen.GridChoosePassageBook to NavRoutes.gridChoosePassage(),
         Screen.ChooseDocument to NavRoutes.chooseDocument(),
         Screen.WorkspaceSelector to NavRoutes.WORKSPACE_SELECTOR,
         Screen.TextDisplaySettings to NavRoutes.textDisplaySettings(),
@@ -225,18 +196,12 @@ object ScreenLauncher {
     /** The Activity class implementing [screen]. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
         Screen.Calculator -> CalculatorComposeActivity::class.java
-        Screen.SearchIndexProgress -> targetForMigratedScreen(screen)
-        Screen.SearchIndex -> targetForMigratedScreen(screen)
         Screen.ReadingPlanSelector -> targetForMigratedScreen(screen)
         Screen.DailyReadingList -> targetForMigratedScreen(screen)
         Screen.ReadingPlan -> targetForMigratedScreen(screen)
-        Screen.ChooseGeneralBookKey -> targetForMigratedScreen(screen)
-        Screen.ChooseMapKey -> targetForMigratedScreen(screen)
         Screen.ChooseDictionaryWord -> targetForMigratedScreen(screen)
-        Screen.GridChoosePassageBook -> targetForMigratedScreen(screen)
         Screen.ChooseDocument -> targetForMigratedScreen(screen)
         Screen.Download -> targetForMigratedScreen(screen)
-        Screen.EpubSearch -> targetForMigratedScreen(screen)
         Screen.MyDocuments -> targetForMigratedScreen(screen)
         Screen.MyDocumentPages -> targetForMigratedScreen(screen)
         Screen.CloudDocuments -> targetForMigratedScreen(screen)
@@ -245,7 +210,7 @@ object ScreenLauncher {
         // the reading-plan, search and settings clusters followed in nav-graph 3/5/6 Task 9, the
         // bookmark cluster (LabelEdit/ManageLabels/Bookmarks) in nav-graph slices 2+4 Task 7, and
         // MyDocuments/MyDocumentPages/Download/CustomRepositories/CustomRepositoryEditor/
-        // ProgressStatus/CloudDocuments in nav-graph slice 4 Task 9. See targetForMigratedScreen
+        // CloudDocuments in nav-graph slice 4 Task 9. See targetForMigratedScreen
         // below for why all 43 of those arms are kept, one per screen.
         Screen.AiConnectionSettings -> targetForMigratedScreen(screen)
         Screen.AiProviders -> targetForMigratedScreen(screen)
@@ -270,7 +235,6 @@ object ScreenLauncher {
         Screen.CustomRepositories -> targetForMigratedScreen(screen)
         Screen.CustomRepositoryEditor -> targetForMigratedScreen(screen)
         Screen.Backup -> targetForMigratedScreen(screen)
-        Screen.ProgressStatus -> targetForMigratedScreen(screen)
     }
 
     /**

@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Ketika indeks sudah lengkap anda akan dibawa ke layar pencarian.</string>
   <string name="index_create">Buat baru</string>
   <string name="rebuild_index">Bangun kembail indeks</string>
-  <string name="search_in">Temukan di %s</string>
   <string name="do_in_background">Lanjutkan di latar belakang</string>
   <string name="rebuild_index_button">Bangun ulang</string>
   <string name="creating_index_for">Membuat indeks untuk %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s hasil di %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Kemajuan</string>
-  <string name="task_kill_warning">Hubungan akan terputus jika anda beralih ke aplikasi lain sebelum tugas selesai.</string>
   <string name="no_tasks_running">Tidak ada tugas yang sedang berjalan.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Temukan ayat</string>
@@ -1269,8 +1267,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="install_failed_reason">Penginstalan modul gagal karena alasan berikut: %s.</string>
   <string name="no_file_manager">Tidak ada aplikasi yang ditemukan untuk memilih berkas. Silakan pasang pengelola berkas dan coba lagi.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikasi dibuka di tempat lain</string>
-  <string name="open_here">Buka di sini</string>
   <string name="external_link_dont_ask_again">Jangan tanya lagi untuk %s</string>
   <string name="nameless">Judul tidak ditentukan</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tindakan satu ketuk (Alkitab)</string>

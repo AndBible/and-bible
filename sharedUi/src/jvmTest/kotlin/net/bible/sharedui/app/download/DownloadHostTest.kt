@@ -99,7 +99,6 @@ class DownloadHostTest {
         backgroundNotificationPermission = backgroundPermission,
         clipboard = unused(),
         openInstallZip = { _, _, _ -> },
-        observeProgressJobs = { { } },
         appSettingsProvider = { settings },
         userNotifierProvider = { unused() },
         directoriesProvider = { error("unused") },
@@ -215,7 +214,7 @@ class DownloadHostTest {
                                 repositoryEditorResults = download.repositoryEditorResults,
                                 customRepositories = download.customRepositories,
                                 customRepositoryEditor = download.customRepositoryEditor,
-                                progressStatus = download.progressStatus, cloudDocuments = download.cloudDocuments,
+                                cloudDocuments = download.cloudDocuments,
                                 download = net.bible.sharedui.download.nav.DownloadDeps(
                                     controllerFor = live.controllerFor, sessionToken = live.sessionToken, title = live.title,
                                     topBarActions = {}, askIfWantToProceed = live.askIfWantToProceed,

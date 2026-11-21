@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Apabila pengindeksan selesai, anda akan dibawa ke skrin carian.</string>
   <string name="index_create">Buat</string>
   <string name="rebuild_index">Bina semula indeks</string>
-  <string name="search_in">Cari dalam %s</string>
   <string name="do_in_background">Teruskan di latar belakang</string>
   <string name="rebuild_index_button">Bina semula</string>
   <string name="creating_index_for">Membuat indeks untuk %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s keputusan dalam %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Kemajuan</string>
-  <string name="task_kill_warning">Tugasan yang berjalan lama ini mungkin tamat jika anda beralih ke aplikasi lain sebelum ia selesai.</string>
   <string name="no_tasks_running">Tiada tugasan yang sedang dilaksanakan.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Cari ayat</string>
@@ -1219,8 +1217,6 @@
   <string name="install_failed_reason">Pemasangan modul gagal kerana sebab berikut: %s.</string>
   <string name="no_file_manager">Tiada aplikasi ditemui untuk memilih fail. Sila pasang pengurus fail dan cuba lagi.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikasi dibuka di tempat lain</string>
-  <string name="open_here">Buka di sini</string>
   <string name="external_link_dont_ask_again">Jangan tanya lagi untuk %s</string>
   <string name="nameless">Tajuk tidak ditakrifkan</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tindakan satu ketukan (Alkitab)</string>

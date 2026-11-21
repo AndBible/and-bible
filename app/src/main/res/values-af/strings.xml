@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Wanneer die indekseer voltooi het, sal u geneem word na die soek skerm.</string>
   <string name="index_create">Skep</string>
   <string name="rebuild_index">Herbou indeks</string>
-  <string name="search_in">Vind in %s</string>
   <string name="do_in_background">Gaan voort in die agtergrond</string>
   <string name="rebuild_index_button">Herbou</string>
   <string name="creating_index_for">Skep indeks vir %s....</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s resultate in %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Vordering</string>
-  <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
   <string name="no_tasks_running">Daar is geen take wat tans uitgevoer word nie.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Vind verse</string>
@@ -1319,8 +1317,6 @@ Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, ni
   <string name="install_failed_reason">Die installeringsmodule het om die volgende rede misluk: %s.</string>
   <string name="no_file_manager">Geen toepassing is gevind om \'n lêer te kies nie. Installeer asseblief \'n lêerbestuurder en probeer weer.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Toep is elders oopgemaak</string>
-  <string name="open_here">Maak hier oop </string>
   <string name="external_link_dont_ask_again">Moenie weer vra vir %s nie</string>
   <string name="nameless">Titel nie gedefinieer nie </string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Een-tik aksies (Bybels)</string>

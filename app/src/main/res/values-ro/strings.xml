@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">După terminarea indexării, vei fi redirecționat către pagina de căutare.</string>
   <string name="index_create">Creează</string>
   <string name="rebuild_index">Refă indexul</string>
-  <string name="search_in">Caută în %s</string>
   <string name="do_in_background">Continuă în ascuns</string>
   <string name="rebuild_index_button">Refă</string>
   <string name="creating_index_for">Se creează indexul pentru %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s rezultate în %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progres</string>
-  <string name="task_kill_warning">Aceste lucrări de lungă durată se pot întrerupe dacă treci la altă aplicație înainte de terminarea lor.</string>
   <string name="no_tasks_running">Nu există lucrări în curs de execuție.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Caută versete</string>
@@ -1361,8 +1359,6 @@
   <string name="install_failed_reason">Instalarea modulului a eșuat din următorul motiv: %s.</string>
   <string name="no_file_manager">Nu a fost găsită nicio aplicație pentru alegerea unui fișier. Te rugăm să instalezi un manager de fișiere și să încerci din nou.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplicație deschisă în altă parte</string>
-  <string name="open_here">Deschide aici</string>
   <string name="external_link_dont_ask_again">Nu mai întreba pentru %s</string>
   <string name="nameless">Titlu necunoscut</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acțiuni cu o singură atingere (Biblii)</string>

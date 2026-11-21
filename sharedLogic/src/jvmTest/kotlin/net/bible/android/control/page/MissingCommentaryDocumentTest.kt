@@ -22,6 +22,7 @@ import java.lang.reflect.Proxy
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertSame
@@ -109,6 +110,19 @@ class MissingCommentaryDocumentTest {
 
         assertSame(manager.currentCommentary, manager.currentPage)
         assertSame(factory.giveDoesNotExist("UninstalledCommentary"), manager.currentPassageDocument)
+    }
+
+    @Test
+    fun installedCheckOfPageWithoutDocumentReturnsFalseInsteadOfThrowing() {
+        // setUp removed every commentary, so there is no document and no default book to fall back to.
+        assertFalse(manager.currentCommentary.checkCurrentDocumenInstalled())
+    }
+
+    @Test
+    fun installedCheckKeepsMissingDocumentPlaceholder() {
+        manager.currentDictionary.onlySetCurrentDocument(factory.giveDoesNotExist("GoneDict"))
+
+        assertFalse(manager.currentDictionary.checkCurrentDocumenInstalled())
     }
 
     @Test

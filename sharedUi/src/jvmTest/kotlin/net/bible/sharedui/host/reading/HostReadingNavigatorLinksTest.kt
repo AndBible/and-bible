@@ -42,6 +42,7 @@ class HostReadingNavigatorLinksTest {
             labelResults = NavResultChannel<ManageLabelsResult> {},
             downloadControl = { error("Unused download control") },
             fakeBooks = { error("Unused book factory") },
+            openReadingSearch = {},
         )
 
         // Link navigation must not access reading/window state or require a database fixture.
@@ -81,6 +82,7 @@ class HostReadingNavigatorLinksTest {
             downloadControl = { error("Unused download control") },
             fakeBooks = { error("Unused book factory") },
             mainContext = kotlinx.coroutines.Dispatchers.Unconfined,
+            openReadingSearch = {},
         )
         navigator.openHelp()
         assertEquals(listOf(net.bible.sharedcore.nav.NavRoutes.HELP), routes)

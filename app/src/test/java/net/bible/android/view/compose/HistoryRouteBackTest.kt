@@ -18,10 +18,6 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import net.bible.service.db.DatabaseContainer
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
-import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -87,73 +83,11 @@ class HistoryRouteBackTest {
         compose.waitForIdle()
     }
 
-    private fun epubSearchHost(): Pair<NavHostComposeActivity, NavHostController> {
-        firstTime = false
-        val activity = Robolectric.buildActivity(
-            NavHostComposeActivity::class.java,
-            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.setup().get()
-        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
-        val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
-            .apply { isAccessible = true }.get(activity) as NavHostController
-        // The EPUB search destination needs a current document (prepare() returns null otherwise); set one explicitly.
-        val kjv = requireNotNull(Books.installed().getBook("KJV")) { "KJV test module must be installed" }
-        CommonUtils.windowControl.activeWindow.pageManager.setCurrentDocumentAndKey(
-            kjv, Verse(Versifications.instance().getVersification("KJV"), BibleBook.PS, 23, 1), addHistoryItem = false,
-        )
-        // The EPUB search destination publishes an argument-free history route while it is showing; it only needs a
-        // current document (any document, KJV here) to compose rather than pop out.
-        nav.navigate(NavRoutes.EPUB_SEARCH)
-        idle()
-        // The route is published by a LaunchedEffect on the Compose test clock: wait for it in real time, driving
-        // that clock, instead of assuming 2 simulated seconds were enough on a contended forked run.
-        net.bible.test.awaitHostCondition("EPUB search must publish its history route", { compose.waitForIdle() }) {
-            activity.isIntegrateWithHistoryManager
-        }
-        assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)
-        return activity to nav
-    }
-
-    private fun currentRoute(nav: NavHostController) = nav.currentDestination?.route?.substringBefore('?')
-
-    @Test fun aHistoryRouteDestinationStepsHistoryBeforePopping() = stepsHistory()
-    @Test fun aHistoryRouteDestinationStepsHistoryBeforePoppingWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { stepsHistory() }
-    private fun stepsHistory() {
-        val (activity, _) = epubSearchHost()
-        val manager: HistoryManager = GlobalContext.get().get()
-        val window = CommonUtils.windowControl.activeWindow
-        manager.addHistoryItem(window, Intent(activity, ErrorActivity::class.java).putExtra("description", "probe"))
-        // getHistory, not getEntities: the latter lists only KeyHistoryItems and would not see the probe (an
-        // IntentHistoryItem); the brief's getEntities fixture read depth 0 before and after.
-        val depth = manager.getHistory(window.id).size
-
-        activity.onBackPressedDispatcher.onBackPressed()
-        idle()
-
-        assertEquals("BACK must consume one history item first (a bare NavHost pop leaves history untouched)",
-            depth - 1, manager.getHistory(window.id).size)
-    }
-
-    /** With nothing to step back to, `goBackInHistory` declines and the press must reach the NavHost pop. */
-    @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePop() = emptyHistory()
-    @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePopWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { emptyHistory() }
-    private fun emptyHistory() {
-        val (activity, nav) = epubSearchHost()
-        val manager: HistoryManager = GlobalContext.get().get()
-        val window = CommonUtils.windowControl.activeWindow
-        assertTrue("fixture: history is empty", manager.getHistory(window.id).isEmpty())
-        assertEquals("fixture: on the EPUB search", NavRoutes.EPUB_SEARCH, currentRoute(nav))
-
-        activity.onBackPressedDispatcher.onBackPressed()
-        idle()
-
-        assertEquals(NavRoutes.READING, currentRoute(nav))
-    }
-
-    /** Daily reading publishes its history route too: BACK steps history first (ReadingPlanNavGraph). */
-    @Test fun aDailyReadingDestinationStepsHistoryBeforePopping() = daily()
-    @Test fun aDailyReadingDestinationStepsHistoryBeforePoppingWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { daily() }
-    private fun daily() {
+    /**
+     * Opens daily reading, a live destination that publishes a history route while it is showing, and waits for that
+     * route to be published (a LaunchedEffect on the Compose test clock).
+     */
+    private fun dailyReadingHost(): Pair<NavHostComposeActivity, NavHostController> {
         resetComposeUiDispatcher()
         firstTime = false
         CommonUtils.settings.setString("reading_plan", PLAN)
@@ -183,15 +117,47 @@ class HistoryRouteBackTest {
             activity.isIntegrateWithHistoryManager
         }
         assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)
+        val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
+            .apply { isAccessible = true }.get(activity) as NavHostController
+        return activity to nav
+    }
+
+    private fun currentRoute(nav: NavHostController) = nav.currentDestination?.route?.substringBefore('?')
+
+    @Test fun aHistoryRouteDestinationStepsHistoryBeforePopping() = stepsHistory()
+    @Test fun aHistoryRouteDestinationStepsHistoryBeforePoppingWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { stepsHistory() }
+    private fun stepsHistory() {
+        val (activity, _) = dailyReadingHost()
         val manager: HistoryManager = GlobalContext.get().get()
         val window = CommonUtils.windowControl.activeWindow
         manager.addHistoryItem(window, Intent(activity, ErrorActivity::class.java).putExtra("description", "probe"))
+        // getHistory, not getEntities: the latter lists only KeyHistoryItems and would not see the probe (an
+        // IntentHistoryItem); the brief's getEntities fixture read depth 0 before and after.
         val depth = manager.getHistory(window.id).size
 
         activity.onBackPressedDispatcher.onBackPressed()
         idle()
 
-        assertEquals(depth - 1, manager.getHistory(window.id).size)
+        assertEquals("BACK must consume one history item first (a bare NavHost pop leaves history untouched)",
+            depth - 1, manager.getHistory(window.id).size)
+    }
+
+    /** With nothing to step back to, `goBackInHistory` declines and the press must reach the NavHost pop. */
+    @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePop() = emptyHistory()
+    @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePopWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { emptyHistory() }
+    private fun emptyHistory() {
+        val (activity, nav) = dailyReadingHost()
+        val manager: HistoryManager = GlobalContext.get().get()
+        val window = CommonUtils.windowControl.activeWindow
+        // Daily reading was entered from the reading view, which recorded where the user was; start from a clean history.
+        manager.clear()
+        assertTrue("fixture: history is empty", manager.getHistory(window.id).isEmpty())
+        assertEquals("fixture: on daily reading", NavRoutes.dailyReading().substringBefore('?'), currentRoute(nav))
+
+        activity.onBackPressedDispatcher.onBackPressed()
+        idle()
+
+        assertEquals(NavRoutes.READING, currentRoute(nav))
     }
 
     private companion object {

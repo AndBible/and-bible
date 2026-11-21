@@ -83,12 +83,16 @@ class ReadingHostActivityResultTest {
             ),
         ).also { controllers += it }
 
-    private fun passageGridResult(osisRef: String) = Intent()
-        .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.PassageGrid.name)
-        .putExtra("verse", osisRef)
+    /** A key-chooser answer from a separate Activity (the full-screen passage grid's own kind went with it, #4169). */
+    private fun chooserResult(osisRef: String) = Intent()
+        .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
+        .putExtra("book", CHOSEN_BOOK)
+        .putExtra("key", osisRef)
 
+    /** The active page's key as its chapter (`Ps.23` for `Ps.23` and `Ps.23.1` alike). */
     private val NavHostComposeActivity.activeKey: String?
         get() = hostWindowRepository.activeWindow.pageManager.currentPage.key?.getOsisRef()
+            ?.split('.')?.take(2)?.joinToString(".")
 
     @Test
     fun aChooserResultIsHeldUntilTheHostHasResumedAndIsThenApplied() {
@@ -102,7 +106,7 @@ class ReadingHostActivityResultTest {
         )
 
         controller.pause()
-        activity.onActivityResult(ActivityBase.STD_REQUEST_CODE, Activity.RESULT_OK, passageGridResult(CHOSEN))
+        activity.onActivityResult(ActivityBase.STD_REQUEST_CODE, Activity.RESULT_OK, chooserResult(CHOSEN))
         assertEquals(
             before,
             activity.activeKey,
@@ -137,7 +141,7 @@ class ReadingHostActivityResultTest {
         val before = activity.activeKey
 
         controller.pause()
-        activity.onActivityResult(UNISSUED_REQUEST_CODE, Activity.RESULT_OK, passageGridResult(CHOSEN))
+        activity.onActivityResult(UNISSUED_REQUEST_CODE, Activity.RESULT_OK, chooserResult(CHOSEN))
         controller.resume()
 
         assertEquals(before, activity.activeKey)
@@ -166,7 +170,7 @@ class ReadingHostActivityResultTest {
         assertNotEquals(CHOSEN_CHAPTER, before)
 
         controller.pause()
-        activity.onActivityResult(ActivityBase.STD_REQUEST_CODE, Activity.RESULT_OK, passageGridResult(CHOSEN))
+        activity.onActivityResult(ActivityBase.STD_REQUEST_CODE, Activity.RESULT_OK, chooserResult(CHOSEN))
         // A menu row that opens one of this host's own routes, at the SAME request code.
         activity.startActivityForResult(
             NavHostComposeActivity.intentFor(activity, NavRoutes.READING_PLAN_SELECTOR),
@@ -241,7 +245,7 @@ class ReadingHostActivityResultTest {
         val activity = controller.get()
 
         controller.pause()
-        activity.onActivityResult(ActivityBase.STD_REQUEST_CODE, Activity.RESULT_OK, passageGridResult(CHOSEN))
+        activity.onActivityResult(ActivityBase.STD_REQUEST_CODE, Activity.RESULT_OK, chooserResult(CHOSEN))
         controller.resume()
 
         // The same host is now sent onto the reading route, which bootstraps it.
@@ -330,10 +334,11 @@ class ReadingHostActivityResultTest {
         ShadowLog.getLogs().filter { it.tag == "NavHostStartRoute" }.map { it.type }
 
     companion object {
-        /** What the passage grid hands back: a single verse. */
+        /** The Bible and verse the chooser hands back. */
+        private const val CHOSEN_BOOK = "KJV"
         private const val CHOSEN = "Ps.23.1"
 
-        /** What the Bible page's key becomes once that verse is applied — its CHAPTER. */
+        /** The chapter the page shows once that verse is applied: the key reads as it or as the verse itself. */
         private const val CHOSEN_CHAPTER = "Ps.23"
 
         /**

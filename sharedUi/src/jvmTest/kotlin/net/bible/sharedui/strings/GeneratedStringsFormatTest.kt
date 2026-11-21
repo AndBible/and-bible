@@ -44,7 +44,6 @@ class GeneratedStringsFormatTest {
         assertEquals("1 verse in 1 translation", searchCount(1, 1))
         assertEquals("2 verses in 3 translations", searchCount(2, 3))
         assertEquals("0 verses in 1 translation", searchCount(0, 1))
-        assertEquals("Find in X", strings.searchIn("X"))
     }
 
     @Test fun mixedTemplatesKeepIndependentCountersInTheEmittedFunction() {

@@ -317,7 +317,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val installZipModule: String get() = context.getString(R.string.install_zip_module)
     override val installZipModuleDiscrete: String get() = context.getString(R.string.install_zip_module_discrete)
     override val downloadTitle: String get() = context.getString(R.string.download)
-    override val progressStatus: String get() = context.getString(R.string.progress_status)
     override val errorDownloading: String get() = context.getString(R.string.error_downloading)
     override val downloadDialogMessage: String get() = context.getString(R.string.download_dialog_message)
     override val downloadErrors: String get() = context.getString(R.string.download_errors)
@@ -504,7 +503,6 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 5 — search
     override val search: String get() = context.getString(R.string.search)
     override val emptyList: String get() = context.getString(R.string.empty_list)
-    override val searchIndex: String get() = context.getString(R.string.search_index)
     override val desktopUpdateSettingTitle: String get() = context.getString(R.string.desktop_update_setting_title)
     override val desktopUpdateSettingSummary: String get() = context.getString(R.string.desktop_update_setting_summary)
     override val desktopUpdateIntervalDaily: String get() = context.getString(R.string.desktop_update_interval_daily)
@@ -562,7 +560,6 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 5 (Plan B) — EPUB search
     override val ftsQuery: String get() = context.getString(R.string.search_fts_query)
     override val helpFts5: String get() = context.getString(R.string.help_fts5)
-    override fun searchIn(docAbbrev: String): String = context.getString(R.string.search_in, docAbbrev)
     override fun searchWithResults2(count: String, docAbbrev: String): String =
         context.getString(R.string.search_with_results2, count, docAbbrev)
 
@@ -1041,8 +1038,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun resetSomething(name: String): String = context.getString(R.string.reset_something, name)
     override val lastCrashInfoTitle: String get() = context.getString(R.string.last_crash_info_title)
 
-    // Batch 13 T7 — ProgressStatusComposeActivity
-    override val taskKillWarning: String get() = context.getString(R.string.task_kill_warning)
 
     // --- Agent permissions (Batch Z-early) ---
     override val agentPermissionTitle: String get() = context.getString(R.string.agent_permission_title)

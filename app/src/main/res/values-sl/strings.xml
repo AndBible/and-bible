@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Ko se indeksiranje konča, se bo pojavilo okno za iskanje.</string>
   <string name="index_create">Ustvari</string>
   <string name="rebuild_index">Ponovno zgradi kazalo</string>
-  <string name="search_in">Išči v %s</string>
   <string name="do_in_background">Nadaljuj v ozadju</string>
   <string name="rebuild_index_button">Ponovno zgradi</string>
   <string name="creating_index_for">Izdelujem kazalo za %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s rezultatov v %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Napredek</string>
-  <string name="task_kill_warning">Ta dolgo trajajoča opravila lahko končate, če preklopite na drugo aplikacijo, še preden se le-ta zaključijo.</string>
   <string name="no_tasks_running">Trenutno se ne izvaja nobeno opravilo.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Najdi vrstice:</string>
@@ -1345,8 +1343,6 @@ lahko.
   <string name="install_failed_reason">Namestitev modula ni uspela iz naslednjega razloga: %s.</string>
   <string name="no_file_manager">Aplikacije za izbiro datoteke ni bilo mogoče najti. Namestite upravitelja datotek in poskusite znova.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikacija se je odprla drugje</string>
-  <string name="open_here">Odpri tukaj</string>
   <string name="external_link_dont_ask_again">Ne vprašaj več za %s</string>
   <string name="nameless">Naslov ni določen</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcije z enim dotikom (Biblije)

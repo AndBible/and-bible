@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Når indekseringen er utført vil du bli tatt til søkeskjermen.</string>
   <string name="index_create">Bygg lokalt</string>
   <string name="rebuild_index">Bygg indeks på nytt</string>
-  <string name="search_in">Finn i %s</string>
   <string name="do_in_background">Fortsett i bakgrunnen</string>
   <string name="rebuild_index_button">Bygg på nytt</string>
   <string name="creating_index_for">Oppretter indeks for %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s resultater i %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Fremdrift</string>
-  <string name="task_kill_warning">Vær klar over at Android kan avlutte disse tidkrevende jobbende hvis du skifter til en annen applikasjon før jobben er utført.</string>
   <string name="no_tasks_running">Det er for tiden ingen jobber som utføres.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Type søk:</string>
@@ -1271,8 +1269,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="install_failed_reason">Installasjon av modul mislyktes av følgende årsak: %s.</string>
   <string name="no_file_manager">Fant ingen app for å velge en fil. Installer en filbehandler og prøv igjen.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Appen åpnet et annet sted</string>
-  <string name="open_here">Åpne her</string>
   <string name="external_link_dont_ask_again">Ikke spør igjen for %s</string>
   <string name="nameless">Tittel ikke definert</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Éntrykkhandlinger (Bibler)</string>

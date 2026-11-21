@@ -38,13 +38,11 @@
   <string name="indexing_wait_msg">အညွှန်းစီပြီးသည့်နောက် သင်သည်မျက်နှာပြင်ရှာဖွေခြင်းသို့  ပြန်လည်ရောက်ရှိပါလိမ့်မည်။ </string>
   <string name="index_create">ဖန်တီးပါ</string>
   <string name="rebuild_index">အညွှန်း ပြန်လည်တည်ဆောက်ပါ။</string>
-  <string name="search_in">%s တွင် ရှာဖွေပါ</string>
   <string name="do_in_background">နောက်ခံတွင် ဆက်အသုံးပြုပါ</string>
   <string name="rebuild_index_button">ပြန်လည်တည်ဆောက်ပါ</string>
   <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">လုပ်ငန်းစဉ် </string>
-  <string name="task_kill_warning">လည်ပတ်နေသောလုပ်ငန်းများသည် မပြီးဆုံးသေးခင် အခြားအက်ပ်များ ပြောင်းလဲအသုံးပြုပါက ရပ်တန့်သွားနိုင်သည်။ </string>
   <string name="no_tasks_running">မည်သည့်လုပ်ငန်းမှ ယခုလက်ရှိအသုံးပြုခြင်းမရှိပါ။ </string>
   <!--Search-->
   <string name="search_words_group_prompt">အခန်းငယ်များကို ရှာဖွေပါ</string>

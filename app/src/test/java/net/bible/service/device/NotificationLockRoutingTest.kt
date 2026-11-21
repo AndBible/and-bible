@@ -16,6 +16,7 @@ import net.bible.service.sword.index.SearchIndexingService
 import net.bible.sharedcore.nav.NavRoutes
 import org.crosswire.common.progress.JobManager
 import org.crosswire.jsword.book.Book
+import kotlinx.coroutines.flow.first
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -74,8 +75,9 @@ class NotificationLockRoutingTest {
     private fun assertStandardDestinations() {
         notificationContentIntents().forEach { (source, intent) ->
             assertEquals(source, NavHostComposeActivity::class.java.name, intent.component?.className)
-            assertEquals(source, if (source == "progress") NavRoutes.PROGRESS_STATUS_PATTERN else NavRoutes.READING,
-                intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+            assertEquals(source, NavRoutes.READING, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+            // #4174: only the progress notification asks the reading view for the background-activity list.
+            assertEquals(source, source == "progress", intent.getBooleanExtra(EXTRA_OPEN_ACTIVITY_LIST, false))
         }
     }
 
@@ -125,5 +127,27 @@ class NotificationLockRoutingTest {
         } finally {
             prefs.edit().putBoolean("show_calculator", previous).commit()
         }
+    }
+
+    @Test fun activityListRequestInAnIntentIsForwardedOnceAndConsumed() {
+        val requests = net.bible.android.control.activity.ActivityListRequests()
+        val intent = openActivityListIntent(app)
+        assertEquals(true, intent.consumeActivityListRequest(requests))
+        assertEquals(false, intent.hasExtra(EXTRA_OPEN_ACTIVITY_LIST))
+        assertEquals(false, intent.consumeActivityListRequest(requests))
+        val delivered = kotlinx.coroutines.runBlocking {
+            kotlinx.coroutines.withTimeoutOrNull(1000) { requests.requests.first() }
+        }
+        assertNotNull("the request reached the channel", delivered)
+        val again = kotlinx.coroutines.runBlocking {
+            kotlinx.coroutines.withTimeoutOrNull(200) { requests.requests.first() }
+        }
+        assertEquals("one tap, one request", null, again)
+    }
+
+    @Test fun progressPendingIntentDiffersFromTheAgentOneSoTheyDoNotShareExtras() {
+        val a = openActivityListIntent(app)
+        val b = NavHostComposeActivity.intentFor(app, NavRoutes.READING)
+        assertEquals(false, a.filterEquals(b))
     }
 }

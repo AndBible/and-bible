@@ -102,33 +102,8 @@ class CurrentGeneralBookPageKeyChooserTest {
     /** `startKeyChooser` dispatches on `lifecycleScope.launch(Dispatchers.Main)`. */
     private fun drainMain() = shadowOf(Looper.getMainLooper()).idle()
 
-    /**
-     * The plain general-book arm (`else ->`): the key chooser screen must actually start.
-     *
-     * Before the fix this asserted nothing started at all — the whole coroutine returned on line
-     * one. Mutation: restore `if(context !is MainBibleActivity) return` and this fails with a null
-     * started Intent.
-     */
-    @Test
-    fun aGeneralBookKeyChooserStartsOnAHostThatIsNotMainBibleActivity() {
-        val activity = host()
-        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(generalBookPageOf(activity))
-        drainMain()
-
-        val started = assertNotNull(
-            shadowOf(activity).nextStartedActivityForResult,
-            "a general-book key-chooser tap on the nav host must start the chooser — it was a " +
-                "silent no-op, which is the failure shape this batch rules against",
-        )
-        // Slice 8 B4: the chooser is a destination of this host. This fixture's host is created but not
-        // composed (no navController), so navigateInsteadOfSelfLaunch falls through to the platform and the
-        // launch is visible here; on a composed host it navigates in-graph instead.
-        assertEquals(
-            NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
-            started.intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE),
-            "expected the general-book key chooser route; started: ${started.intent}",
-        )
-    }
+    // The plain general-book arm opens the reading view's key-list quick sheet, not a screen (#4172):
+    // KeyListSheetEntryPointsTest.
 
     /**
      * The StudyPad arm — the ONLY arm that reads workspace settings, and therefore the only one the
@@ -185,7 +160,7 @@ class CurrentGeneralBookPageKeyChooserTest {
     }
 
     /**
-     * Anti-vacuity for the two assertions above: nothing else in `create()` starts an Activity for
+     * Anti-vacuity for the assertion above: nothing else in `create()` starts an Activity for
      * result, so a non-null `nextStartedActivityForResult` there really is the key chooser.
      */
     @Test

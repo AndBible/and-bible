@@ -147,7 +147,7 @@ class ReadingPlanJourneyTest {
         val textDao = ReadingPlanTextFileDao(source, repo, strings, calendar,
             userPlanFolder = { "/nonexistent-reading-plans".toPath() }, providedPlans = { emptyMap() },
             distributedPlans = { listOf(DistributedPlanDetails("plan", if (journey.language == "en") "1-Year through Bible" else "Vuodessa läpi Raamatun", "")) })
-        val control = ReadingPlanControl(speak, windowControl, repo, textDao, settings, calendar)
+        val control = ReadingPlanControl(lazyOf(speak), windowControl, repo, textDao, settings, calendar)
         val window = Window(WorkspaceEntities.Window(IdType(), false, false, windowLayout = WorkspaceEntities.WindowLayout("VISIBLE")), pageManager, windowRepository)
         try {
             windowControl.windowRepository = windowRepository

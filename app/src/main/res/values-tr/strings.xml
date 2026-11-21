@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Dizin yaratıldıktan sonra arama sayfası açılacaktır.</string>
   <string name="index_create">Oluştur</string>
   <string name="rebuild_index">Dizini yeniden oluştur</string>
-  <string name="search_in">%s içinde bul</string>
   <string name="do_in_background">Arka planda devam et</string>
   <string name="rebuild_index_button">Yeniden oluştur</string>
   <string name="creating_index_for">%s için dizin yeniden oluşturuluyor…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%2$s içinde %1$s sonuç</string>
   <!--Tasks-->
   <string name="progress_status">İlerleme</string>
-  <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
   <string name="no_tasks_running">İşlem gören görev yok.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Ayet bul</string>
@@ -1359,8 +1357,6 @@
   <string name="install_failed_reason">Modülün yüklenmesi aşağıdaki nedenden dolayı başarısız oldu: %s.</string>
   <string name="no_file_manager">Dosya seçmek için bir uygulama bulunamadı. Lütfen bir dosya yöneticisi yükleyip tekrar deneyin.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Uygulama başka bir yerde açıldı</string>
-  <string name="open_here">Burayı açın</string>
   <string name="external_link_dont_ask_again">%s için bir daha sorma</string>
   <string name="nameless">Başlık tanımlanmamış</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tek dokunuşla eylemler (Kutsal Kitaplar)</string>

@@ -917,7 +917,7 @@ class WorkspaceSwitchContentTest {
         val channels = net.bible.sharedui.host.app.hostResultChannels({ error("not used") }, {})
         val control = koin.get<WindowControl>()
         val results = HostReadingResults(
-            channels.keyChooser, channels.passage, channels.document, channels.myDocumentPages, channels.myDocuments,
+            channels.keyChooser, channels.document, channels.myDocumentPages, channels.myDocuments,
             channels.bookmark, channels.readingProgress, channels.workspace,
             targetFor = { asker -> (asker as? net.bible.android.control.page.CurrentPageManager)?.let {
                 hostChooserTarget(koin, HostStartup.stringTable, it, scope)

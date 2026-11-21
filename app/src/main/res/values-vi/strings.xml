@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Khi lập chỉ mục hoàn tất, bạn sẽ được chuyển đến màn hình tìm kiếm.</string>
   <string name="index_create">Tạo</string>
   <string name="rebuild_index">Tạo lại chỉ mục</string>
-  <string name="search_in">Tìm trong %s</string>
   <string name="do_in_background">Tiếp tục trong nền</string>
   <string name="rebuild_index_button">Tạo lại</string>
   <string name="creating_index_for">Đang tạo chỉ mục cho %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s kết quả trong %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Tiến trình</string>
-  <string name="task_kill_warning">Các tác vụ đang chạy có thể bị kết thúc nếu bạn chuyển sang ứng dụng khác trước khi hoàn thành.</string>
   <string name="no_tasks_running">Hiện không có tác vụ nào đang được thực thi.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Tìm câu Kinh Thánh</string>
@@ -1219,8 +1217,6 @@
   <string name="install_failed_reason">Cài đặt module thất bại vì lý do sau: %s.</string>
   <string name="no_file_manager">Không tìm thấy ứng dụng nào để chọn tệp. Vui lòng cài đặt trình quản lý tệp rồi thử lại.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Ứng dụng đã mở ở nơi khác</string>
-  <string name="open_here">Mở tại đây</string>
   <string name="external_link_dont_ask_again">Không hỏi lại cho %s</string>
   <string name="nameless">Chưa xác định tiêu đề</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Hành động một chạm (Kinh Thánh)</string>

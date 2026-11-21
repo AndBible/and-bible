@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска.</string>
   <string name="index_create">Создать</string>
   <string name="rebuild_index">Перестроить индекс</string>
-  <string name="search_in">Найти в %s</string>
   <string name="do_in_background">Продолжить в фоновом режиме</string>
   <string name="rebuild_index_button">Перестроить</string>
   <string name="creating_index_for">Создаю индекс для %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s результатов в %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
-  <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
   <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Найти стихи</string>
@@ -1353,8 +1351,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="install_failed_reason">Установка модуля не удалась по следующей причине: %s.</string>
   <string name="no_file_manager">Не найдено приложение для выбора файла. Установите файловый менеджер и попробуйте снова.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Приложение открыто в другом месте</string>
-  <string name="open_here">Открыть здесь</string>
   <string name="external_link_dont_ask_again">Больше не спрашивать для %s</string>
   <string name="nameless">Название не определено</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия одним касанием (Библии)</string>

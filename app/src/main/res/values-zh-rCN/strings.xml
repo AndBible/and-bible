@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">索引完成时，您将会回到搜索界面。</string>
   <string name="index_create">创建</string>
   <string name="rebuild_index">重建索引</string>
-  <string name="search_in">在 %s 中查找</string>
   <string name="do_in_background">在后台运行</string>
   <string name="rebuild_index_button">重建</string>
   <string name="creating_index_for">为%s建立索引</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">在 %2$s 中找到 %1$s 个结果</string>
   <!--Tasks-->
   <string name="progress_status">进度</string>
-  <string name="task_kill_warning">当前任务可能运行很久，若你在完成前切换到其它应用，可能会导致任务终止。</string>
   <string name="no_tasks_running">当前没有正在执行的任务</string>
   <!--Search-->
   <string name="search_words_group_prompt">查找经文</string>
@@ -1328,8 +1326,6 @@ http://www.heartlight.org 准予使用
   <string name="install_failed_reason">无法安装模块，因为%s。</string>
   <string name="no_file_manager">未找到可用于选择文件的应用。请安装一个文件管理器后重试。</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">软件已在别处打开</string>
-  <string name="open_here">在这里打开</string>
   <string name="external_link_dont_ask_again">不再询问 %s</string>
   <string name="nameless">尚未定义标题</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">一键功能（圣经）</string>

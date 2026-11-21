@@ -20,7 +20,9 @@ package net.bible.service.cloudsync
 import net.bible.sharedcore.log.Log
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection
+import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
+import net.bible.android.database.LogEntryTypes
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.service.common.ArchiveUtils
@@ -29,9 +31,12 @@ import net.bible.service.db.columnNamesJoined
 import net.bible.service.db.exec
 import net.bible.service.db.inTransaction
 import net.bible.service.db.queryLong
+import net.bible.service.db.queryRows
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.db.withCleanup
 import net.bible.service.common.createTempFile
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -76,11 +81,15 @@ private suspend fun writePatchData(
     }
 }
 
+/**
+ * Merges [tableDef]'s rows of the attached `patch` into the local database and returns the patch log entries that
+ * won (newer than the local entry, or with none here): exactly the entries the merge takes over into `LogEntry`.
+ */
 private suspend fun readPatchData(
     db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table,
     restoreDropped: Boolean = false,
-) = db.run {
+): List<LogEntry> = db.run {
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
     val idField2 = tableDef.idField2
@@ -134,6 +143,22 @@ private suspend fun readPatchData(
             """.trimIndent()
     )
 
+    // Read before they are taken over: afterwards they no longer compare newer than the local entries.
+    val applied = queryRows("""
+            SELECT pe.tableName, pe.entityId1, pe.entityId2, pe.type, pe.lastUpdated, pe.sourceDevice
+            FROM patch.LogEntry pe WHERE pe.tableName = '$table' AND ($select) IN ${where()}
+            """.trimIndent()
+    ) { st ->
+        LogEntry(
+            tableName = st.getText(0),
+            entityId1 = IdType.fromByteArray(if (st.isNull(1)) null else st.getBlob(1)) ?: IdType.empty(),
+            entityId2 = IdType.fromByteArray(if (st.isNull(2)) null else st.getBlob(2)) ?: IdType.empty(),
+            type = LogEntryTypes.valueOf(st.getText(3)),
+            lastUpdated = st.getLong(4),
+            sourceDevice = st.getText(5),
+        )
+    }
+
     exec("""
             INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry pe 
             WHERE pe.tableName = '$table' AND ($select) IN ${where()}
@@ -172,6 +197,7 @@ private suspend fun readPatchData(
             (SELECT $select FROM LogEntry pe WHERE pe.tableName = '$table' AND pe.type = 'DELETE')
             """.trimIndent())
     }
+    applied
 }
 
 /**
@@ -236,46 +262,95 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  * the local ids ([aliasIncomingIds], #3906), and child rows dropped earlier are restored from a re-send
  * (`readPatchData` `restoreDropped`, [idAliasChildTables]). [mapIncomingIds] false is the behaviour of older app versions; tests use
  * it to stand for one.
+ *
+ * Returns the log entries the merge took over, one per row (the last patch's entry when several patches name it),
+ * in patch and table order: what changed here. They carry the other device's edit times, which must not be compared
+ * with this device's sync watermark (#4151).
+ *
+ * [onApplied] gets those entries once, after the last patch and outside the writer connection, only when any patch
+ * changed something. It runs also when a later patch fails, with the patches committed before it: a retry
+ * re-applies them as no-ops and would never report them. A sync whose coroutine is cancelled does not call it: the
+ * databases may be on their way to a close. A timed-out cleanup statement is not a cancellation. Once, not per patch:
+ * listeners rebuild views (an Android workspace switch per call) and check final rows (a reading plan reset by one
+ * patch and restarted by the next stays selected).
  */
 suspend fun applyPatchesForDatabase(
     dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: Path?, mapIncomingIds: Boolean = true,
-) {
-    for(gzippedPatchFile in patchFiles.filterNotNull()) {
-        val patchDbFile = createTempFile(env.tmpDir.toPath(), "downloaded-patch-${dbDef.categoryName}-", ".sqlite3")
-        Log.i(TAG, "Applying patch file ${patchDbFile.name}")
-        ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
-        // Let's apply possible migrations first
-        createWithSchema(dbDef, patchDbFile)
-        dbDef.localDb.useWriterConnectionMarked { db ->
-            // ATTACH inside the protected region, as in createPatchForDatabase.
-            db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
-                db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
-                db.exec("PRAGMA foreign_keys=OFF;")
-                try {
-                    db.inTransaction<Unit> {
-                        // An incoming patch never carries add-on rows (each device builds them from its own
-                        // module). Should one name an add-on row, the local add-on row wins: drop it from the patch.
-                        val addonRows = stripAddonRows(this, dbDef.category, "patch")
-                        if (addonRows > 0) Log.w(TAG, "Ignored $addonRows add-on rows in an incoming ${dbDef.categoryName} patch")
-                        val aliased = mapIncomingIds && dbDef.category.hasIdAliases
-                        if (aliased) aliasIncomingIds(dbDef.category, "patch")
-                        val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()
-                        for (tableDef in dbDef.tableDefinitions) {
-                            dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                            readPatchData(this, tableDef, restoreDropped = tableDef.tableName in restorable)
-                            dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+    onApplied: suspend (List<LogEntry>) -> Unit = {},
+): List<LogEntry> {
+    val applied = LinkedHashMap<Triple<String, IdType, IdType>, LogEntry>()
+    var failure: Throwable? = null
+    try {
+        for(gzippedPatchFile in patchFiles.filterNotNull()) {
+            val patchDbFile = createTempFile(env.tmpDir.toPath(), "downloaded-patch-${dbDef.categoryName}-", ".sqlite3")
+            Log.i(TAG, "Applying patch file ${patchDbFile.name}")
+            ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
+            // Let's apply possible migrations first
+            createWithSchema(dbDef, patchDbFile)
+            // Set as soon as the patch's transaction has committed, before the cleanup statements can throw.
+            var committed: List<LogEntry>? = null
+            try {
+                dbDef.localDb.useWriterConnectionMarked { db ->
+                    // ATTACH inside the protected region, as in createPatchForDatabase.
+                    db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
+                        db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
+                        db.exec("PRAGMA foreign_keys=OFF;")
+                        try {
+                            committed = db.inTransaction<List<LogEntry>> {
+                                // An incoming patch never carries add-on rows (each device builds them from its own
+                                // module). Should one name an add-on row, the local add-on row wins: drop it from the patch.
+                                val addonRows = stripAddonRows(this, dbDef.category, "patch")
+                                if (addonRows > 0) Log.w(TAG, "Ignored $addonRows add-on rows in an incoming ${dbDef.categoryName} patch")
+                                val aliased = mapIncomingIds && dbDef.category.hasIdAliases
+                                if (aliased) aliasIncomingIds(dbDef.category, "patch")
+                                val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()
+                                buildList {
+                                    for (tableDef in dbDef.tableDefinitions) {
+                                        dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
+                                        addAll(readPatchData(this@inTransaction, tableDef, restoreDropped = tableDef.tableName in restorable))
+                                        dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
+                            throw e
                         }
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
-                    throw e
+                }
+            } finally {
+                // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one.
+                // Merged also when the cleanup (foreign_keys=ON, DETACH) throws after the commit, or the committed
+                // patch would go unreported and a retry would re-apply it as a no-op.
+                for (e in committed.orEmpty()) {
+                    val key = Triple(e.tableName, e.entityId1, e.entityId2)
+                    applied.remove(key)
+                    applied[key] = e
                 }
             }
+            if(!env.isDebugMode) {
+                runCatching { FileSystem.SYSTEM.delete(patchDbFile) }
+                    .onFailure { Log.w(TAG, "Could not delete ${patchDbFile.name}", it) }
+            }
         }
-        if(!env.isDebugMode) {
-            FileSystem.SYSTEM.delete(patchDbFile)
+    } catch (e: Throwable) {
+        failure = e
+        throw e
+    } finally {
+        // A cancelled sync notifies nobody: listeners start work in their own scopes, and the databases may be on
+        // their way to a close (a restore sends its own databaseRestored event). Keyed on the coroutine, not the
+        // failure: a timed-out cleanup throws a CancellationException with nothing cancelled, while a real
+        // cancellation can surface as any exception (a SQLite error from a closing database) or none.
+        if (applied.isNotEmpty() && currentCoroutineContext().isActive) {
+            try {
+                onApplied(applied.values.toList())
+            } catch (e: Throwable) {
+                // Never hide the patch failure behind a listener's.
+                failure?.addSuppressed(e) ?: throw e
+            }
         }
     }
+    return applied.values.toList()
 }
 
 /** Records completion before notifying consumers. */

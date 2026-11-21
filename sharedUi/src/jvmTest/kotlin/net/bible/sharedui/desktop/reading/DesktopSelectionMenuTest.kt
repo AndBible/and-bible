@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.reading
 
+import net.bible.sharedui.host.reading.FontSizeChange
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineDispatcher

@@ -445,7 +445,6 @@ private fun HostAppContent(
     val readingResults = remember {
         HostReadingResults(
             keyChooser = channels.keyChooser,
-            passage = channels.passage,
             document = channels.document,
             myDocumentPages = channels.myDocumentPages,
             myDocuments = channels.myDocuments,

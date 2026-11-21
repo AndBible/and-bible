@@ -38,7 +38,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.sword.epub.isEpub
+import net.bible.service.history.HistoryManager
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
 import net.bible.sharedcore.log.nsLog
@@ -50,23 +50,14 @@ import net.bible.sharedui.host.app.HostNavShell
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.bridge.ReadingNavigator
 import net.bible.sharedui.reading.host.ReadingHostState
+import net.bible.sharedui.reading.toolbar.activateWindowOf
+import net.bible.sharedui.reading.toolbar.openKeyListSheet
+import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.index.IndexStatus
+import org.koin.mp.KoinPlatform
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
-
-/**
- * The route [HostReadingNavigator.openSearch] navigates to when it has no in-place reading search to open, or null when
- * there is nothing to open: a general book without an index, or an indexed Bible/commentary (its search is the reading
- * view's own sheet, never a route). A pure function of the document's facts so it is testable without a Sword module.
- */
-internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boolean, initials: String?): String? = when {
-    indexDone -> if (isEpub) NavRoutes.EPUB_SEARCH else null
-    isGeneralBook -> null
-    else -> NavRoutes.searchIndex(searchDocument = initials)
-}
 
 /**
  * iOS [ReadingNavigator]: each member navigates the single NavHost to the route Android's `AndroidReadingNavigator`
@@ -80,8 +71,8 @@ internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boo
  * destination's result collectors ([HostReadingResults]); this class only records, through [chooserRequests], which
  * window asked.
  *
- * @param hostState the reading host's sheets (kept for the sheets the navigator will open instead of routing)
- * @param openReadingSearch where [openSearch] goes first (in-place search); see the constructor
+ * @param hostState the reading host's sheets: a Bible or commentary key chooser is its passage quick sheet
+ * @param openReadingSearch where [openSearch] goes: the reading view's own search, never a route
  * @param links where [openExternalUrl] and [openWebLink] go
  * @param labelResults the app's `manageLabels` result channel
  * @param workspaceSettings seeds and receives the label chooser's workspace-wide settings
@@ -89,7 +80,7 @@ internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boo
 @kotlin.native.HiddenFromObjC
 class HostReadingNavigator(
     private val shell: HostNavShell,
-    @Suppress("unused") private val hostState: ReadingHostState,
+    private val hostState: ReadingHostState,
     private val links: ExternalLinks,
     private val labelResults: NavResultChannel<ManageLabelsResult>,
     private val downloadControl: () -> DownloadControl,
@@ -102,10 +93,11 @@ class HostReadingNavigator(
     private val chooserRequests: ChooserRequests = ChooserRequests.None,
     /**
      * Opens the reading view's own search (the toolbar's search field and results sheet), as Android's `composeSearch`
-     * does through the hosted `ComposeReadingViewHost.openSearch`. Null (a navigator without a reading host) falls back
-     * to the search routes of [searchRoute].
+     * does through the hosted `ComposeReadingViewHost.openSearch`. Search has no full-screen route (removed in #4170).
      */
-    private val openReadingSearch: (() -> Unit)? = null,
+    private val openReadingSearch: () -> Unit,
+    /** Where a key-list sheet left without a key, on a page that has none, goes back to (the choosers' cancel guard). */
+    private val history: () -> HistoryManager = { KoinPlatform.getKoin().get() },
 ) : ReadingNavigator {
     private val labelRequests = Mutex()
 
@@ -150,19 +142,7 @@ class HostReadingNavigator(
         }
     }
 
-    override fun openSearch(document: Book?) = onMain {
-        openReadingSearch?.let { inPlace ->
-            inPlace()
-            return@onMain
-        }
-        val route = searchRoute(
-            indexDone = document?.indexStatus == IndexStatus.DONE,
-            isEpub = document?.isEpub == true,
-            isGeneralBook = document?.bookCategory == BookCategory.GENERAL_BOOK,
-            initials = document?.initials,
-        )
-        if (route != null) shell.navigate(route)
-    }
+    override fun openSearch(document: Book?) = onMain { openReadingSearch() }
 
     override fun openPromptEditor(promptId: String) = onMain { shell.navigate(NavRoutes.promptEdit(promptId = promptId)) }
 
@@ -172,18 +152,16 @@ class HostReadingNavigator(
 
     override fun startKeyChooser(page: CurrentPage) {
         when (page) {
+            // The passage quick sheet a title tap opens (#4169): there is no full-screen book grid.
             is CurrentBiblePage, is CurrentCommentaryPage -> onMain {
-                chooserRequests.asked(ChooserKind.Passage, page.pageManager)
-                shell.navigate(NavRoutes.gridChoosePassage(isScripture = true))
+                if (activateWindowOf(page)) hostState.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
             }
             is CurrentDictionaryPage -> onMain {
                 chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
                 shell.navigate(NavRoutes.CHOOSE_DICTIONARY_WORD)
             }
-            is CurrentMapPage -> onMain {
-                chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
-                shell.navigate(NavRoutes.CHOOSE_MAP_KEY)
-            }
+            // The key-list quick sheet a title tap opens (#4172): there is no full-screen map chooser.
+            is CurrentMapPage -> startKeyListSheet(page)
             is CurrentGeneralBookPage -> startGeneralBookChooser(page)
         }
     }
@@ -210,11 +188,15 @@ class HostReadingNavigator(
                     chooserRequests.asked(ChooserKind.MyDocumentPages, page.pageManager)
                     shell.navigate(NavRoutes.myDocumentPages(docId.toString(), doc.initials, doc.name))
                 }
-                else -> {
-                    chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
-                    shell.navigate(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
-                }
+                // The key-list quick sheet a title tap opens (#4172): there is no full-screen general-book chooser.
+                else -> openKeyListSheet(page, hostState, onCancelledWithoutKey = { history().goBack() })
             }
+        }
+    }
+
+    private fun startKeyListSheet(page: CurrentPage) {
+        shell.hostScope.launch(mainContext) {
+            openKeyListSheet(page, hostState, onCancelledWithoutKey = { history().goBack() })
         }
     }
 

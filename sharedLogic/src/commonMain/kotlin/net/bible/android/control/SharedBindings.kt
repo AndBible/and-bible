@@ -338,7 +338,7 @@ fun buildSharedBindings() = module {
     singleOf(::ManageLabelsServiceImpl) { bind<ManageLabelsService>() }
     singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }
     singleOf(::PageControl)
-    singleOf(::ReadingPlanControl)
+    single { ReadingPlanControl(inject<SpeakControl>(), get(), get(), get(), get(), get()) }
     single { ReadingPlanRepository(daoProvider = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() }, appScope = get(), calendar = get()) }
     singleOf(::SearchControl)
     singleOf(::BibleSearchServiceImpl) { bind<BibleSearchService>() }

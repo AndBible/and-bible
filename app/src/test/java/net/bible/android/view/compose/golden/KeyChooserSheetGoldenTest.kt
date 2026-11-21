@@ -70,7 +70,7 @@ class KeyChooserSheetGoldenTest {
      * `LazyColumn`, which under `AbSheetScrollBound`'s `heightIn(max = 400.dp)` sets
      * minHeight = maxHeight and pins the sheet at 400dp for five rows exactly as for fifty (the
      * defect `WorkspaceQuickContent`'s I2 review fix names). Task 9 moved that `fillMaxSize` out to
-     * the two full-screen callers, and THIS capture is what would catch it coming back: with the
+     * the two full-screen callers (removed since, #4172), and THIS capture is what would catch it coming back: with the
      * bug the image is a five-row list floating above ~140dp of dead surface, without it the sheet
      * ends just under the last row.
      */
@@ -86,4 +86,37 @@ class KeyChooserSheetGoldenTest {
             }
         }
     }
+
+    private val sample = listOf(
+        KeyRow("0", "Introduction"),
+        KeyRow("1", "Chapter 1 — In the beginning"),
+        KeyRow("2", "Chapter 2 — The garden"),
+        KeyRow("3", "Chapter 3 — The fall"),
+        KeyRow("4", "Appendix"),
+    )
+
+    @androidx.compose.runtime.Composable
+    private fun SampleSheet() {
+        val listState = rememberLazyListState()
+        SheetSurface {
+            AbQuickSheetContent(
+                title = "General book",
+                onClose = {},
+                canScrollForward = { listState.canScrollForward },
+            ) {
+                KeyListBody(rows = sample, currentKeyId = "2", onSelect = {}, listState = listState)
+            }
+        }
+    }
+
+    /**
+     * #4172: the key list in every theme (dark, black-and-white, e-ink) and right-to-left. These
+     * variants were covered by the full-screen general-book and map choosers' goldens; with those
+     * screens gone the sheet is the list's only home, so the matrix captures it there.
+     */
+    @Test fun keyChooser_sheetThemes() = captureMatrix("KeyChooser", "sheetThemes") { SampleSheet() }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun keyChooser_sheetThemes_rtl() = captureRtl("KeyChooser", "sheetThemes") { SampleSheet() }
 }

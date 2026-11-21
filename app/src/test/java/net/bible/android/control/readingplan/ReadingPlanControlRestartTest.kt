@@ -62,7 +62,7 @@ class ReadingPlanControlRestartTest {
         val textDao = ReadingPlanTextFileDao(source, repo, testCoreStrings(), calendar,
             userPlanFolder = { "/nonexistent".toPath() }, providedPlans = { emptyMap() })
         val koin = GlobalContext.get()
-        val control = ReadingPlanControl(koin.get(), koin.get(), repo, textDao, settings, calendar)
+        val control = ReadingPlanControl(lazyOf(koin.get()), koin.get(), repo, textDao, settings, calendar)
         try {
             real.updatePlan(ReadingPlan("plan", oldDate, 9))
             real.addPlanStatus(ReadingPlanStatus("plan", 9, "1"))

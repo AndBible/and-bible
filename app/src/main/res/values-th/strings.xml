@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">เมื่อการสร้างดัชนีเสร็จสิ้น ระบบจะนำคุณไปยังหน้าจอค้นหา</string>
   <string name="index_create">สร้าง</string>
   <string name="rebuild_index">สร้างดัชนีใหม่</string>
-  <string name="search_in">ค้นหาใน %s</string>
   <string name="do_in_background">ดำเนินการต่อในเบื้องหลัง</string>
   <string name="rebuild_index_button">สร้างใหม่</string>
   <string name="creating_index_for">กำลังสร้างดัชนีสำหรับ %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s ผลลัพธ์ใน %2$s</string>
   <!--Tasks-->
   <string name="progress_status">ความคืบหน้า</string>
-  <string name="task_kill_warning">งานที่ใช้เวลานานเหล่านี้อาจสิ้นสุดหากคุณสลับไปใช้แอปพลิเคชันอื่นก่อนที่จะเสร็จสิ้น</string>
   <string name="no_tasks_running">ขณะนี้ไม่มีงานที่กำลังดำเนินการ</string>
   <!--Search-->
   <string name="search_words_group_prompt">ค้นหาข้อพระคัมภีร์</string>
@@ -1219,8 +1217,6 @@
   <string name="install_failed_reason">การติดตั้งโมดูลล้มเหลวด้วยเหตุผลต่อไปนี้: %s</string>
   <string name="no_file_manager">ไม่พบแอปสำหรับเลือกไฟล์ กรุณาติดตั้งตัวจัดการไฟล์แล้วลองใหม่อีกครั้ง</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">แอปเปิดอยู่ที่อื่น</string>
-  <string name="open_here">เปิดที่นี่</string>
   <string name="external_link_dont_ask_again">ไม่ต้องถามอีกสำหรับ %s</string>
   <string name="nameless">ไม่ได้กำหนดชื่อ</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">การกระทำแบบแตะครั้งเดียว (พระคัมภีร์)</string>

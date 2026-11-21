@@ -167,66 +167,6 @@ object NavRoutes {
         )
     }
 
-    // ——— slice 5: Search ———
-    const val ARG_SEARCH_TEXT: String = "searchText"
-    const val ARG_SEARCH_HIGHLIGHT_TEXT: String = "highlightText"
-    const val ARG_SEARCH_DOCUMENT: String = "searchDocument"
-    const val ARG_SELECTED_TRANSLATIONS: String = "selectedTranslations"
-    const val ARG_IS_STRONGS_SEARCH: String = "isStrongsSearch"
-    const val ARG_READING_SEARCH_REQUEST: String = "readingSearchRequest"
-
-    const val EPUB_SEARCH: String = "search/epub"
-    const val SEARCH_INDEX_PATTERN: String =
-        "search/index?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
-            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
-            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
-            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
-            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}" +
-            "&$ARG_READING_SEARCH_REQUEST={$ARG_READING_SEARCH_REQUEST}"
-    const val SEARCH_INDEX_PROGRESS_PATTERN: String =
-        "search/indexProgress?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
-            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
-            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
-            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
-            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}" +
-            "&$ARG_READING_SEARCH_REQUEST={$ARG_READING_SEARCH_REQUEST}"
-
-    fun searchIndex(
-        searchText: String? = null,
-        highlightText: String? = null,
-        searchDocument: String? = null,
-        selectedTranslations: List<String> = emptyList(),
-        isStrongsSearch: Boolean = false,
-        readingRequest: ReadingSearchRequest? = null,
-    ): String = searchChainRoute("search/index", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch, readingRequest)
-
-    fun searchIndexProgress(
-        searchText: String? = null,
-        highlightText: String? = null,
-        searchDocument: String? = null,
-        selectedTranslations: List<String> = emptyList(),
-        isStrongsSearch: Boolean = false,
-        readingRequest: ReadingSearchRequest? = null,
-    ): String = searchChainRoute("search/indexProgress", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch, readingRequest)
-
-    /** Legacy index arguments plus the complete reading-search payload, when continuing a form submission. */
-    private fun searchChainRoute(
-        base: String,
-        searchText: String?,
-        highlightText: String?,
-        searchDocument: String?,
-        selectedTranslations: List<String>,
-        isStrongsSearch: Boolean,
-        readingRequest: ReadingSearchRequest?,
-    ): String = buildRoute(base) {
-        optional(ARG_READING_SEARCH_REQUEST, readingRequest?.let(::readingSearch))
-        optional(ARG_SEARCH_TEXT, searchText)
-        optional(ARG_SEARCH_HIGHLIGHT_TEXT, highlightText)
-        optional(ARG_SEARCH_DOCUMENT, searchDocument)
-        optional(ARG_SELECTED_TRANSLATIONS, selectedTranslations.takeIf { it.isNotEmpty() }?.let(::encodeList))
-        required(ARG_IS_STRONGS_SEARCH, isStrongsSearch.toString())
-    }
-
     // ——— slice 2: Bookmarks + labels ———
     const val ARG_LABEL_NO: String = "labelNo"
     const val ARG_MANAGE_LABELS_DATA: String = "data"
@@ -309,7 +249,6 @@ object NavRoutes {
     const val CUSTOM_REPOSITORIES_PATTERN: String = "documents/repositories"
     const val CUSTOM_REPOSITORY_EDITOR_PATTERN: String =
         "documents/repositories/edit?$ARG_REPOSITORY_ID={$ARG_REPOSITORY_ID}"
-    const val PROGRESS_STATUS_PATTERN: String = "documents/progress"
     const val CLOUD_DOCUMENTS_PATTERN: String = "documents/cloud"
 
     fun myDocuments(): String = MY_DOCUMENTS_PATTERN
@@ -352,13 +291,10 @@ object NavRoutes {
     fun customRepositoryEditor(id: Long?): String =
         buildRoute("documents/repositories/edit") { optional(ARG_REPOSITORY_ID, id?.toString()) }
 
-    fun progressStatus(): String = PROGRESS_STATUS_PATTERN
-
     fun cloudDocuments(): String = CLOUD_DOCUMENTS_PATTERN
 
     // ——— slice 7: reading view, choosers, workspace ———
     // ARG_WORKSPACE_ID is declared with the AI arguments above and reused here.
-    const val ARG_IS_SCRIPTURE: String = "isScripture"
     const val ARG_DOCUMENT_TYPE: String = "type"
     const val ARG_SCOPE_LEVEL: String = "scopeLevel"
     const val ARG_WINDOW_ID: String = "windowId"
@@ -367,19 +303,9 @@ object NavRoutes {
 
     /** The reading view itself — the graph's start destination once slice 7 lands. */
     const val READING: String = "reading"
-    const val CHOOSE_GENERAL_BOOK_KEY: String = "navigation/chooseGeneralBookKey"
-    const val CHOOSE_MAP_KEY: String = "navigation/chooseMapKey"
     const val CHOOSE_DICTIONARY_WORD: String = "navigation/chooseDictionaryWord"
     const val WORKSPACE_SELECTOR: String = "workspaces/selector"
 
-    /**
-     * Design §6.1.1: `isScripture` is the ONLY argument this route carries. The classic activity
-     * also took a `navigateToVerse` extra, but its single producer moves to the ref-chooser sheet
-     * this slice, so an argument with no producer would be dead weight a later reader mistakes for
-     * a live contract.
-     */
-    const val GRID_CHOOSE_PASSAGE_PATTERN: String =
-        "navigation/gridChoosePassage?$ARG_IS_SCRIPTURE={$ARG_IS_SCRIPTURE}"
     const val CHOOSE_DOCUMENT_PATTERN: String =
         "navigation/chooseDocument?$ARG_DOCUMENT_TYPE={$ARG_DOCUMENT_TYPE}"
     const val TEXT_DISPLAY_SETTINGS_PATTERN: String =
@@ -389,29 +315,6 @@ object NavRoutes {
             "&$ARG_START_AT_COLORS={$ARG_START_AT_COLORS}" +
             "&$ARG_SETTINGS_BUNDLE={$ARG_SETTINGS_BUNDLE}"
 
-    /**
-     * A boolean needs no percent-encoding, so this builds its string directly rather than through
-     * [buildRoute] — and it emits the argument even when false, so the route always matches
-     * [GRID_CHOOSE_PASSAGE_PATTERN]'s single-argument shape.
-     */
-    fun gridChoosePassage(isScripture: Boolean = false): String =
-        "navigation/gridChoosePassage?$ARG_IS_SCRIPTURE=$isScripture"
-
-    /**
-     * Anything but a literal `true` reads as false — including the unsubstituted pattern.
-     *
-     * **No production caller today**, by design and not by oversight. This parser takes a route
-     * STRING, which only the HOST ever holds — an inbound route handed to `onNewIntent` or to a
-     * deep link. A graph ARM never has one (`destination.route` is the unsubstituted PATTERN), so
-     * the `gridChoosePassage` arm reads `ARG_IS_SCRIPTURE` off the back-stack entry's already
-     * parsed-and-decoded argument bundle instead, and says so at that line. It is kept, tested and
-     * documented as the host-side half of the same contract, exactly like [readTextDisplaySettings]
-     * — which is uncalled for the identical reason. Do not read its lack of callers as dead code;
-     * do not add one from inside a graph arm either.
-     */
-    fun readGridChoosePassage(route: String): Boolean =
-        routeArguments(route)[ARG_IS_SCRIPTURE] == "true"
-
     fun chooseDocument(type: String? = null): String =
         buildRoute("navigation/chooseDocument") { optional(ARG_DOCUMENT_TYPE, type) }
 
@@ -420,9 +323,8 @@ object NavRoutes {
      * value counts as absent, because the navigation library's query-parameter regex does not
      * match `type=` either.
      *
-     * **No production caller today**, for [readGridChoosePassage]'s reason and not through
-     * oversight: it is the host-side parser for an inbound route STRING (`onNewIntent`, deep
-     * links), while the `chooseDocument` arm reads the argument bundle the navigation library has
+     * **No production caller today**, by design and not by oversight: it is the host-side parser for
+     * an inbound route STRING (`onNewIntent`, deep links), which only the host ever holds, while the `chooseDocument` arm reads the argument bundle the navigation library has
      * already parsed and decoded. [readDailyReading] is the sibling that IS called — from
      * `NavHostComposeActivity`'s `onNewIntent` — and it is called through exactly this path.
      */
@@ -464,9 +366,8 @@ object NavRoutes {
      * and every `{`, `"` and space in it was percent-encoded on the way out.
      *
      * [ARG_START_AT_COLORS] is written by [textDisplaySettings] as a `required` argument, so it is
-     * always present on a route this object built; "anything but a literal `true` is false" is the
-     * same rule [readGridChoosePassage] applies, and it makes the UNSUBSTITUTED pattern read as
-     * false rather than throw.
+     * always present on a route this object built; "anything but a literal `true` is false" makes
+     * the UNSUBSTITUTED pattern read as false rather than throw.
      */
     fun readTextDisplaySettings(route: String): TextDisplaySettingsArgs {
         val arguments = routeArguments(route)

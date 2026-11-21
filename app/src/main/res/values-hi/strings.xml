@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">खोज-सूचकांक पूरा होने के बाद आपको खोज-स्क्रीन में ले जाया जाएगा</string>
   <string name="index_create">नई सूचकांक बनाऐं </string>
   <string name="rebuild_index"> सूचकांक को फिर से बनाए</string>
-  <string name="search_in">%s में खोजे</string>
   <string name="do_in_background"> बैकग्राउंड में जारी रखें </string>
   <string name="rebuild_index_button"> फ़िर से बनाए</string>
   <string name="creating_index_for">%s के लिए सूचकांक बनाया जा रहा है…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%2$s में %1$s परिणाम</string>
   <!--Tasks-->
   <string name="progress_status">प्रगति</string>
-  <string name="task_kill_warning">अगर आप आन्ड बाइबिल को छोड़ जाऐं, तो लंबे कार्य अंत होने की संभावना है</string>
   <string name="no_tasks_running">कोई कार्य इस समय क्रियान्वित नही</string>
   <!--Search-->
   <string name="search_words_group_prompt">छंद खोज</string>
@@ -1327,8 +1325,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="install_failed_reason">निम्नलिखित कारण से मॉड्यूल इंस्टॉल करना विफल रहा: %s।</string>
   <string name="no_file_manager">फ़ाइल चुनने के लिए कोई ऐप नहीं मिला। कृपया एक फ़ाइल मैनेजर इंस्टॉल करें और फिर से प्रयास करें।</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">ऐप कहीं और खोला गया</string>
-  <string name="open_here">यहाँ खोलें</string>
   <string name="external_link_dont_ask_again">%s के लिए दोबारा न पूछें</string>
   <string name="nameless">शीर्षक परिभाषित नहीं</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">वन-टैप क्रियाएं (बाइबिल)</string>

@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Merci de patienter. Vous retrouverez l\'écran de recherche à la fin de l\'indexation.</string>
   <string name="index_create">Créer</string>
   <string name="rebuild_index">Reconstruire l\'index</string>
-  <string name="search_in">Rechercher dans %s</string>
   <string name="do_in_background">Continuer en arrière-plan</string>
   <string name="rebuild_index_button">Recréer</string>
   <string name="creating_index_for">Créer un index pour %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s résultats dans %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progression</string>
-  <string name="task_kill_warning">Merci de patienter. Ne pas basculer vers une autre application, ces tâches risqueraient d\'être interrompues.</string>
   <string name="no_tasks_running">Il n\'y a pas de tâches en cours d\'exécution.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Type de requête</string>
@@ -1329,8 +1327,6 @@ Lors de l’utilisation de Google Drive, l’accès à %s n’est accordé qu’
   <string name="install_failed_reason">L’installation du module a échoué pour la raison suivante : %s.</string>
   <string name="no_file_manager">Aucune application n\'a été trouvée pour choisir un fichier. Veuillez installer un gestionnaire de fichiers et réessayer.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Application ouverte ailleurs</string>
-  <string name="open_here">Ouvrir ici</string>
   <string name="external_link_dont_ask_again">Ne plus demander pour %s</string>
   <string name="nameless">Titre non définis</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Actions d’une seule touche (Bibles)</string>

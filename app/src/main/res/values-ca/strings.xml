@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Quan finalitzi la indexació, s\'obrirà la pantalla de cerca.</string>
   <string name="index_create">Crea</string>
   <string name="rebuild_index">Reconstrueix l\'índex</string>
-  <string name="search_in">Cerca a %s</string>
   <string name="do_in_background">Continua en segon pla</string>
   <string name="rebuild_index_button">Reconstrueix</string>
   <string name="creating_index_for">S\'està creant l\'índex per a %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s resultats a %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progrés</string>
-  <string name="task_kill_warning">Aquestes tasques llargues poden finalitzar si canvieu d\'aplicació abans que acabin.</string>
   <string name="no_tasks_running">No hi ha tasques en execució en aquests moments.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Cerca versets</string>
@@ -1223,8 +1221,6 @@
   <string name="install_failed_reason">La instal·lació del mòdul ha fallat pel motiu següent: %s.</string>
   <string name="no_file_manager">No s\'ha trobat cap aplicació per triar un fitxer. Instal·leu un gestor de fitxers i torneu-ho a provar.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">L\'aplicació s\'ha obert en un altre lloc</string>
-  <string name="open_here">Obre aquí</string>
   <string name="external_link_dont_ask_again">No ho tornis a preguntar per a %s</string>
   <string name="nameless">Títol no definit</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Accions d\'un sol toc (Bíblies)</string>

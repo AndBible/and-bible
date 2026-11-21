@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">بعد اكتمال عملية الفهرسة، سيتم توجيهك لشاشة البحث.</string>
   <string name="index_create">إنشاء</string>
   <string name="rebuild_index">اعادة الفهرسة</string>
-  <string name="search_in">ابحث في %s</string>
   <string name="do_in_background">استكمال في الخلفية</string>
   <string name="rebuild_index_button">اعادة بناء</string>
   <string name="creating_index_for">إنشاء فهرس لـ %s...</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s نتيجة في %2$s</string>
   <!--Tasks-->
   <string name="progress_status">الحالة</string>
-  <string name="task_kill_warning">قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية.</string>
   <string name="no_tasks_running">لا يوجد أي مهام في مرحلة التنفيذ.</string>
   <!--Search-->
   <string name="search_words_group_prompt">بحث الآيات</string>
@@ -1296,8 +1294,6 @@
   <string name="install_failed_reason">فشل تثبيت الوحدة للسبب التالي: %s.</string>
   <string name="no_file_manager">لم يتم العثور على تطبيق لاختيار ملف. يرجى تثبيت مدير ملفات والمحاولة مرة أخرى.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">تم فتح التطبيق في مكان آخر</string>
-  <string name="open_here">فتح هنا</string>
   <string name="external_link_dont_ask_again">عدم السؤال مرة أخرى عن %s</string>
   <string name="nameless">العنوان غير محدد</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">الإجراءات بنقرة واحدة (الأسفار)</string>

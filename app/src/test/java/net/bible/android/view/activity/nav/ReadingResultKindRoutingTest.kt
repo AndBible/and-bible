@@ -24,15 +24,12 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Slice 8 B1: the four routes the reading view now awaits in-graph, and the abandonment claim. */
+/** Slice 8 B1: the routes the reading view now awaits in-graph, and the abandonment claim. */
 class ReadingResultKindRoutingTest {
 
     @Test
     fun everyNewRouteMapsToItsKindWithOrWithoutArguments() {
-        assertEquals(ReadingResultKind.KeyChooser, ReadingResultKind.forRoute(NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
-        assertEquals(ReadingResultKind.KeyChooser, ReadingResultKind.forRoute(NavRoutes.CHOOSE_MAP_KEY))
         assertEquals(ReadingResultKind.KeyChooser, ReadingResultKind.forRoute(NavRoutes.CHOOSE_DICTIONARY_WORD))
-        assertEquals(ReadingResultKind.PassageGrid, ReadingResultKind.forRoute(NavRoutes.gridChoosePassage(isScripture = true)))
         assertEquals(ReadingResultKind.ChooseDocument, ReadingResultKind.forRoute(NavRoutes.chooseDocument()))
         assertEquals(ReadingResultKind.ChooseDocument, ReadingResultKind.forRoute(NavRoutes.chooseDocument("BIBLE")))
         assertEquals(ReadingResultKind.Workspace, ReadingResultKind.forRoute(NavRoutes.WORKSPACE_SELECTOR))
@@ -47,9 +44,9 @@ class ReadingResultKindRoutingTest {
     }
 
     @Test
-    fun onlyTheThreeChooserKindsAnswerAbandonment() {
+    fun onlyTheTwoChooserKindsAnswerAbandonment() {
         assertEquals(
-            setOf(ReadingResultKind.KeyChooser, ReadingResultKind.PassageGrid, ReadingResultKind.ChooseDocument),
+            setOf(ReadingResultKind.KeyChooser, ReadingResultKind.ChooseDocument),
             ReadingResultKind.entries.filter { it.answersAbandonment }.toSet(),
         )
     }
@@ -58,13 +55,13 @@ class ReadingResultKindRoutingTest {
     fun anAbandonedRequestIsClaimedOnceAndOnlyWhileNothingIsPending() {
         val requests = ReadingResultRequests()
         requests.record(ReadingResultKind.KeyChooser, ActivityBase.ASYNC_REQUEST_CODE_START + 5)
-        requests.record(ReadingResultKind.PassageGrid, ActivityBase.STD_REQUEST_CODE)
+        requests.record(ReadingResultKind.ChooseDocument, ActivityBase.STD_REQUEST_CODE)
         requests.record(ReadingResultKind.ManageLabels, ActivityBase.ASYNC_REQUEST_CODE_START + 6)
 
-        val first = requests.claimAbandoned { kind -> kind == ReadingResultKind.PassageGrid }
+        val first = requests.claimAbandoned { kind -> kind == ReadingResultKind.ChooseDocument }
 
         assertEquals(listOf(ReadingResultKind.KeyChooser to ActivityBase.ASYNC_REQUEST_CODE_START + 5), first)
-        assertTrue("a kind with an answer pending is the collector's, not abandoned", requests.isAwaiting(ReadingResultKind.PassageGrid))
+        assertTrue("a kind with an answer pending is the collector's, not abandoned", requests.isAwaiting(ReadingResultKind.ChooseDocument))
         assertTrue("a T8c kind is never claimed as abandoned", requests.isAwaiting(ReadingResultKind.ManageLabels))
         assertEquals(emptyList<Pair<ReadingResultKind, Int>>(), requests.claimAbandoned { false }.filter { it.first == ReadingResultKind.KeyChooser })
     }

@@ -34,8 +34,8 @@ import org.junit.Test
  * its layout had no consumer at all — and spec §2.4 kept them for a time anyway, as a tail-sweep
  * item, together with `ListActivityBase` and `DocumentSelectionBase`. nav-graph slice 8 F7 was
  * that tail sweep for `ChooseKeyBase` and `choose_general_book_key.xml` (zero subclasses even
- * after F4/F6): see [theTailSweptFilesAreGone]. `KeyItemAdapter.kt` was NOT part of that sweep —
- * it remains spec-2.4-protected residue here, unrelated to F7's own dead-member family.
+ * after F4/F6): see [theTailSweptFilesAreGone]. `KeyItemAdapter.kt` was swept later (#4171),
+ * together with the classic `util/buttongrid` grid chooser; see [theViewEraResidueIsGone].
  *
  * Source scan rather than a reflective "class not found", matching [ClassicSearchRemovalGuardTest]
  * and [ClassicReadingPlanRemovalGuardTest] and sharing their machinery via [ClassicRemovalScan].
@@ -70,38 +70,50 @@ class ClassicKeyChooserRemovalGuardTest {
         val survivors = doomedPaths.filter { File(it).exists() }
         assertEquals(
             "these classic key-chooser files or resources should have been deleted in S3. Note " +
-                "what is NOT in this list: KeyItemAdapter.kt is kept on purpose (spec 2.4) even " +
-                "though nothing references it after this slice. ChooseKeyBase.kt and " +
-                "choose_general_book_key.xml were ALSO kept here for the same reason, until " +
-                "nav-graph slice 8 F7 swept them -- see theTailSweptFilesAreGone.",
+                "see also theTailSweptFilesAreGone and theViewEraResidueIsGone for later sweeps.",
             emptyList<String>(),
             survivors,
         )
     }
 
     /**
-     * The inverse assertion, and this slice's signature. `KeyItemAdapter.kt` has NO consumer once
-     * S3 lands, so an implementer or a later tidy-up could delete it and every gate would still
-     * pass — a compile is green, the reference proof is green, the goldens do not move.
-     * `KeyChooserKeys.kt` is the exception that proves the rule: it sits in the same doomed-looking
-     * package and is named after the deleted feature, but it is read by two SURVIVING Compose
-     * activities and by the reading view's quick-sheet, so deleting it breaks shipping code
-     * immediately rather than silently.
+     * `KeyChooserKeys.kt` sits in the same doomed-looking package and is named after the deleted
+     * feature, but it is read by surviving Compose activities and by the reading view's quick-sheet,
+     * so deleting it breaks shipping code.
      */
-    @Test fun theSurvivingKeyChooserCollaboratorsStillExist() {
-        val mustExist = listOf(
+    @Test fun theSurvivingKeyChooserCollaboratorsStillExist() = ClassicRemovalScan.assertPathsPresent(
+        listOf("../sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/navigation/genbookmap/KeyChooserKeys.kt"),
+        "KeyChooserKeys.kt is read by the surviving Compose activities and ComposeReadingViewHost's quick-sheet",
+    )
+
+    /**
+     * #4171: View-era code without callers since the Compose port: the classic grid chooser
+     * (`util/buttongrid`), `KeyItemAdapter` and the unused `frozen`, `empty`, `nav_header_main` and
+     * `buttongrid_button_preview` layouts must stay gone.
+     */
+    @Test fun theViewEraResidueIsGone() = ClassicRemovalScan.assertPathsGone(
+        listOf(
+            "src/main/java/net/bible/android/view/util/buttongrid",
             "src/main/java/net/bible/android/view/activity/navigation/genbookmap/KeyItemAdapter.kt",
-            "../sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/navigation/genbookmap/KeyChooserKeys.kt",
-        )
-        val missing = mustExist.filterNot { File(it).exists() }
-        assertEquals(
-            "S3 deleted a file it was supposed to keep. KeyItemAdapter becomes referenceless in " +
-                "this slice and is kept by spec 2.4; KeyChooserKeys.kt is read by the surviving " +
-                "Compose activities and by ComposeReadingViewHost's quick-sheet.",
-            emptyList<String>(),
-            missing,
-        )
-    }
+            "src/main/res/layout/frozen.xml",
+            "src/main/res/layout/empty.xml",
+            "src/main/res/layout/nav_header_main.xml",
+            "src/main/res/layout/buttongrid_button_preview.xml",
+            "src/main/res/drawable-mdpi/buttongrid_button_feedback_background.9.png",
+        ),
+        "#4171: View-era code with no callers since the Compose port",
+    )
+
+    @Test fun theRemovedViewEraClassesAreNotNamedAgain() = ClassicRemovalScan.assertNoSourceNames(
+        listOf(
+            "net.bible.android.view.util.buttongrid.ButtonGrid",
+            "net.bible.android.view.util.buttongrid.LayoutDesigner",
+            "net.bible.android.view.util.buttongrid.OnButtonGridActionListener",
+            "net.bible.android.view.util.buttongrid.BottomBarProgressDrawable",
+            "net.bible.android.view.activity.navigation.genbookmap.KeyItemAdapter",
+        ),
+        "#4171: a removed View-era class is referenced again",
+    )
 
     /**
      * nav-graph slice 8 F7: `ChooseKeyBase` lost its last subclass (both `ChooseGeneralBookKey`
@@ -173,8 +185,38 @@ class ClassicKeyChooserRemovalGuardTest {
      * surviving inlined one.
      */
     @Test fun screenLauncherDoesNotBranchForKeyChoosers() = ClassicRemovalScan.assertLauncherArmsUnconditional(
-        listOf("Screen.ChooseGeneralBookKey", "Screen.ChooseMapKey", "Screen.ChooseDictionaryWord"),
+        listOf("Screen.ChooseDictionaryWord"),
         "these key-chooser arms still branch on the flag (or are missing entirely) — S3 " +
             "collapses them to the Compose class unconditionally",
     )
+
+    /**
+     * #4172: the full-screen general-book and map key choosers (the nav destinations that replaced these classic screens)
+     * are gone as well: those keys are chosen in the reading view's key-list quick sheet, from every entry point. Their
+     * routes, destinations, deps, controllers, screens and `Screen` entries must not come back in any shipping source,
+     * `:app` or shared. The needles are assembled from pieces so this file cannot become its own offender.
+     */
+    @Test fun theFullScreenGeneralBookAndMapKeyChoosersAreGone() {
+        val needles = listOf(
+            "CHOOSE_GENERAL" + "_BOOK_KEY", "CHOOSE_MAP" + "_KEY",
+            "navigation/chooseGeneral" + "BookKey", "navigation/chooseMap" + "Key\"",
+            "ChooseGeneralBookKey" + "Screen", "ChooseMapKey" + "Screen",
+            "ChooseGeneralBookKey" + "Controller", "ChooseMapKey" + "Controller",
+            "ChooseGeneralBookKey" + "Deps", "ChooseMapKey" + "Deps",
+            "Screen.ChooseGeneral" + "BookKey", "Screen.ChooseMap" + "Key",
+        )
+        val shared = listOf("../sharedCore/src", "../sharedLogic/src", "../sharedUi/src").flatMap { root ->
+            java.io.File(root).listFiles { f -> f.isDirectory && !f.name.endsWith("Test") }.orEmpty().flatMap { set ->
+                set.walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+            }
+        }
+        check(shared.isNotEmpty()) { "no shared sources found; the scan would go blind" }
+        // The retired-route list names the old routes on purpose: a restored start route must open reading.
+        val retiredRoutes = java.io.File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/AppRoutes.kt").canonicalFile
+        val offenders = (ClassicRemovalScan.appSources() + shared)
+            .filter { it.canonicalFile != retiredRoutes }
+            .filter { file -> file.readText().let { text -> needles.any { it in text } } }
+        org.junit.Assert.assertTrue(
+            "the full-screen general-book or map key chooser is back at: ${offenders.map { it.path }}", offenders.isEmpty())
+    }
 }

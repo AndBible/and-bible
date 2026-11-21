@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Quando l\'indice sarà completo passerai alla schermata di ricerca.</string>
   <string name="index_create">Crea</string>
   <string name="rebuild_index">Ricostruisci indice</string>
-  <string name="search_in">Trova in %s</string>
   <string name="do_in_background">Continua in sottofondo</string>
   <string name="rebuild_index_button">Ricostruisci</string>
   <string name="creating_index_for">Creazione indice per %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s risultati in %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progresso</string>
-  <string name="task_kill_warning">Queste operazioni lunghe potrebbero interrompersi se passi ad un\'altra applicazione prima della fine.</string>
   <string name="no_tasks_running">Non ci sono operazioni in corso al momento.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Trova versetti</string>
@@ -1316,8 +1314,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="install_failed_reason">L\'installazione del modulo non è riuscita per il seguente motivo: %s.</string>
   <string name="no_file_manager">Nessuna app trovata per scegliere un file. Installa un file manager e riprova.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">L\'app è aperta altrove</string>
-  <string name="open_here">Apri qui</string>
   <string name="external_link_dont_ask_again">Non chiedere più per %s</string>
   <string name="nameless">Titolo non specificato</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Azioni con un solo tocco (Bibbie)</string>

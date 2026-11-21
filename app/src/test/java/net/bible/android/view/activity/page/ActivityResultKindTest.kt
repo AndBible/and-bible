@@ -40,11 +40,11 @@ class ActivityResultKindTest {
         assertEquals("abResultKind", ActivityResultKind.EXTRA)
     }
 
-    @Test fun theSevenKindsTheDispatchNeedsAllExist() {
+    @Test fun theSixKindsTheDispatchNeedsAllExist() {
         assertEquals(
             listOf(
                 "ChooseDocument", "MyDocuments", "MyDocumentPages",
-                "PassageGrid", "Bookmarks", "ReadingProgress", "GenBookKey",
+                "Bookmarks", "ReadingProgress", "GenBookKey",
             ),
             ActivityResultKind.entries.map { it.name },
         )

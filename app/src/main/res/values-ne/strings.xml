@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">अनुक्रमणिका सम्पन्न भएपछि तपाईंलाई खोज स्क्रिनमा लगिनेछ।</string>
   <string name="index_create">बनाउनुहोस्</string>
   <string name="rebuild_index">अनुक्रमणिका पुनर्निर्माण गर्नुहोस्</string>
-  <string name="search_in">%s मा खोज्नुहोस्</string>
   <string name="do_in_background">पृष्ठभूमिमा जारी राख्नुहोस्</string>
   <string name="rebuild_index_button">पुनर्निर्माण</string>
   <string name="creating_index_for">%s को लागि अनुक्रमणिका बनाउँदैछ…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%2$s मा %1$s परिणामहरू</string>
   <!--Tasks-->
   <string name="progress_status">प्रगति</string>
-  <string name="task_kill_warning">यी लामो समय चल्ने कार्यहरू सम्पन्न हुनुअघि अर्को अनुप्रयोगमा गए समाप्त हुन सक्छन्।</string>
   <string name="no_tasks_running">अहिले कुनै कार्य चलिरहेको छैन।</string>
   <!--Search-->
   <string name="search_words_group_prompt">श्लोकहरू खोज्नुहोस्</string>
@@ -1221,8 +1219,6 @@
   <string name="install_failed_reason">निम्न कारणले module स्थापना असफल भयो: %s।</string>
   <string name="no_file_manager">फाइल छनोट गर्नका लागि कुनै अनुप्रयोग फेला परेन। कृपया फाइल प्रबन्धक स्थापना गरी पुनः प्रयास गर्नुहोस्।</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">अनुप्रयोग अन्यत्र खुलेको छ</string>
-  <string name="open_here">यहाँ खोल्नुहोस्</string>
   <string name="external_link_dont_ask_again">%s का लागि फेरि नसोध्नुहोस्</string>
   <string name="nameless">शीर्षक परिभाषित गरिएको छैन</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">एक-ट्याप कार्यहरू (बाइबलहरू)</string>

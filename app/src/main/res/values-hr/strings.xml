@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kada popisivanje završi bit ćete vraćeni na zaslon za pretraživanje.</string>
   <string name="index_create">Stvori</string>
   <string name="rebuild_index">Ponovno stvori popis</string>
-  <string name="search_in">Pretraži u %s</string>
   <string name="do_in_background">Nastavi u pozadini</string>
   <string name="rebuild_index_button">Ponovno stvori</string>
   <string name="creating_index_for">Stvori popis za %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s rezultata u %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Napredak</string>
-  <string name="task_kill_warning">Zadatci koji dugo traju mogu biti prekinuti ako se prebacite u drugu aplikaciju prije završetka.</string>
   <string name="no_tasks_running">Nijedan se zadatak trenutno ne obavlja.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Pretraži retke</string>
@@ -1322,8 +1320,6 @@ Kada koristite Google Drive, %s dozvoljen je pristup samo datotekama aplikacije,
   <string name="install_failed_reason">Instalacija modula neuspješna uslijed sljedećih razloga: %s.</string>
   <string name="no_file_manager">Nije pronađena aplikacija za odabir datoteke. Instalirajte upravitelj datoteka i pokušajte ponovno.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikacija je negdje drugo otvorena</string>
-  <string name="open_here">Otvori ovdje</string>
   <string name="external_link_dont_ask_again">Ne pitaj ponovno za %s</string>
   <string name="nameless">Naslov nije određen</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Radnje jednim dodirom (Biblije)</string>

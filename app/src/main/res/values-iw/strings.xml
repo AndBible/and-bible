@@ -85,7 +85,6 @@
   <string name="indexing_wait_msg">כשיצירת האינדקס תסתיים, תועבר למסך החיפוש.</string>
   <string name="index_create">יצירה</string>
   <string name="rebuild_index">בנייה מחדש של האינדקס</string>
-  <string name="search_in">חפש ב %s</string>
   <string name="do_in_background">המשך ברקע</string>
   <string name="rebuild_index_button">בנייה-מחדש</string>
   <string name="creating_index_for">יוצר אינדקס עבור %s…</string>
@@ -93,7 +92,6 @@
   <string name="search_with_results2">%1$s תוצאות ב %2$s</string>
   <!--Tasks-->
   <string name="progress_status">בתהליך</string>
-  <string name="task_kill_warning">יותר מדי משימות רצות כעת, ולכן אם תצא מהתוכנה הן עלולות להסגר לפני שיסתיימו.</string>
   <string name="no_tasks_running">אין משימות שפועלות כעת.</string>
   <!--Search-->
   <string name="search_words_group_prompt">חיפוש פסוקים</string>
@@ -1287,8 +1285,6 @@
   <string name="install_failed_reason">התקנת המודול נכשלה מהסיבה הבאה: %s.</string>
   <string name="no_file_manager">לא נמצא יישום לבחירת קובץ. נא להתקין מנהל קבצים ולנסות שוב.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">היישום נפתח במקום אחר</string>
-  <string name="open_here">פתח כאן</string>
   <string name="external_link_dont_ask_again">אל תשאל שוב עבור %s</string>
   <string name="nameless">הכותרת אינה מוגדרת</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">פעולות בהקשה אחת (תנ\"כים)</string>

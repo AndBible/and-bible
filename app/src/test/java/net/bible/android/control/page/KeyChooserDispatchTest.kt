@@ -60,12 +60,9 @@ class KeyChooserDispatchTest {
         if (page !is CurrentGeneralBookPage) assertEquals(ActivityBase.STD_REQUEST_CODE, started.requestCode)
     }
 
-    @Test fun bibleUsesScriptureGrid() = assertRoute({ it.currentBible }, NavRoutes.gridChoosePassage(isScripture = true))
-    @Test fun commentaryUsesScriptureGrid() = assertRoute({ it.currentCommentary }, NavRoutes.gridChoosePassage(isScripture = true))
-    @Test fun myNotesInheritCommentaryChooser() = assertRoute({ it.currentMyNotePage }, NavRoutes.gridChoosePassage(isScripture = true))
+    // Bible, commentary and my-note pages open the passage quick sheet (#4169): KeyChooserSheetEntryPointsTest. Map and
+    // plain general-book pages open the key-list quick sheet (#4172): KeyListSheetEntryPointsTest.
     @Test fun dictionaryUsesDictionaryChooser() = assertRoute({ it.currentDictionary }, NavRoutes.CHOOSE_DICTIONARY_WORD)
-    @Test fun mapUsesMapChooser() = assertRoute({ it.currentMap }, NavRoutes.CHOOSE_MAP_KEY)
-    @Test fun plainGeneralBookUsesGeneralBookChooser() = assertRoute({ it.currentGeneralBook }, NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
 
     @Test fun absentHostReturnsFalseAndStartsNothing() {
         val activity = host()
@@ -97,37 +94,8 @@ class KeyChooserDispatchTest {
         assertEquals(foreignDocument, foreignManager.currentPage.currentDocument, "another live host must not receive this selection")
     }
 
-    class CancelProbeActivity : ActivityBase() {
-        var backCount = 0
-        override fun goBackInHistory(): Boolean { backCount++; return true }
-        public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) =
-            super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    @Test fun cancellingWithoutAKeyGoesBackButCancellingWithAKeyDoesNot() {
-        val activity = host()
-        val page = activity.hostWindowRepository.activeWindow.pageManager.currentGeneralBook
-        val probe = Robolectric.buildActivity(CancelProbeActivity::class.java).create()
-        try {
-            page.doSetKey(null)
-            AndroidKeyChooserLauncher { probe.get() }.startKeyChooser(page)
-            shadowOf(Looper.getMainLooper()).idle()
-            val started = assertNotNull(shadowOf(probe.get()).nextStartedActivityForResult)
-            probe.get().onActivityResult(started.requestCode, Activity.RESULT_CANCELED, null)
-            shadowOf(Looper.getMainLooper()).idle()
-            assertEquals(1, probe.get().backCount)
-
-            page.doSetKey(org.crosswire.jsword.passage.DefaultKeyList())
-            AndroidKeyChooserLauncher { probe.get() }.startKeyChooser(page)
-            shadowOf(Looper.getMainLooper()).idle()
-            val second = assertNotNull(shadowOf(probe.get()).nextStartedActivityForResult)
-            probe.get().onActivityResult(second.requestCode, Activity.RESULT_CANCELED, null)
-            shadowOf(Looper.getMainLooper()).idle()
-            assertEquals(1, probe.get().backCount, "a cancellation with an existing key must not navigate history")
-        } finally {
-            probe.close()
-        }
-    }
+    // The cancel guard (a chooser left without a key, on a page with none, goes back in history) is the key-list sheet's
+    // now (#4172): openKeyListSheet, pinned by KeyListChooserEntryPointsTest.dismissingTheAutoOpenedSheetWithoutAKeyGoesBack (:sharedUi).
 
     private fun withForeignSingleton(other: NavHostComposeActivity, action: () -> Unit) {
         val original = org.koin.core.context.GlobalContext.get().get<KeyChooserLauncher>()
@@ -160,6 +128,14 @@ class KeyChooserDispatchTest {
         assertTrue(holder.currentActivity === other, "fixture must publish a different foreground host")
         assertNull(shadowOf(touched).nextStartedActivityForResult, "caller must be the first launch")
         assertNull(shadowOf(other).nextStartedActivityForResult)
+        // A page with a full-screen chooser: a Bible or commentary page opens the passage quick sheet instead (#4169).
+        for (manager in setOf(touched.hostWindowRepository.activeWindow.pageManager,
+                net.bible.service.common.CommonUtils.windowControl.activeWindowPageManager)) {
+            CurrentPageManager::class.java.getDeclaredField("currentPage").apply {
+                isAccessible = true
+                set(manager, manager.currentDictionary)
+            }
+        }
         try {
             withForeignSingleton(other) {
                 touched.readingCommands.composeStartKeyChooser()

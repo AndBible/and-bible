@@ -98,6 +98,16 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     protected var routedToDamagedDataRecovery = false
         private set
 
+    /** #4176: [onCreate] found the process in crash safe mode and handed over to [CrashSafeModeActivity]. */
+    protected var routedToCrashSafeMode = false
+        private set
+
+    /**
+     * True when [onCreate] handed this screen over ([routedToDamagedDataRecovery], [routedToCrashSafeMode]): it is
+     * finishing and nothing of it was set up, so a subclass's own `onCreate`/`onDestroy` returns at once.
+     */
+    protected val routedAwayAtStart: Boolean get() = routedToDamagedDataRecovery || routedToCrashSafeMode
+
     /**
      * Shows the damaged-data question (#4112) by restarting the app at [StartupActivity] in a fresh task, and finishes
      * this screen. What this screen was started with ([damagedDataRecoveryIntent]) goes along, so a link that opened it
@@ -111,12 +121,28 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
+        // #4176: the last start crashed; nothing of the app is initialised in this process (no Koin). Any screen,
+        // also one Android restores straight into, hands over to the crash report before touching the app.
+        if (net.bible.android.control.report.StartupCrashGuard.safeMode) {
+            routedToCrashSafeMode = true
+            // Not the saved state: restoring it (fragments, Compose savers) could touch the uninitialised app.
+            super.onCreate(null)
+            CrashSafeModeActivity.routeIfSafeMode(this)
+            return
+        }
         CurrentActivityHolder.activate(this)
         setNewHistoryTraversal(historyTraversalFactory)
 
         if(!doNotInitializeApp) {
             try {
-                CommonUtils.initializeApp(blockOnCipherUnlock = blockOnCipherUnlockAtStart)
+                if (CommonUtils.initialized) {
+                    CommonUtils.initializeApp(blockOnCipherUnlock = blockOnCipherUnlockAtStart)
+                } else {
+                    // #4176: a crash (or a native death) here is a startup crash: the next start offers the report.
+                    net.bible.android.control.report.StartupCrashGuard.phase(net.bible.android.control.report.StartupCrashGuard.PHASE_INITIALIZE_APP) {
+                        CommonUtils.initializeApp(blockOnCipherUnlock = blockOnCipherUnlockAtStart)
+                    }
+                }
             } catch (e: Exception) {
                 e.corruptDatabasesOrNull() ?: throw e
                 // #4112: a screen started directly (restored after process death, a link, a notification) found

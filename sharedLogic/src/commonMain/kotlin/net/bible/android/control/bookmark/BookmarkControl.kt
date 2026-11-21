@@ -74,6 +74,7 @@ import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
@@ -1294,14 +1295,16 @@ open class BookmarkControl constructor(
      * (verses, offsets, whole-verse flag and document), with nothing else of it (no note, label, icon or edit action).
      * The add-on bookmark stays as it is; both are shown, as any two bookmarks of one verse are. The caller saves it
      * (with the workspace's auto-assign labels). Null when [addonBookmarkId] is not an add-on bookmark here.
+     *
+     * A Bible bookmark's document is [windowBible] (the Bible of the window the user tapped in, like any new
+     * bookmark), else the add-on row's own book, else none. Callers pass `pageManager.currentBible` (the window's last
+     * Bible, also when it shows a commentary), intentionally unlike a text-selection bookmark. Generic bookmarks keep the row's document.
      */
-    suspend fun newOwnBookmarkLike(addonBookmarkId: IdType): BaseBookmarkWithNotes? {
+    suspend fun newOwnBookmarkLike(addonBookmarkId: IdType, windowBible: AbstractPassageBook? = null): BaseBookmarkWithNotes? {
         if (!addonBookmarkId.isAddonId) return null
         val now = DbDate(kotlin.time.Clock.System.now().toEpochMilliseconds())
         dao.bibleBookmarkById(addonBookmarkId)?.let { addon ->
-            return addon.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, primaryLabelId = null, notes = null,
-                playbackSettings = null, customIcon = null, editAction = null, sourcePromptId = null,
-                notesContentType = null, notesSourcePromptId = null, type = null, new = true)
+            return ownBibleBookmarkLike(addon, windowBible, now)
         }
         dao.genericBookmarkById(addonBookmarkId)?.let { addon ->
             return addon.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, primaryLabelId = null, notes = null,
@@ -1429,3 +1432,15 @@ fun computeBookmarkTexts(
         BookmarkTexts(startText, text, endText, "$startText$text$endText".trim())
     }
 }
+
+
+/**
+ * The new own copy of add-on Bible bookmark [addon] for "Bookmark this verse": same range, none of its note, label,
+ * icon or edit action. Its document is [windowBible] (the Bible of the window where the user tapped), else the add-on
+ * row's own book, else none.
+ */
+internal fun ownBibleBookmarkLike(addon: BibleBookmarkWithNotes, windowBible: AbstractPassageBook?, now: DbDate): BibleBookmarkWithNotes =
+    addon.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, primaryLabelId = null, notes = null,
+        playbackSettings = null, customIcon = null, editAction = null, sourcePromptId = null,
+        notesContentType = null, notesSourcePromptId = null, type = null, new = true,
+        book = windowBible ?: addon.book)

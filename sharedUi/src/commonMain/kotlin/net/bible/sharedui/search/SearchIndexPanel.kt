@@ -47,10 +47,8 @@ import net.bible.sharedui.strings.LocalStrings
  * What the reading view's search sheet holds while the current document has no usable index: first
  * the prompt to build one, then — once [indexing] — the wait message and a [ProgressRow] per job.
  *
- * This is deliberately **not** `SearchIndexProgressScreen`, which is a full `AbScaffold` screen and
- * is shared with `ProgressStatusComposeActivity` (Batch 13 T7); making it sheet-shaped would break
- * that second caller. Only `ProgressRow` and the wording are reused. Likewise not
- * `SearchIndexScreen`, whose prompt is wrapped in its own scaffold for the standalone Activity.
+ * It is a sheet panel, not a full screen (the full-screen index progress screen is gone, #4170/#4174); it
+ * reuses `ProgressRow` and the wording.
  *
  * There is **no "Continue in background" button**: in an Activity that button existed only to get
  * the user off a screen that owned the whole window, whereas here closing (or just dragging away
@@ -93,8 +91,7 @@ fun SearchIndexPanel(
                     Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
                 }
             }
-            // ProgressRow carries its own 16.dp horizontal padding, as it does inside
-            // SearchIndexProgressScreen's equally-padded Column; the rows are meant to sit inset
+            // ProgressRow carries its own 16.dp horizontal padding, so the rows sit inset
             // from the paragraph above them.
             jobs.forEach { job ->
                 ProgressRow(label = job.label, percent = job.percent, indeterminate = job.indeterminate)
@@ -106,7 +103,7 @@ fun SearchIndexPanel(
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.height(16.dp))
-            // End-aligned, unlike SearchIndexScreen's start-aligned Row: the panel is as wide as the
+            // End-aligned: the panel is as wide as the
             // sheet, so the actions anchor to the trailing edge the way any Material action row does.
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onCancel) { Text(strings.cancel) }

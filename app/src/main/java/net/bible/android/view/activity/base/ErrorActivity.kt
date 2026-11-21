@@ -26,7 +26,7 @@ class ErrorActivity: ActivityBase() {
     override val doNotInitializeApp: Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (routedToDamagedDataRecovery) return
+        if (routedAwayAtStart) return
         mountAppDialogOverlay()
         lifecycleScope.launch {
             BugReport.reportBug(this@ErrorActivity, source = "error notification")

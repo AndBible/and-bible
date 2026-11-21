@@ -249,16 +249,21 @@ abstract class CurrentPageBase protected constructor(
     }
 
     override fun checkCurrentDocumenInstalled(): Boolean {
-        if(_currentDocument?.doesNotExist == true) {
-            val doc = SwordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
-            if(doc != null)
-                _currentDocument = doc
+        // Read the mutable field once: another thread may change it between a check and a dereference.
+        var document = _currentDocument
+        if (document?.doesNotExist == true) {
+            SwordDocumentFacade.getDocumentByInitials(document.initials)?.let {
+                document = it
+                _currentDocument = it
+            }
         }
-        if (_currentDocument == null) {
-            Log.i(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
-            _currentDocument =  fakeBookFactory.giveDoesNotExist(_currentDocument!!.initials)
+        // A page without any document has no initials to name a "does not exist" placeholder by.
+        val current = document
+        if (current == null) {
+            Log.i(TAG, "checkCurrentDocumentStillInstalled: page has no document")
+            return false
         }
-        return _currentDocument != null && !_currentDocument!!.doesNotExist
+        return !current.doesNotExist
     }
 
     private var _currentDocument: Book? = null

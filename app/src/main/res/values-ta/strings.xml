@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">அட்டவணைப்படுத்தல் முடிந்ததும் நீங்கள் தேடல் திரைக்கு கொண்டு செல்லப்படுவீர்கள்.</string>
   <string name="index_create">உருவாக்கு</string>
   <string name="rebuild_index">அட்டவணையினை மீள் உருவாக்கவா?</string>
-  <string name="search_in">%sஇல் தேடு</string>
   <string name="do_in_background">பின்னணியில் தொடர்க</string>
   <string name="rebuild_index_button">அட்டவணைப்படுத்து</string>
   <string name="creating_index_for">%s-க்கான அட்டவணை உருவாக்கப்படுகிறது…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%2$s இல் %1$s முடிவுகள்</string>
   <!--Tasks-->
   <string name="progress_status">முன்னேற்றம்</string>
-  <string name="task_kill_warning">நெடுநேரம் இயங்கும் இந்தப் பணிகள் முடிவதற்குள் வேறொரு ஆப்புக்கு மாறினால் இவை நிறுத்தப்படலாம்.</string>
   <string name="no_tasks_running">தற்போது எந்த பணிகளும் செயல்பாட்டில் இல்லை.</string>
   <!--Search-->
   <string name="search_words_group_prompt">வசனங்களைத் தேடு</string>
@@ -1355,8 +1353,6 @@
   <string name="install_failed_reason">பின்வரும் காரணத்தால் மாடியுளை நிறுவ இயலவில்லை: %s.</string>
   <string name="no_file_manager">கோப்பைத் தேர்ந்தெடுக்க எந்த செயலியும் கிடைக்கவில்லை. ஒரு கோப்பு மேலாளரை நிறுவி மீண்டும் முயற்சிக்கவும்.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">செயலி வேறெங்கோ திறக்கப்பட்டிருக்கிறது</string>
-  <string name="open_here">இங்கேயே திற</string>
   <string name="external_link_dont_ask_again">%s க்கு மீண்டும் கேட்காதே</string>
   <string name="nameless">தலைப்பு வரையறுக்கப்படவில்லை</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ஒரு-தட்டல் செயல்கள் (விவிலியங்கள்)</string>

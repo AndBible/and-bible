@@ -166,56 +166,23 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
-    fun searchIndexResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
-        // Also a real screen without arguments: classic `SearchIndexComposeActivity.kt:46` falls
-        // back to the CURRENT PAGE's document when SEARCH_DOCUMENT is absent, so an argument-free
-        // index prompt has a defined meaning ("index the book I am reading").
-        val intent = ScreenLauncher.intentFor(context, Screen.SearchIndex)
-        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
-        assertEquals(NavRoutes.searchIndex(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
-    }
-
-    /**
-     * The slice-5 twin of [rawLlmLogIsNotInMigratedAndIntentForThrows], and the reason
-     * `Screen.SearchIndexProgress` is deliberately absent from [ScreenLauncher.MIGRATED] even
-     * though its destination now exists in the graph: an ARGUMENT-FREE index-progress route has no
-     * safe meaning. Every real edge into that screen (classic
-     * `SearchIndexComposeActivity.kt:72`, now the graph's `SEARCH_INDEX_PATTERN` arm) builds a
-     * route carrying the chain's five arguments; a bare `ScreenLauncher.open(ctx,
-     * Screen.SearchIndexProgress)` would open a progress screen watching nothing, which then has
-     * no document to route onward to when indexing completes.
-     *
-     * Task 9 deleted the six search host Activities, so this now asserts exactly what the
-     * AI-cluster twin does: absent from MIGRATED, and `intentFor` falls through to `targetFor`,
-     * whose `targetForMigratedScreen` guard throws. (Between slice 5 and Task 9 it asserted the
-     * weaker "never the nav host with an argument-free route", because the classic Activity was
-     * still a legal fallback target; the guarantee that matters is unchanged, and is now stronger.)
-     */
-    @Test
-    fun searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
-        assertTrue(Screen.SearchIndexProgress !in ScreenLauncher.MIGRATED)
-        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchIndexProgress) }
-    }
-
-    @Test
-    fun epubSearchResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
-        // The EPUB search FORM is argument-free by construction — classic
-        // `EpubSearchComposeActivity` read no extras at all and took its document from the current
-        // page — so `NavRoutes.EPUB_SEARCH` is the whole route and a valid MIGRATED value. (Its two
-        // callers, `SearchControl.getSearchIntent` and classic `SearchIndexProgressComposeActivity`,
-        // both build it with no extras.)
-        val intent = ScreenLauncher.intentFor(context, Screen.EpubSearch)
-        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
-        assertEquals(NavRoutes.EPUB_SEARCH, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
-    }
-
-    @Test
     fun standaloneResultsAreNotScreenLauncherTargets() {
         assertFalse(Screen.entries.any { it.name in setOf("SearchResults", "EpubSearchResults") })
         val bases = registeredRoutePatterns().map { it.substringBefore('?') }
         assertFalse("search/results" in bases)
         assertFalse("search/epubResults" in bases)
         assertTrue(NavRoutes.READING_SEARCH_PATTERN in registeredRoutePatterns())
+    }
+
+    /** #4170: the EPUB search form, the index prompt and the index progress screen are not destinations any more. */
+    @Test
+    fun theRemovedFullScreenSearchRoutesAreNotRegisteredAndHaveNoScreenLauncherTarget() {
+        assertFalse(Screen.entries.any { it.name in setOf("SearchIndex", "SearchIndexProgress", "EpubSearch") })
+        val bases = registeredRoutePatterns().map { it.substringBefore('?') }
+        for (removed in listOf("search/epub", "search/index", "search/indexProgress")) {
+            assertFalse(removed in bases, "$removed is a removed route but a graph registers it")
+        }
+        assertFalse(bases.any { it.startsWith("search/") }, "no destination may live under the search/ prefix: $bases")
     }
 
     @Test
@@ -446,36 +413,6 @@ class NavHostRoutingGuardTest {
     }
 
     /**
-     * nav-graph slice 4, Task 4. The ARGUMENT-FREE progress-status route is correct:
-     * `ProgressStatusComposeActivity` read no extras at all, and its only inbound edge is a
-     * getActivity `PendingIntent` from `ProgressNotificationManager`, which cannot carry one
-     * either -- same shape as [settingsResolvesToTheNavHostCarryingItsRoute] and
-     * [customRepositoriesResolvesToTheNavHostCarryingItsRoute].
-     */
-    @Test
-    fun progressStatusResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
-        val intent = ScreenLauncher.intentFor(context, Screen.ProgressStatus)
-        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
-        assertEquals(NavRoutes.progressStatus(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
-    }
-
-    /**
-     * The host is `launchMode="singleTop"`
-     * ([theNavHostIsSingleTopSoAHistoryRevertCannotShowAnotherClustersScreen]), so a notification
-     * tap while the host is already open lands in `onNewIntent` -> `navigateToRoute`, which needs
-     * the pattern registered by SOME graph -- not just resolvable through [ScreenLauncher.MIGRATED].
-     */
-    @Test
-    fun progressStatusPatternIsRegisteredByAGraph() {
-        val registered = registeredRoutePatterns()
-        assertTrue(
-            NavRoutes.PROGRESS_STATUS_PATTERN in registered,
-            "no *NavGraph.kt registers NavRoutes.PROGRESS_STATUS_PATTERN, so a notification tap " +
-                "while the host is already open cannot navigate to it. Registered: ${registered.sorted()}",
-        )
-    }
-
-    /**
      * nav-graph slice 4, Task 6. `Screen.MyDocuments` was the batch's last direct
      * `ScreenLauncher.targetFor` caller (`MyDocumentsComposeActivity.kt:215`, inside `openDocument`)
      * -- once it went into [ScreenLauncher.MIGRATED], `intentFor` never fell through to `targetFor`
@@ -674,8 +611,7 @@ class NavHostRoutingGuardTest {
      *    never produces. A real precedent already exists in the tree:
      *    `app/src/main/java/net/bible/android/view/activity/page/BibleView.kt` spreads
      *    `ScreenLauncher.intentFor(` across several lines with the screen chosen by an `if`
-     *    expression (not a live miss today — `Screen.SearchIndex` aren't
-     *    migrated yet — but it WILL be, in a later slice). Fixed by locating each call by its own
+     *    expression (a hypothetical miss for any screen migrated later). Fixed by locating each call by its own
      *    `(` / matching `)` (brace-balance, reusing the same technique as the `.apply` block scan)
      *    rather than by a marker glued to one particular argument.
      *  - **Named or reordered arguments**, where the screen is not textually the last argument
@@ -702,11 +638,10 @@ class NavHostRoutingGuardTest {
      * found — one of them against a LIVE call site, not merely a future risk:
      *  - **`putExtras` (plural, a whole `Bundle`) matched none of the three checks**, because every
      *    one of them searched literally for `"putExtra("` / `\.putExtra\s*\(`, and the character
-     *    after `putExtra` in `putExtras(` is `s`, not `(`. Live today:
-     *    `LinkControl.kt`'s `intent.putExtras(searchParams)` after a plain assignment, targeting
-     *    `Screen.SearchIndex` (not migrated yet, so not a live BUG today --
-     *    but the guard existed to catch exactly this shape the day one of those screens migrates,
-     *    and it silently would not have). Fixed by giving every check the shared
+     *    after `putExtra` in `putExtras(` is `s`, not `(`. It was live at the time:
+     *    `LinkControl.kt` called `intent.putExtras(searchParams)` after a plain assignment (the
+     *    search routes it targeted have since been removed), the shape the guard exists to catch
+     *    the day an unmigrated screen migrates. Fixed by giving every check the shared
      *    [PUT_EXTRA_METHODS] alternation (`putExtras?`) instead of the bare singular name — see its
      *    kdoc for why this cannot also match an unrelated identifier that merely starts with those
      *    characters.
@@ -719,15 +654,15 @@ class NavHostRoutingGuardTest {
      * **Hardened again in nav-graph 3/5/6 Task 6** against a fifth fail-open shape -- and this one
      * failed open on a LIVE BUG, not a future risk, which is the worst thing a guard can do:
      *  - **The call as a BRANCH of a conditional whose RESULT is assigned**, i.e.
-     *    `val intent = if (needToIndex) { ScreenLauncher.intentFor(a, Screen.SearchIndex) } else {
-     *    ScreenLauncher.intentFor(a, Screen.SearchResults) }` followed by `intent.putExtras(...)`.
+     *    `val intent = if (flag) { ScreenLauncher.intentFor(a, Screen.X) } else {
+     *    ScreenLauncher.intentFor(a, Screen.Y) }` followed by `intent.putExtras(...)`.
      *    Both assignment regexes anchor immediately before the call (`(\w+)\s*=\s*$` and its typed
-     *    twin), and what sits there is the branch opener `if (needToIndex) {` -- not `intent =` --
+     *    twin), and what sits there is the branch opener `if (flag) {` -- not `intent =` --
      *    so neither matched, no scope-function form applied either, and the scan reported nothing.
-     *    `LinkControl.showAllOccurrences` had exactly this shape, and the day Task 4 migrated
-     *    `Screen.SearchIndex` it became a real dropped-argument bug (a Strong's link into an
-     *    unindexed module indexed the CURRENT page's book instead of the Strong's Bible, then
-     *    landed on an empty search form) that this test passed straight over. Fixed by a third
+     *    The since-removed `LinkControl.showAllOccurrences` search-index branch had exactly this
+     *    shape, and when its screen migrated it became a real dropped-argument bug (a Strong's link
+     *    into an unindexed module indexed the CURRENT page's book instead of the Strong's Bible,
+     *    then landed on an empty search form) that this test passed straight over. Fixed by a third
      *    assignment check: find the NEAREST `name = if (` / `name = when (` within
      *    [CONDITIONAL_ASSIGN_LOOKBEHIND_CHARS] behind the call, confirm the call is still INSIDE
      *    that conditional expression, then look ahead for `name.putExtra(s)(...)` exactly as the
@@ -752,9 +687,7 @@ class NavHostRoutingGuardTest {
      *    by the caller (`return if (x) intentFor(..) else intentFor(..)`, then
      *    `getSearchIntent(...)?.putExtra(...)` at the call site). There is no local name to follow,
      *    so this is the cross-function case below by another route -- it needs data flow, not a
-     *    regex. `SearchControl.getSearchIntent` is precisely this shape; Task 6 verified by hand
-     *    that all five of its callers pass the Intent straight to `startActivityForResult` with no
-     *    extras added, and rewrote its `Screen.SearchIndex` branch to build a concrete route anyway.
+     *    regex. The former `SearchControl.getSearchIntent` (since removed) was precisely this shape.
      *  - `with(intentVar) { putExtra(...) }` -- no live caller uses `with` on a `ScreenLauncher
      *    .intentFor(...)` result today; purely theoretical.
      *  - A helper function that receives the built `Intent` and adds extras to it elsewhere (e.g.
@@ -820,7 +753,10 @@ class NavHostRoutingGuardTest {
     fun everyAllowlistedExtraIsReallyReadByTheNavHost() {
         val host = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
         assertTrue(host.exists(), "the nav host source moved; this scan is watching nothing")
-        val code = ClassicRemovalScan.codeLinesOf(host.path)
+        // The activity-list request is read by the extension the host calls (NotificationActivityIntent.kt).
+        val readers = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/service/device/NotificationActivityIntent.kt")
+        assertTrue(readers.exists(), "the notification intent helper moved; this scan is watching nothing")
+        val code = ClassicRemovalScan.codeLinesOf(host.path) + "\n" + ClassicRemovalScan.codeLinesOf(readers.path)
         val unread = EXTRAS_THE_NAV_HOST_READS.filterNot { name ->
             Regex("""(?:get\w*Extra|hasExtra)\s*\(\s*"${Regex.escape(name)}"""").containsMatchIn(code)
         }
@@ -943,7 +879,7 @@ class NavHostRoutingGuardTest {
                     // Is this call a BRANCH of a conditional that is itself the RHS of an assignment --
                     // `val name = if (cond) { intentFor(..) } else { intentFor(..) }` -- followed by
                     // `name.putExtra(s)(...)`? Neither regex above can see this shape: what immediately
-                    // precedes the call is the branch opener (`if (needToIndex) {`), not `name =`. See
+                    // precedes the call is the branch opener (`if (flag) {`), not `name =`. See
                     // the kdoc's Task 6 hardening entry; live in LinkControl.showAllOccurrences.
                     var conditionalAssignedPutExtraName: String? = null
                     if (assignedPutExtraName == null) {
@@ -1111,36 +1047,6 @@ class NavHostRoutingGuardTest {
         )
     }
 
-    @Test
-    fun searchGraphRoutesResultsToReadingInsteadOfStandaloneDestinations() {
-        val graph = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/search/nav/SearchNavGraph.kt")
-        assertTrue(graph.isFile, "cannot find SearchNavGraph.kt at ${graph.absolutePath}")
-        val source = withoutComments(graph.readText())
-        assertTrue(source.contains("NavRoutes.readingSearch("), "search continuations must use the reading handoff")
-        for (removed in listOf("NavRoutes.SEARCH_RESULTS_PATTERN", "NavRoutes.EPUB_SEARCH_RESULTS_PATTERN", "NavRoutes.searchResults(", "NavRoutes.epubSearchResults(", "SearchResultsDeps", "EpubSearchResultsDeps", "SearchResultsScreen", "EpubSearchResultsScreen")) {
-            assertFalse(source.contains(removed), "standalone results route remains: $removed")
-        }
-    }
-
-    /**
-     * CR-2 review M6: the index-progress error's dismiss must leave the screen, so the route wires
-     * `controller::dismissErrorAndLeave`. The controller method is unit-tested on its own, but
-     * nothing else fails if the route is pointed back at `controller::dismissError`, which only
-     * clears the error and leaves the user stranded on the progress screen. Source-text pin on the
-     * real (uncommented) wiring line, since the graph is a Compose composable and cannot be driven
-     * here without a full nav host.
-     */
-    @Test
-    fun theIndexProgressErrorDismissalLeavesTheScreen() {
-        val graph = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/search/nav/SearchNavGraph.kt")
-        assertTrue(graph.isFile, "cannot find SearchNavGraph.kt at ${graph.absolutePath}")
-        val wiring = Regex("^\\s*onDismissError\\s*=\\s*controller::dismissErrorAndLeave\\s*,", RegexOption.MULTILINE)
-        assertTrue(
-            wiring.containsMatchIn(graph.readText()),
-            "SearchNavGraph.kt must wire onDismissError = controller::dismissErrorAndLeave",
-        )
-    }
-
     /**
      * Every `*NavGraph.kt` in `:sharedUi`'s `commonMain`. Globbed rather than listed so the slices
      * still queued behind this batch are covered the moment their graph file lands, instead of being
@@ -1254,7 +1160,7 @@ class NavHostRoutingGuardTest {
          * the extra was always read there, the CALLER just used to build a `MainBibleActivity`
          * intent. Keep this list to extras a reader can point at an `intent.get*Extra` for.
          */
-        val EXTRAS_THE_NAV_HOST_READS = setOf("openLink")
+        val EXTRAS_THE_NAV_HOST_READS = setOf("openLink", "net.bible.android.openActivityList")
     }
 
     /**

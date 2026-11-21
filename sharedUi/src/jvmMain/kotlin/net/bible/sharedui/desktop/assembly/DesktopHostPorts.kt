@@ -62,7 +62,7 @@ fun buildDesktopHostPorts(
         HostBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get(),
             { csvFiles.openSink(it) }, { csvFiles.timestamp() })
     }
-    val chooser = HostChooserHostPlatform(koin, shell.hostScope, currentTable, koin.get())
+    val chooser = HostChooserHostPlatform(koin, shell.hostScope, currentTable)
     val documents = HostDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get(), { koin.get() })
     val download = HostDownloadHostPlatform(documents) { path -> runCatching { File(path).usableSpace }.getOrNull() }
     val cloud = HostCloudDocumentsHostPlatform()

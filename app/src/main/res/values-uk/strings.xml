@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Коли індексування завершиться ви потрапите на екран пошуку.</string>
   <string name="index_create">Створити</string>
   <string name="rebuild_index">Перебудувати індекс</string>
-  <string name="search_in">Знайти в %s</string>
   <string name="do_in_background">Продовжити у фоновому режимі</string>
   <string name="rebuild_index_button">Відновити</string>
   <string name="creating_index_for">Створення індексу для %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s результати у %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Перебіг виконання</string>
-  <string name="task_kill_warning">Ці тривалі завдання можуть припинитися, якщо ви перейдете до іншого застосунку/програми, перш ніж вони закінчаться.</string>
   <string name="no_tasks_running">В даний час нема завдань які виконуються.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Знайти вірші</string>
@@ -1346,8 +1344,6 @@
   <string name="install_failed_reason">Не вдалося встановити модуль з наступної причини: %s.</string>
   <string name="no_file_manager">Не знайдено застосунку для вибору файлу. Будь ласка, встановіть файловий менеджер і спробуйте ще раз.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Додаток відкрито в іншому місці</string>
-  <string name="open_here">Відкрити тут</string>
   <string name="external_link_dont_ask_again">Більше не питати про %s</string>
   <string name="nameless">Назва не визначена</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Дії одним дотиком (Біблії)</string>

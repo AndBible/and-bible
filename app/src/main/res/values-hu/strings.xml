@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Ha az indexelés befejeződött, megjelenik a kereső képernyő.</string>
   <string name="index_create">Létrehozás</string>
   <string name="rebuild_index">Újraindexelés</string>
-  <string name="search_in">Keresés %s-ben</string>
   <string name="do_in_background">Folytassa a háttérben</string>
   <string name="rebuild_index_button">Adatbázis újraépítése</string>
   <string name="creating_index_for">Index létrehozása: %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s találat a %2$s-ból</string>
   <!--Tasks-->
   <string name="progress_status">Folyamatjelző</string>
-  <string name="task_kill_warning">Ez az időigényes feladat megszakadhat, ha a befejezés előtt másik alkalmazásra váltasz.</string>
   <string name="no_tasks_running">Jelenleg nincsenek futó feladatok.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Versek keresése</string>
@@ -1318,8 +1316,6 @@ jelentse be az észlelt problémát</string>
   <string name="install_failed_reason">A modul telepítése nem sikerült: %s</string>
   <string name="no_file_manager">Nem található alkalmazás a fájl kiválasztásához. Telepítsen egy fájlkezelőt, és próbálja újra.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Az alkalmazás meg van nyitva máshol.</string>
-  <string name="open_here">Megnyitás itt</string>
   <string name="external_link_dont_ask_again">Ne kérdezzen újra ehhez: %s</string>
   <string name="nameless">A cím nincs megadva</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Bibliákhoz kapcsolódó egy-koppintásos műveletek</string>

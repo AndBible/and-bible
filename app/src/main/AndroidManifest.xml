@@ -121,6 +121,13 @@
             android:label="@string/app_name_calculator"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             />
+        <!-- #4176: the crash safe mode. A plain Activity; nothing of the app is initialised when it shows. -->
+        <activity
+            android:name="net.bible.android.view.activity.base.CrashSafeModeActivity"
+            android:theme="@style/Theme.AbCrashSafeMode"
+            android:launchMode="singleTask"
+            android:label="@string/app_name_short"
+            />
         <activity
             android:name="net.bible.android.view.activity.base.ErrorActivity"
             android:label="@string/error_occurred"
@@ -180,6 +187,10 @@
         <meta-data
             android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
             android:value="598.0dip" />
+        <!-- #4176: do not rely on authority lookup (resolveContentProvider, ContentResolver by authority) from the same
+             process for any provider listed here: the crash safe mode's manual install (StartupCrashGuard.installReenabledProviders,
+             after a provider was switched off) instantiates and attaches them in-process but does not publish
+             their authorities. Cross-process callers (the system, other apps) are unaffected. -->
         <provider
             android:authorities="${applicationId}.provider"
             android:name="androidx.core.content.FileProvider"

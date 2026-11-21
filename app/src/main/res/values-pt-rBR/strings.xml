@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Quando a indexação for concluída, você será levado para a página de busca.</string>
   <string name="index_create">Criar</string>
   <string name="rebuild_index">Reconstruir índice</string>
-  <string name="search_in">Pesquisar em %s</string>
   <string name="do_in_background">Continuar em segundo plano</string>
   <string name="rebuild_index_button">Reconstruir</string>
   <string name="creating_index_for">Criar índice para %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s resultados em %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progresso</string>
-  <string name="task_kill_warning">Estas tarefas de longa duração podem ser finalizadas se você for para outro aplicativo antes que elas terminem.</string>
   <string name="no_tasks_running">Não há tarefas sendo executadas.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Encontrar versículos</string>
@@ -1321,8 +1319,6 @@ versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do apli
   <string name="install_failed_reason">Falha na instalação do módulo devido a seguinte razão: %s</string>
   <string name="no_file_manager">Nenhum aplicativo foi encontrado para escolher um arquivo. Instale um gerenciador de arquivos e tente novamente.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplicativo aberto em outro lugar</string>
-  <string name="open_here">Abrir aqui</string>
   <string name="external_link_dont_ask_again">Não perguntar novamente para %s</string>
   <string name="nameless">Título não definido</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Ações um-toque (Bíblias)</string>

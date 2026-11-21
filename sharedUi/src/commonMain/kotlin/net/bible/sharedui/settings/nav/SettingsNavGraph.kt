@@ -274,7 +274,7 @@ class ReadingProgressSettingsDeps(
 
 /**
  * Platform-supplied slots the settings destinations need but `commonMain` cannot provide.
- * Mirrors [net.bible.sharedui.search.nav.SearchNavDeps]: [exitHost] and [setWindowTitle] are
+ * Mirrors the former search graph deps: [exitHost] and [setWindowTitle] are
  * graph-wide and sit at the top level, one nested holder per destination below.
  *
  * **Four holders, one per destination, in destination order.** Task 7 declared [appSettings] and

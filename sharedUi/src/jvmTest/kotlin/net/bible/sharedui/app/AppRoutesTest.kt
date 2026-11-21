@@ -26,11 +26,65 @@ class AppRoutesTest {
         assertEquals(NavRoutes.READING, navHostStartRoute("search/form", null, onMissing = { fail() }))
     }
 
+    /**
+     * #4170: the EPUB search form, the search-index prompt and its progress screen are gone. A restored or stale start
+     * route naming one (with the argument tails the index routes carried) must open reading, not crash the NavHost.
+     */
+    @Test
+    fun aRestoredRemovedFullScreenSearchRouteOpensReading() {
+        val stale = listOf(
+            "search/epub",
+            "search/index?searchText=love&highlightText=&searchDocument=ESV&selectedTranslations=ESV&isStrongsSearch=false",
+            "search/indexProgress?searchText=love&searchDocument=ESV&isStrongsSearch=true&readingSearchRequest=x",
+            "search/index",
+            "search/indexProgress",
+        )
+        for (route in stale) {
+            assertEquals(NavRoutes.READING, navHostStartRoute(route, null, onMissing = { fail() }), route)
+            assertEquals(NavRoutes.READING, navHostStartRoute(null, route, onMissing = { fail() }), route)
+        }
+    }
+
     @Test
     fun retiredRouteRedirectMatchesTheWholeBaseOnly() {
-        assertEquals(NavRoutes.EPUB_SEARCH, withoutRetiredRoute(NavRoutes.EPUB_SEARCH))
+        assertEquals(NavRoutes.AI_MODELS, withoutRetiredRoute(NavRoutes.AI_MODELS))
+        assertEquals("search/epubs", withoutRetiredRoute("search/epubs"))
+        assertEquals("search/indexed", withoutRetiredRoute("search/indexed"))
         assertEquals("search/formal", withoutRetiredRoute("search/formal"))
         assertEquals("settings?x=search/form", withoutRetiredRoute("settings?x=search/form"))
+    }
+
+    /** #4174: a restored stale start route naming the removed progress screen must not crash the NavHost. */
+    @Test
+    fun theRemovedProgressStatusRouteOpensReading() {
+        val stale = "documents/progress"
+        assertEquals(NavRoutes.READING, withoutRetiredRoute(stale))
+        assertEquals(NavRoutes.READING, navHostStartRoute(null, stale, onMissing = { fail() }))
+        assertEquals(NavRoutes.READING, navHostStartRoute(stale, null, onMissing = { fail() }))
+        assertEquals("documents/progressive", withoutRetiredRoute("documents/progressive"))
+    }
+
+    /** #4169: a restored stale start route or EXTRA_ROUTE naming the removed full-screen passage grid opens reading. */
+    @Test
+    fun theRemovedPassageGridRouteOpensReading() {
+        for (stale in listOf("navigation/gridChoosePassage", "navigation/gridChoosePassage?isScripture=true")) {
+            assertEquals(NavRoutes.READING, withoutRetiredRoute(stale), stale)
+            assertEquals(NavRoutes.READING, navHostStartRoute(null, stale, onMissing = { fail() }), stale)
+            assertEquals(NavRoutes.READING, navHostStartRoute(stale, null, onMissing = { fail() }), stale)
+        }
+        assertEquals("navigation/gridChoosePassageX", withoutRetiredRoute("navigation/gridChoosePassageX"))
+    }
+
+    /** #4172: a restored stale start route naming a removed general-book or map key chooser must open reading. */
+    @Test
+    fun theRemovedGeneralBookAndMapKeyChooserRoutesOpenReading() {
+        for (stale in listOf("navigation/chooseGeneralBookKey", "navigation/chooseMapKey")) {
+            assertEquals(NavRoutes.READING, withoutRetiredRoute(stale), stale)
+            assertEquals(NavRoutes.READING, navHostStartRoute(null, stale, onMissing = { fail() }), stale)
+            assertEquals(NavRoutes.READING, navHostStartRoute(stale, null, onMissing = { fail() }), stale)
+        }
+        assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, withoutRetiredRoute(NavRoutes.CHOOSE_DICTIONARY_WORD))
+        assertEquals("navigation/chooseMapKeys", withoutRetiredRoute("navigation/chooseMapKeys"))
     }
 
     @Test

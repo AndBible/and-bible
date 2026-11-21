@@ -279,7 +279,7 @@ class ClassicRemovalScanAssertionsTest {
 
         // And the production path itself, against the real file.
         ClassicRemovalScan.assertLauncherArmsUnconditional(
-            listOf("Screen.ChooseMapKey"),
+            listOf("Screen.ChooseDictionaryWord"),
             "S3 collapsed this arm, so the helper must pass",
         )
     }

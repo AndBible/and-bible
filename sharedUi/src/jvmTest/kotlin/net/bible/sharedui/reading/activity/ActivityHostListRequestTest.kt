@@ -118,7 +118,7 @@ class ActivityHostListRequestTest {
         runOnIdle { preference.set(true) }
         waitForIdle()
         assertEquals(1, collectors)
-        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(0)
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(1)
     }
 
     @Test fun listRequestOpensListWhenEnabled() = runComposeUiTest {
@@ -131,13 +131,14 @@ class ActivityHostListRequestTest {
         onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(1)
     }
 
-    @Test fun listRequestIgnoredWhenPreferenceOff() = runComposeUiTest {
+    /** #4174: a notification tap opens the list even when the menu item is hidden. */
+    @Test fun listRequestOpensListEvenWhenPreferenceOff() = runComposeUiTest {
         val requests = ActivityListRequests()
         host(enabled = false, requests = requests)
         waitForIdle()
         requests.request()
         waitForIdle()
-        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(0)
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(1)
     }
 
     @Test fun requestBeforeHostIsComposedOpensOnceAndIsNotReplayed() = runComposeUiTest {

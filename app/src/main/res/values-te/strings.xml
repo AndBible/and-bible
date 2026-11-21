@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">ఇండెక్సింగ్ పూర్తయినప్పుడు మీరు శోధన స్క్రీన్‌కి తీసుకెళ్లబడతారు.</string>
   <string name="index_create">సృష్టించు</string>
   <string name="rebuild_index">సూచికను పునర్నిర్మించండి</string>
-  <string name="search_in">%s లో వెతుకు</string>
   <string name="do_in_background">నేపథ్యంలో కొనసాగించండి</string>
   <string name="rebuild_index_button">పునర్నిర్మించండి</string>
   <string name="creating_index_for">%s కోసం సూచికను సృష్టిస్తోంది</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%2$sలో %1$s ఫలితాలు</string>
   <!--Tasks-->
   <string name="progress_status">పురోగతి</string>
-  <string name="task_kill_warning">ఎక్కువ సమయం తీసుకొనే ఇ కార్యాలు పూర్తయ్యేలోపు మీరు మరొక అప్లికేషన్‌కి మారితే అవి ఆగిపోవచ్చు.</string>
   <string name="no_tasks_running">ప్రస్తుతం జరుగుతున్న పనులు ఏవీ లేవు.</string>
   <!--Search-->
   <string name="search_words_group_prompt">వచనాలు కనుక్కోవడం</string>
@@ -1330,8 +1328,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="install_failed_reason">కింది కారణాల వల్ల మాడ్యూల్‌ని ఇన్‌స్టాల్ చేయడం విఫలమైంది: %s.</string>
   <string name="no_file_manager">ఫైల్‌ను ఎంచుకోవడానికి ఏ యాప్ కనుగొనబడలేదు. దయచేసి ఒక ఫైల్ మేనేజర్‌ను ఇన్‌స్టాల్ చేసి మళ్లీ ప్రయత్నించండి.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">యాప్ మరెక్కడా తెరవబడింది</string>
-  <string name="open_here">ఇక్కడ తెరవండి</string>
   <string name="external_link_dont_ask_again">%s కోసం మళ్లీ అడగవద్దు</string>
   <string name="nameless">శీర్షిక నిర్వచించబడలేదు</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">వన్-ట్యాప్ చర్య (బైబిల్)</string>
