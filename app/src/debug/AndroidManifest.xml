@@ -20,6 +20,12 @@
 
     <application
         android:name="net.bible.android.DebugApp"
-        tools:replace="android:name" />
+        tools:replace="android:name">
+        <!-- #4176: setprop debug.andbible.crash_at_startup 1 crashes the start while providers are installed. -->
+        <provider
+            android:name="net.bible.android.DebugStartupCrashProvider"
+            android:authorities="${applicationId}.debug-startup-crash"
+            android:exported="false" />
+    </application>
 
 </manifest>

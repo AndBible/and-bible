@@ -121,6 +121,12 @@
             android:label="@string/app_name_calculator"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             />
+        <!-- #4176: the crash safe mode. A plain Activity; nothing of the app is initialised when it shows. -->
+        <activity
+            android:name="net.bible.android.view.activity.base.CrashSafeModeActivity"
+            android:theme="@style/Theme.AbCrashSafeMode"
+            android:label="@string/app_name_short"
+            />
         <activity
             android:name="net.bible.android.view.activity.base.ErrorActivity"
             android:label="@string/error_occurred"

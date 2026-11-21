@@ -54,6 +54,22 @@ Please report bugs via the `Feedback / bug report` option (in the *Contact* grou
 Reporting bugs through the app provides us with more information to fix the issue. You can also report
 bugs directly via [GitHub Issues](https://github.com/AndBible/and-bible/issues/new/choose).
 
+### If the app crashes while starting (Android) {#if-the-app-crashes-while-starting}
+
+If AndBible stopped while it was starting, the next start does not load your documents and databases first.
+It opens a short screen, *The app stopped while starting*, with three choices:
+
+- **Send Report** prepares an email to the developers with the error details, your app version and
+  your device model. Nothing is sent automatically: your email app opens and you can review the
+  message and its attachment before sending.
+- **Backup & Restore** starts the app again straight into [Backup & Restore](backup_restore.md), before
+  your databases are opened, so you can save or restore your data.
+- **Try again** starts the app normally.
+
+The screen also appears after the app crashed twice within an hour. If you leave it without
+choosing, it is shown again on the next start. With the calculator disguise on, the error report is
+offered after the calculator instead.
+
 On iOS the same `Feedback / bug report` item is in the drawer, as on every platform. The crash recovery screen also
 has a report action that works before the app's databases open. Confirm before opening
 the Mail composer or, if Mail is not configured, the system share sheet. Nothing is

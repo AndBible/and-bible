@@ -22,6 +22,7 @@ import com.facebook.stetho.Stetho
 class DebugApp : BibleApplication() {
     override fun onCreate() {
         super.onCreate()
+        if (net.bible.android.control.report.StartupCrashGuard.safeMode) return
         Stetho.initializeWithDefaults(this)
     }
 }
