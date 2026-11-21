@@ -16,7 +16,12 @@
  */
 package net.bible.service.cloudsync
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.Before
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import net.bible.android.AppDialogControllerResetRule
@@ -54,8 +59,13 @@ class CloudSyncAskJoinPlanTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
     @get:Rule val dialogReset = AppDialogControllerResetRule()
 
+    /** `askJoinPlan` does `withContext(Dispatchers.Main)`; under runTest the Robolectric main thread is blocked, so Main must be a test dispatcher (else the run hangs at 0% CPU). */
+    @Before
+    fun mainDispatcher() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
+
     @After
     fun tearDown() {
+        Dispatchers.resetMain()
         controllers.forEach { runCatching { it.pause().stop().destroy() } }
         controllers.clear()
         dialogs.cancelAll()
