@@ -19,6 +19,12 @@ package net.bible.sharedui.components
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import net.bible.sharedui.components.dialog.AbDialogButton
 import net.bible.sharedui.components.dialog.AbDialogDetail
 import net.bible.sharedui.components.dialog.AbDialogShell
@@ -42,6 +48,10 @@ fun AbErrorDialog(message: String, confirmText: String, onDismiss: () -> Unit, d
  * A confirm/cancel dialog on [AbDialogShell]. Plain text. Without a [title] the [message] is the lead line;
  * with both, [title] is the lead and [message] becomes the detail, unless an explicit [detail] is given.
  * [destructive] makes the confirm button a [DialogButtonRole.Destructive] one.
+ *
+ * [inputGuardMillis] (opt-in, default off): ignore every answer for that long after the dialog first
+ * composes. A question that replaces another one in the same place would otherwise take the second tap of a
+ * double tap on the first (#4192). Key the dialog by its question so a new question restarts the guard.
  */
 @Composable
 fun AbConfirmDialog(
@@ -53,14 +63,19 @@ fun AbConfirmDialog(
     onDismiss: () -> Unit,
     detail: String? = null,
     destructive: Boolean = false,
+    inputGuardMillis: Long = 0L,
 ) {
+    var armed by remember { mutableStateOf(inputGuardMillis <= 0L) }
+    if (!armed) LaunchedEffect(Unit) { delay(inputGuardMillis); armed = true }
+    val confirm = { if (armed) onConfirm() }
+    val dismiss = { if (armed) onDismiss() }
     val lead = title ?: message
     val shownDetail = detail ?: message.takeIf { title != null && it.isNotEmpty() }
     AbDialogShell(
-        onDismissRequest = onDismiss,
+        onDismissRequest = dismiss,
         buttons = {
-            AbDialogButton(dismissText, DialogButtonRole.Cancel, onDismiss)
-            AbDialogButton(confirmText, if (destructive) DialogButtonRole.Destructive else DialogButtonRole.Confirm, onConfirm)
+            AbDialogButton(dismissText, DialogButtonRole.Cancel, dismiss)
+            AbDialogButton(confirmText, if (destructive) DialogButtonRole.Destructive else DialogButtonRole.Confirm, confirm)
         },
         lead = { Text(lead) },
         content = shownDetail?.let { d -> { AbDialogDetail(d) } },

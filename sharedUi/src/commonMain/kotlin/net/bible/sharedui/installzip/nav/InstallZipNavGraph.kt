@@ -37,7 +37,7 @@ import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.installzip.InstallUiState
-import net.bible.sharedui.installzip.InstallZipContent
+import net.bible.sharedui.installzip.InstallZipSessionContent
 import net.bible.sharedui.nav.NavResultChannel
 
 /**
@@ -49,6 +49,14 @@ interface InstallZipSession {
     fun start()
     fun confirm()
     fun dismiss()
+
+    /**
+     * [confirm] / [dismiss] for the tap on a dialog that rendered [shown]: dropped when the session has moved
+     * on to another question meanwhile, so a double tap never answers the NEXT question (#4192). The default
+     * keeps sessions that have no such question (tests, fakes) working.
+     */
+    fun confirm(shown: InstallUiState) = confirm()
+    fun dismiss(shown: InstallUiState) = dismiss()
     fun back()
 
     /**
@@ -206,6 +214,6 @@ fun NavGraphBuilder.installZipNavGraph(navController: NavHostController, deps: I
         PlatformBackHandler(enabled = true) { session.back() }
 
         val state by session.state.collectAsState()
-        state?.let { InstallZipContent(state = it, onConfirm = session::confirm, onDismiss = session::dismiss) }
+        state?.let { InstallZipSessionContent(state = it, onConfirm = session::confirm, onDismiss = session::dismiss) }
     }
 }

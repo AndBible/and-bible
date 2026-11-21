@@ -150,7 +150,10 @@ class InstallZipFlow(
     private val _state = MutableStateFlow<InstallUiState?>(null)
     override val state: StateFlow<InstallUiState?> = _state
 
-    /** Job and ask-back request behind the dialog currently shown; null request when no question is shown. */
+    /**
+     * Job and ask-back request behind the dialog currently shown; null request when no question is shown.
+     * Main-only: written by the combine collector and read by the answer methods, both on the host's Main scope.
+     */
     private var shownDecision: Pair<JobId, DecisionRequest?>? = null
     private var pendingConfirm: Pair<DocumentRef, String>? = null
     /** See [shouldFinishOnDrain]: only a job THIS entry enqueued may finish it with OK. */
@@ -211,6 +214,15 @@ class InstallZipFlow(
             null -> answerShownDecision(true)
             else -> Unit
         }
+    }
+
+    /** The tap came from a dialog that rendered [shown]; a question replaced since then must not take it (#4192). */
+    override fun confirm(shown: InstallUiState) {
+        if (shown == _state.value) confirm()
+    }
+
+    override fun dismiss(shown: InstallUiState) {
+        if (shown == _state.value) dismiss()
     }
 
     override fun dismiss() {

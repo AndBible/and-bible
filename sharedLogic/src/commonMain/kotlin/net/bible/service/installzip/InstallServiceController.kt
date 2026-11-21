@@ -110,7 +110,9 @@ class InstallServiceController(
      * Completes the pending ask-back decision for [jobId], but only when it is still [request], the
      * question the caller's dialog showed. A job asks several questions in a row; an answer to an
      * earlier one (a double tap, a late tap on a stale dialog) must never answer the next, so a
-     * mismatching [request] is dropped. A no-op if the job isn't currently paused.
+     * mismatching [request] is dropped. Equality matching relies on each question type being asked at most
+     * once per job (the runner asks Restore, Overwrite, ... once each); a repeated identical question would
+     * need a per-request sequence token. A no-op if the job isn't currently paused.
      */
     fun resolveDecision(jobId: JobId, request: DecisionRequest, proceed: Boolean) {
         val pending = synchronized(mapsLock) { decisions[jobId] } // L1-common-ok: atomicfu lock
