@@ -58,9 +58,26 @@ Every minified variant runs `checkR8ReflectiveConstructors<Variant>` after `mini
 subclass of `androidx.room.RoomDatabase`, `androidx.room3.RoomDatabase`, `androidx.work.InputMerger`,
 `androidx.startup.Initializer` or `androidx.glance.appwidget.action.ActionCallback` is abstract or has no no-argument
 constructor. It also sees a base that R8 merged into its only subclass (the mapping lists the base's members under the
-subclass). When a new dependency creates classes by
-name, add its base class to `BASES` in the script. Tests: `python3 -m unittest discover -s scripts/tests -p
-test_check_r8_reflective_constructors.py` (needs javac and the SDK build-tools `d8`).
+subclass). For Room 2, `InputMerger` and `ActionCallback` it also demands at least one leaf (`MIN_LEAVES`), so a base
+that the descent heuristic misses cannot pass as "0 checked". `package<Variant>` and `bundle<Variant>` depend on the
+check, so a failing check leaves no fresh APK/AAB. CI runs the script's unit tests (`shared-jvm-tests.yml`). When a new
+dependency creates classes by name, add its base class to `BASES` in the script.
+
+`app/build.gradle.kts` declares `androidx.work:work-runtime-ktx` 2.10.x explicitly: Glance 1.1.1 alone pins WorkManager
+2.7.1 and room-runtime 2.2.5 (2021). The explicit keep rules and the check stay (Room 2.6.1's rule is also
+member-less). Room 2 (`androidx.room`, WorkManager only) and Room 3 (`androidx.room3`, AndBible's databases) live in
+different packages and coexist.
+
+### Widgets across an app update
+
+Glance keeps the class name of each widget in a DataStore that survives an update, and `updateAll()` looks widgets up by
+`GlanceAppWidget.class.getCanonicalName()`. R8 names that class differently in each build, so `-keepnames class * extends
+androidx.glance.appwidget.GlanceAppWidget` (and the receiver) in `app/proguard-rules.pro` keeps the lookup stable.
+That was not what made widgets show "Can't show content" after an update, though: the process is cold then, and the first
+`SpeakControl` was built on a Glance worker thread, where `AndroidMediaSession` created a `Handler` without a Looper
+(fixed with a main-looper handler). Details and emulator evidence: `docs/superpowers/status/issue-4175/README.md`.
+Test a widget change with a real update (`adb install -r` of a build with a higher versionCode, widgets already placed),
+not only with a fresh install; place widgets with the app process alive.
 
 ## Reading obfuscated stack traces
 

@@ -546,10 +546,13 @@ androidComponents {
             inputs.file(script)
             inputs.file(mapping)
             inputs.dir(dexDir)
+            dependsOn(minifyTask) // dexDir has no producer wiring of its own
             commandLine("python3", "-I", script.absolutePath, mapping.get().asFile.absolutePath,
                 "--dex-dir", dexDir.get().asFile.absolutePath)
         }
         tasks.matching { it.name == minifyTask }.configureEach { finalizedBy(check) }
+        // A failing check must not leave a fresh APK/AAB in the outputs folders.
+        tasks.matching { it.name == "package$cap" || it.name == "bundle$cap" }.configureEach { dependsOn(check) }
     }
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
@@ -654,6 +657,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material.icons.extended)  // Icons.Filled, Icons.AutoMirrored etc.
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Glance 1.1.1 pulls WorkManager 2.7.1 (and room-runtime 2.2.5) from 2021; declare a maintained one (#4175).
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     testImplementation(libs.androidx.glance.appwidget.testing)

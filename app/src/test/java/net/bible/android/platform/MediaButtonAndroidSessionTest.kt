@@ -49,6 +49,22 @@ class MediaButtonAndroidSessionTest {
         }
     }
 
+    // A cold-process widget refresh builds SpeakControl on a Glance worker thread (no Looper); activate() used to
+    // create the session callback Handler on the calling thread ("Can't create handler ... Looper.prepare()"), so
+    // the widget showed "Can't show content" after every app update (#4175).
+    @Test fun activateWorksOnAThreadWithoutALooper() {
+        var failure: Throwable? = null
+        val other = AndroidMediaSession(BibleApplication.application) { speaking }
+        val t = Thread { try { other.activate(commands) } catch (e: Throwable) { failure = e } }
+        t.start()
+        t.join()
+        try {
+            assertNull("activate threw on a background thread: $failure", failure)
+        } finally {
+            other.release()
+        }
+    }
+
     @Test fun temporaryStopTriggersWithoutReplacingPublishedPlayingState() {
         CommonUtils.settings.setBoolean("enable_bluetooth_pref", true)
         var triggers = 0

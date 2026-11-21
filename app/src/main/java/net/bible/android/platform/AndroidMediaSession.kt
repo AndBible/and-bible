@@ -2,6 +2,8 @@ package net.bible.android.platform
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -47,6 +49,8 @@ class AndroidMediaSession(
 
     override fun activate(commands: MediaCommands) {
         ms = MediaSessionCompat(context, TAG).apply {
+            // Main-looper handler: activate() can run on a worker thread without a Looper (a cold-process widget
+            // refresh builds SpeakControl there, #4175), where the one-argument setCallback would throw.
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPause() { Log.i(TAG, "onPause"); commands.pause() }
                 override fun onPlay() { Log.i(TAG, "onPlay"); commands.play() }
@@ -55,7 +59,7 @@ class AndroidMediaSession(
                 override fun onSkipToPrevious() { Log.i(TAG, "onSkipToPrevious"); commands.previous() }
                 override fun onFastForward() { Log.i(TAG, "onFastForward"); commands.fastForward() }
                 override fun onRewind() { Log.i(TAG, "onFastForward"); commands.rewind() }
-            })
+            }, Handler(Looper.getMainLooper()))
             setPlaybackState(state)
             isActive = true
             setMetadata(nothingPlaying)

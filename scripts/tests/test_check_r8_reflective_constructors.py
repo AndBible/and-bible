@@ -28,7 +28,7 @@ D8 = find_d8()
 
 @unittest.skipUnless(D8 and shutil.which("javac"), "needs javac and the Android SDK build-tools d8")
 class ReflectiveConstructorCheckTest(unittest.TestCase):
-    def build(self, sources, mapping):
+    def build(self, sources, mapping, minimum=False):
         """Compile {"o/A.java": src} to DEX in a temp dir and run the check; return (exit code, stdout, stderr)."""
         tmp = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, tmp)
@@ -43,7 +43,8 @@ class ReflectiveConstructorCheckTest(unittest.TestCase):
         subprocess.run([D8, "--min-api", "23", "--output", str(dex)] + [str(p) for p in cls.rglob("*.class")],
                        check=True, capture_output=True)
         (tmp / "mapping.txt").write_text("# pg_map_id: test\n" + mapping)
-        r = subprocess.run([sys.executable, "-I", str(SCRIPT), str(tmp / "mapping.txt"), "--dex-dir", str(dex)],
+        r = subprocess.run([sys.executable, "-I", str(SCRIPT), str(tmp / "mapping.txt"), "--dex-dir", str(dex)]
+                           + ([] if minimum else ["--no-minimum"]),
                            capture_output=True, text=True)
         return r.returncode, r.stdout, r.stderr
 
@@ -134,6 +135,17 @@ class ReflectiveConstructorCheckTest(unittest.TestCase):
            "    1:2:void net.bible.Foo.run():10 -> a\n")
         self.assertEqual(0, code, out + err)
         self.assertIn("androidx.room.RoomDatabase: 0 leaf classes checked", out)
+
+    def test_default_bases_missing_a_known_base_fail_the_minimum(self):
+        # Only a Room 3 database: Room 2, InputMerger and ActionCallback found no leaf, which must not pass as "0 checked".
+        code, out, err = self.build({
+            "o/a.java": "package o; public abstract class a {}",
+            "o/c.java": "package o; public final class c extends a {}",
+        }, "androidx.room3.RoomDatabase -> o.a:\nnet.bible.DbImpl -> o.c:\n", minimum=True)
+        self.assertEqual(1, code, out + err)
+        self.assertIn("androidx.room.RoomDatabase: found 0 leaf classes, expected at least 1", err)
+        self.assertIn("androidx.work.InputMerger: found 0 leaf classes", err)
+        self.assertNotIn("androidx.room3.RoomDatabase: found", err)
 
 
 if __name__ == "__main__":
