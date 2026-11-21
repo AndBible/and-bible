@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -95,8 +97,12 @@ fun VerseWidgetConfigScreen(
                 Section(R.string.widget_verse_config_source_label)
                 if (options.labels.isNotEmpty()) {
                     Choice(stringResource(R.string.widget_verse_config_source_label_option), kind == SourceKind.LABEL, "source-label") { kind = SourceKind.LABEL }
-                    if (kind == SourceKind.LABEL) options.labels.forEach { (id, name) ->
-                        Choice(name, labelId == id, "label-$name", indent = true) { labelId = id }
+                    // A lazy list with its own height bound: hundreds of labels as plain rows would exceed the
+                    // dialog's 10000dp content bound and cut off everything below (#4190).
+                    if (kind == SourceKind.LABEL) LazyColumn(Modifier.heightIn(max = 240.dp).testTag("label-list")) {
+                        items(options.labels) { (id, name) ->
+                            Choice(name, labelId == id, "label-$name", indent = true) { labelId = id }
+                        }
                     }
                 }
                 Choice(stringResource(R.string.widget_verse_config_source_random), kind == SourceKind.RANDOM, "source-random") { kind = SourceKind.RANDOM }
