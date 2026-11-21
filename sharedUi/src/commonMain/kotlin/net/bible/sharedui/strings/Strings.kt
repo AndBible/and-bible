@@ -483,6 +483,7 @@ interface Strings {
     val docTypeAll: String
     val docTypeBible: String
     val docTypeCommentary: String
+    val documentsSheetTitle: String           // R.string.documents_sheet_title
     val readingToolbarOptions: String         // R.string.reading_toolbar_options
     val prefsShowStrongsTitle: String         // R.string.prefs_show_strongs_title
     val switchToWorkspace: String             // R.string.switch_to_workspace

@@ -58,7 +58,7 @@ class ReadingToolbarCommandsTest {
         override fun currentDocumentInitials() = current
         override fun biblesForVerse() = bibles
         override fun commentariesForVerse() = commentaries
-        override fun generalBooksAndDictionaries() = others
+        override fun otherDocumentsForSheet() = others
         override fun suggestedBibleInitials() = suggestedBible
         override fun suggestedCommentaryInitials() = suggestedCommentary
         override fun switchDocument(initials: String) { calls += "switch:$initials" }

@@ -235,8 +235,12 @@ internal class HostReadingToolbarHost(
 
     override fun biblesForVerse() = rows(documentControl().biblesForVerse)
     override fun commentariesForVerse() = rows(documentControl().commentariesForVerse)
-    override fun generalBooksAndDictionaries() =
-        rows(SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) + SwordDocumentFacade.getBooks(BookCategory.DICTIONARY))
+    override fun otherDocumentsForSheet() =
+        rows(
+            SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) +
+                SwordDocumentFacade.getBooks(BookCategory.DICTIONARY) +
+                SwordDocumentFacade.getBooks(BookCategory.MAPS),
+        )
 
     override fun suggestedBibleInitials(): String? = documentControl().suggestedBible?.initials
     override fun suggestedCommentaryInitials(): String? = documentControl().suggestedCommentary?.initials
