@@ -30,8 +30,8 @@ import org.junit.Test
  *
  * Two of the three deleted classes were never in the `Screen` enum: `GridChoosePassageChapter` and
  * `GridChoosePassageVerse` were reachable only from `GridChoosePassageBook`, whose companion
- * constants they read. That is why [screenLauncherDoesNotBranchForPassageGrid] pins one arm while
- * this guard's doomed list names three classes.
+ * constants they read. The nav destination that replaced them is gone too (#4169,
+ * [theFullScreenPassageGridIsGone]).
  */
 class ClassicPassageGridRemovalGuardTest {
     private val doomedClassNames = listOf(
@@ -52,8 +52,7 @@ class ClassicPassageGridRemovalGuardTest {
             doomedPaths,
             "these classic passage-grid files should have been deleted in S4. Note what is NOT in " +
                 "this list: no layout, because all three screens built their grids " +
-                "programmatically, and the nav graph's GridChoosePassageBook route (slice 8 Task B7 " +
-                "replaced GridChoosePassageComposeActivity, itself deleted in Task F6), which survives.",
+                "programmatically.",
         )
     }
 
@@ -76,12 +75,24 @@ class ClassicPassageGridRemovalGuardTest {
         )
     }
 
-    @Test fun screenLauncherDoesNotBranchForPassageGrid() {
-        ClassicRemovalScan.assertLauncherArmsUnconditional(
-            listOf("Screen.GridChoosePassageBook"),
-            "the passage-grid arm still branches on the flag (or is missing entirely) — S4 " +
-                "collapses it unconditionally to the nav graph's GridChoosePassageBook route",
-        )
+    /**
+     * #4169: the full-screen passage grid (the nav destination that replaced these classic screens) is gone as well:
+     * a Bible or commentary key is chosen in the reading view's passage quick sheet, from every entry point. Its route,
+     * destination, deps and screen composable must not come back in any shipping source, `:app` or shared.
+     * The needles are assembled from pieces so this file cannot become its own offender if the scan widens.
+     */
+    @Test fun theFullScreenPassageGridIsGone() {
+        val needles = listOf("grid" + "ChoosePassage(", "GRID_CHOOSE" + "_PASSAGE", "GridChoosePassage" + "Screen",
+            "GridChoosePassage" + "Deps", "Screen.GridChoosePassage" + "Book")
+        val shared = listOf("../sharedCore/src", "../sharedLogic/src", "../sharedUi/src").flatMap { root ->
+            java.io.File(root).listFiles { f -> f.isDirectory && !f.name.endsWith("Test") }.orEmpty().flatMap { set ->
+                set.walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+            }
+        }
+        check(shared.isNotEmpty()) { "no shared sources found; the scan would go blind" }
+        val offenders = (ClassicRemovalScan.appSources() + shared)
+            .filter { file -> file.readText().let { text -> needles.any { it in text } } }
+        assertTrue("the full-screen passage grid is back at: ${offenders.map { it.path }}", offenders.isEmpty())
     }
 
     /**

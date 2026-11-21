@@ -36,7 +36,6 @@ import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.nav.WorkspaceResult
 import org.junit.Test
@@ -359,13 +358,6 @@ class NavResultIntentsTest {
         assertNull(intent.getStringExtra("key"))
         assertNull(intent.getStringExtra("book"))
         assertEquals(ActivityResultKind.GenBookKey.name, intent.getStringExtra(ActivityResultKind.EXTRA))
-    }
-
-    @Test
-    fun aPassageAnswerPacksTheVerseExtra() {
-        val intent = NavResultIntents.forPassage(PassageResult("Ps.23.1"))
-        assertEquals("Ps.23.1", intent.getStringExtra("verse"))
-        assertEquals(ActivityResultKind.PassageGrid.name, intent.getStringExtra(ActivityResultKind.EXTRA))
     }
 
     @Test

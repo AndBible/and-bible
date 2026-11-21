@@ -166,7 +166,6 @@ internal enum class ReadingResultKind(
     MyDocuments(false, NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?')),
     // ——— slice 8 B1: slice 7's destinations, now reached from the reading view ———
     KeyChooser(true, NavRoutes.CHOOSE_GENERAL_BOOK_KEY, NavRoutes.CHOOSE_MAP_KEY, NavRoutes.CHOOSE_DICTIONARY_WORD),
-    PassageGrid(true, NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?')),
     ChooseDocument(true, NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?')),
     /**
      * Not an abandonment kind: classic's cancel was an empty-Intent `RESULT_CANCELED` its consumer

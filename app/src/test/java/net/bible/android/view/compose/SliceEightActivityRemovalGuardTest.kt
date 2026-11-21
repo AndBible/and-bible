@@ -53,7 +53,7 @@ class SliceEightActivityRemovalGuardTest {
 
     @Test fun theirLauncherArmsAreStillThereAndUnconditional() = ClassicRemovalScan.assertLauncherArmsUnconditional(
         listOf(
-            "Screen.Backup", "Screen.Startup", "Screen.InstallZip", "Screen.ChooseDocument", "Screen.GridChoosePassageBook",
+            "Screen.Backup", "Screen.Startup", "Screen.InstallZip", "Screen.ChooseDocument",
             "Screen.ChooseDictionaryWord", "Screen.ChooseGeneralBookKey", "Screen.ChooseMapKey", "Screen.WorkspaceSelector",
             "Screen.TextDisplaySettings",
         ),

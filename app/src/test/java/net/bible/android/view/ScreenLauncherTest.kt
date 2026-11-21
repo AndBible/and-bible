@@ -279,7 +279,6 @@ class ScreenLauncherTest {
         assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, ScreenLauncher.MIGRATED[Screen.ChooseGeneralBookKey])
         assertEquals(NavRoutes.CHOOSE_MAP_KEY, ScreenLauncher.MIGRATED[Screen.ChooseMapKey])
         assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, ScreenLauncher.MIGRATED[Screen.ChooseDictionaryWord])
-        assertEquals(NavRoutes.gridChoosePassage(), ScreenLauncher.MIGRATED[Screen.GridChoosePassageBook])
         assertEquals(NavRoutes.chooseDocument(), ScreenLauncher.MIGRATED[Screen.ChooseDocument])
         assertEquals(NavRoutes.WORKSPACE_SELECTOR, ScreenLauncher.MIGRATED[Screen.WorkspaceSelector])
         assertEquals(NavRoutes.textDisplaySettings(), ScreenLauncher.MIGRATED[Screen.TextDisplaySettings])
@@ -288,7 +287,7 @@ class ScreenLauncherTest {
     @Test
     fun theTenSliceEightScreensHaveNoActivityOfTheirOwn() {
         listOf(
-            Screen.ChooseGeneralBookKey, Screen.ChooseMapKey, Screen.ChooseDictionaryWord, Screen.GridChoosePassageBook,
+            Screen.ChooseGeneralBookKey, Screen.ChooseMapKey, Screen.ChooseDictionaryWord,
             Screen.ChooseDocument, Screen.WorkspaceSelector, Screen.Startup, Screen.InstallZip,
             Screen.TextDisplaySettings, Screen.Backup,
         ).forEach { screen -> assertFailsWith<IllegalStateException> { ScreenLauncher.targetFor(screen) } }

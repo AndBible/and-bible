@@ -33,13 +33,11 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.passage.Verse
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -168,20 +166,6 @@ class StdSelfLaunchInGraphTest {
                 controller.close()
             }
         }
-    }
-
-    @Test
-    fun aStdPassageGridSelfLaunchNavigatesAndMovesTheWindow() {
-        val activity = composedReadingHost()
-        activity.startActivityForResult(
-            NavHostComposeActivity.intentFor(activity, NavRoutes.gridChoosePassage(isScripture = true)),
-            ActivityBase.STD_REQUEST_CODE,
-        )
-        idle()
-        assertNull(shadowOf(activity).nextStartedActivity)
-        channel<PassageResult>(activity, "passageResults").deliver(nav(activity), nav(activity).currentBackStackEntry, PassageResult("Ps.23.1"))
-        idle()
-        assertEquals("Ps.23.1", (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).getOsisID())
     }
 
     /** Review Focus 1: no graph yet (first frame) -- the launch must still reach the platform. */

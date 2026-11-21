@@ -66,15 +66,11 @@ import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.navigation.GridButton
 import net.bible.sharedcore.navigation.GridOption
 import net.bible.sharedcore.navigation.GridOptions
-import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
 import net.bible.sharedcore.navigation.gridCellRows
 import net.bible.sharedcore.navigation.gridCellRowsForSections
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
-import net.bible.sharedui.components.AbScaffold
-import net.bible.sharedui.components.AbTopAppBar
-import net.bible.sharedui.components.AbTopBarTitle
 import net.bible.sharedui.components.volumeScrollTarget
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.monoBorder
@@ -135,35 +131,6 @@ internal fun currentCellScrollIndex(ui: GridUi, visibleRows: Int): Int {
     return rowStarts[firstRow]
 }
 
-@Composable
-fun GridChoosePassageScreen(
-    ui: GridUi?,
-    options: GridOptions,
-    onPick: (Int) -> Unit,
-    onToggle: (GridOption) -> Unit,
-    onNavigateUp: () -> Unit,
-) {
-    if (ui == null) {
-        Box(Modifier.fillMaxSize())
-        return
-    }
-    AbScaffold(
-        topBar = {
-            AbTopAppBar(
-                title = { AbTopBarTitle(ui.title) },
-                onNavigateUp = onNavigateUp,
-                actions = {
-                    // The step guard stays at the CALL SITE, in both hosts, so the quick sheet can
-                    // make the same decision independently (round 15b Task 8, amendment D2).
-                    if (ui.step == GridStep.BOOK) { GridOptionsOverflow(ui, options, onToggle) }
-                },
-            )
-        },
-    ) { padding ->
-        GridChoosePassageContent(ui, onPick, Modifier.fillMaxSize().padding(padding))
-    }
-}
-
 /**
  * The passage grid's six options, as an overflow menu.
  *
@@ -174,8 +141,7 @@ fun GridChoosePassageScreen(
  * `AbOverflowMenu` is a `DropdownMenu`, i.e. a `Popup`, which renders above a sheet without
  * difficulty: the port's ban is on sheet-over-sheet, not popup-over-sheet.
  *
- * The "only at the BOOK step" guard is deliberately NOT here: it belongs to each host's own header,
- * so the sheet and the full screen decide independently.
+ * The "only at the BOOK step" guard is deliberately NOT here: it belongs to the host's own header.
  */
 @Composable
 fun GridOptionsOverflow(ui: GridUi, options: GridOptions, onToggle: (GridOption) -> Unit) {
@@ -198,8 +164,8 @@ fun GridOptionsOverflow(ui: GridUi, options: GridOptions, onToggle: (GridOption)
 }
 
 /**
- * The passage grid's body, without chrome — so it can be hosted by the full-screen
- * [GridChoosePassageScreen] and by a bottom-sheet page alike.
+ * The passage grid's body, without chrome, hosted by the quick sheets (the key chooser's passage
+ * sheet and the Speak sheet's verse picker).
  *
  * [modifier] MUST supply a bounded height when this is hosted in a sheet: the cell size is
  * `maxHeight / rowCount` (with a 40dp floor, below which the grid scrolls), and a bottom sheet's

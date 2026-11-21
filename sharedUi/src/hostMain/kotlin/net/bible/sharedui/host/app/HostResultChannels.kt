@@ -40,7 +40,6 @@ fun hostResultChannels(navController: () -> NavHostController, openReading: () -
         myDocumentPages = channel(),
         myDocuments = channel(),
         keyChooser = channel(),
-        passage = channel(),
         document = channel(),
         installZip = channel(),
         workspace = channel(),

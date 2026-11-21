@@ -78,7 +78,6 @@ class SelfLaunchRouteKindGuardTest {
         NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?'),
         NavRoutes.BOOKMARKS_PATTERN.substringBefore('?'),
         NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?'),
-        NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?'),
         NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?'),
         NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
         NavRoutes.CHOOSE_MAP_KEY,
@@ -93,7 +92,6 @@ class SelfLaunchRouteKindGuardTest {
         "readingProgress" to NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?'),
         "bookmarks" to NavRoutes.BOOKMARKS_PATTERN.substringBefore('?'),
         "myDocuments" to NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?'),
-        "gridChoosePassage" to NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?'),
         "chooseDocument" to NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?'),
     )
 

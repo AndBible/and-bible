@@ -29,7 +29,6 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.navigation.ChooseDictionaryWordController
 import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
 import net.bible.sharedcore.navigation.ChooseMapKeyController
@@ -38,7 +37,6 @@ import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
-import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
@@ -53,7 +51,6 @@ import net.bible.sharedui.navigation.nav.ChooseDocumentDeps
 import net.bible.sharedui.navigation.nav.ChooseGeneralBookKeyDeps
 import net.bible.sharedui.navigation.nav.ChooseMapKeyDeps
 import net.bible.sharedui.navigation.nav.ChooserNavDeps
-import net.bible.sharedui.navigation.nav.GridChoosePassageDeps
 import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
@@ -115,10 +112,11 @@ internal fun chooseDocumentInitialTypeFilter(type: String?, settings: AppSetting
 }
 
 /**
- * The chooser cluster's deps builder and host baggage: general book key, map key, dictionary word, grid passage and
- * choose document. Ported from the five classic chooser Activities.
+ * The chooser cluster's deps builder and host baggage: general book key, map key, dictionary word and choose
+ * document. Ported from the classic chooser Activities (the full-screen passage grid is gone, #4169: Bible and
+ * commentary keys are chosen in the reading view's passage quick sheet).
  *
- * `KeyChooserResults` is a frozen `page` contract (A/B boundary), so the three result channels stay declared in the
+ * `KeyChooserResults` is a frozen `page` contract (A/B boundary), so the result channels stay declared in the
  * activity (the reading destination's collectors read them) and are passed to [navDeps]. Every service sits behind a
  * provider, so constructing the host touches no database.
  */
@@ -142,18 +140,16 @@ class ChooserHost(
     private val downloadControl: DownloadControl by lazy(downloadControlProvider)
     private val fakeBookFactory: FakeBookFactory by lazy(fakeBookFactoryProvider)
 
-    /** The chooser graph's deps; the three channels are the activity's (see the class kdoc). */
+    /** The chooser graph's deps; the channels are the activity's (see the class kdoc). */
     @Suppress("UNUSED_PARAMETER")
     fun navDeps(
         navController: NavHostController,
         keyChooserResults: NavResultChannel<KeyChooserResult>,
-        passageResults: NavResultChannel<PassageResult>,
         documentResults: NavResultChannel<DocumentResult>,
     ): ChooserNavDeps = ChooserNavDeps(
         exitHost = { shell.exitHost() },
         setWindowTitle = { title -> shell.setWindowTitle(title) },
         keyChooserResults = keyChooserResults,
-        passageResults = passageResults,
         documentResults = documentResults,
         chooseGeneralBookKey = ChooseGeneralBookKeyDeps(
             // Classic's manifest android:label AND the screen's own title.
@@ -172,15 +168,6 @@ class ChooserHost(
             controllerFor = { onResult -> chooseDictionaryWordControllerFor(onResult) },
             loadRows = { loadChooseDictionaryRows() },
             loadSnippet = { keyId -> chooseDictionarySnippet(keyId) },
-        ),
-        gridChoosePassage = GridChoosePassageDeps(
-            // The ONE destination of the five whose classic Activity had no android:label, so its window title
-            // fell back to the APPLICATION label (AndroidManifest.xml:119-121). Reproduced rather than replaced by
-            // the screen's own step-dependent title.
-            windowTitle = strings.appName,
-            controllerFor = { scope, isScripture, onResult ->
-                platform.gridChoosePassageController(scope, isScripture, onResult)
-            },
         ),
         chooseDocument = ChooseDocumentDeps(
             title = strings.chooseDocumentTitle,

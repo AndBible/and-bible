@@ -125,7 +125,6 @@ class AppHostsConstructionTest {
         myDocumentPages = NavResultChannel { },
         myDocuments = NavResultChannel { },
         keyChooser = NavResultChannel { },
-        passage = NavResultChannel { },
         document = NavResultChannel { },
         installZip = NavResultChannel { },
         workspace = NavResultChannel { },
