@@ -58,6 +58,7 @@ class InstallZipFlowTest {
     private var databaseBackup = false
     private var restoreResult = true
     private val restored = mutableListOf<DocumentRef>()
+    private val requests = mutableListOf<net.bible.service.installzip.DecisionRequest>()
     private val uri = DocumentRef("content://x/module.zip")
     private val uri2 = DocumentRef("content://x/other.epub")
 
@@ -74,7 +75,7 @@ class InstallZipFlowTest {
             enqueue = { list, act -> enqueued += list to act },
             isDatabaseBackup = { databaseBackup },
             restoreBackup = { restored += it; restoreResult },
-            resolveDecision = { id, ok -> decisions += id to ok },
+            resolveDecision = { id, req, ok -> decisions += id to ok; requests += req },
             mapPhase = { InstallUiState.Progress(it.displayName, "status", percent = null, indeterminate = true) },
             requestNotificationPermission = {},
             noFileManager = {},
@@ -99,6 +100,20 @@ class InstallZipFlowTest {
     }
 
     /** #4095: an `.abdb.zip` opened from a file manager is a database backup: restore it, never ask to install it as a module. */
+    /** #4192: an answer carries the question its dialog showed, so a late tap cannot answer the next one. */
+    @Test
+    fun anAnswerCarriesTheRequestOfTheDialogThatWasShown() = runTest(UnconfinedTestDispatcher()) {
+        val first = net.bible.service.installzip.DecisionRequest.ModuleBackupRestore
+        val second = net.bible.service.installzip.DecisionRequest.Overwrite(listOf("a.conf"))
+        val f = flow(backgroundScope, null, listOf(uri))
+        f.start()
+        jobs.value = listOf(InstallJobState("job-1", "module.zip", InstallPhase.AwaitingDecision(first)))
+        f.confirm()
+        jobs.value = listOf(InstallJobState("job-1", "module.zip", InstallPhase.AwaitingDecision(second)))
+        f.dismiss()
+        assertEquals(listOf(first, second), requests)
+    }
+
     @Test
     fun anExternalViewOfADatabaseBackupIsRestoredNotInstalled() = runTest(UnconfinedTestDispatcher()) {
         databaseBackup = true

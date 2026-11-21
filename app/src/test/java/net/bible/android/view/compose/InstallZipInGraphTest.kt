@@ -107,7 +107,7 @@ class InstallZipInGraphTest {
                 formatsText = { "formats" },
                 pickFile = { null },
                 enqueue = { list, _ -> enqueued += list },
-                resolveDecision = { _, _ -> },
+                resolveDecision = { _, _, _ -> },
                 mapPhase = { InstallUiState.Progress(it.displayName, "status", percent = null, indeterminate = true) },
                 requestNotificationPermission = {},
                 noFileManager = {},

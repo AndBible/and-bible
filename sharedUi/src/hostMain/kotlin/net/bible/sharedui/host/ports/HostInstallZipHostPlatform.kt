@@ -50,7 +50,8 @@ class HostInstallZipHostPlatform(
         return table.fmt("choose_file", table.text("app_name_andbible")) + " \n\n" + table.fmt("supported_formats", formats)
     }
 
-    override fun resolveDecision(jobId: JobId, proceed: Boolean) = controller().resolveDecision(jobId, proceed)
+    override fun resolveDecision(jobId: JobId, request: DecisionRequest, proceed: Boolean) =
+        controller().resolveDecision(jobId, request, proceed)
 
     /** Debug seam: with `-installCommitDelayMs` the status also carries " [commit N%]" so a UI test can prove it is mid-commit. */
     private fun commitMarker(percent: Int): String =

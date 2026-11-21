@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import net.bible.android.view.activity.installzip.InstallZipFlow
 import net.bible.service.installzip.InstallPhase
 import kotlinx.coroutines.test.runTest
+import net.bible.service.installzip.DecisionRequest
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.JobId
 import net.bible.sharedcore.nav.InstallZipResult
@@ -62,7 +63,7 @@ class InstallZipHostTest {
         override suspend fun isStudyPadExport(uri: DocumentRef) = false
         override fun displayName(uri: DocumentRef): String? = "module.zip"
         override fun formatsText() = "formats"
-        override fun resolveDecision(jobId: JobId, proceed: Boolean) = Unit
+        override fun resolveDecision(jobId: JobId, request: DecisionRequest, proceed: Boolean) = Unit
         override fun mapPhase(job: InstallJobState) = InstallUiState.Progress(job.displayName, "status", percent = null, indeterminate = true)
         override fun requestNotificationPermission() { notificationRequests++ }
         override fun noFileManager() = Unit
@@ -298,7 +299,7 @@ class InstallZipHostTest {
             pickFile = { error("External VIEW must not invoke a picker") },
             enqueue = { _, _ -> enqueue() },
             enqueueAndAwait = enqueueAndAwait,
-            resolveDecision = { _, _ -> error("No decision was requested") },
+            resolveDecision = { _, _, _ -> error("No decision was requested") },
             mapPhase = { InstallUiState.Progress(it.displayName, "status", percent = null, indeterminate = true) },
             requestNotificationPermission = {},
             noFileManager = { error("No picker was invoked") },
