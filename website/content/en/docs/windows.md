@@ -77,8 +77,8 @@ window.
 
 With `Show text under window buttons` on (`Application preferences`, `Look & feel`), no window
 reserves the strip: the text runs to the bottom of the
-screen, under the buttons. This is the default on desktop; on Android, iPhone and
-iPad the strip is kept unless you turn the setting on.
+screen, under the buttons. This is the default on desktop (and for the iPhone/iPad app on a
+Mac); on Android, iPhone and iPad the strip is kept unless you turn the setting on.
 
 Swipe down on the button at the top right of a window, or long-press it, to
 minimise it. If you open a link inside the links window, swiping down on (or
