@@ -176,6 +176,13 @@
 -keep class * extends androidx.work.InputMerger { <init>(); }
 -keep class * implements androidx.glance.appwidget.action.ActionCallback { <init>(); }
 
+# Glance stores which widget ids belong to a widget under the GlanceAppWidget class name
+# (GlanceAppWidgetManager: "provider:" + Class.getCanonicalName()) in a DataStore that survives an app update.
+# R8 renames the class differently in every build, so after an update updateAll() found no widget ids and the old
+# widgets showed "Can't show content". Keep the names stable (#4175).
+-keepnames class * extends androidx.glance.appwidget.GlanceAppWidget
+-keepnames class * extends androidx.glance.appwidget.GlanceAppWidgetReceiver
+
 # Koin keys definitions by KClass. R8 vertical class merging folds a single-implementer interface into its
 # implementation, so an interface key and its implementation (or two interfaces of one class) become the same
 # key and an alias definition like `single<Port> { get<Impl>() }` resolves itself (StackOverflowError at startup).

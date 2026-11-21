@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check that R8 kept the no-argument constructors that libraries call by reflection (#4175; docs/r8-obfuscation.md).
 
-Usage: scripts/check-r8-reflective-constructors.py <mapping.txt[.gz]> (--apk APK | --dex-dir DIR) [--base CLASS ...]
+Usage: scripts/check-r8-reflective-constructors.py <mapping.txt[.gz]> (--apk APK | --dex-dir DIR) [--base CLASS ...] [--no-minimum]
 
 Some libraries create instances by class name with `Class.newInstance()` / `getDeclaredConstructor().newInstance()`:
 Room (`<Database>_Impl`, Room 2 and Room 3), WorkManager (`InputMerger` subclasses named in a WorkSpec),
@@ -17,6 +17,8 @@ base and has no subclass of its own in the DEX) must be concrete and have a no-a
 from the DEX superclass and interface chain. R8 may merge the base class into its only subclass, so the base's name
 disappears; then a class whose mapping entry lists fields or methods that originally belonged to the base counts as
 the base. (Only then: R8 also moves static members and lambda bodies into unrelated classes.) The mapping also translates obfuscated names back for the report.
+
+With the default bases, fewer leaves than MIN_LEAVES for a base is a violation too (--no-minimum turns that off).
 
 Prints each base with the number of leaves it checked. Exit 0 when all pass, 1 on a violation, 2 on usage errors.
 """
@@ -34,6 +36,15 @@ BASES = [
     "androidx.startup.Initializer",   # AppInitializer.doInitialize
     "androidx.glance.appwidget.action.ActionCallback",  # actionRunCallback<T>(): widget buttons
 ]
+
+# Bases that AndBible's release build is known to contain (Room 2 via WorkManager, WorkManager's InputMerger, Glance
+# ActionCallbacks). Finding no leaf means the descent heuristic missed them (a changed R8 merge shape, a renamed
+# class) and the build would pass with "0 checked", so fewer leaves than this is a violation. Not used with --base.
+MIN_LEAVES = {
+    "androidx.room.RoomDatabase": 1,
+    "androidx.work.InputMerger": 1,
+    "androidx.glance.appwidget.action.ActionCallback": 1,
+}
 
 ACC_INTERFACE = 0x200
 ACC_ABSTRACT = 0x400
@@ -167,8 +178,9 @@ def load_classes(apk=None, dex_dir=None):
     return classes
 
 
-def check(classes, original, absorbed, bases):
-    """Return (report lines, violations)."""
+def check(classes, original, absorbed, bases, min_leaves=None):
+    """Return (report lines, violations). min_leaves maps a base to the fewest leaf classes it must have."""
+    min_leaves = min_leaves or {}
     orig = lambda c: original.get(c, c)  # noqa: E731
 
     # Absorption only stands in for a base R8 really merged away (no DEX class carries its name): R8 also moves
@@ -218,6 +230,9 @@ def check(classes, original, absorbed, bases):
                 bad.append(f"{orig(c)}" + (f" ({c})" if orig(c) != c else "") + ": " + ", ".join(problems))
         report.append(f"{base}: {len(leaves)} leaf classes checked" + (f", {len(bad)} broken" if bad else ""))
         violations += [f"{base} subclass {b}" for b in bad]
+        if len(leaves) < min_leaves.get(base, 0):
+            violations.append(f"{base}: found {len(leaves)} leaf classes, expected at least {min_leaves[base]} "
+                              "(the descent heuristic may have missed them; update the script or MIN_LEAVES)")
     return report, violations
 
 
@@ -225,6 +240,7 @@ def main(argv):
     args = argv[1:]
     mapping = apk = dex_dir = None
     bases = []
+    minimum = True
     while args:
         a = args.pop(0)
         if a == "--apk" and args:
@@ -233,6 +249,8 @@ def main(argv):
             dex_dir = args.pop(0)
         elif a == "--base" and args:
             bases.append(args.pop(0))
+        elif a == "--no-minimum":
+            minimum = False
         elif not a.startswith("--") and mapping is None:
             mapping = a
         else:
@@ -246,7 +264,8 @@ def main(argv):
     if not classes:
         print(f"check-r8-reflective-constructors: no DEX classes found in {apk or dex_dir}", file=sys.stderr)
         return 2
-    report, violations = check(classes, original, absorbed, bases or BASES)
+    report, violations = check(classes, original, absorbed, bases or BASES,
+                               MIN_LEAVES if minimum and not bases else None)
     for line in report:
         print(line)
     if violations:
