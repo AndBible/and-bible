@@ -20,12 +20,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -83,6 +84,10 @@ fun VerseWidgetConfigScreen(
     var labelId by remember {
         mutableStateOf((existing?.source as? VerseSource.Label)?.labelId ?: options.labels.firstOrNull()?.first)
     }
+    // Open with the saved label in view, not at the top of a possibly long list.
+    val labelListState = rememberLazyListState(
+        initialFirstVisibleItemIndex = options.labels.indexOfFirst { it.first == labelId }.coerceAtLeast(0),
+    )
     var part by remember { mutableStateOf((existing?.source as? VerseSource.Random)?.part ?: VerseSource.RandomPart.WHOLE_BIBLE) }
     var frequency by remember { mutableStateOf(existing?.frequency ?: VerseChangeFrequency.DAILY) }
     var bible by remember { mutableStateOf(existing?.bibleInitials) }
@@ -99,8 +104,8 @@ fun VerseWidgetConfigScreen(
                     Choice(stringResource(R.string.widget_verse_config_source_label_option), kind == SourceKind.LABEL, "source-label") { kind = SourceKind.LABEL }
                     // A lazy list with its own height bound: hundreds of labels as plain rows would exceed the
                     // dialog's 10000dp content bound and cut off everything below (#4190).
-                    if (kind == SourceKind.LABEL) LazyColumn(Modifier.heightIn(max = 240.dp).testTag("label-list")) {
-                        items(options.labels) { (id, name) ->
+                    if (kind == SourceKind.LABEL) LazyColumn(Modifier.heightIn(max = 240.dp).testTag("label-list"), state = labelListState) {
+                        items(options.labels, key = { it.first.toString() }) { (id, name) ->
                             Choice(name, labelId == id, "label-$name", indent = true) { labelId = id }
                         }
                     }
