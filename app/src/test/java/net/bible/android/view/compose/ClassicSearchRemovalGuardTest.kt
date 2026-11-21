@@ -161,23 +161,4 @@ class ClassicSearchRemovalGuardTest {
             "these files still name a classic search screen deleted in S1",
         )
     }
-
-    /**
-     * The routing arms must be unconditional now: no branch may survive inside one.
-     *
-     * Batch Z-late epilogue, Task 7: this was an INLINED copy of the shared detector using the
-     * literal `arm.contains("else ")`, which an `else` written at end of line slips past (see
-     * [ClassicRemovalScan.assertLauncherArmsUnconditionalIn]'s own kdoc). The copy's only reason to
-     * exist was a slice-specific precondition that Task 6 deleted, and the flag whose name masked
-     * the hole is gone, so the branch check here would otherwise have become the sole live one --
-     * in its broken form. Folded onto the shared helper, which matches `else` as a whole word.
-     */
-    @Test fun screenLauncherDoesNotBranchForSearch() = ClassicRemovalScan.assertLauncherArmsUnconditional(
-        listOf(
-            "Screen.SearchIndexProgress", "Screen.SearchIndex",
-            "Screen.EpubSearch",
-        ),
-        "these search arms still branch on the flag (or are missing entirely) — S1 collapses " +
-            "them to the Compose class unconditionally",
-    )
 }

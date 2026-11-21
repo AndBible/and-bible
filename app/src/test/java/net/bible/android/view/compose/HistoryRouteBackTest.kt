@@ -149,6 +149,8 @@ class HistoryRouteBackTest {
         val (activity, nav) = dailyReadingHost()
         val manager: HistoryManager = GlobalContext.get().get()
         val window = CommonUtils.windowControl.activeWindow
+        // Daily reading was entered from the reading view, which recorded where the user was; start from a clean history.
+        manager.clear()
         assertTrue("fixture: history is empty", manager.getHistory(window.id).isEmpty())
         assertEquals("fixture: on daily reading", NavRoutes.dailyReading().substringBefore('?'), currentRoute(nav))
 
