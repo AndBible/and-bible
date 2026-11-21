@@ -18,6 +18,7 @@ import net.bible.service.cloudsync.documents.SyncPlan
 import net.bible.sharedcore.cloud.CloudDocAction
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocumentsController
+import net.bible.sharedcore.cloud.runCloudDocumentsLiveRefresh
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.cloud.pushOnUnblock
 import net.bible.sharedcore.event.Events
@@ -95,6 +96,7 @@ class CloudDocumentsHost(
         topBarActions = { CloudDocumentsOverflowMenu() },
         openOrGate = { cloudDocumentsOpenOrGate() },
         seedItems = { cloudDocumentsSeedItems() },
+        liveRefresh = { controller -> cloudDocumentsLiveRefresh(controller) },
         refreshFromNetwork = { cloudDocumentsRefreshFromNetwork() },
         transferRunningProvider = { documentSync.runningState },
         subscribeProgress = { onRunning -> cloudDocumentsSubscribeProgress(onRunning) },
@@ -190,6 +192,7 @@ class CloudDocumentsHost(
      */
     private fun buildCloudDocumentsController(): CloudDocumentsController {
         val entry = CloudDocumentsEntry()
+        var filterReload: Job? = null
         entry.controller = CloudDocumentsController(
             syncEnabled = { documentSyncSettings.enabled },
             onAction = { action, initials -> handleCloudDocumentsAction(entry.controller, action, initials) },
@@ -208,7 +211,10 @@ class CloudDocumentsHost(
                 appSettings.setString(CLOUD_ARRANGEMENT_KEY, encoded)
             },
             scope = shell.hostScope,
-            onFilterChange = { reloadCloudDocumentsFromCache(entry.controller) },
+            onFilterChange = {
+                filterReload?.cancel()
+                filterReload = shell.hostScope.launch { reloadCloudDocumentsFromCache(entry.controller) }
+            },
         )
         // Consumed once: a later leave-and-reopen within this host starts fresh, like classic. The sign-in error
         // dialog is deliberately not carried: it is re-raised by the gate's sign-in attempt, which is a real
@@ -303,12 +309,19 @@ class CloudDocumentsHost(
     }
 
     /**
-     * #4180: re-reads the listing cache into [controller] when a filter changes, so a list seeded before a sync
-     * filled the cache (or an earlier empty scan) is not filtered in place forever. Cache-only (no network, no busy
-     * pair), launched on the host scope like its siblings; [controller] is the instance the callback was bound to.
+     * #4180: re-reads the listing cache into [controller] (cache-only: no network, no busy pair), so a list seeded
+     * before a sync filled the cache is not filtered in place forever. A result is dropped when another
+     * [CloudDocumentsController.setItems] (e.g. the network scan) landed while the cache was being read, so an
+     * older read never overwrites a newer list. [controller] is the instance the caller was bound to.
      */
-    private fun reloadCloudDocumentsFromCache(controller: CloudDocumentsController) {
-        shell.hostScope.launch { controller.setItems(cloudDocumentsSeedItems()) }
+    private suspend fun reloadCloudDocumentsFromCache(controller: CloudDocumentsController) {
+        val generation = controller.itemsGeneration
+        controller.setItemsIfUnchanged(generation, cloudDocumentsSeedItems())
+    }
+
+    /** #4180: while a document sync runs, the list follows the listing cache; returns never (cancel to stop). */
+    private suspend fun cloudDocumentsLiveRefresh(controller: CloudDocumentsController) {
+        runCloudDocumentsLiveRefresh(documentSync.runningState) { reloadCloudDocumentsFromCache(controller) }
     }
 
     /**
