@@ -33,14 +33,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import kotlinx.coroutines.flow.first
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isAltPressed
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
@@ -48,6 +42,15 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import kotlin.native.Platform
+import kotlinx.coroutines.flow.first
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.IosDeviceSettings
@@ -123,12 +126,12 @@ object IosAppHostPlatform : AppHostPlatform {
     override fun readingPaneFactory(): ReadingPaneFactory =
         iosReadingPaneFactory(HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, { HostReadingWindows.nightMode }, HostReadingWindows::isOpen)
 
-    override fun onReadingKeyEvent(event: androidx.compose.ui.input.key.KeyEvent): Boolean {
+    override fun onReadingKeyEvent(event: KeyEvent): Boolean {
         val id = org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
             .activeWindow.id.toString()
         if (!HostReadingWindows.hasAssembly(id) || HostReadingWindows.sessionFor(id).editingTextInJs) return false
-        if (event.isMetaPressed && event.type == androidx.compose.ui.input.key.KeyEventType.KeyDown) {
-            nsLog("DEBUG IosShortcutKey: key=${event.key} utf16CodePoint=${event.utf16CodePoint} " +
+        if (Platform.isDebugBinary && event.isMetaPressed && event.type == KeyEventType.KeyDown) {
+            nsLog("DEBUG IosShortcutKey: key=${event.key} utf16CodePoint=${describeCodePoint(event.utf16CodePoint)} " +
                 "meta=${event.isMetaPressed} ctrl=${event.isCtrlPressed} alt=${event.isAltPressed} shift=${event.isShiftPressed}")
         }
         net.bible.sharedui.reading.nativeShortcut(event, editing = false)?.let {
@@ -142,6 +145,14 @@ object IosAppHostPlatform : AppHostPlatform {
             as? net.bible.sharedui.webview.ReadingWkWebView ?: return false
         webView.deliverReadingShortcut(code, ctrl, alt = !ctrl)
         return true
+    }
+
+    /** Class of a key's code point (zero / control / printable); the character itself only in debug binaries. */
+    private fun describeCodePoint(codePoint: Int): String = when {
+        codePoint == 0 -> "zero"
+        codePoint < 0x20 || codePoint == 0x7F -> "control"
+        Platform.isDebugBinary -> "printable '${codePoint.toChar()}'"
+        else -> "printable"
     }
 
     override fun setIdleTimerDisabled(disabled: Boolean) {
