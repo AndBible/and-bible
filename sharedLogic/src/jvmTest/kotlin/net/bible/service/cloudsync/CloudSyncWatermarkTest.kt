@@ -1,6 +1,7 @@
 package net.bible.service.cloudsync
 
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import net.bible.android.control.versification.BookInstallWatcher
@@ -32,6 +33,7 @@ import okio.Sink
 import okio.buffer
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -402,6 +404,103 @@ class CloudSyncWatermarkTest {
 
         assertEquals(restarted.id, dao.getPlan("plan")?.id, "sanity: reset and restart both applied")
         assertEquals("plan", selection.code)
+    }
+
+    /** [f]'s accessor whose schema factory runs [onOpen] with the 1-based number of the patch file being opened. */
+    @Suppress("UNCHECKED_CAST")
+    private fun accessorOpening(f: Fixture, onOpen: (Int) -> Unit): SyncableDatabaseAccessor<net.bible.android.database.SyncableRoomDatabase> {
+        val it = f.db as SyncableDatabaseAccessor<net.bible.android.database.SyncableRoomDatabase>
+        var opened = 0
+        return SyncableDatabaseAccessor(
+            it.localDb, { name -> onOpen(++opened); it.dbFactory(name) }, { error("unused") }, it.localDbPath, it.category,
+            deviceId = it.deviceId,
+        )
+    }
+
+    /** Two applicable patches with the labels "one" and "two"; the local database holds neither. */
+    private suspend fun twoLabelPatches(f: Fixture): Pair<Path, Path> {
+        val dao = f.container.bookmarkDb.bookmarkDao()
+        val one = BookmarkEntities.Label(name = "one")
+        val two = BookmarkEntities.Label(name = "two")
+        dao.insert(one)
+        val p1 = remotePatch(f, f.db, 1000L)
+        dao.insert(two)
+        val p2 = remotePatch(f, f.db, 2000L)
+        dao.delete(one)
+        dao.delete(two)
+        f.db.dao.clearLog()
+        return p1 to p2
+    }
+
+    /**
+     * A sync cancelled after a committed patch (a database reset or restore under way) must not notify: listeners
+     * start reads in their own scopes, on databases that are about to close.
+     */
+    @Test fun cancelledSyncDoesNotNotifyListeners() = withFixture { f ->
+        val (p1, p2) = twoLabelPatches(f)
+        lateinit var job: kotlinx.coroutines.Job
+        val accessor = accessorOpening(f) { n ->
+            if (n == 2) { job.cancel(); throw kotlinx.coroutines.CancellationException("restore") }
+        }
+        var notified: List<net.bible.android.database.LogEntry>? = null
+        job = kotlinx.coroutines.CoroutineScope(kotlin.coroutines.coroutineContext).launch {
+            try { applyPatchesForDatabase(accessor, f.env, p1, p2, onApplied = { notified = it }) }
+            catch (_: kotlinx.coroutines.CancellationException) {}
+        }
+        job.join()
+        assertTrue(f.container.bookmarkDb.bookmarkDao().allLabelsSortedByName().isNotEmpty(), "sanity: patch 1 committed")
+        assertNull(notified, "a cancelled sync must not call the listeners")
+    }
+
+    /**
+     * A timed-out cleanup statement throws a CancellationException although nothing is cancelled: the committed
+     * patch must still be reported.
+     */
+    @Test fun timeoutCancellationAfterACommitStillReports() = withFixture { f ->
+        val (p1, p2) = twoLabelPatches(f)
+        val accessor = accessorOpening(f) { n ->
+            if (n == 2) kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(1) { kotlinx.coroutines.awaitCancellation() } }
+        }
+        var notified: List<net.bible.android.database.LogEntry>? = null
+        assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
+            applyPatchesForDatabase(accessor, f.env, p1, p2, onApplied = { notified = it })
+        }
+        assertEquals(1, notified?.size, "the committed patch is reported")
+    }
+
+    /** A cancelled job whose failure is not a CancellationException (a closing database) must not notify either. */
+    @Test fun cancelledJobWithAnOrdinaryFailureDoesNotNotify() = withFixture { f ->
+        val (p1, p2) = twoLabelPatches(f)
+        lateinit var job: kotlinx.coroutines.Job
+        val accessor = accessorOpening(f) { n -> if (n == 2) { job.cancel(); throw IOException("database closed") } }
+        var notified: List<net.bible.android.database.LogEntry>? = null
+        job = kotlinx.coroutines.CoroutineScope(kotlin.coroutines.coroutineContext).launch {
+            try { applyPatchesForDatabase(accessor, f.env, p1, p2, onApplied = { notified = it }) } catch (_: IOException) {}
+        }
+        job.join()
+        assertTrue(f.container.bookmarkDb.bookmarkDao().allLabelsSortedByName().isNotEmpty(), "sanity: patch 1 committed")
+        assertNull(notified, "a cancelled sync must not call the listeners")
+    }
+
+    /** A failing patch still reports the committed one, and a failing listener is attached, not substituted. */
+    @Test fun listenerFailureIsSuppressedUnderAPatchFailure() = withFixture { f ->
+        val (p1, p2) = twoLabelPatches(f)
+        val accessor = accessorOpening(f) { n -> if (n == 2) throw IOException("patch 2 broken") }
+        val e = assertFailsWith<IOException> {
+            applyPatchesForDatabase(accessor, f.env, p1, p2, onApplied = { throw IllegalStateException("listener") })
+        }
+        assertEquals("patch 2 broken", e.message)
+        assertEquals(listOf("listener"), e.suppressed.map { it.message })
+    }
+
+    /** Without a patch failure the listener's own error surfaces ([CloudSync] catches it); the patches stay committed. */
+    @Test fun listenerFailureAfterAllPatchesSurfacesWithPatchesCommitted() = withFixture { f ->
+        val (p1, p2) = twoLabelPatches(f)
+        val e = assertFailsWith<IllegalStateException> {
+            applyPatchesForDatabase(f.db, f.env, p1, p2, onApplied = { throw IllegalStateException("listener") })
+        }
+        assertEquals("listener", e.message)
+        assertEquals(listOf("one", "two"), f.container.bookmarkDb.bookmarkDao().allLabelsSortedByName().map { it.name })
     }
 
     @Test fun foregroundTransportFailureReportsOneSyncError() = withFixture { f ->
