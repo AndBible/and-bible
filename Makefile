@@ -1,14 +1,21 @@
 TMP:=$(shell mktemp -d)
 
-# Version code step; e.g. `make increment-test-version STEP=100` leaves a gap
+# Release order: 1. make bump-version (container: version + changelog commit, no tag, no push);
+# 2. make release-internal (Play internal + TestFlight; the maintainer tests that build);
+# 3. on the host, after testing: make github-release-beta | github-release | github-release-test COMMIT=<sha>
+#    (tags the tested commit, pushes, approves CI; release-internal's summary prints the exact line).
+# Version code step; e.g. `make bump-version STEP=100` leaves a gap
 # of version codes free for current-stable bug-fix releases.
 STEP ?= 1
-increment-version:
-	./scripts/increment-version.sh --step $(STEP)
-increment-beta-version:
-	./scripts/increment-version.sh --beta --step $(STEP)
-increment-test-version:
-	./scripts/increment-version.sh --build --step $(STEP)
+bump-version:
+	./scripts/bump-version.sh --step $(STEP) $(if $(YES),--yes,)
+GITHUB_RELEASE_ARGS = $(if $(COMMIT),--commit $(COMMIT),) $(if $(DRY_RUN),--dry-run,)
+github-release:
+	./scripts/github-release.sh $(GITHUB_RELEASE_ARGS)
+github-release-beta:
+	./scripts/github-release.sh --beta $(GITHUB_RELEASE_ARGS)
+github-release-test:
+	./scripts/github-release.sh --test $(GITHUB_RELEASE_ARGS)
 
 tx-push-sources:
 	tx push -s -r andbible.play-store-main-description
@@ -138,4 +145,4 @@ testflight:
 	@case "$(DEST)" in ""|upload|export) ;; *) echo "testflight: DEST must be empty, upload or export (got '$(DEST)')" >&2; exit 1;; esac
 	@scripts/release/release-internal.sh --platform ios $(if $(filter export,$(DEST)),--export-only,) $(if $(DRY_RUN),--dry-run,)
 
-.PHONY: increment-version increment-beta-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push testflight release-internal
+.PHONY: bump-version github-release github-release-beta github-release-test tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push testflight release-internal

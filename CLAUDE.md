@@ -73,7 +73,7 @@ npm run build-production # Production build
 
 **Makefile Commands**
 ```bash
-make increment-version      # Bump version number
+make bump-version           # Bump version + changelog commit (then make release-internal; GitHub: make github-release-beta COMMIT=<sha> on the host)
 make instrumented-tests     # Run Android instrumented tests
 make accrescent            # Build Accrescent release APK
 ```
