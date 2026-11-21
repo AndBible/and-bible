@@ -19,6 +19,7 @@
 package net.bible.sharedui.reading.toolbar
 
 import net.bible.android.control.page.CurrentPage
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.KeyChooserRoute
@@ -66,7 +67,17 @@ suspend fun resolveKeyChooserOpening(
 fun activateWindowOf(page: CurrentPage): Boolean {
     val window = page.pageManager.window
     val repository = window.windowRepository
-    if (window !in repository.windowList || !window.isVisible) return false
+    val reason = when {
+        window !in repository.windowList -> "it is not in the workspace (closed)"
+        !window.isVisible -> "it is not visible (minimised or hidden behind a maximised window)"
+        else -> null
+    }
+    if (reason != null) {
+        Log.i(KEY_CHOOSER_TAG, "Key chooser skipped for window ${window.id}: $reason")
+        return false
+    }
     if (repository.activeWindow !== window) repository.activeWindow = window
     return true
 }
+
+private const val KEY_CHOOSER_TAG = "KeyChooser"

@@ -40,6 +40,8 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.download.FakeBookFactory
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.log.LogLevel
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -105,6 +107,32 @@ class ActivateWindowOfTest {
         runBlocking { job.cancelAndJoin() }
         stopKoin()
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun skippedWindowsLogTheReasonAndTheWindowId() {
+        val logs = mutableListOf<Pair<LogLevel, String>>()
+        Log.sinkOverride = { level, _, msg, _ -> logs += level to msg }
+        try {
+            sibling.windowState = WindowState.MINIMISED
+            assertFalse(activateWindowOf(sibling.pageManager.currentPage))
+            assertEquals(1, logs.size)
+            assertEquals(LogLevel.INFO, logs[0].first)
+            assertTrue(sibling.id.toString() in logs[0].second && "minimised" in logs[0].second, logs[0].second)
+
+            logs.clear()
+            sibling.windowState = WindowState.VISIBLE
+            repo.windowList.remove(sibling)
+            assertFalse(activateWindowOf(sibling.pageManager.currentPage))
+            assertTrue("closed" in logs.single().second, logs.toString())
+            assertSame(active, repo.activeWindow)
+
+            logs.clear()
+            assertTrue(activateWindowOf(active.pageManager.currentPage))
+            assertTrue(logs.isEmpty())
+        } finally {
+            Log.sinkOverride = null
+        }
     }
 
     @Test
