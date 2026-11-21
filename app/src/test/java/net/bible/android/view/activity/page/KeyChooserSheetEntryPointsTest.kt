@@ -118,6 +118,15 @@ class KeyChooserSheetEntryPointsTest {
         assertSame(asking, windowRepository.activeWindow, "the sheet answers the active window, so the asker is activated")
     }
 
+    /** With no reading view in front there is nothing to show the sheet on: nothing is started, and the caller is told. */
+    @Test fun withoutAReadingHostNothingIsShownAndFalseIsReturned() {
+        activity.composeReadingViewHost = null
+        assertEquals(false, AndroidKeyChooserLauncher { activity }.startKeyChooser(manager.currentBible))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertNull(host.quickSheet.value)
+        assertNull(shadowOf(activity).nextStartedActivityForResult, "no full-screen chooser is started")
+    }
+
     @Test fun aDictionaryKeepsItsFullScreenChooser() {
         launcher(manager.currentDictionary)
         shadowOf(Looper.getMainLooper()).idle()

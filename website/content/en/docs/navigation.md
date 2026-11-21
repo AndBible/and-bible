@@ -16,13 +16,13 @@ available in that commentary.
 
 After you select the book, the sheet moves on to the chapters, where you can
 select the chapter. When you pick the book you are reading, the chapter you are
-reading (and, on the verse screen, the verse) is highlighted and scrolled into
+reading (and, at the verse step, the verse) is highlighted and scrolled into
 view, so a long book such as Psalms opens near your place:
 
 [![AndBible Chapter Chooser](images/book-chapter-chooser.png){ width="200" }](images/book-chapter-chooser.png)
 
-After selecting a book and then a chapter it will take you back to the Bible
-screen and open the Bible to the selected reference.
+After selecting a book and then a chapter the sheet closes and the Bible opens
+at the selected reference.
 
 ### Book Chooser Customizations
 

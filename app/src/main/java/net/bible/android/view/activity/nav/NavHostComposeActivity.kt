@@ -3451,15 +3451,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // `net.bible.sharedui.app.download`). `repositoryEditorResults` stays declared above: the channel guards read it.
 
     // --- Chooser cluster (ChooserHost) -----------------------------------------------------------
-    // The five chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
-    // `net.bible.sharedui.app.chooser`). The three result channels stay declared here: `KeyChooserResults` is a
+    // The four chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
+    // `net.bible.sharedui.app.chooser`). The two result channels stay declared here: `KeyChooserResults` is a
     // frozen `page` contract and the reading destination's collectors read them.
 
-    // ——— The chooser cluster's three result channels ————————————————————————————————————————————
-    // THREE channels for FIVE destinations (design §6.2) -- see `ChooserNavDeps`' own kdoc: the three
-    // key choosers already produce an identical payload consumed by a single arm.
+    // ——— The chooser cluster's two result channels ——————————————————————————————————————————————
+    // TWO channels for FOUR destinations (design §6.2; the passage grid's own went with it, #4169) -- see
+    // `ChooserNavDeps`' own kdoc: the three key choosers already produce an identical payload consumed by
+    // a single arm.
     //
-    // Every result on these three channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
+    // Every result on these channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
     // the reading destination (`readingResultCollectors`), which packs it back into the classic
     // chooser's Intent and applies it through `deliverReadingResult`. An abandoned chooser is answered
     // as a cancel by `answerAbandonedReadingRequests`.

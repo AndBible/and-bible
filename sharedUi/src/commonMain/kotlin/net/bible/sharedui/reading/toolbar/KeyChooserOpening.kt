@@ -62,5 +62,6 @@ suspend fun resolveKeyChooserOpening(
 fun activateWindowOf(page: CurrentPage) {
     val window = page.pageManager.window
     val repository = window.windowRepository
-    if (repository.activeWindow !== window) repository.activeWindow = window
+    // A window closed (or a workspace switched away) since the chooser was asked for is not activated.
+    if (repository.activeWindow !== window && window in repository.windowList) repository.activeWindow = window
 }

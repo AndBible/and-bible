@@ -272,8 +272,8 @@ private fun chooserTypeFilterLabels(strings: Strings): List<Pair<DocTypeFilter, 
  * The four chooser destinations, registered into the app's single `NavHost` by the host Activity.
  *
  * **Nothing routes to any of them yet.** `ScreenLauncher.MIGRATED` is untouched until nav-graph
- * slice 7 Task 8, the reading destination that consumes the three channels arrives in Task 9, and
- * the five classic Activities stay in the tree, compiling and still reachable by their own
+ * slice 7 Task 8, the reading destination that consumes the channels arrives in Task 9, and
+ * the classic Activities stay in the tree, compiling and still reachable by their own
  * `Screen.X` arms, until Task 13. This task builds the destinations and their result plumbing only,
  * which is what makes the batch bisectable: a defect here cannot yet reach a user path.
  *
