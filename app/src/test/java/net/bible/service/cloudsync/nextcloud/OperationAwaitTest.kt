@@ -56,4 +56,10 @@ class OperationAwaitTest {
             continuation.get()?.resume(Unit)
         }
     }
+
+    /** Guards the load margin: the old 10 s / 2 s budgets failed a loopback-HTTP test on a host at load ~80. */
+    @Test fun defaultBudgetsLeaveHeadroomForLoadedHosts() {
+        assertTrue(DEFAULT_OPERATION_TIMEOUT_MILLIS >= 60_000)
+        assertTrue(DEFAULT_OPERATION_CLEANUP_MILLIS >= 10_000)
+    }
 }
