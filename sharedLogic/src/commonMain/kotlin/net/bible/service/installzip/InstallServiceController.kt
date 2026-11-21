@@ -71,7 +71,10 @@ class InstallServiceController(
 
     /** Guards [decisions] and [jobCoroutines]; class-private, never held across a suspension or a callback. */
     private val mapsLock = SynchronizedObject()
-    private val decisions = mutableMapOf<JobId, CompletableDeferred<Boolean>>()
+    private val decisions = mutableMapOf<JobId, PendingDecision>()
+
+    /** The question a job is paused on and the answer slot of exactly that question (#4192). */
+    private class PendingDecision(val request: DecisionRequest, val answer: CompletableDeferred<Boolean> = CompletableDeferred())
     private val jobCoroutines = mutableMapOf<JobId, Job>()
 
     /**
@@ -103,10 +106,15 @@ class InstallServiceController(
         )
     }
 
-    /** Completes the pending ask-back decision for [jobId]. A no-op if it isn't currently paused. */
-    fun resolveDecision(jobId: JobId, proceed: Boolean) {
+    /**
+     * Completes the pending ask-back decision for [jobId], but only when it is still [request], the
+     * question the caller's dialog showed. A job asks several questions in a row; an answer to an
+     * earlier one (a double tap, a late tap on a stale dialog) must never answer the next, so a
+     * mismatching [request] is dropped. A no-op if the job isn't currently paused.
+     */
+    fun resolveDecision(jobId: JobId, request: DecisionRequest, proceed: Boolean) {
         val pending = synchronized(mapsLock) { decisions[jobId] } // L1-common-ok: atomicfu lock
-        pending?.complete(proceed)
+        if (pending != null && pending.request == request) pending.answer.complete(proceed)
     }
 
     /**
@@ -118,7 +126,7 @@ class InstallServiceController(
      */
     fun cancel(jobId: JobId) {
         val (pending, worker) = synchronized(mapsLock) { decisions[jobId] to jobCoroutines[jobId] } // L1-common-ok: atomicfu lock
-        pending?.complete(false)
+        pending?.answer?.complete(false)
         worker?.cancel()
     }
 
@@ -154,16 +162,17 @@ class InstallServiceController(
         // AwaitingDecision phase is published, so an answer to a visible question is never lost.
         val publishPhase: (InstallPhase) -> Unit = { phase ->
             if (phase is InstallPhase.AwaitingDecision) {
-                synchronized(mapsLock) { decisions[jobId] = CompletableDeferred() } // L1-common-ok: atomicfu lock
+                synchronized(mapsLock) { decisions[jobId] = PendingDecision(phase.request) } // L1-common-ok: atomicfu lock
             }
             updateJobPhase(jobId, source.displayName, phase)
         }
-        val awaitCurrentDecision: suspend (DecisionRequest) -> Boolean = {
+        val awaitCurrentDecision: suspend (DecisionRequest) -> Boolean = { request ->
             val current = synchronized(mapsLock) { // L1-common-ok: atomicfu lock
-                decisions[jobId] ?: CompletableDeferred<Boolean>().also { decisions[jobId] = it }
+                decisions[jobId]?.takeIf { it.request == request }
+                    ?: PendingDecision(request).also { decisions[jobId] = it }
             }
             try {
-                current.await()
+                current.answer.await()
             } finally {
                 synchronized(mapsLock) { if (decisions[jobId] === current) decisions.remove(jobId) } // L1-common-ok: atomicfu lock
             }

@@ -134,7 +134,8 @@ class DocumentInstallService : Service() {
         @androidx.annotation.VisibleForTesting
         internal fun resetControllerForTest() = synchronized(this) { _controller = null }
 
-        fun resolveDecision(jobId: JobId, proceed: Boolean) = controller.resolveDecision(jobId, proceed)
+        fun resolveDecision(jobId: JobId, request: DecisionRequest, proceed: Boolean) =
+            controller.resolveDecision(jobId, request, proceed)
         fun cancel(jobId: JobId) = controller.cancel(jobId)
 
         private fun startServiceCompat(context: Context, intent: Intent) {

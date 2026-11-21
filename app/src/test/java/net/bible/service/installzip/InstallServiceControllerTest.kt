@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.sharedcore.platform.files.BackupFileType
+import net.bible.android.SharedConstants
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -124,7 +125,7 @@ class InstallServiceControllerTest {
         val resolver = launch(Dispatchers.Default) {
             val jobId = c.jobs.first { list -> list.any { it.phase is InstallPhase.AwaitingDecision } }
                 .first { it.phase is InstallPhase.AwaitingDecision }.jobId
-            c.resolveDecision(jobId, true)
+            c.resolveDecision(jobId, DecisionRequest.EpubUpgrade, true)
         }
 
         val outcome = c.enqueue(listOf(src("a")), deps())
@@ -157,13 +158,10 @@ class InstallServiceControllerTest {
             }
         }
         val resolver = launch(Dispatchers.Default) {
-            suspend fun awaitRequest(match: (DecisionRequest) -> Boolean): JobId =
-                c.jobs.first { l -> l.any { (it.phase as? InstallPhase.AwaitingDecision)?.request?.let(match) == true } }
-                    .first { (it.phase as? InstallPhase.AwaitingDecision)?.request?.let(match) == true }.jobId
-            c.resolveDecision(awaitRequest { it is DecisionRequest.ModuleBackupRestore }, true)
-            val jobId = awaitRequest { it is DecisionRequest.Overwrite }
+            c.resolveDecision(awaitRequest(c) { it is DecisionRequest.ModuleBackupRestore }.first, DecisionRequest.ModuleBackupRestore, true)
+            val (jobId, overwrite) = awaitRequest(c) { it is DecisionRequest.Overwrite }
             // The Overwrite question is still pending (not auto-answered); decline it.
-            c.resolveDecision(jobId, false)
+            c.resolveDecision(jobId, overwrite, false)
         }
 
         val outcome = c.enqueue(listOf(src("a")), deps())
@@ -171,6 +169,125 @@ class InstallServiceControllerTest {
         resolver.join()
         assertFalse("Overwrite must not be auto-confirmed by the earlier Yes", overwritten)
         assertEquals(InstallOutcome.Cancelled, outcome)
+    }
+
+    private suspend fun awaitRequest(c: InstallServiceController, match: (DecisionRequest) -> Boolean): Pair<JobId, DecisionRequest> {
+        val job = c.jobs.first { l -> l.any { (it.phase as? InstallPhase.AwaitingDecision)?.request?.let(match) == true } }
+            .first { (it.phase as? InstallPhase.AwaitingDecision)?.request?.let(match) == true }
+        return job.jobId to (job.phase as InstallPhase.AwaitingDecision).request
+    }
+
+    /** Scripted job: ModuleBackupRestore, then Overwrite (as a documents backup restore asks). */
+    private fun InstallServiceController.scriptRestoreQuestions(onOverwriteAnswer: (Boolean) -> Unit) {
+        runOne = { _, _, _, onPhase, awaitDecision ->
+            onPhase(InstallPhase.AwaitingDecision(DecisionRequest.ModuleBackupRestore))
+            if (!awaitDecision(DecisionRequest.ModuleBackupRestore)) {
+                InstallPhase.Cancelled
+            } else {
+                val overwrite = DecisionRequest.Overwrite(listOf("existing.conf"))
+                onPhase(InstallPhase.AwaitingDecision(overwrite))
+                val answer = awaitDecision(overwrite)
+                onOverwriteAnswer(answer)
+                if (answer) InstallPhase.Done else InstallPhase.Cancelled
+            }
+        }
+    }
+
+    @Test fun `a repeated answer to the first question does not answer the Overwrite question (#4192 double tap)`() = runTest {
+        val c = controller()
+        var overwriteAnswer: Boolean? = null
+        c.scriptRestoreQuestions { overwriteAnswer = it }
+        var stillPending: Boolean? = null
+        val resolver = launch(Dispatchers.Default) {
+            val (jobId, first) = awaitRequest(c) { it is DecisionRequest.ModuleBackupRestore }
+            c.resolveDecision(jobId, first, true)
+            // The stale second tap of the same dialog, fired while/after the next question appears.
+            c.resolveDecision(jobId, first, true)
+            val (_, overwrite) = awaitRequest(c) { it is DecisionRequest.Overwrite }
+            c.resolveDecision(jobId, first, true) // another late tap, now after Overwrite is published
+            kotlinx.coroutines.delay(200)
+            stillPending = c.jobs.value.any { (it.phase as? InstallPhase.AwaitingDecision)?.request == overwrite }
+            c.resolveDecision(jobId, overwrite, false)
+        }
+
+        val outcome = c.enqueue(listOf(src("a")), deps())
+
+        resolver.join()
+        assertEquals("a stale answer must leave the Overwrite question pending", true, stillPending)
+        assertEquals(false, overwriteAnswer)
+        assertEquals(InstallOutcome.Cancelled, outcome)
+    }
+
+    @Test fun `an answer for a different request than the pending one is dropped`() = runTest {
+        val c = controller()
+        var overwriteAnswer: Boolean? = null
+        c.scriptRestoreQuestions { overwriteAnswer = it }
+        var pendingAfterWrongAnswer: Boolean? = null
+        val resolver = launch(Dispatchers.Default) {
+            val (jobId, first) = awaitRequest(c) { it is DecisionRequest.ModuleBackupRestore }
+            c.resolveDecision(jobId, DecisionRequest.Overwrite(listOf("existing.conf")), true) // not what is pending
+            kotlinx.coroutines.delay(200)
+            pendingAfterWrongAnswer = c.jobs.value.any { (it.phase as? InstallPhase.AwaitingDecision)?.request == first }
+            c.resolveDecision(jobId, first, false)
+        }
+
+        val outcome = c.enqueue(listOf(src("a")), deps())
+
+        resolver.join()
+        assertEquals("a mismatching answer must not resolve the pending question", true, pendingAfterWrongAnswer)
+        assertEquals(InstallOutcome.Cancelled, outcome)
+        assertEquals(null, overwriteAnswer)
+    }
+
+    @Test fun `real runner declining Overwrite leaves the existing target files untouched`() = runTest {
+        val target = File(SharedConstants.modulesDir, "mods.d/existing-4192.conf").also {
+            it.parentFile?.mkdirs(); it.writeText("existing")
+        }
+        try {
+            val committer = object : InstallCommitter {
+                var swordCalls = 0
+                // A real commit would replace the file: make the damage observable.
+                override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) {
+                    swordCalls++; target.writeText("overwritten")
+                }
+                override suspend fun commitEpub(localFile: Path, displayName: String) = true
+                override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) {}
+                override suspend fun commitTtf(localFile: Path, displayName: String) {}
+                override suspend fun commitCsv(localFile: Path, displayName: String) {}
+                override suspend fun commitBackgroundImage(localFile: Path, fileName: String) {}
+                override suspend fun commitStudyPad(unzipFolder: Path) {}
+            }
+            val acquireDir = File(System.getProperty("java.io.tmpdir"), "install-controller-4192-${System.nanoTime()}")
+            val c = InstallServiceController(
+                runnerFactory = { InstallJobRunner(InstallInspector { BackupFileType.ZIP }, committer) },
+                newJobId = idGen(), onTerminal = { _, _ -> }, scope = backgroundScope,
+            )
+            val realDeps = InstallServiceController.JobDeps(
+                acquireDir = acquireDir.toOkioPath(),
+                openStream = { InstallStream("data".byteInputStream().source(), 4L) },
+                isStudyPadExport = { false }, studyPadStats = { error("unused") },
+                swordZipScan = { InstallInspector.SwordZipScan(listOf("mods.d/existing-4192.conf"), 3, false, false, isModuleBackup = true) },
+                epubUpgradeCheck = { false },
+            )
+            val resolver = launch(Dispatchers.Default) {
+                val (jobId, first) = awaitRequest(c) { it is DecisionRequest.ModuleBackupRestore }
+                c.resolveDecision(jobId, first, true)
+                val (_, overwrite) = awaitRequest(c) { it is DecisionRequest.Overwrite }
+                c.resolveDecision(jobId, first, true) // late tap of the first dialog, Overwrite already asked
+                kotlinx.coroutines.delay(200)
+                c.resolveDecision(jobId, overwrite, false)
+            }
+
+            val outcome = c.enqueue(listOf(src("m.zip")), realDeps)
+
+            resolver.join()
+            assertEquals(InstallOutcome.Cancelled, outcome)
+            assertEquals(0, committer.swordCalls)
+            assertEquals("existing", target.readText())
+            acquireDir.deleteRecursively()
+        } finally {
+            target.delete()
+        }
     }
 
     @Test fun `cancel on a paused job cancels it and fires onTerminal`() = runTest {
