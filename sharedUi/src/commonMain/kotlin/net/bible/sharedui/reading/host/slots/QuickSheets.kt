@@ -36,6 +36,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -185,6 +190,19 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
 }
 
 /**
+ * Consumes the downward scroll and fling the grid has left over at its top (#4178), so the enclosing modal
+ * sheet's nested-scroll drag never sees it: scrolling up to Genesis must not hide the sheet. Dragging the
+ * header, the scrim, the close button and back still dismiss. Upward leftovers are left alone.
+ */
+private object SwallowOverscrollConnection : NestedScrollConnection {
+    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset =
+        if (available.y > 0f) Offset(0f, available.y) else Offset.Zero
+
+    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity =
+        if (available.y > 0f) Velocity(0f, available.y) else Velocity.Zero
+}
+
+/**
  * A sheet's passage-grid body (the Choose Book sheet, the Speak sheet's verse picker, #4133/#4143):
  * the grid is content-fitted under the sheet's own body bound, so the sheet grows and shrinks with
  * the step. While the next step builds ([rendered] is null) the gap keeps the last grid's height,
@@ -204,7 +222,7 @@ internal fun FittedGridSheetBody(
     } else {
         GridChoosePassageContent(
             rendered, { id -> controller.pick(id, rendered) },
-            Modifier.fillMaxWidth().onSizeChanged { lastGridHeight = with(density) { it.height.toDp() } },
+            Modifier.fillMaxWidth().nestedScroll(remember { SwallowOverscrollConnection }).onSizeChanged { lastGridHeight = with(density) { it.height.toDp() } },
             state = state,
             fitContentHeight = true,
         )
