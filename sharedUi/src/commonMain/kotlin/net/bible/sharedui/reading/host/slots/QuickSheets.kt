@@ -49,6 +49,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.page.screen.chapterReadHistoryRow
 import net.bible.android.view.activity.page.screen.readHistoryApplyDeletes
 import net.bible.sharedcore.history.HistoryController
+import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
 import net.bible.sharedcore.navigation.DocumentSheetScope
@@ -392,7 +393,7 @@ private fun DocumentsSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet.Doc
             title = when (scope) {
                 DocumentSheetScope.ALL -> strings.chooseDocumentTitle
                 DocumentSheetScope.BIBLE -> strings.docTypeBible
-                DocumentSheetScope.COMMENTARY -> strings.docTypeCommentary
+                DocumentSheetScope.COMMENTARY -> strings.documentsSheetTitle
             },
             onDismiss = { hostState.closeQuickSheet() },
             // Identity-keyed tabs: the enum's own `name` is the stable id, which lets a hidden tab
@@ -420,10 +421,24 @@ private fun DocumentsSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet.Doc
                         slots.quickActions.applyChosenDocument(docId)
                     },
                     listState = listState,
+                    // The Documents sheet's All tab spans several types: section it by type.
+                    groupHeader = if (scope == DocumentSheetScope.COMMENTARY && selectedTabId == DocumentQuickTab.ALL.name) {
+                        { category -> quickDocGroupLabel(strings, category) }
+                    } else null,
                 )
             }
         }
     }
+}
+
+private fun quickDocGroupLabel(strings: Strings, category: DocCategory): String = when (category) {
+    DocCategory.BIBLE -> strings.docTypeBible
+    DocCategory.COMMENTARY -> strings.docTypeCommentary
+    DocCategory.DICTIONARY -> strings.docTypeDictionary
+    DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
+    DocCategory.MAPS -> strings.docTypeMaps
+    DocCategory.AND_BIBLE -> strings.docTypeAddon
+    DocCategory.OTHER -> strings.docTypeOther
 }
 
 private fun quickDocTabLabel(strings: Strings, tab: DocumentQuickTab): String = when (tab) {

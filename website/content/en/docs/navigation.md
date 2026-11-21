@@ -149,9 +149,10 @@ To open a document, click on either the Bible or Commentary icons in the top nav
 >     i.e. Commentaries, Dictionaries, Generic books, etc).
 
 By default each button opens a sheet. The Bible button lists your Bibles. The
-other button is titled *Commentary* and lists commentaries, general books and
-dictionaries. The tabs are *Recent*, *This verse* and *All*, and *All
-documents…* at the bottom opens the full document list. A tab with no documents is
+other button opens the *Documents* sheet, which lists commentaries, dictionaries,
+general books and maps. The tabs are *Recent*, *This verse* and *All* (grouped
+under a heading for each document type), and *All documents…* at the bottom opens
+the full document list. A tab with no documents is
 not shown. If only two Bibles (or books) are available for the current verse, the
 button switches directly to the other one instead; if none are, it opens the full
 document list.

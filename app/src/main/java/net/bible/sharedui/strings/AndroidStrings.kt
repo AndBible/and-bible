@@ -472,6 +472,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val docTypeAll: String get() = context.getString(R.string.doc_type_all)
     override val docTypeBible: String get() = context.getString(R.string.doc_type_bible)
     override val docTypeCommentary: String get() = context.getString(R.string.doc_type_commentary)
+    override val documentsSheetTitle: String get() = context.getString(R.string.documents_sheet_title)
     override val readingToolbarOptions: String get() = context.getString(R.string.reading_toolbar_options)
     override val prefsShowStrongsTitle: String get() = context.getString(R.string.prefs_show_strongs_title)
     override val switchToWorkspace: String get() = context.getString(R.string.switch_to_workspace)

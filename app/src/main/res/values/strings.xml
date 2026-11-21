@@ -931,6 +931,8 @@
     <string name="doc_type_all">All types</string>
     <string name="doc_type_bible">Bible</string>
     <string name="doc_type_commentary">Commentary</string>
+    <!-- Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps -->
+    <string name="documents_sheet_title">Documents</string>
     <string name="doc_type_dictionary">Dictionary</string>
     <string name="doc_type_book">Book</string>
     <string name="doc_type_map">Map</string>
