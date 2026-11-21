@@ -35,7 +35,8 @@ import net.bible.sharedui.components.dialog.DialogButtonRole
  * dismiss, optional neutral — in the platform dialog's order (neutral at the start).
  *
  * The lead line is [title] only; the HTML [html] is never the lead (it would show raw markup there). Without a
- * title the HTML is body text with no lead line. [detail] (plain text) sits between the lead and the body.
+ * title the HTML is body text with no lead line. With a title [detail] (plain text) sits between the lead and the body; without one it sits beneath the
+ * body, which is then the question.
  * [destructive] makes the confirm button a destructive one.
  *
  * [cancellable] = false is `setCancelable(false)`: back and scrim do nothing and [onDismissRequest]
@@ -68,9 +69,14 @@ fun AbMessageDialog(
         lead = title?.let { t -> { Text(t) } },
         content = if (detail != null || html != null) {
             {
-                if (detail != null) AbDialogDetail(detail)
-                if (detail != null && html != null) Spacer(Modifier.height(AbDialogTokens.GapLeadToBody))
+                // Titled: lead, detail, body. Untitled: the body is the question (docs/dialog-guidelines.md
+                // rules 1 and 3), so the detail (its consequence) goes beneath it, never above it.
+                val detailFirst = title != null
+                if (detail != null && detailFirst) AbDialogDetail(detail)
+                if (detail != null && html != null && detailFirst) Spacer(Modifier.height(AbDialogTokens.GapLeadToBody))
                 if (html != null) AbHtmlText(html)
+                if (detail != null && html != null && !detailFirst) Spacer(Modifier.height(AbDialogTokens.GapLeadToBody))
+                if (detail != null && !detailFirst) AbDialogDetail(detail)
             }
         } else null,
         buttons = {
