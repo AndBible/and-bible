@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.host.reading
 
+import net.bible.sharedcore.settings.textUnderWindowButtons
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.sharedui.reading.activity.ActivityHostWiring
@@ -188,6 +189,7 @@ class HostReadingHost(
      */
     internal val offsets = ReadingOffsets(
         restoreButtonsVisible = { windowControl.windowRepository.workspaceSettings.restoreButtonsVisible },
+        textUnderWindowButtons = { settings.textUnderWindowButtons() },
     ) { HostReadingWindows.offsetsChanged() }
 
     /**

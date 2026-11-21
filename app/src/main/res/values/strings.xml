@@ -372,6 +372,8 @@
     <string name="hide_bible_reference_overlay_title">Hide Bible reference overlay</string>
     <string name="hide_bible_reference_overlay_summary">Do not show the semi-transparent Bible reference overlay when app is in fullscreen mode</string>
 
+    <string name="text_under_window_buttons_title">Show text under window buttons</string>
+    <string name="text_under_window_buttons_summary">Bible text runs to the bottom of the screen, under the window button bar. When off, a strip is kept free under the bar in the bottom windows it spans.</string>
     <string name="full_screen_hide_buttons_pref_title">Hide window button bar in fullscreen</string>
     <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide automatically window button bar that is on the bottom of the screen</string>
 

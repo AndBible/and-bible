@@ -38,6 +38,7 @@ object SettingsReset {
         "auto_fullscreen_pref",
         "full_screen_hide_buttons_pref",
         "hide_window_buttons",
+        "text_under_window_buttons",
         "hide_bible_reference_overlay",
         "show_active_window_indicator",
         "toolbar_button_actions",

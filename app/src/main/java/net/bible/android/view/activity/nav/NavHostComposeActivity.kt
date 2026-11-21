@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.nav
 
+import net.bible.sharedcore.settings.textUnderWindowButtons
 import net.bible.service.db.corruptDatabasesOrNull
 import net.bible.service.db.DamagedDataHandedOver
 import net.bible.android.view.activity.search.searchIntent
@@ -1318,6 +1319,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // NOT `Modifier.imePadding()` at the consumer: that would double the lift on top of
                 // this padding and consume `ime`, hiding it from the bars' `navigationBars.exclude(ime)`.
                 applyImeBottomPadding = { px -> imeBottomPaddingPxState.intValue = px },
+                textUnderWindowButtons = { CommonUtils.settings.textUnderWindowButtons() },
             )
         )
     }

@@ -61,6 +61,8 @@ interface Strings {
     val hideBibleReferenceOverlayTitle: String
     val hideWindowButtonsSummary: String
     val hideWindowButtonsTitle: String
+    val textUnderWindowButtonsSummary: String
+    val textUnderWindowButtonsTitle: String
     val memorizeAutoMark: String
     val memorizeAutoMarkSummary: String
     val memorizeErrorHeatmap: String
