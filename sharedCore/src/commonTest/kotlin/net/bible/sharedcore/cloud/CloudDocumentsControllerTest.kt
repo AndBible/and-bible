@@ -338,4 +338,64 @@ class CloudDocumentsControllerTest {
         assertEquals(CloudDocFilter.UPDATES, fresh.statusFilter.value)
         assertEquals(DocCategory.COMMENTARY, fresh.categoryFilter.value)
     }
+
+    @Test fun status_and_category_filter_changes_request_a_cache_reload_but_query_does_not() {
+        var reloads = 0
+        val c = CloudDocumentsController(
+            syncEnabled = { false },
+            onAction = { _, _ -> }, onBulkAction = { _, _ -> }, onSyncNow = { _, _, _ -> },
+            onRescan = {}, onShowRemovedChange = {},
+            onFilterChange = { reloads++ },
+        )
+        c.setStatusFilter(CloudDocFilter.CLOUD_ONLY)
+        assertEquals(1, reloads)
+        c.setCategoryFilter(DocCategory.BIBLE)
+        assertEquals(2, reloads)
+        c.setQuery("x")
+        assertEquals(2, reloads, "typing a query only re-filters in memory")
+    }
+
+    @Test fun pending_removal_stays_removed_across_reloads_until_the_sync_ends() {
+        val c = controller(syncEnabled = true)
+        val listing = listOf(item("A"), item("B"))
+        c.setItems(listing)
+        c.applyRemoval("A")
+        assertEquals(listOf("B"), c.displayed.value.map { it.initials })
+        // A mid-sync cache re-read still lists A: its queued removal has not touched the cache yet.
+        c.setItems(listing)
+        assertEquals(listOf("B"), c.displayed.value.map { it.initials }, "the reload must not resurrect A")
+        c.onSyncEnded()
+        c.setItems(listing)
+        assertEquals(listOf("A", "B"), c.displayed.value.map { it.initials }.sorted(), "after the sync the listing is authoritative")
+    }
+
+    @Test fun pending_purge_stays_purged_across_reloads() {
+        val c = controller()
+        val listing = listOf(item("T", cloudDeleted = true), item("B"))
+        c.setItems(listing)
+        c.applyPurge("T")
+        c.setItems(listing)
+        assertEquals(listOf("B"), c.displayed.value.map { it.initials })
+    }
+
+    @Test fun pending_removal_keeps_a_local_copy_as_local_only_across_reloads_when_sync_is_off() {
+        val c = controller(syncEnabled = false)
+        val listing = listOf(item("A")) // present locally and in the cloud
+        c.setItems(listing)
+        c.applyRemoval("A")
+        c.setItems(listing)
+        val a = c.items.value.single()
+        assertTrue(a.localOnly && !a.cloudOnly && a.cloudVersion == null)
+    }
+
+    @Test fun setItemsIfUnchanged_drops_a_result_read_before_a_newer_list_landed() {
+        val c = controller()
+        c.setItems(listOf(item("OLD")))
+        val generation = c.itemsGeneration
+        c.setItems(listOf(item("NEW"))) // e.g. the network scan finishing while a cache read is in flight
+        assertFalse(c.setItemsIfUnchanged(generation, listOf(item("STALE"))))
+        assertEquals(listOf("NEW"), c.items.value.map { it.initials })
+        assertTrue(c.setItemsIfUnchanged(c.itemsGeneration, listOf(item("FRESH"))))
+        assertEquals(listOf("FRESH"), c.items.value.map { it.initials })
+    }
 }
