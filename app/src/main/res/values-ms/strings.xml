@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s keputusan dalam %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Kemajuan</string>
-  <string name="task_kill_warning">Tugasan yang berjalan lama ini mungkin tamat jika anda beralih ke aplikasi lain sebelum ia selesai.</string>
   <string name="no_tasks_running">Tiada tugasan yang sedang dilaksanakan.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Cari ayat</string>

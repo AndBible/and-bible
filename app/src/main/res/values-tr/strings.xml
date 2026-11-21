@@ -90,7 +90,6 @@
   <string name="search_with_results2">%2$s içinde %1$s sonuç</string>
   <!--Tasks-->
   <string name="progress_status">İlerleme</string>
-  <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
   <string name="no_tasks_running">İşlem gören görev yok.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Ayet bul</string>

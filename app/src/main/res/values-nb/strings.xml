@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s resultater i %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Fremdrift</string>
-  <string name="task_kill_warning">Vær klar over at Android kan avlutte disse tidkrevende jobbende hvis du skifter til en annen applikasjon før jobben er utført.</string>
   <string name="no_tasks_running">Det er for tiden ingen jobber som utføres.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Type søk:</string>

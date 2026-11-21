@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s resultats a %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progrés</string>
-  <string name="task_kill_warning">Aquestes tasques llargues poden finalitzar si canvieu d\'aplicació abans que acabin.</string>
   <string name="no_tasks_running">No hi ha tasques en execució en aquests moments.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Cerca versets</string>

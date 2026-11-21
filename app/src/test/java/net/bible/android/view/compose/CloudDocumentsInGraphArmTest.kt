@@ -167,8 +167,6 @@ class CloudDocumentsInGraphArmTest {
                         downloadNavGraph(navController, d)
                         // A sibling destination to navigate to, to dispose the arm under test (the removed progress screen's role).
                         composable(OTHER_DESTINATION) { androidx.compose.material3.Text("other") }
-                    // A sibling destination to navigate to, to dispose the arm under test (the removed progress screen's role).
-                    composable(OTHER_DESTINATION) { androidx.compose.material3.Text("other") }
                     }
                 }
             }

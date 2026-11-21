@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s resultat i %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Framsteg</string>
-  <string name="task_kill_warning">Dessa aktiviteter kan avbrytas om du växlar till en annan app innan de är klara.</string>
   <string name="no_tasks_running">Det finns för närvarande inga körande aktiviteter.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Hitta verser</string>

@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s ผลลัพธ์ใน %2$s</string>
   <!--Tasks-->
   <string name="progress_status">ความคืบหน้า</string>
-  <string name="task_kill_warning">งานที่ใช้เวลานานเหล่านี้อาจสิ้นสุดหากคุณสลับไปใช้แอปพลิเคชันอื่นก่อนที่จะเสร็จสิ้น</string>
   <string name="no_tasks_running">ขณะนี้ไม่มีงานที่กำลังดำเนินการ</string>
   <!--Search-->
   <string name="search_words_group_prompt">ค้นหาข้อพระคัมภีร์</string>

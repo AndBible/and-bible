@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s rezultate în %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progres</string>
-  <string name="task_kill_warning">Aceste lucrări de lungă durată se pot întrerupe dacă treci la altă aplicație înainte de terminarea lor.</string>
   <string name="no_tasks_running">Nu există lucrări în curs de execuție.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Caută versete</string>

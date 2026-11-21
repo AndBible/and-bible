@@ -90,7 +90,6 @@
   <string name="search_with_results2">Matokeo %1$s katika %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Maendeleo</string>
-  <string name="task_kill_warning">Kazi hizi zinazochukua muda mrefu zinaweza kusimama ikiwa utabadilisha programu nyingine kabla ya kukamilika.</string>
   <string name="no_tasks_running">Hakuna kazi zinazotekelezwa sasa hivi.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Tafuta mistari</string>

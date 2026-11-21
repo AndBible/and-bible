@@ -68,7 +68,6 @@ import net.bible.sharedui.app.mydocuments.MyDocumentsRecreationState
 import net.bible.sharedui.app.settings.LegacyDataImport
 import net.bible.sharedui.app.readingplan.ReadingPlanHost
 import net.bible.sharedui.app.readingplan.ReadingPlanRecreationState
-import net.bible.sharedui.app.search.SearchHost
 import net.bible.sharedui.app.settings.SettingsHost
 import net.bible.sharedui.app.welcome.WelcomeHost
 import net.bible.sharedui.app.workspace.WorkspaceHost
@@ -133,9 +132,6 @@ class AppHosts(
             legacyDataImport = { koin.getOrNull<LegacyDataImport>() },
         )
     }
-
-    /** The Progress status screen's job feed (the full-screen search routes it once shared a host with are gone). */
-    val search: SearchHost by lazy { SearchHost(shell = shell) }
 
     private val workspaceLazy = lazy {
         WorkspaceHost(
@@ -304,7 +300,6 @@ class AppHosts(
             backgroundNotificationPermission = koin.getOrNull<net.bible.sharedcore.platform.NotificationPermission>(),
             clipboard = koin.get<ClipboardText>(),
             openInstallZip = installZipOpener,
-            // The search host owns the index jobs Progress status lists.
             appSettingsProvider = { koin.get<AppSettings>() },
             userNotifierProvider = { koin.get<UserNotifier>() },
             directoriesProvider = { koin.get<AppDirectories>() },

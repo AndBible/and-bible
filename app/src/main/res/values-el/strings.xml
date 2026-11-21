@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s αποτελέσματα σε %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Πρόοδος</string>
-  <string name="task_kill_warning">Αυτές οι μακροχρόνιες εργασίες λειτουργίας μπορεί να τερματίστουν αν μεταβείτε σε μια άλλη εφαρμογή πριν τελειώσουν.</string>
   <string name="no_tasks_running">Δεν υπάρχουν εργασίες υπό εκτέλεση.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Εύρεση στίχων</string>

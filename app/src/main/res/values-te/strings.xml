@@ -90,7 +90,6 @@
   <string name="search_with_results2">%2$sలో %1$s ఫలితాలు</string>
   <!--Tasks-->
   <string name="progress_status">పురోగతి</string>
-  <string name="task_kill_warning">ఎక్కువ సమయం తీసుకొనే ఇ కార్యాలు పూర్తయ్యేలోపు మీరు మరొక అప్లికేషన్‌కి మారితే అవి ఆగిపోవచ్చు.</string>
   <string name="no_tasks_running">ప్రస్తుతం జరుగుతున్న పనులు ఏవీ లేవు.</string>
   <!--Search-->
   <string name="search_words_group_prompt">వచనాలు కనుక్కోవడం</string>

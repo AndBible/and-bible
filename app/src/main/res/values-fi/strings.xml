@@ -90,7 +90,6 @@
   <string name="search_with_results2"> %2$s:  %1$s tulosta</string>
   <!--Tasks-->
   <string name="progress_status">Edistyminen</string>
-  <string name="task_kill_warning">Pitkäkestoiset tehtävät voivat keskeytyä, jos siirryt toiseen sovellukseen ennen kuin ne on suoritettu loppuun.</string>
   <string name="no_tasks_running">Tehtäviä ei ole tällä hetkellä suoritettavana.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Etsi jakeista</string>

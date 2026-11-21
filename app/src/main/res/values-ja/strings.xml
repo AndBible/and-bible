@@ -90,7 +90,6 @@
   <string name="search_with_results2">%2$s で %1$s 件の結果</string>
   <!--Tasks-->
   <string name="progress_status">進捗状況</string>
-  <string name="task_kill_warning">完了前に他のアプリに切り替えると、これらの処理が終了する場合があります。</string>
   <string name="no_tasks_running">現在実行中のタスクはありません。</string>
   <!--Search-->
   <string name="search_words_group_prompt">聖句を検索</string>

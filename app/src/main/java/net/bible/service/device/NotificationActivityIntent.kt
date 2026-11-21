@@ -44,7 +44,8 @@ internal fun openActivityListIntent(context: Context): Intent {
  * re-delivered intent (recreate, process-death restore) does not open the list again. Returns whether it was set.
  */
 internal fun Intent.consumeActivityListRequest(requests: ActivityListRequests?): Boolean {
-    if (!getBooleanExtra(EXTRA_OPEN_ACTIVITY_LIST, false)) return false
+    // Literal (== EXTRA_OPEN_ACTIVITY_LIST): NavHostRoutingGuardTest checks the allowlisted extra is really read here.
+    if (!getBooleanExtra("net.bible.android.openActivityList", false)) return false
     removeExtra(EXTRA_OPEN_ACTIVITY_LIST)
     requests?.request()
     return true

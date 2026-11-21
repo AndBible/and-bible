@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s نتيجة في %2$s</string>
   <!--Tasks-->
   <string name="progress_status">الحالة</string>
-  <string name="task_kill_warning">قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية.</string>
   <string name="no_tasks_running">لا يوجد أي مهام في مرحلة التنفيذ.</string>
   <!--Search-->
   <string name="search_words_group_prompt">بحث الآيات</string>

@@ -46,7 +46,6 @@
   <string name="search_with_results2">%2$s ішінде %1$s нәтиже</string>
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
-  <string name="task_kill_warning">Егер сіз тапсырмалардың соңына жетпей басқа қолдабаға ауыстарсаңыз, осы ұзақ жұмыс істейтін тапсырмалар тоқтатылуы мүмкін.</string>
   <string name="no_tasks_running">Қазір орындалып жатқан еш тапсырма жоқ.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Аяттарды Табу</string>

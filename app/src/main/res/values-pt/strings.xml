@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s resultados em %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progresso</string>
-  <string name="task_kill_warning">Estas tarefas de longa duração podem ser finalizadas se você for para outra aplicação antes que elas terminem.</string>
   <string name="no_tasks_running">Não há tarefas sendo executadas.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Encontrar versículos</string>

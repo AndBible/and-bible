@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s результати у %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Перебіг виконання</string>
-  <string name="task_kill_warning">Ці тривалі завдання можуть припинитися, якщо ви перейдете до іншого застосунку/програми, перш ніж вони закінчаться.</string>
   <string name="no_tasks_running">В даний час нема завдань які виконуються.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Знайти вірші</string>

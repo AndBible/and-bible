@@ -319,7 +319,6 @@ interface Strings {
     val installZipModule: String              // R.string.install_zip_module
     val installZipModuleDiscrete: String      // R.string.install_zip_module_discrete
     val downloadTitle: String             // R.string.download
-    val progressStatus: String             // R.string.progress_status
     val errorDownloading: String             // R.string.error_downloading
     val downloadDialogMessage: String             // R.string.download_dialog_message
     val downloadErrors: String             // R.string.download_errors
@@ -1113,9 +1112,6 @@ interface Strings {
     val resetDatabasesDescription: String    // R.string.reset_databases_description
     fun resetSomething(name: String): String // R.string.reset_something (%1$s -- per-db reset button label)
     val lastCrashInfoTitle: String           // R.string.last_crash_info_title
-
-    // Batch 13 T7 — ProgressStatusComposeActivity (generic download-progress screen)
-    val taskKillWarning: String              // R.string.task_kill_warning (top message; classic ProgressStatus's copy, distinct from indexingWaitMsg)
 
     // --- Agent permissions (Batch Z-early) ---
     val agentPermissionTitle: String                        // R.string.agent_permission_title (dialog title)

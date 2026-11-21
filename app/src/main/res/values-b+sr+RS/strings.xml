@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s резултата у %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Напредак</string>
-  <string name="task_kill_warning">Ови дуготрајни задаци могу бити прекинути ако се пребацитe на другу апликацију пре но што заврше.</string>
   <string name="no_tasks_running">Нема задатака који се тренутно извршавају.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Пронађи стихове</string>

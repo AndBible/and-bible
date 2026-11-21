@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s találat a %2$s-ból</string>
   <!--Tasks-->
   <string name="progress_status">Folyamatjelző</string>
-  <string name="task_kill_warning">Ez az időigényes feladat megszakadhat, ha a befejezés előtt másik alkalmazásra váltasz.</string>
   <string name="no_tasks_running">Jelenleg nincsenek futó feladatok.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Versek keresése</string>

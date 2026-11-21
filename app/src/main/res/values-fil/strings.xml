@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s mga resulta sa %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
-  <string name="task_kill_warning">Maaaring materminate ang mga matagalang gawaing ito kung lumipat ka sa ibang application bago pa matapos ang mga ito.</string>
   <string name="no_tasks_running">Walang mga gawaing isinasagawa ngayon.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Maghanap ng mga talata</string>

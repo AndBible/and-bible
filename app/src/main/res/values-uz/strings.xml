@@ -29,7 +29,6 @@
   <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Jarayon</string>
-  <string name="task_kill_warning">Agar boshqa aplikatsiyaga o\'tsangiz, ko\'p vaqt olayotgan bu vazifalar tugashidan oldin to\'xtab qo\'ladi.</string>
   <string name="no_tasks_running">Hozir bajariladigan hech qanday vazifa yo\'q</string>
   <!--Search-->
   <string name="search_words_group_prompt">Oyatlarni qidiring</string>

@@ -392,7 +392,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private fun applyNewIntent(intent: Intent) {
         // #4174: the progress notification asks for the background-activity list on top of reading.
-        if (intent.getBooleanExtra("net.bible.android.openActivityList", false)) intent.consumeActivityListRequest(getKoin().getOrNull())
+        intent.consumeActivityListRequest(getKoin().getOrNull())
         // The route check comes FIRST: a route-less new intent must not become this Activity's
         // intent. It no longer THROWS on the next onCreate -- T8b turned that requireNotNull into a
         // loud default (see navHostStartRoute) -- but letting one through would still replace a
@@ -3452,7 +3452,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     // --- Download cluster (DownloadHost, CloudDocumentsHost) --------------------------------------
-    // The download, custom repository, progress status and cloud documents destinations' deps, sessions, controllers
+    // The download, custom repository and cloud documents destinations' deps, sessions, controllers
     // and menus live in `appHosts.download` and `appHosts.cloudDocuments` (`:sharedUi`,
     // `net.bible.sharedui.app.download`). `repositoryEditorResults` stays declared above: the channel guards read it.
 

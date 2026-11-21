@@ -46,7 +46,6 @@
   <string name="search_with_results2">在 %2$s 中找到 %1$s 個結果</string>
   <!--Tasks-->
   <string name="progress_status">進度</string>
-  <string name="task_kill_warning">請稍等！切換至其他程式會中止當前任務。</string>
   <string name="no_tasks_running">當前沒有任務</string>
   <!--Search-->
   <string name="search_words_group_prompt">尋找經文</string>

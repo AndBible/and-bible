@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s Ergebnisse in %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Fortschritt</string>
-  <string name="task_kill_warning">Diese Aufgaben dauern länger und könnten abgebrochen werden, wenn Sie zu einem anderen Programm wechseln.</string>
   <string name="no_tasks_running">Keine laufenden Aufgaben.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Suche nach Versen mit:</string>

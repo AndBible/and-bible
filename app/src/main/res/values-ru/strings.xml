@@ -90,7 +90,6 @@
   <string name="search_with_results2">%1$s результатов в %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
-  <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
   <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Найти стихи</string>
