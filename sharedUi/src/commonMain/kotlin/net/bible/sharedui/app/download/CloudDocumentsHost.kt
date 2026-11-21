@@ -208,6 +208,7 @@ class CloudDocumentsHost(
                 appSettings.setString(CLOUD_ARRANGEMENT_KEY, encoded)
             },
             scope = shell.hostScope,
+            onFilterChange = { reloadCloudDocumentsFromCache(entry.controller) },
         )
         // Consumed once: a later leave-and-reopen within this host starts fresh, like classic. The sign-in error
         // dialog is deliberately not carried: it is re-raised by the gate's sign-in attempt, which is a real
@@ -299,6 +300,15 @@ class CloudDocumentsHost(
                 controller.pushBusy(false)
             }
         }
+    }
+
+    /**
+     * #4180: re-reads the listing cache into [controller] when a filter changes, so a list seeded before a sync
+     * filled the cache (or an earlier empty scan) is not filtered in place forever. Cache-only (no network, no busy
+     * pair), launched on the host scope like its siblings; [controller] is the instance the callback was bound to.
+     */
+    private fun reloadCloudDocumentsFromCache(controller: CloudDocumentsController) {
+        shell.hostScope.launch { controller.setItems(cloudDocumentsSeedItems()) }
     }
 
     /**

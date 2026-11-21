@@ -338,4 +338,20 @@ class CloudDocumentsControllerTest {
         assertEquals(CloudDocFilter.UPDATES, fresh.statusFilter.value)
         assertEquals(DocCategory.COMMENTARY, fresh.categoryFilter.value)
     }
+
+    @Test fun status_and_category_filter_changes_request_a_cache_reload_but_query_does_not() {
+        var reloads = 0
+        val c = CloudDocumentsController(
+            syncEnabled = { false },
+            onAction = { _, _ -> }, onBulkAction = { _, _ -> }, onSyncNow = { _, _, _ -> },
+            onRescan = {}, onShowRemovedChange = {},
+            onFilterChange = { reloads++ },
+        )
+        c.setStatusFilter(CloudDocFilter.CLOUD_ONLY)
+        assertEquals(1, reloads)
+        c.setCategoryFilter(DocCategory.BIBLE)
+        assertEquals(2, reloads)
+        c.setQuery("x")
+        assertEquals(2, reloads, "typing a query only re-filters in memory")
+    }
 }

@@ -52,6 +52,7 @@ import kotlinx.coroutines.launch
 import net.bible.sharedcore.cloud.CloudDocFilter
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocumentsController
+import net.bible.sharedcore.cloud.runCloudDocumentsLiveRefresh
 import net.bible.sharedcore.download.CustomRepositoryController
 import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.RepositoryResult
@@ -947,6 +948,12 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 if (active && !running) scope.launch { d.refreshFromNetwork() }
             }
             onDispose { active = false; stop() }
+        }
+
+        // #4180: while a document sync runs the list follows the listing cache (cache-only re-read), instead of
+        // staying as seeded until the end-of-sync network rescan.
+        LaunchedEffect(Unit) {
+            runCloudDocumentsLiveRefresh(d.transferRunning) { controller.setItems(d.seedItems()) }
         }
 
         val grouped by controller.grouped.collectAsState()

@@ -81,6 +81,10 @@ class CloudDocumentsController(
     // moveSortCriterion commit synchronously, same as before this fix — a host that cares about the
     // debounced behavior (i.e. the real cloud-documents screen) supplies its lifecycleScope.
     private val scope: CoroutineScope? = null,
+    // #4180: a status/category filter change asks the host to re-read the listing cache (the
+    // in-memory `_items` may be stale, e.g. seeded before a sync filled the cache). The host
+    // answers with [setItems]; the filter itself already applied to the current items.
+    private val onFilterChange: () -> Unit = {},
 ) {
     // No LANGUAGE or REPOSITORY: a cloud listing has neither. No RECOMMENDED: nothing marks a
     // synced document as recommended.
@@ -219,8 +223,8 @@ class CloudDocumentsController(
         refilter(resetSelection = false)
     }
 
-    fun setStatusFilter(f: CloudDocFilter) { _statusFilter.value = f; refilter(resetSelection = true) }
-    fun setCategoryFilter(c: DocCategory?) { _categoryFilter.value = c; refilter(resetSelection = true) }
+    fun setStatusFilter(f: CloudDocFilter) { _statusFilter.value = f; refilter(resetSelection = true); onFilterChange() }
+    fun setCategoryFilter(c: DocCategory?) { _categoryFilter.value = c; refilter(resetSelection = true); onFilterChange() }
     fun setQuery(q: String) { _query.value = q; refilter(resetSelection = true) }
     fun openSearch() = searchMode.open()
     fun closeSearch() = searchMode.close()
