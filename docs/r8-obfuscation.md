@@ -70,12 +70,14 @@ different packages and coexist.
 
 ### Widgets across an app update
 
-Glance keeps which widget ids belong to a widget under `"provider:" + GlanceAppWidget.class.getCanonicalName()` in a
-DataStore that survives an update. R8 names that class differently in each build, so after an update `updateAll()` finds
-no ids and old widgets stay on "Can't show content". `-keepnames class * extends androidx.glance.appwidget.GlanceAppWidget`
-(and the receiver) in `app/proguard-rules.pro` keeps the names stable; the verification is in
-`docs/superpowers/status/issue-4175/README.md`. Tests: `python3 -m unittest discover -s scripts/tests -p
-test_check_r8_reflective_constructors.py` (needs javac and the SDK build-tools `d8`).
+Glance keeps the class name of each widget in a DataStore that survives an update, and `updateAll()` looks widgets up by
+`GlanceAppWidget.class.getCanonicalName()`. R8 names that class differently in each build, so `-keepnames class * extends
+androidx.glance.appwidget.GlanceAppWidget` (and the receiver) in `app/proguard-rules.pro` keeps the lookup stable.
+That was not what made widgets show "Can't show content" after an update, though: the process is cold then, and the first
+`SpeakControl` was built on a Glance worker thread, where `AndroidMediaSession` created a `Handler` without a Looper
+(fixed with a main-looper handler). Details and emulator evidence: `docs/superpowers/status/issue-4175/README.md`.
+Test a widget change with a real update (`adb install -r` of a build with a higher versionCode, widgets already placed),
+not only with a fresh install; place widgets with the app process alive.
 
 ## Reading obfuscated stack traces
 
