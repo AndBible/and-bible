@@ -43,6 +43,24 @@ Class and member names of obfuscated code change in **every** build. So:
 
 When adding a reflective path, run a release build on the emulator (below) before merging.
 
+## Constructors that libraries call by reflection
+
+R8 runs in full mode (the AGP 8 default). There a member-less rule such as `-keep class * extends Base` keeps the class
+and its name but **not** its default constructor; a class that nothing creates with `new` then loses the constructor
+(and may be made abstract), and a reflective `newInstance()` throws `InstantiationException`. Older libraries still ship
+such rules. 6.0.1279 crash-looped at startup this way (#4175): Glance 1.1.1 pulls in WorkManager 2.7.1 and Room 2.2.5,
+whose rule lacks `{ <init>(); }`, so WorkManager's `WorkDatabase_Impl` could not be created inside androidx.startup,
+before `Application.onCreate` (so no crash dialog either). Glance's own `ActionCallback` rule has the same gap, which
+broke every widget button (`NoSuchMethodException`). `app/proguard-rules.pro` keeps those constructors explicitly.
+
+Every minified variant runs `checkR8ReflectiveConstructors<Variant>` after `minify<Variant>WithR8`
+(`scripts/check-r8-reflective-constructors.py`): it reads the R8 output DEX and mapping and fails the build when a leaf
+subclass of `androidx.room.RoomDatabase`, `androidx.room3.RoomDatabase`, `androidx.work.InputMerger`,
+`androidx.startup.Initializer` or `androidx.glance.appwidget.action.ActionCallback` is abstract or has no no-argument constructor. It also sees a base that R8 merged into
+its only subclass (the mapping lists the base's members under the subclass). When a new dependency creates classes by
+name, add its base class to `BASES` in the script. Tests: `python3 -m unittest discover -s scripts/tests -p
+test_check_r8_reflective_constructors.py` (needs javac and the SDK build-tools `d8`).
+
 ## Reading obfuscated stack traces
 
 A release build prints frames like

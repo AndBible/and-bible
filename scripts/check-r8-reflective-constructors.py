@@ -4,10 +4,11 @@
 Usage: scripts/check-r8-reflective-constructors.py <mapping.txt[.gz]> (--apk APK | --dex-dir DIR) [--base CLASS ...]
 
 Some libraries create instances by class name with `Class.newInstance()` / `getDeclaredConstructor().newInstance()`:
-Room (`<Database>_Impl`, Room 2 and Room 3), WorkManager (`InputMerger` subclasses named in a WorkSpec) and
-androidx.startup (`Initializer`s named in the manifest). R8 full mode (AGP 8 default) does not keep the default
-constructor of a class kept by a member-less `-keep class * extends Base` rule. With no direct `new` call it then
-removes the constructor and makes the class abstract, so the reflective call throws `InstantiationException`. Build
+Room (`<Database>_Impl`, Room 2 and Room 3), WorkManager (`InputMerger` subclasses named in a WorkSpec),
+androidx.startup (`Initializer`s named in the manifest) and Glance (`ActionCallback`s of widget buttons). R8 full mode
+(AGP 8 default) does not keep the default constructor of a class kept by a member-less `-keep class * extends Base`
+rule. With no direct `new` call it then removes the constructor (and may make the class abstract), so the reflective
+call throws `InstantiationException` or `NoSuchMethodException`. Build
 6.0.1279 crash-looped at startup this way: WorkManager 2.7.1 (pulled in by Glance) brings Room 2.2.5, whose consumer
 rule has no `{ <init>(); }`, so `WorkDatabase_Impl` could not be created.
 
@@ -31,6 +32,7 @@ BASES = [
     "androidx.room3.RoomDatabase",    # Room 3 (AndBible's databases)
     "androidx.work.InputMerger",      # InputMerger.fromClassName / InputMergerFactory
     "androidx.startup.Initializer",   # AppInitializer.doInitialize
+    "androidx.glance.appwidget.action.ActionCallback",  # actionRunCallback<T>(): widget buttons
 ]
 
 ACC_INTERFACE = 0x200
@@ -241,7 +243,7 @@ def main(argv):
     for line in report:
         print(line)
     if violations:
-        print("\nR8 removed constructors that are called by reflection (the app crashes with InstantiationException):",
+        print("\nR8 removed constructors that are called by reflection (InstantiationException / NoSuchMethodException at run time):",
               file=sys.stderr)
         for v in violations:
             print("  " + v, file=sys.stderr)
