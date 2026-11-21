@@ -1269,8 +1269,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="install_failed_reason">Installasjon av modul mislyktes av følgende årsak: %s.</string>
   <string name="no_file_manager">Fant ingen app for å velge en fil. Installer en filbehandler og prøv igjen.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Appen åpnet et annet sted</string>
-  <string name="open_here">Åpne her</string>
   <string name="external_link_dont_ask_again">Ikke spør igjen for %s</string>
   <string name="nameless">Tittel ikke definert</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Éntrykkhandlinger (Bibler)</string>

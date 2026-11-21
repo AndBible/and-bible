@@ -1219,8 +1219,6 @@
   <string name="install_failed_reason">Инсталирането на модула не бе успешно поради следната причина: %s.</string>
   <string name="no_file_manager">Не е намерено приложение за избор на файл. Моля, инсталирайте файлов мениджър и опитайте отново.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Приложението е отворено другаде</string>
-  <string name="open_here">Отвори тук</string>
   <string name="external_link_dont_ask_again">Не питай отново за %s</string>
   <string name="nameless">Заглавието не е зададено</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия с едно докосване (Библии)</string>

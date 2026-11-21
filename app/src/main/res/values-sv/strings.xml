@@ -1355,8 +1355,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="install_failed_reason">Installation av modulen misslyckades av följande orsak: %s</string>
   <string name="no_file_manager">Ingen app hittades för att välja en fil. Installera en filhanterare och försök igen.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">App öppnad på annan plats</string>
-  <string name="open_here">Öppna här</string>
   <string name="external_link_dont_ask_again">Fråga inte igen för %s</string>
   <string name="nameless">Titel inte definierad</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Entrycksåtgärder (biblar)</string>

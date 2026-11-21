@@ -1335,8 +1335,6 @@
   <string name="install_failed_reason">Инсталација модула безуспешна услед следећих разлога: %s.</string>
   <string name="no_file_manager">Није пронађена ниједна апликација за избор датотеке. Инсталирајте менаџер датотека и покушајте поново.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Апликација је негде друге отворена</string>
-  <string name="open_here">Отворите овде</string>
   <string name="external_link_dont_ask_again">Не питај поново за %s</string>
   <string name="nameless">Наслов није одређен</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Радње једним додиром (Библије)</string>

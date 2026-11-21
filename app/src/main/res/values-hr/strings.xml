@@ -1320,8 +1320,6 @@ Kada koristite Google Drive, %s dozvoljen je pristup samo datotekama aplikacije,
   <string name="install_failed_reason">Instalacija modula neuspješna uslijed sljedećih razloga: %s.</string>
   <string name="no_file_manager">Nije pronađena aplikacija za odabir datoteke. Instalirajte upravitelj datoteka i pokušajte ponovno.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikacija je negdje drugo otvorena</string>
-  <string name="open_here">Otvori ovdje</string>
   <string name="external_link_dont_ask_again">Ne pitaj ponovno za %s</string>
   <string name="nameless">Naslov nije određen</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Radnje jednim dodirom (Biblije)</string>

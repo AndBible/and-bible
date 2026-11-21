@@ -1571,8 +1571,6 @@
     <string name="no_file_manager">No app was found for choosing a file. Please install a file manager and try again.</string>
 
     <!-- Other / uncategorized -->
-    <string name="app_opened_elsewhere">App opened elsewhere</string>
-    <string name="open_here">Open here</string>
     <string name="external_link_dont_ask_again">Don\'t ask again for %s</string>
     <string name="nameless">Title not defined</string>
     <string name="prefs_in_window_bible_bookmark_modal_buttons_title">One-tap actions (Bibles)</string>

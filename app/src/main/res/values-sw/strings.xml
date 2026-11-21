@@ -1268,8 +1268,6 @@ Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili z
   <string name="install_failed_reason">Kusanikisha moduli kumeshindwa kwa sababu ifuatayo: %s.</string>
   <string name="no_file_manager">Hakuna programu iliyopatikana ya kuchagua faili. Tafadhali sakinisha kidhibiti faili kisha ujaribu tena.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Programu imefunguliwa mahali pengine</string>
-  <string name="open_here">Fungua hapa</string>
   <string name="external_link_dont_ask_again">Usiulize tena kwa %s</string>
   <string name="nameless">Kichwa hakibainishwi</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Vitendo vya gonga-moja (Biblia)</string>

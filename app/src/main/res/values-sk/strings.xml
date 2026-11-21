@@ -1356,8 +1356,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="install_failed_reason">Inštalácia modulu zlyhala z nasledujúceho dôvodu: %s.</string>
   <string name="no_file_manager">Nenašla sa žiadna aplikácia na výber súboru. Nainštalujte správcu súborov a skúste to znova.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikácia bola otvorená inde</string>
-  <string name="open_here">Otvoriť tu</string>
   <string name="external_link_dont_ask_again">Znova sa nepýtať pre %s</string>
   <string name="nameless">Titulok nie je definovaný</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcie jedným klepnutím (Biblie)</string>

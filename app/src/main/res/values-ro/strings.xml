@@ -1359,8 +1359,6 @@
   <string name="install_failed_reason">Instalarea modulului a eșuat din următorul motiv: %s.</string>
   <string name="no_file_manager">Nu a fost găsită nicio aplicație pentru alegerea unui fișier. Te rugăm să instalezi un manager de fișiere și să încerci din nou.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplicație deschisă în altă parte</string>
-  <string name="open_here">Deschide aici</string>
   <string name="external_link_dont_ask_again">Nu mai întreba pentru %s</string>
   <string name="nameless">Titlu necunoscut</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acțiuni cu o singură atingere (Biblii)</string>

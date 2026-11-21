@@ -1357,8 +1357,6 @@
   <string name="install_failed_reason">Modülün yüklenmesi aşağıdaki nedenden dolayı başarısız oldu: %s.</string>
   <string name="no_file_manager">Dosya seçmek için bir uygulama bulunamadı. Lütfen bir dosya yöneticisi yükleyip tekrar deneyin.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Uygulama başka bir yerde açıldı</string>
-  <string name="open_here">Burayı açın</string>
   <string name="external_link_dont_ask_again">%s için bir daha sorma</string>
   <string name="nameless">Başlık tanımlanmamış</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tek dokunuşla eylemler (Kutsal Kitaplar)</string>

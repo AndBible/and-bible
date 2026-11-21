@@ -865,8 +865,6 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="sqlite_cant_write">(артық) файлды жазу мүмкін емес</string>
   <string name="install_failed_reason">Модульді орнату келесі себептерге байланысты сәтсіз аяқталды: %s. </string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Қолданба басқа жерде ашылды</string>
-  <string name="open_here">Осы жерден ашыңыз</string>
   <string name="nameless">Тақырып анықталмаған</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Бір рет түрту әрекеттері (Киелі кітап)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Бір рет түрту әрекеттері (Басқа)</string>

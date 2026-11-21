@@ -1317,8 +1317,6 @@ Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, ni
   <string name="install_failed_reason">Die installeringsmodule het om die volgende rede misluk: %s.</string>
   <string name="no_file_manager">Geen toepassing is gevind om \'n lêer te kies nie. Installeer asseblief \'n lêerbestuurder en probeer weer.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Toep is elders oopgemaak</string>
-  <string name="open_here">Maak hier oop </string>
   <string name="external_link_dont_ask_again">Moenie weer vra vir %s nie</string>
   <string name="nameless">Titel nie gedefinieer nie </string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Een-tik aksies (Bybels)</string>

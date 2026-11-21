@@ -1325,8 +1325,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="install_failed_reason">निम्नलिखित कारण से मॉड्यूल इंस्टॉल करना विफल रहा: %s।</string>
   <string name="no_file_manager">फ़ाइल चुनने के लिए कोई ऐप नहीं मिला। कृपया एक फ़ाइल मैनेजर इंस्टॉल करें और फिर से प्रयास करें।</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">ऐप कहीं और खोला गया</string>
-  <string name="open_here">यहाँ खोलें</string>
   <string name="external_link_dont_ask_again">%s के लिए दोबारा न पूछें</string>
   <string name="nameless">शीर्षक परिभाषित नहीं</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">वन-टैप क्रियाएं (बाइबिल)</string>

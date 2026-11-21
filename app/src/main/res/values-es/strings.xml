@@ -1352,8 +1352,6 @@ informe los problemas a los mantenedores de texto
   <string name="install_failed_reason">La instalación del módulo ha fallado por la siguiente razón: %s.</string>
   <string name="no_file_manager">No se encontró ninguna aplicación para elegir un archivo. Instala un gestor de archivos e inténtalo de nuevo.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">La aplicación se ha abierto en otro lugar</string>
-  <string name="open_here">Abrir aquí</string>
   <string name="external_link_dont_ask_again">No volver a preguntar por %s</string>
   <string name="nameless">Título no definido</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acciones de un toque (Biblias)</string>
