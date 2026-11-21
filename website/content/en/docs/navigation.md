@@ -17,18 +17,26 @@ available in that commentary.
 After you select the book, the sheet moves on to the chapters, where you can
 select the chapter. When you pick the book you are reading, the chapter you are
 reading (and, at the verse step, the verse) is highlighted and scrolled into
-view, so a long book such as Psalms opens near your place:
+view, so a long book such as Psalms opens near your place. The sheet slides up over
+the lower part of the reading screen, and the book you are reading is outlined:
 
-[![AndBible Chapter Chooser](images/book-chapter-chooser.png){ width="200" }](images/book-chapter-chooser.png)
+[![The Choose Book sheet over the reading view](images/book-chapter-chooser.png){ width="200" }](images/book-chapter-chooser.png)
+
+General books and maps have no books and chapters. Their entries (and the same
+shortcuts and title tap) open the same kind of sheet with the list of the entries
+(keys) of that document, where you tap the one you want.
 
 After selecting a book and then a chapter the sheet closes and the Bible opens
 at the selected reference.
 
 ### Book Chooser Customizations
 
-A few customization options are available in the top right vertical three-dot menu
-of the *Book Chooser*:
+A few customization options are available in the vertical three-dot menu
+in the header of the *Book Chooser* sheet:
 
+[![The menu of the Book Chooser](images/book-chooser-menu.png){ width="200" }](images/book-chooser-menu.png)
+
+> - **Help in the user guide:** Opens this page.
 > - **Alphabetical Order:** Enabling this option will display the books in
 >     alphabetical order. (Starting with numbers - i.e. 1 Chronicles)
 > - **Order books horizontally:** Enabling this option will list the books from
@@ -42,17 +50,16 @@ of the *Book Chooser*:
 >     their category (i.e. Law, History, Poetry, Prophets, etc.)
 > - **Show long book name:** Enabling this option will additionally show the full
 >     book name under its abbreviation.
+> - **Show progress bars:** Shows the [reading progress](reading_progress.md#progress-indicators)
+>     bars on the book and chapter buttons.
 
 ### Opening Deuterocanonical Books
 
 When your active window is a Bible version that contains deuterocanonical books,
-there will be a plus (+) icon in the *Book Chooser*. By clicking on the plus (*+*)
-icon, you will see a list of the included deuterocanonical books. For example,
-when opening the KJVA Bible, you can click the “Book Chooser” and you should
-see the plus (+) menu icon in the top right. Clicking the plus icon (+) will
-display the deuterocanonical books in the list:
-
-[![AndBible Chapter Chooser](images/book-chooser-deuterocanonical.png){ width="200" }](images/book-chooser-deuterocanonical.png)
+the three-dot menu of the *Book Chooser* also has a *Deuterocanonical* item.
+Choosing it replaces the list with the deuterocanonical books (for example in the
+KJVA Bible). The same menu item, now called *Bible*, takes you back to the other
+books.
 
 ### Navigating Directly To Verse
 
