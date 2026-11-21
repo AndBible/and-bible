@@ -9,6 +9,7 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.utf16CodePoint
 
 /**
  * Reading shortcuts that need a native action instead of a BibleView key (#4177): the iOS counterparts of the desktop's
@@ -45,18 +46,46 @@ internal fun nativeShortcut(
     return if (k == "F11") NativeShortcut.ToggleFullScreen else null
 }
 
-internal fun nativeShortcut(event: KeyEvent, editing: Boolean): NativeShortcut? {
-    if (event.type != KeyEventType.KeyDown) return null
-    val key = when (event.key) {
-        Key.S -> "s"
-        Key.B -> "b"
+/**
+ * The DOM-style key a chord means, from the PRINTED character, not the key position: a Finnish/Swedish keyboard has "+"
+ * where a US one has "-", so Cmd++ must follow the character (desktop reads the character too). [codePoint] is the
+ * event's character (0 or a control code when unknown). [key] names Tab/F11, and is the fallback only when no printable
+ * character is known, or for Cmd+S/B on a layout whose letters are not Latin (Cyrillic).
+ */
+internal fun nativeDomKey(key: Key, codePoint: Int): String? {
+    if (key == Key.Tab) return "Tab"
+    if (key == Key.F11) return "F11"
+    val positionLetter = when (key) { Key.S -> "s"; Key.B -> "b"; else -> null }
+    if (codePoint in 32..0xFFFF) {
+        return nativeDomKeyOfCharacter(codePoint.toChar().toString(), key == Key.S, key == Key.B)
+    }
+    return positionLetter ?: when (key) {
         Key.Comma -> ","
-        Key.Equals, Key.Plus, Key.NumPadAdd -> "="
+        Key.Equals, Key.Plus, Key.NumPadAdd -> "+"
         Key.Minus, Key.NumPadSubtract -> "-"
         Key.Zero, Key.NumPad0 -> "0"
-        Key.Tab -> "Tab"
-        Key.F11 -> "F11"
-        else -> return null
+        else -> null
     }
+}
+
+/**
+ * The shortcut key for a typed [character] (UIKey.charactersIgnoringModifiers on iOS). A non-Latin letter falls back to
+ * the S/B key position ([onKeyS], [onKeyB]); other punctuation is never mapped from a position.
+ */
+internal fun nativeDomKeyOfCharacter(character: String, onKeyS: Boolean, onKeyB: Boolean): String? {
+    if (character.length != 1) return null
+    val c = character[0].lowercaseChar()
+    return when {
+        c in 'a'..'z' || c in NATIVE_PUNCTUATION -> c.toString()
+        c.isLetter() -> if (onKeyS) "s" else if (onKeyB) "b" else null
+        else -> null
+    }
+}
+
+private const val NATIVE_PUNCTUATION = ",+=-_0"
+
+internal fun nativeShortcut(event: KeyEvent, editing: Boolean): NativeShortcut? {
+    if (event.type != KeyEventType.KeyDown) return null
+    val key = nativeDomKey(event.key, event.utf16CodePoint) ?: return null
     return nativeShortcut(key, event.isCtrlPressed, event.isAltPressed, event.isShiftPressed, event.isMetaPressed, editing)
 }

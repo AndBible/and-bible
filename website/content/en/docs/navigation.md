@@ -284,9 +284,9 @@ reading view, not in text fields or in the note editor (see the notes under
 | Mouse back button | Go back | Desktop |
 | **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop, iOS |
 | **Ctrl+Plus**, **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** (**Cmd+Plus**, **Cmd+Minus**, **Cmd+0** on iOS, no wheel) | Larger text, smaller text, default text size | Desktop, iOS |
-| **Ctrl+,** (**Cmd+,** on iOS) | Open *Application preferences* | Desktop, iOS |
+| **Ctrl+,** (**Cmd+,** on iOS, from the reading screen only) | Open *Application preferences* | Desktop, iOS |
 | **Ctrl+S** (**Cmd+S** on macOS and iOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop, iOS |
-| **F11** | Toggle fullscreen | Desktop, iOS |
+| **F11** | Toggle the reading fullscreen of the app (on iOS and Mac it does not toggle the Mac window's full screen; a Mac keyboard may need **Fn**+**F11**) | Desktop, iOS |
 | **Esc** | Go back, see [below](#esc-key-as-back) | iOS, desktop |
 | **Up / Down** | Scroll the text | All |
 | **Space** | Pause or resume speaking, while speech is not stopped | All |
@@ -299,7 +299,7 @@ When you tap a verse and its action menu is open, **B** adds a bookmark, **N** a
 With the reading view open, **Ctrl+F** opens the in-place search field, including
 on iPhone and iPad with a connected keyboard. On iOS, **Cmd+F** also opens search,
 and **Cmd+B** and **Cmd+L** perform the same reading action as **Ctrl+B**. You can also open
-the same search from **Find** in the main menu. On iOS the Command-key versions of the other shortcuts marked iOS above work too. Other Command-key combinations
+the same search from **Find** in the main menu. On iOS the Command-key versions of the other shortcuts marked iOS above work too, and the text size keys follow the character printed on your keyboard (**Cmd+Plus** and **Cmd+Minus** on a Finnish or German keyboard too). Other Command-key combinations
 are not reading shortcuts, and none of these act while a text field or the note editor has focus. Press **Ctrl+F** again (**Cmd+F** on iOS) to focus the
 search field and select the whole query; typing replaces the old query without
 running it again. While a native text field has focus, its own

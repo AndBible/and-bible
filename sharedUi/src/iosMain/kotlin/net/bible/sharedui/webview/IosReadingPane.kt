@@ -58,6 +58,8 @@ import platform.UIKit.UIKeyboardHIDUsageKeyboardHyphen
 import platform.UIKit.UIKeyboardHIDUsageKeyboard0
 import platform.UIKit.UIKeyboardHIDUsageKeyboardTab
 import platform.UIKit.UIKeyboardHIDUsageKeyboardF11
+import platform.UIKit.UIKeyboardHIDUsageKeyboardS
+import platform.UIKit.UIKeyboardHIDUsageKeyboardB
 import platform.UIKit.UIKeyboardHIDUsageKeyboardA
 import platform.UIKit.UIKeyboardHIDUsageKeyboardEscape
 import platform.UIKit.UIKeyboardHIDUsageKeyboardZ
@@ -95,16 +97,12 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
             }
             if (isEditing()) return@filterNot false
             val flags = key.modifierFlags
-            val domKey = when (key.keyCode) {
-                in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
-                    ('a' + (key.keyCode - UIKeyboardHIDUsageKeyboardA).toInt()).toString()
-                UIKeyboardHIDUsageKeyboardComma -> ","
-                UIKeyboardHIDUsageKeyboardEqualSign -> "="
-                UIKeyboardHIDUsageKeyboardHyphen -> "-"
-                UIKeyboardHIDUsageKeyboard0 -> "0"
-                UIKeyboardHIDUsageKeyboardTab -> "Tab"
-                UIKeyboardHIDUsageKeyboardF11 -> "F11"
-                else -> null
+            // Follow the PRINTED character (Finnish "+" sits on the US "-" position), not the key position.
+            val typed = key.charactersIgnoringModifiers.lowercase()
+            val domKey = when {
+                key.keyCode == UIKeyboardHIDUsageKeyboardTab -> "Tab"
+                key.keyCode == UIKeyboardHIDUsageKeyboardF11 -> "F11"
+                else -> net.bible.sharedui.reading.nativeDomKeyOfCharacter(typed, key.keyCode == UIKeyboardHIDUsageKeyboardS, key.keyCode == UIKeyboardHIDUsageKeyboardB)
             }
             val native = domKey?.let {
                 net.bible.sharedui.reading.nativeShortcut(
@@ -122,13 +120,14 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
                 swallowedPresses.add(press)
                 return@filterNot true
             }
-            val code = when (key.keyCode) {
-                in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
+            val code = when {
+                typed.length == 1 && typed[0] in 'a'..'z' -> "Key" + typed[0].uppercaseChar()
+                key.keyCode in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
                     "Key" + ('A' + (key.keyCode - UIKeyboardHIDUsageKeyboardA).toInt())
-                UIKeyboardHIDUsageKeyboardRightArrow -> "ArrowRight"
-                UIKeyboardHIDUsageKeyboardLeftArrow -> "ArrowLeft"
-                UIKeyboardHIDUsageKeyboardDownArrow -> "ArrowDown"
-                UIKeyboardHIDUsageKeyboardUpArrow -> "ArrowUp"
+                key.keyCode == UIKeyboardHIDUsageKeyboardRightArrow -> "ArrowRight"
+                key.keyCode == UIKeyboardHIDUsageKeyboardLeftArrow -> "ArrowLeft"
+                key.keyCode == UIKeyboardHIDUsageKeyboardDownArrow -> "ArrowDown"
+                key.keyCode == UIKeyboardHIDUsageKeyboardUpArrow -> "ArrowUp"
                 else -> return@filterNot false
             }
             val command = net.bible.sharedui.reading.readingShortcut(

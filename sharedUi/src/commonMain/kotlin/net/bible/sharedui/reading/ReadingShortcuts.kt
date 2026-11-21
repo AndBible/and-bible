@@ -8,6 +8,7 @@ import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.utf16CodePoint
 
 /** Maps native/Compose chords to BibleView's supported commands; keep keyboard.ts in sync. */
 internal fun readingShortcut(
@@ -40,6 +41,11 @@ internal fun readingShortcutScript(code: String, ctrl: Boolean, alt: Boolean): S
 
 internal fun readingShortcut(event: KeyEvent, editing: Boolean = false, iosCommandKeys: Boolean = false): String? {
     if (event.type != KeyEventType.KeyDown) return null
+    val cp = event.utf16CodePoint
+    if (cp in 'a'.code..'z'.code || cp in 'A'.code..'Z'.code) {
+        val printed = "Key" + cp.toChar().uppercaseChar()
+        return readingShortcut(printed, event.isCtrlPressed, event.isAltPressed, event.isMetaPressed, editing, iosCommandKeys)
+    }
     val code = when (event.key) {
         Key.F -> "KeyF"
         Key.B -> "KeyB"
