@@ -309,7 +309,6 @@ object NavRoutes {
     const val CUSTOM_REPOSITORIES_PATTERN: String = "documents/repositories"
     const val CUSTOM_REPOSITORY_EDITOR_PATTERN: String =
         "documents/repositories/edit?$ARG_REPOSITORY_ID={$ARG_REPOSITORY_ID}"
-    const val PROGRESS_STATUS_PATTERN: String = "documents/progress"
     const val CLOUD_DOCUMENTS_PATTERN: String = "documents/cloud"
 
     fun myDocuments(): String = MY_DOCUMENTS_PATTERN
@@ -351,8 +350,6 @@ object NavRoutes {
      */
     fun customRepositoryEditor(id: Long?): String =
         buildRoute("documents/repositories/edit") { optional(ARG_REPOSITORY_ID, id?.toString()) }
-
-    fun progressStatus(): String = PROGRESS_STATUS_PATTERN
 
     fun cloudDocuments(): String = CLOUD_DOCUMENTS_PATTERN
 

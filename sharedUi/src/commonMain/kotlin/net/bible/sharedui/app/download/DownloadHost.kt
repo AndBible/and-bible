@@ -66,7 +66,6 @@ import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
-import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedlogic.platform.PlatformLocales
 import net.bible.sharedlogic.util.currentTimeMillis
@@ -81,7 +80,6 @@ import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.CloudDocumentsDeps
 import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
-import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.docCategoryOf
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.strings.Strings
@@ -141,7 +139,6 @@ class DownloadHost(
     private val clipboard: ClipboardText,
     private val openInstallZip: InstallZipOpener,
     /** Progress status' running-job feed (the search host owns the index jobs it reports). */
-    private val observeProgressJobs: ((List<ProgressJob>) -> Unit) -> () -> Unit,
     private val appSettingsProvider: () -> AppSettings,
     private val userNotifierProvider: () -> UserNotifier,
     private val directoriesProvider: () -> AppDirectories,
@@ -331,7 +328,7 @@ class DownloadHost(
             topBarActions = { firstDownload -> DownloadOverflowMenu(navController, firstDownload) },
             askIfWantToProceed = { askIfWantToProceedWithDownload() },
             // Classic DownloadComposeActivity.kt:238, a suspend call: the host owns the scope so the graph's deps
-            // slot can stay a plain () -> Unit, the same shape ProgressStatusDeps.requestNotificationPermission
+            // slot can stay a plain () -> Unit, the same shape as
             // uses.
             requestNotificationPermission = { shell.hostScope.launch { notificationPermission.request() } },
             refreshCatalogue = { refresh -> refreshDownloadCatalogue(refresh) },
@@ -345,13 +342,6 @@ class DownloadHost(
             subscribeMonitoring = { firstDownload -> subscribeDownloadMonitoring(firstDownload) },
             persistTypeFilter = { filter -> appSettings.setInt(SELECTED_DOCUMENT_FILTER_KEY, filter.ordinal) },
             initialTypeFilter = { addons -> initialTypeFilter(addons) },
-        ),
-        progressStatus = ProgressStatusDeps(
-            title = strings.progressStatus,
-            // Classic ProgressStatusComposeActivity.kt:84, a suspend call: the host owns the scope so the graph's
-            // deps slot can stay a plain () -> Unit.
-            requestNotificationPermission = { shell.hostScope.launch { notificationPermission.request() } },
-            observeJobs = { onJobs -> observeProgressJobs(onJobs) },
         ),
         cloudDocuments = cloudDocuments,
     )

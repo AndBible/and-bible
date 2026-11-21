@@ -33,6 +33,16 @@ class AppRoutesTest {
         assertEquals("settings?x=search/form", withoutRetiredRoute("settings?x=search/form"))
     }
 
+    /** #4174: a restored stale start route naming the removed progress screen must not crash the NavHost. */
+    @Test
+    fun theRemovedProgressStatusRouteOpensReading() {
+        val stale = "documents/progress"
+        assertEquals(NavRoutes.READING, withoutRetiredRoute(stale))
+        assertEquals(NavRoutes.READING, navHostStartRoute(null, stale, onMissing = { fail() }))
+        assertEquals(NavRoutes.READING, navHostStartRoute(stale, null, onMissing = { fail() }))
+        assertEquals("documents/progressive", withoutRetiredRoute("documents/progressive"))
+    }
+
     @Test
     fun missingDefaultsToReadingAndReports() {
         var missing = 0

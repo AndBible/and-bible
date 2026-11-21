@@ -188,7 +188,7 @@ class SearchHost(
      * `PROGRESS_STATUS_PATTERN`'s `observeJobs`: classic `ProgressStatusComposeActivity`'s `onResume`/`onPause`
      * PAIR (`:82-98`) as one call, reusing [indexJobSnapshot] -- the snapshot it builds is generic over JSword's
      * `JobManager`, not index-specific. Unlike [observeIndexJobs], there is no `onJobFinished` callback and no
-     * `finishedIndexJobs` de-duplication: [net.bible.sharedui.download.nav.ProgressStatusDeps] has no "indexing
+     * `finishedIndexJobs` de-duplication: the removed progress-status deps has no "indexing
      * finished" routing to drive, only a job-list refresh. Public because the download cluster still uses it
      * from the activity until its own lift.
      */

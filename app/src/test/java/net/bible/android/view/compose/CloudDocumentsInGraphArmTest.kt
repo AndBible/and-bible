@@ -36,7 +36,6 @@ import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
-import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.theme.AbTheme
@@ -137,13 +136,6 @@ class CloudDocumentsInGraphArmTest {
             initialFor = { RepositoryResult() },
             readClipboard = { null },
         ),
-        // Only used as the round-trip's other destination (a sibling to navigate to and back from);
-        // its own behaviour is Task 4's test's subject, not this one's.
-        progressStatus = ProgressStatusDeps(
-            title = "Progress",
-            requestNotificationPermission = {},
-            observeJobs = { { } },
-        ),
         download = DownloadDeps(
             controllerFor = { error("not exercised here") },
             sessionToken = { "session" },
@@ -215,7 +207,7 @@ class CloudDocumentsInGraphArmTest {
         setGraph(NavRoutes.cloudDocuments())
         val old = assertNotNull(progressOnRunning)
         compose.runOnIdle {
-            navController.navigate(NavRoutes.progressStatus()) { popUpTo(NavRoutes.cloudDocuments()) { inclusive = true } }
+            navController.navigate(NavRoutes.customRepositories()) { popUpTo(NavRoutes.cloudDocuments()) { inclusive = true } }
         }
         compose.waitForIdle()
         compose.runOnIdle { navController.navigate(NavRoutes.cloudDocuments()) }
@@ -290,7 +282,7 @@ class CloudDocumentsInGraphArmTest {
         setGraph(NavRoutes.cloudDocuments())
         assertEquals(0, progressStops)
 
-        compose.runOnIdle { navController.navigate(NavRoutes.progressStatus()) }
+        compose.runOnIdle { navController.navigate(NavRoutes.customRepositories()) }
         compose.waitForIdle()
 
         assertEquals(1, progressStops, "the progress subscription was not released")
@@ -341,7 +333,7 @@ class CloudDocumentsInGraphArmTest {
         // reopen it as a brand new entry, exactly the round trip Download's own overflow row (or
         // Settings' sync row) drives in the real app.
         compose.runOnIdle {
-            navController.navigate(NavRoutes.progressStatus()) {
+            navController.navigate(NavRoutes.customRepositories()) {
                 popUpTo(NavRoutes.cloudDocuments()) { inclusive = true }
             }
         }

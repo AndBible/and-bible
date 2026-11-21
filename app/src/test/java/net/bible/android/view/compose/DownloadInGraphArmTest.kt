@@ -40,7 +40,6 @@ import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
-import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.theme.AbTheme
@@ -123,13 +122,6 @@ class DownloadInGraphArmTest {
             title = "Custom repositories",
             initialFor = { RepositoryResult() },
             readClipboard = { null },
-        ),
-        // The neighbouring destination this test navigates to in order to dispose the Download
-        // arm's composition; its own behaviour is Task 4's test's subject, not this one's.
-        progressStatus = ProgressStatusDeps(
-            title = "Progress",
-            requestNotificationPermission = {},
-            observeJobs = { { } },
         ),
         download = DownloadDeps(
             controllerFor = { initialTypeFilter ->
@@ -374,7 +366,7 @@ class DownloadInGraphArmTest {
 
         // The user moves off what the route seeded; coming back must not undo either.
         compose.runOnIdle { c.setQuery("mine") }
-        compose.runOnIdle { navController.navigate(NavRoutes.progressStatus()) }
+        compose.runOnIdle { navController.navigate(NavRoutes.customRepositories()) }
         compose.waitForIdle()
         compose.runOnIdle { navController.popBackStack() }
         compose.waitForIdle()
@@ -526,7 +518,7 @@ class DownloadInGraphArmTest {
         assertEquals(0, progressStops)
         assertEquals(0, monitoringStops)
 
-        compose.runOnIdle { navController.navigate(NavRoutes.progressStatus()) }
+        compose.runOnIdle { navController.navigate(NavRoutes.customRepositories()) }
         compose.waitForIdle()
 
         assertEquals(1, progressStops, "the progress collector was not released")

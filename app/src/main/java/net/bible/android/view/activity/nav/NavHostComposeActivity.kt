@@ -136,7 +136,9 @@ import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.device.EXTRA_OPEN_ACTIVITY_LIST
 import net.bible.service.device.ScreenSettings
+import net.bible.service.device.consumeActivityListRequest
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.sharedcore.event.Subscriptions
@@ -396,6 +398,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var intentArrival = 0L
 
     private fun applyNewIntent(intent: Intent) {
+        // #4174: the progress notification asks for the background-activity list on top of reading.
+        intent.consumeActivityListRequest(getKoin().getOrNull())
         // The route check comes FIRST: a route-less new intent must not become this Activity's
         // intent. It no longer THROWS on the next onCreate -- T8b turned that requireNotNull into a
         // loud default (see navHostStartRoute) -- but letting one through would still replace a
@@ -3019,6 +3023,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // A state loss is recoverable; a launch crash loop is not.
         // After process death the system re-delivers the ORIGINAL launch intent; its link was already applied.
         if (savedInstanceState != null) intent.removeExtra("openLink")
+        if (savedInstanceState == null) intent.consumeActivityListRequest(getKoin().getOrNull())
+        else intent.removeExtra(EXTRA_OPEN_ACTIVITY_LIST)
         val launchRoute = intent.getStringExtra(EXTRA_ROUTE)
         pendingReadingSearchRoute = if (savedInstanceState != null) savedInstanceState.getString("pending_reading_search")
             else launchRoute?.takeIf { it.substringBefore('?') == "reading/search" }

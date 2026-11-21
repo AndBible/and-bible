@@ -320,7 +320,6 @@ class AppHosts(
             clipboard = koin.get<ClipboardText>(),
             openInstallZip = installZipOpener,
             // The search host owns the index jobs Progress status lists.
-            observeProgressJobs = { onJobs -> search.observeProgressStatusJobs(onJobs) },
             appSettingsProvider = { koin.get<AppSettings>() },
             userNotifierProvider = { koin.get<UserNotifier>() },
             directoriesProvider = { koin.get<AppDirectories>() },
