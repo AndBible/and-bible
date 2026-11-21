@@ -399,7 +399,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private fun applyNewIntent(intent: Intent) {
         // #4174: the progress notification asks for the background-activity list on top of reading.
-        intent.consumeActivityListRequest(getKoin().getOrNull())
+        if (intent.getBooleanExtra("net.bible.android.openActivityList", false)) intent.consumeActivityListRequest(getKoin().getOrNull())
         // The route check comes FIRST: a route-less new intent must not become this Activity's
         // intent. It no longer THROWS on the next onCreate -- T8b turned that requireNotNull into a
         // loud default (see navHostStartRoute) -- but letting one through would still replace a

@@ -1224,7 +1224,7 @@ class NavHostRoutingGuardTest {
          * the extra was always read there, the CALLER just used to build a `MainBibleActivity`
          * intent. Keep this list to extras a reader can point at an `intent.get*Extra` for.
          */
-        val EXTRAS_THE_NAV_HOST_READS = setOf("openLink")
+        val EXTRAS_THE_NAV_HOST_READS = setOf("openLink", "net.bible.android.openActivityList")
     }
 
     /**

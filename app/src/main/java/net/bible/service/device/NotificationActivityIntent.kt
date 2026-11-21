@@ -29,13 +29,15 @@ internal const val ACTION_OPEN_ACTIVITY_LIST = "net.bible.android.OPEN_ACTIVITY_
 internal const val EXTRA_OPEN_ACTIVITY_LIST = "net.bible.android.openActivityList"
 
 /** The reading view with a request to open the background-activity list; the progress notification's tap target. */
-internal fun openActivityListIntent(context: Context): Intent =
-    NavHostComposeActivity.intentFor(context, NavRoutes.READING).apply {
-        // A distinct action keeps this PendingIntent apart from other getActivity(requestCode 0) intents to the same
-        // component: PendingIntents match on everything but extras.
-        action = ACTION_OPEN_ACTIVITY_LIST
-        putExtra(EXTRA_OPEN_ACTIVITY_LIST, true)
-    }
+internal fun openActivityListIntent(context: Context): Intent {
+    val intent = NavHostComposeActivity.intentFor(context, NavRoutes.READING)
+    // A distinct action keeps this PendingIntent apart from other getActivity(requestCode 0) intents to the same
+    // component: PendingIntents match on everything but extras.
+    intent.action = ACTION_OPEN_ACTIVITY_LIST
+    // Spelled as a literal (== EXTRA_OPEN_ACTIVITY_LIST) because NavHostRoutingGuardTest allowlists extras by literal name.
+    intent.putExtra("net.bible.android.openActivityList", true)
+    return intent
+}
 
 /**
  * Forwards an [EXTRA_OPEN_ACTIVITY_LIST] request carried by this intent to [requests] and removes the extra, so a

@@ -20,6 +20,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.bible.android.TEST_SDK
@@ -164,6 +165,10 @@ class CloudDocumentsInGraphArmTest {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                     NavHost(navController = navController, startDestination = startDestination) {
                         downloadNavGraph(navController, d)
+                        // A sibling destination to navigate to, to dispose the arm under test (the removed progress screen's role).
+                        composable(OTHER_DESTINATION) { androidx.compose.material3.Text("other") }
+                    // A sibling destination to navigate to, to dispose the arm under test (the removed progress screen's role).
+                    composable(OTHER_DESTINATION) { androidx.compose.material3.Text("other") }
                     }
                 }
             }
@@ -207,7 +212,7 @@ class CloudDocumentsInGraphArmTest {
         setGraph(NavRoutes.cloudDocuments())
         val old = assertNotNull(progressOnRunning)
         compose.runOnIdle {
-            navController.navigate(NavRoutes.customRepositories()) { popUpTo(NavRoutes.cloudDocuments()) { inclusive = true } }
+            navController.navigate(OTHER_DESTINATION) { popUpTo(NavRoutes.cloudDocuments()) { inclusive = true } }
         }
         compose.waitForIdle()
         compose.runOnIdle { navController.navigate(NavRoutes.cloudDocuments()) }
@@ -282,7 +287,7 @@ class CloudDocumentsInGraphArmTest {
         setGraph(NavRoutes.cloudDocuments())
         assertEquals(0, progressStops)
 
-        compose.runOnIdle { navController.navigate(NavRoutes.customRepositories()) }
+        compose.runOnIdle { navController.navigate(OTHER_DESTINATION) }
         compose.waitForIdle()
 
         assertEquals(1, progressStops, "the progress subscription was not released")
@@ -333,7 +338,7 @@ class CloudDocumentsInGraphArmTest {
         // reopen it as a brand new entry, exactly the round trip Download's own overflow row (or
         // Settings' sync row) drives in the real app.
         compose.runOnIdle {
-            navController.navigate(NavRoutes.customRepositories()) {
+            navController.navigate(OTHER_DESTINATION) {
                 popUpTo(NavRoutes.cloudDocuments()) { inclusive = true }
             }
         }
@@ -358,4 +363,6 @@ class CloudDocumentsInGraphArmTest {
         blocked = false, canDeleteLocal = true, cloudDeleted = false,
         sizeLabel = null, sizeBytes = null,
     )
+
+    private companion object { const val OTHER_DESTINATION = "test/other" }
 }
