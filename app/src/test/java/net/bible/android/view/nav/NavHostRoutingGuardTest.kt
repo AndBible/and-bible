@@ -757,7 +757,10 @@ class NavHostRoutingGuardTest {
     fun everyAllowlistedExtraIsReallyReadByTheNavHost() {
         val host = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
         assertTrue(host.exists(), "the nav host source moved; this scan is watching nothing")
-        val code = ClassicRemovalScan.codeLinesOf(host.path)
+        // The activity-list request is read by the extension the host calls (NotificationActivityIntent.kt).
+        val readers = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/service/device/NotificationActivityIntent.kt")
+        assertTrue(readers.exists(), "the notification intent helper moved; this scan is watching nothing")
+        val code = ClassicRemovalScan.codeLinesOf(host.path) + "\n" + ClassicRemovalScan.codeLinesOf(readers.path)
         val unread = EXTRAS_THE_NAV_HOST_READS.filterNot { name ->
             Regex("""(?:get\w*Extra|hasExtra)\s*\(\s*"${Regex.escape(name)}"""").containsMatchIn(code)
         }
