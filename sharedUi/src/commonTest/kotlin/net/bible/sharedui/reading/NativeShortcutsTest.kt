@@ -24,10 +24,19 @@ class NativeShortcutsTest {
         assertEquals(NativeShortcut.FontLarger, chord(Key.Equals, '='.code))
         assertEquals(NativeShortcut.FontLarger, chord(Key.Equals, '+'.code, shift = true))
         assertEquals(NativeShortcut.FontSmaller, chord(Key.Minus, '-'.code))
-        assertEquals(NativeShortcut.FontLarger, chord(Key.Equals, 0))
         assertEquals(NativeShortcut.FontSmaller, chord(Key.NumPadSubtract, 0))
+        assertEquals(NativeShortcut.FontLarger, chord(Key.NumPadAdd, 0))
+        assertEquals(NativeShortcut.FontReset, chord(Key.NumPad0, 0))
         assertEquals(NativeShortcut.SyncNow, chord(Key.S, 's'.code))
         assertEquals(NativeShortcut.SyncNow, chord(Key.S, 'S'.code))
+    }
+
+    /** Compose may report no character with Cmd held; position must not guess (Nordic "+" is on Key.Minus). */
+    @Test fun punctuationAndDigitRowAreNeverMappedFromPositionWithoutACharacter() {
+        for (key in listOf(Key.Minus, Key.Equals, Key.Plus, Key.Comma, Key.Zero, Key.Slash)) {
+            assertNull(chord(key, 0), "$key with code point 0")
+            assertNull(chord(key, 1), "$key with a control code point")
+        }
     }
 
     @Test fun lettersFollowThePrintedCharacterAndNonLatinFallsBackToTheKey() {

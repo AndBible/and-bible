@@ -50,7 +50,7 @@ internal fun nativeShortcut(
  * The DOM-style key a chord means, from the PRINTED character, not the key position: a Finnish/Swedish keyboard has "+"
  * where a US one has "-", so Cmd++ must follow the character (desktop reads the character too). [codePoint] is the
  * event's character (0 or a control code when unknown). [key] names Tab/F11, and is the fallback only when no printable
- * character is known, or for Cmd+S/B on a layout whose letters are not Latin (Cyrillic).
+ * character is known, for the numpad, or for Cmd+S/B on a layout whose letters are not Latin (Cyrillic).
  */
 internal fun nativeDomKey(key: Key, codePoint: Int): String? {
     if (key == Key.Tab) return "Tab"
@@ -59,11 +59,12 @@ internal fun nativeDomKey(key: Key, codePoint: Int): String? {
     if (codePoint in 32..0xFFFF) {
         return nativeDomKeyOfCharacter(codePoint.toChar().toString(), key == Key.S, key == Key.B)
     }
+    // No printable character known: only layout-independent keys (numpad) and the S/B letters map. Punctuation and the
+    // digit row are never mapped from a position (a Nordic "+" sits on the US Key.Minus position), so no action beats the wrong one.
     return positionLetter ?: when (key) {
-        Key.Comma -> ","
-        Key.Equals, Key.Plus, Key.NumPadAdd -> "+"
-        Key.Minus, Key.NumPadSubtract -> "-"
-        Key.Zero, Key.NumPad0 -> "0"
+        Key.NumPadAdd -> "+"
+        Key.NumPadSubtract -> "-"
+        Key.NumPad0 -> "0"
         else -> null
     }
 }
