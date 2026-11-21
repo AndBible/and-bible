@@ -528,6 +528,27 @@ androidComponents {
             variant.outputs.forEach { it.versionName.set(productionVersionName) }
         }
     }
+    // Every minified build checks that R8 kept the no-argument constructors libraries call by reflection (Room
+    // *_Impl, WorkManager InputMerger, androidx.startup Initializer). A missing one crash-looped 6.0.1279 at
+    // startup (#4175); see app/proguard-rules.pro and docs/r8-obfuscation.md.
+    onVariants(selector().all()) { variant ->
+        if (!variant.isMinifyEnabled) return@onVariants
+        val cap = variant.name.replaceFirstChar { it.uppercase() }
+        val minifyTask = "minify${cap}WithR8"
+        val mapping = variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.OBFUSCATION_MAPPING_FILE)
+        val dexDir = layout.buildDirectory.dir("intermediates/dex/${variant.name}/$minifyTask")
+        val check = tasks.register<Exec>("checkR8ReflectiveConstructors$cap") {
+            group = "verification"
+            description = "Fails when R8 removed a constructor that a library calls by reflection (#4175)."
+            val script = rootProject.file("scripts/check-r8-reflective-constructors.py")
+            inputs.file(script)
+            inputs.file(mapping)
+            inputs.dir(dexDir)
+            commandLine("python3", "-I", script.absolutePath, mapping.get().asFile.absolutePath,
+                "--dex-dir", dexDir.get().asFile.absolutePath)
+        }
+        tasks.matching { it.name == minifyTask }.configureEach { finalizedBy(check) }
+    }
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
     // Replace only the "standard" prefix, in order to preserve any
