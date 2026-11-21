@@ -23,6 +23,8 @@ internal fun readingShortcut(
     }
     if (ctrl && alt) return null
     if (ctrl) {
+        // Physical Ctrl+L on an iPad keyboard = Cmd+L (#4177).
+        if (iosCommandKeys && code == "KeyL") return if (editing) null else "CtrlKeyB"
         if (editing && code in setOf("KeyB", "KeyC")) return null
         return if (code in setOf("KeyF", "KeyB", "KeyC", "KeyW")) "Ctrl$code" else null
     }

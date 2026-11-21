@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.reading
 
+import net.bible.sharedui.host.reading.FontSizeChange
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

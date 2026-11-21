@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.reading
 
+import net.bible.sharedui.host.reading.FontSizeChange
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType

@@ -52,6 +52,12 @@ import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSThread
 import platform.Foundation.setValue
 import platform.UIKit.UIColor
+import platform.UIKit.UIKeyboardHIDUsageKeyboardComma
+import platform.UIKit.UIKeyboardHIDUsageKeyboardEqualSign
+import platform.UIKit.UIKeyboardHIDUsageKeyboardHyphen
+import platform.UIKit.UIKeyboardHIDUsageKeyboard0
+import platform.UIKit.UIKeyboardHIDUsageKeyboardTab
+import platform.UIKit.UIKeyboardHIDUsageKeyboardF11
 import platform.UIKit.UIKeyboardHIDUsageKeyboardA
 import platform.UIKit.UIKeyboardHIDUsageKeyboardEscape
 import platform.UIKit.UIKeyboardHIDUsageKeyboardZ
@@ -88,6 +94,34 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
                 return@filterNot true
             }
             if (isEditing()) return@filterNot false
+            val flags = key.modifierFlags
+            val domKey = when (key.keyCode) {
+                in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
+                    ('a' + (key.keyCode - UIKeyboardHIDUsageKeyboardA).toInt()).toString()
+                UIKeyboardHIDUsageKeyboardComma -> ","
+                UIKeyboardHIDUsageKeyboardEqualSign -> "="
+                UIKeyboardHIDUsageKeyboardHyphen -> "-"
+                UIKeyboardHIDUsageKeyboard0 -> "0"
+                UIKeyboardHIDUsageKeyboardTab -> "Tab"
+                UIKeyboardHIDUsageKeyboardF11 -> "F11"
+                else -> null
+            }
+            val native = domKey?.let {
+                net.bible.sharedui.reading.nativeShortcut(
+                    it,
+                    ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
+                    alt = flags and platform.UIKit.UIKeyModifierAlternate != 0L,
+                    shift = flags and platform.UIKit.UIKeyModifierShift != 0L,
+                    meta = flags and platform.UIKit.UIKeyModifierCommand != 0L,
+                    editing = false,
+                )
+            }
+            if (native != null) {
+                // Not consumed when the reading screen is not current: bubble on.
+                if (!net.bible.sharedui.ios.app.IosNativeShortcutRunner.run(native)) return@filterNot false
+                swallowedPresses.add(press)
+                return@filterNot true
+            }
             val code = when (key.keyCode) {
                 in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
                     "Key" + ('A' + (key.keyCode - UIKeyboardHIDUsageKeyboardA).toInt())
@@ -97,7 +131,6 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
                 UIKeyboardHIDUsageKeyboardUpArrow -> "ArrowUp"
                 else -> return@filterNot false
             }
-            val flags = key.modifierFlags
             val command = net.bible.sharedui.reading.readingShortcut(
                 code,
                 ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
