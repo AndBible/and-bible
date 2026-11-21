@@ -79,6 +79,10 @@ class CloudSyncTwoPhaseJoinTest {
         var folderKnown = true
         val listedNames = mutableListOf<String?>()
         val getFoldersCalls = mutableListOf<String>()
+        val deleted = java.util.Collections.synchronizedList(mutableListOf<String>())
+        val createdFolders = java.util.Collections.synchronizedList(mutableListOf<String>())
+        /** Appended to the id of every listed cloud folder: a changed value simulates a folder recreated by another device. */
+        @Volatile var folderIdSuffix = ""
         @Volatile var gate: CompletableDeferred<Unit>? = null
         val entered = CompletableDeferred<Unit>()
         /** Gates the next cloud-folder listing (name containing "-sync-"): the probe of a category stays inside listFiles. */
@@ -94,9 +98,9 @@ class CloudSyncTwoPhaseJoinTest {
         override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> {
             synchronized(listedNames) { listedNames += name }
             if (name != null && name.contains("-sync-")) listGate?.let { listEntered.complete(Unit); it.await() }
-            return if (name != null && name in cloudFolderNames) listOf(CloudFile("cloud-$name", name, 0L, 1L, "root")) else emptyList()
+            return if (name != null && name in cloudFolderNames) listOf(CloudFile("cloud-$name$folderIdSuffix", name, 0L, 1L, "root")) else emptyList()
         }
-        override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = CloudFile("new-$name", name, 0L, 1L, parentId ?: "root")
+        override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = also { createdFolders += name }.let { CloudFile("new-$name", name, 0L, 1L, parentId ?: "root") }
         override suspend fun get(id: String): CloudFile = error("unused")
         override suspend fun getFolders(parentId: String): List<CloudFile> {
             synchronized(getFoldersCalls) { getFoldersCalls += parentId }
@@ -105,7 +109,7 @@ class CloudSyncTwoPhaseJoinTest {
         }
         override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) = error("unused")
         override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = CloudFile("up-$name", name, 1L, 1L, parentId)
-        override suspend fun delete(id: String) {}
+        override suspend fun delete(id: String) { deleted += id }
         override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
             if (knownCalls.getAndIncrement() == 0) knownGateOnce?.let { knownEntered.complete(Unit); it.await() }
             return folderKnown
@@ -429,5 +433,70 @@ class CloudSyncTwoPhaseJoinTest {
         withContext(D.Default) { withTimeout(30_000) { plan.join() } }
         gate.complete(Unit); f.adapter.listGate = null
         assertFalse(f.enabled(c))
+    }
+
+    @Test fun executePhaseSkipsACategoryDisabledAfterItsDecisionWasPeeked() = withFixture { f ->
+        val a = SyncableDatabaseDefinition.BOOKMARKS
+        val b = SyncableDatabaseDefinition.WORKSPACES
+        f.enable(a, b); f.cloudHas(a, b); all(f, "fetch")
+        assertTrue(f.cloud.planJoins(setOf(a))) // stores FETCH for a
+        // The pass asks about b; while that dialog is open, an Apply turns a off.
+        f.answer = { r -> a.setSyncEnabled(f.settings, false); AppDialogResult.SyncJoinChoices(r.rows.associate { it.key to "disable" }) }
+        f.cloud.synchronize()
+        assertNull(f.db(a).dao.getString(SYNC_FOLDER_FILE_ID_KEY), "the stale FETCH did not run")
+        assertFalse(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames })
+        assertFalse(f.enabled(a))
+        assertTrue(f.cloud.queuedJoins.value.isEmpty())
+    }
+
+    @Test fun executePhaseSkipsAStoredDecisionDroppedMeanwhile() = withFixture { f ->
+        val a = SyncableDatabaseDefinition.BOOKMARKS
+        val b = SyncableDatabaseDefinition.WORKSPACES
+        f.enable(a, b); f.cloudHas(a, b); all(f, "fetch")
+        assertTrue(f.cloud.planJoins(setOf(a)))
+        f.answer = { r -> f.cloud.dropStoredJoin(a); AppDialogResult.SyncJoinChoices(r.rows.associate { it.key to "disable" }) }
+        f.cloud.synchronize()
+        assertNull(f.db(a).dao.getString(SYNC_FOLDER_FILE_ID_KEY), "a decision that is gone is not executed from the stale peek")
+        assertFalse(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames })
+    }
+
+    @Test fun createDecisionIsNotReusedWhenACloudFolderAppearsMeanwhile() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c); all(f, "disable")
+        assertTrue(f.cloud.planJoins(setOf(c))) // no cloud folder: CREATE_NEW stored without a question
+        assertEquals(0, f.planRequests().size)
+        assertEquals(setOf(c), f.cloud.queuedJoins.value)
+        f.cloudHas(c) // another device created it
+        f.cloud.synchronize()
+        assertEquals(1, f.planRequests().size, "the user is asked: the stored create never replaces an existing folder")
+        assertTrue(f.adapter.deleted.isEmpty(), "nothing deleted")
+        assertTrue(f.adapter.createdFolders.isEmpty(), "nothing created")
+        assertNull(f.db(c).dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+        assertFalse(f.enabled(c))
+    }
+
+    @Test fun backgroundPassNeverRunsACreateDecisionAgainstAnExistingCloudFolder() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c)
+        assertTrue(f.cloud.planJoins(setOf(c)))
+        f.cloudHas(c)
+        f.cloud.synchronize(allowInteraction = false)
+        assertEquals(0, f.requests.size)
+        assertTrue(f.adapter.deleted.isEmpty(), "nothing deleted")
+        assertTrue(f.adapter.createdFolders.isEmpty(), "nothing created")
+        assertNull(f.db(c).dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+        assertTrue(f.enabled(c), "a background pass leaves the category as it was")
+    }
+
+    @Test fun storedDecisionForAnotherCloudFolderIsNotExecuted() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c); f.cloudHas(c); all(f, "fetch")
+        assertTrue(f.cloud.planJoins(setOf(c)))
+        f.adapter.folderIdSuffix = "-recreated" // the folder was replaced after the decision
+        all(f, "disable")
+        f.cloud.synchronize()
+        assertEquals(2, f.planRequests().size, "asked again about the new folder")
+        assertNull(f.db(c).dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+        assertFalse(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames })
     }
 }

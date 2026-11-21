@@ -443,6 +443,36 @@ class SyncSettingsControllerTest {
         assertEquals(emptyList(), svc.applied)
     }
 
+    @Test fun applyClearsOnlyTheKeysItApplied() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred() }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        c.onSwitch("sync_enable_workspaces", true) // flipped while the Apply runs
+        svc.beforeProbe!!.complete(Unit)
+        svc.afterProbe!!.complete(Unit)
+        assertEquals(mapOf("sync_enable_workspaces" to true), c.state.value.pending, "the later switch is still pending")
+    }
+
+    @Test fun hopRefusedByARunningApplyDoesNotLeakIntoALaterLeave() {
+        var opened = 0
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred() }
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), { opened++ }, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        svc.beforeProbe!!.complete(Unit)
+        c.onNavigate("document_sync_manage") // refused: an Apply is running
+        assertEquals(0, opened)
+        svc.afterProbe!!.complete(Unit)
+        svc.beforeProbe = null; svc.afterProbe = null
+        c.onSwitch("sync_enable_workspaces", true)
+        assertFalse(c.onLeave())
+        c.confirmLeaveApply()
+        assertEquals(0, opened, "the refused hop did not come back")
+        assertEquals(1, exits)
+    }
+
     @Test fun hopWithPendingRunsAfterApplyCompletes() {
         var opened = 0
         val svc = FakeSyncSettingsService(syncSnap()).apply { afterProbe = CompletableDeferred(); beforeProbe = CompletableDeferred() }

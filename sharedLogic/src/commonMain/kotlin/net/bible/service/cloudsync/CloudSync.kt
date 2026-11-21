@@ -181,7 +181,11 @@ class CloudSync(
         if (!adapterAvailable) return false
         if (!signInMutex.tryLock()) {
             Log.i(TAG, "Already signing in!")
-            return if (waitForExisting) signInMutex.withLock { _adapter?.signedIn == true } else null
+            if (!waitForExisting) return null
+            val ok = signInMutex.withLock { _adapter?.signedIn == true }
+            // The sign-in waited for may have been a background one, which reports nothing: tell the waiting caller.
+            if (!ok && !background) UserMessages.errorNotification(strings.signInFailedLead, showReportButton = false, background = false, kind = ActivityKind.SYNC)
+            return ok
         }
         val done = kotlinx.coroutines.CompletableDeferred<Unit>().also { signInDone = it }
         var errorMessage: String? = null
@@ -321,8 +325,12 @@ class CloudSync(
         } + createOps
     }
 
-    /** A join decision the user already confirmed ([planJoins]); [fromDecision] false for a `NeedsCreate` category. */
-    private data class StoredJoin(val operation: InitialOperation, val fromDecision: Boolean)
+    /**
+     * A join decision the user already confirmed ([planJoins]); [fromDecision] false for a `NeedsCreate` category.
+     * [folderId] is the cloud folder a decision was made against (null for a create): a decision is only usable while
+     * the cloud still shows that folder. A class, not a data class: instances are compared by identity (see [storedJoinToken]).
+     */
+    private class StoredJoin(val operation: InitialOperation, val fromDecision: Boolean, val folderId: String? = null)
 
     private val joinStateLock = SynchronizedObject()
     /** Categories whose plan dialog is open (a count per category, so overlapping [planJoins] calls do not clear each other). */
@@ -341,6 +349,17 @@ class CloudSync(
     }
 
     private fun peekStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { storedJoins[category] } // L1-common-ok: atomicfu lock
+
+    /** An opaque identity of the decision stored for [category] right now (null: none), for [dropStoredJoinIfSame]. */
+    fun storedJoinToken(category: SyncableDatabaseDefinition): Any? = peekStoredJoin(category)
+
+    /** Drops the decision of [category] only if it is still the one [token] names: a later decision of another caller survives. */
+    fun dropStoredJoinIfSame(category: SyncableDatabaseDefinition, token: Any?) {
+        if (token == null) return
+        synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+            if (storedJoins[category] === token) { storedJoins.remove(category); queuedJoinsMutable.value = storedJoins.keys.toSet() }
+        }
+    }
 
     /** Drops the stored decision of [category], if any: a decision must not outlive the switch (or pass) that made it moot. */
     fun dropStoredJoin(category: SyncableDatabaseDefinition) {
@@ -419,7 +438,7 @@ class CloudSync(
                     val operation = plan[probe.category]
                     val fromDecision = probe.state is JoinState.NeedsDecision
                     if (operation == null) { storedJoins.remove(probe.category); probe.category.setSyncEnabled(settings, false) }
-                    else storedJoins[probe.category] = StoredJoin(operation, fromDecision)
+                    else storedJoins[probe.category] = StoredJoin(operation, fromDecision, (probe.state as? JoinState.NeedsDecision)?.preliminaryFolderId)
                 }
                 queuedJoinsMutable.value = storedJoins.keys.toSet()
             }
@@ -1044,6 +1063,7 @@ class CloudSync(
                 // category -> the operation to run (null: the user left it off)
                 val operations = HashMap<SyncableDatabaseDefinition, InitialOperation?>()
                 val skipped = HashSet<SyncableDatabaseDefinition>()
+                val usedStored = HashMap<SyncableDatabaseDefinition, Any>() // the stored decisions the operations came from
                 val toAsk = ArrayList<JoinProbe>()
                 for ((dbDef, probe) in probed) {
                     val category = dbDef.category
@@ -1056,8 +1076,12 @@ class CloudSync(
                                 skipped += category
                                 continue
                             }
-                            val usable = stored != null && (probe.state is JoinState.NeedsCreate || stored.fromDecision)
-                            if (usable) operations[category] = stored!!.operation
+                            // A decision only holds for the cloud it was made against: a create never replaces a folder another
+                            // device made since, and a fetch/merge/create answer is bound to the folder the user was shown.
+                            val state = probe.state
+                            val usable = stored != null && (state is JoinState.NeedsCreate ||
+                                (stored.fromDecision && state is JoinState.NeedsDecision && stored.folderId == state.preliminaryFolderId))
+                            if (usable) { operations[category] = stored!!.operation; usedStored[category] = stored }
                             else if (allowInteraction) toAsk += probe
                             else {
                                 // An OS refresh must not decide whether to fetch, create, or disable a category.
@@ -1095,7 +1119,12 @@ class CloudSync(
                         // Non-ready and not decided (nothing in `operations`): the category was left out of the plan.
                         if (!operations.containsKey(category)) return@asyncMap
                     }
-                    takeStoredJoin(category)
+                    // Re-check what the init phase decided: the dialog above may have taken a while, and an Apply meanwhile may
+                    // have turned the category off or replaced/dropped its decision.
+                    val taken = takeStoredJoin(category)
+                    if (!category.isSyncEnabled(settings)) return@asyncMap
+                    val fromStored = usedStored[category]
+                    if (fromStored != null && taken !== fromStored) return@asyncMap
                     if (!guardInit(dbDef, "initialize") { executeJoin(dbDef, probe, operation, backgroundErrors) }) return@asyncMap
                     try {
                         createAndUploadNewPatch(dbDef)

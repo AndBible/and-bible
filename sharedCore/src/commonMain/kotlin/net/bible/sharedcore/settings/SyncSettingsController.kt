@@ -213,7 +213,8 @@ class SyncSettingsController(
                     if (_state.value.dialog == SyncDialog.CheckingCloud) dismissDialog()
                 }
                 // Only a failed sign-in keeps the map for a retry; a cancelled plan left nothing to retry.
-                if (ok != ApplyResult.SignInFailed) setPending(emptyMap())
+                // Only the applied keys: a switch flipped while the Apply ran stays pending.
+                if (ok != ApplyResult.SignInFailed) setPending(pending - changes.keys)
                 completed = ok != ApplyResult.SignInFailed
             } catch (e: kotlinx.coroutines.CancellationException) {
                 // Progress Cancel: the cloud layer turned the ons off again. Offs not persisted yet stay pending.
@@ -256,6 +257,7 @@ class SyncSettingsController(
     private fun leaveThen(hop: () -> Unit) {
         afterLeave = hop
         if (askBeforeLeaving()) { afterLeave = null; hop() }
+        else if (_state.value.dialog != SyncDialog.LeaveWithPending) afterLeave = null // no question open: nothing will run the hop
     }
 
     private fun finishLeave() {
