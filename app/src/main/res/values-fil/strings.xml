@@ -1219,8 +1219,6 @@
   <string name="install_failed_reason">Nabigo ang pag-install ng module dahil sa sumusunod na dahilan: %s.</string>
   <string name="no_file_manager">Walang nahanap na app para pumili ng file. Mangyaring mag-install ng file manager at subukang muli.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Binuksan ang app sa ibang lugar</string>
-  <string name="open_here">Buksan dito</string>
   <string name="external_link_dont_ask_again">Huwag nang magtanong para sa %s</string>
   <string name="nameless">Hindi natukoy ang pamagat</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Mga one-tap na aksyon (Mga Bibliya)</string>

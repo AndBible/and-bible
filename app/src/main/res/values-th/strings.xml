@@ -1217,8 +1217,6 @@
   <string name="install_failed_reason">การติดตั้งโมดูลล้มเหลวด้วยเหตุผลต่อไปนี้: %s</string>
   <string name="no_file_manager">ไม่พบแอปสำหรับเลือกไฟล์ กรุณาติดตั้งตัวจัดการไฟล์แล้วลองใหม่อีกครั้ง</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">แอปเปิดอยู่ที่อื่น</string>
-  <string name="open_here">เปิดที่นี่</string>
   <string name="external_link_dont_ask_again">ไม่ต้องถามอีกสำหรับ %s</string>
   <string name="nameless">ไม่ได้กำหนดชื่อ</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">การกระทำแบบแตะครั้งเดียว (พระคัมภีร์)</string>

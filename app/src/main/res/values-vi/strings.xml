@@ -1217,8 +1217,6 @@
   <string name="install_failed_reason">Cài đặt module thất bại vì lý do sau: %s.</string>
   <string name="no_file_manager">Không tìm thấy ứng dụng nào để chọn tệp. Vui lòng cài đặt trình quản lý tệp rồi thử lại.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Ứng dụng đã mở ở nơi khác</string>
-  <string name="open_here">Mở tại đây</string>
   <string name="external_link_dont_ask_again">Không hỏi lại cho %s</string>
   <string name="nameless">Chưa xác định tiêu đề</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Hành động một chạm (Kinh Thánh)</string>

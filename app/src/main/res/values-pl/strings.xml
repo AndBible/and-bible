@@ -1281,8 +1281,6 @@ Podczas korzystania z Dysku Google, aplikacja %s otrzymuje uprawnienie na dostę
   <string name="install_failed_reason">Instalacja modułu nie powiodła się z następującego powodu: %s.</string>
   <string name="no_file_manager">Nie znaleziono aplikacji do wyboru pliku. Zainstaluj menedżera plików i spróbuj ponownie.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikacja jest otwarta gdzieś indziej</string>
-  <string name="open_here">Otwórz tutaj</string>
   <string name="external_link_dont_ask_again">Nie pytaj ponownie o %s</string>
   <string name="nameless">Brak tytułu</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcje pojedynczego stuknięcia (Biblie)</string>

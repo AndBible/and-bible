@@ -1267,8 +1267,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="install_failed_reason">Moduulin asentaminen epäonnistui seuraavasta syystä: %s.</string>
   <string name="no_file_manager">Tiedoston valintaan ei löytynyt sovellusta. Asenna tiedostonhallinta ja yritä uudelleen.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Sovellus avattu muualla</string>
-  <string name="open_here">Avaa täällä</string>
   <string name="external_link_dont_ask_again">Älä kysy uudelleen: %s</string>
   <string name="nameless">Otsikkoa ei määritelty</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Yhden napsautuksen toiminnot (Raamatut)</string>

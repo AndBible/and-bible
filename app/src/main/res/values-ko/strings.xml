@@ -1352,8 +1352,6 @@
   <string name="install_failed_reason">다음 이유로 모듈 설치에 실패했습니다: %s.</string>
   <string name="no_file_manager">파일을 선택할 수 있는 앱을 찾을 수 없습니다. 파일 관리자를 설치한 후 다시 시도하세요.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">앱이 다른 곳에서 열렸습니다</string>
-  <string name="open_here">여기서 열기</string>
   <string name="external_link_dont_ask_again">%s에 대해 다시 묻지 않음</string>
   <string name="nameless">제목 없음</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">한 번 탭 동작 (성경)</string>

@@ -1219,8 +1219,6 @@
   <string name="install_failed_reason">Installation af modul mislykkedes af følgende årsag: %s.</string>
   <string name="no_file_manager">Der blev ikke fundet nogen app til at vælge en fil. Installér venligst en filhåndtering og prøv igen.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">App åbnet andetsteds</string>
-  <string name="open_here">Åbn her</string>
   <string name="external_link_dont_ask_again">Spørg ikke igen for %s</string>
   <string name="nameless">Titel ikke defineret</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Enkelttrykhandlinger (Bibler)</string>

@@ -1351,8 +1351,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="install_failed_reason">Установка модуля не удалась по следующей причине: %s.</string>
   <string name="no_file_manager">Не найдено приложение для выбора файла. Установите файловый менеджер и попробуйте снова.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Приложение открыто в другом месте</string>
-  <string name="open_here">Открыть здесь</string>
   <string name="external_link_dont_ask_again">Больше не спрашивать для %s</string>
   <string name="nameless">Название не определено</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия одним касанием (Библии)</string>

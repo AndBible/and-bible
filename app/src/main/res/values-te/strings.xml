@@ -1328,8 +1328,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="install_failed_reason">కింది కారణాల వల్ల మాడ్యూల్‌ని ఇన్‌స్టాల్ చేయడం విఫలమైంది: %s.</string>
   <string name="no_file_manager">ఫైల్‌ను ఎంచుకోవడానికి ఏ యాప్ కనుగొనబడలేదు. దయచేసి ఒక ఫైల్ మేనేజర్‌ను ఇన్‌స్టాల్ చేసి మళ్లీ ప్రయత్నించండి.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">యాప్ మరెక్కడా తెరవబడింది</string>
-  <string name="open_here">ఇక్కడ తెరవండి</string>
   <string name="external_link_dont_ask_again">%s కోసం మళ్లీ అడగవద్దు</string>
   <string name="nameless">శీర్షిక నిర్వచించబడలేదు</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">వన్-ట్యాప్ చర్య (బైబిల్)</string>

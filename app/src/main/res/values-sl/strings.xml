@@ -1343,8 +1343,6 @@ lahko.
   <string name="install_failed_reason">Namestitev modula ni uspela iz naslednjega razloga: %s.</string>
   <string name="no_file_manager">Aplikacije za izbiro datoteke ni bilo mogoče najti. Namestite upravitelja datotek in poskusite znova.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikacija se je odprla drugje</string>
-  <string name="open_here">Odpri tukaj</string>
   <string name="external_link_dont_ask_again">Ne vprašaj več za %s</string>
   <string name="nameless">Naslov ni določen</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcije z enim dotikom (Biblije)

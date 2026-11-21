@@ -1319,8 +1319,6 @@ versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do apli
   <string name="install_failed_reason">Falha na instalação do módulo devido a seguinte razão: %s</string>
   <string name="no_file_manager">Nenhum aplicativo foi encontrado para escolher um arquivo. Instale um gerenciador de arquivos e tente novamente.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplicativo aberto em outro lugar</string>
-  <string name="open_here">Abrir aqui</string>
   <string name="external_link_dont_ask_again">Não perguntar novamente para %s</string>
   <string name="nameless">Título não definido</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Ações um-toque (Bíblias)</string>

@@ -1354,8 +1354,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="install_failed_reason">Instalace modulu selhala; důvod: %s.</string>
   <string name="no_file_manager">Nebyla nalezena žádná aplikace pro výběr souboru. Nainstalujte prosím správce souborů a zkuste to znovu.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikace spuštěna jinde</string>
-  <string name="open_here">Otevřít zde</string>
   <string name="external_link_dont_ask_again">Příště se neptat pro %s</string>
   <string name="nameless">Titulek není definován</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akce na jedno kliknutí (Bible)</string>

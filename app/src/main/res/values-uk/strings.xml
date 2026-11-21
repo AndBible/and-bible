@@ -1344,8 +1344,6 @@
   <string name="install_failed_reason">Не вдалося встановити модуль з наступної причини: %s.</string>
   <string name="no_file_manager">Не знайдено застосунку для вибору файлу. Будь ласка, встановіть файловий менеджер і спробуйте ще раз.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Додаток відкрито в іншому місці</string>
-  <string name="open_here">Відкрити тут</string>
   <string name="external_link_dont_ask_again">Більше не питати про %s</string>
   <string name="nameless">Назва не визначена</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Дії одним дотиком (Біблії)</string>

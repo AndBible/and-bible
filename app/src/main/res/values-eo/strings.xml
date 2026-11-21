@@ -1285,8 +1285,6 @@ Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu priva
   <string name="install_failed_reason">Instalado de modulo malsukcesis pro la jena kialo: %s.</string>
   <string name="no_file_manager">Neniu aplikaĵo troviĝis por elekti dosieron. Instalu dosieradministrilon kaj reprovu.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikaĵo malfermita ie alie</string>
-  <string name="open_here">Malfermi tie ĉi</string>
   <string name="external_link_dont_ask_again">Ne demandu denove por %s</string>
   <string name="nameless">Neniu titolo</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Agoj je unufoja frapeto (Biblioj)</string>

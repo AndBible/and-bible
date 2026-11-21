@@ -1314,8 +1314,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="install_failed_reason">L\'installazione del modulo non è riuscita per il seguente motivo: %s.</string>
   <string name="no_file_manager">Nessuna app trovata per scegliere un file. Installa un file manager e riprova.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">L\'app è aperta altrove</string>
-  <string name="open_here">Apri qui</string>
   <string name="external_link_dont_ask_again">Non chiedere più per %s</string>
   <string name="nameless">Titolo non specificato</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Azioni con un solo tocco (Bibbie)</string>

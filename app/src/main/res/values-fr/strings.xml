@@ -1327,8 +1327,6 @@ Lors de l’utilisation de Google Drive, l’accès à %s n’est accordé qu’
   <string name="install_failed_reason">L’installation du module a échoué pour la raison suivante : %s.</string>
   <string name="no_file_manager">Aucune application n\'a été trouvée pour choisir un fichier. Veuillez installer un gestionnaire de fichiers et réessayer.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Application ouverte ailleurs</string>
-  <string name="open_here">Ouvrir ici</string>
   <string name="external_link_dont_ask_again">Ne plus demander pour %s</string>
   <string name="nameless">Titre non définis</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Actions d’une seule touche (Bibles)</string>

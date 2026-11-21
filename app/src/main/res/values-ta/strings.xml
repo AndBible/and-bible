@@ -1353,8 +1353,6 @@
   <string name="install_failed_reason">பின்வரும் காரணத்தால் மாடியுளை நிறுவ இயலவில்லை: %s.</string>
   <string name="no_file_manager">கோப்பைத் தேர்ந்தெடுக்க எந்த செயலியும் கிடைக்கவில்லை. ஒரு கோப்பு மேலாளரை நிறுவி மீண்டும் முயற்சிக்கவும்.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">செயலி வேறெங்கோ திறக்கப்பட்டிருக்கிறது</string>
-  <string name="open_here">இங்கேயே திற</string>
   <string name="external_link_dont_ask_again">%s க்கு மீண்டும் கேட்காதே</string>
   <string name="nameless">தலைப்பு வரையறுக்கப்படவில்லை</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ஒரு-தட்டல் செயல்கள் (விவிலியங்கள்)</string>

@@ -54,7 +54,6 @@
 	<color name="accent_day">@color/blue_900</color>
 	<color name="accent_night">@color/blue_300</color>
 
-	<color name="buttongrid_button_feedback_text">@color/grey_1000b</color>
 
 	<color name="list_item_pressed">@color/blue_100</color>
 	<color name="list_item_activated">@color/blue_300_35pcntOpacity</color>
@@ -91,7 +90,6 @@
 	<color name="grey_700">#616161</color>
 	<color name="grey_800">#424242</color>
 	<color name="grey_900">#212121</color>
-	<color name="grey_1000b">#000000</color>
 	<color name="grey_1000w">#ffffff</color>
 
 	<color name="blue_50">#e7e9fd</color>

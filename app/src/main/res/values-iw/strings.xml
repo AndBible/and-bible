@@ -1285,8 +1285,6 @@
   <string name="install_failed_reason">התקנת המודול נכשלה מהסיבה הבאה: %s.</string>
   <string name="no_file_manager">לא נמצא יישום לבחירת קובץ. נא להתקין מנהל קבצים ולנסות שוב.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">היישום נפתח במקום אחר</string>
-  <string name="open_here">פתח כאן</string>
   <string name="external_link_dont_ask_again">אל תשאל שוב עבור %s</string>
   <string name="nameless">הכותרת אינה מוגדרת</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">פעולות בהקשה אחת (תנ\"כים)</string>

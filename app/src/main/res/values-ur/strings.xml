@@ -1219,8 +1219,6 @@
   <string name="install_failed_reason">ماڈیول انسٹال مندرجہ ذیل وجہ سے ناکام ہوئی: %s۔</string>
   <string name="no_file_manager">فائل منتخب کرنے کے لیے کوئی ایپ نہیں ملی۔ براہ کرم فائل مینیجر انسٹال کریں اور دوبارہ کوشش کریں۔</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">ایپ کسی اور جگہ کھولی گئی</string>
-  <string name="open_here">یہاں کھولیں</string>
   <string name="external_link_dont_ask_again">%s کے لیے دوبارہ نہ پوچھیں</string>
   <string name="nameless">عنوان بیان نہیں کیا گیا</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">یک ٹیپ اعمال (بائبلیں)</string>

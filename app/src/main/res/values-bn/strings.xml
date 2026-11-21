@@ -1316,8 +1316,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="install_failed_reason">নিম্নলিখিত কারণে মডিউল ইনস্টল করা ব্যর্থ হয়েছে:%s</string>
   <string name="no_file_manager">ফাইল নির্বাচন করার জন্য কোনো অ্যাপ পাওয়া যায়নি। অনুগ্রহ করে একটি ফাইল ম্যানেজার ইনস্টল করে আবার চেষ্টা করুন।</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">অ্যাপ অন্য কোথাও খোলা হয়েছে</string>
-  <string name="open_here">এখানে খুলুন</string>
   <string name="external_link_dont_ask_again">%s-এর জন্য আর জিজ্ঞাসা করবেন না</string>
   <string name="nameless">শিরোনাম সংজ্ঞায়িত নয়</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ওয়ান-ট্যাপ অ্যাকশন (বাইবেল)</string>
