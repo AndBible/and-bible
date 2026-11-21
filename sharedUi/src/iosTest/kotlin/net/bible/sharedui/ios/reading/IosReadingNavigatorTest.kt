@@ -53,7 +53,6 @@ import net.bible.sharedui.host.reading.ChooserKind
 import net.bible.sharedui.host.reading.ChooserRequests
 import net.bible.sharedui.host.reading.HostReadingHost
 import net.bible.sharedui.host.reading.HostReadingNavigator
-import net.bible.sharedui.host.reading.searchRoute
 
 /**
  * [HostReadingNavigator] against a recording [HostNavigator]: every member must start the route Android's

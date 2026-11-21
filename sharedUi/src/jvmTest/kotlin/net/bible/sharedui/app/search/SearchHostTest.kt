@@ -45,11 +45,7 @@ class SearchHostTest {
         val stop = host().observeProgressStatusJobs { calls++ }
         stop()
         val afterStop = calls
-        try {
-            job.work = 50
-            assertEquals(afterStop, calls, "no refresh may arrive after the undo ran")
-        } finally {
-            job.done()
-        }
+        job.done() // a state change the removed listener must not see
+        assertEquals(afterStop, calls, "no refresh may arrive after the undo ran")
     }
 }
