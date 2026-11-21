@@ -1,6 +1,7 @@
 package net.bible.sharedcore.settings
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,12 +19,32 @@ class SyncSettingsController(
     private val scope: CoroutineScope,
     private var labels: SyncSettingsLabels,
     private val onOpenCloudDocuments: () -> Unit,
+    /** Called when the screen may be left after the leave dialog's Apply (once applied) or Discard. */
+    private val onExit: () -> Unit = {},
 ) {
+    /** The category switches not applied yet (`sync_enable_*` key to wanted value); read by [build]. */
+    private var pending: Map<String, Boolean> = emptyMap()
+    private var lastAdapter = service.snapshot.value.adapter
+    private var lastSignedOut = service.snapshot.value.adapterEnabled
+    private var applyJob: Job? = null
+
     private val _state = MutableStateFlow(SyncSettingsUiState(screen = build(service.snapshot.value)))
     val state: StateFlow<SyncSettingsUiState> = _state.asStateFlow()
 
     init {
-        scope.launch { service.snapshot.collect { s -> _state.value = _state.value.copy(screen = build(s)) } }
+        scope.launch {
+            service.snapshot.collect { s ->
+                // Sign-out (adapterEnabled flips to true) or a backend change invalidates every pending switch; an
+                // entry the persisted state now matches (another path changed it) is done.
+                if (pending.isNotEmpty()) {
+                    val reset = s.adapter != lastAdapter || (s.adapterEnabled && !lastSignedOut)
+                    pending = if (reset) emptyMap() else pending.filter { (key, wanted) -> s.categoryEnabled[key] != wanted }
+                }
+                lastAdapter = s.adapter
+                lastSignedOut = s.adapterEnabled
+                _state.value = _state.value.copy(screen = build(s), pending = pending)
+            }
+        }
     }
 
     /** Rebuild translated state while retaining the pending action and scan result. */
@@ -35,6 +56,7 @@ class SyncSettingsController(
             is SyncDialog.ResetConfirm -> d.copy(message = labels.resetConfirmMessage)
             is SyncDialog.ForgetCertificate -> d.copy(message = labels.forgetCertificateMessage)
             is SyncDialog.UrlError -> d.copy(message = if (d.httpsRequired) labels.httpsRequiredMessage else labels.invalidUrlMessage)
+            SyncDialog.CheckingCloud, SyncDialog.LeaveWithPending -> d
             is SyncDialog.EnableDocuments -> d.copy(title = labels.documentsEnableDialogTitle, message = service.formatEnableDocumentsMessage(d.summary))
         }
         _state.value = _state.value.copy(screen = build(service.snapshot.value), dialog = dialog)
@@ -102,8 +124,9 @@ class SyncSettingsController(
             add(SettingsItem.Category(key = "sync_category", title = labels.syncCat))
             SyncCategoryKeys.DISPLAY.forEach { key ->
                 add(SettingsItem.SwitchRow(
-                    key = key, title = categoryTitle(key), summary = s.categorySummary[key],
-                    checked = s.categoryEnabled[key] ?: false, iconKey = key,
+                    key = key, title = categoryTitle(key),
+                    summary = pending[key]?.let { if (it) labels.pendingOn else labels.pendingOff } ?: s.categorySummary[key],
+                    checked = pending[key] ?: s.categoryEnabled[key] ?: false, iconKey = key,
                 ))
             }
             add(SettingsItem.SwitchRow(
@@ -145,20 +168,79 @@ class SyncSettingsController(
         when {
             key == "sync_enable_documents" ->
                 if (checked) enableDocumentsFlow() else { service.disableDocuments(); service.refresh() }
-            key.startsWith("sync_enable_") ->
-                if (checked) enableCategoryFlow(key) else { service.setCategoryEnabled(key, false); service.refresh() }
+            key in SyncCategoryKeys.DISPLAY -> markPending(key, checked)
             else -> { service.setDocumentSyncToggle(key, checked); service.refresh() }  // sync_documents_*
         }
     }
 
-    private fun enableCategoryFlow(key: String) {
-        scope.launch {
-            setLoading(true)
-            val ok = service.signIn()
-            if (ok) service.setCategoryEnabled(key, true)
-            service.refresh()
-            setLoading(false)
+    /** Records the wanted value of a category switch; a value equal to the persisted one is no change at all. */
+    private fun markPending(key: String, wanted: Boolean) {
+        val persisted = service.snapshot.value.categoryEnabled[key] ?: false
+        setPending(if (wanted == persisted) pending - key else pending + (key to wanted))
+    }
+
+    private fun setPending(value: Map<String, Boolean>) {
+        pending = value
+        _state.value = _state.value.copy(screen = build(service.snapshot.value), pending = value)
+    }
+
+    /**
+     * Applies all pending switches. Only offs: no dialog. With an on: the blocking "Checking the cloud" dialog until
+     * the cloud has been probed (the join plan dialog is the cloud layer's after that). A failed sign-in keeps the
+     * pending map; [cancelChecking] aborts and reverts what this Apply turned on.
+     */
+    fun applyPending() = startApply(leaveAfter = false)
+
+    private fun startApply(leaveAfter: Boolean) {
+        val changes = pending
+        if (changes.isEmpty() || applyJob?.isActive == true) return
+        val hasOn = changes.values.any { it }
+        if (hasOn) setDialog(SyncDialog.CheckingCloud) else setLoading(true)
+        applyJob = scope.launch {
+            var completed = false
+            try {
+                val ok = service.applyCategoryChanges(changes) {
+                    if (_state.value.dialog == SyncDialog.CheckingCloud) dismissDialog()
+                }
+                if (ok) setPending(emptyMap())
+                completed = ok
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                net.bible.sharedcore.log.Log.e("SyncSettingsController", "Applying sync changes failed", e)
+            } finally {
+                if (_state.value.dialog == SyncDialog.CheckingCloud) dismissDialog()
+                setLoading(false)
+                service.refresh()
+            }
+            if (completed && leaveAfter) onExit()
         }
+    }
+
+    /** Drops all pending switches. */
+    fun discardPending() = setPending(emptyMap())
+
+    /** Cancel in the "Checking the cloud" dialog: aborts the apply, the cloud layer turns its categories off again. */
+    fun cancelChecking() {
+        if (_state.value.dialog == SyncDialog.CheckingCloud) applyJob?.cancel()
+    }
+
+    /** Back with pending switches asks first; true = nothing pending, leave now. */
+    fun onLeave(): Boolean {
+        if (pending.isEmpty()) return true
+        setDialog(SyncDialog.LeaveWithPending)
+        return false
+    }
+
+    fun confirmLeaveApply() {
+        dismissDialog()
+        startApply(leaveAfter = true)
+    }
+
+    fun confirmLeaveDiscard() {
+        dismissDialog()
+        discardPending()
+        onExit()
     }
 
     private fun enableDocumentsFlow() {

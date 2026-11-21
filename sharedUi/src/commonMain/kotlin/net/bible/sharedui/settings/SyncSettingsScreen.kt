@@ -123,6 +123,7 @@ fun SyncSettingsScreen(
             confirmText = strings.okay,
             onDismiss = onDismissDialog,
         )
-        SyncDialog.None -> {}
+        // Rendered by the Apply-bar work (Task 5B).
+        SyncDialog.CheckingCloud, SyncDialog.LeaveWithPending, SyncDialog.None -> {}
     }
 }

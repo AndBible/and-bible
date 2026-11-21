@@ -179,6 +179,13 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentSyncWifiOnlyTitle: String get() = context.getString(R.string.document_sync_wifi_only_title)
     override val documentSyncAutoDeleteTitle: String get() = context.getString(R.string.document_sync_auto_delete_title)
     override val webdavHttpsRequired: String get() = context.getString(R.string.webdav_https_required)
+    override val syncPendingOn: String get() = context.getString(R.string.sync_pending_on)
+    override val syncPendingOff: String get() = context.getString(R.string.sync_pending_off)
+    override fun syncPendingChanges(count: Int): String =
+        context.resources.getQuantityString(R.plurals.sync_pending_changes, count, count)
+    override val syncPendingLeaveTitle: String get() = context.getString(R.string.sync_pending_leave_title)
+    override val syncCheckingCloudTitle: String get() = context.getString(R.string.sync_checking_cloud_title)
+    override val syncCheckingCloudText: String get() = context.getString(R.string.sync_checking_cloud_text)
     override fun multiSearchResults(verses: String, translations: String): String =
         context.getString(R.string.multi_search_count_summary, verses, translations)
     override fun multiSearchVerseCount(count: Int): String =

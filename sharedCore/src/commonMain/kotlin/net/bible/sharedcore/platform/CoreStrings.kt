@@ -191,6 +191,7 @@ interface CoreStrings {
     // dialog copy: B3b
     val cloudReplaceConfirm: String
     val cloudJoinPlanTitle: String
+    val syncWaitingForPass: String
     val cloudJoinPlanLead: String
     val cloudJoinMerge: String
     val cloudJoinMergeDetail: String

@@ -2547,6 +2547,16 @@
     <string name="cloud_replace_confirm">Replace</string>
     <string name="cloud_join_plan_title">The cloud already has data</string>
     <string name="cloud_join_plan_lead">Choose what to do for each category.</string>
+    <string name="sync_waiting_for_pass">Waiting for the current synchronization to finish…</string>
+    <string name="sync_pending_on">Will be turned on</string>
+    <string name="sync_pending_off">Will be turned off</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d change</item>
+        <item quantity="other">%1$d changes</item>
+    </plurals>
+    <string name="sync_pending_leave_title">Apply your sync changes?</string>
+    <string name="sync_checking_cloud_title">Checking the cloud…</string>
+    <string name="sync_checking_cloud_text">Looking for data that other devices have already synchronized.</string>
     <string name="cloud_join_merge">Merge</string>
     <string name="cloud_join_merge_detail">Combine this device and the cloud</string>
     <string name="cloud_join_fetch">Copy from cloud</string>

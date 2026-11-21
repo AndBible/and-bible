@@ -183,6 +183,7 @@ internal class ActivityTestStrings : CoreStrings {
 
     // dialog copy: B3b
     override val cloudReplaceConfirm = "cloudReplaceConfirm"
+    override val syncWaitingForPass = "syncWaitingForPass"
     override val cloudJoinPlanTitle = "cloudJoinPlanTitle"
     override val cloudJoinPlanLead = "cloudJoinPlanLead"
     override val cloudJoinMerge = "cloudJoinMerge"

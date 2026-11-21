@@ -39,6 +39,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.cancelAndJoin
 import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.doAnswer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -94,19 +95,94 @@ class SyncSettingsServiceImplTest {
         permission: net.bible.sharedcore.platform.NotificationPermission? = null,
         running: kotlinx.coroutines.flow.StateFlow<Boolean>? = null,
         runningState: (() -> kotlinx.coroutines.flow.StateFlow<Boolean>)? = running?.let { state -> { state } },
+        cloudSync: net.bible.service.cloudsync.CloudSync = org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.CloudSync::class.java),
+        adapters: net.bible.service.cloudsync.CloudAdapterFactory = org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.CloudAdapterFactory::class.java),
+        queuedJoins: (() -> kotlinx.coroutines.flow.StateFlow<Set<SyncableDatabaseDefinition>>)? = null,
     ): SyncSettingsServiceImpl {
         fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
         val service = SyncSettingsServiceImpl(
-            scope, writeScope, documentSettings, get(net.bible.service.cloudsync.CloudSync::class.java),
-            get(net.bible.service.cloudsync.CloudAdapterFactory::class.java), categories,
+            scope, writeScope, documentSettings, cloudSync,
+            adapters, categories,
             get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
             starter ?: get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
             platform, net.bible.test.testCoreStrings(),
             get(net.bible.sharedcore.platform.AppEnvironment::class.java), {},
             notificationPermission = permission, progressTracker = tracker, runningState = runningState,
+            queuedJoinsState = queuedJoins,
         )
         kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
         return service
+    }
+
+    /** A real [net.bible.service.cloudsync.CloudSync] over a one-backend factory whose adapter is [adapter] (none: creating one fails). */
+    private class CloudFixture(adapter: net.bible.service.cloudsync.CloudAdapter?) {
+        val factory = object : net.bible.service.cloudsync.CloudAdapterFactory {
+            override val available = listOf("NEXT_CLOUD")
+            override fun displayName(id: String) = id
+            override fun create(id: String): net.bible.service.cloudsync.CloudAdapter =
+                adapter ?: error("The cloud must not be touched")
+        }
+        val cloud = net.bible.service.cloudsync.CloudSync(
+            net.bible.sharedcore.ui.dialog.AppDialogController(), net.bible.test.testCoreStrings(),
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
+            net.bible.test.testAppSettings(), factory,
+            net.bible.sharedcore.platform.sync.SyncScheduler { kotlinx.coroutines.CompletableDeferred(false) },
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
+            net.bible.service.cloudsync.DocumentSyncProvider { error("No document operations here") },
+            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java),
+        )
+    }
+
+    @Test fun applyCategoryChangesSignInFailurePersistsNothing() = runBlocking {
+        val categories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings)
+        categories.setEnabled(SyncableDatabaseDefinition.WORKSPACES, true)
+        val adapter: net.bible.service.cloudsync.CloudAdapter = com.nhaarman.mockitokotlin2.mock {
+            onBlocking { signIn() } doAnswer { throw net.bible.service.cloudsync.CloudSyncUserCancelledException() }
+        }
+        val fixture = CloudFixture(adapter)
+        val service = impl(categories = categories, cloudSync = fixture.cloud, adapters = fixture.factory)
+        var probed = false
+
+        val ok = service.applyCategoryChanges(
+            mapOf("sync_enable_bookmarks" to true, "sync_enable_workspaces" to false)) { probed = true }
+
+        assertFalse(ok)
+        assertFalse(probed)
+        assertFalse("the on was not enabled", categories.enabled(SyncableDatabaseDefinition.BOOKMARKS))
+        assertTrue("the off was not persisted", categories.enabled(SyncableDatabaseDefinition.WORKSPACES))
+    }
+
+    @Test fun applyCategoryChangesPersistsOffsWithoutProbe() = runBlocking {
+        val categories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings)
+        categories.setEnabled(SyncableDatabaseDefinition.WORKSPACES, true)
+        categories.setEnabled(SyncableDatabaseDefinition.PROGRESS, true)
+        val fixture = CloudFixture(null)   // any sign-in or probe would create an adapter and fail
+        val service = impl(categories = categories, cloudSync = fixture.cloud, adapters = fixture.factory)
+        var probed = false
+
+        val ok = service.applyCategoryChanges(
+            mapOf("sync_enable_workspaces" to false, "sync_enable_progress" to false)) { probed = true }
+
+        assertTrue(ok)
+        assertFalse("offs need no cloud probe", probed)
+        assertFalse(categories.enabled(SyncableDatabaseDefinition.WORKSPACES))
+        assertFalse(categories.enabled(SyncableDatabaseDefinition.PROGRESS))
+    }
+
+    @Test fun queuedCategoryShowsWaitingSummary() = runBlocking {
+        val queued = kotlinx.coroutines.flow.MutableStateFlow<Set<SyncableDatabaseDefinition>>(emptySet())
+        val service = impl(queuedJoins = { queued })
+        val waiting = net.bible.test.testCoreStrings().syncWaitingForPass
+        withTimeout(5000) { service.snapshot.first { it.categorySummary.isNotEmpty() } }
+        assertFalse(service.snapshot.value.categorySummary.getValue("sync_enable_bookmarks") == waiting)
+
+        queued.value = setOf(SyncableDatabaseDefinition.BOOKMARKS)
+        withTimeout(5000) { service.snapshot.first { it.categorySummary.getValue("sync_enable_bookmarks") == waiting } }
+        assertFalse("other categories keep their summary", service.snapshot.value.categorySummary.getValue("sync_enable_progress") == waiting)
+
+        queued.value = emptySet()
+        withTimeout(5000) { service.snapshot.first { it.categorySummary.getValue("sync_enable_bookmarks") != waiting } }
+        Unit
     }
 
     @Test fun manualTransferWhileDisabledIsVisibleFromExistingRunningState() = kotlinx.coroutines.runBlocking {

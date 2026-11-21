@@ -241,6 +241,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
 
     // dialog copy: B3b
     override val cloudReplaceConfirm: String get() = context.getString(R.string.cloud_replace_confirm)
+    override val syncWaitingForPass: String get() = context.getString(R.string.sync_waiting_for_pass)
     override val cloudJoinPlanTitle: String get() = context.getString(R.string.cloud_join_plan_title)
     override val cloudJoinPlanLead: String get() = context.getString(R.string.cloud_join_plan_lead)
     override val cloudJoinMerge: String get() = context.getString(R.string.cloud_join_merge)

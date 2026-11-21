@@ -249,6 +249,7 @@ class KeyedStringsTest {
         assertText("backupModulesEmailMessage2", core.backupModulesEmailMessage2("x", "x"))
         // dialog copy: B3b
         assertText("cloudReplaceConfirm", core.cloudReplaceConfirm, filled = false)
+        assertText("syncWaitingForPass", core.syncWaitingForPass, filled = false)
         assertText("cloudJoinPlanTitle", core.cloudJoinPlanTitle, filled = false)
         assertText("cloudJoinPlanLead", core.cloudJoinPlanLead, filled = false)
         assertText("cloudJoinMerge", core.cloudJoinMerge, filled = false)
