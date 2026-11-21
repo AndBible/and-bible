@@ -166,7 +166,8 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 
 1. `du -sh .local/*` and `df -h .local`.
 2. Delete the merged child's leftovers in `.local/`.
-3. Over 85 % full: ask the maintainer, naming candidates and sizes, before deleting anything another live
+3. Under 50 GB free (maintainer, 2026-11-21: the host disk is large, so a percentage is misleading; they watch
+   it too): ask the maintainer, naming candidates and sizes, before deleting anything another live
    container may use. Never delete another live container's files (`.local/mac/<c>`,
    `.local/windows-vm/runs/<c>`) without asking.
 4. Other containers' trees on the remote Mac go only via `mac-remote.sh prune ... --yes` with names the
