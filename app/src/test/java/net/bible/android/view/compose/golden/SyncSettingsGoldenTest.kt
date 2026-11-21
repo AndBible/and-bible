@@ -100,6 +100,19 @@ class SyncSettingsGoldenTest {
             onOpenCloudDocuments = {},
         ).state.value
 
+    /** Signed in, two category switches flipped and not applied yet: pending rows and the Apply bar. */
+    private fun pendingState(): SyncSettingsUiState {
+        val controller = SyncSettingsController(
+            service = FakeService(snap(signedIn = true)),
+            scope = CoroutineScope(Job()),
+            labels = SyncSettingsLabels.forTest(),
+            onOpenCloudDocuments = {},
+        )
+        controller.onSwitch("sync_enable_bookmarks", false)
+        controller.onSwitch("sync_enable_workspaces", false)
+        return controller.state.value
+    }
+
     private fun screen(uiState: SyncSettingsUiState): @Composable () -> Unit = {
         SyncSettingsScreen(
             uiState = uiState,
@@ -128,6 +141,13 @@ class SyncSettingsGoldenTest {
             MONO_MODES.forEach { captureGolden("SyncSettings", "document_transfer_$index", it, heightDp = 2400, content = content) }
         }
     }
+
+    @Test fun pendingChanges() =
+        captureMatrix("SyncSettings", "pendingChanges", heightDp = 2400, content = screen(pendingState()))
+
+    @Test fun checkingCloud() =
+        captureMatrix("SyncSettings", "checkingCloud", heightDp = 2400,
+            content = screen(pendingState().copy(dialog = SyncDialog.CheckingCloud)))
 
     @Test fun signedout_matrix() =
         captureMatrix("SyncSettings", "signedout", heightDp = 2400, content = screen(uiStateFor(snap(signedIn = false))))

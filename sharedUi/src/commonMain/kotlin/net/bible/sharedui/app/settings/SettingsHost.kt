@@ -117,8 +117,13 @@ class SettingsHost(
             // CloudDocuments is a destination in the same graph: an in-graph hop keeps a settings->cloud hop
             // inside the host rather than starting a second one.
             onOpenCloudDocuments = { shell.navigate(NavRoutes.cloudDocuments()) },
+            // The host outlives the destination, so the nav arm publishes its pop here while it is on screen.
+            onExit = { syncLeave?.invoke() },
         )
     }
+
+    /** Pops the sync destination; set by its nav arm while composed (see [SyncSettingsDeps.setLeave]). */
+    private var syncLeave: (() -> Unit)? = null
 
     internal val readingProgressSettingsController: ReadingProgressSettingsController by lazy {
         ReadingProgressSettingsController(
@@ -178,6 +183,7 @@ class SettingsHost(
         syncSettings = SyncSettingsDeps(
             controller = { syncSettingsController },
             onResume = { syncSettingsService.refresh() },
+            setLeave = { syncLeave = it },
         ),
         readingProgress = ReadingProgressDeps(
             // A factory, so nothing here constructs a controller or touches the read-history DAO until the

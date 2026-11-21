@@ -19,7 +19,21 @@ package net.bible.sharedui.settings
 
 import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedui.components.AbHelpOverflowMenu
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -35,6 +49,10 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbLoadingOverlay
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.dialog.AbDialogButton
+import net.bible.sharedui.components.dialog.AbDialogDetail
+import net.bible.sharedui.components.dialog.AbDialogShell
+import net.bible.sharedui.components.dialog.DialogButtonRole
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -59,6 +77,11 @@ fun SyncSettingsScreen(
     onConfirmEnableDocuments: () -> Unit,
     onConfirmForgetCertificate: () -> Unit,
     onDismissDialog: () -> Unit,
+    onApply: () -> Unit = {},
+    onDiscard: () -> Unit = {},
+    onCancelChecking: () -> Unit = {},
+    onConfirmLeaveApply: () -> Unit = {},
+    onConfirmLeaveDiscard: () -> Unit = {},
 ) {
     val strings = LocalStrings.current
     val editor = remember { SettingsEditorStack() }
@@ -67,6 +90,20 @@ fun SyncSettingsScreen(
         title = uiState.screen.title,
         onNavigateUp = onUp,
         actions = { AbHelpOverflowMenu(DocsLink.CLOUD_SYNC) },
+        // Hidden while the leave question is open (its Apply/Discard are the same choice) and while an apply runs (the checking dialog or the blocking overlay is up), so a second Apply
+        // cannot start; the plan dialog that follows is the host's and comes after the checking dialog went away.
+        bottomBar = {
+            if (uiState.pending.isNotEmpty() && !uiState.loading &&
+                uiState.dialog != SyncDialog.CheckingCloud && uiState.dialog != SyncDialog.LeaveWithPending) {
+                SyncApplyBar(
+                    summary = strings.syncPendingChanges(uiState.pending.size),
+                    discardText = strings.discard,
+                    applyText = strings.dialogApply,
+                    onDiscard = onDiscard,
+                    onApply = onApply,
+                )
+            }
+        },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             AbSettingsContent(
@@ -123,7 +160,51 @@ fun SyncSettingsScreen(
             confirmText = strings.okay,
             onDismiss = onDismissDialog,
         )
-        // Rendered by the Apply-bar work (Task 5B).
-        SyncDialog.CheckingCloud, SyncDialog.LeaveWithPending, SyncDialog.None -> {}
+        // Not dismissable: neither back nor an outside tap closes it, only Cancel aborts the apply.
+        SyncDialog.CheckingCloud -> AbDialogShell(
+            onDismissRequest = {},
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+            lead = { Text(strings.syncCheckingCloudTitle) },
+            content = { AbDialogDetail(strings.syncCheckingCloudText) },
+            buttons = { AbDialogButton(strings.cancel, DialogButtonRole.Cancel, onCancelChecking) },
+        )
+        SyncDialog.LeaveWithPending -> AbDialogShell(
+            onDismissRequest = onDismissDialog,
+            lead = { Text(strings.syncPendingLeaveTitle) },
+            buttons = {
+                AbDialogButton(strings.cancel, DialogButtonRole.Cancel, onDismissDialog)
+                AbDialogButton(strings.discard, DialogButtonRole.Destructive, onConfirmLeaveDiscard)
+                AbDialogButton(strings.dialogApply, DialogButtonRole.Confirm, onConfirmLeaveApply)
+            },
+        )
+        SyncDialog.None -> {}
+    }
+}
+
+/**
+ * The bottom bar shown while category switches are pending: the change count (bold, so it reads without colour in
+ * monochrome), Discard and Apply. Tagged `sync-apply-bar`.
+ */
+@Composable
+private fun SyncApplyBar(
+    summary: String,
+    discardText: String,
+    applyText: String,
+    onDiscard: () -> Unit,
+    onApply: () -> Unit,
+) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.testTag("sync-apply-bar")) {
+        Column(Modifier.navigationBarsPadding()) {
+            HorizontalDivider()
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(summary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                AbDialogButton(discardText, DialogButtonRole.Cancel, onDiscard)
+                AbDialogButton(applyText, DialogButtonRole.Confirm, onApply, filled = true)
+            }
+        }
     }
 }

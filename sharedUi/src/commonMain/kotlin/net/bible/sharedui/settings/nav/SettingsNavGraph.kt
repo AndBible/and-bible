@@ -19,6 +19,7 @@ package net.bible.sharedui.settings.nav
 
 import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -175,6 +176,8 @@ class AppSettingsDeps(
 class SyncSettingsDeps(
     val controller: () -> SyncSettingsController,
     val onResume: () -> Unit,
+    /** The nav arm publishes the real "leave this destination" action here for the host-held controller's `onExit`. */
+    val setLeave: (leave: (() -> Unit)?) -> Unit = {},
 )
 
 /**
@@ -491,9 +494,28 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
 
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume() }
 
+        // The controller lives on the host, so pending switches survive leaving the screen: EVERY exit (top-bar
+        // up, system back) goes through onLeave(), which asks first when something is pending. The real exit is
+        // run by the controller's onExit (Apply/Discard in the leave dialog), published through d.setLeave.
+        val leave = { navController.popOrExit(entry, deps.exitHost) }
+        DisposableEffect(entry) {
+            d.setLeave(leave)
+            onDispose { d.setLeave(null) }
+        }
+        val requestLeave = { if (controller.onLeave()) leave() }
+        // Enabled only with pending switches, so a plain back is the NavHost's own. Back inside the leave/checking/
+        // plan dialogs never reaches this handler: they are Dialog windows that take the back press first (the
+        // checking dialog swallows it), and onLeave() stays put without a second question while an apply runs.
+        PlatformBackHandler(enabled = uiState.pending.isNotEmpty(), onBack = requestLeave)
+
         SyncSettingsScreen(
             uiState = uiState,
-            onUp = { navController.popOrExit(entry, deps.exitHost) },
+            onUp = requestLeave,
+            onApply = controller::applyPending,
+            onDiscard = controller::discardPending,
+            onCancelChecking = controller::cancelChecking,
+            onConfirmLeaveApply = controller::confirmLeaveApply,
+            onConfirmLeaveDiscard = controller::confirmLeaveDiscard,
             onSwitch = controller::onSwitch,
             onListChoice = controller::onListChoice,
             onTextInput = controller::onTextInput,
