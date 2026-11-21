@@ -26,6 +26,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedui.reading.toolbar.activateWindowOf
+import net.bible.sharedui.reading.toolbar.openKeyListSheet
 
 private const val TAG = "KeyChooserLauncher"
 
@@ -37,9 +38,9 @@ class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?
             is CurrentBiblePage, is CurrentCommentaryPage -> return startPassageSheet(page, context)
             is CurrentDictionaryPage -> context.startActivityForResult(
                 NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_DICTIONARY_WORD), STD_REQUEST_CODE)
-            is CurrentMapPage -> context.startActivityForResult(
-                NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_MAP_KEY), STD_REQUEST_CODE)
-            is CurrentGeneralBookPage -> startGeneralBookChooser(page, context)
+            is CurrentMapPage -> return startKeyListSheet(page, context)
+            is CurrentGeneralBookPage ->
+                if (isPlainGeneralBook(page)) return startKeyListSheet(page, context) else startGeneralBookChooser(page, context)
         }
         return true
     }
@@ -60,6 +61,30 @@ class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?
             host.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
         }
         return true
+    }
+
+    /**
+     * A map or plain general-book page's key chooser is the reading view's key-list quick sheet, the one a title tap
+     * opens (#4172): there is no full-screen general-book or map chooser ([openKeyListSheet]). Returns false, starting
+     * nothing, when [context] hosts no reading view to show the sheet on.
+     */
+    private fun startKeyListSheet(page: CurrentPage, context: ActivityBase): Boolean {
+        val host = (context as? NavHostComposeActivity)?.composeReadingViewHost
+        if (host == null) {
+            Log.w(TAG, "No reading view in front to show the key chooser on; not shown.")
+            return false
+        }
+        context.lifecycleScope.launch(Dispatchers.Main) {
+            openKeyListSheet(page, host.hostState, onCancelledWithoutKey = { context.goBackInHistory() })
+        }
+        return true
+    }
+
+    /** Not the StudyPad journal, the multi-document pseudo book or a MyDocument: those have their own screens. */
+    private fun isPlainGeneralBook(page: CurrentGeneralBookPage): Boolean {
+        val doc = page.currentDocument
+        val fakeBookFactory = org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java)
+        return doc != fakeBookFactory.journalDocument && doc != fakeBookFactory.multiDocument && doc?.isMyDocument != true
     }
 
     /**
@@ -90,7 +115,8 @@ class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?
         page.pageManager.window.windowRepository.workspaceSettings
 
     /**
-     * Open the key chooser for this page's document.
+     * Open the key chooser of a StudyPad, multi-document or MyDocument page; a plain general book opens the key-list
+     * sheet instead ([startKeyListSheet], #4172).
      *
      * Runs on ANY [ActivityBase], exactly as [CurrentBiblePage], [CurrentDictionaryPage],
      * [CurrentMapPage] and [CurrentCommentaryPage] always have — see [workspaceSettings] for the
@@ -162,7 +188,8 @@ class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?
                         )
                     }
                 }
-                else -> awaitChosenKey(page, context, NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
+                // A plain general book opens the key-list sheet instead ([startKeyListSheet]).
+                else -> Unit
             }
         }
     }

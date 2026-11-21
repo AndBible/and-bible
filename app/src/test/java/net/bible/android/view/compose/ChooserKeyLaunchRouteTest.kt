@@ -51,14 +51,13 @@ class ChooserKeyLaunchRouteTest {
     }
 
     // The Bible and commentary choosers open the passage quick sheet, not a route (#4169): KeyChooserSheetEntryPointsTest.
+    // The map and general-book choosers open the key-list quick sheet (#4172): KeyListSheetEntryPointsTest.
 
     @Test
-    fun theDictionaryAndMapChoosersOpenTheirRoutes() {
+    fun theDictionaryChooserOpensItsRoute() {
         val activity = host()
         val pages = CommonUtils.windowControl.activeWindowPageManager
         net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(pages.currentDictionary)
         assertLaunched(activity, NavRoutes.CHOOSE_DICTIONARY_WORD)
-        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(pages.currentMap)
-        assertLaunched(activity, NavRoutes.CHOOSE_MAP_KEY)
     }
 }

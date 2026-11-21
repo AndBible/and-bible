@@ -50,6 +50,9 @@ import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.bridge.ReadingNavigator
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.reading.toolbar.activateWindowOf
+import net.bible.sharedui.reading.toolbar.openKeyListSheet
+import net.bible.service.history.HistoryManager
+import org.koin.mp.KoinPlatform
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.book.Book
@@ -93,6 +96,8 @@ class HostReadingNavigator(
      * does through the hosted `ComposeReadingViewHost.openSearch`. Search has no full-screen route (removed in #4170).
      */
     private val openReadingSearch: () -> Unit,
+    /** Where a key-list sheet left without a key, on a page that has none, goes back to (the choosers' cancel guard). */
+    private val history: () -> HistoryManager = { KoinPlatform.getKoin().get() },
 ) : ReadingNavigator {
     private val labelRequests = Mutex()
 
@@ -156,10 +161,8 @@ class HostReadingNavigator(
                 chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
                 shell.navigate(NavRoutes.CHOOSE_DICTIONARY_WORD)
             }
-            is CurrentMapPage -> onMain {
-                chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
-                shell.navigate(NavRoutes.CHOOSE_MAP_KEY)
-            }
+            // The key-list quick sheet a title tap opens (#4172): there is no full-screen map chooser.
+            is CurrentMapPage -> startKeyListSheet(page)
             is CurrentGeneralBookPage -> startGeneralBookChooser(page)
         }
     }
@@ -186,11 +189,15 @@ class HostReadingNavigator(
                     chooserRequests.asked(ChooserKind.MyDocumentPages, page.pageManager)
                     shell.navigate(NavRoutes.myDocumentPages(docId.toString(), doc.initials, doc.name))
                 }
-                else -> {
-                    chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
-                    shell.navigate(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
-                }
+                // The key-list quick sheet a title tap opens (#4172): there is no full-screen general-book chooser.
+                else -> openKeyListSheet(page, hostState, onCancelledWithoutKey = { history().goBack() })
             }
+        }
+    }
+
+    private fun startKeyListSheet(page: CurrentPage) {
+        shell.hostScope.launch(mainContext) {
+            openKeyListSheet(page, hostState, onCancelledWithoutKey = { history().goBack() })
         }
     }
 
