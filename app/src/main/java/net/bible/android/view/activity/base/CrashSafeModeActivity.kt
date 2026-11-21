@@ -30,7 +30,6 @@ import net.bible.android.activity.databinding.CrashSafeModeBinding
 import net.bible.android.control.report.StartupCrashGuard
 import net.bible.android.control.report.LAST_CRASH_LOGCAT_FILE
 import net.bible.android.control.report.LAST_CRASH_SCREENSHOT_FILE
-import net.bible.android.control.report.ONE_HOUR
 import net.bible.android.control.report.StartupCrashStore
 import java.io.File
 
@@ -48,13 +47,17 @@ import java.io.File
  */
 class CrashSafeModeActivity : Activity() {
     private var reportText: String = ""
+    /** When the crashes in [reportText] began: the logcat and screenshot are attached only when as recent. */
+    private var crashesSince: Long = 0L
     private var restarting = false
     internal lateinit var binding: CrashSafeModeBinding
         private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        liveInstances++
         reportText = savedInstanceState?.getString(STATE_REPORT) ?: StartupCrashGuard.reportText(this)
+        crashesSince = savedInstanceState?.getLong(STATE_SINCE) ?: StartupCrashGuard.firstCrashTime() ?: 0L
         binding = CrashSafeModeBinding.inflate(layoutInflater).apply {
             sendReport.setOnClickListener { sendReport() }
             backupRestore.setOnClickListener { restartApp(openBackup = true) }
@@ -65,21 +68,24 @@ class CrashSafeModeActivity : Activity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        liveInstances--
         // Left with Back after "Send Report": this process skipped the app's initialisation, so it must not be
-        // reused by the next start (which would land here again, without any records).
-        if (isFinishing && !restarting) exitProcess()
+        // reused by the next start (which would land here again, without any records). Not while another safe-mode
+        // screen of this process still shows (a second entry, from a widget or a notification).
+        if (isFinishing && !restarting && !isChangingConfigurations && liveInstances == 0) exitProcess()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(STATE_REPORT, reportText)
+        outState.putLong(STATE_SINCE, crashesSince)
     }
 
     /** Opens the email app; this screen stays, so that the user can then try again or open Backup & Restore. */
     private fun sendReport() {
         StartupCrashGuard.resolve(this)
         try {
-            startActivity(reportIntent(this, reportText))
+            startActivity(reportIntent(this, reportText, crashesSince))
         } catch (e: Exception) {
             Log.e(TAG, "Could not send the crash report", e)
             Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_LONG).show()
@@ -98,6 +104,13 @@ class CrashSafeModeActivity : Activity() {
     companion object {
         private const val TAG = "CrashSafeModeActivity"
         private const val STATE_REPORT = "report"
+        private const val STATE_SINCE = "since"
+        /** The app's own crash handler saves the logcat and screenshot just before the crash is counted. */
+        private const val CRASH_FILES_MARGIN_MS = 5L * 60L * 1000L
+
+        /** The safe-mode screens alive in this process (main thread only). */
+        internal var liveInstances = 0
+            private set
         private const val MAX_BODY_CHARS = 20_000
         private const val ERROR_REPORT_ADDRESS = "errors.andbible@gmail.com"
 
@@ -107,8 +120,14 @@ class CrashSafeModeActivity : Activity() {
         /** Ends the safe-mode process; tests replace it. */
         @Volatile internal var exitProcess: () -> Unit = { Runtime.getRuntime().exit(0) }
 
+        /**
+         * The first entry clears the task (a restored task's screens would each need the app); a later one (a widget or
+         * notification tap after Home) brings the live screen back (`singleTask`): clearing it would end the process.
+         */
         fun intent(context: Context): Intent =
-            Intent(context, CrashSafeModeActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            Intent(context, CrashSafeModeActivity::class.java).addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or (if (liveInstances == 0) Intent.FLAG_ACTIVITY_CLEAR_TASK else 0)
+            )
 
         /**
          * Hands the start over to the safe mode when this process started in it: starts [CrashSafeModeActivity] and
@@ -128,15 +147,16 @@ class CrashSafeModeActivity : Activity() {
 
         /**
          * The email: the report as the text and as an attachment (`filesDir/crash/report.txt`), with the logcat and
-         * screenshot the app's own crash handler saved at its last crash (`filesDir/log`), when there are such.
+         * screenshot the app's own crash handler saved at its last crash (`filesDir/log`), when they belong to these
+         * crashes (saved since [crashesSince], the first recorded one; 0: none recorded, so none attached).
          */
-        internal fun reportIntent(context: Context, reportText: String): Intent {
+        internal fun reportIntent(context: Context, reportText: String, crashesSince: Long): Intent {
             val dir = File(context.filesDir, StartupCrashStore.DIR_NAME).apply { mkdirs() }
             val file = File(dir, "report.txt").apply { writeText(reportText) }
             val logDir = File(context.filesDir, "log")
             val files = listOf(file) + listOf(LAST_CRASH_LOGCAT_FILE, LAST_CRASH_SCREENSHOT_FILE)
                 .map { File(logDir, it) }
-                .filter { it.canRead() && System.currentTimeMillis() - it.lastModified() < 24 * ONE_HOUR }
+                .filter { crashesSince > 0L && it.canRead() && it.lastModified() >= crashesSince - CRASH_FILES_MARGIN_MS }
             val uris = ArrayList(files.map { FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", it) })
             val firstError = reportText.lineSequence()
                 .firstOrNull { it.startsWith("java.") || it.startsWith("kotlin.") || it.contains("Exception") || it.contains("Error:") }

@@ -125,6 +125,7 @@
         <activity
             android:name="net.bible.android.view.activity.base.CrashSafeModeActivity"
             android:theme="@style/Theme.AbCrashSafeMode"
+            android:launchMode="singleTask"
             android:label="@string/app_name_short"
             />
         <activity

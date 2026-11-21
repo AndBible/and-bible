@@ -121,6 +121,8 @@ class StartupCrashGuardTest {
 
         // The next start: the launcher's StartupActivity hands over to the safe mode before anything else.
         assertTrue(startProcess(dir))
+        assertEquals("The safe mode's own start keeps it off", PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            app.packageManager.getComponentEnabledSetting(provider))
         assertFalse("The recorded crash is not counted again as an unfinished start",
             File(dir, "pending.txt").readText().contains("Unfinished start"))
         val startup = Robolectric.buildActivity(net.bible.android.activity.StartupActivity::class.java).create()
@@ -159,18 +161,84 @@ class StartupCrashGuardTest {
         }
     }
 
-    @Test fun aLeftoverBreadcrumbOffersTheReport() {
-        val dir = tmp.newFolder("crash")
+    /** The last run died in the database open without an exception; Android says [exitReason] (null: no record). */
+    private fun dieDuringDatabaseOpen(dir: File, exitReason: Int? = null) {
         startProcess(dir)
-        // The database open died without an exception (a native crash, an out-of-memory kill).
         StartupCrashGuard.markPhase(StartupCrashGuard.PHASE_DATABASES)
         StartupCrashGuard.resetForTest()
+        if (exitReason != null) addExitReason(exitReason)
+    }
 
-        assertTrue(startProcess(dir))
-        val pending = File(dir, "pending.txt").readText()
-        assertTrue(pending, pending.contains("did not finish startup phase '${StartupCrashGuard.PHASE_DATABASES}'"))
+    private fun addExitReason(reason: Int) {
+        val am = app.getSystemService(android.app.ActivityManager::class.java)
+        shadowOf(am).addApplicationExitInfo(
+            org.robolectric.shadows.ShadowActivityManager.ApplicationExitInfoBuilder.newBuilder()
+                .setProcessName(app.packageName)
+                .setReason(reason)
+                .setTimestamp(System.currentTimeMillis())
+                .build(),
+        )
+    }
+
+    private fun assertUnfinishedStartIsOneOrdinaryCrash(exitReason: Int?) {
+        val dir = tmp.newFolder("crash")
+        dieDuringDatabaseOpen(dir, exitReason)
+        // One death in a long start (a low-memory kill while in the background) is not yet a crash loop.
+        assertFalse("One unfinished start alone must not start the safe mode", startProcess(dir))
+        assertTrue(File(dir, "pending.txt").readText().contains("did not finish startup phase '${StartupCrashGuard.PHASE_DATABASES}'"))
+        StartupCrashGuard.resetForTest()
+        // The second within the hour is.
+        dieDuringDatabaseOpen(dir, exitReason)
+        assertTrue("Two unfinished starts within an hour offer the report", startProcess(dir))
         val safeMode = showSafeMode(CrashSafeModeActivity.intent(app))
         safeMode.close()
+    }
+
+    @Test fun anUnfinishedStartWithoutAnExitReasonCountsAsOneOrdinaryCrash() = assertUnfinishedStartIsOneOrdinaryCrash(null)
+
+    @Config(sdk = [29])
+    @Test fun anUnfinishedStartBeforeAndroid11CountsAsOneOrdinaryCrash() = assertUnfinishedStartIsOneOrdinaryCrash(null)
+
+    @Test fun anUnfinishedStartEndedByASignalCountsAsOneOrdinaryCrash() =
+        assertUnfinishedStartIsOneOrdinaryCrash(android.app.ApplicationExitInfo.REASON_SIGNALED)
+
+    @Test fun anUnfinishedStartEndedByANativeCrashOrAnAnrIsAStartupCrash() {
+        for (reason in listOf(android.app.ApplicationExitInfo.REASON_CRASH_NATIVE, android.app.ApplicationExitInfo.REASON_ANR)) {
+            val dir = tmp.newFolder("crash-$reason")
+            dieDuringDatabaseOpen(dir, reason)
+            assertTrue("Exit reason $reason during the start offers the report at once", startProcess(dir))
+            StartupCrashGuard.resetForTest()
+        }
+    }
+
+    @Test fun aProviderLeftSwitchedOffIsSwitchedOnAgainAtANormalStart() {
+        val dir = tmp.newFolder("crash")
+        // The safe mode switched it off, then the user cleared the app's storage: the records are gone, the
+        // component setting is not.
+        val provider = ComponentName(app.packageName, "androidx.startup.InitializationProvider")
+        app.packageManager.setComponentEnabledSetting(provider, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+        assertFalse(startProcess(dir))
+        assertEquals(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, app.packageManager.getComponentEnabledSetting(provider))
+    }
+
+    @Test fun aProviderSwitchedOnAgainIsInstalledInTheCurrentProcess() {
+        val dir = tmp.newFolder("crash")
+        val provider = ComponentName(app.packageName, net.bible.android.DebugStartupCrashProvider::class.java.name)
+        app.packageManager.setComponentEnabledSetting(provider, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+        assertFalse(startProcess(dir))
+        assertEquals(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, app.packageManager.getComponentEnabledSetting(provider))
+        // The framework listed this process's providers before the switch: Application.onCreate installs it itself,
+        // and a provider that still crashes fails the start the way the framework's install would.
+        org.robolectric.shadows.ShadowSystemProperties.override("debug.andbible.crash_at_startup", "1")
+        try {
+            val failure = runCatching { StartupCrashGuard.installReenabledProviders(app) }.exceptionOrNull()
+            assertNotNull("The provider's onCreate must run", failure)
+            assertEquals(provider.className, failedProviderClass(failure!!))
+        } finally {
+            org.robolectric.shadows.ShadowSystemProperties.override("debug.andbible.crash_at_startup", "0")
+        }
+        // Only once.
+        StartupCrashGuard.installReenabledProviders(app)
     }
 
     @Test fun theRecordsStayUntilTheUserActsInTheSafeMode() {
@@ -227,21 +295,78 @@ class StartupCrashGuardTest {
         }
     }
 
+    @Test fun anErrorThrownByAProvidersOnCreateNamesTheProvider() {
+        // The framework wraps only exceptions ("Unable to get provider ..."); an Error comes through as it is.
+        val error = ExceptionInInitializerError("static init failed").apply {
+            stackTrace = arrayOf(
+                StackTraceElement("androidx.startup.InitializationProvider", "onCreate", "InitializationProvider.java", 52),
+                StackTraceElement("android.content.ContentProvider", "attachInfo", "ContentProvider.java", 2412),
+                StackTraceElement("android.content.ContentProvider", "attachInfo", "ContentProvider.java", 2382),
+                StackTraceElement("android.app.ActivityThread", "installProvider", "ActivityThread.java", 7500),
+            )
+        }
+        assertEquals("androidx.startup.InitializationProvider", failedProviderClass(error))
+        assertNull(failedProviderClass(IllegalStateException("not from a provider")))
+    }
+
+    @Test fun onlyTheCrashLogcatAndScreenshotOfTheseCrashesAreAttached() {
+        val dir = tmp.newFolder("crash")
+        val logDir = File(app.filesDir, "log").apply { mkdirs() }
+        val logcat = File(logDir, LAST_CRASH_LOGCAT_FILE).apply { writeText("old logcat") }
+        val screenshot = File(logDir, LAST_CRASH_SCREENSHOT_FILE).apply { writeText("screenshot") }
+        try {
+            // An unrelated crash of yesterday left its logcat; this crash's own handler saved a screenshot.
+            logcat.setLastModified(System.currentTimeMillis() - 20 * ONE_HOUR)
+            startProcess(dir)
+            crash(RuntimeException("boom"))
+            assertTrue(startProcess(dir))
+            val safeMode = showSafeMode(CrashSafeModeActivity.intent(app))
+            try {
+                safeMode.get().binding.sendReport.performClick()
+                @Suppress("DEPRECATION")
+                val email = shadowOf(safeMode.get()).nextStartedActivity.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
+                @Suppress("DEPRECATION")
+                val uris = email.getParcelableArrayListExtra<android.net.Uri>(Intent.EXTRA_STREAM)!!.map { it.toString() }
+                assertEquals(uris.toString(), 2, uris.size)
+                assertTrue(uris.toString(), uris.any { it.endsWith(LAST_CRASH_SCREENSHOT_FILE) })
+            } finally {
+                safeMode.close()
+            }
+        } finally {
+            logcat.delete()
+            screenshot.delete()
+        }
+    }
+
     @Test fun aStartTheUserClosedIsNotACrash() {
         val dir = tmp.newFolder("crash")
-        startProcess(dir)
-        StartupCrashGuard.markPhase(StartupCrashGuard.PHASE_DATABASES)
-        StartupCrashGuard.resetForTest()
         // Swiped away during a long database migration.
-        val am = app.getSystemService(android.app.ActivityManager::class.java)
-        shadowOf(am).addApplicationExitInfo(
-            org.robolectric.shadows.ShadowActivityManager.ApplicationExitInfoBuilder.newBuilder()
-                .setProcessName(app.packageName)
-                .setReason(android.app.ApplicationExitInfo.REASON_USER_REQUESTED)
-                .build(),
-        )
+        dieDuringDatabaseOpen(dir, android.app.ApplicationExitInfo.REASON_USER_REQUESTED)
         assertFalse(startProcess(dir))
         assertFalse(StartupCrashStore(dir).needsReport())
+        assertFalse(File(dir, "pending.txt").exists())
+    }
+
+    @Test fun aSecondEntryDoesNotEndTheSafeModeProcess() {
+        val dir = tmp.newFolder("crash")
+        startProcess(dir)
+        crash(RuntimeException("boom"))
+        assertTrue(startProcess(dir))
+        var exited = false
+        CrashSafeModeActivity.exitProcess = { exited = true }
+        val first = showSafeMode(CrashSafeModeActivity.intent(app))
+        first.pause().stop() // Home
+        // A widget or notification tap: its screen hands over to the safe mode again.
+        val again = CrashSafeModeActivity.intent(app)
+        assertEquals("A live safe-mode screen is reused, not cleared away", 0, again.flags and Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        val second = Robolectric.buildActivity(CrashSafeModeActivity::class.java, again).setup()
+        // Even if the old one goes (the system clears it), the process the new one runs in stays.
+        first.get().finish()
+        first.destroy()
+        assertFalse("The process must not end under the live safe-mode screen", exited)
+        second.get().finish()
+        second.pause().stop().destroy()
+        assertTrue("The last one leaving ends the uninitialised process", exited)
     }
 
     @Test fun leavingTheSafeModeAfterSendingEndsItsProcess() {

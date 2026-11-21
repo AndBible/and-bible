@@ -140,6 +140,8 @@ open class BibleApplication : Application() {
             super.onCreate()
             return
         }
+        // #4176: a provider the crash safe mode switched off is on again, but this process started without it.
+        StartupCrashGuard.installReenabledProviders(this)
         DatabaseContainer.installHost(AndroidDatabaseHost(this))
         Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()

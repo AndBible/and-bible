@@ -125,7 +125,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         // also one Android restores straight into, hands over to the crash report before touching the app.
         if (net.bible.android.control.report.StartupCrashGuard.safeMode) {
             routedToCrashSafeMode = true
-            super.onCreate(savedInstanceState)
+            // Not the saved state: restoring it (fragments, Compose savers) could touch the uninitialised app.
+            super.onCreate(null)
             CrashSafeModeActivity.routeIfSafeMode(this)
             return
         }
