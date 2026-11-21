@@ -143,10 +143,10 @@ class CloudSyncNamespaceTest {
 
     /**
      * Runs [block] off the test thread while answering the first-join dialogs: [firstAnswer] picks an option
-     * (0 = fetch, 1 = create, 2 = disable) or cancels (null); a confirmation, if any, is accepted.
+     * ("merge", "fetch", "create" or "disable") or cancels (null); a confirmation, if any, is accepted.
      * Returns the requests seen.
      */
-    private suspend fun answeringDialogs(dialogs: AppDialogController, firstAnswer: Int?, block: suspend () -> Unit): List<AppDialogRequest> {
+    private suspend fun answeringDialogs(dialogs: AppDialogController, firstAnswer: String?, block: suspend () -> Unit): List<AppDialogRequest> {
         val seen = mutableListOf<AppDialogRequest>()
         val job: kotlinx.coroutines.Deferred<Unit> = kotlinx.coroutines.CoroutineScope(Dispatchers.Default).async {
             try { block() } catch (e: CancelStartedSync) { /* cancelled first join */ }
@@ -159,8 +159,8 @@ class CloudSyncNamespaceTest {
                         seen += p.request
                         val r = p.request
                         dialogs.respond(p.id, when {
-                            r is AppDialogRequest.Options && firstAnswer != null -> AppDialogResult.Selected(r.options[firstAnswer].value)
-                            r is AppDialogRequest.Options -> AppDialogResult.Cancel
+                            r is AppDialogRequest.SyncJoinPlan && firstAnswer != null -> answerJoinPlan(r, firstAnswer)
+                            r is AppDialogRequest.SyncJoinPlan -> AppDialogResult.Cancel
                             else -> AppDialogResult.Ok
                         })
                     }
@@ -229,7 +229,7 @@ class CloudSyncNamespaceTest {
         val db = accessor().apply { seed() }
         val cloudSync = sync("com.app.calculator", adapter, dialogs = dialogs)
         val seen = answeringDialogs(dialogs, firstAnswer = null) { cloudSync.initializeSync(db) }
-        assertTrue("first-join question expected, saw $seen", seen.any { it is AppDialogRequest.Options })
+        assertTrue("first-join question expected, saw $seen", seen.any { it is AppDialogRequest.SyncJoinPlan })
         assertEquals(listOf<String?>("net.bible.android.activity-sync-bookmarks"), adapter.listedNames)
         assertTrue(adapter.createdFolders.isEmpty())
         assertResetKeysGone(db)
@@ -266,8 +266,8 @@ class CloudSyncNamespaceTest {
         val dialogs = AppDialogController()
         val db = accessor().apply { seed(ns = "net.bible.android.activity") }
         val cloudSync = sync("com.app.calculator", adapter, dialogs = dialogs)
-        val seen = answeringDialogs(dialogs, firstAnswer = 0) { cloudSync.initializeSync(db) }
-        assertTrue("fetch question expected, saw $seen", seen.any { it is AppDialogRequest.Options })
+        val seen = answeringDialogs(dialogs, firstAnswer = "merge") { cloudSync.initializeSync(db) }
+        assertTrue("join plan expected, saw $seen", seen.any { it is AppDialogRequest.SyncJoinPlan })
         assertEquals("existing-net.bible.android.activity-sync-bookmarks", db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
         assertEquals("net.bible.android.activity", db.dao.getString(SYNC_NAMESPACE_KEY))
     }

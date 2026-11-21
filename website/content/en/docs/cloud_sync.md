@@ -36,34 +36,37 @@ Errors raised during startup remain queued until the app can display them.
     - Windows and Linux: signing in to Google Drive opens your system browser, where you choose your Google account and allow *AndBible* to use its own app folder. Return to *AndBible* when the browser page says you are done.
     - iPhone, iPad and Mac: a Google sign-in sheet opens inside the app.
     - Android: Google Drive normally uses the Google account of your device. In the F-Droid build, and on devices without Google Play services (for example GrapheneOS without sandboxed Google Play, or /e/OS), signing in opens your browser instead: choose your Google account, allow *AndBible* to use its own app folder, and the browser returns you to *AndBible*. Once you have signed in this way, *AndBible* keeps using the browser sign-in on that device.
-4. Toggle on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)). Switching on the first category starts the sign-in to the backend.
+4. Switch on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)). The switches only mark your changes: an **Apply** bar appears at the bottom with the number of changes, **Discard** and **Apply**. Tap **Apply** to make them all at once. Applying the first category starts the sign-in to the backend. If you leave the screen with unapplied changes, *AndBible* asks whether to apply or discard them.
 
 If a saved backend is unavailable on this platform (for example, after restoring an Android backup with Google Drive sync on Windows), synchronization is disabled. the `Device synchronization` screen explains that a supported backend needs to be chosen, and the sync switches show as off. No other backend is selected automatically, and neither manual nor background synchronization runs. The saved backend is kept unchanged until you choose a supported backend and configure synchronization for this device.
 
-When enabling sync for the first time:
+When you tap **Apply**, a *Checking the cloud…* dialog looks for data that your other devices have already synchronized (tap **Cancel** to stop; the categories you were turning on stay off). Then:
 
-- If **no sync data exists** in the cloud yet, your local data will be uploaded
-    automatically.
-- If **sync data already exists** (e.g. from another device), a dialog will
-    appear with four options:
+- Categories with **no sync data in the cloud** yet are uploaded from this device
+    automatically, without a question.
+- If **sync data already exists** for some categories (e.g. from another
+    device), one dialog, *The cloud already has data*, lists those categories.
+    Choose what to do for each of them; **Merge** is preselected:
 
-    - **Merge data** — keeps both the data on this device and the data in the
-        cloud. Where the same item was changed on both sides, the newer change
-        is kept. This device’s data is also sent to your other devices. If
-        anything goes wrong, this device’s data is restored as it was and sync
-        stays off for that category.
-    - **Copy from Cloud to this device** — downloads the cloud data and replaces
-        your local data with it.
-    - **Copy from this device to Cloud** — replaces the cloud data with this
-        device’s local data.
-    - **Cancel & disable synchronization** — cancels and disables sync for this
+    - **Merge** — combines this device and the cloud. Both are kept; where the
+        same item was changed on both sides, the newer change is kept. This
+        device’s data is also sent to your other devices. If anything goes wrong,
+        this device’s data is restored as it was and sync stays off for that
         category.
+    - **Copy from cloud** — replaces this device’s data with the cloud data.
+    - **Copy to cloud** — replaces the cloud’s data with this device’s data.
+    - **Don’t sync** — leaves the category off.
 
-    The dialog is headed *The cloud already has your …. What should happen?*
-    and each option shows what it does. A confirmation follows to make sure you
-    understand the consequences: *Merge your … with the cloud?* (**Merge**),
-    *Replace this device’s … with the cloud copy?* or *Replace the cloud copy of …
-    with this device’s data?* (both **Replace**).
+    Tap **Next** for a summary, *Start synchronization?*, that lists what will
+    happen to each category. If anything is replaced, the summary warns that
+    replaced data cannot be recovered and the button reads **Replace and sync**;
+    otherwise it reads **Start sync**. **Back** returns to the choices and
+    **Cancel** turns the categories you were enabling off again.
+
+The same dialog appears at a later sync if *AndBible* finds that the cloud data
+was reset. Background syncs never show it: they wait until you open the app.
+
+Document sync is not part of this: its switch takes effect immediately.
 
 ### Setting Up Nextcloud
 
@@ -72,7 +75,7 @@ If using Nextcloud instead of Google Drive:
 1. In `Device synchronization`, change the `Synchronization Backend` to **Nextcloud**.
 2. Enter your Nextcloud `Server URL`, `User name` and `Password`.
 3. Optionally specify a `Sync folder path` on the server (the parent folder for sync data; empty means the root).
-4. Toggle on the data categories you want to sync.
+4. Switch on the data categories you want to sync and tap **Apply**.
 
 When you open a text setting such as the server address, username or password,
 its editor is ready for typing without an extra tap or click. On touch devices,
@@ -100,7 +103,7 @@ service.
 2. Enter the `Server URL`, `User name` and `Password`.
 3. Optionally specify a `Sync folder path`, a subfolder on the server under
     which *AndBible* stores its data. It is created if it does not exist.
-4. Toggle on the data categories you want to sync.
+4. Switch on the data categories you want to sync and tap **Apply**.
 
 Typical server addresses:
 
@@ -234,9 +237,9 @@ the shared folder once after you update:
     again, unless you cancel the question in step 2.
 2. If the shared folder already contains data, for example from your Android
     device, the app asks what to do, as described in
-    [Setting Up Sync](#setting-up-sync): **Copy from Cloud to this device**,
-    **Copy from this device to Cloud**, or **Cancel & disable synchronization**.
-    Be careful with **Copy from this device to Cloud**: it replaces the data in
+    [Setting Up Sync](#setting-up-sync): **Merge**, **Copy from cloud**,
+    **Copy to cloud** or **Don’t sync**.
+    Be careful with **Copy to cloud**: it replaces the data in
     the shared folder, including the data your other devices (for example the
     standard Android app) have synced there.
 3. If the shared folder is empty, a new one is created from the data on this
@@ -279,10 +282,10 @@ accumulate. To compact the cloud storage:
 
 1. Make a [backup](backup_restore.md) first, just in case.
 2. On one device, open `Device synchronization` and tap `Sign Out`.
-3. Set up sync again and choose **Copy from this device to Cloud**. This
+3. Set up sync again and choose **Copy to cloud**. This
     replaces the accumulated patches in the cloud with a clean snapshot.
 4. On your other devices, sync will detect that the cloud data has changed.
-    When prompted, choose **Copy from Cloud to this device** to restore from the
+    When prompted, choose **Copy from cloud** to restore from the
     clean snapshot.
 
 ## Privacy and Security

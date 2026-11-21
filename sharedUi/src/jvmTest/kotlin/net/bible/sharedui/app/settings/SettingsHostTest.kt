@@ -2,6 +2,7 @@ package net.bible.sharedui.app.settings
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasTestTag
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -80,6 +82,7 @@ class SettingsHostTest {
         appSettingsProvider: () -> AppSettings = { prefs },
         hostShell: HostShell = shell,
         serviceProvider: () -> net.bible.sharedcore.settings.AppSettingsService = { error("the app settings service must stay lazy") },
+        syncServiceProvider: () -> net.bible.sharedcore.settings.SyncSettingsService = { error("the sync settings service must stay lazy") },
     ) = SettingsHost(
         shell = hostShell,
         strings = strings,
@@ -103,7 +106,7 @@ class SettingsHostTest {
             override fun show(topic: HelpTopic) { calls += "help:$topic" }
         },
         appSettingsServiceProvider = serviceProvider,
-        syncSettingsServiceProvider = { error("the sync settings service must stay lazy") },
+        syncSettingsServiceProvider = syncServiceProvider,
         readingProgressSettingsServiceProvider = { error("the reading-progress settings service must stay lazy") },
         readingProgressServiceProvider = { error("the reading-progress service must stay lazy") },
     )
@@ -304,5 +307,97 @@ class SettingsHostTest {
         assertEquals(strings.cancel, deps.readingProgress.dismissText)
         deps.readingProgress.onShowHelp()
         assertEquals("help:READING_PROGRESS", calls.last())
+    }
+
+    // ——— Sync settings: leaving with pending switches (setLeave -> syncLeave -> onExit -> pop chain) ———
+
+    private fun withSyncDestination(
+        service: net.bible.sharedui.settings.FakeSyncService,
+        body: androidx.compose.ui.test.ComposeUiTest.(NavHostController, SettingsHost) -> Unit,
+    ) = runComposeUiTest {
+        lateinit var nav: NavHostController
+        val host = host(syncServiceProvider = { service })
+        setContent {
+            nav = rememberNavController()
+            val deps = androidx.compose.runtime.remember { host.navDeps(nav, NavResultChannel<ReadingProgressResult> { }) }
+            androidx.compose.runtime.CompositionLocalProvider(net.bible.sharedui.strings.LocalStrings provides iosStrings("en")) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false, disableAnimations = true) {
+                    net.bible.sharedui.components.AbNavHost(nav, startDestination = "home") {
+                        // A stand-in start destination: the real SETTINGS one would build the app-settings controller.
+                        composable("home") { }
+                        settingsNavGraph(nav, deps)
+                    }
+                }
+            }
+        }
+        runOnIdle { nav.navigate(net.bible.sharedcore.nav.NavRoutes.SYNC_SETTINGS) }
+        waitForIdle()
+        body(nav, host)
+    }
+
+    private fun androidx.compose.ui.test.ComposeUiTest.flipBookmarks() {
+        onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-sync_enable_bookmarks"))
+        onNodeWithTag("settings-row-sync_enable_bookmarks").performClick()
+    }
+
+    private fun NavHostController.route() = currentBackStackEntry?.destination?.route
+
+    @Test
+    fun upWithPendingAsksFirstAndDiscardPopsTheDestination() {
+        val service = net.bible.sharedui.settings.FakeSyncService(net.bible.sharedui.settings.syncSnapshot(on = true))
+        withSyncDestination(service) { nav, _ ->
+            val en = iosStrings("en")
+            // Nothing pending: up pops straight away (plain exit path).
+            flipBookmarks()
+            onNodeWithContentDescription(en.settingsEditorBack).performClick()
+            onNodeWithText(en.syncPendingLeaveTitle).assertExists()
+            assertEquals(net.bible.sharedcore.nav.NavRoutes.SYNC_SETTINGS, nav.route(), "asked first, did not pop")
+            onNodeWithText(en.discard).performClick()
+            waitForIdle()
+            assertEquals("home", nav.route(), "Discard pops via onExit -> syncLeave")
+            assertTrue(service.applied.isEmpty())
+        }
+    }
+
+    @Test
+    fun upWithNothingPendingPopsAtOnce() {
+        withSyncDestination(net.bible.sharedui.settings.FakeSyncService(net.bible.sharedui.settings.syncSnapshot(on = true))) { nav, _ ->
+            onNodeWithContentDescription(iosStrings("en").settingsEditorBack).performClick()
+            waitForIdle()
+            assertEquals("home", nav.route())
+        }
+    }
+
+    @Test
+    fun cloudDocumentsHopWithPendingAsksThenNavigates() {
+        val service = net.bible.sharedui.settings.FakeSyncService(net.bible.sharedui.settings.syncSnapshot(on = true))
+        withSyncDestination(service) { _, host ->
+            val en = iosStrings("en")
+            flipBookmarks()
+            runOnIdle { host.syncSettingsController.onNavigate("document_sync_manage") }
+            onNodeWithText(en.syncPendingLeaveTitle).assertExists()
+            assertTrue(calls.none { it.startsWith("navigate:") }, "not before the answer")
+            onNodeWithText(en.discard).performClick()
+            assertTrue(calls.any { it.startsWith("navigate:") }, "hop after Discard: $calls")
+        }
+    }
+
+    @Test
+    fun leaveApplyFinishingAfterTheEntryIsGoneDoesNotPopAReenteredEntry() {
+        val service = net.bible.sharedui.settings.FakeSyncService(net.bible.sharedui.settings.syncSnapshot(on = true))
+        service.gate = kotlinx.coroutines.CompletableDeferred()
+        withSyncDestination(service) { nav, _ ->
+            val en = iosStrings("en")
+            flipBookmarks()
+            onNodeWithContentDescription(en.settingsEditorBack).performClick()
+            onNodeWithText(en.dialogApply).performClick()  // the gated apply keeps running
+            runOnIdle { nav.popBackStack() }                // the screen goes away by another exit path
+            waitForIdle()
+            runOnIdle { nav.navigate(net.bible.sharedcore.nav.NavRoutes.SYNC_SETTINGS) }
+            waitForIdle()
+            service.gate!!.complete(net.bible.sharedcore.settings.ApplyResult.Applied)
+            waitForIdle()
+            assertEquals(net.bible.sharedcore.nav.NavRoutes.SYNC_SETTINGS, nav.route(), "the late apply must not pop the new entry")
+        }
     }
 }

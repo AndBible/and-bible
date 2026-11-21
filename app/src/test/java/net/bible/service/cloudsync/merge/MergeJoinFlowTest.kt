@@ -57,6 +57,7 @@ import net.bible.service.db.useWriterConnectionMarked
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.service.cloudsync.answerJoinPlan
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedcore.webdav.*
@@ -183,9 +184,9 @@ class MergeJoinFlowTest {
 
     /**
      * Runs [CloudSync.synchronize] and answers every dialog it raises: the options question with the choice at
-     * [choiceIndex] (0 = Merge, 1 = Fetch, 2 = Create, 3 = Disable), confirmations with Ok, messages with Ok.
+     * [choice] ("merge", "fetch", "create" or "disable"), confirmations with Ok, messages with Ok.
      */
-    private suspend fun kotlinx.coroutines.test.TestScope.syncAnswering(choiceIndex: Int) {
+    private suspend fun kotlinx.coroutines.test.TestScope.syncAnswering(choice: String) {
         val run = async(Dispatchers.IO) { cloud.synchronize() }
         val deadline = System.currentTimeMillis() + 60_000
         while (!run.isCompleted) {
@@ -193,7 +194,7 @@ class MergeJoinFlowTest {
             dialogs.pending.value?.let { shown ->
                 seenDialogs += shown.request
                 dialogs.respond(shown.id, when (val r = shown.request) {
-                    is AppDialogRequest.Options -> AppDialogResult.Selected(r.options[choiceIndex].value)
+                    is AppDialogRequest.SyncJoinPlan -> answerJoinPlan(r, choice)
                     else -> AppDialogResult.Ok
                 })
             }
@@ -231,11 +232,11 @@ class MergeJoinFlowTest {
         val folder = publishFromA(a, adapterA)
         val deviceLabel = BookmarkEntities.Label(name = "t-from-b").also { bDao.insert(it) }
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
-        val options = seenDialogs.filterIsInstance<AppDialogRequest.Options>().single().options.map { it.label }
-        assertEquals(4, options.size)
-        assertEquals("Merge data", options.first())
+        val plan = seenDialogs.filterIsInstance<AppDialogRequest.SyncJoinPlan>().single()
+        assertEquals(listOf("merge", "fetch", "create", "disable"), plan.choices.map { it.value })
+        assertEquals("merge is the first choice and the default", "merge", plan.defaultChoice)
         assertTrue("both sets are kept on B", labelNames().containsAll(setOf("t-from-a", "t-from-b")))
         assertEquals(folder, config(SYNC_FOLDER_FILE_ID_KEY))
         assertNotNull(config(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
@@ -265,7 +266,7 @@ class MergeJoinFlowTest {
         assertTrue("the device has rows to lose", before.getValue("Label").any { it.contains("t-from-b") })
         cloud.mergeStageHookForTest = { s -> if (s == stage) throw IllegalStateException("injected at $s") }
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
         assertEquals("rows, LogEntry, SyncConfiguration and SyncStatus equal to before", before, dump(b))
         assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
@@ -274,7 +275,7 @@ class MergeJoinFlowTest {
         assertNull(config(LAST_PATCH_WRITTEN_KEY))
         assertFalse("category sync is off", category.isSyncEnabled(settings))
         assertEquals(setOf("t-from-b"), labelNames())
-        assertTrue("the failure was reached", seenDialogs.any { it is AppDialogRequest.Options })
+        assertTrue("the failure was reached", seenDialogs.any { it is AppDialogRequest.SyncJoinPlan })
         assertEquals("no merge temp file is left", emptyList<String>(), mergeTempFiles())
     }
 
@@ -294,7 +295,7 @@ class MergeJoinFlowTest {
         bDao.insert(BookmarkEntities.Label(name = "t-from-b"))
         val before = dump(b)
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
         assertEquals(before, dump(b))
         assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
@@ -322,7 +323,7 @@ class MergeJoinFlowTest {
         bDao.insert(BookmarkEntities.Label(name = "t-from-b"))
         val before = dump(b)
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
         assertEquals(before, dump(b))
         assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
@@ -339,7 +340,7 @@ class MergeJoinFlowTest {
         val (_, adapterA) = signedInAdapters()
         bDao.insert(BookmarkEntities.Label(name = "t-from-b"))
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
         assertTrue("no dialog: $seenDialogs", seenDialogs.isEmpty())
         assertEquals(setOf("t-from-b"), labelNames())
@@ -371,7 +372,7 @@ class MergeJoinFlowTest {
         simulateCloudStateAfterSwap()
         assertTrue(labelNames().contains("t-cloud"))
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
         assertEquals(before, dump(b))
         assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
@@ -391,7 +392,7 @@ class MergeJoinFlowTest {
         b.dao.setConfig("webDavSecretFile", "device-known-stale")
         category.setSyncEnabled(settings, true)
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
         assertEquals(before, dump(b))
         assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
@@ -414,7 +415,7 @@ class MergeJoinFlowTest {
         bDao.insert(BookmarkEntities.Label(name = "t-from-b"))
         val before = dump(b)
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
         assertEquals(before, dump(b))
         assertNull(config(SYNC_FOLDER_FILE_ID_KEY))

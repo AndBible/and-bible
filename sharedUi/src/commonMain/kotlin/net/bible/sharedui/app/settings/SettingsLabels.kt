@@ -182,6 +182,15 @@ fun Strings.syncSettingsLabels() = SyncSettingsLabels(
     certificateTitle = webdavCertificateTitle,
     forgetCertificateMessage = webdavForgetCertificateLead,
     httpsRequiredMessage = webdavHttpsRequired,
+    pendingOn = syncPendingOn,
+    pendingOff = syncPendingOff,
+    pendingChanges = ::syncPendingChanges,
+    applyLabel = dialogApply,
+    discardLabel = discard,
+    cancelLabel = cancel,
+    leavePendingTitle = syncPendingLeaveTitle,
+    checkingCloudTitle = syncCheckingCloudTitle,
+    checkingCloudText = syncCheckingCloudText,
 )
 
 /** The reading-progress settings screen's labels. */

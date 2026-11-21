@@ -19,15 +19,21 @@ package net.bible.android.view.activity.settings
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.control.activity.ActivityKind
+import net.bible.android.control.event.UserMessages
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudAdapterFactory
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -44,6 +50,7 @@ import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.webdav.WebDavUrl
+import net.bible.sharedcore.settings.ApplyResult
 import net.bible.sharedcore.settings.Choice2
 import net.bible.sharedcore.settings.DocSyncSummaryData
 import net.bible.sharedcore.settings.SyncCategoryKeys
@@ -67,7 +74,11 @@ class SyncSettingsServiceImpl(
     private val notificationPermission: net.bible.sharedcore.platform.NotificationPermission? = null,
     private val progressTracker: net.bible.service.cloudsync.documents.DocumentSyncProgressTracker? = null,
     private val runningState: (() -> StateFlow<Boolean>)? = null,
+    /** The categories with a stored, not yet executed join decision; defaults to [CloudSync.queuedJoins]. */
+    private val queuedJoinsState: (() -> StateFlow<Set<SyncableDatabaseDefinition>>)? = null,
 ) : SyncSettingsService {
+    private val queuedJoins: StateFlow<Set<SyncableDatabaseDefinition>> get() = queuedJoinsState?.invoke() ?: cloudSync.queuedJoins
+
     /** Handle failures inside each child so neither UI nor durable-write scopes are cancelled. */
     private fun CoroutineScope.launchSettings(
         start: CoroutineStart = CoroutineStart.DEFAULT,
@@ -105,6 +116,14 @@ class SyncSettingsServiceImpl(
 
     init {
         refresh()
+        // The "waiting for the current synchronization" summary follows the stored join decisions.
+        // Not a child of [scope]: a never-ending child would make "join all children" waits (and a host that counts
+        // children) hang; it is cancelled with [scope] instead (a host scope without a Job lives as long as the
+        // process, like the service itself). On Default, never Unconfined: CloudSync updates the flow while holding
+        // its join-state lock, and an unconfined collector would run build() inside that lock.
+        val watcher = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        scope.coroutineContext[Job]?.invokeOnCompletion { watcher.cancel() }
+        watcher.launch { queuedJoins.drop(1).collect { refresh() } }
         progressTracker?.let { tracker ->
             scope.launchSettings { tracker.state.collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }
         }
@@ -128,7 +147,9 @@ class SyncSettingsServiceImpl(
         return result + " " + strings.syncAdapterSummary(adapters.displayName(current))
     }
 
-    private fun categorySummary(cat: SyncableDatabaseDefinition, lastSynchronized: Long?): String {
+    private fun categorySummary(cat: SyncableDatabaseDefinition, enabled: Boolean, lastSynchronized: Long?): String {
+        // A stored join decision waits for the next pass (and its mutex): say so instead of the content text.
+        if (enabled && cat in queuedJoins.value) return strings.syncWaitingForPass
         val lastSyncStr = lastSynchronized?.let {
             ".\n\n" + strings.syncLastUpdated(platform.formatSyncTime(it))
         } ?: ""
@@ -163,7 +184,7 @@ class SyncSettingsServiceImpl(
             },
             categorySummary = SyncCategoryKeys.DISPLAY.associateWith { key ->
                 val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
-                categorySummary(cat, lastSynchronized[cat])
+                categorySummary(cat, available && categories.enabled(cat), lastSynchronized[cat])
             },
             documentsEnabled = documentsEnabled,
             documentTransferSummary = transferSummary(),
@@ -219,7 +240,9 @@ class SyncSettingsServiceImpl(
 
     override suspend fun signIn(): Boolean {
         if (cloudSync.signedIn) return true
-        return cloudSync.signIn() == true
+        // Another sign-in may hold the mutex: wait for it instead of reporting a silent failure. A genuine failure is
+        // reported to the user by CloudSync.signIn itself (a dialog; a user cancel is deliberately quiet).
+        return cloudSync.signIn(waitForExisting = true) == true
     }
 
     override suspend fun scanDocuments(): DocSyncSummaryData {
@@ -234,23 +257,55 @@ class SyncSettingsServiceImpl(
         )
     }
 
-    override fun setCategoryEnabled(key: String, enabled: Boolean) {
-        if (enabled && !cloudSync.adapterAvailable) return
-        val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
-        if (enabled) cloudSync.pinAdapterOnEnable()
-        categories.setEnabled(cat, enabled)
-        if (enabled) {
-            notificationPermission?.let { permission -> writeScope.launchSettings { permission.ensureAsked() } }
-            // Classic setupDrivePref ran the sync-start sequence + broadcast the restore (now `notifyDatabaseRestored`) after
-            // sign-in, then recreate()d. We refresh the snapshot instead; the sequence is fire-and-forget.
+    override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): ApplyResult {
+        fun category(key: String) = requireNotNull(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]) { "Unknown sync category $key" }
+        val ons = changes.filterValues { it }.keys.map(::category).toSet()
+        val offs = changes.filterValues { !it }.keys.map(::category)
+        if (ons.isNotEmpty()) {
+            if (!cloudSync.adapterAvailable) {
+                UserMessages.errorNotification(strings.syncAdapterUnavailable, showReportButton = false, kind = ActivityKind.SYNC)
+                return ApplyResult.SignInFailed
+            }
+            if (!signIn()) return ApplyResult.SignInFailed
+        }
+        offs.forEach {
+            categories.setEnabled(it, false)
+            cloudSync.dropStoredJoin(it)
+        }
+        if (ons.isEmpty()) {
+            refresh()
+            return ApplyResult.Applied
+        }
+        cloudSync.pinAdapterOnEnable()
+        notificationPermission?.let { permission -> writeScope.launchSettings { permission.ensureAsked() } }
+        val planned = try {
+            // Enables the categories itself (after marking them awaiting), and turns them off again on cancel.
+            cloudSync.planJoins(ons, onProbed, enable = true)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // planJoins already turned the ons off again; tell the user instead of failing silently.
+            net.bible.sharedcore.log.Log.e("SyncSettingsService", "Planning the cloud join failed", e)
+            UserMessages.errorNotification(strings.syncError, showReportButton = true, kind = ActivityKind.SYNC, cause = e)
+            return ApplyResult.Cancelled
+        } finally {
+            refresh()
+        }
+        if (planned) {
+            // A stored decision does not run by itself: wait for any running pass, then start a fresh one that takes
+            // the decisions (it also syncs the categories that needed no decision). Detached: it outlives the screen.
             writeScope.launchSettings {
                 cloudSync.waitUntilFinished()
                 cloudSync.start()
                 cloudSync.waitUntilFinished()
+                // A decision the pass did not execute (probe failed, pass could not run) must not wait for a later
+                // background pass to act on it unasked.
+                ons.forEach { cloudSync.dropStoredJoin(it) }
                 notifyDatabaseRestored()
                 refresh()
             }
         }
+        return if (planned) ApplyResult.Applied else ApplyResult.Cancelled
     }
 
     /** Loaded snapshots mutate before the caller refreshes; cold mutations queue across the load. */
