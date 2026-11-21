@@ -163,6 +163,19 @@
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
 
+# Classes that libraries create by name with a no-argument constructor (#4175). R8 full mode (the AGP 8 default)
+# keeps only the class, not its default constructor, for a member-less `-keep class * extends Base` rule, and such
+# old consumer rules are still around: Glance 1.1.1 pulls in WorkManager 2.7.1, which brings Room 2.2.5
+# (`-keep class * extends androidx.room.RoomDatabase`) and its own `-keep class * extends androidx.work.InputMerger`.
+# Without the constructor `WorkDatabase_Impl` cannot be created and the app crash-loops at startup (6.0.1279), and
+# WorkManager cannot run a OneTimeWorkRequest (Glance widget sessions). Glance's own
+# `-keep public class * extends androidx.glance.appwidget.action.ActionCallback` has the same gap: every widget button
+# (actionRunCallback<T>()) fails with NoSuchMethodException. scripts/check-r8-reflective-constructors.py checks every
+# minified build for this (task checkR8ReflectiveConstructors<Variant>).
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
+-keep class * extends androidx.work.InputMerger { <init>(); }
+-keep class * implements androidx.glance.appwidget.action.ActionCallback { <init>(); }
+
 # Koin keys definitions by KClass. R8 vertical class merging folds a single-implementer interface into its
 # implementation, so an interface key and its implementation (or two interfaces of one class) become the same
 # key and an alias definition like `single<Port> { get<Impl>() }` resolves itself (StackOverflowError at startup).
