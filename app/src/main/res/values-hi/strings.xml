@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">खोज-सूचकांक पूरा होने के बाद आपको खोज-स्क्रीन में ले जाया जाएगा</string>
   <string name="index_create">नई सूचकांक बनाऐं </string>
   <string name="rebuild_index"> सूचकांक को फिर से बनाए</string>
-  <string name="search_in">%s में खोजे</string>
   <string name="do_in_background"> बैकग्राउंड में जारी रखें </string>
   <string name="rebuild_index_button"> फ़िर से बनाए</string>
   <string name="creating_index_for">%s के लिए सूचकांक बनाया जा रहा है…</string>

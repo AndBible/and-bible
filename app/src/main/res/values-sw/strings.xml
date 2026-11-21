@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Utaelekezwa kwenye skrini ya utafutaji baada ya uundaji wa faharasa kukamilika.</string>
   <string name="index_create">Unda</string>
   <string name="rebuild_index">Jenga upya faharasa</string>
-  <string name="search_in">Tafuta katika %s</string>
   <string name="do_in_background">Endelea mandharinyuma</string>
   <string name="rebuild_index_button">Jenga upya</string>
   <string name="creating_index_for">Kuunda faharasa kwa %s…</string>

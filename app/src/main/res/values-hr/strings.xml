@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kada popisivanje završi bit ćete vraćeni na zaslon za pretraživanje.</string>
   <string name="index_create">Stvori</string>
   <string name="rebuild_index">Ponovno stvori popis</string>
-  <string name="search_in">Pretraži u %s</string>
   <string name="do_in_background">Nastavi u pozadini</string>
   <string name="rebuild_index_button">Ponovno stvori</string>
   <string name="creating_index_for">Stvori popis za %s…</string>

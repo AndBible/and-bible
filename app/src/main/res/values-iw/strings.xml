@@ -85,7 +85,6 @@
   <string name="indexing_wait_msg">כשיצירת האינדקס תסתיים, תועבר למסך החיפוש.</string>
   <string name="index_create">יצירה</string>
   <string name="rebuild_index">בנייה מחדש של האינדקס</string>
-  <string name="search_in">חפש ב %s</string>
   <string name="do_in_background">המשך ברקע</string>
   <string name="rebuild_index_button">בנייה-מחדש</string>
   <string name="creating_index_for">יוצר אינדקס עבור %s…</string>

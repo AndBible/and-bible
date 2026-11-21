@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Po skončení indexovania sa zobrazí sa obrazovka hľadania.</string>
   <string name="index_create">Vytvoriť</string>
   <string name="rebuild_index">Znova vytvor index</string>
-  <string name="search_in">Hľadať v %s</string>
   <string name="do_in_background">Pokračovať na pozadí</string>
   <string name="rebuild_index_button">Znova vytvoriť</string>
   <string name="creating_index_for">Vytváranie indexu pre %s…</string>

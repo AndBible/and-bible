@@ -108,7 +108,6 @@
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index_create">Create</string>
     <string name="rebuild_index">Rebuild index</string>
-    <string name="search_in">Find in %s</string>
     <string name="do_in_background">Continue in background</string>
     <string name="rebuild_index_button">Rebuild</string>
     <string name="creating_index_for">Creating index for %s…</string>

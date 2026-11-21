@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Apabila pengindeksan selesai, anda akan dibawa ke skrin carian.</string>
   <string name="index_create">Buat</string>
   <string name="rebuild_index">Bina semula indeks</string>
-  <string name="search_in">Cari dalam %s</string>
   <string name="do_in_background">Teruskan di latar belakang</string>
   <string name="rebuild_index_button">Bina semula</string>
   <string name="creating_index_for">Membuat indeks untuk %s…</string>

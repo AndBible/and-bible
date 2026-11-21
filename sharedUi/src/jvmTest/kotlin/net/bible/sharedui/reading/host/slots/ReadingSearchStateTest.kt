@@ -32,6 +32,7 @@ import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.ReadingSearchPhase
+import net.bible.sharedcore.search.ReadingSearchRequest
 import net.bible.sharedcore.search.SearchDocumentCategory
 import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.sharedcore.search.SearchBibleSection
@@ -732,6 +733,52 @@ class ReadingSearchStateTest {
             val request = f.state.buildSearchRequest("KJV", "for God")
             assertFalse(request.isRegex)
             assertEquals(SearchType.ANY_WORDS, request.searchType)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    private fun assertFormSelectionSurvivesExecution(activeIndexed: Boolean) {
+        val f = SearchFixture()
+        val active = fakeSearchBook("KJV")
+        f.platform.current = active
+        f.platform.documents["KJV"] = active
+        f.platform.documents["ESV"] = fakeSearchBook("ESV")
+        f.platform.documentInfos["KJV"] = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, activeIndexed)
+        f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, true)
+        f.platform.bibles = listOf("KJV" to "KJV", "ESV" to "ESV")
+        if (!activeIndexed) f.bible.unindexed = setOf("KJV")
+        try {
+            f.state.openRequest(ReadingSearchRequest(
+                query = "\"love\"", documentId = "ESV", translationIds = listOf("ESV"),
+                preDecorated = true, section = SearchBibleSection.ALL, type = SearchType.PHRASE,
+            ))
+            val executed = assertNotNull(f.state.lastSearchRequestForTest, "ESV-only request must run without prompting to index active KJV")
+            assertEquals(listOf("ESV"), executed.translationIds)
+            assertEquals("\"love\"", executed.query)
+            assertEquals(ReadingSearchPhase.Results("ESV", forEpub = false), f.state.controller.phase.value)
+            assertEquals(active, f.platform.current, "handoff must not move the reading window")
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun openRequestExcludesAnotherIndexedActiveBible() = assertFormSelectionSurvivesExecution(true)
+
+    @Test
+    fun openRequestDoesNotPromptToIndexUnselectedActiveBible() = assertFormSelectionSurvivesExecution(false)
+
+    @Test
+    fun openRequestWithoutEpubModeKeepsStoredPhraseMode() {
+        val settings = MapSearchSettings(mutableMapOf("epubSearch-SearchType" to "PHRASE"))
+        val f = SearchFixture(settings = settings)
+        f.platform.documents["EPUB"] = fakeSearchBook("EPUB")
+        f.platform.documentInfos["EPUB"] = SearchDocumentInfo("EPUB", SearchDocumentCategory.GENERAL_BOOK, true, true)
+        try {
+            f.state.openRequest(ReadingSearchRequest(documentId = "EPUB"))
+            assertEquals("PHRASE", settings.strings["epubSearch-SearchType"])
+            assertEquals(EpubSearchMode.PHRASE, f.state.epubSearchMode.value)
         } finally {
             f.state.dispose()
         }

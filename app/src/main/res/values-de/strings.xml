@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
   <string name="index_create">Erstellen</string>
   <string name="rebuild_index">Index neu erstellen</string>
-  <string name="search_in">Finde in %s</string>
   <string name="do_in_background">Im Hintergrund fertigstellen</string>
   <string name="rebuild_index_button">Erneut aufbauen</string>
   <string name="creating_index_for">Der Index für %s wird erstellt...</string>

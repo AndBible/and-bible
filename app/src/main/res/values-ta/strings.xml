@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">அட்டவணைப்படுத்தல் முடிந்ததும் நீங்கள் தேடல் திரைக்கு கொண்டு செல்லப்படுவீர்கள்.</string>
   <string name="index_create">உருவாக்கு</string>
   <string name="rebuild_index">அட்டவணையினை மீள் உருவாக்கவா?</string>
-  <string name="search_in">%sஇல் தேடு</string>
   <string name="do_in_background">பின்னணியில் தொடர்க</string>
   <string name="rebuild_index_button">அட்டவணைப்படுத்து</string>
   <string name="creating_index_for">%s-க்கான அட்டவணை உருவாக்கப்படுகிறது…</string>

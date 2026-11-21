@@ -526,7 +526,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
         val strings = LocalStrings.current
 
         // Read plainly, never through `NavRoutes.decodeArg`: the library has already decoded the
-        // argument, and decoding twice is the trap `SearchNavGraph`'s `searchArgs()` kdoc documents.
+        // argument, and decoding twice corrupts any payload containing a literal `%`.
         val type = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_DOCUMENT_TYPE) }
 
         val controller = remember(type) {

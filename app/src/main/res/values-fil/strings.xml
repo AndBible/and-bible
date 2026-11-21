@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kapag natapos na ang pag-index, dadalhin ka sa screen ng paghahanap.</string>
   <string name="index_create">Gumawa</string>
   <string name="rebuild_index">Itayo muli ang index</string>
-  <string name="search_in">Hanapin sa %s</string>
   <string name="do_in_background">Magpatuloy sa background</string>
   <string name="rebuild_index_button">Itayo muli</string>
   <string name="creating_index_for">Gumagawa ng index para sa %s…</string>

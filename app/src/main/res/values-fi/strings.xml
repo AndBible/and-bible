@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy välittömästi etsi-toimintoon.</string>
   <string name="index_create">Luo uusi</string>
   <string name="rebuild_index">Tee hakuindeksi uudelleen</string>
-  <string name="search_in">Etsi dokumentissa %s</string>
   <string name="do_in_background">Jatka taustalla</string>
   <string name="rebuild_index_button">Luo indeksi</string>
   <string name="creating_index_for">Luodaan indeksiä: %s...</string>

@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">انڈیکسنگ مکمل ہونے پر آپ کو تلاش اسکرین پر لے جایا جائے گا۔</string>
   <string name="index_create">بنائیں</string>
   <string name="rebuild_index">انڈیکس دوبارہ بنائیں</string>
-  <string name="search_in">%s میں تلاش کریں</string>
   <string name="do_in_background">پس منظر میں جاری رکھیں</string>
   <string name="rebuild_index_button">دوبارہ بنائیں</string>
   <string name="creating_index_for">%s کے لیے انڈیکس بنایا جا رہا ہے…</string>

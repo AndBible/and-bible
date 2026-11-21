@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Коли індексування завершиться ви потрапите на екран пошуку.</string>
   <string name="index_create">Створити</string>
   <string name="rebuild_index">Перебудувати індекс</string>
-  <string name="search_in">Знайти в %s</string>
   <string name="do_in_background">Продовжити у фоновому режимі</string>
   <string name="rebuild_index_button">Відновити</string>
   <string name="creating_index_for">Створення індексу для %s…</string>

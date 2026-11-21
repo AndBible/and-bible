@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Quan finalitzi la indexació, s\'obrirà la pantalla de cerca.</string>
   <string name="index_create">Crea</string>
   <string name="rebuild_index">Reconstrueix l\'índex</string>
-  <string name="search_in">Cerca a %s</string>
   <string name="do_in_background">Continua en segon pla</string>
   <string name="rebuild_index_button">Reconstrueix</string>
   <string name="creating_index_for">S\'està creant l\'índex per a %s…</string>

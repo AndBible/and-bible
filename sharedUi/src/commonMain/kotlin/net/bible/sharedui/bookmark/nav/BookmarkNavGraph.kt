@@ -681,8 +681,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
 
         // Read plainly -- NO NavRoutes.decodeArg. The navigation library has ALREADY percent-decoded
         // this by the time it reaches `arguments`, and a second pass would corrupt any payload whose
-        // JSON contains a literal `%` (see SearchNavGraph's searchArgs() kdoc, which documents the
-        // double-decode trap at length). `NavRoutes.labelEdit(data)` encodes exactly once.
+        // JSON contains a literal `%` (the double-decode trap). `NavRoutes.labelEdit(data)` encodes exactly once.
         val data = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_LABEL_DATA) }
 
         // The argument is REQUIRED in every sense that matters -- `NavRoutes.labelEdit` takes it

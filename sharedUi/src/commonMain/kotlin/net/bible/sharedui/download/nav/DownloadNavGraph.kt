@@ -147,7 +147,7 @@ class CustomRepositoryEditorDeps(
 /**
  * `PROGRESS_STATUS_PATTERN`'s platform-supplied slots, ported from classic
  * `ProgressStatusComposeActivity`. Modelled on the former search index progress deps
- * (`SearchNavGraph.kt:301-306`), minus the search-specific members -- this destination is a plain
+ * (since removed), minus the search-specific members -- this destination is a plain
  * multi-job viewer with an OK button, not tied to a single document's index status.
  *
  * - [requestNotificationPermission] is classic `onResume`'s
@@ -162,7 +162,7 @@ class CustomRepositoryEditorDeps(
  *   had to think about.
  *
  *   **Takes ONE callback, unlike the former search index progress `observeJobs`'s
- *   two** (`SearchNavGraph.kt:303`): its second callback drives the search graph's "indexing
+ *   two**: its second callback drove the search graph's "indexing
  *   finished" routing, and `ProgressStatus` has no such routing -- it only ever refreshes its job
  *   list. The narrowing is deliberate, not an oversight.
  * - [title] is `R.string.progress_status`, screen and window. `Strings.kt` has no entry for it, so
@@ -665,13 +665,11 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
 
         // Classic's onResume/onPause pair (:82-94): request the permission, subscribe to JobManager
         // while resumed, and reveal "no tasks" only after ~4s in case a just-launched job has not
-        // registered yet. LifecycleResumeEffect is the shape SearchNavGraph:747-755 already uses,
-        // and it is already imported in commonMain (SearchNavGraph.kt:30).
+        // registered yet. LifecycleResumeEffect is the lifecycle-aware shape used elsewhere in commonMain.
         //
         // The reveal is keyed on the RESUME, not on Unit. Classic posts it INSIDE onResume (:93),
         // so it re-arms every time the screen comes back; a LaunchedEffect(Unit) would fire once
-        // per composition and lose that parity. SearchNavGraph:756-762 keeps the same parity with
-        // the same explicit resumeTicks counter.
+        // per composition and lose that parity, hence the explicit resumeTicks counter.
         var resumeTicks by remember { mutableStateOf(0) }
         LifecycleResumeEffect(Unit) {
             resumeTicks += 1
@@ -722,8 +720,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val scope = rememberCoroutineScope()
 
         // Five arguments, all OPTIONAL, all read plainly -- never through NavRoutes.decodeArg, which
-        // would double-decode a value the library already decoded (SearchNavGraph's searchArgs()
-        // kdoc documents that trap). A flag is emitted only when true (plan D2), so "true" is the
+        // would double-decode a value the library already decoded (the double-decode trap). A flag is emitted only when true (plan D2), so "true" is the
         // whole truth test and an ABSENT argument is false.
         val args = backStackEntry.arguments
         val firstDownload = args?.read { getStringOrNull(NavRoutes.ARG_FIRST_DOWNLOAD) } == "true"

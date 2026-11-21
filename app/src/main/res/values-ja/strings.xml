@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">インデックスの作成が完了すると、検索画面に移動します。</string>
   <string name="index_create">作成</string>
   <string name="rebuild_index">インデックスを再構築</string>
-  <string name="search_in">%s で検索</string>
   <string name="do_in_background">バックグラウンドで続行</string>
   <string name="rebuild_index_button">再構築</string>
   <string name="creating_index_for">%s のインデックスを作成中…</string>

@@ -24,7 +24,7 @@ import net.bible.sharedcore.search.SearchIndexService
  * Host (`:app`) implementation of the portable [SearchIndexService] seam. Wraps the existing
  * [SwordDocumentFacade] index checks and the [SearchControl.createIndex] kickoff (verbatim from
  * classic `SearchIndex.onIndex`). The `docId` is a document's initials; progress is reported by
- * `Screen.SearchIndexProgress`, launched by the Compose host.
+ * the search-index progress screen, launched by the Compose host.
  */
 class SearchIndexServiceImpl(
     private val searchControl: SearchControl,

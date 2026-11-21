@@ -517,7 +517,6 @@ interface Strings {
     // Batch 5 — search
     val search: String
     val emptyList: String
-    val searchIndex: String
     val allWords: String
     val anyWord: String
     val phrase: String
@@ -620,7 +619,6 @@ interface Strings {
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String
     val helpFts5: String
-    fun searchIn(docAbbrev: String): String
     fun searchWithResults2(count: String, docAbbrev: String): String
 
     // Batch 4 (remainder) — MyDocuments
