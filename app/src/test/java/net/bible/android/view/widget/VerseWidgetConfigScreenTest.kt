@@ -85,4 +85,20 @@ class VerseWidgetConfigScreenTest {
         compose.onNodeWithTag("verse-config-save").performClick()
         assertEquals(VerseSource.Random(VerseSource.RandomPart.WHOLE_BIBLE), saved!!.source)
     }
+
+    /** #4190: with hundreds of labels the plain content exceeded AbAlertDialog's 10000dp bound and cut off the Bible list. */
+    @Test fun lastBibleIsReachableWithHundredsOfLabels() {
+        var saved: VerseWidgetConfig? = null
+        val labels = (1..300).map { IdType() to "Label %03d".format(it) }
+        val o = VerseConfigOptions(
+            labels = labels,
+            bibles = (1..5).map { VerseBible("B$it", "B$it", "English") },
+            defaultBible = VerseBible("KJV", "KJV", "KJV"),
+            hasReadingPlan = true,
+        )
+        show(o, VerseWidgetConfig(VerseSource.Label(labels.first().first), seed = 1L)) { saved = it }
+        compose.onNodeWithTag("bible-B5").performScrollTo().performClick()
+        compose.onNodeWithTag("verse-config-save").performClick()
+        assertEquals("B5", saved!!.bibleInitials)
+    }
 }
