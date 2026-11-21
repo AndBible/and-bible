@@ -1,0 +1,24 @@
+package net.bible.service.cloudsync
+
+/** What a category's join needs, as found by the read-only [CloudSync.probeJoin]. */
+sealed interface JoinState {
+    /** Folder known and joined, nothing to ask. */
+    data object Ready : JoinState
+    /** Interrupted merge files present; execute recovers the database and disables the category. */
+    data object NeedsRecovery : JoinState
+    /** No cloud folder: create and upload, no question. */
+    data object NeedsCreate : JoinState
+    /** A cloud folder exists but this device has not joined it: the user decides (fetch, merge or create anew). */
+    data class NeedsDecision(val preliminaryFolderId: String) : JoinState
+}
+
+/**
+ * Result of [CloudSync.probeJoin]. [resetNamespace] and [dropStaleState] are the stored-state clean-ups that
+ * [CloudSync.executeJoin] applies before acting; the probe itself writes nothing.
+ */
+data class JoinProbe(
+    val category: SyncableDatabaseDefinition,
+    val state: JoinState,
+    val resetNamespace: Boolean,
+    val dropStaleState: Boolean,
+)

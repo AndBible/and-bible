@@ -343,78 +343,118 @@ class CloudSync(
     @VisibleForTesting fun syncFolderName(category: String): String = "$namespace-sync-$category"
 
     /**
-     * Makes the category's stored sync state agree with the current [namespace].
-     *
-     * The namespace of the stored state is the [SYNC_NAMESPACE_KEY] config, or, for state that predates the key,
-     * the name the old code derived from the raw app id. If it differs from the current namespace the stored
-     * folder ids, the sync position and the adapter's "folder known" marker belong to a folder this build no
-     * longer uses, so they are dropped and the category joins the current folder afresh (first-join question
-     * included). A standard build's old name equals its namespace, so an upgrade keeps all state.
-     *
-     * The key itself is stored by [initializeSync] once the folder is settled, every time: a first-join fetch
-     * swaps the whole database file, config table included, and the uploader's file may lack the key.
+     * Whether the category's stored sync state belongs to another [namespace] and must be dropped (see
+     * [applyNamespaceReset]). The namespace of the stored state is the [SYNC_NAMESPACE_KEY] config, or, for state that
+     * predates the key, the name the old code derived from the raw app id. A standard build's old name equals its
+     * namespace, so an upgrade keeps all state. Read-only.
      */
-    private suspend fun resetIfNamespaceChanged(dbDef: SyncableDatabaseAccessor<*>) {
+    private suspend fun namespaceChanged(dbDef: SyncableDatabaseAccessor<*>): Boolean {
         val stored = dbDef.dao.getString(SYNC_NAMESPACE_KEY)
-        if (stored == namespace) return
+        if (stored == namespace) return false
         val previous = stored ?: (syncNamespace ?: env.packageName)
         if (previous != namespace) {
             Log.i(TAG, "Sync namespace of ${dbDef.categoryName} changed $previous -> $namespace, starting a fresh join")
-            // The adapter knows which configs prove a folder known (its secret marker); removing them via
-            // getConfigs keeps adapter-specific keys out of this common code.
-            adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
-            dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
-            dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
-            dbDef.dao.removeConfig(LAST_SYNCHRONIZED_KEY)
-            dbDef.dao.removeConfig(LAST_PATCH_WRITTEN_KEY)
+            return true
         }
+        return false
+    }
+
+    /**
+     * Drops the stored folder ids, the sync position and the adapter's "folder known" marker, which belong to a folder
+     * this build no longer uses; the category joins the current folder afresh (first-join question included).
+     *
+     * The namespace key itself is stored by [executeJoin] once the folder is settled, every time: a first-join fetch
+     * swaps the whole database file, config table included, and the uploader's file may lack the key.
+     */
+    private suspend fun applyNamespaceReset(dbDef: SyncableDatabaseAccessor<*>) {
+        // The adapter knows which configs prove a folder known (its secret marker); removing them via
+        // getConfigs keeps adapter-specific keys out of this common code.
+        adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
+        dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+        dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+        dbDef.dao.removeConfig(LAST_SYNCHRONIZED_KEY)
+        dbDef.dao.removeConfig(LAST_PATCH_WRITTEN_KEY)
+    }
+
+    /**
+     * Read-only look at what joining [dbDef] would take: no writes to the database, the adapter or the file system
+     * (only `getString`, `isSyncFolderKnown`, `listFiles` and `exists` are used). [executeJoin] acts on the result.
+     */
+    internal suspend fun probeJoin(dbDef: SyncableDatabaseAccessor<*>): JoinProbe {
+        val resetNamespace = namespaceChanged(dbDef)
+        fun probe(state: JoinState, dropStaleState: Boolean = false) =
+            JoinProbe(dbDef.category, state, resetNamespace, dropStaleState)
+        if (hasInterruptedMerge(dbDef)) return probe(JoinState.NeedsRecovery)
+        var dropStaleState = false
+        // After a namespace reset the folder id is gone, so the category is joined afresh.
+        val syncFolderId = if (resetNamespace) null else dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
+        if (syncFolderId != null) {
+            val known = adapter.isSyncFolderKnown(dbDef, name = syncFolderName(dbDef.categoryName), id = syncFolderId)
+            // A folder id without this device's folder id is a half-finished join: join afresh.
+            if (known && dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) != null) return probe(JoinState.Ready)
+            dropStaleState = true
+        }
+        val cloudFolder = adapter.listFiles(name = syncFolderName(dbDef.categoryName)).firstOrNull()
+        return probe(if (cloudFolder != null) JoinState.NeedsDecision(cloudFolder.id) else JoinState.NeedsCreate, dropStaleState)
+    }
+
+    /** Applies the probe's clean-ups (namespace reset, stale-state removal), the only writes before the join acts. */
+    private suspend fun applyProbeCleanups(dbDef: SyncableDatabaseAccessor<*>, probe: JoinProbe) {
+        if (probe.resetNamespace) applyNamespaceReset(dbDef)
+        // Watermarks too: a stale LAST_SYNCHRONIZED_KEY would make the fresh join skip older patches.
+        if (probe.dropStaleState) removeSyncState(dbDef)
     }
 
     @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true, backgroundErrors: Boolean = !allowInteraction) {
-        var initialOperation: InitialOperation?= null
-        val syncFolderName = syncFolderName(dbDef.categoryName)
-        resetIfNamespaceChanged(dbDef)
-
-        recoverInterruptedMerge(dbDef, background = backgroundErrors)
-        var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
-        if (syncFolderId != null) {
-            val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
-            // A folder id without this device's folder id is a half-finished join: join afresh.
-            if (!syncFolderKnown || dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) == null) {
-                syncFolderId = null
-                // Watermarks too: a stale LAST_SYNCHRONIZED_KEY would make the fresh join skip older patches.
-                removeSyncState(dbDef)
-            }
-        }
-
-        var preliminarySyncFolderId: String? = null
-        if(syncFolderId == null) {
-            // An OS refresh must not decide whether to fetch, create, or disable a category.
-            if (!allowInteraction) throw CancelStartedSync()
-            adapter.listFiles(name = syncFolderName)
-                .firstOrNull()?.id?.also {
-                    preliminarySyncFolderId = it
-                    initialOperation = InitialOperation.FETCH_INITIAL
-                }?:let {
-                initialOperation = InitialOperation.CREATE_NEW
-            }
-
-            if (initialOperation == InitialOperation.FETCH_INITIAL) {
-                Log.i(TAG, "uiMutex ahead ${dbDef.categoryName}...")
-                initialOperation = uiMutex.withLock {
-                    Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
-                    withContext(Dispatchers.Main) {
-                        askInitialSyncOperation(dbDef.category)
+        val probe = probeJoin(dbDef)
+        var operation: InitialOperation? = null
+        when (val state = probe.state) {
+            JoinState.Ready, JoinState.NeedsRecovery -> {}
+            JoinState.NeedsCreate, is JoinState.NeedsDecision -> {
+                // An OS refresh must not decide whether to fetch, create, or disable a category.
+                if (!allowInteraction) {
+                    applyProbeCleanups(dbDef, probe)
+                    throw CancelStartedSync()
+                }
+                if (state is JoinState.NeedsDecision) {
+                    Log.i(TAG, "uiMutex ahead ${dbDef.categoryName}...")
+                    operation = uiMutex.withLock {
+                        Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
+                        withContext(Dispatchers.Main) {
+                            askInitialSyncOperation(dbDef.category)
+                        }
                     }
                 }
-                if (initialOperation == null) {
+            }
+        }
+        executeJoin(dbDef, probe, operation, backgroundErrors)
+    }
+
+    /**
+     * Carries out the join [probe] described: the clean-ups, then recovery, the chosen [operation] and the folder
+     * bookkeeping. [operation] is only read for [JoinState.NeedsDecision]; null there means the user disabled the
+     * category.
+     */
+    internal suspend fun executeJoin(dbDef: SyncableDatabaseAccessor<*>, probe: JoinProbe, operation: InitialOperation?, backgroundErrors: Boolean) {
+        val syncFolderName = syncFolderName(dbDef.categoryName)
+        applyProbeCleanups(dbDef, probe)
+        var initialOperation: InitialOperation? = null
+        var syncFolderId: String? = null
+        var preliminarySyncFolderId: String? = null
+        when (val state = probe.state) {
+            JoinState.Ready -> {}
+            JoinState.NeedsRecovery -> recoverInterruptedMerge(dbDef, background = backgroundErrors)
+            JoinState.NeedsCreate -> initialOperation = InitialOperation.CREATE_NEW
+            is JoinState.NeedsDecision -> {
+                if (operation == null) {
                     dbDef.category.setSyncEnabled(settings, false)
                     throw CancelStartedSync()
-                } else {
-                    dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
-                    syncFolderId = preliminarySyncFolderId
-                    adapter.makeSyncFolderKnown(dbDef, syncFolderName, syncFolderId)
                 }
+                preliminarySyncFolderId = state.preliminaryFolderId
+                initialOperation = operation
+                dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, state.preliminaryFolderId)
+                syncFolderId = state.preliminaryFolderId
+                adapter.makeSyncFolderKnown(dbDef, syncFolderName, state.preliminaryFolderId)
             }
         }
 
@@ -729,9 +769,14 @@ class CloudSync(
      * cloud's data with stored folder ids, so the copy is swapped back in, the sync state removed, category sync
      * switched off and the sync error shown; the device has exactly its earlier data. A lone `.partial` means the
      * live database was never touched: it is deleted and only the stale sync state removed. Both end in
-     * [CancelStartedSync]; the user can enable sync again. Runs inside [initializeSync], so a signed-in adapter is
+     * [CancelStartedSync]; the user can enable sync again. Runs inside [executeJoin], so a signed-in adapter is
      * needed first: until then the database stays as the interrupted merge left it.
      */
+    private fun hasInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>): Boolean {
+        val original = mergeOriginalPath(dbDef)
+        return FileSystem.SYSTEM.exists(original) || FileSystem.SYSTEM.exists("$original.partial".toPath())
+    }
+
     private suspend fun recoverInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>, background: Boolean) {
         val original = mergeOriginalPath(dbDef)
         val partial = "$original.partial".toPath()
