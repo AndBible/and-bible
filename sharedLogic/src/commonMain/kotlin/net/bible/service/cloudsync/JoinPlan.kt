@@ -22,3 +22,20 @@ data class JoinProbe(
     val resetNamespace: Boolean,
     val dropStaleState: Boolean,
 )
+
+/** The answers of the join plan dialog; [value] is the [net.bible.sharedcore.ui.dialog.DialogAnswer.value] on the wire. */
+enum class JoinChoice(val value: String) {
+    MERGE("merge"), FETCH("fetch"), CREATE("create"), DISABLE("disable");
+
+    /** The operation this choice runs; [DISABLE] runs none (null) and leaves the category off. */
+    fun toOperation(): CloudSync.InitialOperation? = when (this) {
+        MERGE -> CloudSync.InitialOperation.MERGE
+        FETCH -> CloudSync.InitialOperation.FETCH_INITIAL
+        CREATE -> CloudSync.InitialOperation.CREATE_NEW
+        DISABLE -> null
+    }
+
+    companion object {
+        fun fromValue(value: String?): JoinChoice? = entries.firstOrNull { it.value == value }
+    }
+}

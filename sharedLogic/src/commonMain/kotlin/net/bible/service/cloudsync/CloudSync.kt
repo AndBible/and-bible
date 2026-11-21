@@ -134,12 +134,6 @@ class CloudSync(
     fun resetSubscribersForTest() { runningSource = EventSource(); refreshSource = EventSource() }
 
 
-    // AppDialogRequest.Options ids for initializeSync's "which way?" question (Task 24 Step 3).
-    private val MERGE_VALUE = "merge"
-    private val FETCH_VALUE = "fetch"
-    private val CREATE_VALUE = "create"
-    private val DISABLE_VALUE = "disable"
-
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
@@ -264,58 +258,59 @@ class CloudSync(
     }
 
     enum class InitialOperation {MERGE, FETCH_INITIAL, CREATE_NEW}
-    private val uiMutex = Mutex()
+    private val planMutex = Mutex()
 
     /**
-     * `initializeSync`'s "merge, fetch from cloud, create new, or disable?" question (Task 24 Step 3): an
-     * owner-less `AppDialogController` dialog in place of the old `android.app.AlertDialog`,
-     * followed by its existing confirmation through the same dialog controller. Declining
-     * that confirmation reverts to null, same as choosing "Cancel & disable synchronization"
-     * outright. Visible for tests, not private, so a test can pin the mapping directly against just a
-     * [SyncableDatabaseDefinition] -- without building a whole [SyncableDatabaseAccessor].
+     * The join questions of one sync start as one collected dialog: a decision per [JoinState.NeedsDecision] probe
+     * and a note per [JoinState.NeedsCreate] one, confirmed once. Returns the operation per category (null for a
+     * category the user left off), or null when the user cancelled: nothing may then be executed. With no
+     * [JoinState.NeedsDecision] probe nothing is asked and every [JoinState.NeedsCreate] one gets
+     * [InitialOperation.CREATE_NEW]. One plan dialog at a time ([planMutex]).
      */
-    @VisibleForTesting suspend fun askInitialSyncOperation(category: SyncableDatabaseDefinition): InitialOperation? {
-        val containsStr = strings.syncCategoryContents(category.name)
-        val dialogResult = dialogs.await(
-            AppDialogRequest.Options(
-                title = strings.cloudExistingDataLead(containsStr),
-                message = null,
-                options = listOf(
-                    DialogAnswer(MERGE_VALUE, strings.cloudMergeData, strings.cloudMergeConsequence),
-                    DialogAnswer(FETCH_VALUE, strings.cloudFetchAndRestoreInitial, strings.cloudFetchConsequence, destructive = true),
-                    DialogAnswer(CREATE_VALUE, strings.cloudCreateNew, strings.cloudCreateConsequence, destructive = true),
-                    DialogAnswer(DISABLE_VALUE, strings.cloudDisableSync, strings.cloudDisableConsequence),
-                ),
-                dismissText = null,
-                asActionSheet = false,
-                cancellable = false,
+    @VisibleForTesting suspend fun askJoinPlan(probes: List<JoinProbe>): Map<SyncableDatabaseDefinition, InitialOperation?>? {
+        val decisions = probes.filter { it.state is JoinState.NeedsDecision }
+        val creates = probes.filter { it.state is JoinState.NeedsCreate }
+        val createOps: Map<SyncableDatabaseDefinition, InitialOperation?> = creates.associate { it.category to InitialOperation.CREATE_NEW }
+        if (decisions.isEmpty()) return createOps
+        val name = { c: SyncableDatabaseDefinition -> strings.syncCategoryContents(c.name) }
+        val request = AppDialogRequest.SyncJoinPlan(
+            title = strings.cloudJoinPlanTitle,
+            lead = strings.cloudJoinPlanLead,
+            rows = decisions.map { AppDialogRequest.SyncJoinPlan.Row(it.category.name, name(it.category)) },
+            uploadNotes = creates.map { strings.cloudJoinUploadNote(name(it.category)) },
+            choices = listOf(
+                DialogAnswer(JoinChoice.MERGE.value, strings.cloudJoinMerge, strings.cloudJoinMergeDetail),
+                DialogAnswer(JoinChoice.FETCH.value, strings.cloudJoinFetch, strings.cloudJoinFetchDetail, destructive = true),
+                DialogAnswer(JoinChoice.CREATE.value, strings.cloudJoinCreate, strings.cloudJoinCreateDetail, destructive = true),
+                DialogAnswer(JoinChoice.DISABLE.value, strings.cloudJoinDisable, strings.cloudJoinDisableDetail),
             ),
+            defaultChoice = JoinChoice.MERGE.value,
+            confirmTitle = strings.cloudJoinConfirmTitle,
+            confirmLead = strings.cloudJoinConfirmLead,
+            outcomeLine = { key, choice ->
+                val label = strings.syncCategoryContents(key)
+                when (JoinChoice.fromValue(choice)) {
+                    JoinChoice.MERGE -> strings.cloudJoinOutcomeMerge(label)
+                    JoinChoice.FETCH -> strings.cloudJoinOutcomeFetch(label)
+                    JoinChoice.CREATE -> strings.cloudJoinOutcomeCreate(label)
+                    JoinChoice.DISABLE, null -> strings.cloudJoinOutcomeDisable(label)
+                }
+            },
+            createOutcomes = creates.map { strings.cloudJoinOutcomeUpload(name(it.category)) },
+            warning = strings.cloudJoinWarning,
+            nextText = strings.cloudJoinNext,
+            backText = strings.cloudJoinBack,
+            cancelText = strings.cancel,
+            startText = strings.cloudJoinStart,
+            replaceText = strings.cloudJoinReplace,
         )
-        val q1 = when ((dialogResult as? AppDialogResult.Selected)?.value) {
-            MERGE_VALUE -> InitialOperation.MERGE
-            FETCH_VALUE -> InitialOperation.FETCH_INITIAL
-            CREATE_VALUE -> InitialOperation.CREATE_NEW
-            else -> null // "Cancel & disable synchronization", or (uncancellable) Cancel/back/scrim.
+        Log.i(TAG, "planMutex ahead ${decisions.map { it.category }}...")
+        val result = planMutex.withLock {
+            Log.i(TAG, "... got through planMutex!")
+            withContext(Dispatchers.Main) { dialogs.await(request) }
         }
-        if (q1 != null) {
-            val request = when (q1) {
-                InitialOperation.MERGE -> AppDialogRequest.Confirm(
-                    title = null, message = strings.cloudMergeLead(containsStr), confirmText = strings.cloudMergeConfirm,
-                    dismissText = strings.cancel, detail = strings.areYouSureMerge(containsStr),
-                )
-                InitialOperation.FETCH_INITIAL -> AppDialogRequest.Confirm(
-                    title = null, message = strings.cloudReplaceLocalLead(containsStr), confirmText = strings.cloudReplaceConfirm,
-                    dismissText = strings.cancel, detail = strings.cloudReplaceLocalDetail, destructive = true,
-                )
-                InitialOperation.CREATE_NEW -> AppDialogRequest.Confirm(
-                    title = null, message = strings.cloudReplaceCloudLead(containsStr), confirmText = strings.cloudReplaceConfirm,
-                    dismissText = strings.cancel, detail = strings.cloudReplaceCloudDetail, destructive = true,
-                )
-            }
-            val confirmed = dialogs.await(request) == AppDialogResult.Ok
-            if (!confirmed) return null
-        }
-        return q1
+        val chosen = (result as? AppDialogResult.SyncJoinChoices)?.choices ?: return null // Cancel, back or scrim.
+        return decisions.associate { it.category to JoinChoice.fromValue(chosen[it.category.name])?.toOperation() } + createOps
     }
 
     /** The folder-name prefix: the debug override, or the app id mapped through [SyncNamespace] so release distributions share folders. */
@@ -412,7 +407,7 @@ class CloudSync(
     @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true, backgroundErrors: Boolean = !allowInteraction) {
         val probe = probeJoin(dbDef, listCloud = allowInteraction)
         var operation: InitialOperation? = null
-        when (val state = probe.state) {
+        when (probe.state) {
             JoinState.Ready, JoinState.NeedsRecovery -> {}
             JoinState.NeedsCreate, is JoinState.NeedsDecision -> {
                 // An OS refresh must not decide whether to fetch, create, or disable a category.
@@ -420,15 +415,7 @@ class CloudSync(
                     applyProbeCleanups(dbDef, probe)
                     throw CancelStartedSync()
                 }
-                if (state is JoinState.NeedsDecision) {
-                    Log.i(TAG, "uiMutex ahead ${dbDef.categoryName}...")
-                    operation = uiMutex.withLock {
-                        Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
-                        withContext(Dispatchers.Main) {
-                            askInitialSyncOperation(dbDef.category)
-                        }
-                    }
-                }
+                operation = askJoinPlan(listOf(probe))?.get(dbDef.category)
             }
         }
         executeJoin(dbDef, probe, operation, backgroundErrors)

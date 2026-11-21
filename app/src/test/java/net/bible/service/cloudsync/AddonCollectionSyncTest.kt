@@ -482,14 +482,14 @@ class AddonCollectionSyncTest {
         return mine to other
     }
 
-    private suspend fun kotlinx.coroutines.test.TestScope.syncAnswering(choiceIndex: Int) {
+    private suspend fun kotlinx.coroutines.test.TestScope.syncAnswering(choice: String) {
         val run = async(Dispatchers.IO) { cloud.synchronize() }
         val deadline = System.currentTimeMillis() + 60_000
         while (!run.isCompleted) {
             advanceUntilIdle()
             dialogs.pending.value?.let { shown ->
                 dialogs.respond(shown.id, when (val r = shown.request) {
-                    is AppDialogRequest.Options -> AppDialogResult.Selected(r.options[choiceIndex].value)
+                    is AppDialogRequest.SyncJoinPlan -> answerJoinPlan(r, choice)
                     else -> AppDialogResult.Ok
                 })
             }
@@ -509,7 +509,7 @@ class AddonCollectionSyncTest {
         addRogueRefs(bDb)
         val (_, other) = signedInAdapters()
 
-        syncAnswering(choiceIndex = 0)
+        syncAnswering(choice = "merge")
 
         val folder = other.listFiles(name = "${env.packageName}-sync-${category.name.lowercase()}").single().id
         val initial = other.listFiles(parentsIds = listOf(folder), name = INITIAL_BACKUP_FILENAME).single()
@@ -535,7 +535,7 @@ class AddonCollectionSyncTest {
         val before = DatabaseContainer.databaseAccessorsByCategory[category]!!
         install(before.localDb as BookmarkDatabase)
         val (_, other) = signedInAdapters()
-        syncAnswering(choiceIndex = 0) // creates the cloud's initial file
+        syncAnswering(choice = "merge") // creates the cloud's initial file
         val folder = other.listFiles(name = "${env.packageName}-sync-${category.name.lowercase()}").single().id
 
         val forgery = device("forger")
@@ -550,7 +550,7 @@ class AddonCollectionSyncTest {
 
         // Forget the join, so that the next sync fetches the initial file: choice 1 is "fetch and restore initial".
         before.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
-        syncAnswering(choiceIndex = 1)
+        syncAnswering(choice = "fetch")
 
         val b = DatabaseContainer.databaseAccessorsByCategory[category]!! // the swap reopened the database
         assertEquals(0, userRefsToAddonIds { countIn(b, it) })
