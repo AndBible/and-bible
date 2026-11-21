@@ -33,6 +33,7 @@ import net.bible.service.db.inTransaction
 import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
 import net.bible.service.db.useWriterConnectionMarked
+import kotlin.coroutines.cancellation.CancellationException
 import net.bible.service.db.withCleanup
 import net.bible.service.common.createTempFile
 import okio.FileSystem
@@ -267,8 +268,7 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  *
  * [onApplied] gets those entries once, after the last patch and outside the writer connection, only when any patch
  * changed something. It runs also when a later patch fails, with the patches committed before it: a retry
- * re-applies them as no-ops and would never report them. (A cancelled sync calls it too, but a listener that
- * suspends is cancelled with it: the databases may be on their way to a close.) Once, not per patch: listeners rebuild
+ * re-applies them as no-ops and would never report them. A cancelled sync does not call it: the databases may be on their way to a close.) Once, not per patch: listeners rebuild
  * views (an Android workspace switch per call) and check final rows (a reading plan reset by one patch and
  * restarted by the next stays selected).
  */
@@ -285,13 +285,16 @@ suspend fun applyPatchesForDatabase(
             ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
             // Let's apply possible migrations first
             createWithSchema(dbDef, patchDbFile)
-            val patchEntries = dbDef.localDb.useWriterConnectionMarked { db ->
+            // Set as soon as the patch's transaction has committed, before the cleanup statements can throw.
+            var committed: List<LogEntry>? = null
+            try {
+              dbDef.localDb.useWriterConnectionMarked { db ->
                 // ATTACH inside the protected region, as in createPatchForDatabase.
                 db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
                     db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
                     db.exec("PRAGMA foreign_keys=OFF;")
                     try {
-                        db.inTransaction<List<LogEntry>> {
+                        committed = db.inTransaction<List<LogEntry>> {
                             // An incoming patch never carries add-on rows (each device builds them from its own
                             // module). Should one name an add-on row, the local add-on row wins: drop it from the patch.
                             val addonRows = stripAddonRows(this, dbDef.category, "patch")
@@ -312,13 +315,16 @@ suspend fun applyPatchesForDatabase(
                         throw e
                     }
                 }
-            }
-            // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one. Merged
-            // before anything else can throw, or a committed patch would go unreported.
-            for (e in patchEntries) {
-                val key = Triple(e.tableName, e.entityId1, e.entityId2)
-                applied.remove(key)
-                applied[key] = e
+              }
+            } finally {
+                // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one.
+                // Merged also when the cleanup (foreign_keys=ON, DETACH) throws after the commit, or the committed
+                // patch would go unreported and a retry would re-apply it as a no-op.
+                for (e in committed.orEmpty()) {
+                    val key = Triple(e.tableName, e.entityId1, e.entityId2)
+                    applied.remove(key)
+                    applied[key] = e
+                }
             }
             if(!env.isDebugMode) {
                 runCatching { FileSystem.SYSTEM.delete(patchDbFile) }
@@ -329,7 +335,9 @@ suspend fun applyPatchesForDatabase(
         failure = e
         throw e
     } finally {
-        if (applied.isNotEmpty()) {
+        // A cancelled sync notifies nobody: listeners start work in their own scopes, and the databases may be on
+        // their way to a close (a restore sends its own databaseRestored event).
+        if (applied.isNotEmpty() && failure !is CancellationException) {
             try {
                 onApplied(applied.values.toList())
             } catch (e: Throwable) {
