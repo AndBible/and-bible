@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -102,10 +103,34 @@ fun InstallZipContent(
     state: InstallUiState,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+) = InstallZipContent(state, onConfirm = { onConfirm() }, onDismiss = { onDismiss() }, shown = null)
+
+/** How long a freshly shown ask-back question ignores taps, so a double tap cannot answer the next question (#4192). */
+const val INSTALL_QUESTION_INPUT_GUARD_MILLIS = 400L
+
+/**
+ * [InstallZipContent] whose answers carry the [InstallUiState] this composition rendered: [onConfirm]/[onDismiss]
+ * receive the state of the dialog that was tapped, so the session can drop an answer to a question that has been
+ * replaced since (#4192). The mid-flight questions also ignore taps for [INSTALL_QUESTION_INPUT_GUARD_MILLIS].
+ */
+@Composable
+fun InstallZipSessionContent(
+    state: InstallUiState,
+    onConfirm: (InstallUiState) -> Unit,
+    onDismiss: (InstallUiState) -> Unit,
+) = InstallZipContent(state, onConfirm = { onConfirm(state) }, onDismiss = { onDismiss(state) }, shown = state)
+
+@Composable
+private fun InstallZipContent(
+    state: InstallUiState,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    shown: InstallUiState?,
 ) {
+    val guard = if (shown != null) INSTALL_QUESTION_INPUT_GUARD_MILLIS else 0L
     val strings = LocalStrings.current
     Surface(modifier = Modifier.fillMaxSize()) {
-        when (state) {
+        key(state) { when (state) {
             is InstallUiState.Progress -> InstallProgressScreen(state)
 
             is InstallUiState.ConfirmInstall -> AbConfirmDialog(
@@ -133,6 +158,7 @@ fun InstallZipContent(
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
+                inputGuardMillis = guard,
                 destructive = true,
             )
 
@@ -143,6 +169,7 @@ fun InstallZipContent(
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
+                inputGuardMillis = guard,
             )
 
             InstallUiState.ModuleBackupRestore -> AbConfirmDialog(
@@ -152,6 +179,7 @@ fun InstallZipContent(
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
+                inputGuardMillis = guard,
             )
 
             InstallUiState.EpubUpgrade -> AbConfirmDialog(
@@ -161,6 +189,7 @@ fun InstallZipContent(
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
+                inputGuardMillis = guard,
             )
 
             is InstallUiState.Error -> AbErrorDialog(
@@ -168,7 +197,7 @@ fun InstallZipContent(
                 confirmText = strings.okay,
                 onDismiss = onDismiss,
             )
-        }
+        } }
     }
 }
 
