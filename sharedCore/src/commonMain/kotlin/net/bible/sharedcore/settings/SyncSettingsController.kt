@@ -255,9 +255,14 @@ class SyncSettingsController(
 
     /** Runs [hop] (an in-graph navigation out of this screen) at once, or after the leave question's Apply/Discard. */
     private fun leaveThen(hop: () -> Unit) {
+        val previous = afterLeave
         afterLeave = hop
         if (askBeforeLeaving()) { afterLeave = null; hop() }
-        else if (_state.value.dialog != SyncDialog.LeaveWithPending) afterLeave = null // no question open: nothing will run the hop
+        else if (_state.value.dialog != SyncDialog.LeaveWithPending) {
+            // No question open: nothing will run this hop. A refused hop while an Apply-then-leave runs must not lose the
+            // hop that Apply already carries.
+            afterLeave = if (applyJob?.isActive == true) previous else null
+        }
     }
 
     private fun finishLeave() {

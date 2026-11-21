@@ -126,8 +126,12 @@ class SyncSettingsServiceImpl(
         // children) hang; it is cancelled with [scope] instead (a host scope without a Job lives as long as the
         // process, like the service itself). On Default, never Unconfined: CloudSync updates the flow while holding
         // its join-state lock, and an unconfined collector would run build() inside that lock.
-        scope.coroutineContext[Job]?.invokeOnCompletion { watcher.cancel() }
-        writeScope.coroutineContext[Job]?.invokeOnCompletion { watcher.cancel() }
+        // The handlers sit on app-lifetime jobs: dispose them when the watcher ends, or every service instance leaks one.
+        val handles = listOfNotNull(
+            scope.coroutineContext[Job]?.invokeOnCompletion { watcher.cancel() },
+            writeScope.coroutineContext[Job]?.invokeOnCompletion { watcher.cancel() },
+        )
+        watcher.coroutineContext[Job]?.invokeOnCompletion { handles.forEach { it.dispose() } }
         watcher.launch { queuedJoins.drop(1).collect { refresh() } }
         progressTracker?.let { tracker ->
             scope.launchSettings { tracker.state.collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }

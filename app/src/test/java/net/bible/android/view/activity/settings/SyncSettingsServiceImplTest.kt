@@ -127,10 +127,13 @@ class SyncSettingsServiceImplTest {
         /** When set, [signIn] waits for it (the sign-in then holds CloudSync's sign-in mutex). */
         @Volatile var signInGate: CompletableDeferred<Unit>? = null
         val signInEntered = CompletableDeferred<Unit>()
+        /** When set, [signIn] throws it after the gate (a failed or user-cancelled sign-in). */
+        @Volatile var signInFailure: Exception? = null
         @Volatile private var signed = false
         override val signedIn get() = signed
         override suspend fun signIn(): Boolean {
             signInGate?.let { signInEntered.complete(Unit); it.await() }
+            signInFailure?.let { throw it }
             signed = true
             return true
         }
@@ -190,6 +193,39 @@ class SyncSettingsServiceImplTest {
         assertEquals(true, withTimeout(10_000) { other.await() })
         assertEquals(net.bible.sharedcore.settings.ApplyResult.Applied, withTimeout(10_000) { applying.await() })
         assertTrue(fixture.categories.enabled(SyncableDatabaseDefinition.BOOKMARKS))
+    }
+
+    /** Runs a sign-in that fails (owner), lets a foreground caller wait for it, and returns the failure notifications shown. */
+    private fun waitedForFailedSignIn(ownerBackground: Boolean, failure: Exception): List<net.bible.android.control.event.UserMessage.ErrorNotification> {
+        val adapter = TestAdapter().apply { signInGate = CompletableDeferred(); signInFailure = failure }
+        val fixture = CloudFixture(adapter)
+        val shown = java.util.Collections.synchronizedList(mutableListOf<net.bible.android.control.event.UserMessage.ErrorNotification>())
+        val sub = net.bible.android.control.event.UserMessages.messages.subscribe { (it as? net.bible.android.control.event.UserMessage.ErrorNotification)?.let(shown::add) }
+        try {
+            withMainAndResponder(fixture, { net.bible.sharedcore.ui.dialog.AppDialogResult.Cancel }) { kotlinx.coroutines.coroutineScope {
+                val owner = async(Dispatchers.Default) { fixture.cloud.signIn(background = ownerBackground) }
+                withTimeout(5000) { adapter.signInEntered.await() }
+                val waiter = async(Dispatchers.Default) { fixture.cloud.signIn(background = false, waitForExisting = true) }
+                kotlinx.coroutines.delay(300)
+                adapter.signInGate!!.complete(Unit)
+                assertEquals(false, withTimeout(10_000) { owner.await() })
+                assertEquals(false, withTimeout(10_000) { waiter.await() })
+            } }
+        } finally { sub.cancel() }
+        return shown.toList()
+    }
+
+    @Test fun waiterOfAForegroundSignInFailureAddsNoSecondNotification() {
+        assertTrue("the foreground owner showed its own dialog", waitedForFailedSignIn(ownerBackground = false, failure = IllegalStateException("boom")).isEmpty())
+    }
+
+    @Test fun waiterOfAUserCancelledSignInShowsNoFailureNotification() {
+        assertTrue(waitedForFailedSignIn(ownerBackground = false, failure = net.bible.service.cloudsync.CloudSyncUserCancelledException()).isEmpty())
+        assertTrue(waitedForFailedSignIn(ownerBackground = true, failure = net.bible.service.cloudsync.CloudSyncUserCancelledException()).isEmpty())
+    }
+
+    @Test fun waiterOfAGenuineBackgroundSignInFailureIsToldOnce() {
+        assertEquals(1, waitedForFailedSignIn(ownerBackground = true, failure = IllegalStateException("boom")).size)
     }
 
     @Test fun offsDropAStoredJoinDecisionOfTheCategory() = runBlocking {
