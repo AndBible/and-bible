@@ -1,6 +1,7 @@
 package net.bible.service.cloudsync
 
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import net.bible.android.control.versification.BookInstallWatcher
@@ -437,11 +438,46 @@ class CloudSyncWatermarkTest {
      */
     @Test fun cancelledSyncDoesNotNotifyListeners() = withFixture { f ->
         val (p1, p2) = twoLabelPatches(f)
-        val accessor = accessorOpening(f) { n -> if (n == 2) throw kotlinx.coroutines.CancellationException("restore") }
+        lateinit var job: kotlinx.coroutines.Job
+        val accessor = accessorOpening(f) { n ->
+            if (n == 2) { job.cancel(); throw kotlinx.coroutines.CancellationException("restore") }
+        }
         var notified: List<net.bible.android.database.LogEntry>? = null
-        assertFailsWith<kotlinx.coroutines.CancellationException> {
+        job = kotlinx.coroutines.CoroutineScope(kotlin.coroutines.coroutineContext).launch {
+            try { applyPatchesForDatabase(accessor, f.env, p1, p2, onApplied = { notified = it }) }
+            catch (_: kotlinx.coroutines.CancellationException) {}
+        }
+        job.join()
+        assertTrue(f.container.bookmarkDb.bookmarkDao().allLabelsSortedByName().isNotEmpty(), "sanity: patch 1 committed")
+        assertNull(notified, "a cancelled sync must not call the listeners")
+    }
+
+    /**
+     * A timed-out cleanup statement throws a CancellationException although nothing is cancelled: the committed
+     * patch must still be reported.
+     */
+    @Test fun timeoutCancellationAfterACommitStillReports() = withFixture { f ->
+        val (p1, p2) = twoLabelPatches(f)
+        val accessor = accessorOpening(f) { n ->
+            if (n == 2) kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(1) { kotlinx.coroutines.awaitCancellation() } }
+        }
+        var notified: List<net.bible.android.database.LogEntry>? = null
+        assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
             applyPatchesForDatabase(accessor, f.env, p1, p2, onApplied = { notified = it })
         }
+        assertEquals(1, notified?.size, "the committed patch is reported")
+    }
+
+    /** A cancelled job whose failure is not a CancellationException (a closing database) must not notify either. */
+    @Test fun cancelledJobWithAnOrdinaryFailureDoesNotNotify() = withFixture { f ->
+        val (p1, p2) = twoLabelPatches(f)
+        lateinit var job: kotlinx.coroutines.Job
+        val accessor = accessorOpening(f) { n -> if (n == 2) { job.cancel(); throw IOException("database closed") } }
+        var notified: List<net.bible.android.database.LogEntry>? = null
+        job = kotlinx.coroutines.CoroutineScope(kotlin.coroutines.coroutineContext).launch {
+            try { applyPatchesForDatabase(accessor, f.env, p1, p2, onApplied = { notified = it }) } catch (_: IOException) {}
+        }
+        job.join()
         assertTrue(f.container.bookmarkDb.bookmarkDao().allLabelsSortedByName().isNotEmpty(), "sanity: patch 1 committed")
         assertNull(notified, "a cancelled sync must not call the listeners")
     }
