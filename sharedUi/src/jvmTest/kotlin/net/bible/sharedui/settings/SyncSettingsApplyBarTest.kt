@@ -45,45 +45,7 @@ import kotlin.test.assertTrue
 class SyncSettingsApplyBarTest {
     private val key = "sync_enable_bookmarks"
 
-    private class FakeService(initial: SyncSettingsSnapshot) : SyncSettingsService {
-        override val snapshot: StateFlow<SyncSettingsSnapshot> = MutableStateFlow(initial)
-        val applied = mutableListOf<Map<String, Boolean>>()
-        var gate: CompletableDeferred<ApplyResult>? = null
-        var cancelledApply = false
-        override fun refresh() {}
-        override suspend fun signIn() = true
-        override suspend fun scanDocuments() = DocSyncSummaryData(emptyList(), emptyList(), 0, 0)
-        override fun disableCategory(key: String) {}
-        override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): ApplyResult {
-            applied += changes
-            val g = gate ?: return ApplyResult.Applied
-            try { return g.await() } catch (e: CancellationException) { cancelledApply = true; throw e }
-        }
-        override fun setDocumentsEnabled(summary: DocSyncSummaryData) {}
-        override fun disableDocuments() {}
-        override fun setDocumentSyncToggle(key: String, value: Boolean) {}
-        override fun setText(key: String, value: String) = true
-        override fun forgetCertificate() {}
-        override fun setAdapter(value: String) {}
-        override suspend fun resetSync() {}
-        override fun formatEnableDocumentsMessage(summary: DocSyncSummaryData) = ""
-    }
-
-    private fun snap(on: Boolean) = SyncSettingsSnapshot(
-        adapter = "NEXT_CLOUD",
-        adapterChoices = listOf(Choice2("NEXT_CLOUD", "Nextcloud")),
-        adapterSummary = "Provider", adapterEnabled = false, cloudInfoSummary = null,
-        serverUrl = "https://cloud.example.com", username = "a", password = "b", folderPath = "X",
-        credsVisible = true, credsEnabled = false, resetVisible = true, cloudInfoVisible = false,
-        categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { on },
-        categorySummary = SyncCategoryKeys.DISPLAY.associateWith { "Synced content" },
-        documentsEnabled = false, documentCategoryVisible = false,
-        autoDownload = true, autoUpload = true, autoDelete = false, wifiOnly = true,
-        autoTogglesVisible = false, wifiOnlyVisible = false,
-        serverUrlHint = null, httpsOnly = false, certificateVisible = false, certificateSummary = "",
-    )
-
-    private class Fixture(val service: FakeService, val scope: CoroutineScope) {
+    private class Fixture(val service: FakeSyncService, val scope: CoroutineScope) {
         var exits = 0
         val controller = SyncSettingsController(service, scope, SyncSettingsLabels.forTest(), {}, onExit = { exits++ })
     }
@@ -108,7 +70,7 @@ class SyncSettingsApplyBarTest {
     private fun withFixture(on: Boolean, body: androidx.compose.ui.test.ComposeUiTest.(Fixture) -> Unit) = runComposeUiTest {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         try {
-            val f = Fixture(FakeService(snap(on)), scope)
+            val f = Fixture(FakeSyncService(syncSnapshot(on)), scope)
             show(f)
             body(f)
         } finally { scope.coroutineContext[Job]?.cancel() }

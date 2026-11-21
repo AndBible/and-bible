@@ -27,6 +27,10 @@ class SyncSettingsController(
     private var lastAdapter = service.snapshot.value.adapter
     private var lastSignedOut = service.snapshot.value.adapterEnabled
     private var applyJob: Job? = null
+    /** What the leave dialog's Apply/Discard does once done: an in-graph hop; null = the plain [onExit]. */
+    private var afterLeave: (() -> Unit)? = null
+    /** False once [abandonLeave] ran: an Apply that finishes later must not leave a screen that is gone. */
+    private var leaveArmed = false
 
     private val _state = MutableStateFlow(SyncSettingsUiState(screen = build(service.snapshot.value)))
     val state: StateFlow<SyncSettingsUiState> = _state.asStateFlow()
@@ -195,11 +199,13 @@ class SyncSettingsController(
         if (applyJob?.isActive == true) return
         val changes = pending
         if (changes.isEmpty()) {  // everything was pruned meanwhile: nothing to apply, the leave still goes on
-            if (leaveAfter) onExit()
+            if (leaveAfter) finishLeave()
             return
         }
+        leaveArmed = leaveAfter
         val hasOn = changes.values.any { it }
         if (hasOn) setDialog(SyncDialog.CheckingCloud) else setLoading(true)
+        _state.value = _state.value.copy(applying = true)
         applyJob = scope.launch {
             var completed = false
             try {
@@ -218,10 +224,10 @@ class SyncSettingsController(
                 net.bible.sharedcore.log.Log.e("SyncSettingsController", "Applying sync changes failed", e)
             } finally {
                 if (_state.value.dialog == SyncDialog.CheckingCloud) dismissDialog()
-                setLoading(false)
+                _state.value = _state.value.copy(loading = false, applying = false)
                 service.refresh()
             }
-            if (completed && leaveAfter) onExit()
+            if (completed && leaveAfter && leaveArmed) finishLeave()
         }
     }
 
@@ -235,10 +241,33 @@ class SyncSettingsController(
 
     /** Back with pending switches asks first; true = nothing pending, leave now. */
     fun onLeave(): Boolean {
+        afterLeave = null
+        return askBeforeLeaving()
+    }
+
+    private fun askBeforeLeaving(): Boolean {
         if (applyJob?.isActive == true) return false  // an Apply is already running: stay, no second question
         if (pending.isEmpty()) return true
         setDialog(SyncDialog.LeaveWithPending)
         return false
+    }
+
+    /** Runs [hop] (an in-graph navigation out of this screen) at once, or after the leave question's Apply/Discard. */
+    private fun leaveThen(hop: () -> Unit) {
+        afterLeave = hop
+        if (askBeforeLeaving()) { afterLeave = null; hop() }
+    }
+
+    private fun finishLeave() {
+        val hop = afterLeave
+        afterLeave = null
+        if (hop != null) hop() else onExit()
+    }
+
+    /** The screen is gone: a leave still waiting for its Apply must do nothing when that finishes. */
+    fun abandonLeave() {
+        leaveArmed = false
+        afterLeave = null
     }
 
     fun confirmLeaveApply() {
@@ -249,7 +278,7 @@ class SyncSettingsController(
     fun confirmLeaveDiscard() {
         dismissDialog()
         discardPending()
-        onExit()
+        finishLeave()
     }
 
     private fun enableDocumentsFlow() {
@@ -299,7 +328,7 @@ class SyncSettingsController(
     fun onNavigate(key: String) {
         when (key) {
             "cloud_sync_reset" -> setDialog(SyncDialog.ResetConfirm(labels.resetConfirmMessage))
-            "document_sync_manage" -> onOpenCloudDocuments()
+            "document_sync_manage" -> leaveThen(onOpenCloudDocuments)
             "webdav_sync_cert" -> setDialog(SyncDialog.ForgetCertificate(labels.forgetCertificateMessage))
         }
     }

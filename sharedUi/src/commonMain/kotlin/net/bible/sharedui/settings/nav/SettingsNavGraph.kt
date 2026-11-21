@@ -500,12 +500,14 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         val leave = { navController.popOrExit(entry, deps.exitHost) }
         DisposableEffect(entry) {
             d.setLeave(leave)
-            onDispose { d.setLeave(null) }
+            // A leave still waiting for its Apply must not pop whatever sync entry exists when that finishes.
+            onDispose { d.setLeave(null); controller.abandonLeave() }
         }
         val requestLeave = { if (controller.onLeave()) leave() }
-        // Enabled only with pending switches, so a plain back is the NavHost's own. Back inside the leave/checking/
-        // plan dialogs never reaches this handler: they are Dialog windows that take the back press first (the
-        // checking dialog swallows it), and onLeave() stays put without a second question while an apply runs.
+        // Enabled only with pending switches, so a plain back is the NavHost's own. Ordering with the dialogs is
+        // REASONED, not device-tested: the leave/checking/plan dialogs are Dialog windows, which receive the back press
+        // before this handler (the checking dialog swallows it), and onLeave() stays put without a second question
+        // while an apply runs, so even a back that did reach it could not stack a second dialog.
         PlatformBackHandler(enabled = uiState.pending.isNotEmpty(), onBack = requestLeave)
 
         SyncSettingsScreen(

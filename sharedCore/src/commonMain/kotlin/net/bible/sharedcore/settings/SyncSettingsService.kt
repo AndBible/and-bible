@@ -236,4 +236,6 @@ data class SyncSettingsUiState(
     val dialog: SyncDialog = SyncDialog.None,
     /** Category switches not applied yet: `sync_enable_*` key to the wanted value. */
     val pending: Map<String, Boolean> = emptyMap(),
+    /** An Apply is running (checking dialog, blocking overlay or the host's plan dialog): the Apply bar stays hidden. */
+    val applying: Boolean = false,
 )

@@ -17,36 +17,36 @@
 
 package net.bible.sharedui.settings
 
-import net.bible.sharedcore.docs.DocsLink
-import net.bible.sharedui.components.AbHelpOverflowMenu
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SyncDialog
 import net.bible.sharedcore.settings.SyncSettingsUiState
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbHelpOverflowMenu
 import net.bible.sharedui.components.AbLoadingOverlay
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.dialog.AbDialogButton
@@ -90,10 +90,11 @@ fun SyncSettingsScreen(
         title = uiState.screen.title,
         onNavigateUp = onUp,
         actions = { AbHelpOverflowMenu(DocsLink.CLOUD_SYNC) },
-        // Hidden while the leave question is open (its Apply/Discard are the same choice) and while an apply runs (the checking dialog or the blocking overlay is up), so a second Apply
-        // cannot start; the plan dialog that follows is the host's and comes after the checking dialog went away.
+        // Hidden while the leave question is open (its Apply/Discard are the same choice) and while an apply runs
+        // (`applying` covers the checking dialog, the overlay and the host's plan dialog after the probe), so neither a
+        // second Apply nor a Discard mid-apply is possible.
         bottomBar = {
-            if (uiState.pending.isNotEmpty() && !uiState.loading &&
+            if (uiState.pending.isNotEmpty() && !uiState.applying && !uiState.loading &&
                 uiState.dialog != SyncDialog.CheckingCloud && uiState.dialog != SyncDialog.LeaveWithPending) {
                 SyncApplyBar(
                     summary = strings.syncPendingChanges(uiState.pending.size),

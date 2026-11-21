@@ -420,6 +420,83 @@ class SyncSettingsControllerTest {
         assertEquals(2, exits)                                          // applied, then left
     }
 
+    @Test fun hopWithoutPendingRunsAtOnce() {
+        var opened = 0
+        val c = controller(FakeSyncSettingsService(syncSnap()), onOpen = { opened++ })
+        c.onNavigate("document_sync_manage")
+        assertEquals(1, opened)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun hopWithPendingAsksAndRunsAfterDiscardInsteadOfExit() {
+        var opened = 0
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), { opened++ }, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onNavigate("document_sync_manage")
+        assertEquals(SyncDialog.LeaveWithPending, c.state.value.dialog)
+        assertEquals(0, opened)
+        c.confirmLeaveDiscard()
+        assertEquals(1, opened)
+        assertEquals(0, exits, "the hop replaces the exit")
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertEquals(emptyList(), svc.applied)
+    }
+
+    @Test fun hopWithPendingRunsAfterApplyCompletes() {
+        var opened = 0
+        val svc = FakeSyncSettingsService(syncSnap()).apply { afterProbe = CompletableDeferred(); beforeProbe = CompletableDeferred() }
+        val c = controller(svc, onOpen = { opened++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onNavigate("document_sync_manage")
+        c.confirmLeaveApply()
+        svc.beforeProbe!!.complete(Unit)
+        assertEquals(0, opened, "not before the apply finished")
+        svc.afterProbe!!.complete(Unit)
+        assertEquals(1, opened)
+    }
+
+    @Test fun cancelledHopQuestionDoesNotLeakIntoALaterExit() {
+        var opened = 0
+        var exits = 0
+        val c = SyncSettingsController(FakeSyncSettingsService(syncSnap()), CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), { opened++ }, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onNavigate("document_sync_manage")
+        c.dismissDialog()
+        assertFalse(c.onLeave())
+        c.confirmLeaveDiscard()
+        assertEquals(0, opened)
+        assertEquals(1, exits)
+    }
+
+    @Test fun abandonedLeaveDoesNotExitWhenTheApplyFinishesLater() {
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap()).apply { afterProbe = CompletableDeferred(); beforeProbe = CompletableDeferred() }
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), {}, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        assertFalse(c.onLeave())
+        c.confirmLeaveApply()
+        c.abandonLeave()  // the screen is gone (e.g. re-entered meanwhile): the late finish must not pop anything
+        svc.beforeProbe!!.complete(Unit); svc.afterProbe!!.complete(Unit)
+        assertEquals(0, exits)
+        assertEquals(emptyMap(), c.state.value.pending)
+    }
+
+    @Test fun applyingFlagCoversTheWholeApplyIncludingAfterTheProbe() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { afterProbe = CompletableDeferred(); beforeProbe = CompletableDeferred() }
+        val c = controller(svc)
+        assertFalse(c.state.value.applying)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertTrue(c.state.value.applying)
+        svc.beforeProbe!!.complete(Unit)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertTrue(c.state.value.applying, "the plan dialog is up: the bar must stay hidden")
+        svc.afterProbe!!.complete(Unit)
+        assertFalse(c.state.value.applying)
+    }
+
     @Test fun documentsSwitchStillAppliesImmediately() {
         val svc = FakeSyncSettingsService(syncSnap(documentsEnabled = true))
         val c = controller(svc)
