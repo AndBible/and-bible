@@ -21,6 +21,8 @@ data class JoinProbe(
     val state: JoinState,
     val resetNamespace: Boolean,
     val dropStaleState: Boolean,
+    /** False for the placeholder [JoinState.NeedsCreate] of a probe that did not list the cloud: it says nothing about the cloud and must not consume a stored decision. */
+    val cloudListed: Boolean = true,
 )
 
 /** The answers of the join plan dialog; [value] is the [net.bible.sharedcore.ui.dialog.DialogAnswer.value] on the wire. */

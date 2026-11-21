@@ -34,7 +34,10 @@ import net.bible.sharedcore.platform.sync.SyncScheduler
 import androidx.annotation.VisibleForTesting
 import net.bible.service.db.useWriterConnectionMarked
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
@@ -325,72 +328,101 @@ class CloudSync(
     /** Categories whose plan dialog is open (a count per category, so overlapping [planJoins] calls do not clear each other). */
     private val awaitingJoins = HashMap<SyncableDatabaseDefinition, Int>()
     private val storedJoins = LinkedHashMap<SyncableDatabaseDefinition, StoredJoin>()
-    private val queuedJoinsMutable = kotlinx.coroutines.flow.MutableStateFlow<Set<SyncableDatabaseDefinition>>(emptySet())
+    private val queuedJoinsMutable = MutableStateFlow<Set<SyncableDatabaseDefinition>>(emptySet())
 
     /** Categories with a stored, not yet executed join decision: they wait for the next pass (and its [syncMutex]). */
-    val queuedJoins: kotlinx.coroutines.flow.StateFlow<Set<SyncableDatabaseDefinition>> get() = queuedJoinsMutable
+    val queuedJoins: StateFlow<Set<SyncableDatabaseDefinition>> get() = queuedJoinsMutable
 
-    private fun isAwaitingJoin(category: SyncableDatabaseDefinition) = synchronized(joinStateLock) { category in awaitingJoins }
+    private fun isAwaitingJoin(category: SyncableDatabaseDefinition) = synchronized(joinStateLock) { category in awaitingJoins } // L1-common-ok: atomicfu lock
 
     /** Removes and returns the stored decision of [category]; the caller is about to act on it (or drop it). */
-    private fun takeStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) {
+    private fun takeStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
         storedJoins.remove(category).also { queuedJoinsMutable.value = storedJoins.keys.toSet() }
     }
 
-    private fun peekStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { storedJoins[category] }
+    private fun peekStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { storedJoins[category] } // L1-common-ok: atomicfu lock
 
-    private fun clearStoredJoins() = synchronized(joinStateLock) { storedJoins.clear(); queuedJoinsMutable.value = emptySet() }
+    private fun clearStoredJoins() = synchronized(joinStateLock) { storedJoins.clear(); queuedJoinsMutable.value = emptySet() } // L1-common-ok: atomicfu lock
+
+    /** Turns [categories] off and drops their stored decisions: a decision must not outlive the choice that disabled the category. */
+    private fun disableJoining(categories: Collection<SyncableDatabaseDefinition>) {
+        synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+            categories.forEach { storedJoins.remove(it); it.setSyncEnabled(settings, false) }
+            queuedJoinsMutable.value = storedJoins.keys.toSet()
+        }
+    }
+
+    /** Reports a failed [planJoins] probe directly (no pass runs it): the same three-way split as the pass's init step. */
+    private fun reportPlanProbeFailure(dbDef: SyncableDatabaseAccessor<*>, e: Exception) {
+        logSyncFailure(dbDef, "probe", e, if (e is IOException) "probably network down" else null)
+        val text = when (e) {
+            is CloudSyncUserFacingException -> e.message?.takeIf { it.isNotBlank() } ?: strings.syncError
+            else -> strings.syncError
+        }
+        UserMessages.errorNotification(text, showReportButton = e !is CloudSyncUserFacingException, background = false, kind = ActivityKind.SYNC, cause = e)
+    }
 
     /**
      * Plans the join of [categories] outside [syncMutex], so it completes while a pass is running: the categories are
-     * marked awaiting (a concurrent pass skips them), probed in parallel (the probe is read-only), [onProbed] is called,
-     * then one [askJoinPlan] is asked. The confirmed decisions are stored for the next pass ([queuedJoins]), which runs
-     * them under [syncMutex]; "Don't sync" disables its category at once.
+     * marked awaiting (a concurrent pass skips them), earlier stored decisions for them are dropped, they are probed in
+     * parallel (the probe is read-only), [onProbed] is called, then one [askJoinPlan] is asked. The confirmed decisions are
+     * stored for the next pass ([queuedJoins]), which runs them under [syncMutex]; "Don't sync" disables its category at once.
+     * A stored decision is consumed when its pass starts executing the category: if that execute fails the decision is
+     * gone and the next pass asks again.
      *
-     * Returns false when the user cancelled: exactly [categories] are then turned off. A cancellation of the caller turns
-     * them off too and is rethrown. The awaiting marks are always cleared. A category whose probe fails is reported as a
-     * sync error and left as it is (the next pass joins it). The caller signs in first.
+     * With [enable] the categories are turned on after the awaiting mark is set, so no pass can see them enabled but not
+     * awaiting; every failure path reverts that together with the cancel handling.
+     *
+     * Returns false when the user cancelled: exactly [categories] are then turned off. Any cancellation of the caller
+     * (also during the probe or [onProbed]) turns them off too and is rethrown. The awaiting marks are always cleared.
+     * A category whose probe fails is reported as a sync error and left as it is (the next pass joins it). The caller
+     * signs in first. A [CloudSyncUserFacingException.requiresReconnect] is not acted on here (dropping the adapter
+     * would break a running pass); the next pass's own handling does.
      */
-    suspend fun planJoins(categories: Set<SyncableDatabaseDefinition>, onProbed: () -> Unit = {}): Boolean {
-        synchronized(joinStateLock) { categories.forEach { awaitingJoins[it] = (awaitingJoins[it] ?: 0) + 1 } }
+    suspend fun planJoins(categories: Set<SyncableDatabaseDefinition>, onProbed: () -> Unit = {}, enable: Boolean = false): Boolean {
+        synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+            categories.forEach { awaitingJoins[it] = (awaitingJoins[it] ?: 0) + 1; storedJoins.remove(it) }
+            queuedJoinsMutable.value = storedJoins.keys.toSet()
+        }
         try {
+            if (enable) categories.forEach { it.setSyncEnabled(settings, true) }
             val accessors = categories.mapNotNull { DatabaseContainer.databaseAccessorsByCategory[it] }
             val probes = accessors.asyncMap { dbDef ->
                 try {
                     probeJoin(dbDef)
-                } catch (e: kotlinx.coroutines.CancellationException) {
+                } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    logSyncFailure(dbDef, "probe", e)
-                    reportSyncError(strings.syncError, background = false, cause = e)
+                    reportPlanProbeFailure(dbDef, e)
                     null
                 }
             }.filterNotNull()
             onProbed()
             val asked = probes.filter { it.state is JoinState.NeedsDecision || it.state is JoinState.NeedsCreate }
             if (asked.isEmpty()) return true
-            val plan = try {
-                askJoinPlan(asked)
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                categories.forEach { it.setSyncEnabled(settings, false) }
-                throw e
-            }
+            val plan = askJoinPlan(asked)
             if (plan == null) {
-                categories.forEach { it.setSyncEnabled(settings, false) }
+                disableJoining(categories)
                 return false
             }
-            synchronized(joinStateLock) {
+            synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
                 for (probe in asked) {
                     val operation = plan[probe.category]
                     val fromDecision = probe.state is JoinState.NeedsDecision
-                    if (operation == null) probe.category.setSyncEnabled(settings, false)
+                    if (operation == null) { storedJoins.remove(probe.category); probe.category.setSyncEnabled(settings, false) }
                     else storedJoins[probe.category] = StoredJoin(operation, fromDecision)
                 }
                 queuedJoinsMutable.value = storedJoins.keys.toSet()
             }
             return true
+        } catch (e: CancellationException) {
+            disableJoining(categories)
+            throw e
+        } catch (e: Exception) {
+            if (enable) disableJoining(categories)
+            throw e
         } finally {
-            synchronized(joinStateLock) {
+            synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
                 categories.forEach {
                     val left = (awaitingJoins[it] ?: 1) - 1
                     if (left <= 0) awaitingJoins.remove(it) else awaitingJoins[it] = left
@@ -466,8 +498,8 @@ class CloudSync(
      */
     internal suspend fun probeJoin(dbDef: SyncableDatabaseAccessor<*>, listCloud: Boolean = true): JoinProbe {
         val resetNamespace = namespaceChanged(dbDef)
-        fun probe(state: JoinState, dropStaleState: Boolean = false) =
-            JoinProbe(dbDef.category, state, resetNamespace, dropStaleState)
+        fun probe(state: JoinState, dropStaleState: Boolean = false, cloudListed: Boolean = true) =
+            JoinProbe(dbDef.category, state, resetNamespace, dropStaleState, cloudListed)
         if (hasInterruptedMerge(dbDef)) return probe(JoinState.NeedsRecovery)
         var dropStaleState = false
         // After a namespace reset the folder id is gone, so the category is joined afresh.
@@ -478,7 +510,7 @@ class CloudSync(
             if (known && dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) != null) return probe(JoinState.Ready)
             dropStaleState = true
         }
-        if (!listCloud) return probe(JoinState.NeedsCreate, dropStaleState)
+        if (!listCloud) return probe(JoinState.NeedsCreate, dropStaleState, cloudListed = false)
         val cloudFolder = adapter.listFiles(name = syncFolderName(dbDef.categoryName)).firstOrNull()
         return probe(if (cloudFolder != null) JoinState.NeedsDecision(cloudFolder.id) else JoinState.NeedsCreate, dropStaleState)
     }
@@ -964,7 +996,7 @@ class CloudSync(
                     try {
                         block()
                         return true
-                    } catch (e: kotlinx.coroutines.CancellationException) {
+                    } catch (e: CancellationException) {
                         throw e
                     } catch (e: CancelStartedSync) {
                         Log.e(TAG, "Sync cancelled ${dbDef.categoryName}")
@@ -985,8 +1017,8 @@ class CloudSync(
                 // decisions already stored by planJoins, and ask the rest once.
                 val probed = DatabaseContainer.databaseAccessorFactories.asyncMap {
                     val dbDef = it.invoke()
-                    if(!dbDef.category.isSyncEnabled(settings)) return@asyncMap null
-                    if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) return@asyncMap null
+                    if(!dbDef.category.isSyncEnabled(settings)) { takeStoredJoin(dbDef.category); return@asyncMap null }
+                    if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) { takeStoredJoin(dbDef.category); return@asyncMap null }
                     if (isAwaitingJoin(dbDef.category)) return@asyncMap null
                     var probe: JoinProbe? = null
                     // A confirmed decision needs the cloud folder id, so its category is listed even in a background pass.
@@ -1005,6 +1037,11 @@ class CloudSync(
                         JoinState.Ready, JoinState.NeedsRecovery -> takeStoredJoin(category)
                         is JoinState.NeedsDecision, JoinState.NeedsCreate -> {
                             val stored = peekStoredJoin(category)
+                            if (stored != null && !probe.cloudListed) {
+                                // A placeholder says nothing about the cloud: the confirmed decision waits for a pass that lists it.
+                                skipped += category
+                                continue
+                            }
                             val usable = stored != null && (probe.state is JoinState.NeedsCreate || stored.fromDecision)
                             if (usable) operations[category] = stored!!.operation
                             else if (allowInteraction) toAsk += probe
@@ -1022,7 +1059,7 @@ class CloudSync(
                 if (toAsk.isNotEmpty()) {
                     val plan = try {
                         askJoinPlan(toAsk)
-                    } catch (e: kotlinx.coroutines.CancellationException) {
+                    } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
                         Log.e(TAG, "Join plan failed", e)
@@ -1032,7 +1069,7 @@ class CloudSync(
                     }
                     if (plan == null) {
                         // Cancel: the categories being joined go off, the Ready ones keep syncing.
-                        toAsk.forEach { if (it.category !in skipped) { it.category.setSyncEnabled(settings, false); skipped += it.category } }
+                        toAsk.forEach { if (it.category !in skipped) { disableJoining(listOf(it.category)); skipped += it.category } }
                     } else operations.putAll(plan)
                 }
 

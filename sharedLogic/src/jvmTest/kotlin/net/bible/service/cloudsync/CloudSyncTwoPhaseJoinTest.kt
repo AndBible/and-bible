@@ -81,11 +81,19 @@ class CloudSyncTwoPhaseJoinTest {
         val getFoldersCalls = mutableListOf<String>()
         @Volatile var gate: CompletableDeferred<Unit>? = null
         val entered = CompletableDeferred<Unit>()
+        /** Gates the next cloud-folder listing (name containing "-sync-"): the probe of a category stays inside listFiles. */
+        @Volatile var listGate: CompletableDeferred<Unit>? = null
+        val listEntered = CompletableDeferred<Unit>()
+        /** Gates only the FIRST isSyncFolderKnown call, so a pass probe stays in flight while another caller probes freely. */
+        @Volatile var knownGateOnce: CompletableDeferred<Unit>? = null
+        val knownEntered = CompletableDeferred<Unit>()
+        private val knownCalls = java.util.concurrent.atomic.AtomicInteger()
         override val signedIn get() = true
         override suspend fun signIn() = true
         override suspend fun signOut() {}
         override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> {
             synchronized(listedNames) { listedNames += name }
+            if (name != null && name.contains("-sync-")) listGate?.let { listEntered.complete(Unit); it.await() }
             return if (name != null && name in cloudFolderNames) listOf(CloudFile("cloud-$name", name, 0L, 1L, "root")) else emptyList()
         }
         override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = CloudFile("new-$name", name, 0L, 1L, parentId ?: "root")
@@ -98,7 +106,10 @@ class CloudSyncTwoPhaseJoinTest {
         override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) = error("unused")
         override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = CloudFile("up-$name", name, 1L, 1L, parentId)
         override suspend fun delete(id: String) {}
-        override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) = folderKnown
+        override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
+            if (knownCalls.getAndIncrement() == 0) knownGateOnce?.let { knownEntered.complete(Unit); it.await() }
+            return folderKnown
+        }
         override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) {}
         override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>) = emptyList<SyncConfiguration>()
     }
@@ -244,7 +255,6 @@ class CloudSyncTwoPhaseJoinTest {
         gate.complete(Unit)
         withContext(D.Default) { withTimeout(30_000) { pass.await() } }
         assertEquals(shown.id, f.dialogs.pending.value?.id, "the pass raised no second dialog")
-        assertTrue(plan.isActive)
         f.dialogs.cancelAll()
         assertEquals(false, withContext(D.Default) { withTimeout(30_000) { plan.await() } })
         assertFalse(f.enabled(joining))
@@ -305,6 +315,109 @@ class CloudSyncTwoPhaseJoinTest {
         assertEquals(1, f.planRequests().size, "the stored decision needs no second dialog")
         assertTrue(f.cloud.queuedJoins.value.isEmpty(), "the pass consumed it")
         assertEquals("cloud-${f.folderName(c)}", f.db(c).dao.getString(SYNC_FOLDER_FILE_ID_KEY), "the fetch join was executed")
+        assertTrue(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames }, "FETCH_INITIAL looked for the initial file")
         assertTrue(f.enabled(c))
+    }
+
+    @Test fun planJoinsCancelledDuringProbeDisablesAndClears() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c); f.cloudHas(c); all(f, "disable")
+        val gate = CompletableDeferred<Unit>().also { f.adapter.listGate = it }
+        val plan = f.scope.async { f.cloud.planJoins(setOf(c)) }
+        withContext(D.Default) { withTimeout(30_000) { f.adapter.listEntered.await() } }
+        plan.cancel()
+        withContext(D.Default) { withTimeout(30_000) { plan.join() } }
+        gate.complete(Unit); f.adapter.listGate = null
+        assertFalse(f.enabled(c), "a cancel during the probe turns the category off")
+        // The awaiting mark is gone: a re-enabled category is asked about by the next pass.
+        f.enable(c)
+        f.cloud.synchronize()
+        assertEquals(1, f.planRequests().size)
+    }
+
+    @Test fun cancelledNewPlanDropsAnEarlierStoredDecision() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c); f.cloudHas(c); all(f, "fetch")
+        assertTrue(f.cloud.planJoins(setOf(c)))
+        assertEquals(setOf(c), f.cloud.queuedJoins.value)
+        f.answer = { AppDialogResult.Cancel }
+        assertEquals(false, f.cloud.planJoins(setOf(c)))
+        assertTrue(f.cloud.queuedJoins.value.isEmpty(), "the stale FETCH is gone")
+        f.enable(c)
+        f.cloud.synchronize()
+        assertEquals(3, f.planRequests().size, "the pass asks again instead of running the old FETCH")
+        assertFalse(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames })
+        assertNull(f.db(c).dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+    }
+
+    @Test fun disabledCategoryDropsItsStoredDecision() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c); f.cloudHas(c); all(f, "fetch")
+        assertTrue(f.cloud.planJoins(setOf(c)))
+        c.setSyncEnabled(f.settings, false) // another path turns it off
+        f.cloud.synchronize()
+        assertTrue(f.cloud.queuedJoins.value.isEmpty(), "a pass that finds the category disabled drops its decision")
+        f.enable(c)
+        f.answer = { AppDialogResult.Cancel }
+        f.cloud.synchronize()
+        assertEquals(2, f.planRequests().size, "no old FETCH runs: the re-enabled category is asked again")
+    }
+
+    @Test fun nonListedProbeNeverConsumesAStoredDecision() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c); f.cloudHas(c); all(f, "fetch")
+        // A half-finished join: the folder id is stored, the device folder id is not.
+        f.db(c).dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "stale")
+        f.db(c).dao.setConfig(SYNC_NAMESPACE_KEY, f.cloud.namespace)
+        val gate = CompletableDeferred<Unit>().also { f.adapter.knownGateOnce = it }
+        // The background pass probes without listing the cloud (placeholder NeedsCreate) and stays in the probe.
+        val pass = f.scope.async { f.cloud.synchronize(allowInteraction = false) }
+        withContext(D.Default) { withTimeout(30_000) { f.adapter.knownEntered.await() } }
+        assertTrue(f.cloud.planJoins(setOf(c))) // stores FETCH meanwhile
+        gate.complete(Unit)
+        withContext(D.Default) { withTimeout(30_000) { pass.await() } }
+        assertEquals(setOf(c), f.cloud.queuedJoins.value, "the placeholder probe left the decision queued")
+        assertFalse(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames }, "nothing was created or fetched")
+        assertTrue(f.enabled(c))
+        // The next pass that lists the cloud runs the confirmed FETCH.
+        f.cloud.synchronize()
+        assertTrue(f.cloud.queuedJoins.value.isEmpty())
+        assertTrue(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames })
+    }
+
+    @Test fun planJoinsEnableMarksAwaitingBeforeEnabling() = withFixture(autoAnswer = false) { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.cloudHas(c)
+        assertFalse(f.enabled(c))
+        val plan = f.scope.async { f.cloud.planJoins(setOf(c), enable = true) }
+        val shown = f.awaitPending()
+        assertTrue(f.enabled(c), "enabled while the plan dialog is open")
+        val listingsBefore = synchronized(f.adapter.listedNames) { f.adapter.listedNames.size }
+        withContext(D.Default) { withTimeout(30_000) { f.cloud.synchronize() } }
+        assertEquals(listingsBefore, synchronized(f.adapter.listedNames) { f.adapter.listedNames.size }, "a pass never sees it enabled but not awaiting")
+        f.dialogs.respond(shown.id, AppDialogResult.Cancel)
+        assertEquals(false, withContext(D.Default) { withTimeout(30_000) { plan.await() } })
+        assertFalse(f.enabled(c), "cancel reverts the enable")
+    }
+
+    @Test fun planJoinsEnableKeepsCategoryOnAfterAConfirmedPlan() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.cloudHas(c); all(f, "merge")
+        assertTrue(f.cloud.planJoins(setOf(c), enable = true))
+        assertTrue(f.enabled(c))
+        assertEquals(setOf(c), f.cloud.queuedJoins.value)
+    }
+
+    @Test fun planJoinsEnableIsRevertedWhenCancelledDuringProbe() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.cloudHas(c)
+        val gate = CompletableDeferred<Unit>().also { f.adapter.listGate = it }
+        val plan = f.scope.async { f.cloud.planJoins(setOf(c), enable = true) }
+        withContext(D.Default) { withTimeout(30_000) { f.adapter.listEntered.await() } }
+        assertTrue(f.enabled(c))
+        plan.cancel()
+        withContext(D.Default) { withTimeout(30_000) { plan.join() } }
+        gate.complete(Unit); f.adapter.listGate = null
+        assertFalse(f.enabled(c))
     }
 }
