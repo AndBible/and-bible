@@ -483,7 +483,10 @@ class DatabaseContainer private constructor() {
          * key, so they arrive asynchronously, in sync order, off the sync thread) and the bookmarks list (on main).
          */
         val bookmarksSynced: Events<List<LogEntry>> get() = _bookmarksSynced
-        @VisibleForTesting fun resetBookmarksSyncedForTest() { _bookmarksSynced = EventSource() }
+        /** Drops every subscriber; returns the replaced source for [restoreBookmarksSyncedForTest]. */
+        @VisibleForTesting fun resetBookmarksSyncedForTest(): EventSource<List<LogEntry>> =
+            _bookmarksSynced.also { _bookmarksSynced = EventSource() }
+        @VisibleForTesting fun restoreBookmarksSyncedForTest(source: EventSource<List<LogEntry>>) { _bookmarksSynced = source }
 
         /**
          * Fix batch 5 §1.1. True while a restore has database files closed or overwritten. A save in

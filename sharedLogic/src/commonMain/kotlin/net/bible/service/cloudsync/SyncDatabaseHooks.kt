@@ -169,8 +169,13 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
         localDb = resetOwned?.invoke(token) ?: _resetLocalDb()
     }
 
-    suspend fun reactToUpdates(lastSynchronized: Long) {
-        val newEntries = dao.newLogEntries(lastSynchronized, deviceId)
+    /**
+     * Tells this category's listeners about the rows a sync merged in: [applied] as [applyPatchesForDatabase] returns
+     * them, never a query by edit time against this device's watermark (an edit made before this device's last
+     * download but uploaded after it was applied yet never reported, #4151).
+     */
+    suspend fun reactToUpdates(applied: List<LogEntry>) {
+        val newEntries = applied.filter { it.sourceDevice != deviceId }
         if(newEntries.isNotEmpty()) {
             _reactToUpdates?.invoke(newEntries)
         }
