@@ -151,7 +151,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         lifecycleScope.launch {
             if (!checkForExternalStorage()) return@launch
-            if(!BuildVariant.Appearance.isDiscrete) {
+            // With the calculator on, nothing of the app may show before the PIN: the check follows the calculator.
+            if(!CommonUtils.showCalculator) {
                 ErrorReportControl.checkCrash(this@StartupActivity)
             }
             // fixNightMode() for StartupActivity needs to be here
@@ -221,7 +222,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             calculator = { checkCalculator() },
             databases = { initializeDatabase() },
             discreteCrashCheck = {
-                if (BuildVariant.Appearance.isDiscrete) ErrorReportControl.checkCrash(this@StartupActivity)
+                if (CommonUtils.showCalculator) ErrorReportControl.checkCrash(this@StartupActivity)
             },
         )
         if (!passed) return@withContext

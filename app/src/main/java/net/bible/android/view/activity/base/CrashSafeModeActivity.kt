@@ -28,6 +28,9 @@ import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.CrashSafeModeBinding
 import net.bible.android.control.report.StartupCrashGuard
+import net.bible.android.control.report.LAST_CRASH_LOGCAT_FILE
+import net.bible.android.control.report.LAST_CRASH_SCREENSHOT_FILE
+import net.bible.android.control.report.ONE_HOUR
 import net.bible.android.control.report.StartupCrashStore
 import java.io.File
 
@@ -45,6 +48,7 @@ import java.io.File
  */
 class CrashSafeModeActivity : Activity() {
     private var reportText: String = ""
+    private var restarting = false
     internal lateinit var binding: CrashSafeModeBinding
         private set
 
@@ -57,6 +61,13 @@ class CrashSafeModeActivity : Activity() {
             tryAgain.setOnClickListener { restartApp(openBackup = false) }
         }
         setContentView(binding.root)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Left with Back after "Send Report": this process skipped the app's initialisation, so it must not be
+        // reused by the next start (which would land here again, without any records).
+        if (isFinishing && !restarting) exitProcess()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -77,6 +88,7 @@ class CrashSafeModeActivity : Activity() {
 
     private fun restartApp(openBackup: Boolean) {
         StartupCrashGuard.resolve(this)
+        restarting = true
         startActivity(restartIntent(this, openBackup))
         finish()
         // This process skipped the app's initialisation: the next start needs a new one.
@@ -114,21 +126,28 @@ class CrashSafeModeActivity : Activity() {
                 if (openBackup) putExtra(EXTRA_OPEN_BACKUP, true)
             }
 
-        /** The email: the report as the text and as an attachment (`filesDir/crash/report.txt`). */
+        /**
+         * The email: the report as the text and as an attachment (`filesDir/crash/report.txt`), with the logcat and
+         * screenshot the app's own crash handler saved at its last crash (`filesDir/log`), when there are such.
+         */
         internal fun reportIntent(context: Context, reportText: String): Intent {
             val dir = File(context.filesDir, StartupCrashStore.DIR_NAME).apply { mkdirs() }
             val file = File(dir, "report.txt").apply { writeText(reportText) }
-            val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+            val logDir = File(context.filesDir, "log")
+            val files = listOf(file) + listOf(LAST_CRASH_LOGCAT_FILE, LAST_CRASH_SCREENSHOT_FILE)
+                .map { File(logDir, it) }
+                .filter { it.canRead() && System.currentTimeMillis() - it.lastModified() < 24 * ONE_HOUR }
+            val uris = ArrayList(files.map { FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", it) })
             val firstError = reportText.lineSequence()
                 .firstOrNull { it.startsWith("java.") || it.startsWith("kotlin.") || it.contains("Exception") || it.contains("Error:") }
                 ?.take(120) ?: "startup"
-            val send = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
+            val send = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                type = "application/octet-stream"
                 putExtra(Intent.EXTRA_EMAIL, arrayOf(ERROR_REPORT_ADDRESS))
                 putExtra(Intent.EXTRA_SUBJECT, "AndBible ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) startup crash: $firstError")
                 // The attachment has it all; a huge extra would not fit the binder transaction.
                 putExtra(Intent.EXTRA_TEXT, reportText.take(MAX_BODY_CHARS))
-                putExtra(Intent.EXTRA_STREAM, uri)
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             return Intent.createChooser(send, context.getString(R.string.send_bug_report_title))

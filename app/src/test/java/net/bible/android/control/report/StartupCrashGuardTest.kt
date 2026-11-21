@@ -68,6 +68,14 @@ class StartupCrashGuardTest {
     private val app get() = ApplicationProvider.getApplicationContext<TestBibleApplication>()
     private val originalExit = CrashSafeModeActivity.exitProcess
 
+    @org.junit.Before fun neverEndTheTestJvm() {
+        CrashSafeModeActivity.exitProcess = {}
+        // FileProvider caches its roots per authority in a static map: an earlier test's (deleted) data directory
+        // would refuse this test's files.
+        androidx.core.content.FileProvider::class.java.getDeclaredField("sCache").apply { isAccessible = true }
+            .let { (it.get(null) as MutableMap<*, *>).clear() }
+    }
+
     @After fun reset() {
         StartupCrashGuard.resetForTest()
         CrashSafeModeActivity.exitProcess = originalExit
@@ -208,13 +216,62 @@ class StartupCrashGuardTest {
             val text = email.getStringExtra(Intent.EXTRA_TEXT)!!
             assertTrue(text, text.contains("R8 map id: "))
             assertTrue(text, text.contains("Failed to create an instance of androidx.work.impl.WorkDatabase"))
+            assertEquals(Intent.ACTION_SEND_MULTIPLE, email.action)
             @Suppress("DEPRECATION")
-            assertNotNull(email.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM))
+            assertEquals(1, email.getParcelableArrayListExtra<android.net.Uri>(Intent.EXTRA_STREAM)!!.size)
             // Sending is acting on it: the next start is a normal one.
             assertFalse(StartupCrashStore(dir).needsReport())
             assertFalse(safeMode.get().isFinishing)
         } finally {
             safeMode.close()
+        }
+    }
+
+    @Test fun aStartTheUserClosedIsNotACrash() {
+        val dir = tmp.newFolder("crash")
+        startProcess(dir)
+        StartupCrashGuard.markPhase(StartupCrashGuard.PHASE_DATABASES)
+        StartupCrashGuard.resetForTest()
+        // Swiped away during a long database migration.
+        val am = app.getSystemService(android.app.ActivityManager::class.java)
+        shadowOf(am).addApplicationExitInfo(
+            org.robolectric.shadows.ShadowActivityManager.ApplicationExitInfoBuilder.newBuilder()
+                .setProcessName(app.packageName)
+                .setReason(android.app.ApplicationExitInfo.REASON_USER_REQUESTED)
+                .build(),
+        )
+        assertFalse(startProcess(dir))
+        assertFalse(StartupCrashStore(dir).needsReport())
+    }
+
+    @Test fun leavingTheSafeModeAfterSendingEndsItsProcess() {
+        val dir = tmp.newFolder("crash")
+        startProcess(dir)
+        crash(RuntimeException("boom"))
+        assertTrue(startProcess(dir))
+        var exited = false
+        CrashSafeModeActivity.exitProcess = { exited = true }
+        val safeMode = showSafeMode(CrashSafeModeActivity.intent(app))
+        safeMode.get().binding.sendReport.performClick()
+        assertFalse(exited)
+        safeMode.get().finish() // Back
+        safeMode.pause().stop().destroy()
+        assertTrue("The uninitialised process must not serve the next start", exited)
+    }
+
+    @Test fun withTheCalculatorOnThereIsNoSafeModeAndNoProviderIsSwitchedOff() {
+        CommonUtils.realSharedPreferences.edit(commit = true) { putBoolean("show_calculator", true) }
+        try {
+            val dir = tmp.newFolder("crash")
+            assertFalse(startProcess(dir))
+            crash(RuntimeException("Unable to get provider androidx.startup.InitializationProvider: boom"))
+            val provider = ComponentName(app.packageName, "androidx.startup.InitializationProvider")
+            assertEquals(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, app.packageManager.getComponentEnabledSetting(provider))
+            assertFalse("Nothing may show before the PIN", startProcess(dir))
+            // checkCrash offers it after the calculator.
+            assertTrue(StartupCrashGuard.needsReport())
+        } finally {
+            CommonUtils.realSharedPreferences.edit(commit = true) { remove("show_calculator") }
         }
     }
 

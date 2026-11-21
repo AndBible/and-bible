@@ -56,6 +56,8 @@ class VerseWidgetConfigActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // #4176: crash safe mode; nothing of the app is initialised.
+        if (net.bible.android.view.activity.base.CrashSafeModeActivity.routeIfSafeMode(this)) return
         appWidgetId = intent?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
             ?: AppWidgetManager.INVALID_APPWIDGET_ID
         // Backing out must leave the widget unplaced.

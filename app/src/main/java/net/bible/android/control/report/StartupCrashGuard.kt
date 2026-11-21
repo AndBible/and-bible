@@ -83,6 +83,7 @@ class StartupCrashStore(val dir: File, private val clock: () -> Long = System::c
     }
 
     /** Counts a crash; [startup] marks it as one of the start (a startup phase was in progress). */
+    @Synchronized
     private fun count(startup: Boolean) {
         val state = readState()
         writeState(
@@ -94,6 +95,7 @@ class StartupCrashStore(val dir: File, private val clock: () -> Long = System::c
         )
     }
 
+    @Synchronized
     private fun append(header: String, body: String) {
         dir.mkdirs()
         val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ENGLISH).format(Date(clock()))
@@ -107,6 +109,7 @@ class StartupCrashStore(val dir: File, private val clock: () -> Long = System::c
      * The uncaught-exception handler's record of [e]. [failedPhase] is the phase [e] was thrown from when that phase
      * has already ended (its breadcrumb is removed while the exception propagates).
      */
+    @Synchronized
     fun recordCrash(threadName: String, e: Throwable, details: String, failedPhase: String? = null) {
         val currentPhase = phase ?: failedPhase
         val trace = StringWriter().also { e.printStackTrace(PrintWriter(it)) }.toString()
@@ -120,6 +123,7 @@ class StartupCrashStore(val dir: File, private val clock: () -> Long = System::c
     }
 
     /** A breadcrumb was left over: the last run died in [phase] without a recorded exception. */
+    @Synchronized
     fun recordUnfinishedStart(phase: String, details: String) {
         append(
             "Unfinished start",
@@ -134,9 +138,11 @@ class StartupCrashStore(val dir: File, private val clock: () -> Long = System::c
      * record; counted crashes older than an hour that did not happen at startup are forgotten. True when the user should
      * be offered a crash report before anything else starts: a crash during startup, or two crashes within an hour.
      */
-    fun onProcessStart(details: () -> String): Boolean {
+    fun onProcessStart(details: () -> String, endedWithoutCrash: () -> Boolean = { false }): Boolean {
         phase?.let { leftover ->
-            recordUnfinishedStart(leftover, details())
+            // Closed by the user or the system (swiped away, force-stopped, killed for memory in the background,
+            // updated): not a crash.
+            if (!endedWithoutCrash()) recordUnfinishedStart(leftover, details())
             clearPhase()
         }
         val state = readState()
@@ -240,12 +246,34 @@ object StartupCrashGuard {
         this.store = store
         appContext = context
         safeModeAllowed = !calculatorDisguise(context)
-        val needsReport = store.onProcessStart { reportDetails(context) }
+        val needsReport = store.onProcessStart({ reportDetails(context) }, { lastExitWasNotACrash(context) })
         safeMode = needsReport && safeModeAllowed
         if (!safeMode) store.markPhase(PHASE_APPLICATION)
         if (installHandler) installHandler()
         Log.i(TAG, "Startup crash guard: needsReport=$needsReport safeMode=$safeMode")
         return safeMode
+    }
+
+    /**
+     * How the previous process of the app ended, where Android tells (API 30+): closed by the user, by the system
+     * for memory, or for an update or a permission change. Unknown (older Android, or no record) counts as a crash.
+     */
+    private fun lastExitWasNotACrash(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
+        return try {
+            val am = context.getSystemService(android.app.ActivityManager::class.java) ?: return false
+            val reason = am.getHistoricalProcessExitReasons(context.packageName, 0, 1).firstOrNull()?.reason ?: return false
+            reason in setOf(
+                android.app.ApplicationExitInfo.REASON_USER_REQUESTED,
+                android.app.ApplicationExitInfo.REASON_USER_STOPPED,
+                android.app.ApplicationExitInfo.REASON_LOW_MEMORY,
+                android.app.ApplicationExitInfo.REASON_PACKAGE_UPDATED,
+                android.app.ApplicationExitInfo.REASON_PERMISSION_CHANGE,
+                android.app.ApplicationExitInfo.REASON_EXIT_SELF,
+            )
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun installHandler() {
@@ -269,7 +297,8 @@ object StartupCrashGuard {
         val store = store ?: return
         val context = appContext
         store.recordCrash(t.name, e, context?.let { reportDetails(it) } ?: "", failedPhaseOf(e))
-        if (context != null) failedProviderClass(e)?.let { disableProvider(context, store, it) }
+        // Only where the next start shows the safe mode: elsewhere the app would run without the provider.
+        if (context != null && safeModeAllowed) failedProviderClass(e)?.let { disableProvider(context, store, it) }
     }
 
     /** Marks the start of a risky startup phase (the breadcrumb); [clearPhase] ends it. */
