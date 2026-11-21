@@ -969,6 +969,10 @@
     <string name="crash_recovery_continue">Continue</string>
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>
+    <!-- #4176: the crash safe mode, shown after the app crashed while starting -->
+    <string name="startup_crash_lead">The app stopped while starting</string>
+    <string name="startup_crash_detail">Please send us an error report so that we can fix the problem. It contains the error details and information about your device and app version.</string>
+    <string name="startup_crash_try_again">Try again</string>
     <string name="error_occurred_crash_last_time">Last time when you used the application, it crashed. To help us with fixing the bug, we would appreciate if you send us a bug report. </string>
     <string name="error_occurred_with_link">An error has occurred. %s</string>
     <string name="error_no_content">No content for selected verse</string>

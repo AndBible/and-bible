@@ -36,6 +36,8 @@ class VerseWidgetReceiver : GlanceAppWidgetReceiver() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override fun onReceive(context: Context, intent: Intent) {
+        // #4176: the crash safe mode switched off androidx.startup (no WorkManager): Glance cannot draw.
+        if (net.bible.android.control.report.StartupCrashGuard.safeModeWithoutProviders(context)) return
         when (intent.action) {
             // No DATE_CHANGED: it is not delivered to manifest receivers on API 26+; the period alarm covers midnight.
             VerseWidgetScheduler.ACTION_PERIOD, Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_TIME_CHANGED -> {

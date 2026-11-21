@@ -3005,6 +3005,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // #4176: crash safe mode; ActivityBase hands over before anything below reads the (uninitialised) app.
+        if (net.bible.android.control.report.StartupCrashGuard.safeMode) {
+            super.onCreate(savedInstanceState)
+            return
+        }
         // A state loss is recoverable; a launch crash loop is not.
         // After process death the system re-delivers the ORIGINAL launch intent; its link was already applied.
         if (savedInstanceState != null) intent.removeExtra("openLink")
@@ -3022,7 +3027,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
         // #4112: damaged user data; the startup's recovery question has taken over and this host is finishing.
-        if (routedToDamagedDataRecovery) return
+        if (routedAwayAtStart) return
         applyComposeHostWindowSetup()
         // F59 (T9 walk, spec §3.1.1): the manifest keeps `adjustResize` on this Activity's block
         // (a manifest attribute cannot be per-API). F59 fix round 2 (extra adversarial
@@ -3543,7 +3548,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * result (see `WorkspaceHost.onHostDestroy`, which discards the workspaces it cloned).
      */
     override fun onDestroy() {
-        if (routedToDamagedDataRecovery) {
+        if (routedAwayAtStart) {
             super.onDestroy()
             return
         }

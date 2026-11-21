@@ -44,6 +44,7 @@ import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
 import net.bible.sharedcore.event.Subscription
 import net.bible.android.control.report.BugReport
+import net.bible.android.control.report.StartupCrashGuard
 import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.ErrorActivity
@@ -132,6 +133,15 @@ open class BibleApplication : Application() {
 
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
+        if (StartupCrashGuard.safeMode) {
+            // #4176: the last start crashed. Initialise nothing (Koin, Sword, databases, sync): every activity hands
+            // over to CrashSafeModeActivity, which offers the report and starts a new process afterwards.
+            Log.w(TAG, "BibleApplication:onCreate in crash safe mode, AndBible version ${net.bible.android.activity.BuildConfig.VERSION_NAME}")
+            super.onCreate()
+            return
+        }
+        // #4176: a provider the crash safe mode switched off is on again, but this process started without it.
+        StartupCrashGuard.installReenabledProviders(this)
         DatabaseContainer.installHost(AndroidDatabaseHost(this))
         Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
@@ -142,22 +152,28 @@ open class BibleApplication : Application() {
         CommonUtils.tmpDir.deleteRecursively()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
-            val crashTime = System.currentTimeMillis()
-            BugReport.saveScreenshot()
-            Log.e(TAG, "App crashed due to exception", e)
-            BugReport.saveLogcat()
-            BugReport.saveStackTrace(e)
-            BugReport.saveCrashData()
+            // #4176: whatever fails here, the crash still reaches the early handler (StartupCrashGuard) and the system.
+            try {
+                val crashTime = System.currentTimeMillis()
+                BugReport.saveScreenshot()
+                Log.e(TAG, "App crashed due to exception", e)
+                BugReport.saveLogcat()
+                BugReport.saveStackTrace(e)
+                BugReport.saveCrashData()
 
-            val numCrashed = CommonUtils.realSharedPreferences.getInt("app-crashed-count", 0)
-            CommonUtils.realSharedPreferences.edit().putInt("app-crashed-count", numCrashed + 1).commit()
+                val numCrashed = CommonUtils.realSharedPreferences.getInt("app-crashed-count", 0)
+                CommonUtils.realSharedPreferences.edit().putInt("app-crashed-count", numCrashed + 1).commit()
 
-            if(numCrashed == 0) {
-                CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", crashTime).commit()
+                if(numCrashed == 0) {
+                    CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", crashTime).commit()
+                }
+                // Settings writes still queued in the store would die with the process. Bounded: never hang a dying app.
+                DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 2_000)
+            } catch (handlerError: Throwable) {
+                Log.e(TAG, "Crash handler failed", handlerError)
+            } finally {
+                defaultExceptionHandler?.uncaughtException(t, e)
             }
-            // Settings writes still queued in the store would die with the process. Bounded: never hang a dying app.
-            DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 2_000)
-            defaultExceptionHandler.uncaughtException(t, e)
         }
         userMessagesSubscription = UserMessages.messages.subscribeOnMain { message ->
             when (message) {
@@ -196,6 +212,8 @@ open class BibleApplication : Application() {
         CommonUtils.realSharedPreferences.registerOnSharedPreferenceChangeListener(localeListener)
         ScreenSettings.observeNightModePreference()
         createChannels()
+        // #4176: the application's part of the start is done (the activities mark their own phases).
+        StartupCrashGuard.clearPhase()
     }
 
     /**
@@ -311,6 +329,9 @@ open class BibleApplication : Application() {
      */
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(newBase)
+        // #4176: before the content providers (androidx.startup, WorkManager, ...) and onCreate, so that a crash there
+        // is recorded and the next start can offer the report. Tests keep the JVM's handler.
+        if (!isRunningTests) StartupCrashGuard.install(newBase)
         // C5: application.applicationContext is not usable yet; read the preference off newBase.
         applyUiLocale(LocaleHelper.getOverrideLanguage(newBase), refresh = false)
     }

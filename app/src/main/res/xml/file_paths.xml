@@ -21,4 +21,5 @@
     <files-path name="automatic_database_backups" path="database_backups/"/>
     <files-path name="logcats_and_screenshots" path="log"/>
     <files-path name="exported_documents" path="export/"/>
+    <files-path name="startup_crash_reports" path="crash/"/>
 </paths>
