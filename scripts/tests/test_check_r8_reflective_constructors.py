@@ -99,6 +99,20 @@ class ReflectiveConstructorCheckTest(unittest.TestCase):
         self.assertEqual(1, code, out + err)
         self.assertIn("net.bible.android.database.BookmarkDatabase_Impl (o.c): no no-argument constructor", err)
 
+    def test_member_moved_from_a_present_base_does_not_make_a_class_a_subclass(self):
+        # R8 moved a static field of the (still present) Room 3 base into an unrelated lambda-like class.
+        code, out, err = self.build({
+            "o/a.java": "package o; public abstract class a {}",
+            "o/c.java": "package o; public final class c extends a {}",
+            "o/z.java": "package o; public final class z { public z(int captured) {} }",
+        }, "androidx.room3.RoomDatabase -> o.a:\n"
+           "net.bible.android.database.BookmarkDatabase_Impl -> o.c:\n"
+           "net.bible.Lambda -> o.z:\n"
+           "    java.lang.Object androidx.room3.RoomDatabase.LOCK -> b\n"
+           "    1:1:void androidx.room3.RoomDatabase.helper():5:5 -> a\n")
+        self.assertEqual(0, code, out + err)
+        self.assertIn("androidx.room3.RoomDatabase: 1 leaf classes checked\n", out)
+
     def test_interface_base_implementations_are_checked(self):
         code, out, err = self.build({
             "o/i.java": "package o; public interface i {}",

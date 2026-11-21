@@ -536,6 +536,8 @@ androidComponents {
         val cap = variant.name.replaceFirstChar { it.uppercase() }
         val minifyTask = "minify${cap}WithR8"
         val mapping = variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.OBFUSCATION_MAPPING_FILE)
+        // R8's DEX output (shared by the APK and the AAB). An internal AGP path: if AGP moves it, the script finds no
+        // DEX and exits 2, so the build fails loudly instead of passing unchecked.
         val dexDir = layout.buildDirectory.dir("intermediates/dex/${variant.name}/$minifyTask")
         val check = tasks.register<Exec>("checkR8ReflectiveConstructors$cap") {
             group = "verification"

@@ -15,8 +15,8 @@ rule has no `{ <init>(); }`, so `WorkDatabase_Impl` could not be created.
 For every base class (default: the list in BASES), every leaf subclass in the DEX (a class that descends from the
 base and has no subclass of its own in the DEX) must be concrete and have a no-argument constructor. Descent is read
 from the DEX superclass and interface chain. R8 may merge the base class into its only subclass, so the base's name
-disappears; a class whose mapping entry lists fields or methods that originally belonged to the base counts as the
-base. The mapping also translates obfuscated names back for the report.
+disappears; then a class whose mapping entry lists fields or methods that originally belonged to the base counts as
+the base. (Only then: R8 also moves static members and lambda bodies into unrelated classes.) The mapping also translates obfuscated names back for the report.
 
 Prints each base with the number of leaves it checked. Exit 0 when all pass, 1 on a violation, 2 on usage errors.
 """
@@ -41,7 +41,7 @@ NO_INDEX = 0xFFFFFFFF
 
 CLASS_RE = re.compile(r"^(\S+) -> (\S+):$")
 # "    [1:5:]type [holder.]name[(args)][:line[:line]] -> new"
-MEMBER_RE = re.compile(r"^\s+(\d+:\d+:)?\S+ ([^\s(]+)(\(.*?\))?(?::\d+(?::\d+)?)? -> \S+$")
+MEMBER_RE = re.compile(r"^\s+(\d+:\d+:)?\S+ ([^\s(]+)(\(.*?\))?(?::\d+(?::\d+)?)? -> (\S+)$")
 
 
 def open_text(path):
@@ -57,7 +57,7 @@ def read_mapping(path):
     """
     original, absorbed = {}, {}
     cur_obf = cur_orig = None
-    pending = None  # (range, holder) of the previous method line
+    pending = None  # (range + new name, holder) of the previous method line
 
     def flush():
         if pending and pending[1] and cur_obf is not None:
@@ -78,7 +78,7 @@ def read_mapping(path):
             m = MEMBER_RE.match(line)
             if not m or cur_obf is None:
                 continue
-            rng, name, args = m.groups()
+            rng, name, args, new = m.groups()
             holder = name.rsplit(".", 1)[0] if "." in name else None
             if holder == cur_orig:
                 holder = None
@@ -86,11 +86,12 @@ def read_mapping(path):
                 if holder:
                     absorbed[cur_obf].add(holder)
                 continue
-            if pending and rng is not None and pending[0] == rng:
-                pending = (rng, holder)  # same inline run: this line is further out
+            key = (rng, new) if rng is not None else None
+            if pending and key is not None and pending[0] == key:
+                pending = (key, holder)  # same inline run: this line is further out
                 continue
             flush()
-            pending = (rng, holder)
+            pending = (key, holder)
         flush()
     return original, absorbed
 
@@ -170,8 +171,14 @@ def check(classes, original, absorbed, bases):
     """Return (report lines, violations)."""
     orig = lambda c: original.get(c, c)  # noqa: E731
 
+    # Absorption only stands in for a base R8 really merged away (no DEX class carries its name): R8 also moves
+    # static members and lambda bodies into unrelated classes, which must not count as the base.
+    present = {orig(c) for c in classes}
+
     def stands_for(c, base):
-        return orig(c) == base or base in absorbed.get(c, ())
+        if orig(c) == base:
+            return True
+        return base not in present and base in absorbed.get(c, ()) and "$$ExternalSynthetic" not in orig(c)
 
     memo = {}
 

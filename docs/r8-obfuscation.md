@@ -56,8 +56,9 @@ broke every widget button (`NoSuchMethodException`). `app/proguard-rules.pro` ke
 Every minified variant runs `checkR8ReflectiveConstructors<Variant>` after `minify<Variant>WithR8`
 (`scripts/check-r8-reflective-constructors.py`): it reads the R8 output DEX and mapping and fails the build when a leaf
 subclass of `androidx.room.RoomDatabase`, `androidx.room3.RoomDatabase`, `androidx.work.InputMerger`,
-`androidx.startup.Initializer` or `androidx.glance.appwidget.action.ActionCallback` is abstract or has no no-argument constructor. It also sees a base that R8 merged into
-its only subclass (the mapping lists the base's members under the subclass). When a new dependency creates classes by
+`androidx.startup.Initializer` or `androidx.glance.appwidget.action.ActionCallback` is abstract or has no no-argument
+constructor. It also sees a base that R8 merged into its only subclass (the mapping lists the base's members under the
+subclass). When a new dependency creates classes by
 name, add its base class to `BASES` in the script. Tests: `python3 -m unittest discover -s scripts/tests -p
 test_check_r8_reflective_constructors.py` (needs javac and the SDK build-tools `d8`).
 
