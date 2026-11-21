@@ -46,6 +46,8 @@ emptyStudyPad: Tyhjä opintoalusta. Aloita lisäämällä opintoalustaan tekstim
 doYouWantToDeleteEntry: Poista opintoalustan merkintä?
 removeStudyPadConfirmationTitle: Poista opintoalustan merkintä?
 dragHelp: Raahaa järjestääksesi uudelleen
+addonBookmarkThisVerse: Lisää kirjanmerkki tälle jakeelle
+addonReadOnly: Tämä sisältö tulee lisäosakokoelmasta ja on vain luku -tilassa. Käytä toimintoa “Kopioi omiin kirjanmerkkiryhmiini” saadaksesi muokattavan kopion.
 openAll: Avaa kaikki viittaukset
 editBookmarkPlaceholder: Napsauta muokataksesi tähän kirjanmerkkiin liittyviä merkintöjä
 onlyLabel: Vain ryhmämerkintä

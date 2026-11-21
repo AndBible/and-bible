@@ -46,6 +46,8 @@ emptyStudyPad: Üres jegyzetlap. Ide egyszerűen felvehet jegyzeteket, könyvjel
 doYouWantToDeleteEntry: Törli ezt a jegyzetet?
 removeStudyPadConfirmationTitle: Törli ezt a jegyzetet?
 dragHelp: Húzza el más sorrendbe tevéshez
+addonBookmarkThisVerse: Vers könyvjelzőzése
+addonReadOnly: Ez a tartalom egy kiegészítő gyűjteményből származik, és csak olvasható. A szerkeszthető másolathoz használja a „Másolás a saját címkéimbe” lehetőséget.
 openAll: Minden hivatkozás megnyitása
 editBookmarkPlaceholder: Nyomja meg a könyvjelzőhöz tartozó Saját Jegyzet szerkesztéséhez
 onlyLabel: Csak a címke

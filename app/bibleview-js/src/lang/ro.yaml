@@ -46,6 +46,8 @@ emptyStudyPad: Nu sînt notițe de studiu. Adaugă notițe scriind ceva aici sau
 doYouWantToDeleteEntry: Ștergi această notiță de studiu?
 removeStudyPadConfirmationTitle: Elimini notița de studiu?
 dragHelp: Trage pentru a aranja
+addonBookmarkThisVerse: Adaugă semn de carte la acest verset
+addonReadOnly: Acest conținut provine dintr-o colecție de suplimente și este doar pentru citire. Folosește „Copiază în etichetele mele” pentru a obține o copie editabilă.
 openAll: Deschide toate trimiterile
 editBookmarkPlaceholder: Atinge pentru a modifica notițele acestui semn de carte
 onlyLabel: Doar eticheta

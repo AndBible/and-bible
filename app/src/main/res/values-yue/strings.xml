@@ -868,9 +868,6 @@ http://www.heartlight.org 准予使用
   <string name="bookmarks_contents">書籤、標籤及研習筆記</string>
   <string name="workspaces_contents">工作區及視窗</string>
   <!--Reading Progress Activity-->
-  <string name="cloud_fetch_and_restore_initial">從雲端複製至此裝置</string>
-  <string name="cloud_create_new">從此裝置複製至雲端</string>
-  <string name="cloud_disable_sync">取消或停用同步功能</string>
   <string name="cloud_sync_title">裝置同步功能</string>
   <string name="reset_sync">登出</string>
   <string name="prefs_reset_sync_summary">停用同步及重設相關設定。</string>

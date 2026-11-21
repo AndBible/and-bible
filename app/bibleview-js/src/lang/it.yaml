@@ -46,6 +46,8 @@ emptyStudyPad: "Appunti di studio vuoti. Inizia aggiungendo una voce qui, o crea
 doYouWantToDeleteEntry: Eliminare voce degli appunti di studio?
 removeStudyPadConfirmationTitle: Eliminare voce degli appunti di studio?
 dragHelp: Trascina per riordinare
+addonBookmarkThisVerse: Inserisci un segnalibro su questo versetto
+addonReadOnly: Questo contenuto proviene da una raccolta di componenti aggiuntivi ed è di sola lettura. Usa “Copia nelle mie etichette” per ottenere una copia modificabile.
 openAll: Apri tutti i riferimenti
 editBookmarkPlaceholder: Tocca per modificare le Annotazioni per questo segnalibro
 onlyLabel: Solo etichetta

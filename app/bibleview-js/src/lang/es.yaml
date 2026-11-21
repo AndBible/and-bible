@@ -46,6 +46,8 @@ emptyStudyPad: Bloc de estudio vacía. Comience a agregar elementos a este bloc 
 doYouWantToDeleteEntry: ¿Eliminar esta pizarra de estudio?
 removeStudyPadConfirmationTitle: ¿Eliminar la entrada del bloc de estudio?
 dragHelp: Arrastre para reordenar
+addonBookmarkThisVerse: Marcar este versículo
+addonReadOnly: Este contenido proviene de una colección de complementos y es de solo lectura. Usa “Copiar a mis etiquetas” para obtener una copia editable.
 openAll: Abrir todas las referencias
 editBookmarkPlaceholder: Toque para editar Mis Notas para este marcador
 onlyLabel: Solo etiqueta

@@ -124,6 +124,13 @@
   <string name="search_clear">Rensa söktext</string>
   <string name="search_engine_changed_reindex">Sökmotorn har uppdaterats. Sökindexet måste skapas på nytt; detta kan ta en stund.</string>
   <string name="search_unsupported_syntax">Sökningen använder syntax som inte stöds: %s</string>
+  <string name="search_regex">Reguljärt uttryck (experimentellt)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Sökningen tog för lång tid och avbröts. Resultaten är ofullständiga; försök med ett enklare uttryck.</string>
+  <string name="search_invalid_regex">Ogiltigt reguljärt uttryck: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Det här reguljära uttrycket har för många öppna jokertecken (som .* eller \\w+). Använd färre av dem, eller begränsa dem, till exempel .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Det här reguljära uttrycket upprepar en grupp som själv innehåller en upprepning, som (a+)+. Det kan ta praktiskt taget evigheter att matcha. Skriv om det utan nästlade upprepningar.</string>
+  <string name="search_regex_busy">En tidigare sökning med reguljärt uttryck körs fortfarande i bakgrunden. Försök igen om en stund; om den inte blir klar, starta om appen.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +321,8 @@
   <string name="hide_window_buttons_summary">Fönsterknappar som visas på höger sida av bibelvyerna döljs. Navigeringsfältet för fönster visas fortfarande nere på skärmen och man kan öppna fönstermenyn genom att långtrycka där.</string>
   <string name="hide_bible_reference_overlay_title">Dölj meddelanderuta om bibelställe</string>
   <string name="hide_bible_reference_overlay_summary">Visa inte meddelanderuta om nuvarande bibelställe när appen är i helskärmsläge</string>
+  <string name="text_under_window_buttons_title">Visa text under fönsterknapparna</string>
+  <string name="text_under_window_buttons_summary">Bibeltexten sträcker sig till skärmens nederkant, under fönsterknappsfältet. När det är avstängt hålls en remsa fri under fältet i de nedre fönster som det spänner över.</string>
   <string name="full_screen_hide_buttons_pref_title">Dölj fönsterknappar i fullskärm</string>
   <string name="full_screen_hide_buttons_pref_summary">Vid byte till fullskärmsläge, dölj automatiskt fönsterknapplistan som är i botten av skärmen</string>
   <string name="prefs_hide_status_bar_title">Dölj statusfältet</string>
@@ -579,7 +588,50 @@ i GT och NT varje dag.
   <string name="sleep_timer_active_at">Sovtimer: %s minuter kvar.</string>
   <string name="speak_next">Nästa</string>
   <string name="speak_previous">Föregående</string>
+  <string name="widget_play">Spela upp</string>
   <string name="widget_toggle_sleep_timer">Slå på/av sovtimer</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Läs upp</string>
+  <string name="widget_speak_text_name">Läs upp med text</string>
+  <string name="widget_listening_list_name">Lyssningslista</string>
+  <string name="widget_verse_name">Vers</string>
+  <string name="widget_continue_from">Fortsätt från %1$s · %2$s</string>
+  <string name="widget_continue_listening">Fortsätt lyssna</string>
+  <string name="widget_paused">Pausad</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Inga bokmärken för uppläsning ännu</string>
+  <string name="widget_listening_list_empty_text">Bokmärken med etiketten Läs upp visas här. Aktivera automatiska bokmärken i uppläsningsinställningarna, eller lägg till etiketten på valfritt bokmärke.</string>
+  <string name="widget_open_app">Öppna AndBible</string>
+  <string name="widget_open_app_to_load">Öppna AndBible för att läsa in verser</string>
+  <string name="widget_verse_unavailable_no_bible">Installera en bibel för att se verser här</string>
+  <string name="widget_verse_unavailable_label_missing">Den här widgetens etikett finns inte längre. Tryck för att välja verser.</string>
+  <string name="widget_verse_unavailable_label_empty">Den här etiketten har inga bibelbokmärken ännu. Tryck för att välja andra verser.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Ingen läsplan är aktiv. Tryck för att välja andra verser.</string>
+  <string name="widget_verse_source_random_whole_bible">Slumpmässig vers</string>
+  <string name="widget_verse_source_random_new_testament">Slumpmässig vers · Nya testamentet</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Slumpmässig vers · Psaltaren &amp; Ordspråksboken</string>
+  <string name="widget_shuffle">Blanda vers</string>
+  <string name="widget_speak_verse">Läs upp vers</string>
+  <string name="widget_verse_config_title">Versvidget</string>
+  <string name="widget_verse_config_source_label">Verser från</string>
+  <string name="widget_verse_config_source_label_option">En etikett</string>
+  <string name="widget_verse_config_source_random">Slumpmässig vers</string>
+  <string name="widget_verse_config_random_whole">Hela bibeln</string>
+  <string name="widget_verse_config_random_nt">Nya testamentet</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psaltaren &amp; Ordspråksboken</string>
+  <string name="widget_verse_config_source_plan">Dagens läsplan</string>
+  <string name="widget_verse_config_changes">Byts</string>
+  <string name="widget_verse_config_daily">Dagligen</string>
+  <string name="widget_verse_config_every_few_hours">Med några timmars mellanrum</string>
+  <string name="widget_verse_config_on_shuffle">Bara när jag trycker på blanda</string>
+  <string name="widget_verse_config_bible">Bibel</string>
+  <string name="widget_verse_config_bible_default">Standard (%s)</string>
+  <string name="widget_verse_config_show_buttons">Visa knapparna för blanda och läs upp</string>
+  <string name="widget_verse_config_show_source">Visa källa och datum</string>
+  <string name="widget_verse_config_add">Lägg till widget</string>
+  <string name="widget_verse_config_save">Spara</string>
+  <string name="widget_verse_source_reading_plan">Dagens läsning</string>
   <string name="speak_status_stopped">Stannad</string>
   <string name="speak_autobookmarking_disabled">Automatisk bokmärkning inaktiverad!</string>
   <string name="system_speak_settings">Öppna systemets text-till-tal-inställningar</string>
@@ -716,6 +768,29 @@ i GT och NT varje dag.
   <string name="install_zip_canceled">Modulinstallation avbruten</string>
   <string name="restore">Återställ</string>
   <string name="import2">Importera</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopia)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Från tillägget %1$s</string>
+  <string name="addon_label_from_module_hint">Öppna tillägget i dokumenthanteraren</string>
+  <string name="addon_label_read_only_note">Den här etiketten, dess bokmärken och dess StudyPad tillhör tillägget och kan inte redigeras. Du kan markera den som favorit, välja hur den här arbetsytan visar den och bokmärka dess verser åt dig själv.</string>
+  <string name="addon_copy_to_my_labels">Kopiera till mina etiketter</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Kopierad till din etikett \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Det här innehållet kommer från tillägget %1$s och kan inte ändras. Använd \"Kopiera till mina etiketter\" för att få en redigerbar kopia.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Det här innehållet kommer från ett tillägg och kan inte ändras. Använd \"Kopiera till mina etiketter\" för att få en redigerbar kopia.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Det gick inte att kopiera etiketten</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d objekt i tilläggssamlingen hoppades över. Använd \"Kopiera till mina etiketter\" på etiketten för att få din egen kopia.</item>
+        <item quantity="other">%1$d objekt i tilläggssamlingen hoppades över. Använd \"Kopiera till mina etiketter\" på etiketten för att få din egen kopia.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" och %2$s andra etiketter/studieblock och %3$s bokmärken</string>
   <!--About-->
@@ -751,6 +826,8 @@ i GT och NT varje dag.
   <string name="doc_type_all">Alla typer</string>
   <string name="doc_type_bible">Bibel</string>
   <string name="doc_type_commentary">Kommentar</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokument</string>
   <string name="doc_type_dictionary">Lexikon</string>
   <string name="doc_type_book">Bok</string>
   <string name="doc_type_map">Karta</string>
@@ -786,6 +863,10 @@ i GT och NT varje dag.
   <string name="crash_recovery_continue">Fortsätt</string>
   <string name="report_error">Skicka rapport</string>
   <string name="error_occurred">Det har skett ett fel</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Appen stoppades vid start</string>
+  <string name="startup_crash_detail">Skicka oss en felrapport så att vi kan åtgärda problemet. Den innehåller felinformation samt uppgifter om din enhet och appversion.</string>
+  <string name="startup_crash_try_again">Försök igen</string>
   <string name="error_occurred_crash_last_time">Senast du använde appen kraschade den. Vi skulle uppskatta om du sände oss en buggrapport för att hjälpa oss åtgärda buggen.</string>
   <string name="error_occurred_with_link">Ett fel har inträffat. %s</string>
   <string name="error_no_content">Innehåll saknas för den markerade versen</string>
@@ -1303,10 +1384,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="reading_progress_new_cycle">Ny cykel</string>
   <string name="reading_progress_previous_cycle">Föregående cykel</string>
   <string name="reading_progress_next_cycle">Nästa cykel</string>
-  <string name="cloud_merge_data">Slå ihop data</string>
-  <string name="cloud_fetch_and_restore_initial">Kopiera från molnet till denna enhet</string>
-  <string name="cloud_create_new">Kopiera från denna enhet till molnet</string>
-  <string name="cloud_disable_sync">Avbryt &amp; inaktivera synkronisering</string>
   <string name="cloud_sync_title">Enhetssynkronisering</string>
   <string name="reset_sync">Logga ut</string>
   <string name="prefs_reset_sync_summary">Inaktivera synkronisering och återställ relaterade inställningar.</string>
@@ -1322,8 +1399,19 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="google_drive_signin_interrupted">Google-inloggningen avbröts. Försök igen.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adressen till din server, t.ex. https://cloud.example.com (https:// läggs till om du utelämnar det)</string>
   <string name="webdav_server_url_hint">Adress till WebDAV-mappen, t.ex. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronisering kräver en säker https://-adress.</string>
+  <string name="sync_waiting_for_pass">Väntar på att den pågående synkroniseringen ska bli klar…</string>
+  <string name="sync_pending_on">Kommer att slås på</string>
+  <string name="sync_pending_off">Kommer att stängas av</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d ändring</item>
+        <item quantity="other">%1$d ändringar</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Verkställ dina synkroniseringsändringar?</string>
+  <string name="sync_checking_cloud_title">Kontrollerar molnet…</string>
+  <string name="sync_checking_cloud_text">Letar efter data som andra enheter redan har synkroniserat.</string>
   <string name="webdav_certificate_title">Servercertifikat</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Obetrott servercertifikat</string>
@@ -1341,7 +1429,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="synchronization_categories">Kategorier för synkronisering</string>
   <string name="sync_general_settings">Info &amp; allmänna inställningar</string>
   <string name="sync_introduction">Introduktion</string>
-  <string name="are_you_sure_merge">Både data på den här enheten och %s i molnet behålls. Där samma objekt har ändrats på båda behålls den nyare ändringen. Den här enhetens data skickas till dina andra enheter.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Inaktiverar molnsynkronisering. Du måste återaktivera manuellt efter återställning.</string>
   <string name="report">Rapportera</string>
@@ -2300,18 +2387,30 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="dialog_dont_apply">Tillämpa inte</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Molnet har redan dina %s. Vad ska hända?</string>
-  <string name="cloud_merge_consequence">Båda sidor behålls; där ett objekt ändrats på båda vinner den nyare ändringen.</string>
-  <string name="cloud_fetch_consequence">Ersätter data på den här enheten med molnkopian.</string>
-  <string name="cloud_create_consequence">Ersätter molnkopian med data på den här enheten.</string>
-  <string name="cloud_disable_consequence">Synkroniseringen förblir av för dessa data.</string>
-  <string name="cloud_merge_lead">Slå ihop dina %s med molnet?</string>
-  <string name="cloud_merge_confirm">Slå ihop</string>
   <string name="cloud_replace_confirm">Ersätt</string>
-  <string name="cloud_replace_local_lead">Ersätta den här enhetens %s med molnkopian?</string>
-  <string name="cloud_replace_local_detail">Det som finns på den här enheten nu skrivs över och kan inte återskapas.</string>
-  <string name="cloud_replace_cloud_lead">Ersätta molnkopian av %s med den här enhetens data?</string>
-  <string name="cloud_replace_cloud_detail">Det som finns i molnet nu skrivs över, och dina andra enheter får den här enhetens data.</string>
+  <string name="cloud_join_plan_title">Molnet har redan data</string>
+  <string name="cloud_join_plan_lead">Välj vad som ska göras för varje kategori.</string>
+  <string name="cloud_join_merge">Slå ihop</string>
+  <string name="cloud_join_merge_detail">Kombinera den här enheten och molnet</string>
+  <string name="cloud_join_fetch">Kopiera från molnet</string>
+  <string name="cloud_join_fetch_detail">Ersätt den här enhetens data</string>
+  <string name="cloud_join_create">Kopiera till molnet</string>
+  <string name="cloud_join_create_detail">Ersätt molnets data</string>
+  <string name="cloud_join_disable">Synkronisera inte</string>
+  <string name="cloud_join_disable_detail">Låt den här kategorin vara avstängd</string>
+  <string name="cloud_join_upload_note">%s: inga data i molnet ännu, de laddas upp från den här enheten.</string>
+  <string name="cloud_join_confirm_title">Starta synkronisering?</string>
+  <string name="cloud_join_confirm_lead">Så här går det till:</string>
+  <string name="cloud_join_outcome_merge">%s: sammanslaget med molnet. Inget går förlorat.</string>
+  <string name="cloud_join_outcome_fetch">%s: data på den här enheten ersätts med molnets.</string>
+  <string name="cloud_join_outcome_create">%s: data i molnet ersätts med den här enhetens.</string>
+  <string name="cloud_join_outcome_disable">%s: förblir avstängt.</string>
+  <string name="cloud_join_outcome_upload">%s: uppladdat från den här enheten.</string>
+  <string name="cloud_join_warning">Ersatta data kan inte återställas. Gör en säkerhetskopia först om du är osäker.</string>
+  <string name="cloud_join_next">Nästa</string>
+  <string name="cloud_join_back">Tillbaka</string>
+  <string name="cloud_join_start">Starta synkronisering</string>
+  <string name="cloud_join_replace">Ersätt och synkronisera</string>
   <string name="sign_in_failed_lead">Det gick inte att logga in på synkroniseringstjänsten.</string>
   <string name="sync_too_old_lead">Den här appen är för gammal för att synkronisera %s.</string>
   <string name="sync_too_old_detail">Molndata använder en nyare version än appen stöder. Synkroniseringen för dem är avstängd tills vidare; uppdatera appen för att slå på den igen.</string>

@@ -124,6 +124,13 @@
   <string name="search_clear">ล้างข้อความค้นหา</string>
   <string name="search_engine_changed_reindex">เครื่องมือค้นหาได้รับการอัปเดตแล้ว ต้องสร้างดัชนีการค้นหาใหม่ ซึ่งอาจใช้เวลาสักครู่</string>
   <string name="search_unsupported_syntax">การค้นหานี้ใช้ไวยากรณ์ที่ไม่รองรับ: %s</string>
+  <string name="search_regex">นิพจน์ปกติ (ทดลอง)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">การค้นหาใช้เวลานานเกินไปและถูกหยุดไว้ ผลลัพธ์ไม่ครบถ้วน ลองใช้นิพจน์ที่ง่ายกว่านี้</string>
+  <string name="search_invalid_regex">นิพจน์ปกติไม่ถูกต้อง: %1$s</string>
+  <string name="search_regex_too_many_wildcards">นิพจน์ปกตินี้มีไวลด์การ์ดแบบไม่จำกัดขอบเขตมากเกินไป (เช่น .* หรือ \\w+) ใช้ให้น้อยลงหรือจำกัดขอบเขตให้แคบลง เช่น .{0,40}</string>
+  <string name="search_regex_nested_repetition">นิพจน์ปกตินี้ทำซ้ำกลุ่มที่มีการทำซ้ำอยู่ภายใน เช่น (a+)+ ซึ่งอาจใช้เวลาเปรียบเทียบนานมากจนแทบไม่สิ้นสุด โปรดเขียนใหม่โดยไม่ซ้อนการทำซ้ำ</string>
+  <string name="search_regex_busy">การค้นหาด้วยนิพจน์ปกติก่อนหน้ายังทำงานอยู่เบื้องหลัง โปรดลองอีกครั้งในอีกสักครู่ หากยังไม่เสร็จ ให้รีสตาร์ทแอป</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -310,6 +317,8 @@
   <string name="hide_window_buttons_summary">ปุ่มหน้าต่างที่แสดงทางด้านขวาของมุมมองพระคัมภีร์จะถูกซ่อน แถบนำทางหน้าต่างที่ด้านล่างยังคงแสดงอยู่ และคุณสามารถเปิดเมนูป็อปอัปหน้าต่างได้โดยกดค้าง</string>
   <string name="hide_bible_reference_overlay_title">ซ่อนการอ้างอิงพระคัมภีร์แบบโปร่งแสง</string>
   <string name="hide_bible_reference_overlay_summary">ไม่แสดงการอ้างอิงพระคัมภีร์แบบกึ่งโปร่งแสงเมื่อแอปอยู่ในโหมดเต็มหน้าจอ</string>
+  <string name="text_under_window_buttons_title">แสดงข้อความใต้ปุ่มหน้าต่าง</string>
+  <string name="text_under_window_buttons_summary">ข้อความพระคัมภีร์จะแสดงจนถึงด้านล่างของหน้าจอ ใต้แถบปุ่มหน้าต่าง เมื่อปิด จะเว้นพื้นที่ว่างไว้ใต้แถบในหน้าต่างด้านล่างที่แถบนั้นครอบคลุม</string>
   <string name="full_screen_hide_buttons_pref_title">ซ่อนแถบปุ่มหน้าต่างในโหมดเต็มหน้าจอ</string>
   <string name="full_screen_hide_buttons_pref_summary">เมื่อสลับไปยังโหมดเต็มหน้าจอ ซ่อนแถบปุ่มหน้าต่างที่ด้านล่างของหน้าจออัตโนมัติ</string>
   <string name="prefs_hide_status_bar_title">ซ่อนแถบสถานะ</string>
@@ -552,7 +561,50 @@
   <string name="sleep_timer_active_at">ตัวจับเวลาหยุด: เหลือ %s นาที</string>
   <string name="speak_next">ถัดไป</string>
   <string name="speak_previous">ก่อนหน้า</string>
+  <string name="widget_play">เล่น</string>
   <string name="widget_toggle_sleep_timer">เปิด/ปิดตัวจับเวลาหยุด</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">อ่านออกเสียง</string>
+  <string name="widget_speak_text_name">อ่านออกเสียงพร้อมข้อความ</string>
+  <string name="widget_listening_list_name">รายการฟัง</string>
+  <string name="widget_verse_name">ข้อพระคัมภีร์</string>
+  <string name="widget_continue_from">ฟังต่อจาก %1$s · %2$s</string>
+  <string name="widget_continue_listening">ฟังต่อ</string>
+  <string name="widget_paused">หยุดชั่วคราว</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">ยังไม่มีบุ๊กมาร์กการอ่านออกเสียง</string>
+  <string name="widget_listening_list_empty_text">บุ๊กมาร์กที่มีป้ายกำกับอ่านออกเสียงจะแสดงที่นี่ เปิดบุ๊กมาร์กอัตโนมัติในการตั้งค่าการอ่านออกเสียง หรือเพิ่มป้ายกำกับนี้ให้บุ๊กมาร์กใดก็ได้</string>
+  <string name="widget_open_app">เปิด AndBible</string>
+  <string name="widget_open_app_to_load">เปิด AndBible เพื่อโหลดข้อพระคัมภีร์</string>
+  <string name="widget_verse_unavailable_no_bible">ติดตั้งพระคัมภีร์เพื่อดูข้อพระคัมภีร์ที่นี่</string>
+  <string name="widget_verse_unavailable_label_missing">ป้ายกำกับของวิดเจ็ตนี้ไม่มีอยู่แล้ว แตะเพื่อเลือกข้อพระคัมภีร์</string>
+  <string name="widget_verse_unavailable_label_empty">ป้ายกำกับนี้ยังไม่มีบุ๊กมาร์กพระคัมภีร์ แตะเพื่อเลือกข้ออื่น</string>
+  <string name="widget_verse_unavailable_no_reading_plan">ไม่มีแผนการอ่านที่ใช้งานอยู่ แตะเพื่อเลือกข้ออื่น</string>
+  <string name="widget_verse_source_random_whole_bible">ข้อสุ่ม</string>
+  <string name="widget_verse_source_random_new_testament">ข้อสุ่ม · พันธสัญญาใหม่</string>
+  <string name="widget_verse_source_random_psalms_proverbs">ข้อสุ่ม · สดุดีและสุภาษิต</string>
+  <string name="widget_shuffle">สุ่มข้อใหม่</string>
+  <string name="widget_speak_verse">อ่านข้อนี้ออกเสียง</string>
+  <string name="widget_verse_config_title">วิดเจ็ตข้อพระคัมภีร์</string>
+  <string name="widget_verse_config_source_label">ข้อพระคัมภีร์จาก</string>
+  <string name="widget_verse_config_source_label_option">ป้ายกำกับ</string>
+  <string name="widget_verse_config_source_random">ข้อสุ่ม</string>
+  <string name="widget_verse_config_random_whole">พระคัมภีร์ทั้งเล่ม</string>
+  <string name="widget_verse_config_random_nt">พันธสัญญาใหม่</string>
+  <string name="widget_verse_config_random_psalms_proverbs">สดุดีและสุภาษิต</string>
+  <string name="widget_verse_config_source_plan">แผนการอ่านของวันนี้</string>
+  <string name="widget_verse_config_changes">เปลี่ยนข้อ</string>
+  <string name="widget_verse_config_daily">ทุกวัน</string>
+  <string name="widget_verse_config_every_few_hours">ทุกๆ สองสามชั่วโมง</string>
+  <string name="widget_verse_config_on_shuffle">เฉพาะเมื่อฉันแตะสุ่มข้อ</string>
+  <string name="widget_verse_config_bible">พระคัมภีร์</string>
+  <string name="widget_verse_config_bible_default">ค่าเริ่มต้น (%s)</string>
+  <string name="widget_verse_config_show_buttons">แสดงปุ่มสุ่มข้อและอ่านออกเสียง</string>
+  <string name="widget_verse_config_show_source">แสดงแหล่งที่มาและวันที่</string>
+  <string name="widget_verse_config_add">เพิ่มวิดเจ็ต</string>
+  <string name="widget_verse_config_save">บันทึก</string>
+  <string name="widget_verse_source_reading_plan">การอ่านของวันนี้</string>
   <string name="speak_status_stopped">หยุดแล้ว</string>
   <string name="speak_autobookmarking_disabled">ที่คั่นหน้าอัตโนมัติถูกปิดใช้งาน!</string>
   <string name="system_speak_settings">เปิดการตั้งค่า TTS ของระบบ</string>
@@ -597,11 +649,25 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>องค์พระผู้เป็นเจ้า</item>
+    <item>พระเจ้า</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>พระยาห์เวห์</item>
+    <item>พระยาห์เวห์</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">เปลี่ยนหนังสือแล้ว</string>
   <string name="speak_chapter_changed">บท</string>
   <string name="speak_first">ที่หนึ่ง</string>
@@ -656,6 +722,28 @@
   <string name="install_zip_canceled">ยกเลิกการติดตั้งโมดูลแล้ว</string>
   <string name="restore">กู้คืน</string>
   <string name="import2">นำเข้า</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (สำเนา)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">จากส่วนเสริม %1$s</string>
+  <string name="addon_label_from_module_hint">เปิดส่วนเสริมในตัวจัดการเอกสาร</string>
+  <string name="addon_label_read_only_note">ป้ายกำกับนี้ บุ๊กมาร์ก และ StudyPad ของป้ายกำกับเป็นของส่วนเสริมและแก้ไขไม่ได้ คุณสามารถทำเครื่องหมายเป็นรายการโปรด เลือกวิธีที่เวิร์กสเปซนี้แสดงป้ายกำกับ และสร้างบุ๊กมาร์กข้อพระคัมภีร์ของป้ายกำกับนี้สำหรับตัวคุณเองได้</string>
+  <string name="addon_copy_to_my_labels">คัดลอกไปยังป้ายกำกับของฉัน</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">คัดลอกไปยังป้ายกำกับ \"%1$s\" ของคุณแล้ว</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">เนื้อหานี้มาจากส่วนเสริม %1$s และแก้ไขไม่ได้ ใช้ \"คัดลอกไปยังป้ายกำกับของฉัน\" เพื่อรับสำเนาที่แก้ไขได้</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">เนื้อหานี้มาจากส่วนเสริมและแก้ไขไม่ได้ ใช้ \"คัดลอกไปยังป้ายกำกับของฉัน\" เพื่อรับสำเนาที่แก้ไขได้</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">ไม่สามารถคัดลอกป้ายกำกับได้</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="other">ข้ามรายการชุดส่วนเสริม %1$d รายการ ใช้ \"คัดลอกไปยังป้ายกำกับของฉัน\" ที่ป้ายกำกับเพื่อรับสำเนาของคุณเอง</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" และ %2$s ป้ายกำกับ/แผ่นบันทึกการศึกษาอื่นๆ และ %3$s ที่คั่นหน้า</string>
   <!--About-->
@@ -690,6 +778,8 @@
   <string name="doc_type_all">ทุกประเภท</string>
   <string name="doc_type_bible">พระคัมภีร์</string>
   <string name="doc_type_commentary">คำอธิบาย</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">เอกสาร</string>
   <string name="doc_type_dictionary">พจนานุกรม</string>
   <string name="doc_type_book">หนังสือ</string>
   <string name="doc_type_map">แผนที่</string>
@@ -725,6 +815,10 @@
   <string name="crash_recovery_continue">ดำเนินการต่อ</string>
   <string name="report_error">ส่งรายงาน</string>
   <string name="error_occurred">เกิดข้อผิดพลาด</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">แอปหยุดทำงานขณะเริ่มต้น</string>
+  <string name="startup_crash_detail">โปรดส่งรายงานข้อผิดพลาดให้เรา เพื่อที่เราจะได้แก้ไขปัญหา รายงานประกอบด้วยรายละเอียดข้อผิดพลาดและข้อมูลเกี่ยวกับอุปกรณ์และเวอร์ชันแอปของคุณ</string>
+  <string name="startup_crash_try_again">ลองอีกครั้ง</string>
   <string name="error_occurred_crash_last_time">ครั้งที่แล้วที่คุณใช้แอปพลิเคชัน แอปขัดข้อง หากคุณส่งรายงานข้อผิดพลาดมาให้เรา จะช่วยให้เราแก้ไขปัญหาได้</string>
   <string name="error_occurred_with_link">เกิดข้อผิดพลาด %s</string>
   <string name="error_no_content">ไม่มีเนื้อหาสำหรับข้อพระคัมภีร์ที่เลือก</string>
@@ -1165,10 +1259,6 @@
   <string name="reading_progress_new_cycle">รอบใหม่</string>
   <string name="reading_progress_previous_cycle">รอบก่อนหน้า</string>
   <string name="reading_progress_next_cycle">รอบถัดไป</string>
-  <string name="cloud_merge_data">รวมข้อมูล</string>
-  <string name="cloud_fetch_and_restore_initial">คัดลอกจากคลาวด์มายังอุปกรณ์นี้</string>
-  <string name="cloud_create_new">คัดลอกจากอุปกรณ์นี้ไปยังคลาวด์</string>
-  <string name="cloud_disable_sync">ยกเลิกและปิดใช้งานการซิงโครไนซ์</string>
   <string name="cloud_sync_title">การซิงโครไนซ์อุปกรณ์</string>
   <string name="reset_sync">ออกจากระบบ</string>
   <string name="prefs_reset_sync_summary">ปิดใช้งานการซิงโครไนซ์และรีเซ็ตการตั้งค่าที่เกี่ยวข้อง</string>
@@ -1184,8 +1274,18 @@
   <string name="google_drive_signin_interrupted">การลงชื่อเข้าใช้ Google ถูกขัดจังหวะ ลองอีกครั้ง</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">ที่อยู่เซิร์ฟเวอร์ของคุณ เช่น https://cloud.example.com (ระบบจะเติม https:// ให้หากคุณไม่ได้ใส่)</string>
   <string name="webdav_server_url_hint">ที่อยู่ของโฟลเดอร์ WebDAV เช่น https://nas.local/dav/ หรือ https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">การซิงค์ต้องใช้ที่อยู่ https:// ที่ปลอดภัย</string>
+  <string name="sync_waiting_for_pass">กำลังรอให้การซิงโครไนซ์ปัจจุบันเสร็จสิ้น…</string>
+  <string name="sync_pending_on">จะถูกเปิด</string>
+  <string name="sync_pending_off">จะถูกปิด</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="other">%1$d การเปลี่ยนแปลง</item>
+    </plurals>
+  <string name="sync_pending_leave_title">นำการเปลี่ยนแปลงการซิงค์ไปใช้หรือไม่?</string>
+  <string name="sync_checking_cloud_title">กำลังตรวจสอบคลาวด์…</string>
+  <string name="sync_checking_cloud_text">กำลังค้นหาข้อมูลที่อุปกรณ์อื่นซิงโครไนซ์ไว้แล้ว</string>
   <string name="webdav_certificate_title">ใบรับรองของเซิร์ฟเวอร์</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">ใบรับรองเซิร์ฟเวอร์ที่ไม่น่าเชื่อถือ</string>
@@ -1203,7 +1303,6 @@
   <string name="synchronization_categories">หมวดหมู่การซิงโครไนซ์</string>
   <string name="sync_general_settings">ข้อมูลและการตั้งค่าทั่วไป</string>
   <string name="sync_introduction">บทนำ</string>
-  <string name="are_you_sure_merge">ทั้งข้อมูลบนอุปกรณ์นี้และ %s บนคลาวด์จะถูกเก็บไว้ หากรายการเดียวกันถูกเปลี่ยนแปลงทั้งสองฝั่ง จะเก็บการเปลี่ยนแปลงที่ใหม่กว่า ข้อมูลของอุปกรณ์นี้จะถูกส่งไปยังอุปกรณ์อื่นของคุณ</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">ปิดใช้งานการซิงโครไนซ์คลาวด์ คุณต้องเปิดใช้งานใหม่ด้วยตนเองหลังจากกู้คืนข้อมูล</string>
   <string name="report">รายงาน</string>
@@ -2153,18 +2252,30 @@
   <string name="dialog_dont_apply">ไม่นำไปใช้</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">คลาวด์มี%sของคุณอยู่แล้ว ควรทำอย่างไร</string>
-  <string name="cloud_merge_consequence">เก็บไว้ทั้งสองฝั่ง หากรายการใดเปลี่ยนแปลงทั้งสองฝั่ง จะใช้การเปลี่ยนแปลงที่ใหม่กว่า</string>
-  <string name="cloud_fetch_consequence">แทนที่ข้อมูลในอุปกรณ์นี้ด้วยสำเนาจากคลาวด์</string>
-  <string name="cloud_create_consequence">แทนที่สำเนาในคลาวด์ด้วยข้อมูลในอุปกรณ์นี้</string>
-  <string name="cloud_disable_consequence">การซิงค์จะยังคงปิดอยู่สำหรับข้อมูลนี้</string>
-  <string name="cloud_merge_lead">รวม%sของคุณกับคลาวด์ไหม</string>
-  <string name="cloud_merge_confirm">รวม</string>
   <string name="cloud_replace_confirm">แทนที่</string>
-  <string name="cloud_replace_local_lead">แทนที่%sในอุปกรณ์นี้ด้วยสำเนาจากคลาวด์ไหม</string>
-  <string name="cloud_replace_local_detail">ข้อมูลที่อยู่ในอุปกรณ์นี้ตอนนี้จะถูกเขียนทับและไม่สามารถกู้คืนได้</string>
-  <string name="cloud_replace_cloud_lead">แทนที่สำเนาของ%sในคลาวด์ด้วยข้อมูลของอุปกรณ์นี้ไหม</string>
-  <string name="cloud_replace_cloud_detail">ข้อมูลที่อยู่ในคลาวด์ตอนนี้จะถูกเขียนทับ และอุปกรณ์อื่นของคุณจะได้รับข้อมูลของอุปกรณ์นี้</string>
+  <string name="cloud_join_plan_title">คลาวด์มีข้อมูลอยู่แล้ว</string>
+  <string name="cloud_join_plan_lead">เลือกสิ่งที่จะทำสำหรับแต่ละหมวดหมู่</string>
+  <string name="cloud_join_merge">รวม</string>
+  <string name="cloud_join_merge_detail">รวมอุปกรณ์นี้และคลาวด์เข้าด้วยกัน</string>
+  <string name="cloud_join_fetch">คัดลอกจากคลาวด์</string>
+  <string name="cloud_join_fetch_detail">แทนที่ข้อมูลของอุปกรณ์นี้</string>
+  <string name="cloud_join_create">คัดลอกไปยังคลาวด์</string>
+  <string name="cloud_join_create_detail">แทนที่ข้อมูลของคลาวด์</string>
+  <string name="cloud_join_disable">ไม่ซิงค์</string>
+  <string name="cloud_join_disable_detail">ปิดหมวดหมู่นี้ไว้</string>
+  <string name="cloud_join_upload_note">%s: ยังไม่มีข้อมูลในคลาวด์ ระบบจะอัปโหลดจากอุปกรณ์นี้</string>
+  <string name="cloud_join_confirm_title">เริ่มการซิงโครไนซ์หรือไม่?</string>
+  <string name="cloud_join_confirm_lead">สิ่งที่จะเกิดขึ้น:</string>
+  <string name="cloud_join_outcome_merge">%s: รวมกับคลาวด์แล้ว ไม่มีอะไรสูญหาย</string>
+  <string name="cloud_join_outcome_fetch">%s: ข้อมูลในอุปกรณ์นี้ถูกแทนที่ด้วยข้อมูลจากคลาวด์</string>
+  <string name="cloud_join_outcome_create">%s: ข้อมูลในคลาวด์ถูกแทนที่ด้วยข้อมูลจากอุปกรณ์นี้</string>
+  <string name="cloud_join_outcome_disable">%s: ยังคงปิดอยู่</string>
+  <string name="cloud_join_outcome_upload">%s: อัปโหลดจากอุปกรณ์นี้แล้ว</string>
+  <string name="cloud_join_warning">ข้อมูลที่ถูกแทนที่จะกู้คืนไม่ได้ หากไม่แน่ใจ ให้สำรองข้อมูลก่อน</string>
+  <string name="cloud_join_next">ถัดไป</string>
+  <string name="cloud_join_back">ย้อนกลับ</string>
+  <string name="cloud_join_start">เริ่มซิงค์</string>
+  <string name="cloud_join_replace">แทนที่และซิงค์</string>
   <string name="sign_in_failed_lead">ไม่สามารถลงชื่อเข้าใช้บริการซิงค์ได้</string>
   <string name="sync_too_old_lead">แอปนี้เก่าเกินไปที่จะซิงค์%s</string>
   <string name="sync_too_old_detail">ข้อมูลในคลาวด์ใช้เวอร์ชันที่ใหม่กว่าที่แอปนี้รองรับ การซิงค์ข้อมูลนี้ถูกปิดไว้ชั่วคราว อัปเดตแอปเพื่อเปิดใหม่อีกครั้ง</string>

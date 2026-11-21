@@ -46,6 +46,8 @@ emptyStudyPad: แผ่นบันทึกการศึกษายัง�
 doYouWantToDeleteEntry: ลบรายการแผ่นบันทึกการศึกษานี้?
 removeStudyPadConfirmationTitle: ลบรายการแผ่นบันทึกการศึกษา?
 dragHelp: ลากเพื่อจัดเรียงใหม่
+addonBookmarkThisVerse: สร้างบุ๊กมาร์กข้อนี้
+addonReadOnly: เนื้อหานี้มาจากชุดส่วนเสริมและเป็นแบบอ่านอย่างเดียว ใช้ “คัดลอกไปยังป้ายกำกับของฉัน” เพื่อรับสำเนาที่แก้ไขได้
 openAll: เปิดการอ้างอิงทั้งหมด
 editBookmarkPlaceholder: แตะเพื่อแก้ไขบันทึกของฉันสำหรับที่คั่นหน้านี้
 onlyLabel: เฉพาะป้ายกำกับ

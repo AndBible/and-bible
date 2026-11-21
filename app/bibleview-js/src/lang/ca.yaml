@@ -46,6 +46,8 @@ emptyStudyPad: "Bloc d'estudi buit. Comença afegint entrades de text aquí o cr
 doYouWantToDeleteEntry: "Vols suprimir aquesta entrada del bloc d'estudi?"
 removeStudyPadConfirmationTitle: "Elimina l'entrada del bloc d'estudi?"
 dragHelp: Arrossega per reordenar
+addonBookmarkThisVerse: Afegeix un marcador a aquest verset
+addonReadOnly: "Aquest contingut prové d'una col·lecció d'addició i és de només lectura. Usa «Copia a les meves etiquetes» per obtenir una còpia editable."
 openAll: Obre totes les referències
 editBookmarkPlaceholder: "Toca per editar les meves notes d'aquest marcador"
 onlyLabel: "Només l'etiqueta"

@@ -124,6 +124,13 @@
   <string name="search_clear">వెతుకు పాఠ్యాన్ని తుడిచివేయండి</string>
   <string name="search_engine_changed_reindex">వెతుకు ఇంజిన్ అప్‌డేట్ చేయబడింది. వెతుకు సూచికను మళ్లీ సృష్టించాలి; దీనికి కొంత సమయం పట్టవచ్చు.</string>
   <string name="search_unsupported_syntax">ఈ వెతుకులాట మద్దతు లేని సింటాక్స్‌ను ఉపయోగిస్తోంది: %s</string>
+  <string name="search_regex">రెగ్యులర్ ఎక్స్‌ప్రెషన్ (ప్రయోగాత్మకం)</string>
+  <string name="search_regex_summary">రెజెక్స్</string>
+  <string name="search_results_truncated">శోధనకు చాలా సమయం పట్టడంతో ఆపివేయబడింది. ఫలితాలు అసంపూర్ణం; సరళమైన ఎక్స్‌ప్రెషన్‌ను ప్రయత్నించండి.</string>
+  <string name="search_invalid_regex">చెల్లని రెగ్యులర్ ఎక్స్‌ప్రెషన్: %1$s</string>
+  <string name="search_regex_too_many_wildcards">ఈ రెగ్యులర్ ఎక్స్‌ప్రెషన్‌లో చాలా ఎక్కువ అపరిమిత వైల్డ్‌కార్డ్‌లు ఉన్నాయి (.* లేదా \\w+ వంటివి). తక్కువగా వాడండి లేదా వాటిని పరిమితం చేయండి, ఉదాహరణకు .{0,40}.</string>
+  <string name="search_regex_nested_repetition">ఈ రెగ్యులర్ ఎక్స్‌ప్రెషన్ ఇప్పటికే పునరావృతం ఉన్న సమూహాన్ని మళ్లీ పునరావృతం చేస్తోంది, ఉదాహరణకు (a+)+. అది సరిపోల్చడానికి దాదాపు అనంతమైన సమయం పట్టవచ్చు. పునరావృతాలను లోపల లోపల పెట్టకుండా తిరిగి రాయండి.</string>
+  <string name="search_regex_busy">ముందటి రెగ్యులర్-ఎక్స్‌ప్రెషన్ శోధన ఇంకా నేపథ్యంలో నడుస్తోంది. కొద్దిసేపటి తర్వాత మళ్లీ ప్రయత్నించండి; పూర్తికాకపోతే యాప్‌ను రీస్టార్ట్ చేయండి.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -313,6 +320,8 @@
   <string name="hide_window_buttons_summary">బైబిల్ వీక్షణల కుడి వైపున ప్రదర్శించబడే విండో బటన్‌లు దాచబడ్డాయి. దిగువన విండో నావిగేషన్ బార్ ఇప్పటికీ ప్రదర్శించబడుతుంది మరియు మీరు వాటిని ఎక్కువసేపు క్లిక్ చేయడం ద్వారా విండో పాప్అప్ మెనుని తెరవవచ్చు.</string>
   <string name="hide_bible_reference_overlay_title">బైబిల్ సూచన అతివ్యాప్తిని దాచండి</string>
   <string name="hide_bible_reference_overlay_summary">యాప్ ఫుల్‌స్క్రీన్ మోడ్‌లో ఉన్నప్పుడు పక్షిక పారదర్శక బైబిల్ రిఫరెన్స్ ఓవర్‌లేను చూపవద్దు</string>
+  <string name="text_under_window_buttons_title">విండో బటన్ల కింద వచనాన్ని చూపించు</string>
+  <string name="text_under_window_buttons_summary">బైబిలు వచనం విండో బటన్ బార్ కింద, స్క్రీన్ అడుగు వరకు విస్తరిస్తుంది. ఆఫ్ చేస్తే, అది విస్తరించే దిగువ విండోలలో బార్ కింద ఒక పట్టీ ఖాళీగా ఉంచబడుతుంది.</string>
   <string name="full_screen_hide_buttons_pref_title">పూర్తి స్క్రీన్‌లో విండో బటన్ బార్‌ను దాచండి</string>
   <string name="full_screen_hide_buttons_pref_summary">పూర్తి స్క్రీన్ మోడ్‌కు మారుతున్నప్పుడు, స్క్రీన్ దిగువన ఉన్న విండో బటన్ బార్‌ను స్వయంచాలకంగా దాచండి</string>
   <string name="prefs_hide_status_bar_title">స్టేటస్ బార్‌ను దాచు</string>
@@ -572,7 +581,50 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="sleep_timer_active_at">స్లీప్ టైమర్: %s నిమిషాలు మిగిలి ఉన్నాయి.</string>
   <string name="speak_next">తరువాతి విషయానికి</string>
   <string name="speak_previous">వెనుకటి విషయానికి</string>
+  <string name="widget_play">ప్లే</string>
   <string name="widget_toggle_sleep_timer">స్లీప్ టైమర్ ఉపయోగించండి</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">మాట్లాడు</string>
+  <string name="widget_speak_text_name">వచనంతో మాట్లాడు</string>
+  <string name="widget_listening_list_name">వినే జాబితా</string>
+  <string name="widget_verse_name">వచనం</string>
+  <string name="widget_continue_from">%1$s · %2$s నుండి కొనసాగించు</string>
+  <string name="widget_continue_listening">వినడం కొనసాగించు</string>
+  <string name="widget_paused">పాజ్ చేయబడింది</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">ఇంకా స్పీక్ బుక్‌మార్క్‌లు లేవు</string>
+  <string name="widget_listening_list_empty_text">స్పీక్ లేబుల్ ఉన్న బుక్‌మార్క్‌లు ఇక్కడ కనిపిస్తాయి. స్పీక్ సెట్టింగులలో ఆటోమేటిక్ బుక్‌మార్క్‌లను ఆన్ చేయండి, లేదా ఏదైనా బుక్‌మార్క్‌కు ఆ లేబుల్‌ను జోడించండి.</string>
+  <string name="widget_open_app">AndBible తెరువు</string>
+  <string name="widget_open_app_to_load">వచనాలను లోడ్ చేయడానికి AndBible తెరవండి</string>
+  <string name="widget_verse_unavailable_no_bible">ఇక్కడ వచనాలను చూడడానికి బైబిలును ఇన్‌స్టాల్ చేయండి</string>
+  <string name="widget_verse_unavailable_label_missing">ఈ విడ్జెట్ లేబుల్ ఇక లేదు. వచనాలను ఎంచుకోవడానికి తట్టండి.</string>
+  <string name="widget_verse_unavailable_label_empty">ఈ లేబుల్‌కు ఇంకా బైబిలు బుక్‌మార్క్‌లు లేవు. ఇతర వచనాలను ఎంచుకోవడానికి తట్టండి.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">ఏ పఠన ప్రణాళికా సక్రియంగా లేదు. ఇతర వచనాలను ఎంచుకోవడానికి తట్టండి.</string>
+  <string name="widget_verse_source_random_whole_bible">యాదృచ్ఛిక వచనం</string>
+  <string name="widget_verse_source_random_new_testament">యాదృచ్ఛిక వచనం · క్రొత్త నిబంధన</string>
+  <string name="widget_verse_source_random_psalms_proverbs">యాదృచ్ఛిక వచనం · కీర్తనలు &amp; సామెతలు</string>
+  <string name="widget_shuffle">వచనాన్ని షఫుల్ చేయి</string>
+  <string name="widget_speak_verse">వచనాన్ని చదివి వినిపించు</string>
+  <string name="widget_verse_config_title">వచన విడ్జెట్</string>
+  <string name="widget_verse_config_source_label">వచనాల మూలం</string>
+  <string name="widget_verse_config_source_label_option">ఒక లేబుల్</string>
+  <string name="widget_verse_config_source_random">యాదృచ్ఛిక వచనం</string>
+  <string name="widget_verse_config_random_whole">మొత్తం బైబిలు</string>
+  <string name="widget_verse_config_random_nt">క్రొత్త నిబంధన</string>
+  <string name="widget_verse_config_random_psalms_proverbs">కీర్తనలు &amp; సామెతలు</string>
+  <string name="widget_verse_config_source_plan">నేటి పఠన ప్రణాళిక</string>
+  <string name="widget_verse_config_changes">మారుతుంది</string>
+  <string name="widget_verse_config_daily">రోజూ</string>
+  <string name="widget_verse_config_every_few_hours">ప్రతి కొన్ని గంటలకు</string>
+  <string name="widget_verse_config_on_shuffle">నేను షఫుల్ తట్టినప్పుడు మాత్రమే</string>
+  <string name="widget_verse_config_bible">బైబిలు</string>
+  <string name="widget_verse_config_bible_default">డిఫాల్ట్ (%s)</string>
+  <string name="widget_verse_config_show_buttons">షఫుల్, స్పీక్ బటన్లను చూపించు</string>
+  <string name="widget_verse_config_show_source">మూలం, తేదీని చూపించు</string>
+  <string name="widget_verse_config_add">విడ్జెట్‌ను జోడించు</string>
+  <string name="widget_verse_config_save">సేవ్ చేయి</string>
+  <string name="widget_verse_source_reading_plan">నేటి పఠనం</string>
   <string name="speak_status_stopped">ఆగిపోయింది</string>
   <string name="speak_autobookmarking_disabled">ఆటోబుక్‌మార్కింగ్ నిలిపివేయబడింది!</string>
   <string name="system_speak_settings">సిస్టమ్ TTS సెట్టింగ్‌లను తెరవండి</string>
@@ -706,6 +758,29 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="install_zip_canceled">మాడ్యూల్ ఇన్‌స్టాల్ రద్దు చేయబడింది</string>
   <string name="restore">పునరుద్ధరించు</string>
   <string name="import2">దిగుమతి</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (కాపీ)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">యాడ్-ఆన్ %1$s నుండి</string>
+  <string name="addon_label_from_module_hint">యాడ్-ఆన్‌ను డాక్యుమెంట్ మేనేజర్‌లో తెరవండి</string>
+  <string name="addon_label_read_only_note">ఈ లేబుల్, దాని బుక్‌మార్క్‌లు, దాని స్టడీప్యాడ్ యాడ్-ఆన్‌కు చెందినవి, వాటిని సవరించలేరు. మీరు దానిని ఇష్టమైనదిగా గుర్తించవచ్చు, ఈ వర్క్‌స్పేస్ దానిని ఎలా చూపాలో ఎంచుకోవచ్చు, దాని వచనాలకు మీ కోసం బుక్‌మార్క్ చేసుకోవచ్చు.</string>
+  <string name="addon_copy_to_my_labels">నా లేబుల్‌లకు కాపీ చేయి</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">మీ లేబుల్ \"%1$s\"కు కాపీ చేయబడింది</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">ఈ కంటెంట్ యాడ్-ఆన్ %1$s నుండి వచ్చింది, దీనిని మార్చలేరు. సవరించగల కాపీ కోసం \"నా లేబుల్‌లకు కాపీ చేయి\" ఉపయోగించండి.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">ఈ కంటెంట్ ఒక యాడ్-ఆన్ నుండి వచ్చింది, దీనిని మార్చలేరు. సవరించగల కాపీ కోసం \"నా లేబుల్‌లకు కాపీ చేయి\" ఉపయోగించండి.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">లేబుల్‌ను కాపీ చేయలేకపోయాము</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d యాడ్-ఆన్ సేకరణ అంశం దాటవేయబడింది. మీ స్వంత కాపీ కోసం లేబుల్‌పై \"నా లేబుల్‌లకు కాపీ చేయి\" ఉపయోగించండి.</item>
+        <item quantity="other">%1$d యాడ్-ఆన్ సేకరణ అంశాలు దాటవేయబడ్డాయి. మీ స్వంత కాపీ కోసం లేబుల్‌పై \"నా లేబుల్‌లకు కాపీ చేయి\" ఉపయోగించండి.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" మరియు %2$s ఇతర లేబుల్(లు) / స్టడీప్యాడ్(లు) మరియు %3$s బుక్‌మార్క్‌లు</string>
   <!--About-->
@@ -740,6 +815,8 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="doc_type_all">అన్ని రకాలు</string>
   <string name="doc_type_bible">బైబిలు</string>
   <string name="doc_type_commentary">వ్యాఖ్యానము</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">డాక్యుమెంట్లు</string>
   <string name="doc_type_dictionary">నిఘంటువు</string>
   <string name="doc_type_book">పుస్తకము</string>
   <string name="doc_type_map">పటము</string>
@@ -775,6 +852,10 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="crash_recovery_continue">కొనసాగించండి</string>
   <string name="report_error">నివేదికను పంపు</string>
   <string name="error_occurred">ఒక తప్పు జరిగింది</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">ప్రారంభమవుతుండగా యాప్ ఆగిపోయింది</string>
+  <string name="startup_crash_detail">సమస్యను సరిచేయడానికి దయచేసి మాకు ఎర్రర్ నివేదికను పంపండి. అందులో ఎర్రర్ వివరాలు, మీ పరికరం, యాప్ వెర్షన్ గురించిన సమాచారం ఉంటాయి.</string>
+  <string name="startup_crash_try_again">మళ్లీ ప్రయత్నించు</string>
   <string name="error_occurred_crash_last_time">చివరిసారి మీరు అప్లికేషన్‌ను ఉపయోగించినప్పుడు, అది క్రాష్ అయింది. బగ్‌ని పరిష్కరించడంలో మాకు సహాయం చేయడానికి, మీరు మాకు బగ్ నివేదికను పంపితే మేము అభినందిస్తాము.</string>
   <string name="error_occurred_with_link">An error has occurred.  %s</string>
   <string name="error_no_content">ఎంపిక చేసిన వచనానికి కాంటెంట్ లేదు</string>
@@ -1276,10 +1357,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="reading_progress_new_cycle">కొత్త సైకిల్</string>
   <string name="reading_progress_previous_cycle">మునుపటి సైకిల్</string>
   <string name="reading_progress_next_cycle">తదుపరి సైకిల్</string>
-  <string name="cloud_merge_data">డేటాను విలీనం చేయండి</string>
-  <string name="cloud_fetch_and_restore_initial">క్లౌడ్ నుండి ఈ పరికరానికి కాపీ చేయండి</string>
-  <string name="cloud_create_new">ఈ పరికరం నుండి క్లౌడ్‌కి కాపీ చేయండి</string>
-  <string name="cloud_disable_sync">రద్దు &amp; సమకాలీకరణను నిలిపివేయండి</string>
   <string name="cloud_sync_title">పరికర సమకాలీకరణ</string>
   <string name="reset_sync">సైన్ అవుట్ చేయండి</string>
   <string name="prefs_reset_sync_summary">సమకాలీకరణను నిలిపివేయండి మరియు సంబంధిత సెట్టింగ్‌లను రీసెట్ చేయండి.</string>
@@ -1295,8 +1372,19 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="google_drive_signin_interrupted">Google సైన్-ఇన్ అంతరాయం కలిగింది. మళ్లీ ప్రయత్నించండి.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">మీ సర్వర్ చిరునామా, ఉదా. https://cloud.example.com (వదిలేస్తే https:// జోడించబడుతుంది)</string>
   <string name="webdav_server_url_hint">WebDAV ఫోల్డర్ చిరునామా, ఉదా. https://nas.local/dav/ లేదా https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">సింక్ కోసం సురక్షితమైన https:// చిరునామా అవసరం.</string>
+  <string name="sync_waiting_for_pass">ప్రస్తుత సమకాలీకరణ పూర్తయ్యే వరకు వేచి ఉంది…</string>
+  <string name="sync_pending_on">ఆన్ చేయబడుతుంది</string>
+  <string name="sync_pending_off">ఆఫ్ చేయబడుతుంది</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d మార్పు</item>
+        <item quantity="other">%1$d మార్పులు</item>
+    </plurals>
+  <string name="sync_pending_leave_title">మీ సమకాలీకరణ మార్పులను వర్తింపజేయాలా?</string>
+  <string name="sync_checking_cloud_title">క్లౌడ్‌ను తనిఖీ చేస్తోంది…</string>
+  <string name="sync_checking_cloud_text">ఇతర పరికరాలు ఇప్పటికే సమకాలీకరించిన డేటా కోసం చూస్తోంది.</string>
   <string name="webdav_certificate_title">సర్వర్ సర్టిఫికెట్</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">నమ్మదగని సర్వర్ సర్టిఫికెట్</string>
@@ -1314,7 +1402,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="synchronization_categories">సమకాలీకరణ వర్గాలు</string>
   <string name="sync_general_settings">సమాచారం &amp; సాధారణ సెట్టింగులు</string>
   <string name="sync_introduction">పరిచయం</string>
-  <string name="are_you_sure_merge">ఈ పరికరంలోని డేటా మరియు క్లౌడ్‌లోని %s రెండూ ఉంచబడతాయి. ఒకే అంశం రెండింటిలోనూ మార్చబడిన చోట, కొత్త మార్పు ఉంచబడుతుంది. ఈ పరికరం డేటా మీ ఇతర పరికరాలకు పంపబడుతుంది.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">క్లౌడ్ సమకాలీకరణను నిలిపివేస్తోంది. మీరు పునరుద్ధరించిన తర్వాత మాన్యువల్‌గా మళ్లీ ప్రారంభించాలి.</string>
   <string name="report">నివేదించండి</string>
@@ -2273,18 +2360,30 @@ Don\'t show this message again
   <string name="dialog_dont_apply">వర్తింపజేయవద్దు</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">క్లౌడ్‌లో ఇప్పటికే మీ %s ఉన్నాయి. ఏమి జరగాలి?</string>
-  <string name="cloud_merge_consequence">రెండు వైపులా ఉంచబడతాయి; ఒక అంశం రెండింటిలోనూ మారితే, కొత్త మార్పు నెగ్గుతుంది.</string>
-  <string name="cloud_fetch_consequence">ఈ పరికరంలోని డేటాను క్లౌడ్ కాపీతో భర్తీ చేస్తుంది.</string>
-  <string name="cloud_create_consequence">క్లౌడ్ కాపీని ఈ పరికరంలోని డేటాతో భర్తీ చేస్తుంది.</string>
-  <string name="cloud_disable_consequence">ఈ డేటాకు సింక్ ఆఫ్‌లోనే ఉంటుంది.</string>
-  <string name="cloud_merge_lead">మీ %sను క్లౌడ్‌తో విలీనం చేయాలా?</string>
-  <string name="cloud_merge_confirm">విలీనం చేయి</string>
   <string name="cloud_replace_confirm">భర్తీ చేయి</string>
-  <string name="cloud_replace_local_lead">ఈ పరికరంలోని %sను క్లౌడ్ కాపీతో భర్తీ చేయాలా?</string>
-  <string name="cloud_replace_local_detail">ఈ పరికరంలో ఇప్పుడు ఉన్నది ఓవర్‌రైట్ చేయబడుతుంది మరియు తిరిగి పొందలేరు.</string>
-  <string name="cloud_replace_cloud_lead">%s యొక్క క్లౌడ్ కాపీని ఈ పరికరంలోని డేటాతో భర్తీ చేయాలా?</string>
-  <string name="cloud_replace_cloud_detail">క్లౌడ్‌లో ఇప్పుడు ఉన్నది ఓవర్‌రైట్ చేయబడుతుంది, మీ ఇతర పరికరాలు ఈ పరికరం డేటాను అందుకుంటాయి.</string>
+  <string name="cloud_join_plan_title">క్లౌడ్‌లో ఇప్పటికే డేటా ఉంది</string>
+  <string name="cloud_join_plan_lead">ప్రతి వర్గానికి ఏమి చేయాలో ఎంచుకోండి.</string>
+  <string name="cloud_join_merge">విలీనం చేయి</string>
+  <string name="cloud_join_merge_detail">ఈ పరికరాన్ని, క్లౌడ్‌ను కలపండి</string>
+  <string name="cloud_join_fetch">క్లౌడ్ నుండి కాపీ చేయి</string>
+  <string name="cloud_join_fetch_detail">ఈ పరికరంలోని డేటాను భర్తీ చేయండి</string>
+  <string name="cloud_join_create">క్లౌడ్‌కు కాపీ చేయి</string>
+  <string name="cloud_join_create_detail">క్లౌడ్‌లోని డేటాను భర్తీ చేయండి</string>
+  <string name="cloud_join_disable">సమకాలీకరించవద్దు</string>
+  <string name="cloud_join_disable_detail">ఈ వర్గాన్ని ఆఫ్‌లో ఉంచండి</string>
+  <string name="cloud_join_upload_note">%s: క్లౌడ్‌లో ఇంకా డేటా లేదు, అది ఈ పరికరం నుండి అప్‌లోడ్ చేయబడుతుంది.</string>
+  <string name="cloud_join_confirm_title">సమకాలీకరణను ప్రారంభించాలా?</string>
+  <string name="cloud_join_confirm_lead">జరగబోయేది ఇది:</string>
+  <string name="cloud_join_outcome_merge">%s: క్లౌడ్‌తో విలీనం చేయబడింది. ఏదీ కోల్పోదు.</string>
+  <string name="cloud_join_outcome_fetch">%s: ఈ పరికరంలోని డేటా క్లౌడ్ డేటాతో భర్తీ చేయబడుతుంది.</string>
+  <string name="cloud_join_outcome_create">%s: క్లౌడ్‌లోని డేటా ఈ పరికరం డేటాతో భర్తీ చేయబడుతుంది.</string>
+  <string name="cloud_join_outcome_disable">%s: ఆఫ్‌లోనే ఉంటుంది.</string>
+  <string name="cloud_join_outcome_upload">%s: ఈ పరికరం నుండి అప్‌లోడ్ చేయబడింది.</string>
+  <string name="cloud_join_warning">భర్తీ చేసిన డేటాను తిరిగి పొందలేరు. ఖచ్చితంగా తెలియకపోతే ముందుగా బ్యాకప్ తీసుకోండి.</string>
+  <string name="cloud_join_next">తదుపరి</string>
+  <string name="cloud_join_back">వెనుకకు</string>
+  <string name="cloud_join_start">సమకాలీకరణ ప్రారంభించు</string>
+  <string name="cloud_join_replace">భర్తీ చేసి సమకాలీకరించు</string>
   <string name="sign_in_failed_lead">సింక్ సేవకు సైన్ ఇన్ చేయలేకపోయాము.</string>
   <string name="sync_too_old_lead">%sను సింక్ చేయడానికి ఈ యాప్ చాలా పాతది.</string>
   <string name="sync_too_old_detail">క్లౌడ్ డేటా ఈ యాప్ మద్దతిచ్చే దానికంటే కొత్త వెర్షన్‌ను ఉపయోగిస్తోంది. దాని సింక్ ప్రస్తుతానికి ఆఫ్ చేయబడింది; మళ్లీ ఆన్ చేయడానికి యాప్‌ను అప్‌డేట్ చేయండి.</string>

@@ -124,6 +124,13 @@
   <string name="search_clear">تلاش کا متن صاف کریں</string>
   <string name="search_engine_changed_reindex">تلاش کا انجن اپ ڈیٹ ہو گیا ہے۔ تلاش کا انڈیکس دوبارہ بنانا ہوگا؛ اس میں کچھ وقت لگ سکتا ہے۔</string>
   <string name="search_unsupported_syntax">یہ تلاش ایسا نحو استعمال کرتی ہے جو معاون نہیں ہے: %s</string>
+  <string name="search_regex">ریگولر ایکسپریشن (تجرباتی)</string>
+  <string name="search_regex_summary">ریگیکس</string>
+  <string name="search_results_truncated">تلاش میں بہت زیادہ وقت لگا اور اسے روک دیا گیا۔ نتائج نامکمل ہیں؛ کوئی آسان ایکسپریشن آزمائیں۔</string>
+  <string name="search_invalid_regex">غلط ریگولر ایکسپریشن: %1$s</string>
+  <string name="search_regex_too_many_wildcards">اس ریگولر ایکسپریشن میں بہت زیادہ کھلے وائلڈ کارڈز ہیں (جیسے .* یا \\w+)۔ کم استعمال کریں، یا انہیں محدود کریں، مثلاً .{0,40}۔</string>
+  <string name="search_regex_nested_repetition">یہ ریگولر ایکسپریشن ایسے گروپ کو دہراتا ہے جس میں خود بھی تکرار ہے، جیسے (a+)+۔ اس کا میل کھانے میں عملاً بہت زیادہ وقت لگ سکتا ہے۔ اسے تکرار کو تہہ در تہہ رکھے بغیر دوبارہ لکھیں۔</string>
+  <string name="search_regex_busy">پچھلی ریگولر ایکسپریشن تلاش ابھی پس منظر میں چل رہی ہے۔ ذرا دیر بعد دوبارہ کوشش کریں؛ اگر وہ ختم نہ ہو تو ایپ دوبارہ شروع کریں۔</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -312,6 +319,8 @@
   <string name="hide_window_buttons_summary">بائبل ویوز کے دائیں جانب دکھائے جانے والے ونڈو بٹن چھپا دیے جائیں گے۔ نیچے موجود ونڈو نیویگیشن بار اب بھی دکھائی دے گا اور آپ انہیں طویل کلک کر کے ونڈو پاپ اپ مینو کھول سکتے ہیں۔</string>
   <string name="hide_bible_reference_overlay_title">بائبل حوالہ اوورلے چھپائیں</string>
   <string name="hide_bible_reference_overlay_summary">جب ایپ فل اسکرین موڈ میں ہو تو نیم شفاف بائبل حوالہ اوورلے نہ دکھائیں</string>
+  <string name="text_under_window_buttons_title">ونڈو بٹنوں کے نیچے متن دکھائیں</string>
+  <string name="text_under_window_buttons_summary">بائبل کا متن ونڈو بٹن بار کے نیچے سے ہوتا ہوا اسکرین کے آخر تک جاتا ہے۔ بند ہونے پر، نچلی ونڈوز میں جہاں بار پھیلی ہو وہاں اس کے نیچے ایک پٹی خالی رکھی جاتی ہے۔</string>
   <string name="full_screen_hide_buttons_pref_title">فل اسکرین میں ونڈو بٹن بار چھپائیں</string>
   <string name="full_screen_hide_buttons_pref_summary">فل اسکرین موڈ پر سوئچ کرتے وقت، اسکرین کے نیچے موجود ونڈو بٹن بار خودبخود چھپائیں</string>
   <string name="prefs_hide_status_bar_title">سٹیٹس بار چھپائیں</string>
@@ -554,7 +563,50 @@
   <string name="sleep_timer_active_at">نیند ٹائمر: %s منٹ باقی۔</string>
   <string name="speak_next">اگلا</string>
   <string name="speak_previous">پچھلا</string>
+  <string name="widget_play">چلائیں</string>
   <string name="widget_toggle_sleep_timer">نیند ٹائمر ٹوگل کریں</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">بولیں</string>
+  <string name="widget_speak_text_name">متن کے ساتھ بولیں</string>
+  <string name="widget_listening_list_name">سننے کی فہرست</string>
+  <string name="widget_verse_name">آیت</string>
+  <string name="widget_continue_from">%1$s · %2$s سے جاری رکھیں</string>
+  <string name="widget_continue_listening">سننا جاری رکھیں</string>
+  <string name="widget_paused">موقوف</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">ابھی کوئی سپیک بک مارک نہیں</string>
+  <string name="widget_listening_list_empty_text">سپیک لیبل والے بک مارکس یہاں نظر آتے ہیں۔ سپیک سیٹنگز میں خودکار بک مارکس آن کریں، یا کسی بھی بک مارک میں لیبل شامل کریں۔</string>
+  <string name="widget_open_app">اینڈبائبل کھولیں</string>
+  <string name="widget_open_app_to_load">آیات لوڈ کرنے کے لیے اینڈبائبل کھولیں</string>
+  <string name="widget_verse_unavailable_no_bible">یہاں آیات دیکھنے کے لیے کوئی بائبل انسٹال کریں</string>
+  <string name="widget_verse_unavailable_label_missing">اس ویجٹ کا لیبل اب موجود نہیں۔ آیات منتخب کرنے کے لیے تھپتھپائیں۔</string>
+  <string name="widget_verse_unavailable_label_empty">اس لیبل میں ابھی کوئی بائبل بک مارک نہیں۔ دوسری آیات منتخب کرنے کے لیے تھپتھپائیں۔</string>
+  <string name="widget_verse_unavailable_no_reading_plan">کوئی مطالعہ منصوبہ فعال نہیں۔ دوسری آیات منتخب کرنے کے لیے تھپتھپائیں۔</string>
+  <string name="widget_verse_source_random_whole_bible">بے ترتیب آیت</string>
+  <string name="widget_verse_source_random_new_testament">بے ترتیب آیت · نیا عہد نامہ</string>
+  <string name="widget_verse_source_random_psalms_proverbs">بے ترتیب آیت · زبور اور امثال</string>
+  <string name="widget_shuffle">آیت بدلیں</string>
+  <string name="widget_speak_verse">آیت بولیں</string>
+  <string name="widget_verse_config_title">آیت ویجٹ</string>
+  <string name="widget_verse_config_source_label">آیات کا ماخذ</string>
+  <string name="widget_verse_config_source_label_option">ایک لیبل</string>
+  <string name="widget_verse_config_source_random">بے ترتیب آیت</string>
+  <string name="widget_verse_config_random_whole">پوری بائبل</string>
+  <string name="widget_verse_config_random_nt">نیا عہد نامہ</string>
+  <string name="widget_verse_config_random_psalms_proverbs">زبور اور امثال</string>
+  <string name="widget_verse_config_source_plan">آج کا مطالعہ منصوبہ</string>
+  <string name="widget_verse_config_changes">تبدیلی</string>
+  <string name="widget_verse_config_daily">روزانہ</string>
+  <string name="widget_verse_config_every_few_hours">ہر چند گھنٹوں بعد</string>
+  <string name="widget_verse_config_on_shuffle">صرف جب میں شفل تھپتھپاؤں</string>
+  <string name="widget_verse_config_bible">بائبل</string>
+  <string name="widget_verse_config_bible_default">ڈیفالٹ (%s)</string>
+  <string name="widget_verse_config_show_buttons">شفل اور سپیک بٹن دکھائیں</string>
+  <string name="widget_verse_config_show_source">ماخذ اور تاریخ دکھائیں</string>
+  <string name="widget_verse_config_add">ویجٹ شامل کریں</string>
+  <string name="widget_verse_config_save">محفوظ کریں</string>
+  <string name="widget_verse_source_reading_plan">آج کا مطالعہ</string>
   <string name="speak_status_stopped">رک گیا</string>
   <string name="speak_autobookmarking_disabled">خودکار بک مارکنگ غیر فعال ہے!</string>
   <string name="system_speak_settings">سسٹم TTS ترتیبات کھولیں</string>
@@ -599,11 +651,25 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>خداوند</item>
+    <item>خدا</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>یہوواہ</item>
+    <item>یہوواہ</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">کتاب بدل گئی۔</string>
   <string name="speak_chapter_changed">باب</string>
   <string name="speak_first">پہلا</string>
@@ -658,6 +724,29 @@
   <string name="install_zip_canceled">ماڈیول انسٹال منسوخ ہو گئی</string>
   <string name="restore">بحال کریں</string>
   <string name="import2">درآمد کریں</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (کاپی)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">ایڈ آن %1$s سے</string>
+  <string name="addon_label_from_module_hint">ایڈ آن کو دستاویزات کے مینیجر میں کھولیں</string>
+  <string name="addon_label_read_only_note">یہ لیبل، اس کے بک مارکس اور اس کا اسٹڈی پیڈ ایڈ آن کے ہیں اور ان میں ترمیم نہیں ہو سکتی۔ آپ اسے پسندیدہ بنا سکتے ہیں، منتخب کر سکتے ہیں کہ یہ ورک اسپیس اسے کیسے دکھائے، اور اس کی آیات اپنے لیے بک مارک کر سکتے ہیں۔</string>
+  <string name="addon_copy_to_my_labels">میرے لیبلز میں کاپی کریں</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">آپ کے لیبل \"%1$s\" میں کاپی ہو گیا</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">یہ مواد ایڈ آن %1$s کا ہے اور اسے تبدیل نہیں کیا جا سکتا۔ قابل ترمیم کاپی کے لیے \"میرے لیبلز میں کاپی کریں\" استعمال کریں۔</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">یہ مواد ایک ایڈ آن کا ہے اور اسے تبدیل نہیں کیا جا سکتا۔ قابل ترمیم کاپی کے لیے \"میرے لیبلز میں کاپی کریں\" استعمال کریں۔</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">لیبل کاپی نہیں ہو سکا</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">ایڈ آن مجموعے کی %1$d آئٹم چھوڑ دی گئی۔ اپنی کاپی کے لیے لیبل پر \"میرے لیبلز میں کاپی کریں\" استعمال کریں۔</item>
+    <item quantity="other">ایڈ آن مجموعے کی %1$d آئٹمز چھوڑ دی گئیں۔ اپنی کاپی کے لیے لیبل پر \"میرے لیبلز میں کاپی کریں\" استعمال کریں۔</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" اور %2$s دیگر لیبل(ز) / مطالعہ پیڈ/(ز) اور %3$s بک مارکس</string>
   <!--About-->
@@ -692,6 +781,8 @@
   <string name="doc_type_all">تمام اقسام</string>
   <string name="doc_type_bible">بائبل</string>
   <string name="doc_type_commentary">تفسیر</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">دستاویزات</string>
   <string name="doc_type_dictionary">لغت</string>
   <string name="doc_type_book">کتاب</string>
   <string name="doc_type_map">نقشہ</string>
@@ -727,6 +818,10 @@
   <string name="crash_recovery_continue">جاری رکھیں</string>
   <string name="report_error">رپورٹ بھیجیں</string>
   <string name="error_occurred">ایک خرابی پیش آئی</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">شروع ہوتے وقت ایپ رک گئی</string>
+  <string name="startup_crash_detail">براہ کرم ہمیں خرابی کی رپورٹ بھیجیں تاکہ ہم مسئلہ حل کر سکیں۔ اس میں خرابی کی تفصیلات اور آپ کے آلے اور ایپ ورژن کی معلومات شامل ہیں۔</string>
+  <string name="startup_crash_try_again">دوبارہ کوشش کریں</string>
   <string name="error_occurred_crash_last_time">آخری بار جب آپ نے ایپ استعمال کی تو یہ کریش ہو گئی۔ بگ ٹھیک کرنے میں مدد کے لیے ہم تعریف کریں گے اگر آپ بگ رپورٹ بھیجیں۔</string>
   <string name="error_occurred_with_link">ایک خرابی پیش آئی۔ %s</string>
   <string name="error_no_content">منتخب آیت کے لیے کوئی مواد نہیں</string>
@@ -1167,10 +1262,6 @@
   <string name="reading_progress_new_cycle">نیا چکر</string>
   <string name="reading_progress_previous_cycle">پچھلا چکر</string>
   <string name="reading_progress_next_cycle">اگلا چکر</string>
-  <string name="cloud_merge_data">ڈیٹا ضم کریں</string>
-  <string name="cloud_fetch_and_restore_initial">کلاؤڈ سے اس ڈیوائس پر کاپی کریں</string>
-  <string name="cloud_create_new">اس ڈیوائس سے کلاؤڈ پر کاپی کریں</string>
-  <string name="cloud_disable_sync">منسوخ کریں اور ہم آہنگی غیر فعال کریں</string>
   <string name="cloud_sync_title">ڈیوائس ہم آہنگی</string>
   <string name="reset_sync">سائن آؤٹ کریں</string>
   <string name="prefs_reset_sync_summary">ہم آہنگی غیر فعال کریں اور متعلقہ ترتیبات ری سیٹ کریں۔</string>
@@ -1186,8 +1277,19 @@
   <string name="google_drive_signin_interrupted">Google سائن اِن میں خلل پڑا۔ دوبارہ کوشش کریں۔</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">آپ کے سرور کا پتہ، مثلاً https://cloud.example.com (اگر آپ https:// نہ لکھیں تو شامل کر دیا جاتا ہے)</string>
   <string name="webdav_server_url_hint">WebDAV فولڈر کا پتہ، مثلاً https://nas.local/dav/ یا https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">مطابقت پذیری کے لیے محفوظ https:// پتہ درکار ہے۔</string>
+  <string name="sync_waiting_for_pass">موجودہ سنکرونائزیشن مکمل ہونے کا انتظار ہے…</string>
+  <string name="sync_pending_on">آن کر دیا جائے گا</string>
+  <string name="sync_pending_off">بند کر دیا جائے گا</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d تبدیلی</item>
+    <item quantity="other">%1$d تبدیلیاں</item>
+  </plurals>
+  <string name="sync_pending_leave_title">اپنی سنک تبدیلیاں لاگو کریں؟</string>
+  <string name="sync_checking_cloud_title">کلاؤڈ کی جانچ ہو رہی ہے…</string>
+  <string name="sync_checking_cloud_text">ایسا ڈیٹا تلاش کیا جا رہا ہے جو دوسرے آلات پہلے ہی سنکرونائز کر چکے ہیں۔</string>
   <string name="webdav_certificate_title">سرور سرٹیفکیٹ</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">ناقابل اعتماد سرور سرٹیفکیٹ</string>
@@ -1205,7 +1307,6 @@
   <string name="synchronization_categories">ہم آہنگی زمرے</string>
   <string name="sync_general_settings">معلومات اور عمومی ترتیبات</string>
   <string name="sync_introduction">تعارف</string>
-  <string name="are_you_sure_merge">اس آلے کا ڈیٹا اور کلاؤڈ میں موجود %s دونوں رکھے جائیں گے۔ جہاں ایک ہی آئٹم دونوں جگہ تبدیل ہوا ہو، وہاں نئی تبدیلی رکھی جائے گی۔ اس آلے کا ڈیٹا آپ کے دوسرے آلات کو بھیجا جائے گا۔</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">کلاؤڈ ہم آہنگی غیر فعال ہو رہی ہے۔ بحالی کے بعد آپ کو دستی طور پر دوبارہ فعال کرنا ہوگا۔</string>
   <string name="report">رپورٹ کریں</string>
@@ -2162,18 +2263,30 @@
   <string name="dialog_dont_apply">لاگو نہ کریں</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">کلاؤڈ میں پہلے سے آپ کے %s موجود ہیں۔ کیا کیا جائے؟</string>
-  <string name="cloud_merge_consequence">دونوں طرف کا ڈیٹا رکھا جاتا ہے؛ جہاں کوئی آئٹم دونوں جگہ تبدیل ہوا ہو وہاں نئی تبدیلی غالب رہتی ہے۔</string>
-  <string name="cloud_fetch_consequence">اس ڈیوائس کے ڈیٹا کو کلاؤڈ کی کاپی سے بدل دیتا ہے۔</string>
-  <string name="cloud_create_consequence">کلاؤڈ کی کاپی کو اس ڈیوائس کے ڈیٹا سے بدل دیتا ہے۔</string>
-  <string name="cloud_disable_consequence">اس ڈیٹا کے لیے سنک بند رہتا ہے۔</string>
-  <string name="cloud_merge_lead">اپنے %s کو کلاؤڈ کے ساتھ ضم کریں؟</string>
-  <string name="cloud_merge_confirm">ضم کریں</string>
   <string name="cloud_replace_confirm">بدل دیں</string>
-  <string name="cloud_replace_local_lead">اس ڈیوائس کے %s کو کلاؤڈ کی کاپی سے بدل دیں؟</string>
-  <string name="cloud_replace_local_detail">اس ڈیوائس پر جو کچھ ابھی موجود ہے وہ اوور رائٹ ہو جائے گا اور بحال نہیں کیا جا سکے گا۔</string>
-  <string name="cloud_replace_cloud_lead">%s کی کلاؤڈ کاپی کو اس ڈیوائس کے ڈیٹا سے بدل دیں؟</string>
-  <string name="cloud_replace_cloud_detail">کلاؤڈ میں جو کچھ ابھی موجود ہے وہ اوور رائٹ ہو جائے گا، اور آپ کی دوسری ڈیوائسز کو اس ڈیوائس کا ڈیٹا ملے گا۔</string>
+  <string name="cloud_join_plan_title">کلاؤڈ میں پہلے سے ڈیٹا موجود ہے</string>
+  <string name="cloud_join_plan_lead">ہر زمرے کے لیے منتخب کریں کہ کیا کرنا ہے۔</string>
+  <string name="cloud_join_merge">ضم کریں</string>
+  <string name="cloud_join_merge_detail">اس آلے اور کلاؤڈ کو یکجا کریں</string>
+  <string name="cloud_join_fetch">کلاؤڈ سے کاپی کریں</string>
+  <string name="cloud_join_fetch_detail">اس آلے کا ڈیٹا تبدیل کریں</string>
+  <string name="cloud_join_create">کلاؤڈ میں کاپی کریں</string>
+  <string name="cloud_join_create_detail">کلاؤڈ کا ڈیٹا تبدیل کریں</string>
+  <string name="cloud_join_disable">سنک نہ کریں</string>
+  <string name="cloud_join_disable_detail">اس زمرے کو بند رہنے دیں</string>
+  <string name="cloud_join_upload_note">%s: کلاؤڈ میں ابھی کوئی ڈیٹا نہیں، یہ اس آلے سے اپ لوڈ کیا جائے گا۔</string>
+  <string name="cloud_join_confirm_title">سنکرونائزیشن شروع کریں؟</string>
+  <string name="cloud_join_confirm_lead">یہ ہوگا:</string>
+  <string name="cloud_join_outcome_merge">%s: کلاؤڈ کے ساتھ ضم ہو گیا۔ کچھ ضائع نہیں ہوتا۔</string>
+  <string name="cloud_join_outcome_fetch">%s: اس آلے کا ڈیٹا کلاؤڈ کے ڈیٹا سے تبدیل ہو جائے گا۔</string>
+  <string name="cloud_join_outcome_create">%s: کلاؤڈ کا ڈیٹا اس آلے کے ڈیٹا سے تبدیل ہو جائے گا۔</string>
+  <string name="cloud_join_outcome_disable">%s: بند رہے گا۔</string>
+  <string name="cloud_join_outcome_upload">%s: اس آلے سے اپ لوڈ کیا گیا۔</string>
+  <string name="cloud_join_warning">تبدیل شدہ ڈیٹا بحال نہیں کیا جا سکتا۔ اگر یقین نہ ہو تو پہلے بیک اپ بنا لیں۔</string>
+  <string name="cloud_join_next">اگلا</string>
+  <string name="cloud_join_back">پیچھے</string>
+  <string name="cloud_join_start">سنک شروع کریں</string>
+  <string name="cloud_join_replace">تبدیل کریں اور سنک کریں</string>
   <string name="sign_in_failed_lead">سنک سروس میں سائن ان نہیں ہو سکا۔</string>
   <string name="sync_too_old_lead">یہ ایپ %s کو سنک کرنے کے لیے بہت پرانی ہے۔</string>
   <string name="sync_too_old_detail">کلاؤڈ ڈیٹا اس ایپ کے معاون ورژن سے نیا ورژن استعمال کرتا ہے۔ اس کا سنک فی الحال بند کر دیا گیا ہے؛ اسے دوبارہ چالو کرنے کے لیے ایپ اپ ڈیٹ کریں۔</string>

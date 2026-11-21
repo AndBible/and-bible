@@ -46,6 +46,8 @@ emptyStudyPad: 學習筆記為空。在此建立文字條目或建立帶有對�
 doYouWantToDeleteEntry: 刪除此學習筆記條目？
 removeStudyPadConfirmationTitle: 刪除學習筆記條目？
 dragHelp: 拖曳以重新排序
+addonBookmarkThisVerse: 為此經文加上書籤
+addonReadOnly: 此內容來自附加元件集合，為唯讀。請使用「複製到我的標籤」以取得可編輯的副本。
 openAll: 開啟所有參考
 editBookmarkPlaceholder: 點擊編輯此書籤的我的筆記
 onlyLabel: 僅標籤
