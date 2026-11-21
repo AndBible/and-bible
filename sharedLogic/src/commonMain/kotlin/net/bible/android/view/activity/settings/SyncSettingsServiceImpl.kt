@@ -144,7 +144,9 @@ class SyncSettingsServiceImpl(
         if (!cloudSync.adapterAvailable) return strings.syncAdapterUnavailable
         var result = strings.syncIntroduction
         if (current == "GOOGLE_DRIVE") result += " " + strings.syncDriveIntroduction(environment.isDiscrete)
-        return result + " " + strings.syncAdapterSummary(adapters.displayName(current))
+        val chosen = strings.syncAdapterSummary(adapters.displayName(current))
+        // Signed in: the active backend leads, so a small screen's clipped summary still names it.
+        return if (cloudSync.signedIn) "$chosen\n\n$result" else "$result $chosen"
     }
 
     private fun categorySummary(cat: SyncableDatabaseDefinition, enabled: Boolean, lastSynchronized: Long?): String {
@@ -195,7 +197,7 @@ class SyncSettingsServiceImpl(
             wifiOnly = documentSettings.wifiOnly,
             autoTogglesVisible = documentsEnabled,
             wifiOnlyVisible = documentsEnabled,
-            serverUrlHint = if (isWebDav) platform.webDavServerUrlHint else null,
+            serverUrlHint = (if (isWebDav) platform.webDavServerUrlHint else platform.nextcloudServerUrlHint).ifBlank { null },
             httpsOnly = isWebDav,
             certificateVisible = certPin != null,
             certificateEnabled = !signedIn,

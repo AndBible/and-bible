@@ -745,6 +745,48 @@ class SyncSettingsServiceImplTest {
         }
     }
 
+    @Test fun serverUrlWithoutSchemeGetsHttpsForBothBackends() {
+        val service = impl()
+        for ((adapter, key) in listOf("NEXT_CLOUD" to "cloud_sync_server_url", "WEBDAV" to "webdav_sync_server_url")) {
+            service.setAdapter(adapter)
+            assertTrue(adapter, service.setText("cloud_sync_server_url", "  cloud.example.com/nextcloud/ "))
+            assertEquals(adapter, "https://cloud.example.com/nextcloud", CommonUtils.realSharedPreferences.getString(key, null))
+        }
+    }
+
+    @Test fun blankServerUrlStaysInvalid() {
+        val service = impl()
+        assertFalse(service.setText("cloud_sync_server_url", "   "))
+        assertNull(CommonUtils.realSharedPreferences.getString("cloud_sync_server_url", null))
+    }
+
+    @Test fun serverUrlHintIsShownForNextcloudAndWebDav() = runBlocking {
+        for (adapter in listOf("NEXT_CLOUD", "WEBDAV")) {
+            CommonUtils.settings.setString("sync_adapter", adapter)
+            val scope = CoroutineScope(Job() + Dispatchers.Unconfined).also { scopes.add(it) }
+            val snapshot = withTimeout(10_000) { impl(scope).snapshot.first { it.adapter == adapter } }
+            assertTrue(adapter, !snapshot.serverUrlHint.isNullOrBlank())
+            assertTrue(adapter, snapshot.serverUrlHint!!.contains("https://"))
+        }
+    }
+
+    @Test fun signedInAdapterSummaryStartsWithTheBackendName() = runBlocking {
+        val cloudSync = org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.CloudSync>(net.bible.service.cloudsync.CloudSync::class.java)
+        val field = cloudSync.javaClass.getDeclaredField("_adapter").also { it.isAccessible = true }
+        val adapter = com.nhaarman.mockitokotlin2.mock<net.bible.service.cloudsync.CloudAdapter> { on { signedIn } doReturn true }
+        val saved = field.get(cloudSync)
+        field.set(cloudSync, adapter)
+        try {
+            val scope = CoroutineScope(Job() + Dispatchers.Unconfined).also { scopes.add(it) }
+            val snapshot = withTimeout(10_000) { impl(scope).snapshot.first { it.adapterSummary.isNotBlank() } }
+            val current = net.bible.test.testCoreStrings().syncAdapterSummary(
+                snapshot.adapterChoices.first { it.value == snapshot.adapter }.label)
+            assertTrue(snapshot.adapterSummary, snapshot.adapterSummary.startsWith(current))
+        } finally {
+            field.set(cloudSync, saved)
+        }
+    }
+
     @Test fun serverUrl_invalid_returnsFalse_notPersisted() {
         val service = impl()
         assertFalse(service.setText("cloud_sync_server_url", "not a url"))

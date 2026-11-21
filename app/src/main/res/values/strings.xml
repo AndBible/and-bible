@@ -1540,6 +1540,7 @@
     <string name="google_drive_signin_interrupted">Google sign-in was interrupted. Try again.</string>
     <string name="adapters_next_cloud">Nextcloud</string>
     <string name="adapters_webdav">WebDAV</string>
+    <string name="sync_server_url_hint">Address of your server, e.g. https://cloud.example.com (https:// is added if you leave it out)</string>
     <string name="webdav_server_url_hint">Address of the WebDAV folder, e.g. https://nas.local/dav/ or https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
     <string name="webdav_https_required">Sync requires a secure https:// address.</string>
     <string name="sync_waiting_for_pass">Waiting for the current synchronization to finish…</string>

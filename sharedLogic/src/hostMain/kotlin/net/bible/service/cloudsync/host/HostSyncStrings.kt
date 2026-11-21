@@ -12,4 +12,5 @@ data class HostSyncStrings(
     val googleDriveSignInDone: () -> String,
     val googleDriveSignInIncomplete: () -> String,
     val googleDriveSignInRequired: () -> String,
+    val nextcloudServerUrlHint: () -> String = { "" },
 )
