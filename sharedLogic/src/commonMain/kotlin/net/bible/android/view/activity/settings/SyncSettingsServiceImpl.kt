@@ -114,6 +114,11 @@ class SyncSettingsServiceImpl(
         }
     }
 
+    private val watcher = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    /** Stops the join-state watcher; for a host whose scopes have no [Job] to end it with (tests). */
+    fun close() = watcher.cancel()
+
     init {
         refresh()
         // The "waiting for the current synchronization" summary follows the stored join decisions.
@@ -121,8 +126,8 @@ class SyncSettingsServiceImpl(
         // children) hang; it is cancelled with [scope] instead (a host scope without a Job lives as long as the
         // process, like the service itself). On Default, never Unconfined: CloudSync updates the flow while holding
         // its join-state lock, and an unconfined collector would run build() inside that lock.
-        val watcher = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         scope.coroutineContext[Job]?.invokeOnCompletion { watcher.cancel() }
+        writeScope.coroutineContext[Job]?.invokeOnCompletion { watcher.cancel() }
         watcher.launch { queuedJoins.drop(1).collect { refresh() } }
         progressTracker?.let { tracker ->
             scope.launchSettings { tracker.state.collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }
@@ -294,6 +299,8 @@ class SyncSettingsServiceImpl(
             refresh()
         }
         if (planned) {
+            // Only the decisions this Apply stored are ours to drop afterwards (a racing second Apply may replace them).
+            val tokens = ons.associateWith { cloudSync.storedJoinToken(it) }
             // A stored decision does not run by itself: wait for any running pass, then start a fresh one that takes
             // the decisions (it also syncs the categories that needed no decision). Detached: it outlives the screen.
             writeScope.launchSettings {
@@ -302,7 +309,7 @@ class SyncSettingsServiceImpl(
                 cloudSync.waitUntilFinished()
                 // A decision the pass did not execute (probe failed, pass could not run) must not wait for a later
                 // background pass to act on it unasked.
-                ons.forEach { cloudSync.dropStoredJoin(it) }
+                tokens.forEach { (category, token) -> cloudSync.dropStoredJoinIfSame(category, token) }
                 notifyDatabaseRestored()
                 refresh()
             }
