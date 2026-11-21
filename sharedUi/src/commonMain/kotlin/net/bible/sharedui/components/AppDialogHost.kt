@@ -88,7 +88,7 @@ fun AppDialogHost(
             if (isSheet) LaunchedEffect(id) { onSheetOpening() }
             val cancel = { onRespond(id, AppDialogResult.Cancel) }
             when (request) {
-                is AppDialogRequest.SyncJoinPlan -> {} // rendered by a later step
+                is AppDialogRequest.SyncJoinPlan -> key(id) { AbSyncJoinPlanDialog(request, onResult = { onRespond(id, it) }) }
                 is AppDialogRequest.Message -> if (request.presentation == DialogPresentation.Page) {
                     AbTextPage(
                         topic = request.title, onClose = cancel,
