@@ -192,8 +192,12 @@ class SyncSettingsController(
     fun applyPending() = startApply(leaveAfter = false)
 
     private fun startApply(leaveAfter: Boolean) {
+        if (applyJob?.isActive == true) return
         val changes = pending
-        if (changes.isEmpty() || applyJob?.isActive == true) return
+        if (changes.isEmpty()) {  // everything was pruned meanwhile: nothing to apply, the leave still goes on
+            if (leaveAfter) onExit()
+            return
+        }
         val hasOn = changes.values.any { it }
         if (hasOn) setDialog(SyncDialog.CheckingCloud) else setLoading(true)
         applyJob = scope.launch {
@@ -202,11 +206,15 @@ class SyncSettingsController(
                 val ok = service.applyCategoryChanges(changes) {
                     if (_state.value.dialog == SyncDialog.CheckingCloud) dismissDialog()
                 }
-                if (ok) setPending(emptyMap())
-                completed = ok
+                // Only a failed sign-in keeps the map for a retry; a cancelled plan left nothing to retry.
+                if (ok != ApplyResult.SignInFailed) setPending(emptyMap())
+                completed = ok != ApplyResult.SignInFailed
             } catch (e: kotlinx.coroutines.CancellationException) {
+                // Progress Cancel: the cloud layer turned the ons off again. Offs not persisted yet stay pending.
+                setPending(pending.filterValues { !it })
                 throw e
             } catch (e: Exception) {
+                // The service reports failures to the user itself; this is the last-resort log.
                 net.bible.sharedcore.log.Log.e("SyncSettingsController", "Applying sync changes failed", e)
             } finally {
                 if (_state.value.dialog == SyncDialog.CheckingCloud) dismissDialog()
@@ -227,6 +235,7 @@ class SyncSettingsController(
 
     /** Back with pending switches asks first; true = nothing pending, leave now. */
     fun onLeave(): Boolean {
+        if (applyJob?.isActive == true) return false  // an Apply is already running: stay, no second question
         if (pending.isEmpty()) return true
         setDialog(SyncDialog.LeaveWithPending)
         return false

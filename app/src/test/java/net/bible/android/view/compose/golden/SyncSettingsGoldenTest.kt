@@ -38,8 +38,8 @@ class SyncSettingsGoldenTest {
         override fun refresh() {}
         override suspend fun signIn() = true
         override suspend fun scanDocuments() = DocSyncSummaryData(emptyList(), emptyList(), 0, 0)
-        override fun setCategoryEnabled(key: String, enabled: Boolean) {}
-        override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit) = true
+        override fun disableCategory(key: String) {}
+        override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit) = net.bible.sharedcore.settings.ApplyResult.Applied
         override fun setDocumentsEnabled(summary: DocSyncSummaryData) {}
         override fun disableDocuments() {}
         override fun setDocumentSyncToggle(key: String, value: Boolean) {}

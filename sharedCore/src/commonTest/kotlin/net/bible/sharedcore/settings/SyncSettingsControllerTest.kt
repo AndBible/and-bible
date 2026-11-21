@@ -24,7 +24,7 @@ class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsServi
     override fun refresh() { refreshes++ }
     override suspend fun signIn(): Boolean { calls += "signIn"; return signInResult }
     override suspend fun scanDocuments(): DocSyncSummaryData { calls += "scan"; return scanResult }
-    override fun setCategoryEnabled(key: String, enabled: Boolean) { calls += "cat:$key=$enabled" }
+    override fun disableCategory(key: String) { calls += "cat:$key=false" }
     override fun setDocumentsEnabled(summary: DocSyncSummaryData) { calls += "docsEnable" }
     override fun disableDocuments() { calls += "docsDisable" }
     override fun setDocumentSyncToggle(key: String, value: Boolean) { calls += "docToggle:$key=$value" }
@@ -38,14 +38,14 @@ class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsServi
     override suspend fun resetSync() { calls += "reset"; resetFailure?.let { throw it } }
     override fun formatEnableDocumentsMessage(summary: DocSyncSummaryData) = "docs-msg"
 
-    var applyResult = true
+    var applyResult = ApplyResult.Applied
     var applyCancelled = false
     /** Held until completed: the apply is then "checking the cloud". */
     var beforeProbe: CompletableDeferred<Unit>? = null
     /** Held until completed: the apply is then past the probe (the cloud layer's dialog). */
     var afterProbe: CompletableDeferred<Unit>? = null
     val applied = mutableListOf<Map<String, Boolean>>()
-    override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): Boolean {
+    override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): ApplyResult {
         calls += "apply"
         applied += changes
         try {
@@ -312,7 +312,7 @@ class SyncSettingsControllerTest {
     }
 
     @Test fun failedApplyKeepsPendingAndClosesTheDialog() {
-        val svc = FakeSyncSettingsService(syncSnap()).apply { applyResult = false }
+        val svc = FakeSyncSettingsService(syncSnap()).apply { applyResult = ApplyResult.SignInFailed }
         val c = controller(svc)
         c.onSwitch("sync_enable_bookmarks", true)
         c.applyPending()
@@ -344,10 +344,59 @@ class SyncSettingsControllerTest {
         assertEquals(SyncDialog.None, c.state.value.dialog)
         assertFalse(c.state.value.loading)
         assertTrue(svc.refreshes >= 1)
+        assertEquals(emptyMap(), c.state.value.pending, "progress Cancel reverts the ons: nothing stays pending")
         // the screen is usable again: a second apply starts a fresh job
         svc.beforeProbe = null
+        c.onSwitch("sync_enable_bookmarks", true)
         c.applyPending()
         assertEquals(2, svc.applied.size)
+    }
+
+    @Test fun progressCancelKeepsOffsThatWereNotPersistedYet() {
+        val svc = FakeSyncSettingsService(syncSnap(enabledCategories = setOf("sync_enable_progress")))
+            .apply { beforeProbe = CompletableDeferred() }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onSwitch("sync_enable_progress", false)
+        c.applyPending()
+        c.cancelChecking()
+        assertEquals(mapOf("sync_enable_progress" to false), c.state.value.pending)
+    }
+
+    @Test fun cancelledJoinPlanClearsPending() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { applyResult = ApplyResult.Cancelled }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertEquals(emptyMap(), c.state.value.pending, "the cloud layer turned the ons off again; nothing is left to retry")
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertFalse(c.state.value.loading)
+    }
+
+    @Test fun confirmLeaveApplyWithPendingPrunedToEmptyStillLeaves() {
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), {}, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        assertFalse(c.onLeave())
+        // another path enables the category while the leave dialog is open: the pending entry is dropped
+        svc._snap.value = svc._snap.value.copy(categoryEnabled = svc._snap.value.categoryEnabled + ("sync_enable_bookmarks" to true))
+        c.confirmLeaveApply()
+        assertEquals(1, exits)
+        assertEquals(emptyList(), svc.applied)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun leavingWhileAnApplyRunsStaysWithoutAskingTwice() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred() }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        svc.beforeProbe!!.complete(Unit)
+        assertFalse(c.onLeave())
+        assertEquals(SyncDialog.None, c.state.value.dialog, "the apply already runs: no second Apply/Discard question")
+        svc.afterProbe!!.complete(Unit)
+        assertTrue(c.onLeave())
     }
 
     @Test fun leaveWithPendingAsks() {

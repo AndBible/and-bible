@@ -27,6 +27,7 @@ interface CoreStrings {
     fun syncDriveIntroduction(discrete: Boolean): String
     fun syncAdapterSummary(adapter: String): String
     fun syncLastUpdated(time: String): String
+    val syncWaitingForPass: String
     fun syncCloudInfo(megabytes: String): String
     val documentSyncNothing: String
     fun documentSyncUpload(count: Int): String
@@ -191,7 +192,6 @@ interface CoreStrings {
     // dialog copy: B3b
     val cloudReplaceConfirm: String
     val cloudJoinPlanTitle: String
-    val syncWaitingForPass: String
     val cloudJoinPlanLead: String
     val cloudJoinMerge: String
     val cloudJoinMergeDetail: String

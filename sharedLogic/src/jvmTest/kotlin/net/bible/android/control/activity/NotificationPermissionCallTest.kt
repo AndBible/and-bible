@@ -40,37 +40,8 @@ class NotificationPermissionCallTest {
         }
     } as T
 
-    @Test fun syncEnableAsksPermission() = runTest {
-        var asks = 0
-        val service = service(this, NotificationPermission { asks++ })
-        runCurrent()
-        assertEquals(0, asks, "construction must not request permission")
-        service.setCategoryEnabled("sync_enable_bookmarks", true)
-        runCurrent()
-        assertEquals(1, asks)
-    }
-
-    @Test fun pendingPermissionDoesNotBlockSync() = runTest {
-        var starts = 0
-        val pending = kotlinx.coroutines.CompletableDeferred<Unit>()
-        val service = service(this, NotificationPermission { pending.await() }) { starts++ }
-        service.setCategoryEnabled("sync_enable_bookmarks", true)
-        runCurrent()
-        assertEquals(1, starts)
-        pending.complete(Unit)
-    }
-
-    @Test fun failedPermissionDoesNotCancelSync() = runTest {
-        var starts = 0
-        val failures = mutableListOf<Throwable>()
-        val writeScope = CoroutineScope(coroutineContext + SupervisorJob() + CoroutineExceptionHandler { _, e -> failures += e })
-        val service = service(this, NotificationPermission { error("permission failed") }, writeScope) { starts++ }
-        service.setCategoryEnabled("sync_enable_bookmarks", true)
-        runCurrent()
-        assertEquals(1, starts)
-        assertEquals(0, failures.size, "Settings failures must be contained before reaching the host handler")
-        writeScope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
-    }
+    // The category-enable permission ask now lives in applyCategoryChanges' ON path, which needs a real database and
+    // adapter: it is covered by SyncSettingsServiceImplTest (applyingAnOnAsksForNotificationPermissionOnce...).
 
     @Test fun startupDoesNotAsk() = runTest {
         var asks = 0
@@ -82,7 +53,7 @@ class NotificationPermissionCallTest {
     @Test fun syncDisableDoesNotAsk() = runTest {
         var asks = 0
         val service = service(this, NotificationPermission { asks++ })
-        service.setCategoryEnabled("sync_enable_bookmarks", false)
+        service.disableCategory("sync_enable_bookmarks")
         runCurrent()
         assertEquals(0, asks)
     }

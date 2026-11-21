@@ -70,6 +70,16 @@ object SyncCategoryKeys {
     )
 }
 
+/** Outcome of [SyncSettingsService.applyCategoryChanges]. */
+enum class ApplyResult {
+    /** Every change was made (the ons are enabled and their join is planned and arranged). */
+    Applied,
+    /** Sign-in failed or the backend is unavailable: nothing was persisted, the changes may be retried. */
+    SignInFailed,
+    /** The user cancelled the join plan: offs are persisted, the ons were turned off again. Nothing is left to retry. */
+    Cancelled,
+}
+
 /**
  * Seam over the four backing stores + the interactive cloud flows. Interactive methods are `suspend`
  * so the Android impl can run the activity-bound `CloudSync.signIn`; `:sharedCore` never sees an
@@ -86,18 +96,18 @@ interface SyncSettingsService {
     suspend fun scanDocuments(): DocSyncSummaryData
 
     // Per-key writers routed to the correct backing store (impl encapsulates routing).
-    fun setCategoryEnabled(key: String, enabled: Boolean)   // sync_enable_* (non-documents)
+    fun disableCategory(key: String)                        // sync_enable_* (non-documents) OFF; ons go through applyCategoryChanges
 
     /**
      * Applies the pending category switches ([changes]: `sync_enable_*` key to the wanted value) as one batch.
      * Signs in first when any value is true: false (nothing persisted) when that fails. Offs are persisted at once;
      * the ons are enabled and their join planned together (one cloud probe, one decision dialog) via the cloud-sync
      * layer, then a synchronization pass is arranged to execute the stored decisions. [onProbed] is called once the
-     * cloud has been probed (the point from which the interactive dialog is the cloud layer's). Returns false when
-     * sign-in failed or the user cancelled the plan (the ons are then turned off again); a cancellation of the
+     * cloud has been probed (the point from which the interactive dialog is the cloud layer's). Returns [ApplyResult.SignInFailed] (nothing persisted)
+     * or [ApplyResult.Cancelled] (the plan was cancelled; the ons are turned off again); a cancellation of the
      * caller also turns the ons off and is rethrown.
      */
-    suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit = {}): Boolean
+    suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit = {}): ApplyResult
     fun setDocumentsEnabled(summary: DocSyncSummaryData)     // sync_enable_documents ON
     fun disableDocuments()                                   // sync_enable_documents OFF
     fun setDocumentSyncToggle(key: String, value: Boolean)  // sync_documents_auto_* / wifi_only

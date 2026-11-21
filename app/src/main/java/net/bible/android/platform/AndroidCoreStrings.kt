@@ -67,6 +67,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
         context.getString(R.string.prefs_sync_introduction_summary2, context.getString(syncSummaryAppName(discrete)))
     override fun syncAdapterSummary(adapter: String): String = context.getString(R.string.sync_adapter_summary, adapter)
     override fun syncLastUpdated(time: String): String = context.getString(R.string.last_updated, time)
+    override val syncWaitingForPass: String get() = context.getString(R.string.sync_waiting_for_pass)
     override fun syncCloudInfo(megabytes: String): String = context.getString(R.string.cloud_info_summary, megabytes)
     override val documentSyncNothing: String get() = context.getString(R.string.document_sync_enable_dialog_nothing)
     override fun documentSyncUpload(count: Int): String = context.getString(R.string.cloud_doc_summary_upload, count)
@@ -241,7 +242,6 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
 
     // dialog copy: B3b
     override val cloudReplaceConfirm: String get() = context.getString(R.string.cloud_replace_confirm)
-    override val syncWaitingForPass: String get() = context.getString(R.string.sync_waiting_for_pass)
     override val cloudJoinPlanTitle: String get() = context.getString(R.string.cloud_join_plan_title)
     override val cloudJoinPlanLead: String get() = context.getString(R.string.cloud_join_plan_lead)
     override val cloudJoinMerge: String get() = context.getString(R.string.cloud_join_merge)

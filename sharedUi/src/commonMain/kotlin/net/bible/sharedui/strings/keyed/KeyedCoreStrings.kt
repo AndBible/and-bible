@@ -65,6 +65,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
         t.fmt("prefs_sync_introduction_summary2", t.text(if (discrete) "app_name_calculator" else "app_name_medium"))
     override fun syncAdapterSummary(adapter: String): String = t.fmt("sync_adapter_summary", adapter)
     override fun syncLastUpdated(time: String): String = t.fmt("last_updated", time)
+    override val syncWaitingForPass: String get() = t.text("sync_waiting_for_pass")
     override fun syncCloudInfo(megabytes: String): String = t.fmt("cloud_info_summary", megabytes)
     override val documentSyncNothing: String get() = t.text("document_sync_enable_dialog_nothing")
     override fun documentSyncUpload(count: Int): String = t.fmt("cloud_doc_summary_upload", count)
@@ -236,7 +237,6 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
 
     // dialog copy: B3b
     override val cloudReplaceConfirm: String get() = t.text("cloud_replace_confirm")
-    override val syncWaitingForPass: String get() = t.text("sync_waiting_for_pass")
     override val cloudJoinPlanTitle: String get() = t.text("cloud_join_plan_title")
     override val cloudJoinPlanLead: String get() = t.text("cloud_join_plan_lead")
     override val cloudJoinMerge: String get() = t.text("cloud_join_merge")

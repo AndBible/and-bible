@@ -30,6 +30,7 @@ internal class StubCoreStrings : CoreStrings {
     override fun syncDriveIntroduction(discrete: Boolean): String = "syncDriveIntroduction ${discrete}"
     override fun syncAdapterSummary(adapter: String): String = "syncAdapterSummary ${adapter}"
     override fun syncLastUpdated(time: String): String = "syncLastUpdated ${time}"
+    override val syncWaitingForPass = "syncWaitingForPass"
     override fun syncCloudInfo(megabytes: String): String = "syncCloudInfo ${megabytes}"
     override val documentSyncNothing = "documentSyncNothing"
     override fun documentSyncUpload(count: Int): String = "documentSyncUpload ${count}"
@@ -183,7 +184,6 @@ internal class StubCoreStrings : CoreStrings {
 
     // dialog copy: B3b
     override val cloudReplaceConfirm = "cloudReplaceConfirm"
-    override val syncWaitingForPass = "syncWaitingForPass"
     override val cloudJoinPlanTitle = "cloudJoinPlanTitle"
     override val cloudJoinPlanLead = "cloudJoinPlanLead"
     override val cloudJoinMerge = "cloudJoinMerge"

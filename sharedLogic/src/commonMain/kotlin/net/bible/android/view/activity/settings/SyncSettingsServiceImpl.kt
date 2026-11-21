@@ -32,6 +32,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.control.activity.ActivityKind
+import net.bible.android.control.event.UserMessages
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudAdapterFactory
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -48,6 +50,7 @@ import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.webdav.WebDavUrl
+import net.bible.sharedcore.settings.ApplyResult
 import net.bible.sharedcore.settings.Choice2
 import net.bible.sharedcore.settings.DocSyncSummaryData
 import net.bible.sharedcore.settings.SyncCategoryKeys
@@ -114,11 +117,11 @@ class SyncSettingsServiceImpl(
     init {
         refresh()
         // The "waiting for the current synchronization" summary follows the stored join decisions.
-        // Unconfined: only re-triggers refresh() (which dispatches on [scope]); the collector itself then ends at once
-        // on cancellation even if the host's dispatcher is already gone.
         // Not a child of [scope]: a never-ending child would make "join all children" waits (and a host that counts
-        // children) hang; it is cancelled with [scope] instead.
-        val watcher = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        // children) hang; it is cancelled with [scope] instead (a host scope without a Job lives as long as the
+        // process, like the service itself). On Default, never Unconfined: CloudSync updates the flow while holding
+        // its join-state lock, and an unconfined collector would run build() inside that lock.
+        val watcher = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         scope.coroutineContext[Job]?.invokeOnCompletion { watcher.cancel() }
         watcher.launch { queuedJoins.drop(1).collect { refresh() } }
         progressTracker?.let { tracker ->
@@ -252,42 +255,34 @@ class SyncSettingsServiceImpl(
         )
     }
 
-    override fun setCategoryEnabled(key: String, enabled: Boolean) {
-        if (enabled && !cloudSync.adapterAvailable) return
-        val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
-        if (enabled) cloudSync.pinAdapterOnEnable()
-        categories.setEnabled(cat, enabled)
-        if (enabled) {
-            notificationPermission?.let { permission -> writeScope.launchSettings { permission.ensureAsked() } }
-            // Classic setupDrivePref ran the sync-start sequence + broadcast the restore (now `notifyDatabaseRestored`) after
-            // sign-in, then recreate()d. We refresh the snapshot instead; the sequence is fire-and-forget.
-            writeScope.launchSettings {
-                cloudSync.waitUntilFinished()
-                cloudSync.start()
-                cloudSync.waitUntilFinished()
-                notifyDatabaseRestored()
-                refresh()
-            }
-        }
+    override fun disableCategory(key: String) {
+        categories.setEnabled(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!, false)
     }
 
-    override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): Boolean {
+    override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): ApplyResult {
         fun category(key: String) = requireNotNull(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]) { "Unknown sync category $key" }
         val ons = changes.filterValues { it }.keys.map(::category).toSet()
         val offs = changes.filterValues { !it }.keys.map(::category)
         if (ons.isNotEmpty()) {
-            if (!cloudSync.adapterAvailable || !signIn()) return false
+            if (!cloudSync.adapterAvailable || !signIn()) return ApplyResult.SignInFailed
         }
         offs.forEach { categories.setEnabled(it, false) }
         if (ons.isEmpty()) {
             refresh()
-            return true
+            return ApplyResult.Applied
         }
         cloudSync.pinAdapterOnEnable()
         notificationPermission?.let { permission -> writeScope.launchSettings { permission.ensureAsked() } }
         val planned = try {
             // Enables the categories itself (after marking them awaiting), and turns them off again on cancel.
             cloudSync.planJoins(ons, onProbed, enable = true)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // planJoins already turned the ons off again; tell the user instead of failing silently.
+            net.bible.sharedcore.log.Log.e("SyncSettingsService", "Planning the cloud join failed", e)
+            UserMessages.errorNotification(strings.syncError, showReportButton = true, kind = ActivityKind.SYNC, cause = e)
+            return ApplyResult.Cancelled
         } finally {
             refresh()
         }
@@ -302,7 +297,7 @@ class SyncSettingsServiceImpl(
                 refresh()
             }
         }
-        return planned
+        return if (planned) ApplyResult.Applied else ApplyResult.Cancelled
     }
 
     /** Loaded snapshots mutate before the caller refreshes; cold mutations queue across the load. */
