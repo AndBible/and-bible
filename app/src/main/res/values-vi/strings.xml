@@ -650,8 +650,8 @@
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
   <string-array name="speak_divinename_original">
-    <item>Chúa</item>
     <item>Đức Chúa Trời</item>
+    <item>Chúa</item>
     <item></item>
     <item></item>
     <item></item>
