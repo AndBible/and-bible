@@ -283,8 +283,9 @@ class AppSettingsControllerTest {
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        // 45 classic icon rows + "use_system_colors" (Compose-only, Material You) + "trusted_link_domains" (#4155).
-        assertEquals(47, items.count { it.iconKeyOrNull() != null })
+        // 45 classic icon rows + "use_system_colors" (Compose-only, Material You) + "trusted_link_domains" (#4155)
+        // + "text_under_window_buttons" (#4184).
+        assertEquals(48, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -326,6 +327,7 @@ class AppSettingsControllerTest {
             "hide_status_bar",
             "full_screen_hide_buttons_pref",
             "hide_window_buttons",
+            "text_under_window_buttons",
             "hide_bible_reference_overlay",
             "show_active_window_indicator",
             "disable_bible_bookmark_modal_buttons",

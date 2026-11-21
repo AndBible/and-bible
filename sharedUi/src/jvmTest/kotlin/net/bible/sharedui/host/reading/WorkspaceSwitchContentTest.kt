@@ -554,6 +554,12 @@ class WorkspaceSwitchContentTest {
                 assertWrite("errorBox: false") { settings.setBool("show_errorbox", true) }
                 assertWrite("disableAnimations: true") { settings.setBool("disable_animations", true) }
                 assertWrite("pureMonochromeMode: true") { settings.setString("display_color_mode", "monochrome") }
+                // #4184: the rail strip is a document offset, so this setting re-sends set_offsets (not the config).
+                fake.panes.forEach { it.evaluated.clear() }
+                settings.setBool("text_under_window_buttons", false)
+                fake.panes.forEach { pane ->
+                    assertTrue(pane.evaluated.any { "set_offsets" in it }, "text under buttons must resend offsets to ${pane.id}: ${pane.evaluated}")
+                }
                 fake.panes.forEach { it.evaluated.clear() }
                 settings.setBool("volume_keys_scroll", false)
                 settings.setString("theme_palette_style", "fidelity")

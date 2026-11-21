@@ -56,6 +56,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val hideBibleReferenceOverlayTitle: String get() = context.getString(R.string.hide_bible_reference_overlay_title)
     override val hideWindowButtonsSummary: String get() = context.getString(R.string.hide_window_buttons_summary)
     override val hideWindowButtonsTitle: String get() = context.getString(R.string.hide_window_buttons_title)
+    override val textUnderWindowButtonsSummary: String get() = context.getString(R.string.text_under_window_buttons_summary)
+    override val textUnderWindowButtonsTitle: String get() = context.getString(R.string.text_under_window_buttons_title)
     override val memorizeAutoMark: String get() = context.getString(R.string.memorize_auto_mark)
     override val memorizeAutoMarkSummary: String get() = context.getString(R.string.memorize_auto_mark_summary)
     override val memorizeErrorHeatmap: String get() = context.getString(R.string.memorize_error_heatmap)

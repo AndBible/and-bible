@@ -95,6 +95,12 @@ class ReadingInsetsHostCallbacks(
      * where it lands. No arithmetic happens on this side of the boundary.
      */
     val applyImeBottomPadding: (bottomPaddingPx: Int) -> Unit,
+
+    /**
+     * #4184 `text_under_window_buttons`: the text runs under the window-button rail, so no bottom window reserves the
+     * rail's strip (system insets still apply). Read live; a settings change reloads every window, which re-sends offsets.
+     */
+    val textUnderWindowButtons: () -> Boolean = { false },
 )
 
 /** BibleView must re-send its offsets; [immediate] maps to `updateOffsets(immediate)`. */
@@ -149,7 +155,8 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     private val systemBottomForWebView get() =
         (if (host.transportBarVisible()) 0 else (if (imePaddingApplied) 0 else bottomOffset1WithoutIme)) +
             (if (host.agentLogVisible()) host.agentLogHeight() else 0)
-    private val railHeightForWebView get() = if (host.restoreButtonsVisible()) host.windowButtonHeight() else 0
+    private val railHeightForWebView get() =
+        if (host.restoreButtonsVisible() && !host.textUnderWindowButtons()) host.windowButtonHeight() else 0
     private val railCoverage = net.bible.sharedui.reading.ReadingRailCoverage {
         _offsetsChanged.emit(OffsetsChange(immediate = true))
     }

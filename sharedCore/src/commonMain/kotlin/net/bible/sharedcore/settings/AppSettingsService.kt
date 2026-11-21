@@ -41,6 +41,8 @@ data class AppSettingsSnapshot(
     val hideStatusBar: Boolean,
     val fullScreenHideButtons: Boolean,
     val hideWindowButtons: Boolean,
+    /** #4184: text runs under the window-button bar; unset follows the platform default (on for desktop). */
+    val textUnderWindowButtons: Boolean = false,
     val hideBibleReferenceOverlay: Boolean,
     val showActiveWindowIndicator: Boolean,
     val enabledBibleBookmarkModalButtons: Set<String>, // inverse of disable_bible_bookmark_modal_buttons

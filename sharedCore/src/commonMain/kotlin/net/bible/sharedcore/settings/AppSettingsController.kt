@@ -323,6 +323,13 @@ class AppSettingsController(
                 iconKey = "hide_window_buttons",
             ),
             SettingsItem.SwitchRow(
+                key = TEXT_UNDER_WINDOW_BUTTONS_KEY,
+                title = labels.textUnderWindowButtonsTitle,
+                summary = labels.textUnderWindowButtonsSummary,
+                checked = s.textUnderWindowButtons,
+                iconKey = TEXT_UNDER_WINDOW_BUTTONS_KEY,
+            ),
+            SettingsItem.SwitchRow(
                 key = "hide_bible_reference_overlay",
                 title = labels.hideBibleReferenceOverlayTitle,
                 summary = labels.hideBibleReferenceOverlaySummary,
