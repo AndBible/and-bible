@@ -146,7 +146,7 @@ class CustomRepositoryEditorDeps(
 
 /**
  * `PROGRESS_STATUS_PATTERN`'s platform-supplied slots, ported from classic
- * `ProgressStatusComposeActivity`. Modelled on [net.bible.sharedui.search.nav.SearchIndexProgressDeps]
+ * `ProgressStatusComposeActivity`. Modelled on the former search index progress deps
  * (`SearchNavGraph.kt:301-306`), minus the search-specific members -- this destination is a plain
  * multi-job viewer with an OK button, not tied to a single document's index status.
  *
@@ -161,7 +161,7 @@ class CustomRepositoryEditorDeps(
  *   whose `onPauseOrDispose` is exactly classic's `onPause`, plus the disposal case an Activity never
  *   had to think about.
  *
- *   **Takes ONE callback, unlike [net.bible.sharedui.search.nav.SearchIndexProgressDeps.observeJobs]'s
+ *   **Takes ONE callback, unlike the former search index progress `observeJobs`'s
  *   two** (`SearchNavGraph.kt:303`): its second callback drives the search graph's "indexing
  *   finished" routing, and `ProgressStatus` has no such routing -- it only ever refreshes its job
  *   list. The narrowing is deliberate, not an oversight.

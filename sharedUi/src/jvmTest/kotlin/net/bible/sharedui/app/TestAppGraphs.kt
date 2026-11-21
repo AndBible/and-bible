@@ -23,7 +23,6 @@ object TestAppGraphs {
         ai = blank(net.bible.sharedui.ai.nav.AiNavDeps::class.java),
         bookmark = blank(net.bible.sharedui.bookmark.nav.BookmarkNavDeps::class.java),
         readingPlan = blank(net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps::class.java),
-        search = blank(net.bible.sharedui.search.nav.SearchNavDeps::class.java),
         settings = blank(net.bible.sharedui.settings.nav.SettingsNavDeps::class.java),
         download = blank(net.bible.sharedui.download.nav.DownloadNavDeps::class.java),
         myDocuments = blank(net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps::class.java),

@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
@@ -32,7 +31,6 @@ import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.UserNotifier
-import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.android.control.backup.BackupControl
@@ -136,21 +134,8 @@ class AppHosts(
         )
     }
 
-    /**
-     * The search cluster's deps builder. Built on first use; every controller and service resolves lazily from
-     * Koin, so this touches no database.
-     */
-    val search: SearchHost by lazy {
-        SearchHost(
-            shell = shell,
-            strings = strings,
-            appSettingsProvider = { koin.get<AppSettings>() },
-            notificationPermission = ports.notificationPermission,
-            links = koin.get<ExternalLinks>(),
-            searchIndexServiceProvider = { koin.get<SearchIndexService>() },
-            pageControlProvider = { koin.get<PageControl>() },
-        )
-    }
+    /** The Progress status screen's job feed (the full-screen search routes it once shared a host with are gone). */
+    val search: SearchHost by lazy { SearchHost(shell = shell) }
 
     private val workspaceLazy = lazy {
         WorkspaceHost(
@@ -404,7 +389,6 @@ class AppHosts(
         // Built in the order the activity always built them (a few hosts' navDeps record state the later ones read).
         val ai = ai.navDeps(navController)
         val readingPlan = readingPlan.navDeps(navController)
-        val search = search.navDeps(navController)
         val settings = settings.navDeps(navController, channels.readingProgress)
         val bookmark = bookmark.navDeps(navController, channels.bookmark, channels.manageLabels, channels.labelEdit)
         val download = download.navDeps(navController, channels.repositoryEditor, cloudDocuments.deps())
@@ -419,7 +403,7 @@ class AppHosts(
         val help = help.navDeps(navController)
         val workspace = workspace.navDeps(navController, channels.workspace, channels.textSettings, channels.manageLabels)
         return AppGraphs(
-            ai = ai, bookmark = bookmark, readingPlan = readingPlan, search = search, settings = settings,
+            ai = ai, bookmark = bookmark, readingPlan = readingPlan, settings = settings,
             download = download, myDocuments = myDocuments, chooser = chooser, workspace = workspace,
             backup = backup, installZip = installZip, welcome = welcome, help = help,
         )

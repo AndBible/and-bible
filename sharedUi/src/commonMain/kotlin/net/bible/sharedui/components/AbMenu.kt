@@ -131,8 +131,8 @@ fun AbMenuItem(
 
 /**
  * The leading icon every "Help" row in this app uses. A single shared value so the icon can't
- * drift screen to screen — before this it was hand-copied, verbatim, at five call sites
- * ([net.bible.sharedui.reading.ReadingToolbar], [net.bible.sharedui.search.EpubSearchScreen],
+ * drift screen to screen — before this it was hand-copied, verbatim, at several call sites
+ * ([net.bible.sharedui.reading.ReadingToolbar],
  * [net.bible.sharedui.progress.ReadingProgressScreen], [net.bible.sharedui.speak.SpeakSettingsContent],
  * [net.bible.sharedui.speak.AdvancedSpeakSettingsContent]) — a sixth screen would have made it six.
  */

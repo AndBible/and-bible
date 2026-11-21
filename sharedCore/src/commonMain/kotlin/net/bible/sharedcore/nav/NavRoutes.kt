@@ -167,66 +167,6 @@ object NavRoutes {
         )
     }
 
-    // ——— slice 5: Search ———
-    const val ARG_SEARCH_TEXT: String = "searchText"
-    const val ARG_SEARCH_HIGHLIGHT_TEXT: String = "highlightText"
-    const val ARG_SEARCH_DOCUMENT: String = "searchDocument"
-    const val ARG_SELECTED_TRANSLATIONS: String = "selectedTranslations"
-    const val ARG_IS_STRONGS_SEARCH: String = "isStrongsSearch"
-    const val ARG_READING_SEARCH_REQUEST: String = "readingSearchRequest"
-
-    const val EPUB_SEARCH: String = "search/epub"
-    const val SEARCH_INDEX_PATTERN: String =
-        "search/index?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
-            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
-            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
-            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
-            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}" +
-            "&$ARG_READING_SEARCH_REQUEST={$ARG_READING_SEARCH_REQUEST}"
-    const val SEARCH_INDEX_PROGRESS_PATTERN: String =
-        "search/indexProgress?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
-            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
-            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
-            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
-            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}" +
-            "&$ARG_READING_SEARCH_REQUEST={$ARG_READING_SEARCH_REQUEST}"
-
-    fun searchIndex(
-        searchText: String? = null,
-        highlightText: String? = null,
-        searchDocument: String? = null,
-        selectedTranslations: List<String> = emptyList(),
-        isStrongsSearch: Boolean = false,
-        readingRequest: ReadingSearchRequest? = null,
-    ): String = searchChainRoute("search/index", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch, readingRequest)
-
-    fun searchIndexProgress(
-        searchText: String? = null,
-        highlightText: String? = null,
-        searchDocument: String? = null,
-        selectedTranslations: List<String> = emptyList(),
-        isStrongsSearch: Boolean = false,
-        readingRequest: ReadingSearchRequest? = null,
-    ): String = searchChainRoute("search/indexProgress", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch, readingRequest)
-
-    /** Legacy index arguments plus the complete reading-search payload, when continuing a form submission. */
-    private fun searchChainRoute(
-        base: String,
-        searchText: String?,
-        highlightText: String?,
-        searchDocument: String?,
-        selectedTranslations: List<String>,
-        isStrongsSearch: Boolean,
-        readingRequest: ReadingSearchRequest?,
-    ): String = buildRoute(base) {
-        optional(ARG_READING_SEARCH_REQUEST, readingRequest?.let(::readingSearch))
-        optional(ARG_SEARCH_TEXT, searchText)
-        optional(ARG_SEARCH_HIGHLIGHT_TEXT, highlightText)
-        optional(ARG_SEARCH_DOCUMENT, searchDocument)
-        optional(ARG_SELECTED_TRANSLATIONS, selectedTranslations.takeIf { it.isNotEmpty() }?.let(::encodeList))
-        required(ARG_IS_STRONGS_SEARCH, isStrongsSearch.toString())
-    }
-
     // ——— slice 2: Bookmarks + labels ———
     const val ARG_LABEL_NO: String = "labelNo"
     const val ARG_MANAGE_LABELS_DATA: String = "data"

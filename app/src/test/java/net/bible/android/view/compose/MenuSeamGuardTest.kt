@@ -47,7 +47,6 @@ class MenuSeamGuardTest {
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/progress/ReadingProgressScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/readingplan/DailyReadingScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/search/BibleSearchResultsContent.kt",
-        "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/search/EpubSearchScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/mydocuments/MyDocumentsScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/mydocuments/MyDocumentPagesScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/BibleSpeakScreen.kt",

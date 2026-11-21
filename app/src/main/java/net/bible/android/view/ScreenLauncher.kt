@@ -34,7 +34,7 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
  * Activity that no longer exists. Reaching them is a host call (`showHistorySheet()`,
  * `showSpeakTransport()`), not a launch.
  */
-enum class Screen { Calculator, SearchIndexProgress, SearchIndex, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, EpubSearch, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
+enum class Screen { Calculator, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
 /**
  * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
@@ -87,22 +87,6 @@ object ScreenLauncher {
         // plan/day (HistoryManager's stored intent) build NavRoutes.dailyReading(plan, day)
         // directly, bypassing this map.
         Screen.ReadingPlan to NavRoutes.dailyReading(),
-        // — slice 5: the search cluster (part A) —
-        // Argument-free: SearchIndexComposeActivity.kt:46 falls back to the CURRENT page's
-        // document when SEARCH_DOCUMENT is absent, so "index the book I am reading" is a defined
-        // meaning. Callers that name a document build NavRoutes.searchIndex(searchDocument = ...).
-        Screen.SearchIndex to NavRoutes.searchIndex(),
-        // Screen.SearchIndexProgress is deliberately NOT here, for the same reason as
-        // Screen.RawLlmLog above: an argument-free index-progress route watches nothing and has
-        // nowhere to route when indexing completes. Every real edge into it (the graph's
-        // SEARCH_INDEX_PATTERN arm, classic SearchIndexComposeActivity.kt:72) builds a route
-        // carrying the chain's five arguments.
-        // — slice 5: the search cluster (part B) —
-        // Argument-free by construction: classic EpubSearchComposeActivity read NO extras at all
-        // and took its document from the current page, so NavRoutes.EPUB_SEARCH is the whole route.
-        // Both of its callers (SearchControl.getSearchIntent, classic
-        // SearchIndexProgressComposeActivity) build it with no extras.
-        Screen.EpubSearch to NavRoutes.EPUB_SEARCH,
         // — slice 6: the settings cluster (part A) —
         // The REFRESH_DISPLAY_ON_FINISH edge survives this row untouched: MenuCommandHandler.kt:182-186
         // launches Screen.Settings with that request code through startActivityForResult, and the
@@ -225,8 +209,6 @@ object ScreenLauncher {
     /** The Activity class implementing [screen]. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
         Screen.Calculator -> CalculatorComposeActivity::class.java
-        Screen.SearchIndexProgress -> targetForMigratedScreen(screen)
-        Screen.SearchIndex -> targetForMigratedScreen(screen)
         Screen.ReadingPlanSelector -> targetForMigratedScreen(screen)
         Screen.DailyReadingList -> targetForMigratedScreen(screen)
         Screen.ReadingPlan -> targetForMigratedScreen(screen)
@@ -236,7 +218,6 @@ object ScreenLauncher {
         Screen.GridChoosePassageBook -> targetForMigratedScreen(screen)
         Screen.ChooseDocument -> targetForMigratedScreen(screen)
         Screen.Download -> targetForMigratedScreen(screen)
-        Screen.EpubSearch -> targetForMigratedScreen(screen)
         Screen.MyDocuments -> targetForMigratedScreen(screen)
         Screen.MyDocumentPages -> targetForMigratedScreen(screen)
         Screen.CloudDocuments -> targetForMigratedScreen(screen)
