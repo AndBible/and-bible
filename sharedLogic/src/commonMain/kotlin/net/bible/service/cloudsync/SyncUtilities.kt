@@ -39,8 +39,6 @@ import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import kotlin.time.Clock
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.withContext
 
 
 private suspend fun writePatchData(
@@ -268,8 +266,9 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  * with this device's sync watermark (#4151).
  *
  * [onApplied] gets those entries once, after the last patch and outside the writer connection, only when any patch
- * changed something. It runs also when a later patch fails (or the sync is cancelled), with the patches committed
- * before it: a retry re-applies them as no-ops and would never report them. Once, not per patch: listeners rebuild
+ * changed something. It runs also when a later patch fails, with the patches committed before it: a retry
+ * re-applies them as no-ops and would never report them. (A cancelled sync calls it too, but a listener that
+ * suspends is cancelled with it: the databases may be on their way to a close.) Once, not per patch: listeners rebuild
  * views (an Android workspace switch per call) and check final rows (a reading plan reset by one patch and
  * restarted by the next stays selected).
  */
@@ -314,14 +313,16 @@ suspend fun applyPatchesForDatabase(
                     }
                 }
             }
-            if(!env.isDebugMode) {
-                FileSystem.SYSTEM.delete(patchDbFile)
-            }
-            // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one.
+            // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one. Merged
+            // before anything else can throw, or a committed patch would go unreported.
             for (e in patchEntries) {
                 val key = Triple(e.tableName, e.entityId1, e.entityId2)
                 applied.remove(key)
                 applied[key] = e
+            }
+            if(!env.isDebugMode) {
+                runCatching { FileSystem.SYSTEM.delete(patchDbFile) }
+                    .onFailure { Log.w(TAG, "Could not delete ${patchDbFile.name}", it) }
             }
         }
     } catch (e: Throwable) {
@@ -330,7 +331,7 @@ suspend fun applyPatchesForDatabase(
     } finally {
         if (applied.isNotEmpty()) {
             try {
-                withContext(NonCancellable) { onApplied(applied.values.toList()) }
+                onApplied(applied.values.toList())
             } catch (e: Throwable) {
                 // Never hide the patch failure behind a listener's.
                 failure?.addSuppressed(e) ?: throw e

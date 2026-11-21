@@ -1024,8 +1024,12 @@ class CloudSync(
         }
 
         // Reported once for all patches, also those committed before a failing one: the retry re-applies them as no-ops
-        // and would never report them (#4151).
-        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray(), onApplied = { dbDef.reactToUpdates(it) })
+        // and would never report them (#4151). For the same reason a listener's failure must not fail the sync.
+        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray(), onApplied = {
+            try { dbDef.reactToUpdates(it) }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { Log.e(TAG, "Reacting to synced ${dbDef.categoryName} changes failed", e) }
+        })
         downloadedFiles.forEach { runCatching { FileSystem.SYSTEM.delete(it) } }
         dbDef.dao.addStatuses(syncStatuses)
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, synchronizedAt)
