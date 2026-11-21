@@ -24,7 +24,9 @@ import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedui.host.app.HostRootLinks
+import net.bible.sharedui.host.reading.FontSizeChange
 import net.bible.sharedui.host.reading.HostReadingWindows
+import net.bible.sharedui.host.reading.HostShortcutActions
 import org.koin.mp.KoinPlatform
 
 /**
@@ -78,29 +80,19 @@ class DesktopShortcutActionsImpl(
         menu.run(windowId, SelectionMenuItem.AddBookmarkSelection)
     }
 
-    override fun changeFontSize(change: FontSizeChange, steps: Int) {
-        val settings = koin().get<AppSettings>()
-        val current = settings.getInt(FONT_SIZE_KEY, FontSizeChange.FONT_DEFAULT)
-        val next = change.apply(current, steps)
-        if (next == current) return
-        settings.setInt(FONT_SIZE_KEY, next)
-        HostReadingWindows.nightModeChanged()
-    }
+    override fun changeFontSize(change: FontSizeChange, steps: Int) = HostShortcutActions.changeFontSize(change, steps)
 
-    override fun focusNextWindow() = koin().get<WindowControl>().focusNextWindow()
+    override fun focusNextWindow() = HostShortcutActions.focusNextWindow()
 
-    override fun focusPreviousWindow() = koin().get<WindowControl>().focusPreviousWindow()
+    override fun focusPreviousWindow() = HostShortcutActions.focusPreviousWindow()
 
     override fun toggleFullScreen() = HostReadingWindows.toggleFullScreen()
 
     override fun leaveFullScreen(): Boolean = HostReadingWindows.leaveFullScreen()
 
-    override fun openSettings() = HostRootLinks.openRoute(NavRoutes.SETTINGS)
+    override fun openSettings() = HostShortcutActions.openSettings()
 
-    override fun syncNow() {
-        val sync = koin().get<net.bible.service.cloudsync.SyncNow>()
-        if (sync.available()) sync.start() else HostRootLinks.openRoute(NavRoutes.SYNC_SETTINGS)
-    }
+    override fun syncNow() = HostShortcutActions.syncNow()
 
     override fun escapeAllowed(windowId: String): Boolean =
         !HostReadingWindows.hasAssembly(windowId) || !HostReadingWindows.sessionFor(windowId).editingTextInJs
@@ -115,6 +107,6 @@ class DesktopShortcutActionsImpl(
     }
 
     companion object {
-        const val FONT_SIZE_KEY = "font_size_multiplier"
+        const val FONT_SIZE_KEY = HostShortcutActions.FONT_SIZE_KEY
     }
 }

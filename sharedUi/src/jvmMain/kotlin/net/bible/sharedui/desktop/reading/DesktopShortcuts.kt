@@ -17,25 +17,7 @@
 package net.bible.sharedui.desktop.reading
 
 import net.bible.sharedui.desktop.reading.DesktopBackDispatcher.Navigation
-
-/** A change of the font size setting from the keyboard. */
-enum class FontSizeChange {
-    Larger, Smaller, Reset;
-
-    /** The new `font_size_multiplier` percent for [current], within the settings slider's 10..500. */
-    fun apply(current: Int, steps: Int = 1): Int = when (this) {
-        Larger -> current + FONT_STEP * steps
-        Smaller -> current - FONT_STEP * steps
-        Reset -> FONT_DEFAULT
-    }.coerceIn(FONT_MIN, FONT_MAX)
-
-    companion object {
-        const val FONT_STEP = 10
-        const val FONT_DEFAULT = 100
-        const val FONT_MIN = 10
-        const val FONT_MAX = 500
-    }
-}
+import net.bible.sharedui.host.reading.FontSizeChange
 
 /**
  * A key as the shortcuts see it: DOM-style [key] ("f", "+", "Tab", "ArrowLeft", "F11", "Escape"), the modifiers, and where
