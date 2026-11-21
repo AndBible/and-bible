@@ -177,6 +177,8 @@ class CloudSync(
     private val signInMutex = Mutex()
     /** Completed when the sign-in holding [signInMutex] ends; [signedInAdapter] waits on it without taking the lock. */
     @kotlin.concurrent.Volatile private var signInDone: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+    /** Whether the last sign-in that failed already told the user (a foreground dialog, or a cancel); false only for a genuine background failure. */
+    @kotlin.concurrent.Volatile private var lastSignInFailureReported = true
     suspend fun signIn(background: Boolean = false, onForegroundFailure: (String) -> Unit = {}, waitForExisting: Boolean = false): Boolean? {
         if (!adapterAvailable) return false
         if (!signInMutex.tryLock()) {
@@ -184,12 +186,14 @@ class CloudSync(
             if (!waitForExisting) return null
             val ok = signInMutex.withLock { _adapter?.signedIn == true }
             // The sign-in waited for may have been a background one, which reports nothing: tell the waiting caller.
-            if (!ok && !background) UserMessages.errorNotification(strings.signInFailedLead, showReportButton = false, background = false, kind = ActivityKind.SYNC)
+            // A foreground one showed its own dialog and a user cancel is no failure: nothing more to say then.
+            if (!ok && !background && !lastSignInFailureReported) UserMessages.errorNotification(strings.signInFailedLead, showReportButton = false, background = false, kind = ActivityKind.SYNC)
             return ok
         }
         val done = kotlinx.coroutines.CompletableDeferred<Unit>().also { signInDone = it }
         var errorMessage: String? = null
         var cancelledByUser = false
+        var aborted = false
         val success = try {
             // #4102 one-time pin. Here and not in the constructor: Koin builds CloudSync on Main during startup
             // (BackupControl), where reading settings cold-opens the database (CoreModuleResolveTest). Every sync
@@ -201,6 +205,7 @@ class CloudSync(
                 adapter.signIn()
             } catch (e: kotlinx.coroutines.CancellationException) {
                 _adapter = null
+                aborted = true
                 throw e
             } catch (e: CloudSyncUserCancelledException) {
                 cancelledByUser = true
@@ -212,6 +217,7 @@ class CloudSync(
                 false
             }.also { if (!it) _adapter = null }
         } finally {
+            lastSignInFailureReported = !background || cancelledByUser || aborted
             signInMutex.unlock()
             done.complete(Unit)
         }
@@ -346,6 +352,12 @@ class CloudSync(
     /** Removes and returns the stored decision of [category]; the caller is about to act on it (or drop it). */
     private fun takeStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
         storedJoins.remove(category).also { queuedJoinsMutable.value = storedJoins.keys.toSet() }
+    }
+
+    /** Removes the decision of [category] only if it is still [expected]; returns it, or null when another decision (or none) is stored. */
+    private fun takeStoredJoinIfSame(category: SyncableDatabaseDefinition, expected: Any): StoredJoin? = synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+        if (storedJoins[category] !== expected) null
+        else storedJoins.remove(category).also { queuedJoinsMutable.value = storedJoins.keys.toSet() }
     }
 
     private fun peekStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { storedJoins[category] } // L1-common-ok: atomicfu lock
@@ -1079,8 +1091,11 @@ class CloudSync(
                             // A decision only holds for the cloud it was made against: a create never replaces a folder another
                             // device made since, and a fetch/merge/create answer is bound to the folder the user was shown.
                             val state = probe.state
-                            val usable = stored != null && (state is JoinState.NeedsCreate ||
+                            val usable0 = stored != null && (state is JoinState.NeedsCreate ||
                                 (stored.fromDecision && state is JoinState.NeedsDecision && stored.folderId == state.preliminaryFolderId))
+                            // A create answer holds when the folder is missing; a fetch/merge bound to folder X does not.
+                            val createOk = state !is JoinState.NeedsCreate || stored == null || !stored.fromDecision || stored.folderId == null
+                            val usable = usable0 && createOk
                             if (usable) { operations[category] = stored!!.operation; usedStored[category] = stored }
                             else if (allowInteraction) toAsk += probe
                             else {
@@ -1121,9 +1136,10 @@ class CloudSync(
                     }
                     // Re-check what the init phase decided: the dialog above may have taken a while, and an Apply meanwhile may
                     // have turned the category off or replaced/dropped its decision.
-                    val taken = takeStoredJoin(category)
-                    if (!category.isSyncEnabled(settings)) return@asyncMap
                     val fromStored = usedStored[category]
+                    // Compare-and-remove: a newer decision stored meanwhile by another Apply is not ours to take.
+                    val taken = if (fromStored != null) takeStoredJoinIfSame(category, fromStored) else takeStoredJoin(category)
+                    if (!category.isSyncEnabled(settings)) return@asyncMap
                     if (fromStored != null && taken !== fromStored) return@asyncMap
                     if (!guardInit(dbDef, "initialize") { executeJoin(dbDef, probe, operation, backgroundErrors) }) return@asyncMap
                     try {

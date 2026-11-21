@@ -499,4 +499,65 @@ class CloudSyncTwoPhaseJoinTest {
         assertNull(f.db(c).dao.getString(SYNC_FOLDER_FILE_ID_KEY))
         assertFalse(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames })
     }
+
+    @Test fun storedCreateDecisionIsExecutedByNextPass() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c); all(f, "disable")
+        assertTrue(f.cloud.planJoins(setOf(c))) // no cloud folder: CREATE_NEW stored without a question
+        f.cloud.synchronize()
+        assertEquals(0, f.planRequests().size, "a stored create needs no dialog")
+        assertTrue(f.cloud.queuedJoins.value.isEmpty(), "the pass consumed it")
+        assertEquals("new-${f.folderName(c)}", f.db(c).dao.getString(SYNC_FOLDER_FILE_ID_KEY), "the create ran")
+        assertTrue(f.enabled(c))
+    }
+
+    @Test fun storedAndDialogDecisionsOfOnePassBothExecute() = withFixture { f ->
+        val a = SyncableDatabaseDefinition.BOOKMARKS
+        val b = SyncableDatabaseDefinition.WORKSPACES
+        f.enable(a, b); f.cloudHas(b); all(f, "fetch")
+        assertTrue(f.cloud.planJoins(setOf(a))) // create for a, stored
+        f.cloud.synchronize() // b is asked, a comes from the store
+        assertEquals(1, f.planRequests().size, "only b is asked")
+        assertEquals("new-${f.folderName(a)}", f.db(a).dao.getString(SYNC_FOLDER_FILE_ID_KEY), "the stored create ran")
+        assertEquals("cloud-${f.folderName(b)}", f.db(b).dao.getString(SYNC_FOLDER_FILE_ID_KEY), "the dialog's fetch ran")
+    }
+
+    @Test fun executePhaseDoesNotRunOrDiscardAStoredDecisionReplacedMeanwhile() = withFixture { f ->
+        val a = SyncableDatabaseDefinition.BOOKMARKS
+        val b = SyncableDatabaseDefinition.WORKSPACES
+        f.enable(a, b); f.cloudHas(b); all(f, "fetch")
+        assertTrue(f.cloud.planJoins(setOf(a)))
+        f.answer = { r ->
+            // Another Apply replaces a's decision while this pass's dialog is open.
+            kotlinx.coroutines.runBlocking { f.cloud.planJoins(setOf(a)) }
+            AppDialogResult.SyncJoinChoices(r.rows.associate { it.key to "fetch" })
+        }
+        f.cloud.synchronize()
+        assertNull(f.db(a).dao.getString(SYNC_FOLDER_FILE_ID_KEY), "the replaced decision is not run by this pass")
+        assertEquals(setOf(a), f.cloud.queuedJoins.value, "the newer decision survives for the next pass")
+    }
+
+    @Test fun fetchDecisionBoundToAVanishedFolderIsNotRunAsACreate() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c); f.cloudHas(c); all(f, "fetch")
+        assertTrue(f.cloud.planJoins(setOf(c)))
+        f.adapter.cloudFolderNames.clear() // the folder vanished: the probe now says NeedsCreate
+        all(f, "disable")
+        f.cloud.synchronize()
+        // A missing folder is planned afresh (a create needs no question), never run from the fetch answer.
+        assertEquals("new-${f.folderName(c)}", f.db(c).dao.getString(SYNC_FOLDER_FILE_ID_KEY), "created, not fetched")
+        assertFalse(synchronized(f.adapter.listedNames) { INITIAL_BACKUP_FILENAME in f.adapter.listedNames }, "no fetch ran")
+    }
+
+    @Test fun dropStoredJoinIfSameLeavesAReplacementDecision() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.enable(c)
+        assertTrue(f.cloud.planJoins(setOf(c)))
+        val mine = f.cloud.storedJoinToken(c)
+        assertTrue(f.cloud.planJoins(setOf(c))) // a second Apply replaces it
+        f.cloud.dropStoredJoinIfSame(c, mine)
+        assertEquals(setOf(c), f.cloud.queuedJoins.value, "only my own decision is dropped")
+        f.cloud.dropStoredJoinIfSame(c, f.cloud.storedJoinToken(c))
+        assertTrue(f.cloud.queuedJoins.value.isEmpty())
+    }
 }

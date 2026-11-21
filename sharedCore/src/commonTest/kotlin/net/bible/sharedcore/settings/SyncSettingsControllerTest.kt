@@ -473,6 +473,21 @@ class SyncSettingsControllerTest {
         assertEquals(1, exits)
     }
 
+    @Test fun hopRefusedWhileApplyThenLeaveRunsKeepsTheConfirmedHop() {
+        var opened = 0
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred() }
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), { opened++ }, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onNavigate("document_sync_manage") // the leave question for hop 1
+        c.confirmLeaveApply()
+        c.onNavigate("document_sync_manage") // hop 2 refused: the Apply runs
+        svc.beforeProbe!!.complete(Unit)
+        svc.afterProbe!!.complete(Unit)
+        assertEquals(1, opened, "the confirmed hop still runs after the Apply")
+        assertEquals(0, exits, "the screen does not just exit")
+    }
+
     @Test fun hopWithPendingRunsAfterApplyCompletes() {
         var opened = 0
         val svc = FakeSyncSettingsService(syncSnap()).apply { afterProbe = CompletableDeferred(); beforeProbe = CompletableDeferred() }
