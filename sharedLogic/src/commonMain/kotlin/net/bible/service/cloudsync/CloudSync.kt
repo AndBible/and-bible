@@ -379,8 +379,11 @@ class CloudSync(
     /**
      * Read-only look at what joining [dbDef] would take: no writes to the database, the adapter or the file system
      * (only `getString`, `isSyncFolderKnown`, `listFiles` and `exists` are used). [executeJoin] acts on the result.
+     *
+     * With [listCloud] false (a pass that may not ask the user) the cloud folder is not listed: an unjoined category
+     * then reports [JoinState.NeedsCreate] as a placeholder, because the caller only cancels it.
      */
-    internal suspend fun probeJoin(dbDef: SyncableDatabaseAccessor<*>): JoinProbe {
+    internal suspend fun probeJoin(dbDef: SyncableDatabaseAccessor<*>, listCloud: Boolean = true): JoinProbe {
         val resetNamespace = namespaceChanged(dbDef)
         fun probe(state: JoinState, dropStaleState: Boolean = false) =
             JoinProbe(dbDef.category, state, resetNamespace, dropStaleState)
@@ -394,6 +397,7 @@ class CloudSync(
             if (known && dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) != null) return probe(JoinState.Ready)
             dropStaleState = true
         }
+        if (!listCloud) return probe(JoinState.NeedsCreate, dropStaleState)
         val cloudFolder = adapter.listFiles(name = syncFolderName(dbDef.categoryName)).firstOrNull()
         return probe(if (cloudFolder != null) JoinState.NeedsDecision(cloudFolder.id) else JoinState.NeedsCreate, dropStaleState)
     }
@@ -406,7 +410,7 @@ class CloudSync(
     }
 
     @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true, backgroundErrors: Boolean = !allowInteraction) {
-        val probe = probeJoin(dbDef)
+        val probe = probeJoin(dbDef, listCloud = allowInteraction)
         var operation: InitialOperation? = null
         when (val state = probe.state) {
             JoinState.Ready, JoinState.NeedsRecovery -> {}
@@ -763,6 +767,11 @@ class CloudSync(
         adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
     }
 
+    private fun hasInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>): Boolean {
+        val original = mergeOriginalPath(dbDef)
+        return FileSystem.SYSTEM.exists(original) || FileSystem.SYSTEM.exists("$original.partial".toPath())
+    }
+
     /**
      * Finishes a merge that a process death (or a failed restore) interrupted, before anything else touches the
      * category. `<db>.merge-original` exists only once the pristine copy is whole: the live database may then be the
@@ -772,11 +781,6 @@ class CloudSync(
      * [CancelStartedSync]; the user can enable sync again. Runs inside [executeJoin], so a signed-in adapter is
      * needed first: until then the database stays as the interrupted merge left it.
      */
-    private fun hasInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>): Boolean {
-        val original = mergeOriginalPath(dbDef)
-        return FileSystem.SYSTEM.exists(original) || FileSystem.SYSTEM.exists("$original.partial".toPath())
-    }
-
     private suspend fun recoverInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>, background: Boolean) {
         val original = mergeOriginalPath(dbDef)
         val partial = "$original.partial".toPath()

@@ -66,11 +66,14 @@ class CloudSyncJoinProbeTest {
         var cloudFolders: List<CloudFile> = emptyList()
         var folderKnown = true
         var writes = 0
+        var listings = 0
         override val signedIn get() = true
         override suspend fun signIn() = true
         override suspend fun signOut() {}
-        override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> =
-            cloudFolders.filter { name == null || it.name == name }
+        override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> {
+            listings++
+            return cloudFolders.filter { name == null || it.name == name }
+        }
         override suspend fun createNewFolder(name: String, parentId: String?): CloudFile { writes++; error("probe must not write") }
         override suspend fun get(id: String): CloudFile = error("unused")
         override suspend fun getFolders(parentId: String): List<CloudFile> = emptyList()
@@ -186,6 +189,16 @@ class CloudSyncJoinProbeTest {
         assertEquals(777L, f.db.dao.getLong(LAST_SYNCHRONIZED_KEY))
         assertEquals("other", f.db.dao.getString(SYNC_NAMESPACE_KEY))
         assertEquals(0, f.adapter.writes)
+    }
+
+    @Test fun nonInteractiveInitializeOfUnjoinedCategoryCancelsWithoutListingTheCloud() = withFixture { f ->
+        f.adapter.cloudFolders = listOf(CloudFile("cloud-1", f.cloud.syncFolderName(f.db.categoryName), 0L, 1L, "root"))
+        f.db.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "stale")
+        f.db.dao.setConfig(LAST_SYNCHRONIZED_KEY, 5L)
+        assertFailsWith<CancelStartedSync> { f.cloud.initializeSync(f.db, allowInteraction = false) }
+        assertEquals(0, f.adapter.listings, "A background pass must not make a cloud listing call")
+        assertNull(f.db.dao.getString(SYNC_FOLDER_FILE_ID_KEY), "Cleanups still run before the cancel")
+        assertNull(f.db.dao.getLong(LAST_SYNCHRONIZED_KEY))
     }
 
     @Test fun probeOfInterruptedMergeNeedsRecovery() = withFixture { f ->
