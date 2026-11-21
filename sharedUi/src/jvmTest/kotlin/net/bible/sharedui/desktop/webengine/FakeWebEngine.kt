@@ -41,7 +41,12 @@ class FakePane(
     val scripts: List<String>,
     val onMessage: (String) -> Unit,
 ) : DesktopWebPane {
-    val evaluated = mutableListOf<String>()
+    /**
+     * Every script evaluated in this pane. Copy-on-write (#4188): [post] runs inline on the caller's thread, unlike a
+     * real pane that hops to the EDT, so a window's background text load records here from a worker thread while a
+     * test reads the list on the EDT. Readers iterate a snapshot instead of throwing `ConcurrentModificationException`.
+     */
+    val evaluated: MutableList<String> = java.util.concurrent.CopyOnWriteArrayList()
     var disposed = false
     val backgrounds = mutableListOf<Int>()
     private var rendererGone: (() -> Unit)? = null
