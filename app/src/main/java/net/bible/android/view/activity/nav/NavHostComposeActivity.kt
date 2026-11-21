@@ -181,11 +181,9 @@ import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.nav.readingNavGraph
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
-import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
-import net.bible.sharedcore.nav.PassageResult
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.getKoin
 
@@ -289,11 +287,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** The Download destination's two JSword controls, classic `DownloadComposeActivity.kt:135-136`. */
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
-
-    /** The passage grid's versification/book-list source, classic
-     *  `GridChoosePassageComposeActivity.kt:43`. `documentControl`/`downloadControl` above are the
-     *  document chooser's own two, shared with Download. */
-    private val navigationControl: NavigationControl by inject()
 
     /** The workspace cluster's two Koin services, classic `WorkspaceSelectorComposeActivity.kt:56`
      *  and `TextDisplaySettingsComposeActivity.kt:102`. The text-display one is the CONCRETE impl,
@@ -1720,7 +1713,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * `ReadingCommands.startDocumentChooser`, `MenuCommandHandler`'s `chooseDocumentButton`),
      * `ChooseDictionaryWord` and `ChooseMapKey` (`KeyChooserRoute.sheetFor` deliberately returns
      * null for the dictionary, so that chooser is ALWAYS the full screen), `ChooseGeneralBookKey`
-     * and `GridChoosePassage`. With this host as the launcher and nothing overriding
+     * (and, until #4169 removed it, the full-screen passage grid). With this host as the launcher and nothing overriding
      * `onActivityResult`, every one of those results fell through `ActivityBase`'s
      * `resultByCode[requestCode - ASYNC_REQUEST_CODE_START]` miss to `super` and was discarded in
      * silence -- the batch's Ruling D failure, and the same defect step 0 fixed one level up.
@@ -2033,9 +2026,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             collectorFor(keyChooserResults, ReadingResultKind.KeyChooser) { result, code ->
                 deliverReadingResult(code, RESULT_OK, NavResultIntents.forKeyChooser(result))
             },
-            collectorFor(passageResults, ReadingResultKind.PassageGrid) { result, code ->
-                deliverReadingResult(code, RESULT_OK, NavResultIntents.forPassage(result))
-            },
             collectorFor(documentResults, ReadingResultKind.ChooseDocument) { result, code ->
                 deliverReadingResult(code, RESULT_OK, NavResultIntents.forDocument(result))
             },
@@ -2114,8 +2104,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 readingCommands.applyChosenGenBookKey(book, key)
             }
             ActivityResultKind.Bookmarks,
-            ActivityResultKind.ReadingProgress,
-            ActivityResultKind.PassageGrid -> {
+            ActivityResultKind.ReadingProgress -> {
                 if (!readingCommands.applyChosenPassageResult(kind, extras)) {
                     Log.w(TAG_READING_RESULTS, "A $kind answer named nothing to open; not applied.")
                 }
@@ -2142,7 +2131,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * its next resume, a selection the user made minutes earlier on an unrelated screen.
      *
      * The kinds a SEPARATE Activity can still produce are the only ones handled: `ChooseDocument`,
-     * `GenBookKey` (general book, dictionary and map all share that shape) and `PassageGrid`.
+     * `GenBookKey` (general book, dictionary and map all share that shape).
      * `MyDocumentPages`, `MyDocuments`, `Bookmarks` and `ReadingProgress` are destinations of THIS
      * host's own graph, so their results are delivered in-graph by `NavResultChannel` and cannot
      * arrive here; one that does means a second host instance was created, and it is logged rather
@@ -2180,9 +2169,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             ActivityResultKind.GenBookKey -> {
                 val (book, key) = KeyChooserResults.genBookKeyFrom(extras)
                 readingCommands.applyChosenGenBookKey(book, key)
-            }
-            ActivityResultKind.PassageGrid -> {
-                extras.getString("verse")?.let { readingCommands.applyChosenVerse(it) }
             }
             else -> Log.w(
                 TAG_START_ROUTE,
@@ -2414,7 +2400,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         ReadingResultKind.Bookmarks -> bookmarkResults
         ReadingResultKind.MyDocuments -> myDocumentsResults
         ReadingResultKind.KeyChooser -> keyChooserResults
-        ReadingResultKind.PassageGrid -> passageResults
         ReadingResultKind.ChooseDocument -> documentResults
         ReadingResultKind.Workspace -> workspaceResults
     }
@@ -3225,7 +3210,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             myDocumentPages = myDocumentPagesResults,
                             myDocuments = myDocumentsResults,
                             keyChooser = keyChooserResults,
-                            passage = passageResults,
                             document = documentResults,
                             installZip = installZipResults,
                             workspace = workspaceResults,
@@ -3473,15 +3457,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // `net.bible.sharedui.app.download`). `repositoryEditorResults` stays declared above: the channel guards read it.
 
     // --- Chooser cluster (ChooserHost) -----------------------------------------------------------
-    // The five chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
-    // `net.bible.sharedui.app.chooser`). The three result channels stay declared here: `KeyChooserResults` is a
+    // The four chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
+    // `net.bible.sharedui.app.chooser`). The two result channels stay declared here: `KeyChooserResults` is a
     // frozen `page` contract and the reading destination's collectors read them.
 
-    // ——— The chooser cluster's three result channels ————————————————————————————————————————————
-    // THREE channels for FIVE destinations (design §6.2) -- see `ChooserNavDeps`' own kdoc: the three
-    // key choosers already produce an identical payload consumed by a single arm.
+    // ——— The chooser cluster's two result channels ——————————————————————————————————————————————
+    // TWO channels for FOUR destinations (design §6.2; the passage grid's own went with it, #4169) -- see
+    // `ChooserNavDeps`' own kdoc: the three key choosers already produce an identical payload consumed by
+    // a single arm.
     //
-    // Every result on these three channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
+    // Every result on these channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
     // the reading destination (`readingResultCollectors`), which packs it back into the classic
     // chooser's Intent and applies it through `deliverReadingResult`. An abandoned chooser is answered
     // as a cancel by `answerAbandonedReadingRequests`.
@@ -3494,10 +3479,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // defined.
 
     private val keyChooserResults = NavResultChannel<KeyChooserResult> {
-        error("slice 7 destinations are only entered in-graph")
-    }
-
-    private val passageResults = NavResultChannel<PassageResult> {
         error("slice 7 destinations are only entered in-graph")
     }
 

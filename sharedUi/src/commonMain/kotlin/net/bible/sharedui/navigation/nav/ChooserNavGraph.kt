@@ -37,14 +37,12 @@ import androidx.savedstate.read
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.navigation.ChooseDictionaryWordController
 import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
 import net.bible.sharedcore.navigation.ChooseMapKeyController
 import net.bible.sharedcore.navigation.DictRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
-import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.NavResultChannel
@@ -53,19 +51,8 @@ import net.bible.sharedui.navigation.ChooseDictionaryWordScreen
 import net.bible.sharedui.navigation.ChooseGeneralBookKeyScreen
 import net.bible.sharedui.navigation.ChooseMapKeyScreen
 import net.bible.sharedui.navigation.DocumentSelectionScreen
-import net.bible.sharedui.navigation.GridChoosePassageScreen
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
 import net.bible.sharedui.strings.Strings
-
-/** iOS can change language in-place; Android retains its Activity recreation lifecycle. */
-@Composable
-internal fun RefreshGridLanguage(controller: GridChoosePassageController) {
-    val strings = LocalStrings.current
-    if (LocalLiveSettingsLanguage.current) {
-        LaunchedEffect(controller, strings) { controller.refresh() }
-    }
-}
 
 /**
  * [ChooseGeneralBookKeyScreen]'s platform-supplied slots, ported from
@@ -139,43 +126,6 @@ class ChooseDictionaryWordDeps(
 )
 
 /**
- * [GridChoosePassageScreen]'s platform-supplied slots, ported from
- * `GridChoosePassageComposeActivity`.
- *
- * - [controllerFor] takes the route's `isScripture` and builds the whole controller around the
- *   `GridPassageHostSupport.kt` seams (versification, book/chapter/verse grids, read/memorise
- *   progress) plus the two step fields classic held as Activity state (`selectedBookNo`,
- *   `selectedChapter`). Per-entry, like every other chooser here.
- *
- *   **`navigateToVerse` is deliberately NOT a parameter** (design §6.1.1). Classic read it from an
- *   Intent extra whose single producer (`BibleJavascriptInterface.refChooserDialog`) moves to the
- *   ref-chooser SHEET this slice, so the extra has no producer left; what remains is the fallback
- *   classic already applied to that extra -- `CommonUtils.settings.getBoolean("navigate_to_verse_pref",
- *   false)` (`GridChoosePassageComposeActivity.kt:56`) -- which is a `settings` read, i.e. host-side,
- *   and is applied inside this factory. An argument with no producer would read to a later reader as
- *   a live contract.
- *
- *   The screen's `"title"` extra (`:55`) is dropped for the same producerless reason, and is now held
- *   down by `ClassicPassageGridRemovalGuardTest.noCallSiteStillPutsAPassageGridTitleExtraOnAnIntent`
- *   -- the same containment scan over shipping sources the two ChooseDocument extras get, and with
- *   the same limit: `ClassicRemovalScan.appSources()` does not look at `src/test` or
- *   `src/androidTest`.
- * - [windowTitle] exists because this is the ONE destination of the five whose classic Activity had
- *   **no `android:label`** (`AndroidManifest.xml:119-121`): its window title fell back to the
- *   application label, while the title the SCREEN draws is step-dependent and comes from the
- *   controller's own `GridUi.title`. So the host supplies the application label here rather than the
- *   screen's title, and the window title stays what classic's did.
- */
-class GridChoosePassageDeps(
-    val windowTitle: String,
-    val controllerFor: (
-        scope: kotlinx.coroutines.CoroutineScope,
-        isScripture: Boolean,
-        onResult: (PassageResult) -> Unit,
-    ) -> GridChoosePassageController,
-)
-
-/**
  * [DocumentSelectionScreen]'s platform-supplied slots for the READING view's document picker, ported
  * from `ChooseDocumentComposeActivity` -- the largest of the five, and the sibling of
  * [net.bible.sharedui.download.nav.DownloadDeps], which drives the same screen in download mode.
@@ -234,12 +184,13 @@ class ChooseDocumentDeps(
 )
 
 /**
- * Platform-supplied slots the five chooser destinations need but `commonMain` cannot provide. Same
+ * Platform-supplied slots the four chooser destinations need but `commonMain` cannot provide. Same
  * top-level shape as [net.bible.sharedui.download.nav.DownloadNavDeps] and
  * [net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps]: [exitHost] and [setWindowTitle] are
  * graph-wide, the result channels next, then one nested holder per destination.
  *
- * **Three channels for five destinations** (design §6.2), and that is the point rather than an
+ * **Two channels for four destinations** (design §6.2; the full-screen passage grid, with its own
+ * channel, was removed by #4169), and that is the point rather than an
  * economy: `ChooseGeneralBookKey`, `ChooseMapKey` and `ChooseDictionaryWord` already produce a
  * deliberately identical payload -- the classic `Intent`s differ in nothing but which of
  * `bookAndKey` / `key`+`book` they fill -- and a single arm
@@ -250,7 +201,7 @@ class ChooseDocumentDeps(
 class ChooserNavDeps(
     /**
      * Leave the host. Reachable only through [popOrExitOnFailedPop] below, i.e. only if a pop
-     * somehow fails -- these five destinations are entered from inside the graph, so there is always
+     * somehow fails -- these four destinations are entered from inside the graph, so there is always
      * a parent to pop to. Note the deliberate asymmetry with the channels' own `exitWithResult`,
      * which is a hard `error(...)` on the host side (design §1.1): losing a RESULT silently is a
      * defect worth failing loudly on, whereas a bare up-press has nothing to lose, and leaving the
@@ -260,9 +211,8 @@ class ChooserNavDeps(
     /**
      * Sets the HOST WINDOW's title (Recents, TalkBack) -- not the on-screen top-bar title a screen
      * draws for itself. Called from each destination's `LaunchedEffect(title)`, keyed on the VALUE
-     * so a state-derived title cannot go stale, and never from a screen composable. Each of the four
-     * labelled destinations passes the string its classic `android:label` carried; `GridChoosePassage`
-     * had no label at all, which is what [GridChoosePassageDeps.windowTitle] is for.
+     * so a state-derived title cannot go stale, and never from a screen composable. Each destination
+     * passes the string its classic `android:label` carried.
      */
     val setWindowTitle: (String) -> Unit,
     /**
@@ -273,8 +223,6 @@ class ChooserNavDeps(
      * Intent for a caller that does not exist.
      */
     val keyChooserResults: NavResultChannel<KeyChooserResult>,
-    /** `GridChoosePassage`'s channel -- same in-graph-only contract as [keyChooserResults]. */
-    val passageResults: NavResultChannel<PassageResult>,
     /** `ChooseDocument`'s channel -- same in-graph-only contract as [keyChooserResults]. */
     val documentResults: NavResultChannel<DocumentResult>,
     // — CHOOSE GENERAL BOOK KEY —
@@ -283,8 +231,6 @@ class ChooserNavDeps(
     val chooseMapKey: ChooseMapKeyDeps,
     // — CHOOSE DICTIONARY WORD —
     val chooseDictionaryWord: ChooseDictionaryWordDeps,
-    // — GRID CHOOSE PASSAGE —
-    val gridChoosePassage: GridChoosePassageDeps,
     // — CHOOSE DOCUMENT —
     val chooseDocument: ChooseDocumentDeps,
 )
@@ -323,11 +269,11 @@ private fun chooserTypeFilterLabels(strings: Strings): List<Pair<DocTypeFilter, 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 
 /**
- * The five chooser destinations, registered into the app's single `NavHost` by the host Activity.
+ * The four chooser destinations, registered into the app's single `NavHost` by the host Activity.
  *
  * **Nothing routes to any of them yet.** `ScreenLauncher.MIGRATED` is untouched until nav-graph
- * slice 7 Task 8, the reading destination that consumes the three channels arrives in Task 9, and
- * the five classic Activities stay in the tree, compiling and still reachable by their own
+ * slice 7 Task 8, the reading destination that consumes the channels arrives in Task 9, and
+ * the classic Activities stay in the tree, compiling and still reachable by their own
  * `Screen.X` arms, until Task 13. This task builds the destinations and their result plumbing only,
  * which is what makes the batch bisectable: a defect here cannot yet reach a user path.
  *
@@ -457,59 +403,6 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             onSelect = controller::select,
             onDismissError = controller::dismissError,
             onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
-        )
-    }
-
-    // ——— GRID CHOOSE PASSAGE ———
-    composable(
-        route = NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN,
-        arguments = listOf(
-            navArgument(NavRoutes.ARG_IS_SCRIPTURE) {
-                type = NavType.StringType; nullable = true; defaultValue = null
-            },
-        ),
-    ) { backStackEntry ->
-        val d = deps.gridChoosePassage
-
-        // Read off the ARGUMENTS, not through `NavRoutes.readGridChoosePassage` (which the plan
-        // named): that parser takes a route STRING, and an arm never has one -- `destination.route`
-        // is the PATTERN, with the placeholders unsubstituted. The host uses the parser on inbound
-        // routes (`onNewIntent`); an arm uses the bundle the library already parsed and decoded. The
-        // value is the same either way, including the "anything but a literal true is false" rule,
-        // which is what `== "true"` is here.
-        val isScripture = backStackEntry.arguments?.read {
-            getStringOrNull(NavRoutes.ARG_IS_SCRIPTURE)
-        } == "true"
-
-        val scope = androidx.compose.runtime.rememberCoroutineScope()
-        val controller = remember(isScripture) {
-            d.controllerFor(scope, isScripture) { result -> deps.passageResults.deliver(navController, backStackEntry, result) }
-        }
-
-        RefreshGridLanguage(controller)
-        LaunchedEffect(d.windowTitle) { deps.setWindowTitle(d.windowTitle) }
-
-        val ui by controller.ui.collectAsState()
-        val options by controller.options.collectAsState()
-
-        // Classic's `onBackPressedDispatcher.addCallback(this) { if (!controller.back()) finish() }`
-        // (`:84`): the grid's INTERNAL step back-stack (book -> chapter -> verse) is walked first,
-        // and only an exhausted one leaves the screen. Always enabled, exactly as classic's callback
-        // was -- the branch lives inside the handler, never in its `enabled` flag, because
-        // `controller.back()` is the thing that decides.
-        PlatformBackHandler(enabled = true) {
-            if (!controller.back()) navController.popOrExit(backStackEntry, deps.exitHost)
-        }
-
-        val rendered = ui
-        GridChoosePassageScreen(
-            ui = rendered,
-            options = options,
-            onPick = { id -> rendered?.let { controller.pick(id, it) } },
-            onToggle = controller::toggle,
-            // Classic's `onNavigateUp` (`:95`) is the same branch as its back callback: the up-arrow
-            // walks the step stack too.
-            onNavigateUp = { if (!controller.back()) navController.popOrExit(backStackEntry, deps.exitHost) },
         )
     }
 

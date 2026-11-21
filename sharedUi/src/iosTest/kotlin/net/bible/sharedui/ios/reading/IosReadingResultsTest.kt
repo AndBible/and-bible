@@ -23,7 +23,6 @@ import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedui.nav.NavResultChannel
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,7 +49,6 @@ class IosReadingResultsTest {
     private val targets = mapOf<Any?, ChooserTarget>("w1" to Target("w1", calls), "w2" to Target("w2", calls))
 
     private val keyChooser = NavResultChannel<KeyChooserResult> { }
-    private val passage = NavResultChannel<PassageResult> { }
     private val document = NavResultChannel<DocumentResult> { }
     private val pages = NavResultChannel<MyDocumentPagesResult> { }
     private val myDocuments = NavResultChannel<MyDocumentsResult> { }
@@ -59,17 +57,17 @@ class IosReadingResultsTest {
     private val workspace = NavResultChannel<net.bible.sharedcore.nav.WorkspaceResult> { }
 
     private val results = HostReadingResults(
-        keyChooser, passage, document, pages, myDocuments, bookmark, progress, workspace,
+        keyChooser, document, pages, myDocuments, bookmark, progress, workspace,
         targetFor = { targets[it] },
         activeAskerProvider = { active },
         log = { logs += it },
     )
 
     @Test fun resultGoesToTheAskingWindowAlsoWhenAnotherBecameActive() {
-        results.asked(ChooserKind.Passage, "w2")
+        results.asked(ChooserKind.Document, "w2")
         active = "w1" // the user switched windows while the chooser was open
-        results.onPassage(PassageResult("Gen.1.1"))
-        assertEquals(listOf("w2:verse:Gen.1.1"), calls)
+        results.onDocument(DocumentResult("KJV"))
+        assertEquals(listOf("w2:document:KJV"), calls)
     }
 
     @Test fun aRequestWithoutAnAskerBelongsToTheActiveWindowAtRequestTime() {
@@ -88,10 +86,10 @@ class IosReadingResultsTest {
     }
 
     @Test fun anAnswerNobodyAskedForIsDroppedAndLogged() {
-        results.onPassage(PassageResult("Gen.1.1"))
+        results.onDocument(DocumentResult("KJV"))
         assertEquals(emptyList(), calls)
         assertEquals(1, logs.size)
-        assertTrue(logs.single().contains("Passage"))
+        assertTrue(logs.single().contains("Document"))
     }
 
     @Test fun anAnswerIsSpentOnce() {
@@ -103,8 +101,8 @@ class IosReadingResultsTest {
     }
 
     @Test fun anAnswerForAWindowThatIsGoneIsDroppedAndLogged() {
-        results.asked(ChooserKind.Passage, "closed")
-        results.onPassage(PassageResult("Gen.1.1"))
+        results.asked(ChooserKind.Document, "closed")
+        results.onDocument(DocumentResult("KJV"))
         assertEquals(emptyList(), calls)
         assertTrue(logs.single().contains("gone"))
     }
@@ -136,11 +134,11 @@ class IosReadingResultsTest {
     }
 
     @Test fun anAnswerPublishedBeforeThePopIsNotAbandonment() {
-        results.asked(ChooserKind.Passage, "w2")
-        passage.publishForTest(PassageResult("Gen.1.1"))
+        results.asked(ChooserKind.Document, "w2")
+        document.publishForTest(DocumentResult("KJV"))
         results.readingReached()
         assertEquals(emptyList(), calls)
-        assertTrue(results.isAwaiting(ChooserKind.Passage), "still waiting for the collector to apply it")
+        assertTrue(results.isAwaiting(ChooserKind.Document), "still waiting for the collector to apply it")
     }
 
     @Test fun aMyDocumentsAnswerKeepsThePagesRequestOpenToo() {
@@ -151,7 +149,7 @@ class IosReadingResultsTest {
     }
 
     @Test fun oneCollectorPerChannel() {
-        assertEquals(8, results.collectors().size)
+        assertEquals(7, results.collectors().size)
     }
 
     private fun bookmarkOf(verse: String) = BookmarkResult(verse = verse, description = "d", labelNo = 0, listPosition = 0)

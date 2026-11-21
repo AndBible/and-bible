@@ -4,7 +4,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,23 +17,13 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.navigation.DocRowMapper
-import net.bible.android.view.activity.navigation.buildGridStep
-import net.bible.android.view.activity.navigation.initialGridOptions
-import net.bible.android.view.activity.navigation.persistGridOptions
-import net.bible.android.view.activity.navigation.pickGridBook
-import net.bible.android.view.activity.navigation.pickGridChapter
 import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
 import net.bible.android.platform.AndroidBackupHost
-import net.bible.service.common.CommonUtils
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.navigation.DocRow
-import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedui.app.chooser.ChooserHostPlatform
 import net.bible.sharedui.app.chooser.ChooserOverflowItem
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
 import org.koin.java.KoinJavaComponent.get
 
 /**
@@ -56,56 +45,6 @@ class AndroidChooserHostPlatform(private val activity: NavHostComposeActivity) :
 
     override fun mapKeys(page: CurrentMapPage): List<Key> = page.keyChooserKeys()
 
-    /**
-     * Classic `GridChoosePassageComposeActivity.onCreate` (`:52-82`) in one factory. The two step fields classic held
-     * as Activity state (`selectedBookNo`, `selectedChapter`) are local `var`s of this call, so they belong to the
-     * entry that asked for the controller rather than to the host.
-     *
-     * **`navigateToVerse` is read from the PREF, not from an argument** (design §6.1.1): the extra's single
-     * producer moved to the ref-chooser sheet, so what survives is exactly the fallback both remaining callers
-     * already got. The `"title"` extra classic also read is deliberately dropped (no producer anywhere in the tree),
-     * so the base title is unconditionally `R.string.choosePassageBookName`.
-     */
-    override fun gridChoosePassageController(
-        scope: CoroutineScope,
-        isScripture: Boolean,
-        onResult: (PassageResult) -> Unit,
-    ): GridChoosePassageController {
-        val navigateToVerse = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false)
-        var selectedBookNo = 0
-        var selectedChapter = 1
-        val baseTitle = activity.getString(R.string.choosePassageBookName)
-        val workspaceName = activity.hostWindowRepository.name
-        return GridChoosePassageController(
-            scope = scope,
-            initialOptions = initialGridOptions(navigationControl, isScripture, CommonUtils.settings),
-            buildStep = { step, opts ->
-                buildGridStep(
-                    step, opts, baseTitle, workspaceName, selectedBookNo, selectedChapter,
-                    navigationControl, windowControl, CommonUtils.isPortrait,
-                )
-            },
-            onPersistOptions = { persistGridOptions(it, navigationControl, CommonUtils.settings) },
-            onPickBook = { bookNo ->
-                selectedBookNo = bookNo
-                pickGridBook(bookNo, navigateToVerse, navigationControl) { selectedChapter = it }
-            },
-            onPickChapter = { chapter ->
-                selectedChapter = chapter
-                pickGridChapter(chapter, selectedBookNo, navigateToVerse, navigationControl, windowControl)
-            },
-            onPickVerse = { verse ->
-                Verse(
-                    navigationControl.versification,
-                    BibleBook.values()[selectedBookNo],
-                    selectedChapter,
-                    verse,
-                ).getOsisID()
-            },
-            // Classic `finishWithVerse` (`:101-107`) with the Intent removed.
-            onFinish = { osisId -> onResult(PassageResult(verse = osisId)) },
-        )
-    }
 
     override fun docRows(books: List<Book>): List<DocRow> {
         // The Book -> DocRow mapping (language grouping included) lives in DocRowMapper, shared with the reading

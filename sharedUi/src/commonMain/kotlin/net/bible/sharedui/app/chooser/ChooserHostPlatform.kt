@@ -3,12 +3,9 @@
 package net.bible.sharedui.app.chooser
 
 import androidx.compose.runtime.Composable
-import kotlinx.coroutines.CoroutineScope
 import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.CurrentMapPage
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.navigation.DocRow
-import net.bible.sharedcore.navigation.GridChoosePassageController
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -30,16 +27,6 @@ interface ChooserHostPlatform {
 
     /** The map chooser's keys. */
     fun mapKeys(page: CurrentMapPage): List<Key>
-
-    /**
-     * The Book, Chapter, Verse grid's controller (classic `GridChoosePassageComposeActivity.onCreate` in one
-     * factory); its host-side logic lives in `:app` (`GridPassageHostSupport`).
-     */
-    fun gridChoosePassageController(
-        scope: CoroutineScope,
-        isScripture: Boolean,
-        onResult: (PassageResult) -> Unit,
-    ): GridChoosePassageController
 
     /** The Book to [DocRow] mapping, language grouping included (`DocRowMapper`); one mapper per book list. */
     fun docRows(books: List<Book>): List<DocRow>

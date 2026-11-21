@@ -19,8 +19,6 @@ package net.bible.android.view.compose
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,18 +28,10 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.navigation.ChooseDictionaryWordController
 import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
 import net.bible.sharedcore.navigation.ChooseMapKeyController
-import net.bible.sharedcore.navigation.BookPick
-import net.bible.sharedcore.navigation.ChapterPick
 import net.bible.sharedcore.navigation.ChooserError
-import net.bible.sharedcore.navigation.GridButton
-import net.bible.sharedcore.navigation.GridChoosePassageController
-import net.bible.sharedcore.navigation.GridOptions
-import net.bible.sharedcore.navigation.GridStep
-import net.bible.sharedcore.navigation.GridUi
 import net.bible.sharedcore.navigation.DictRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
@@ -53,7 +43,6 @@ import net.bible.sharedui.navigation.nav.ChooseDocumentDeps
 import net.bible.sharedui.navigation.nav.ChooseGeneralBookKeyDeps
 import net.bible.sharedui.navigation.nav.ChooseMapKeyDeps
 import net.bible.sharedui.navigation.nav.ChooserNavDeps
-import net.bible.sharedui.navigation.nav.GridChoosePassageDeps
 import net.bible.sharedui.navigation.nav.chooserNavGraph
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Rule
@@ -108,7 +97,6 @@ class ChooserInGraphResultTest {
     private lateinit var navController: NavHostController
 
     private lateinit var keyChooserResults: NavResultChannel<KeyChooserResult>
-    private lateinit var passageResults: NavResultChannel<PassageResult>
     private lateinit var documentResults: NavResultChannel<DocumentResult>
 
     /** How often ANY channel took its `exitWithResult` branch. Design §1.1: must stay 0. */
@@ -123,10 +111,6 @@ class ChooserInGraphResultTest {
     private var generalBookController: ChooseGeneralBookKeyController? = null
     private var mapController: ChooseMapKeyController? = null
     private var dictionaryController: ChooseDictionaryWordController? = null
-    private var gridController: GridChoosePassageController? = null
-    private var gridGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
-    private var gridCanceled = false
-    private var gridIsScripture: Boolean? = null
     private var documentController: DocumentSelectionController? = null
     private var documentTypeFilter: DocTypeFilter? = null
     private var documentsLoaded = 0
@@ -159,13 +143,11 @@ class ChooserInGraphResultTest {
         dictionaryRows: List<DictRow>? = listOf(DictRow("0", "aaron")),
     ): ChooserNavDeps {
         keyChooserResults = NavResultChannel { channelExits++ }
-        passageResults = NavResultChannel { channelExits++ }
         documentResults = NavResultChannel { channelExits++ }
         return ChooserNavDeps(
             exitHost = { exitHostCalls++ },
             setWindowTitle = { windowTitles += it },
             keyChooserResults = keyChooserResults,
-            passageResults = passageResults,
             documentResults = documentResults,
             chooseGeneralBookKey = ChooseGeneralBookKeyDeps(
                 title = "General book",
@@ -229,13 +211,6 @@ class ChooserInGraphResultTest {
                 loadRows = { dictionaryRows },
                 loadSnippet = { "" },
             ),
-            gridChoosePassage = GridChoosePassageDeps(
-                windowTitle = "AndBible",
-                controllerFor = { scope, isScripture, onResult ->
-                    gridIsScripture = isScripture
-                    gridPassageController(scope, onResult).also { gridController = it }
-                },
-            ),
             chooseDocument = ChooseDocumentDeps(
                 title = "Choose document",
                 controllerFor = { initialTypeFilter, onResult ->
@@ -262,51 +237,6 @@ class ChooserInGraphResultTest {
                 topBarActions = {},
             ),
         )
-    }
-
-    /**
-     * A minimal but REAL [GridChoosePassageController]: the arm drives its `ui`/`options` flows, its
-     * `pick()` and its `back()`, so a stub would not compose. Each step offers ONE button with a step-
-     * specific label, which is what lets [gridChoosePassageReadsIsScriptureFromTheRouteAndDeliversTheVerse]
-     * walk Book -> Chapter -> Verse by clicking the screen rather than by calling the arm's own
-     * `onResult` back to it.
-     */
-    private fun gridPassageController(scope: kotlinx.coroutines.CoroutineScope, onResult: (PassageResult) -> Unit) = GridChoosePassageController(
-        scope = scope,
-        initialOptions = GridOptions(
-            showScripture = true,
-            alphabetical = false,
-            ltr = true,
-            groupByCategory = false,
-            longNames = false,
-            showProgress = false,
-        ),
-        buildStep = { step, opts ->
-            try { gridGate?.await() } catch (e: kotlinx.coroutines.CancellationException) {
-                gridCanceled = true
-                throw e
-            }
-            GridUi(
-                step = step,
-                title = "Step ${step.name}",
-                columns = 1,
-                showLongNames = opts.longNames,
-                showProgress = opts.showProgress,
-                showDeutToggle = false,
-                buttons = listOf(GridButton(id = 0, label = gridCellLabel(step))),
-            )
-        },
-        onPersistOptions = {},
-        onPickBook = { BookPick.GoChapter },
-        onPickChapter = { ChapterPick.GoVerse },
-        onPickVerse = { "Gen.1.1" },
-        onFinish = { osisId -> onResult(PassageResult(verse = osisId)) },
-    )
-
-    private fun gridCellLabel(step: GridStep) = when (step) {
-        GridStep.BOOK -> "BookCell"
-        GridStep.CHAPTER -> "ChapterCell"
-        GridStep.VERSE -> "VerseCell"
     }
 
     private fun setGraph(d: ChooserNavDeps, startDestination: String = NavRoutes.READING) {
@@ -336,27 +266,9 @@ class ChooserInGraphResultTest {
         compose.waitForIdle()
     }
 
-    @Test fun pending_grid_read_is_cancelled_when_destination_leaves() {
-        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
-        gridGate = gate
-        try {
-            setGraph(deps())
-            navigateTo(NavRoutes.gridChoosePassage(isScripture = true))
-            assertNotNull(gridController)
-            compose.runOnIdle { navController.popBackStack() }
-            compose.waitForIdle()
-            assertEquals(true, gridCanceled, "destination disposal must cancel the held grid read")
-        } finally { gate.cancel(); gridGate = null }
-    }
-
     /** A real system back press, so the arm's `PlatformBackHandler` is what decides. */
     private fun pressBack() {
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
-        compose.waitForIdle()
-    }
-
-    private fun clickCell(label: String) {
-        compose.onNodeWithText(label).performClick()
         compose.waitForIdle()
     }
 
@@ -456,15 +368,15 @@ class ChooserInGraphResultTest {
      * fails loudly rather than growing a second mechanism silently.
      */
     @Test
-    fun theDepsCarryThreeResultChannelsNotFive() {
+    fun theDepsCarryTwoResultChannelsNotFour() {
         val channelFields = ChooserNavDeps::class.java.declaredFields
             .filter { NavResultChannel::class.java.isAssignableFrom(it.type) }
             .map { it.name }
             .sorted()
         assertEquals(
-            listOf("documentResults", "keyChooserResults", "passageResults"),
+            listOf("documentResults", "keyChooserResults"),
             channelFields,
-            "the three key choosers share ONE channel (spec §6.2); five channels would be five ways " +
+            "the three key choosers share ONE channel (spec §6.2); four channels would be four ways " +
                 "to say the same thing",
         )
     }
@@ -580,74 +492,6 @@ class ChooserInGraphResultTest {
         assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, currentRoute, "a failed load stays put; classic did")
         assertEquals(0, channelExits)
         assertNull(keyChooserResults.consume(), "a failed load publishes nothing")
-    }
-
-    /**
-     * Spec §6.1: `isScripture` is the route's ONLY argument, and the arm must read it off the route
-     * rather than from host state. §6.1.1: `navigateToVerse` is NOT an argument -- the destination
-     * keeps its own pref fallback, host-side, which is why nothing about it appears here.
-     *
-     * The verse is reached by CLICKING through the three grid steps, not by calling the arm's own
-     * `onResult` back to it: until fix round 1 this test invoked the captured `onResult` by hand,
-     * which re-tested `NavResultChannel` (which has its own test) and nothing else.
-     *
-     * Catches: `onPick` wired to anything but `controller::pick`; the arm handing the screen a
-     * controller other than the one it gave the channel-delivering `onResult` to; and a step machine
-     * that never reaches `onFinish`.
-     */
-    @Test
-    fun gridChoosePassageReadsIsScriptureFromTheRouteAndDeliversTheVerse() {
-        setGraph(deps())
-        navigateTo(NavRoutes.gridChoosePassage(isScripture = true))
-
-        assertEquals(true, gridIsScripture, "the arm did not pass the route's isScripture to the host factory")
-        val controller = assertNotNull(gridController, "the arm never built a controller")
-
-        clickCell("BookCell")
-        assertEquals(GridStep.CHAPTER, controller.step.value, "the book pick did not reach the controller")
-        clickCell("ChapterCell")
-        assertEquals(GridStep.VERSE, controller.step.value)
-        clickCell("VerseCell")
-
-        assertEquals(0, channelExits)
-        assertEquals(NavRoutes.READING, currentRoute)
-        assertEquals("Gen.1.1", passageResults.consume()?.verse)
-    }
-
-    /**
-     * Classic `GridChoosePassageComposeActivity:84`: the grid's INTERNAL step back-stack is walked
-     * first, and only an exhausted one leaves the screen. The second of the two back handlers this
-     * graph declares, and it had no coverage either.
-     *
-     * Catches: a back handler that pops the destination straight away (the step stack then becomes
-     * unreachable by back, and a user three steps in loses the whole screen on one press), and one
-     * gated on an `enabled` flag instead of on `controller.back()`'s own answer -- at the root step
-     * the handler must still run and hand the press on by popping.
-     */
-    @Test
-    fun gridChoosePassageBackWalksTheStepStackBeforeLeaving() {
-        setGraph(deps())
-        navigateTo(NavRoutes.gridChoosePassage(isScripture = true))
-        val controller = assertNotNull(gridController, "the arm never built a controller")
-
-        clickCell("BookCell")
-        assertEquals(GridStep.CHAPTER, controller.step.value)
-
-        pressBack()
-        assertEquals(GridStep.BOOK, controller.step.value, "back must pop the grid's own step first")
-        assertEquals(NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN, currentRoute, "a step back is not a destination pop")
-
-        pressBack()
-        assertEquals(NavRoutes.READING, currentRoute, "an exhausted step stack lets back leave")
-        assertEquals(0, exitHostCalls)
-        assertNull(passageResults.consume(), "backing out publishes nothing (classic set no result)")
-    }
-
-    @Test
-    fun gridChoosePassageDefaultsIsScriptureToFalse() {
-        setGraph(deps())
-        navigateTo(NavRoutes.gridChoosePassage())
-        assertEquals(false, gridIsScripture)
     }
 
     /**

@@ -45,7 +45,6 @@ import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.nav.WorkspaceResult
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -168,25 +167,6 @@ class ReadingChooserInGraphResultTest {
             "the STD answer must reach applyChosenDocument through the in-graph STD arm",
             "ESV2011",
             CommonUtils.windowControl.activeWindowPageManager.currentPage.currentDocument?.initials,
-        )
-    }
-
-    @Test
-    fun aPassageChosenInGraphMovesTheActiveWindow() {
-        val activity = composedReadingHost()
-        activity.startActivityForResult(
-            NavHostComposeActivity.intentFor(activity, NavRoutes.gridChoosePassage(isScripture = true)),
-            ActivityBase.STD_REQUEST_CODE,
-        )
-        idle(); val nav = nav(activity)
-        assertEquals(NavRoutes.gridChoosePassage(isScripture = true).substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
-
-        channel<PassageResult>(activity, "passageResults").deliver(nav, nav.currentBackStackEntry, PassageResult("Ps.23.1"))
-        idle()
-
-        assertEquals(
-            "Ps.23.1",
-            (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).getOsisID(),
         )
     }
 

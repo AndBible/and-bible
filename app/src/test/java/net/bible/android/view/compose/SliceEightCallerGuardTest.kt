@@ -24,7 +24,7 @@ import org.junit.Test
 class SliceEightCallerGuardTest {
 
     private val screens = listOf(
-        "ChooseDocument", "GridChoosePassageBook", "ChooseDictionaryWord", "ChooseGeneralBookKey",
+        "ChooseDocument", "ChooseDictionaryWord", "ChooseGeneralBookKey",
         "ChooseMapKey", "WorkspaceSelector", "TextDisplaySettings",
     )
 

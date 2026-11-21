@@ -30,7 +30,6 @@ import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.nav.WorkspaceResult
 
@@ -255,11 +254,6 @@ object NavResultIntents {
         }
         putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
     }
-
-    /** `GridChoosePassageComposeActivity.finishWithVerse`. */
-    fun forPassage(result: PassageResult): Intent = Intent()
-        .putExtra("verse", result.verse)
-        .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.PassageGrid.name)
 
     /** `ChooseDocumentComposeActivity.handleDocumentSelection`. */
     fun forDocument(result: DocumentResult): Intent = Intent()

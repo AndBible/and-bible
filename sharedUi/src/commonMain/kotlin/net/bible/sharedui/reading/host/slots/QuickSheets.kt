@@ -118,7 +118,7 @@ private fun GridKeyChooserSheet(slots: ReadingHostSlots, sheet: ReadingQuickShee
     val controller = remember(sheet) {
         slots.gridPassages.create(
             scope = gridScope,
-            // The full-screen twin's own default title -- NOT `chooseBook`, which is the DOCUMENT
+            // The passage grid's default title -- NOT `chooseBook`, which is the DOCUMENT
             // chooser's caption.
             baseTitle = strings.choosePassageBookName,
             // The Bible/commentary key choosers that route here both pass isScripture = true.

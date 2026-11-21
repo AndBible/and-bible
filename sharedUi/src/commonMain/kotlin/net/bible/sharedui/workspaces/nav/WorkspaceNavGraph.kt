@@ -238,8 +238,7 @@ class TextDisplaySettingsSession(
  *   than resuming a finished one, exactly as `NavHostComposeActivity.manageLabelsSession` is nulled
  *   on every exit.
  * - [windowTitle] is classic's `android:label="@string/text_display_settings_activity_title"`. It is
- *   a separate slot from anything the screen draws, for [net.bible.sharedui.navigation.nav
- *   .GridChoosePassageDeps.windowTitle]'s reason in reverse: here the screen's own top-bar title is
+ *   a separate slot from anything the screen draws: the screen's own top-bar title is
  *   SCOPE-dependent and comes from the controller state, so the window title cannot be taken from it.
  * - [activeWorkspaceId] is `windowRepository.id`, read at the moment the "workspace settings" link is
  *   tapped rather than captured: the host always edits the ACTIVE workspace, and classic re-read it

@@ -152,23 +152,11 @@ data class KeyChooserResult(
 )
 
 /**
- * What `GridChoosePassage` hands back: the chosen passage's `osisID`, classic's `"verse"` extra
- * (`GridChoosePassageComposeActivity.finishWithVerse`), consumed by `applyChosenVerse`.
- *
- * One non-null field and no cancellation variant, deliberately: classic never called `setResult` on
- * any other path out of that Activity -- backing out simply finished, and the consumer saw
- * `RESULT_CANCELED` with no data. The in-graph equivalent of that path is a plain pop with nothing
- * published, not a variant of this type.
- */
-data class PassageResult(val verse: String)
-
-/**
  * What `WorkspaceSelector` hands back on a SAVE or a workspace pick: classic
  * `WorkspaceSelectorComposeActivity`'s two `RESULT_OK` extras, `workspaceId` (nullable -- a plain
  * Save that changed nothing selects no workspace) and `changed`.
  *
- * No cancelled variant, for [PassageResult]'s reason: classic's cancel path set `RESULT_CANCELED`
- * with an EMPTY Intent, and the consumer (`MainBibleActivity`'s `WORKSPACE_CHANGED` arm) does
+ * No cancelled variant: classic's cancel path set `RESULT_CANCELED` with an EMPTY Intent, and the consumer (`MainBibleActivity`'s `WORKSPACE_CHANGED` arm) does
  * nothing at all on it. The in-graph equivalent of that path is a plain pop with nothing published,
  * not a variant of this type -- there is no payload to carry.
  *
@@ -198,7 +186,9 @@ data class TextSettingsResult(val settingsBundleJson: String, val reset: Boolean
 /**
  * What `ChooseDocument` hands back: the chosen document's `initials`, classic's `"book"` extra
  * (`ChooseDocumentComposeActivity.handleDocumentSelection`), consumed by `applyChosenDocument`.
- * Single-field and variant-free for [PassageResult]'s reason.
+ * Single-field and variant-free: classic never called `setResult` on any other path out of that
+ * Activity -- backing out simply finished, and the in-graph equivalent is a plain pop with nothing
+ * published, not a variant of this type.
  */
 data class DocumentResult(val book: String)
 

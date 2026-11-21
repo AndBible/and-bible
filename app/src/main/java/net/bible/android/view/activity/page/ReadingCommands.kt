@@ -633,7 +633,7 @@ class ReadingCommands(
     // --- reading-host re-typing T8c: the three activity-result arms both hosts now share ---------
     //
     // Classic `MainBibleActivity.onActivityResult`'s `MyDocumentPages`, `MyDocuments` and
-    // `PassageGrid`/`Bookmarks`/`ReadingProgress` arms, lifted here VERBATIM and delegated to from
+    // `Bookmarks`/`ReadingProgress` arms, lifted here VERBATIM and delegated to from
     // the Activity, for the reason T8b's step 0 lifted the key-chooser appliers into
     // [KeyChooserResults]: these four screens are destinations of `NavHostComposeActivity`'s OWN
     // graph now, so on the reading host their results arrive in-graph through a `NavResultChannel`
@@ -699,8 +699,8 @@ class ReadingCommands(
 
     /**
      * Classic `MainBibleActivity.onActivityResult`'s shared
-     * [ActivityResultKind.PassageGrid]/[ActivityResultKind.Bookmarks]/[ActivityResultKind.ReadingProgress]
-     * arm, line for line -- the memorize special case first, then the verse / key+book pair.
+     * [ActivityResultKind.Bookmarks]/[ActivityResultKind.ReadingProgress] arm (it also served the
+     * full-screen passage grid, removed by #4169), line for line -- the memorize special case first, then the verse / key+book pair.
      *
      * @return true when [extras] was applied, so a caller can tell "applied" from "not mine" rather
      *   than assuming. Classic has no such caller and simply `return`s.

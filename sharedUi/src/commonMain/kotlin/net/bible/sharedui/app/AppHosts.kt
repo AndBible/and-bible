@@ -395,7 +395,7 @@ class AppHosts(
             navController, channels.myDocumentPages, channels.myDocuments,
             beforeSwitchDocument = channels.beforeSwitchMyDocument,
         )
-        val chooser = chooser.navDeps(navController, channels.keyChooser, channels.passage, channels.document)
+        val chooser = chooser.navDeps(navController, channels.keyChooser, channels.document)
         val backup = backup.navDeps(navController)
         val installZip = installZip.navDeps(navController, channels.installZip)
         val welcome = welcome.navDeps(navController)

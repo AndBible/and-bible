@@ -22,20 +22,42 @@ import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.reading.KeyChooserKind
+import net.bible.sharedui.reading.toolbar.activateWindowOf
+
+private const val TAG = "KeyChooserLauncher"
 
 /** Android chooser routing, with results owned by the page and lifecycle that opened it. */
 class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?) : KeyChooserLauncher {
     override fun startKeyChooser(page: CurrentPage): Boolean {
         val context = currentActivity() ?: return false
         when (page) {
-            is CurrentBiblePage, is CurrentCommentaryPage -> context.startActivityForResult(
-                NavHostComposeActivity.intentFor(context, NavRoutes.gridChoosePassage(isScripture = true)), STD_REQUEST_CODE)
+            is CurrentBiblePage, is CurrentCommentaryPage -> return startPassageSheet(page, context)
             is CurrentDictionaryPage -> context.startActivityForResult(
                 NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_DICTIONARY_WORD), STD_REQUEST_CODE)
             is CurrentMapPage -> context.startActivityForResult(
                 NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_MAP_KEY), STD_REQUEST_CODE)
             is CurrentGeneralBookPage -> startGeneralBookChooser(page, context)
+        }
+        return true
+    }
+
+    /**
+     * A Bible or commentary page's key chooser is the reading view's passage quick sheet, the one a title tap opens
+     * (#4169): there is no full-screen book grid. The sheet answers the active window, so [page]'s window is activated
+     * first. Returns false, starting nothing, when [context] hosts no reading view to show the sheet on.
+     */
+    private fun startPassageSheet(page: CurrentPage, context: ActivityBase): Boolean {
+        val host = (context as? NavHostComposeActivity)?.composeReadingViewHost
+        if (host == null) {
+            Log.w(TAG, "No reading view in front to show the passage chooser on; not shown.")
+            return false
+        }
+        context.lifecycleScope.launch(Dispatchers.Main) {
+            activateWindowOf(page)
+            host.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
         }
         return true
     }

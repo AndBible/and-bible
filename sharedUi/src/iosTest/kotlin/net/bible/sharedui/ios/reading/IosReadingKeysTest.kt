@@ -16,19 +16,12 @@
  */
 package net.bible.sharedui.ios.reading
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
-import net.bible.sharedcore.nav.PassageResult
-import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedlogic.platform.NightModeState
-import net.bible.sharedui.assembly.IosAppStartup
-import net.bible.sharedui.host.ports.HostChooserHostPlatform
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedui.reading.host.paneButtonsShown
 import net.bible.sharedui.reading.session.ConfigInputs
@@ -150,33 +143,14 @@ class IosReadingKeysTest {
     }
 
     /**
-     * `navigate_to_verse_pref`: picking a chapter in the passage grid ends at its first verse when the pref is off, and
-     * goes on to the verse step when on. The grid reads the pref when the controller is built, so it is set first.
-     * The quick-sheet key chooser reads the same pref into its `navigateToVerse` flag.
+     * `navigate_to_verse_pref`: the passage quick sheet (the only Bible/commentary key chooser, #4169) reads the pref
+     * into its `navigateToVerse` flag, which decides whether a chapter pick ends the chooser or goes on to the verse
+     * step (`GridPassageControllerFactory`).
      */
     @Test
     fun navigateToVersePrefChangesTheChooserFlow() = withIosReadingHost { host, _ ->
-        val koin = KoinPlatform.getKoin()
-        val settings = koin.get<AppSettings>()
-        val scope = CoroutineScope(Dispatchers.Unconfined)
-        val chooser = HostChooserHostPlatform(koin, scope, { IosAppStartup.stringTable }, net.bible.sharedui.ios.ports.IosWindowMetrics())
+        val settings = KoinPlatform.getKoin().get<AppSettings>()
         try {
-            settings.setBoolean("navigate_to_verse_pref", false)
-            val offResults = mutableListOf<String>()
-            val off = chooser.gridChoosePassageController(scope, true) { result: PassageResult -> offResults += result.verse }
-            // The grid's book ids are BibleBook ordinals (the intro "books" come first), not positions among the real books.
-            off.pick(BibleBook.GEN.ordinal) // Genesis: has chapters, so the chapter step
-            off.pick(1) // chapter 1: finishes at its first verse
-            assertEquals(listOf("Gen.1.1"), offResults, "pref off: a chapter finishes the chooser")
-
-            settings.setBoolean("navigate_to_verse_pref", true)
-            val onResults = mutableListOf<String>()
-            val on = chooser.gridChoosePassageController(scope, true) { result: PassageResult -> onResults += result.verse }
-            on.pick(BibleBook.GEN.ordinal)
-            on.pick(1)
-            assertEquals(emptyList(), onResults, "pref on: a chapter does not finish the chooser")
-            assertEquals(GridStep.VERSE, on.step.value, "pref on: the verse step follows")
-
             settings.setBoolean("navigate_to_verse_pref", false)
             host.hostState.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
             assertEquals(ReadingQuickSheet.KeyChooser(KeyChooserKind.Grid, navigateToVerse = false), host.hostState.quickSheet.value)
@@ -187,7 +161,6 @@ class IosReadingKeysTest {
             host.hostState.closeQuickSheet()
         } finally {
             settings.setBoolean("navigate_to_verse_pref", null)
-            scope.cancel()
         }
     }
 

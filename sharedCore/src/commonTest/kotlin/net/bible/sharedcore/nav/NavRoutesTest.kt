@@ -103,24 +103,6 @@ class NavRoutesTest {
     // ——— slice 7: reading view, choosers, workspace ———
 
     @Test
-    fun gridChoosePassageCarriesIsScriptureAndNothingElse() {
-        assertEquals("navigation/gridChoosePassage?isScripture=true", NavRoutes.gridChoosePassage(true))
-        assertEquals("navigation/gridChoosePassage?isScripture=false", NavRoutes.gridChoosePassage())
-        assertTrue(NavRoutes.readGridChoosePassage(NavRoutes.gridChoosePassage(true)))
-        assertFalse(NavRoutes.readGridChoosePassage(NavRoutes.gridChoosePassage(false)))
-    }
-
-    /**
-     * Spec 6.1.1: the only producer of that extra moves to the sheet, so the route must not grow an
-     * argument nothing sets. A route argument with no producer is dead weight that later readers
-     * mistake for a live contract.
-     */
-    @Test
-    fun gridChoosePassageRouteCarriesNoNavigateToVerseArgument() {
-        assertFalse(NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.contains("navigateToVerse"))
-    }
-
-    @Test
     fun chooseDocumentCarriesAnOptionalType() {
         assertEquals("navigation/chooseDocument?type=BIBLE", NavRoutes.chooseDocument("BIBLE"))
         assertEquals("navigation/chooseDocument", NavRoutes.chooseDocument())
@@ -171,10 +153,6 @@ class NavRoutesTest {
     fun everySlice7PatternRegistersEveryArgumentItsBuilderCanEmit() {
         fun argsIn(s: String) = Regex("[?&]([A-Za-z]+)=").findAll(s).map { it.groupValues[1] }.toSet()
         assertTrue(
-            argsIn(NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN)
-                .containsAll(argsIn(NavRoutes.gridChoosePassage(true))),
-        )
-        assertTrue(
             argsIn(NavRoutes.CHOOSE_DOCUMENT_PATTERN).containsAll(argsIn(NavRoutes.chooseDocument("BIBLE"))),
         )
         assertTrue(
@@ -191,10 +169,6 @@ class NavRoutesTest {
     @Test
     fun slice7PatternsAndBuildersAgreeOnTheirBasePath() {
         assertEquals(
-            NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?'),
-            NavRoutes.gridChoosePassage().substringBefore('?'),
-        )
-        assertEquals(
             NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?'),
             NavRoutes.chooseDocument("BIBLE").substringBefore('?'),
         )
@@ -205,7 +179,7 @@ class NavRoutesTest {
     }
 
     /**
-     * Fix round 1 (review M3): `readChooseDocument`/`readGridChoosePassage` parse by argument NAME
+     * Fix round 1 (review M3): `readChooseDocument` parses by argument NAME
      * instead of the plan's `substringAfter("type=")`, and decode the value. Neither property was
      * tested — `"BIBLE"` encodes to itself, so deleting the `decodeArg` step kept the suite green,
      * and nothing exercised a foreign argument whose name ends in the same characters.
@@ -222,14 +196,6 @@ class NavRoutesTest {
     }
 
     @Test
-    fun readGridChoosePassageReadsOnlyItsOwnArgument() {
-        assertFalse(NavRoutes.readGridChoosePassage("navigation/gridChoosePassage?notIsScripture=true"))
-        // The unsubstituted pattern is not a route anyone navigated to; it must read as false
-        // rather than as "{isScripture}" being truthy.
-        assertFalse(NavRoutes.readGridChoosePassage(NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN))
-    }
-
-    @Test
     fun argumentFreeRoutesAreStableStrings() {
         assertEquals("reading", NavRoutes.READING)
         assertEquals("navigation/chooseGeneralBookKey", NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
@@ -240,7 +206,6 @@ class NavRoutesTest {
 
     @Test
     fun slice7ArgumentNamesMatchThePatternsTheyAppearIn() {
-        assertTrue(NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.contains("{${NavRoutes.ARG_IS_SCRIPTURE}}"))
         assertTrue(NavRoutes.CHOOSE_DOCUMENT_PATTERN.contains("{${NavRoutes.ARG_DOCUMENT_TYPE}}"))
         for (arg in listOf(
             NavRoutes.ARG_SCOPE_LEVEL,
