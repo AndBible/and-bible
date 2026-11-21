@@ -546,6 +546,7 @@ androidComponents {
             inputs.file(script)
             inputs.file(mapping)
             inputs.dir(dexDir)
+            dependsOn(minifyTask) // dexDir has no producer wiring of its own
             commandLine("python3", "-I", script.absolutePath, mapping.get().asFile.absolutePath,
                 "--dex-dir", dexDir.get().asFile.absolutePath)
         }
