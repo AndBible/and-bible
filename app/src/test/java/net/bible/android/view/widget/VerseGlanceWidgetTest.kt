@@ -162,4 +162,13 @@ class VerseGlanceWidgetTest {
         VerseWidgetConfigStore.save(context, 32, chosen)
         assertEquals(chosen, VerseWidgetConfigStore.loadOrSaveDefault(context, 32) { error("not needed") })
     }
+
+    @Test fun anAppThatDidNotOpenGivesNoLoadsAndNeverTouchesKoin() = kotlinx.coroutines.runBlocking {
+        // The crash safe mode (#4176) and damaged data (#4112): Koin was never started, so resolving it threw and the
+        // widget showed Glance's error layout instead of the attention card.
+        val loads = verseWidgetLoadsFor(context, 7, WidgetEntry(appOpens = false, mono = false)) {
+            throw AssertionError("Koin must not be touched when the app did not open")
+        }
+        assertNull(loads)
+    }
 }
