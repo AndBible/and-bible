@@ -78,6 +78,7 @@ class StartupCrashGuardTest {
 
     @After fun reset() {
         StartupCrashGuard.resetForTest()
+        CrashSafeModeActivity.resetForTest()
         CrashSafeModeActivity.exitProcess = originalExit
         CommonUtils.realSharedPreferences.edit(commit = true) { remove("app-crashed-count"); remove("app-crashed-time") }
     }
@@ -169,13 +170,13 @@ class StartupCrashGuardTest {
         if (exitReason != null) addExitReason(exitReason)
     }
 
-    private fun addExitReason(reason: Int) {
+    private fun addExitReason(reason: Int, timestamp: Long = System.currentTimeMillis()) {
         val am = app.getSystemService(android.app.ActivityManager::class.java)
         shadowOf(am).addApplicationExitInfo(
             org.robolectric.shadows.ShadowActivityManager.ApplicationExitInfoBuilder.newBuilder()
                 .setProcessName(app.packageName)
                 .setReason(reason)
-                .setTimestamp(System.currentTimeMillis())
+                .setTimestamp(timestamp)
                 .build(),
         )
     }
@@ -203,12 +204,26 @@ class StartupCrashGuardTest {
         assertUnfinishedStartIsOneOrdinaryCrash(android.app.ApplicationExitInfo.REASON_SIGNALED)
 
     @Test fun anUnfinishedStartEndedByANativeCrashOrAnAnrIsAStartupCrash() {
-        for (reason in listOf(android.app.ApplicationExitInfo.REASON_CRASH_NATIVE, android.app.ApplicationExitInfo.REASON_ANR)) {
+        for (reason in listOf(
+            android.app.ApplicationExitInfo.REASON_CRASH_NATIVE,
+            android.app.ApplicationExitInfo.REASON_ANR,
+            android.app.ApplicationExitInfo.REASON_CRASH,
+        )) {
             val dir = tmp.newFolder("crash-$reason")
             dieDuringDatabaseOpen(dir, reason)
             assertTrue("Exit reason $reason during the start offers the report at once", startProcess(dir))
             StartupCrashGuard.resetForTest()
         }
+    }
+
+    @Test fun anExitRecordOlderThanTheUnfinishedStartIsNotItsReason() {
+        val dir = tmp.newFolder("crash")
+        // A crash last week was recorded; then the battery died during a start, which leaves no record.
+        dieDuringDatabaseOpen(dir)
+        addExitReason(android.app.ApplicationExitInfo.REASON_CRASH, timestamp = System.currentTimeMillis() - 7 * 24 * ONE_HOUR)
+        assertFalse("Last week's crash must not make this death a startup crash", startProcess(dir))
+        val pending = File(dir, "pending.txt").readText()
+        assertTrue(pending, pending.contains("is older"))
     }
 
     @Test fun aProviderLeftSwitchedOffIsSwitchedOnAgainAtANormalStart() {
@@ -234,11 +249,16 @@ class StartupCrashGuardTest {
             val failure = runCatching { StartupCrashGuard.installReenabledProviders(app) }.exceptionOrNull()
             assertNotNull("The provider's onCreate must run", failure)
             assertEquals(provider.className, failedProviderClass(failure!!))
+            // Only once: a second call installs nothing (it would throw again).
+            StartupCrashGuard.installReenabledProviders(app)
+            // The crash reaches the handler: recorded, and the provider is off again for the safe mode.
+            crash(failure)
+            assertEquals(PackageManager.COMPONENT_ENABLED_STATE_DISABLED, app.packageManager.getComponentEnabledSetting(provider))
+            assertTrue(startProcess(dir))
+            assertTrue("Widgets stay quiet without the provider", StartupCrashGuard.safeModeWithoutProviders(app))
         } finally {
             org.robolectric.shadows.ShadowSystemProperties.override("debug.andbible.crash_at_startup", "0")
         }
-        // Only once.
-        StartupCrashGuard.installReenabledProviders(app)
     }
 
     @Test fun theRecordsStayUntilTheUserActsInTheSafeMode() {
@@ -306,6 +326,17 @@ class StartupCrashGuardTest {
             )
         }
         assertEquals("androidx.startup.InitializationProvider", failedProviderClass(error))
+        // Thrown while the framework created it: its static initialiser, which called into a helper.
+        val staticInit = NoClassDefFoundError("x").apply {
+            stackTrace = arrayOf(
+                StackTraceElement("com.example.Helper", "<clinit>", "Helper.kt", 3),
+                StackTraceElement("com.example.CrashingProvider", "<clinit>", "CrashingProvider.kt", 7),
+                StackTraceElement("java.lang.Class", "newInstance", "Class.java", -2),
+                StackTraceElement("androidx.core.app.CoreComponentFactory", "instantiateProvider", "CoreComponentFactory.java", 67),
+                StackTraceElement("android.app.ActivityThread", "installProvider", "ActivityThread.java", 7480),
+            )
+        }
+        assertEquals("com.example.CrashingProvider", failedProviderClass(staticInit))
         assertNull(failedProviderClass(IllegalStateException("not from a provider")))
     }
 
@@ -359,6 +390,8 @@ class StartupCrashGuardTest {
         // A widget or notification tap: its screen hands over to the safe mode again.
         val again = CrashSafeModeActivity.intent(app)
         assertEquals("A live safe-mode screen is reused, not cleared away", 0, again.flags and Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        // On a device singleTask hands the intent to the live screen; a second instance (as here) must not end the
+        // process either.
         val second = Robolectric.buildActivity(CrashSafeModeActivity::class.java, again).setup()
         // Even if the old one goes (the system clears it), the process the new one runs in stays.
         first.get().finish()

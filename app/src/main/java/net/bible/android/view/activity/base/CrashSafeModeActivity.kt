@@ -111,6 +111,10 @@ class CrashSafeModeActivity : Activity() {
         /** The safe-mode screens alive in this process (main thread only). */
         internal var liveInstances = 0
             private set
+
+        internal fun resetForTest() {
+            liveInstances = 0
+        }
         private const val MAX_BODY_CHARS = 20_000
         private const val ERROR_REPORT_ADDRESS = "errors.andbible@gmail.com"
 

@@ -155,10 +155,11 @@ class StartupCrashStore(val dir: File, private val clock: () -> Long = System::c
      */
     fun onProcessStart(
         details: () -> String,
-        lastExit: () -> LastExit = { LastExit(LastExit.Kind.UNCLEAR, "unknown") },
+        lastExit: (since: Long) -> LastExit = { LastExit(LastExit.Kind.UNCLEAR, "unknown") },
     ): Boolean {
         phase?.let { leftover ->
-            val exit = lastExit()
+            // The death came after the breadcrumb was written: an exit record from before it is another run's.
+            val exit = lastExit(try { breadcrumbFile.lastModified() } catch (_: Exception) { 0L })
             // Closed by the user or the system (swiped away, force-stopped, killed for memory in the background,
             // updated): not a crash.
             if (exit.kind != LastExit.Kind.NOT_A_CRASH) recordUnfinishedStart(leftover, details(), exit)
@@ -261,7 +262,7 @@ object StartupCrashGuard {
         this.store = store
         appContext = context
         safeModeAllowed = !calculatorDisguise(context)
-        val needsReport = store.onProcessStart({ reportDetails(context) }, { lastExit(context) })
+        val needsReport = store.onProcessStart({ reportDetails(context) }, { since -> lastExit(context, since) })
         safeMode = needsReport && safeModeAllowed
         if (!safeMode) {
             store.markPhase(PHASE_APPLICATION)
@@ -273,17 +274,19 @@ object StartupCrashGuard {
     }
 
     /**
-     * How the previous process of the app ended, where Android tells (API 30+). Older Android, or no record, is
+     * How the previous process of the app ended, where Android tells (API 30+). Older Android, no record, or a newest
+     * record from before [since] (the run that died left none: power loss, a reboot) is
      * [StartupCrashStore.LastExit.Kind.UNCLEAR].
      */
-    private fun lastExit(context: Context): StartupCrashStore.LastExit {
+    private fun lastExit(context: Context, since: Long): StartupCrashStore.LastExit {
         val unclear = StartupCrashStore.LastExit(StartupCrashStore.LastExit.Kind.UNCLEAR, "unknown")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return unclear.copy(description = "unknown (Android ${Build.VERSION.RELEASE})")
         return try {
             val am = context.getSystemService(android.app.ActivityManager::class.java) ?: return unclear
             val info = am.getHistoricalProcessExitReasons(context.packageName, 0, 1).firstOrNull() ?: return unclear
-            val kind = exitKind(info.reason)
-            StartupCrashStore.LastExit(kind, "${info.reason}" + (info.description?.let { " ($it)" } ?: ""))
+            val described = exitReasonName(info.reason) + (info.description?.let { " ($it)" } ?: "")
+            if (info.timestamp < since - EXIT_RECORD_MARGIN_MS) return unclear.copy(description = "unknown (newest record, $described, is older)")
+            StartupCrashStore.LastExit(exitKind(info.reason), described)
         } catch (e: Exception) {
             unclear
         }
@@ -300,8 +303,28 @@ object StartupCrashGuard {
         android.app.ApplicationExitInfo.REASON_EXIT_SELF -> StartupCrashStore.LastExit.Kind.NOT_A_CRASH
         android.app.ApplicationExitInfo.REASON_CRASH_NATIVE,
         android.app.ApplicationExitInfo.REASON_ANR,
-        android.app.ApplicationExitInfo.REASON_CRASH -> StartupCrashStore.LastExit.Kind.CRASH
+        android.app.ApplicationExitInfo.REASON_CRASH,
+        android.app.ApplicationExitInfo.REASON_INITIALIZATION_FAILURE -> StartupCrashStore.LastExit.Kind.CRASH
         else -> StartupCrashStore.LastExit.Kind.UNCLEAR
+    }
+
+    private fun exitReasonName(reason: Int): String = android.app.ApplicationExitInfo::class.java.fields
+        .firstOrNull { it.name.startsWith("REASON_") && it.type == Int::class.javaPrimitiveType && it.getInt(null) == reason }
+        ?.name?.removePrefix("REASON_") ?: reason.toString()
+
+    /**
+     * True in a safe-mode process that runs without a provider the safe mode switched off (androidx.startup's
+     * `InitializationProvider`: no WorkManager, so Glance cannot draw a widget). Widget broadcasts are then ignored
+     * instead of crashing the safe-mode screen's process.
+     */
+    fun safeModeWithoutProviders(context: Context): Boolean = safeMode && try {
+        val pm = context.packageManager
+        @Suppress("DEPRECATION")
+        pm.getPackageInfo(context.packageName, PackageManager.GET_PROVIDERS or PackageManager.GET_DISABLED_COMPONENTS)
+            .providers.orEmpty()
+            .any { pm.getComponentEnabledSetting(ComponentName(context.packageName, it.name)) == PackageManager.COMPONENT_ENABLED_STATE_DISABLED }
+    } catch (e: Exception) {
+        true
     }
 
     /**
@@ -336,18 +359,16 @@ object StartupCrashGuard {
      * `InitializationProvider` (WorkManager for the widgets, emoji2, ...) must run before the app uses them. A provider
      * that still crashes fails like the framework's own install ("Unable to get provider ..."), so the crash is recorded
      * and the provider is switched off again for the safe mode.
+     *
+     * The instance is not published: a later lookup of its authority would make the system install a second one.
+     * Nothing looks these up, and `InitializationProvider` skips the initialisers it already ran.
      */
     fun installReenabledProviders(context: Context) {
         val providers = reenabledProviders
         reenabledProviders = emptyList()
         providers.forEach { info ->
-            val provider = try {
-                Class.forName(info.name, true, context.classLoader).getDeclaredConstructor().newInstance() as ContentProvider
-            } catch (e: Exception) {
-                Log.e(TAG, "Could not create provider ${info.name}", e)
-                return@forEach
-            }
             try {
+                val provider = Class.forName(info.name, true, context.classLoader).getDeclaredConstructor().newInstance() as ContentProvider
                 provider.attachInfo(context, info)
             } catch (e: Throwable) {
                 throw RuntimeException("Unable to get provider ${info.name}: $e", e)
@@ -475,6 +496,7 @@ object StartupCrashGuard {
     }
 
     private const val TAG = "StartupCrashGuard"
+    private const val EXIT_RECORD_MARGIN_MS = 5_000L
 }
 
 /**
@@ -497,5 +519,17 @@ internal fun failedProviderClass(e: Throwable): String? {
         val trace = t.stackTrace
         val attach = trace.indexOfFirst { it.className == ContentProvider::class.java.name && it.methodName == "attachInfo" }
         trace.getOrNull(attach - 1)?.className?.takeIf { attach > 0 && it != ContentProvider::class.java.name }
+            ?: run {
+                // Thrown while the framework created it (its static initialiser or constructor): the app class
+                // nearest to ActivityThread.installProvider.
+                val install = trace.indexOfFirst { it.className == "android.app.ActivityThread" && it.methodName == "installProvider" }
+                (install - 1 downTo 0).asSequence().map { trace[it] }
+                    .firstOrNull { (it.methodName == "<clinit>" || it.methodName == "<init>") && !it.isPlatformFrame() }
+                    ?.className
+            }
     }
 }
+
+private fun StackTraceElement.isPlatformFrame(): Boolean =
+    listOf("java.", "javax.", "android.", "androidx.core.app.", "dalvik.", "kotlin.", "libcore.", "jdk.", "sun.", "com.android.")
+        .any { className.startsWith(it) }
