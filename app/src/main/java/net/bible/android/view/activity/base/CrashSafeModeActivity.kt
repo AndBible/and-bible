@@ -60,8 +60,8 @@ class CrashSafeModeActivity : Activity() {
         crashesSince = savedInstanceState?.getLong(STATE_SINCE) ?: StartupCrashGuard.firstCrashTime() ?: 0L
         binding = CrashSafeModeBinding.inflate(layoutInflater).apply {
             sendReport.setOnClickListener { sendReport() }
-            backupRestore.setOnClickListener { restartApp(openBackup = true) }
-            tryAgain.setOnClickListener { restartApp(openBackup = false) }
+            backupRestore.setOnClickListener { relaunchAfterSafeMode(openBackup = true) }
+            tryAgain.setOnClickListener { relaunchAfterSafeMode(openBackup = false) }
         }
         setContentView(binding.root)
     }
@@ -92,7 +92,11 @@ class CrashSafeModeActivity : Activity() {
         }
     }
 
-    private fun restartApp(openBackup: Boolean) {
+    /**
+     * The one deliberate process relaunch (#4176): this process skipped all initialisation, so leaving safe mode
+     * needs a fresh one. Not the locale-change restart that `NoProcessRestartGuardTest` bans (F112).
+     */
+    private fun relaunchAfterSafeMode(openBackup: Boolean) {
         StartupCrashGuard.resolve(this)
         restarting = true
         startActivity(restartIntent(this, openBackup))
