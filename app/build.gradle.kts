@@ -552,7 +552,7 @@ androidComponents {
         }
         tasks.matching { it.name == minifyTask }.configureEach { finalizedBy(check) }
         // A failing check must not leave a fresh APK/AAB in the outputs folders.
-        tasks.matching { it.name == "package$cap" || it.name == "bundle$cap" }.configureEach { dependsOn(check) }
+        tasks.matching { it.name == "package$cap" || it.name == "package${cap}Bundle" || it.name == "bundle$cap" }.configureEach { dependsOn(check) }
     }
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.

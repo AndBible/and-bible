@@ -77,7 +77,7 @@ class ReadingPlanDayWritesTest {
         }
         val dao = ReadingPlanTextFileDao(source, repo, testCoreStrings(), AndroidLocalCalendar(), userPlanFolder = { "/nonexistent".toPath() }, providedPlans = { emptyMap() })
         val koin = GlobalContext.get()
-        control = ReadingPlanControl(koin.get(), koin.get(), repo, dao, settings, AndroidLocalCalendar())
+        control = ReadingPlanControl(lazyOf(koin.get()), koin.get(), repo, dao, settings, AndroidLocalCalendar())
         originalPlan = settings.getString("reading_plan", null)
         control.setReadingPlan("three")
     }

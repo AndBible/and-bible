@@ -61,7 +61,8 @@ class MediaButtonAndroidSessionTest {
         try {
             assertNull("activate threw on a background thread: $failure", failure)
         } finally {
-            other.release()
+            // activate() failed before building the session: release() would mask that failure
+            runCatching { other.release() }
         }
     }
 

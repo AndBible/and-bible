@@ -77,15 +77,17 @@ class VerseWidgetConfigActivity : ComponentActivity() {
         lifecycleScope.launch {
             val ok = withContext(Dispatchers.Main.immediate) { CommonUtils.initializeAppForHeadlessEntry() }
             if (!ok) { finish(); return@launch }
+            // Resolve on Main (main-bound singletons, #4175); only the reads run on IO.
+            val koin = KoinPlatform.getKoin()
+            val candidates = koin.get<VerseCandidates>()
+            val sources = koin.get<VerseWidgetSources>()
             options = withContext(Dispatchers.IO) {
-                val koin = KoinPlatform.getKoin()
-                val candidates = koin.get<VerseCandidates>()
                 val default = candidates.defaultBible()
                 VerseConfigOptions(
                     labels = candidates.labels(),
                     bibles = candidates.bibles(),
                     defaultBible = default,
-                    hasReadingPlan = default != null && koin.get<VerseWidgetSources>().readingPlanPassage(default) != null,
+                    hasReadingPlan = default != null && sources.readingPlanPassage(default) != null,
                 )
             }
         }

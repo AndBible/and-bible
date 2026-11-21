@@ -171,4 +171,37 @@ class VerseGlanceWidgetTest {
         }
         assertNull(loads)
     }
+
+    @Test fun candidatesAreResolvedOnTheMainLooperNotOnAWorker() {
+        // VerseCandidates pulls in main-bound singletons (ReadingPlanControl, windows, bookmarks); first-building them on
+        // a worker thread broke widgets after an update (#4175). The provideGlance caller is a worker thread.
+        val main = android.os.Looper.getMainLooper()
+        var resolvedOnMain: Boolean? = null
+        val koin = org.koin.core.KoinApplication.init().apply {
+            modules(org.koin.dsl.module {
+                single<net.bible.android.control.widget.LocalZone> { net.bible.android.control.widget.LocalZone { 0L } }
+                single {
+                    resolvedOnMain = android.os.Looper.myLooper() == main
+                    net.bible.android.control.widget.VerseCandidates(org.mockito.Mockito.mock(net.bible.android.control.widget.VerseWidgetSources::class.java))
+                }
+            })
+        }.koin
+        var failure: Throwable? = null
+        val worker = Thread {
+            try {
+                kotlinx.coroutines.runBlocking {
+                    verseWidgetLoadsFor(context, 8, WidgetEntry(appOpens = true, mono = false)) { koin }
+                }
+            } catch (t: Throwable) { failure = t }
+        }
+        worker.start()
+        val deadline = System.currentTimeMillis() + 20_000
+        while (worker.isAlive && System.currentTimeMillis() < deadline) {
+            shadowOf(main).idle()
+            worker.join(20)
+        }
+        assertFalse("worker did not finish", worker.isAlive)
+        failure?.let { throw AssertionError("loads failed", it) }
+        assertEquals(true, resolvedOnMain)
+    }
 }

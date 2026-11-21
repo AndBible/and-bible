@@ -119,7 +119,10 @@ internal suspend fun verseWidgetLoadsFor(
     return verseWidgetLoads(context, appWidgetId, ::defaultVerseWidgetConfig) { config ->
         val now = System.currentTimeMillis()
         val zone = k.get<LocalZone>()
-        val content = withContext(Dispatchers.IO) { k.get<VerseCandidates>().content(config, now, zone) }
+        // Resolve on Main: the graph under VerseCandidates (ReadingPlanControl, windows, bookmarks) holds main-bound
+        // singletons that must not be first-built on a worker thread (#4175). Only the reading runs on IO.
+        val candidates = withContext(Dispatchers.Main.immediate) { k.get<VerseCandidates>() }
+        val content = withContext(Dispatchers.IO) { candidates.content(config, now, zone) }
         VerseWidgetScheduler.schedule(context, appWidgetId, VerseSelector.nextPeriodStart(now, zone, config.frequency))
         content
     }
