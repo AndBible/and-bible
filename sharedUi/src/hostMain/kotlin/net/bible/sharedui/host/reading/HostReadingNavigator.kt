@@ -149,8 +149,7 @@ class HostReadingNavigator(
         when (page) {
             // The passage quick sheet a title tap opens (#4169): there is no full-screen book grid.
             is CurrentBiblePage, is CurrentCommentaryPage -> onMain {
-                activateWindowOf(page)
-                hostState.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
+                if (activateWindowOf(page)) hostState.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
             }
             is CurrentDictionaryPage -> onMain {
                 chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)

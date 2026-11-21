@@ -117,10 +117,12 @@ private val RETIRED_ROUTE_BASES = setOf(
     "search/indexProgress",
     // #4174: the full-screen progress status.
     "documents/progress",
+    // #4169: the full-screen passage grid; every Bible/commentary key-chooser entry opens the quick sheet.
+    "navigation/gridChoosePassage",
 )
 
 /**
- * A start route naming a retired destination (the legacy search form, removed in #4164, and the EPUB search form, index prompt and index progress screens, removed in #4170, and the full-screen progress status, removed in #4174) would make the NavHost throw
+ * A start route naming a retired destination (the legacy search form, removed in #4164, and the EPUB search form, index prompt and index progress screens, removed in #4170, and the full-screen progress status, removed in #4174, and the full-screen passage grid, removed in #4169) would make the NavHost throw
  * while building its graph, so it resolves to [NavRoutes.READING] instead: the reading view's own search sheet is what
  * every search entry point opens now, and its activity list replaces the progress screen. Any other route is returned unchanged.
  */

@@ -3,7 +3,9 @@ package net.bible.android.view.compose.golden
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
+import net.bible.android.view.activity.navigation.columnMajor
 import net.bible.sharedcore.navigation.GridButton
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
@@ -22,6 +24,121 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class GridChoosePassageGoldenTest {
     private val opts = GridOptions(showScripture = true, alphabetical = false, ltr = false, groupByCategory = false, longNames = false, showProgress = true)
+
+    // The shared grid content as the quick sheet shows it (#4169 review: the full-screen screen's captures
+    // are gone, the content they covered is not). A compact 12-book grid across categories.
+    private val books = listOf(
+        GridButton(0, "Gen", "Genesis", 0, isCurrent = false, readProgress = 1f),
+        GridButton(1, "Exod", "Exodus", 0, readProgress = 0.5f),
+        GridButton(2, "Josh", "Joshua", 1),
+        GridButton(3, "Ps", "Psalms", 2, isCurrent = true, memProgress = 0.3f),
+        GridButton(4, "Isa", "Isaiah", 3),
+        GridButton(5, "Hos", "Hosea", 4),
+        GridButton(6, "Matt", "Matthew", 5),
+        GridButton(7, "Acts", "Acts", 6),
+        GridButton(8, "Rom", "Romans", 7),
+        GridButton(9, "Jas", "James", 8),
+        GridButton(10, "Rev", "Revelation", 9),
+        GridButton(11, "Ps151", "Psalm 151", -1),
+    )
+
+    private fun bookUi(long: Boolean = false, sections: List<List<GridButton>>? = null) =
+        GridUi(GridStep.BOOK, "Choose passage (Workspace 1)", 6, showLongNames = long, showProgress = true, showDeutToggle = true, buttons = books, sections = sections, minRows = 11)
+
+    /** The production sheet chrome around the content, content-fitted as the sheet host composes it. */
+    @Composable
+    private fun SheetGrid(ui: GridUi, options: GridOptions = opts) {
+        SheetSurface {
+            AbQuickSheetContent(title = ui.title, onClose = {}, actions = { GridOptionsOverflow(ui, options) {} }) {
+                GridChoosePassageContent(ui = ui, onPick = {}, modifier = Modifier.fillMaxSize(), fitContentHeight = true)
+            }
+        }
+    }
+
+    @Test fun grid_monochromeCategoryBoundaries() {
+        captureMatrix("GridChoosePassage", "categoryBoundaries") {
+            SheetGrid(bookUi().copy(showProgress = false), opts.copy(showProgress = false))
+        }
+    }
+
+    @Test fun grid_book_flat() {
+        captureMatrix("GridChoosePassage", "book_flat") { SheetGrid(bookUi()) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun grid_book_flat_rtl() {
+        captureRtl("GridChoosePassage", "book_flat") { SheetGrid(bookUi()) }
+    }
+
+    @Test fun grid_book_grouped() {
+        val sections = listOf(books.subList(0, 2), books.subList(2, 3), books.subList(3, 6), books.subList(6, 12))
+        captureGolden("GridChoosePassage", "book_grouped", EDGE_MODE) {
+            SheetGrid(bookUi(sections = sections), opts.copy(groupByCategory = true, ltr = true))
+        }
+    }
+
+    @Test fun grid_book_longnames() {
+        captureGolden("GridChoosePassage", "book_long", EDGE_MODE) { SheetGrid(bookUi(long = true), opts.copy(longNames = true)) }
+    }
+
+    // A long single-word book name ("Thessalonians") must shrink to fit the long-name line, not wrap or clip.
+    @Test fun grid_book_longnames_overflow() {
+        val longBooks = books.map { if (it.id == 8) it.copy(label = "1Thess", longLabel = "Thessalonians") else it }
+        captureGolden("GridChoosePassage", "book_long_overflow", EDGE_MODE) {
+            SheetGrid(bookUi(long = true).copy(buttons = longBooks), opts.copy(longNames = true))
+        }
+    }
+
+    // A Finnish long-form name (~2.5x "Thessalonians"): minFontSize + ellipsis must degrade gracefully.
+    @Test fun grid_book_longnames_overflow_fi() {
+        val longBooks = books.map {
+            if (it.id == 8) it.copy(label = "1Tess", longLabel = "Ensimmäinen tessalonikalaiskirje") else it
+        }
+        captureGolden("GridChoosePassage", "book_long_overflow_fi", EDGE_MODE) {
+            SheetGrid(bookUi(long = true).copy(buttons = longBooks), opts.copy(longNames = true))
+        }
+    }
+
+    @Test fun grid_chapter_column_order_incomplete() {
+        val chapters = (1..21).map { GridButton(it, it.toString(), colorGroup = 5, isCurrent = it == 3) }
+        captureMatrix("GridChoosePassage", "chapter_column_order_incomplete") {
+            SheetGrid(
+                GridUi(GridStep.CHAPTER, "John", 5, showLongNames = false, showProgress = false,
+                    showDeutToggle = false, buttons = columnMajor(chapters, 5), minRows = 10),
+                opts.copy(ltr = false, showProgress = false),
+            )
+        }
+    }
+
+    @Test fun grid_chapter() {
+        val chapters = (1..24).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 3, readProgress = if (it < 3) 1f else 0f) }
+        captureGolden("GridChoosePassage", "chapter", EDGE_MODE) {
+            SheetGrid(GridUi(GridStep.CHAPTER, "Psalms", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters, minRows = 10))
+        }
+    }
+
+    // A one-chapter book (Jude) must not get a screen-filling button.
+    @Test fun grid_chapter_one() {
+        val chapters = listOf(GridButton(1, "1", colorGroup = 8, isCurrent = true, readProgress = 1f))
+        captureGolden("GridChoosePassage", "chapter_one", EDGE_MODE) {
+            SheetGrid(GridUi(GridStep.CHAPTER, "Jude", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters, minRows = 10))
+        }
+    }
+
+    @Test fun grid_chapter_twelve() {
+        val chapters = (1..12).map { GridButton(it, it.toString(), colorGroup = 3, isCurrent = it == 1, readProgress = if (it == 1) 1f else 0f) }
+        captureGolden("GridChoosePassage", "chapter_twelve", EDGE_MODE) {
+            SheetGrid(GridUi(GridStep.CHAPTER, "Daniel", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters, minRows = 10))
+        }
+    }
+
+    @Test fun grid_verse() {
+        val verses = (1..31).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 6, memProgress = if (it == 6) 1f else 0f) }
+        captureGolden("GridChoosePassage", "verse", EDGE_MODE) {
+            SheetGrid(GridUi(GridStep.VERSE, "Psalms 3", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = verses, minRows = 10))
+        }
+    }
 
     /**
      * A full 66-book grid, the fixture [grid_sheet_book] needs. Sixty-six buttons over six columns is
