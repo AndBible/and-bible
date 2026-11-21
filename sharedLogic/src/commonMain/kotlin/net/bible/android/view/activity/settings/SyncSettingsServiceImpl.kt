@@ -147,9 +147,9 @@ class SyncSettingsServiceImpl(
         return result + " " + strings.syncAdapterSummary(adapters.displayName(current))
     }
 
-    private fun categorySummary(cat: SyncableDatabaseDefinition, lastSynchronized: Long?): String {
+    private fun categorySummary(cat: SyncableDatabaseDefinition, enabled: Boolean, lastSynchronized: Long?): String {
         // A stored join decision waits for the next pass (and its mutex): say so instead of the content text.
-        if (cat in queuedJoins.value) return strings.syncWaitingForPass
+        if (enabled && cat in queuedJoins.value) return strings.syncWaitingForPass
         val lastSyncStr = lastSynchronized?.let {
             ".\n\n" + strings.syncLastUpdated(platform.formatSyncTime(it))
         } ?: ""
@@ -184,7 +184,7 @@ class SyncSettingsServiceImpl(
             },
             categorySummary = SyncCategoryKeys.DISPLAY.associateWith { key ->
                 val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
-                categorySummary(cat, lastSynchronized[cat])
+                categorySummary(cat, available && categories.enabled(cat), lastSynchronized[cat])
             },
             documentsEnabled = documentsEnabled,
             documentTransferSummary = transferSummary(),
@@ -240,7 +240,9 @@ class SyncSettingsServiceImpl(
 
     override suspend fun signIn(): Boolean {
         if (cloudSync.signedIn) return true
-        return cloudSync.signIn() == true
+        // Another sign-in may hold the mutex: wait for it instead of reporting a silent failure. A genuine failure is
+        // reported to the user by CloudSync.signIn itself (a dialog; a user cancel is deliberately quiet).
+        return cloudSync.signIn(waitForExisting = true) == true
     }
 
     override suspend fun scanDocuments(): DocSyncSummaryData {
@@ -255,18 +257,21 @@ class SyncSettingsServiceImpl(
         )
     }
 
-    override fun disableCategory(key: String) {
-        categories.setEnabled(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!, false)
-    }
-
     override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): ApplyResult {
         fun category(key: String) = requireNotNull(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]) { "Unknown sync category $key" }
         val ons = changes.filterValues { it }.keys.map(::category).toSet()
         val offs = changes.filterValues { !it }.keys.map(::category)
         if (ons.isNotEmpty()) {
-            if (!cloudSync.adapterAvailable || !signIn()) return ApplyResult.SignInFailed
+            if (!cloudSync.adapterAvailable) {
+                UserMessages.errorNotification(strings.syncAdapterUnavailable, showReportButton = false, kind = ActivityKind.SYNC)
+                return ApplyResult.SignInFailed
+            }
+            if (!signIn()) return ApplyResult.SignInFailed
         }
-        offs.forEach { categories.setEnabled(it, false) }
+        offs.forEach {
+            categories.setEnabled(it, false)
+            cloudSync.dropStoredJoin(it)
+        }
         if (ons.isEmpty()) {
             refresh()
             return ApplyResult.Applied
@@ -293,6 +298,9 @@ class SyncSettingsServiceImpl(
                 cloudSync.waitUntilFinished()
                 cloudSync.start()
                 cloudSync.waitUntilFinished()
+                // A decision the pass did not execute (probe failed, pass could not run) must not wait for a later
+                // background pass to act on it unasked.
+                ons.forEach { cloudSync.dropStoredJoin(it) }
                 notifyDatabaseRestored()
                 refresh()
             }

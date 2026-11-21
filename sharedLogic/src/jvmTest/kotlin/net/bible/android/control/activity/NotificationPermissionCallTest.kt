@@ -53,7 +53,7 @@ class NotificationPermissionCallTest {
     @Test fun syncDisableDoesNotAsk() = runTest {
         var asks = 0
         val service = service(this, NotificationPermission { asks++ })
-        service.disableCategory("sync_enable_bookmarks")
+        service.applyCategoryChanges(mapOf("sync_enable_bookmarks" to false))
         runCurrent()
         assertEquals(0, asks)
     }

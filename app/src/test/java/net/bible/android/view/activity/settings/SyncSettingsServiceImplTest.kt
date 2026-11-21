@@ -124,8 +124,16 @@ class SyncSettingsServiceImplTest {
 
     /** An adapter that is signed in; [listing] decides what the cloud holds for a folder name (empty: the category needs creating). */
     private class TestAdapter(val listing: (String?) -> List<net.bible.sharedcore.platform.cloud.CloudFile> = { emptyList() }) : net.bible.service.cloudsync.CloudAdapter {
-        override val signedIn get() = true
-        override suspend fun signIn() = true
+        /** When set, [signIn] waits for it (the sign-in then holds CloudSync's sign-in mutex). */
+        @Volatile var signInGate: CompletableDeferred<Unit>? = null
+        val signInEntered = CompletableDeferred<Unit>()
+        @Volatile private var signed = false
+        override val signedIn get() = signed
+        override suspend fun signIn(): Boolean {
+            signInGate?.let { signInEntered.complete(Unit); it.await() }
+            signed = true
+            return true
+        }
         override suspend fun signOut() {}
         override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?) = listing(name)
         override suspend fun createNewFolder(name: String, parentId: String?) = net.bible.sharedcore.platform.cloud.CloudFile("new-$name", name, 0L, 1L, parentId ?: "root")
@@ -165,6 +173,45 @@ class SyncSettingsServiceImplTest {
             org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java),
         )
         val categories = net.bible.service.cloudsync.SyncSettingsCategories(settings)
+    }
+
+    @Test fun applyWaitsForAnotherSignInInsteadOfFailingSilently() = runBlocking {
+        val adapter = TestAdapter().apply { signInGate = CompletableDeferred() }
+        val fixture = CloudFixture(adapter)
+        val service = onService(fixture)
+        val other = async(Dispatchers.Default) { fixture.cloud.signIn() }   // another caller holds the sign-in mutex
+        withTimeout(5000) { adapter.signInEntered.await() }
+
+        val applying = async(Dispatchers.Default) { service.applyCategoryChanges(mapOf("sync_enable_bookmarks" to true)) }
+        kotlinx.coroutines.delay(300)
+        assertFalse("Apply waits for the running sign-in", applying.isCompleted)
+        adapter.signInGate!!.complete(Unit)
+
+        assertEquals(true, withTimeout(10_000) { other.await() })
+        assertEquals(net.bible.sharedcore.settings.ApplyResult.Applied, withTimeout(10_000) { applying.await() })
+        assertTrue(fixture.categories.enabled(SyncableDatabaseDefinition.BOOKMARKS))
+    }
+
+    @Test fun offsDropAStoredJoinDecisionOfTheCategory() = runBlocking {
+        val fixture = CloudFixture(TestAdapter())
+        fixture.passes.gates.add(CompletableDeferred())            // a pass is running: the stored decision queues behind it
+        fixture.cloud.start()
+        val service = onService(fixture)
+        service.applyCategoryChanges(mapOf("sync_enable_bookmarks" to true))
+        assertEquals(setOf(SyncableDatabaseDefinition.BOOKMARKS), fixture.cloud.queuedJoins.value)
+
+        service.applyCategoryChanges(mapOf("sync_enable_bookmarks" to false))
+
+        assertTrue("a decision must not outlive the switch that turned the category off", fixture.cloud.queuedJoins.value.isEmpty())
+    }
+
+    @Test fun decisionsTheFollowUpPassDidNotExecuteDoNotLinger() = runBlocking {
+        val fixture = CloudFixture(TestAdapter())                  // the counting scheduler never runs a real pass
+        val restored = CompletableDeferred<Unit>()
+        val service = onService(fixture, restored = { restored.complete(Unit) })
+        service.applyCategoryChanges(mapOf("sync_enable_bookmarks" to true))
+        withTimeout(10_000) { restored.await() }
+        assertTrue("an unexecuted confirmed decision must not run in a later background pass", fixture.cloud.queuedJoins.value.isEmpty())
     }
 
     @Test fun applyCategoryChangesSignInFailurePersistsNothing() = runBlocking {
@@ -295,12 +342,18 @@ class SyncSettingsServiceImplTest {
 
     @Test fun queuedCategoryShowsWaitingSummary() = runBlocking {
         val queued = kotlinx.coroutines.flow.MutableStateFlow<Set<SyncableDatabaseDefinition>>(emptySet())
-        val service = impl(queuedJoins = { queued })
+        val categories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings)
+        val service = impl(categories = categories, queuedJoins = { queued })
         val waiting = net.bible.test.testCoreStrings().syncWaitingForPass
         withTimeout(5000) { service.snapshot.first { it.categorySummary.isNotEmpty() } }
         assertFalse(service.snapshot.value.categorySummary.getValue("sync_enable_bookmarks") == waiting)
 
         queued.value = setOf(SyncableDatabaseDefinition.BOOKMARKS)
+        kotlinx.coroutines.delay(300)
+        assertFalse("a disabled category shows no waiting text", service.snapshot.value.categorySummary.getValue("sync_enable_bookmarks") == waiting)
+
+        categories.setEnabled(SyncableDatabaseDefinition.BOOKMARKS, true)
+        service.refresh()
         withTimeout(5000) { service.snapshot.first { it.categorySummary.getValue("sync_enable_bookmarks") == waiting } }
         assertFalse("other categories keep their summary", service.snapshot.value.categorySummary.getValue("sync_enable_progress") == waiting)
 
@@ -815,7 +868,7 @@ class SyncSettingsServiceImplTest {
         service.applyCategoryChanges(mapOf("sync_enable_bookmarks" to true))
         assertTrue(SyncableDatabaseDefinition.BOOKMARKS.isSyncEnabled(CommonUtils.settings))
         assertTrue(CommonUtils.settings.getBoolean("sync_enable_bookmarks", false))
-        service.disableCategory("sync_enable_bookmarks")
+        service.applyCategoryChanges(mapOf("sync_enable_bookmarks" to false))
         assertFalse(CommonUtils.settings.getBoolean("sync_enable_bookmarks", true))
     }
 

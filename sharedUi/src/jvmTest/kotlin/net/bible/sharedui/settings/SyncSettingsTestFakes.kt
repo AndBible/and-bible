@@ -20,7 +20,6 @@ internal class FakeSyncService(initial: SyncSettingsSnapshot) : SyncSettingsServ
     override fun refresh() {}
     override suspend fun signIn() = true
     override suspend fun scanDocuments() = DocSyncSummaryData(emptyList(), emptyList(), 0, 0)
-    override fun disableCategory(key: String) {}
     override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): ApplyResult {
         applied += changes
         val g = gate ?: return ApplyResult.Applied

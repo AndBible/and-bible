@@ -237,6 +237,16 @@ class CloudSyncTwoPhaseJoinTest {
         assertNull(f.db(joining).dao.getString(SYNC_FOLDER_FILE_ID_KEY))
     }
 
+    @Test fun planJoinsSkipsACategoryDisabledForItsVersion() = withFixture { f ->
+        val c = SyncableDatabaseDefinition.BOOKMARKS
+        f.cloudHas(c)
+        f.db(c).dao.setConfig("disabledForVersion", f.db(c).version().toLong())
+        assertTrue(f.cloud.planJoins(setOf(c), enable = true), "nothing to plan for it, so nothing was cancelled")
+        assertEquals(0, f.planRequests().size, "no question for a category the pass would skip anyway")
+        assertEquals(0, synchronized(f.adapter.listedNames) { f.adapter.listedNames.count { it != null && it.contains("-sync-") } }, "and no probe")
+        assertTrue(f.cloud.queuedJoins.value.isEmpty())
+    }
+
     @Test fun planJoinsCompletesWhileAPassHoldsTheMutex() = withFixture(autoAnswer = false) { f ->
         val ready = SyncableDatabaseDefinition.BOOKMARKS
         val joining = SyncableDatabaseDefinition.WORKSPACES

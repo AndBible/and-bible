@@ -48,6 +48,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.window.DialogProperties
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -97,9 +100,10 @@ fun AbSyncJoinPlanDialog(
                     Text(request.lead)
                     request.rows.forEach { row ->
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text(row.label, style = MaterialTheme.typography.titleSmall)
+                            // Announced through the dropdown (its content description), not as a separate unlinked text.
+                            Text(row.label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.clearAndSetSemantics {})
                             ChoiceDropdown(
-                                tag = row.key, selected = answer(chosen[row.key]) ?: request.choices.first(),
+                                tag = row.key, rowLabel = row.label, selected = answer(chosen[row.key]) ?: request.choices.first(),
                                 choices = request.choices, onSelect = { chosen[row.key] = it.value },
                             )
                         }
@@ -134,7 +138,7 @@ fun AbSyncJoinPlanDialog(
 
 /** A full-width bordered field showing [selected]; tapping opens a menu of [choices] (label + consequence). */
 @Composable
-private fun ChoiceDropdown(tag: String, selected: DialogAnswer, choices: List<DialogAnswer>, onSelect: (DialogAnswer) -> Unit) {
+private fun ChoiceDropdown(tag: String, rowLabel: String, selected: DialogAnswer, choices: List<DialogAnswer>, onSelect: (DialogAnswer) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val mono = isPureMonochrome()
     val scheme = MaterialTheme.colorScheme
@@ -143,6 +147,7 @@ private fun ChoiceDropdown(tag: String, selected: DialogAnswer, choices: List<Di
         Row(
             Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("join-row-$tag")
                 .border(BorderStroke(1.dp, if (mono) monoInk(LocalIsDarkTheme.current) else scheme.outline), shape)
+                .semantics { contentDescription = rowLabel }
                 .clickable(role = Role.DropdownList) { expanded = true }
                 .padding(horizontal = AbDialogTokens.CardPaddingH, vertical = AbDialogTokens.CardPaddingV),
             verticalAlignment = Alignment.CenterVertically,

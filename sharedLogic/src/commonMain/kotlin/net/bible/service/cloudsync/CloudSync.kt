@@ -83,7 +83,7 @@ class CancelStartedSync: Exception()
 
 /**
  * The category's sync folder ids are not stored although a sync step needs them (a reset or an interrupted join
- * removed them). Not an error to show: the next [CloudSync.initializeSync] sees no folder and joins afresh.
+ * removed them). Not an error to show: the next pass's probe (see [probeJoin]) sees no folder and joins afresh.
  */
 class MissingSyncFolderIds(category: String): Exception("Sync folder ids missing for $category")
 
@@ -342,6 +342,13 @@ class CloudSync(
 
     private fun peekStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { storedJoins[category] } // L1-common-ok: atomicfu lock
 
+    /** Drops the stored decision of [category], if any: a decision must not outlive the switch (or pass) that made it moot. */
+    fun dropStoredJoin(category: SyncableDatabaseDefinition) {
+        synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+            if (storedJoins.remove(category) != null) queuedJoinsMutable.value = storedJoins.keys.toSet()
+        }
+    }
+
     private fun clearStoredJoins() = synchronized(joinStateLock) { storedJoins.clear(); queuedJoinsMutable.value = emptySet() } // L1-common-ok: atomicfu lock
 
     /** Turns [categories] off and drops their stored decisions: a decision must not outlive the choice that disabled the category. */
@@ -386,7 +393,9 @@ class CloudSync(
         }
         try {
             if (enable) categories.forEach { it.setSyncEnabled(settings, true) }
+            // A category disabled for this database version is skipped by every pass: no probe, no question.
             val accessors = categories.mapNotNull { DatabaseContainer.databaseAccessorsByCategory[it] }
+                .filter { it.dao.getLong("disabledForVersion") != it.version().toLong() }
             val probes = accessors.asyncMap { dbDef ->
                 try {
                     probeJoin(dbDef)
@@ -522,6 +531,7 @@ class CloudSync(
         if (probe.dropStaleState) removeSyncState(dbDef)
     }
 
+    /** Test-only: production passes and [planJoins] go through [probeJoin] and [executeJoin]; this runs both for one category. */
     @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true, backgroundErrors: Boolean = !allowInteraction) {
         val probe = probeJoin(dbDef, listCloud = allowInteraction)
         var operation: InitialOperation? = null
@@ -836,7 +846,7 @@ class CloudSync(
                     try {
                         withContext(NonCancellable) {
                             if (pristineReady) swapInInitialDb(dbDef, original, token) { removeSyncState(dbDef) }
-                            else removeSyncState(dbDef) // the live database was never touched: only forget the keys initializeSync wrote
+                            else removeSyncState(dbDef) // the live database was never touched: only forget the keys the join wrote
                         }
                     } catch (restoreFailure: Throwable) {
                         restoreFailed = true // keep the durable copy: the next start's recovery retries
@@ -1023,7 +1033,11 @@ class CloudSync(
                     var probe: JoinProbe? = null
                     // A confirmed decision needs the cloud folder id, so its category is listed even in a background pass.
                     val listCloud = allowInteraction || peekStoredJoin(dbDef.category) != null
-                    if (!guardInit(dbDef, "initialize") { probe = probeJoin(dbDef, listCloud) }) return@asyncMap null
+                    if (!guardInit(dbDef, "initialize") { probe = probeJoin(dbDef, listCloud) }) {
+                        // A failed probe cannot confirm what the decision was made against: it must not linger and run later.
+                        takeStoredJoin(dbDef.category)
+                        return@asyncMap null
+                    }
                     dbDef to probe!!
                 }.filterNotNull()
 

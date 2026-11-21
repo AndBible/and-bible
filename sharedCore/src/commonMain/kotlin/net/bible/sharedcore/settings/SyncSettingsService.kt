@@ -96,14 +96,12 @@ interface SyncSettingsService {
     suspend fun scanDocuments(): DocSyncSummaryData
 
     // Per-key writers routed to the correct backing store (impl encapsulates routing).
-    fun disableCategory(key: String)                        // sync_enable_* (non-documents) OFF; ons go through applyCategoryChanges
-
     /**
      * Applies the pending category switches ([changes]: `sync_enable_*` key to the wanted value) as one batch.
-     * Signs in first when any value is true: false (nothing persisted) when that fails. Offs are persisted at once;
+     * Signs in first when any value is true ([ApplyResult.SignInFailed], nothing persisted, when that fails). Offs are persisted at once;
      * the ons are enabled and their join planned together (one cloud probe, one decision dialog) via the cloud-sync
      * layer, then a synchronization pass is arranged to execute the stored decisions. [onProbed] is called once the
-     * cloud has been probed (the point from which the interactive dialog is the cloud layer's). Returns [ApplyResult.SignInFailed] (nothing persisted)
+     * cloud has been probed (the point from which the interactive dialog is the cloud layer's). Returns [ApplyResult.Applied], [ApplyResult.SignInFailed]
      * or [ApplyResult.Cancelled] (the plan was cancelled; the ons are turned off again); a cancellation of the
      * caller also turns the ons off and is rethrown.
      */

@@ -24,7 +24,6 @@ class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsServi
     override fun refresh() { refreshes++ }
     override suspend fun signIn(): Boolean { calls += "signIn"; return signInResult }
     override suspend fun scanDocuments(): DocSyncSummaryData { calls += "scan"; return scanResult }
-    override fun disableCategory(key: String) { calls += "cat:$key=false" }
     override fun setDocumentsEnabled(summary: DocSyncSummaryData) { calls += "docsEnable" }
     override fun disableDocuments() { calls += "docsDisable" }
     override fun setDocumentSyncToggle(key: String, value: Boolean) { calls += "docToggle:$key=$value" }

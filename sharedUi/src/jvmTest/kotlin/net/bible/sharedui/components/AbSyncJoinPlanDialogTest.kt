@@ -1,6 +1,7 @@
 package net.bible.sharedui.components
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -74,6 +75,13 @@ class AbSyncJoinPlanDialogTest {
             onNodeWithText("Replace and start").performClick()
         }
         assertEquals(listOf<AppDialogResult>(AppDialogResult.SyncJoinChoices(mapOf("BOOKMARKS" to "fetch", "WORKSPACES" to "merge"))), results)
+    }
+
+    @Test fun eachDropdownIsLinkedToItsCategoryLabelForScreenReaders() {
+        run(plan()) {
+            onNodeWithTag("join-row-BOOKMARKS").assertContentDescriptionContains("Bookmarks")
+            onNodeWithTag("join-row-WORKSPACES").assertContentDescriptionContains("Workspaces")
+        }
     }
 
     @Test fun cancelReturnsCancel() {
