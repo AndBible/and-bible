@@ -310,7 +310,11 @@ class CloudSync(
             withContext(Dispatchers.Main) { dialogs.await(request) }
         }
         val chosen = (result as? AppDialogResult.SyncJoinChoices)?.choices ?: return null // Cancel, back or scrim.
-        return decisions.associate { it.category to JoinChoice.fromValue(chosen[it.category.name])?.toOperation() } + createOps
+        return decisions.associate {
+            val choice = JoinChoice.fromValue(chosen[it.category.name])
+            if (choice == null) Log.w(TAG, "No valid join choice for ${it.category}: '${chosen[it.category.name]}', not syncing it")
+            it.category to choice?.toOperation()
+        } + createOps
     }
 
     /** The folder-name prefix: the debug override, or the app id mapped through [SyncNamespace] so release distributions share folders. */

@@ -267,7 +267,7 @@ class CloudSyncNamespaceTest {
         val db = accessor().apply { seed(ns = "net.bible.android.activity") }
         val cloudSync = sync("com.app.calculator", adapter, dialogs = dialogs)
         val seen = answeringDialogs(dialogs, firstAnswer = "merge") { cloudSync.initializeSync(db) }
-        assertTrue("fetch question expected, saw $seen", seen.any { it is AppDialogRequest.SyncJoinPlan })
+        assertTrue("join plan expected, saw $seen", seen.any { it is AppDialogRequest.SyncJoinPlan })
         assertEquals("existing-net.bible.android.activity-sync-bookmarks", db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
         assertEquals("net.bible.android.activity", db.dao.getString(SYNC_NAMESPACE_KEY))
     }

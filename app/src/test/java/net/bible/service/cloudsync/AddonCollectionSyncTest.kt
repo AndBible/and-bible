@@ -548,7 +548,7 @@ class AddonCollectionSyncTest {
         ArchiveUtils.gzipFile(raw.toOkioPath(), gz)
         other.upload(INITIAL_BACKUP_FILENAME, gz, folder)
 
-        // Forget the join, so that the next sync fetches the initial file: choice 1 is "fetch and restore initial".
+        // Forget the join, so that the next sync fetches the initial file: the plan choice is "fetch".
         before.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
         syncAnswering(choice = "fetch")
 
