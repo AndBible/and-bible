@@ -73,7 +73,7 @@ Document sync is not part of this: its switch takes effect immediately.
 If using Nextcloud instead of Google Drive:
 
 1. In `Device synchronization`, change the `Synchronization Backend` to **Nextcloud**.
-2. Enter your Nextcloud `Server URL`, `User name` and `Password`.
+2. Enter your Nextcloud `Server URL` (for example `https://cloud.example.com`; `https://` is added if you leave it out), `User name` and `Password`.
 3. Optionally specify a `Sync folder path` on the server (the parent folder for sync data; empty means the root).
 4. Switch on the data categories you want to sync and tap **Apply**.
 
@@ -100,7 +100,7 @@ supports WebDAV (RFC 4918), without needing an account with a third-party cloud
 service.
 
 1. In `Device synchronization`, change the `Synchronization Backend` to **WebDAV**.
-2. Enter the `Server URL`, `User name` and `Password`.
+2. Enter the `Server URL` (`https://` is added if you leave it out), `User name` and `Password`.
 3. Optionally specify a `Sync folder path`, a subfolder on the server under
     which *AndBible* stores its data. It is created if it does not exist.
 4. Switch on the data categories you want to sync and tap **Apply**.

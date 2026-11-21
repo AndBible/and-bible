@@ -41,4 +41,21 @@ class SyncServerUrlTest {
             assertEquals(expected, receivedUrl, input)
         }
     }
+
+    @Test fun prependsHttpsOnlyWhenNoSchemeWasEntered() {
+        for ((input, expected) in listOf(
+            "cloud.example.com" to "https://cloud.example.com",
+            "  cloud.example.com/nextcloud/ " to "https://cloud.example.com/nextcloud",
+            "nas.local:8443" to "https://nas.local:8443",
+            "192.168.1.5/dav" to "https://192.168.1.5/dav",
+            "https://cloud.example.com" to "https://cloud.example.com",
+            "HTTPS://Cloud.Example.com/" to "HTTPS://Cloud.Example.com",
+            "http://nas.local" to "http://nas.local",
+            "HTTP://nas.local" to "HTTP://nas.local",
+            "ftp://host" to "ftp://host",
+            "" to "",
+            "   " to "",
+            "/" to "",
+        )) assertEquals(expected, normalizeSyncServerUrl(input), "'$input'")
+    }
 }

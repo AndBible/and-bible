@@ -80,7 +80,7 @@ fun buildIosSyncBindings(
     // ONE container for the whole module: its lookup runs once and signIn() awaits that same lookup.
     single { IosUbiquityContainer().also { it.prefetch() } }
     single<SyncSettingsPlatform> {
-        IosSyncSettingsPlatform(get(), get<SecretStore>(), strings.webDavServerUrlHint)
+        IosSyncSettingsPlatform(get(), get<SecretStore>(), nextcloudUrlHint = strings.nextcloudServerUrlHint, serverUrlHint = strings.webDavServerUrlHint)
     }
     // Ktor does not own an injected engine, so keep it and close it together with the client.
     var driveEngine: io.ktor.client.engine.HttpClientEngine? = null

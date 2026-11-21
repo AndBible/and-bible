@@ -35,6 +35,7 @@ internal fun hostSyncStrings(strings: StringTable): HostSyncStrings = HostSyncSt
         }
     },
     webDavServerUrlHint = { strings.text("webdav_server_url_hint") },
+    nextcloudServerUrlHint = { strings.text("sync_server_url_hint") },
     syncError = { strings.text("sync_error") },
     webDavMessage = { message ->
         strings.text(

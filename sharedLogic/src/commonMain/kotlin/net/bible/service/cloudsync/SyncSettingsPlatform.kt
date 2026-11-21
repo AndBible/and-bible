@@ -16,6 +16,8 @@ interface SyncSettingsPlatform {
     /** The WebDAV adapter's persisted calibration and certificate pin. */
     val webDavState: WebDavStateStore
     val webDavServerUrlHint: String
+    /** Hint for the Nextcloud server URL row (shown while the URL is blank); empty hides it. */
+    val nextcloudServerUrlHint: String get() = ""
 }
 
 /** Reads category metadata through the suspend DAO contract, including on a UI dispatcher. */

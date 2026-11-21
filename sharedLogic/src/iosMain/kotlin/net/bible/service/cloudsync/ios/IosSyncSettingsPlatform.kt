@@ -22,6 +22,7 @@ import platform.Foundation.dateWithTimeIntervalSince1970
 class IosSyncSettingsPlatform(
     private val prefs: IosDevicePrefs,
     private val secrets: SecretStore,
+    private val nextcloudUrlHint: () -> String = { "" },
     private val serverUrlHint: () -> String,
 ) : SyncSettingsPlatform {
     override fun credential(key: String): String =
@@ -56,4 +57,5 @@ class IosSyncSettingsPlatform(
 
     override val webDavState: WebDavStateStore get() = IosWebDavStateStore(prefs)
     override val webDavServerUrlHint: String get() = serverUrlHint()
+    override val nextcloudServerUrlHint: String get() = nextcloudUrlHint()
 }

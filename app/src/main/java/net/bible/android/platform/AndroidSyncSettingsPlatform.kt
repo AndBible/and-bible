@@ -24,6 +24,7 @@ class AndroidSyncSettingsPlatform(private val context: Context) : SyncSettingsPl
         SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
     override val webDavState: WebDavStateStore get() = PrefsWebDavStateStore(CommonUtils.realSharedPreferences)
     override val webDavServerUrlHint: String get() = context.getString(R.string.webdav_server_url_hint)
+    override val nextcloudServerUrlHint: String get() = context.getString(R.string.sync_server_url_hint)
 }
 
 /** The disguised variant must not reveal the Bible app name in the Drive explanation. */
