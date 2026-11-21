@@ -46,6 +46,8 @@ emptyStudyPad: Pad kajian kosong. Mula menambah ke pad kajian ini dengan membuat
 doYouWantToDeleteEntry: Padamkan entri pad kajian ini?
 removeStudyPadConfirmationTitle: Buang entri pad kajian?
 dragHelp: Seret untuk menyusun semula
+addonBookmarkThisVerse: Tanda buku ayat ini
+addonReadOnly: Kandungan ini datang daripada koleksi add-on dan hanya boleh dibaca. Gunakan “Salin ke label saya” untuk mendapatkan salinan yang boleh disunting.
 openAll: Buka semua rujukan
 editBookmarkPlaceholder: Ketuk untuk mengedit Nota Saya untuk penanda buku ini
 onlyLabel: Label sahaja

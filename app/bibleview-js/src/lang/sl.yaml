@@ -46,6 +46,8 @@ emptyStudyPad: Prazna beležnica. Začnite dodajati v to beležnico z ustvarjanj
 doYouWantToDeleteEntry: Želite izbrisati ta vnos v beležnici?
 removeStudyPadConfirmationTitle: Želite odstraniti vnos beležnice?
 dragHelp: Povlecite za prerazporeditev
+addonBookmarkThisVerse: Zaznamuj to vrstico
+addonReadOnly: Ta vsebina izvira iz zbirke dodatka in je samo za branje. Uporabite “Kopiraj med moje oznake” za urejljivo kopijo.
 openAll: Odpri vse sklice
 editBookmarkPlaceholder: Dotaknite se, če želite urediti Moje opombe za ta zaznamek
 onlyLabel: Samo oznaka

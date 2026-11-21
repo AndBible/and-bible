@@ -46,6 +46,8 @@ emptyStudyPad: খালি স্টাডি প্যাড। এখান�
 doYouWantToDeleteEntry: এই স্টাডি প্যাড এন্ট্রি মুছবেন?
 removeStudyPadConfirmationTitle: স্টাডি প্যাড এন্ট্রি সরান?
 dragHelp: পুনরায় সাজাতে টেনে আনুন
+addonBookmarkThisVerse: এই পদটি বুকমার্ক করুন
+addonReadOnly: এই বিষয়বস্তু একটি অ্যাড-অন সংগ্রহ থেকে এসেছে এবং শুধু পাঠযোগ্য। সম্পাদনাযোগ্য অনুলিপি পেতে “আমার লেবেলে অনুলিপি করুন” ব্যবহার করুন।
 openAll: সব রেফারেন্স খুলুন
 editBookmarkPlaceholder: এই বুকমার্কের জন্য আমার নোট সম্পাদনা করতে আলতো চাপুন
 onlyLabel: শুধুমাত্র লেবেল

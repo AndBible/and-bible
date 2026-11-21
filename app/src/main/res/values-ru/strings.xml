@@ -124,6 +124,13 @@
   <string name="search_clear">Очистить текст поиска</string>
   <string name="search_engine_changed_reindex">Поисковая система обновлена. Необходимо заново создать поисковый индекс; это может занять некоторое время.</string>
   <string name="search_unsupported_syntax">В этом запросе используется неподдерживаемый синтаксис: %s</string>
+  <string name="search_regex">Регулярное выражение (экспериментально)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Поиск занял слишком много времени и был остановлен. Результаты неполные; попробуйте более простое выражение.</string>
+  <string name="search_invalid_regex">Недопустимое регулярное выражение: %1$s</string>
+  <string name="search_regex_too_many_wildcards">В этом регулярном выражении слишком много неограниченных подстановочных символов (например, .* или \\w+). Используйте их меньше или ограничьте, например: .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Это регулярное выражение повторяет группу, которая сама содержит повторение, например (a+)+. Поиск может занять практически бесконечное время. Перепишите его без вложенных повторений.</string>
+  <string name="search_regex_busy">Предыдущий поиск по регулярному выражению ещё выполняется в фоне. Повторите попытку через минуту; если он не завершится, перезапустите приложение.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -317,6 +324,8 @@
   <string name="hide_window_buttons_summary">Кнопки окна, которые отображаются справа от просмотра Библии, скрыты. Панель навигации окна внизу по-прежнему отображается, и вы можете открыть всплывающее меню окна, нажав и удерживая ее.</string>
   <string name="hide_bible_reference_overlay_title">Скрыть наложение/оверлей ссылки на Библию</string>
   <string name="hide_bible_reference_overlay_summary">Не показывать полупрозрачное наложение со ссылкой на Библию, когда приложение находится в полноэкранном режиме</string>
+  <string name="text_under_window_buttons_title">Показывать текст под кнопками окон</string>
+  <string name="text_under_window_buttons_summary">Текст Библии доходит до нижнего края экрана, под панелью кнопок окон. Если выключено, под панелью в нижних окнах, которые она охватывает, остаётся свободная полоса.</string>
   <string name="full_screen_hide_buttons_pref_title">Скрыть панель кнопок окна в полноэкранном режиме</string>
   <string name="full_screen_hide_buttons_pref_summary">При переключении в полноэкранный режим автоматически скрывать панель кнопок окна, расположенную внизу экрана</string>
   <string name="prefs_hide_status_bar_title">Скрыть строку состояния</string>
@@ -582,7 +591,50 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sleep_timer_active_at">Таймер сна: осталось %s минут.</string>
   <string name="speak_next">Следуюущее</string>
   <string name="speak_previous">Предыдущее</string>
+  <string name="widget_play">Воспроизвести</string>
   <string name="widget_toggle_sleep_timer">Переключить таймер сна</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Озвучить</string>
+  <string name="widget_speak_text_name">Озвучить с текстом</string>
+  <string name="widget_listening_list_name">Список прослушивания</string>
+  <string name="widget_verse_name">Стих</string>
+  <string name="widget_continue_from">Продолжить с %1$s · %2$s</string>
+  <string name="widget_continue_listening">Продолжить прослушивание</string>
+  <string name="widget_paused">Пауза</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Закладок для озвучивания пока нет</string>
+  <string name="widget_listening_list_empty_text">Здесь появляются закладки с меткой «Озвучивание». Включите автоматические закладки в настройках озвучивания или добавьте метку к любой закладке.</string>
+  <string name="widget_open_app">Открыть AndBible</string>
+  <string name="widget_open_app_to_load">Откройте AndBible, чтобы загрузить стихи</string>
+  <string name="widget_verse_unavailable_no_bible">Установите Библию, чтобы видеть здесь стихи</string>
+  <string name="widget_verse_unavailable_label_missing">Метка этого виджета больше не существует. Нажмите, чтобы выбрать стихи.</string>
+  <string name="widget_verse_unavailable_label_empty">У этой метки пока нет закладок в Библии. Нажмите, чтобы выбрать другие стихи.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Нет активного плана чтения. Нажмите, чтобы выбрать другие стихи.</string>
+  <string name="widget_verse_source_random_whole_bible">Случайный стих</string>
+  <string name="widget_verse_source_random_new_testament">Случайный стих · Новый Завет</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Случайный стих · Псалмы и Притчи</string>
+  <string name="widget_shuffle">Другой стих</string>
+  <string name="widget_speak_verse">Озвучить стих</string>
+  <string name="widget_verse_config_title">Виджет стиха</string>
+  <string name="widget_verse_config_source_label">Стихи из</string>
+  <string name="widget_verse_config_source_label_option">Метки</string>
+  <string name="widget_verse_config_source_random">Случайный стих</string>
+  <string name="widget_verse_config_random_whole">Вся Библия</string>
+  <string name="widget_verse_config_random_nt">Новый Завет</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Псалмы и Притчи</string>
+  <string name="widget_verse_config_source_plan">План чтения на сегодня</string>
+  <string name="widget_verse_config_changes">Смена</string>
+  <string name="widget_verse_config_daily">Ежедневно</string>
+  <string name="widget_verse_config_every_few_hours">Каждые несколько часов</string>
+  <string name="widget_verse_config_on_shuffle">Только при нажатии «Другой стих»</string>
+  <string name="widget_verse_config_bible">Библия</string>
+  <string name="widget_verse_config_bible_default">По умолчанию (%s)</string>
+  <string name="widget_verse_config_show_buttons">Показывать кнопки смены стиха и озвучивания</string>
+  <string name="widget_verse_config_show_source">Показывать источник и дату</string>
+  <string name="widget_verse_config_add">Добавить виджет</string>
+  <string name="widget_verse_config_save">Сохранить</string>
+  <string name="widget_verse_source_reading_plan">Чтение на сегодня</string>
   <string name="speak_status_stopped">остановлено</string>
   <string name="speak_autobookmarking_disabled">Авто установка закладкок отключена!</string>
   <string name="system_speak_settings">Открыть системные настройки TTS</string>
@@ -719,6 +771,31 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="install_zip_canceled">Установка модуля отменена</string>
   <string name="restore">Восстановить</string>
   <string name="import2">Импортировать</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (копия)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Из дополнения %1$s</string>
+  <string name="addon_label_from_module_hint">Открыть дополнение в менеджере документов</string>
+  <string name="addon_label_read_only_note">Эта метка, её закладки и её StudyPad принадлежат дополнению и не могут быть изменены. Вы можете отметить её как избранную, выбрать, как она отображается в этом рабочем пространстве, и добавить закладки на её стихи для себя.</string>
+  <string name="addon_copy_to_my_labels">Копировать в мои метки</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Скопировано в вашу метку \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Это содержимое принадлежит дополнению %1$s и не может быть изменено. Используйте \"Копировать в мои метки\", чтобы получить редактируемую копию.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Это содержимое принадлежит дополнению и не может быть изменено. Используйте \"Копировать в мои метки\", чтобы получить редактируемую копию.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Не удалось скопировать метку</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">Пропущен %1$d элемент коллекции дополнения. Используйте \"Копировать в мои метки\" для метки, чтобы получить собственную копию.</item>
+        <item quantity="few">Пропущено %1$d элемента коллекции дополнения. Используйте \"Копировать в мои метки\" для метки, чтобы получить собственную копию.</item>
+        <item quantity="many">Пропущено %1$d элементов коллекции дополнения. Используйте \"Копировать в мои метки\" для метки, чтобы получить собственную копию.</item>
+        <item quantity="other">Пропущено %1$d элемента коллекции дополнения. Используйте \"Копировать в мои метки\" для метки, чтобы получить собственную копию.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">«%1$s» и %2$s других меток / блокнотов и %3$s закладок</string>
   <!--About-->
@@ -753,6 +830,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="doc_type_all">Все типы</string>
   <string name="doc_type_bible">Библия</string>
   <string name="doc_type_commentary">Комментарий</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Документы</string>
   <string name="doc_type_dictionary">Словарь</string>
   <string name="doc_type_book">Книга</string>
   <string name="doc_type_map">Карта</string>
@@ -788,6 +867,10 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="crash_recovery_continue">Продолжить</string>
   <string name="report_error">Отправить отчет</string>
   <string name="error_occurred">Произошла ошибка</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Приложение остановилось при запуске</string>
+  <string name="startup_crash_detail">Пожалуйста, отправьте нам отчёт об ошибке, чтобы мы могли устранить проблему. Он содержит сведения об ошибке, а также информацию о вашем устройстве и версии приложения.</string>
+  <string name="startup_crash_try_again">Повторить</string>
   <string name="error_occurred_crash_last_time">Последний раз, когда вы использовали приложение, произошел сбой. Чтобы помочь нам исправить ошибку, мы будем признательны, если вы отправите нам отчет об ошибке.</string>
   <string name="error_occurred_with_link">Произошла ошибка. %s</string>
   <string name="error_no_content">В выбранных стихах нет содержания</string>
@@ -1299,10 +1382,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="reading_progress_new_cycle">Новый цикл</string>
   <string name="reading_progress_previous_cycle">Предыдущий цикл</string>
   <string name="reading_progress_next_cycle">Следующий цикл</string>
-  <string name="cloud_merge_data">Объединить данные</string>
-  <string name="cloud_fetch_and_restore_initial">Скопировать из облака на это устройство</string>
-  <string name="cloud_create_new">Скопировать с этого устройства в облако</string>
-  <string name="cloud_disable_sync">Отменить и отключить синхронизацию</string>
   <string name="cloud_sync_title">Синхронизация устройства</string>
   <string name="reset_sync">Выход</string>
   <string name="prefs_reset_sync_summary">Отключить синхронизацию и сбросить соответствующие настройки.</string>
@@ -1318,8 +1397,21 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="google_drive_signin_interrupted">Вход в Google был прерван. Повторите попытку.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Адрес вашего сервера, например https://cloud.example.com (https:// добавляется, если вы его опустите)</string>
   <string name="webdav_server_url_hint">Адрес папки WebDAV, например https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Для синхронизации требуется защищённый адрес https://.</string>
+  <string name="sync_waiting_for_pass">Ожидание завершения текущей синхронизации…</string>
+  <string name="sync_pending_on">Будет включено</string>
+  <string name="sync_pending_off">Будет выключено</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d изменение</item>
+        <item quantity="few">%1$d изменения</item>
+        <item quantity="many">%1$d изменений</item>
+        <item quantity="other">%1$d изменения</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Применить изменения синхронизации?</string>
+  <string name="sync_checking_cloud_title">Проверка облака…</string>
+  <string name="sync_checking_cloud_text">Поиск данных, которые другие устройства уже синхронизировали.</string>
   <string name="webdav_certificate_title">Сертификат сервера</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Ненадёжный сертификат сервера</string>
@@ -1337,7 +1429,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="synchronization_categories">Категории синхронизации</string>
   <string name="sync_general_settings">Информация и общие настройки</string>
   <string name="sync_introduction">Введение</string>
-  <string name="are_you_sure_merge">Будут сохранены и данные на этом устройстве, и %s в облаке. Если один и тот же элемент был изменён в обоих местах, сохраняется более новое изменение. Данные этого устройства будут отправлены на другие ваши устройства.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Отключение синхронизации с облаком. После восстановления необходимо повторно включить вручную.</string>
   <string name="report">Отчет</string>
@@ -2310,18 +2401,30 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="dialog_dont_apply">Не применять</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">В облаке уже есть ваши данные: %s. Что сделать?</string>
-  <string name="cloud_merge_consequence">Сохраняются обе стороны; если элемент изменён на обеих, побеждает более новое изменение.</string>
-  <string name="cloud_fetch_consequence">Заменяет данные на этом устройстве копией из облака.</string>
-  <string name="cloud_create_consequence">Заменяет копию в облаке данными с этого устройства.</string>
-  <string name="cloud_disable_consequence">Синхронизация этих данных остаётся выключенной.</string>
-  <string name="cloud_merge_lead">Объединить ваши данные (%s) с облаком?</string>
-  <string name="cloud_merge_confirm">Объединить</string>
   <string name="cloud_replace_confirm">Заменить</string>
-  <string name="cloud_replace_local_lead">Заменить данные этого устройства (%s) копией из облака?</string>
-  <string name="cloud_replace_local_detail">Всё, что сейчас на этом устройстве, будет перезаписано и не подлежит восстановлению.</string>
-  <string name="cloud_replace_cloud_lead">Заменить копию в облаке (%s) данными этого устройства?</string>
-  <string name="cloud_replace_cloud_detail">Всё, что сейчас в облаке, будет перезаписано, а другие ваши устройства получат данные этого устройства.</string>
+  <string name="cloud_join_plan_title">В облаке уже есть данные</string>
+  <string name="cloud_join_plan_lead">Выберите действие для каждой категории.</string>
+  <string name="cloud_join_merge">Объединить</string>
+  <string name="cloud_join_merge_detail">Объединить данные устройства и облака</string>
+  <string name="cloud_join_fetch">Скопировать из облака</string>
+  <string name="cloud_join_fetch_detail">Заменить данные этого устройства</string>
+  <string name="cloud_join_create">Скопировать в облако</string>
+  <string name="cloud_join_create_detail">Заменить данные в облаке</string>
+  <string name="cloud_join_disable">Не синхронизировать</string>
+  <string name="cloud_join_disable_detail">Оставить эту категорию выключенной</string>
+  <string name="cloud_join_upload_note">%s: в облаке ещё нет данных, они будут загружены с этого устройства.</string>
+  <string name="cloud_join_confirm_title">Начать синхронизацию?</string>
+  <string name="cloud_join_confirm_lead">Вот что произойдёт:</string>
+  <string name="cloud_join_outcome_merge">%s: объединено с облаком. Ничего не потеряется.</string>
+  <string name="cloud_join_outcome_fetch">%s: данные на этом устройстве заменяются данными из облака.</string>
+  <string name="cloud_join_outcome_create">%s: данные в облаке заменяются данными с этого устройства.</string>
+  <string name="cloud_join_outcome_disable">%s: остаётся выключенным.</string>
+  <string name="cloud_join_outcome_upload">%s: загружено с этого устройства.</string>
+  <string name="cloud_join_warning">Замещённые данные восстановить нельзя. Если не уверены, сначала сделайте резервную копию.</string>
+  <string name="cloud_join_next">Далее</string>
+  <string name="cloud_join_back">Назад</string>
+  <string name="cloud_join_start">Начать синхронизацию</string>
+  <string name="cloud_join_replace">Заменить и синхронизировать</string>
   <string name="sign_in_failed_lead">Не удалось войти в службу синхронизации.</string>
   <string name="sync_too_old_lead">Это приложение слишком старое для синхронизации: %s.</string>
   <string name="sync_too_old_detail">Данные в облаке используют более новую версию, чем поддерживает это приложение. Их синхронизация пока выключена; обновите приложение, чтобы включить её снова.</string>

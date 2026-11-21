@@ -124,6 +124,13 @@
   <string name="search_clear">Șterge textul căutat</string>
   <string name="search_engine_changed_reindex">Motorul de căutare a fost actualizat. Indexul de căutare trebuie creat din nou; aceasta poate dura ceva timp.</string>
   <string name="search_unsupported_syntax">Această căutare folosește o sintaxă neacceptată: %s</string>
+  <string name="search_regex">Expresie regulată (experimental)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Căutarea a durat prea mult și a fost oprită. Rezultatele sunt incomplete; încearcă o expresie mai simplă.</string>
+  <string name="search_invalid_regex">Expresie regulată nevalidă: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Această expresie regulată are prea multe metacaractere deschise (precum .* sau \\w+). Folosește mai puține sau restrânge-le, de exemplu .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Această expresie regulată repetă un grup care conține el însuși o repetiție, precum (a+)+. O astfel de potrivire poate dura practic la nesfârșit. Rescrie-o fără repetiții imbricate.</string>
+  <string name="search_regex_busy">O căutare anterioară cu expresie regulată încă rulează în fundal. Încearcă din nou peste puțin timp; dacă nu se termină, repornește aplicația.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -316,6 +323,8 @@
   <string name="hide_window_buttons_summary">Butoanele ferestrei din partea dreaptă a paginii sînt ascunse. Butoanele ferestrelor din partea de jos a paginii sînt în continuare afișate și poți deschide opțiunile ferestrelor ținînd apăsat pe ele.</string>
   <string name="hide_bible_reference_overlay_title">Ascunde trimiterile biblice suprapuse</string>
   <string name="hide_bible_reference_overlay_summary">Nu arăta suprapunerea semi-transparentă a trimiterilor biblice cînd aplicația este pe tot ecranul</string>
+  <string name="text_under_window_buttons_title">Afișează textul sub butoanele ferestrei</string>
+  <string name="text_under_window_buttons_summary">Textul biblic ajunge până jos pe ecran, sub bara cu butoanele ferestrei. Când este dezactivat, sub bară rămâne liberă o fâșie în ferestrele de jos pe care le acoperă bara.</string>
   <string name="full_screen_hide_buttons_pref_title">Ascunde butoanele de jos</string>
   <string name="full_screen_hide_buttons_pref_summary">Cînd se dă pe tot ecranul, ascunde automat butoanele care se află în partea de jos a ecranului</string>
   <string name="prefs_hide_status_bar_title">Ascunde bara de stare</string>
@@ -581,7 +590,50 @@
   <string name="sleep_timer_active_at">Contor de timp: %s minute rămase.</string>
   <string name="speak_next">Înainte</string>
   <string name="speak_previous">Înapoi</string>
+  <string name="widget_play">Redă</string>
   <string name="widget_toggle_sleep_timer">Act/Dez contorul de timp</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Citește cu voce tare</string>
+  <string name="widget_speak_text_name">Citește cu voce tare, cu text</string>
+  <string name="widget_listening_list_name">Listă de ascultare</string>
+  <string name="widget_verse_name">Verset</string>
+  <string name="widget_continue_from">Continuă de la %1$s · %2$s</string>
+  <string name="widget_continue_listening">Continuă ascultarea</string>
+  <string name="widget_paused">În pauză</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Încă niciun semn de carte audio</string>
+  <string name="widget_listening_list_empty_text">Semnele de carte cu eticheta Audio apar aici. Activează semnele de carte automate în setările audio sau adaugă eticheta la orice semn de carte.</string>
+  <string name="widget_open_app">Deschide AndBible</string>
+  <string name="widget_open_app_to_load">Deschide AndBible pentru a încărca versete</string>
+  <string name="widget_verse_unavailable_no_bible">Instalează o Biblie pentru a vedea versete aici</string>
+  <string name="widget_verse_unavailable_label_missing">Eticheta acestui widget nu mai există. Atinge pentru a alege versete.</string>
+  <string name="widget_verse_unavailable_label_empty">Această etichetă nu are încă semne de carte din Biblie. Atinge pentru a alege alte versete.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Niciun plan de citire nu este activ. Atinge pentru a alege alte versete.</string>
+  <string name="widget_verse_source_random_whole_bible">Verset aleatoriu</string>
+  <string name="widget_verse_source_random_new_testament">Verset aleatoriu · Noul Testament</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Verset aleatoriu · Psalmi și Proverbe</string>
+  <string name="widget_shuffle">Amestecă versetul</string>
+  <string name="widget_speak_verse">Citește versetul cu voce tare</string>
+  <string name="widget_verse_config_title">Widget de verset</string>
+  <string name="widget_verse_config_source_label">Versete din</string>
+  <string name="widget_verse_config_source_label_option">O etichetă</string>
+  <string name="widget_verse_config_source_random">Verset aleatoriu</string>
+  <string name="widget_verse_config_random_whole">Toată Biblia</string>
+  <string name="widget_verse_config_random_nt">Noul Testament</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psalmi și Proverbe</string>
+  <string name="widget_verse_config_source_plan">Planul de citire de azi</string>
+  <string name="widget_verse_config_changes">Se schimbă</string>
+  <string name="widget_verse_config_daily">Zilnic</string>
+  <string name="widget_verse_config_every_few_hours">La câteva ore</string>
+  <string name="widget_verse_config_on_shuffle">Doar când ating amestecarea</string>
+  <string name="widget_verse_config_bible">Biblia</string>
+  <string name="widget_verse_config_bible_default">Implicită (%s)</string>
+  <string name="widget_verse_config_show_buttons">Afișează butoanele de amestecare și citire cu voce tare</string>
+  <string name="widget_verse_config_show_source">Afișează sursa și data</string>
+  <string name="widget_verse_config_add">Adaugă widgetul</string>
+  <string name="widget_verse_config_save">Salvează</string>
+  <string name="widget_verse_source_reading_plan">Citirea de azi</string>
   <string name="speak_status_stopped">oprit</string>
   <string name="speak_autobookmarking_disabled">Semn de carte automat dezactivat</string>
   <string name="system_speak_settings">Deschide reglările TTS ale sistemului</string>
@@ -719,6 +771,30 @@
   <string name="install_zip_canceled">Instalarea a fost anulată</string>
   <string name="restore">Recuperează</string>
   <string name="import2">Importă</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (copie)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Din suplimentul %1$s</string>
+  <string name="addon_label_from_module_hint">Deschide suplimentul în managerul de documente</string>
+  <string name="addon_label_read_only_note">Această etichetă, semnele ei de carte și StudyPad-ul aparțin suplimentului și nu pot fi editate. Poți să o marchezi ca favorită, să alegi cum o afișează acest spațiu de lucru și să adaugi semne de carte la versetele ei, pentru tine.</string>
+  <string name="addon_copy_to_my_labels">Copiază în etichetele mele</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Copiat în eticheta ta \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Acest conținut provine din suplimentul %1$s și nu poate fi modificat. Folosește \"Copiază în etichetele mele\" pentru a obține o copie editabilă.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Acest conținut provine dintr-un supliment și nu poate fi modificat. Folosește \"Copiază în etichetele mele\" pentru a obține o copie editabilă.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Eticheta nu a putut fi copiată</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d element din colecția de suplimente a fost omis. Folosește \"Copiază în etichetele mele\" pe etichetă pentru a obține propria copie.</item>
+    <item quantity="few">%1$d elemente din colecția de suplimente au fost omise. Folosește \"Copiază în etichetele mele\" pe etichetă pentru a obține propria copie.</item>
+    <item quantity="other">%1$d de elemente din colecția de suplimente au fost omise. Folosește \"Copiază în etichetele mele\" pe etichetă pentru a obține propria copie.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">„%1$s” și %2$s altă(e) Etichetă(e) / Notiță(e) de studiu și %3$s Semne de carte</string>
   <!--About-->
@@ -754,6 +830,8 @@
   <string name="doc_type_all">Toate tipurile</string>
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Comentariu</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Documente</string>
   <string name="doc_type_dictionary">Dicționar</string>
   <string name="doc_type_book">Carte</string>
   <string name="doc_type_map">Hartă</string>
@@ -789,6 +867,10 @@
   <string name="crash_recovery_continue">Continuă</string>
   <string name="report_error">Trimite raportul</string>
   <string name="error_occurred">A apărut o eroare</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Aplicația s-a oprit la pornire</string>
+  <string name="startup_crash_detail">Trimite-ne un raport de eroare, ca să putem remedia problema. Acesta conține detaliile erorii și informații despre dispozitivul și versiunea aplicației tale.</string>
+  <string name="startup_crash_try_again">Încearcă din nou</string>
   <string name="error_occurred_crash_last_time">Ultima dată cînd ai folosit aplicația, aceasta s-a blocat. Pentru a ne ajuta să rezolvăm problema, ne-ar fi de folos dacă ne-ai trimite un raport de erori.</string>
   <string name="error_occurred_with_link">A apărut o eroare. %s</string>
   <string name="error_no_content">Niciun conținut pentru versetul ales</string>
@@ -1307,10 +1389,6 @@
   <string name="reading_progress_new_cycle">Ciclu nou</string>
   <string name="reading_progress_previous_cycle">Ciclul anterior</string>
   <string name="reading_progress_next_cycle">Ciclul următor</string>
-  <string name="cloud_merge_data">Îmbină datele</string>
-  <string name="cloud_fetch_and_restore_initial">Copiază di Cloud în acest aparat</string>
-  <string name="cloud_create_new">Copiază din acest aparat în Cloud</string>
-  <string name="cloud_disable_sync">Anulează &amp; dezactivează sincronizarea</string>
   <string name="cloud_sync_title">Sincronizarea aparatului</string>
   <string name="reset_sync">Deconectare</string>
   <string name="prefs_reset_sync_summary">Dezactivează sincronizarea și restabilește reglările respective.</string>
@@ -1326,8 +1404,20 @@
   <string name="google_drive_signin_interrupted">Autentificarea Google a fost întreruptă. Încearcă din nou.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adresa serverului tău, de ex. https://cloud.example.com (https:// se adaugă dacă îl omiți)</string>
   <string name="webdav_server_url_hint">Adresa dosarului WebDAV, de exemplu https://nas.local/dav/ sau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sincronizarea necesită o adresă securizată https://.</string>
+  <string name="sync_waiting_for_pass">Se așteaptă încheierea sincronizării curente…</string>
+  <string name="sync_pending_on">Va fi activată</string>
+  <string name="sync_pending_off">Va fi dezactivată</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d modificare</item>
+    <item quantity="few">%1$d modificări</item>
+    <item quantity="other">%1$d de modificări</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Aplici modificările de sincronizare?</string>
+  <string name="sync_checking_cloud_title">Se verifică cloudul…</string>
+  <string name="sync_checking_cloud_text">Se caută date pe care alte dispozitive le-au sincronizat deja.</string>
   <string name="webdav_certificate_title">Certificatul serverului</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Certificat de server nesigur</string>
@@ -1345,7 +1435,6 @@
   <string name="synchronization_categories">Categorii de sincronizare</string>
   <string name="sync_general_settings">Info &amp; reglări generale</string>
   <string name="sync_introduction">Introducere</string>
-  <string name="are_you_sure_merge">Vor fi păstrate atât datele de pe acest dispozitiv, cât și %s din cloud. Dacă același element a fost modificat în ambele locuri, se păstrează modificarea mai nouă. Datele acestui dispozitiv vor fi trimise celorlalte dispozitive ale tale.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Se dezactivează sincronizarea în „cloud”. Trebuie reactivată manual după recuperare.</string>
   <string name="report">Raport</string>
@@ -2311,18 +2400,30 @@
   <string name="dialog_dont_apply">Nu aplica</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Cloudul are deja %s. Ce să se întâmple?</string>
-  <string name="cloud_merge_consequence">Ambele părți sunt păstrate; unde un element a fost modificat pe ambele, câștigă modificarea mai recentă.</string>
-  <string name="cloud_fetch_consequence">Înlocuiește datele de pe acest dispozitiv cu copia din cloud.</string>
-  <string name="cloud_create_consequence">Înlocuiește copia din cloud cu datele de pe acest dispozitiv.</string>
-  <string name="cloud_disable_consequence">Sincronizarea rămâne dezactivată pentru aceste date.</string>
-  <string name="cloud_merge_lead">Combini %s cu cloudul?</string>
-  <string name="cloud_merge_confirm">Combină</string>
   <string name="cloud_replace_confirm">Înlocuiește</string>
-  <string name="cloud_replace_local_lead">Înlocuiești %s de pe acest dispozitiv cu copia din cloud?</string>
-  <string name="cloud_replace_local_detail">Ce este acum pe acest dispozitiv este suprascris și nu poate fi recuperat.</string>
-  <string name="cloud_replace_cloud_lead">Înlocuiești copia din cloud a %s cu datele acestui dispozitiv?</string>
-  <string name="cloud_replace_cloud_detail">Ce este acum în cloud este suprascris, iar celelalte dispozitive ale tale vor primi datele acestui dispozitiv.</string>
+  <string name="cloud_join_plan_title">Cloudul conține deja date</string>
+  <string name="cloud_join_plan_lead">Alege ce să se întâmple pentru fiecare categorie.</string>
+  <string name="cloud_join_merge">Îmbină</string>
+  <string name="cloud_join_merge_detail">Combină datele acestui dispozitiv cu cele din cloud</string>
+  <string name="cloud_join_fetch">Copiază din cloud</string>
+  <string name="cloud_join_fetch_detail">Înlocuiește datele acestui dispozitiv</string>
+  <string name="cloud_join_create">Copiază în cloud</string>
+  <string name="cloud_join_create_detail">Înlocuiește datele din cloud</string>
+  <string name="cloud_join_disable">Nu sincroniza</string>
+  <string name="cloud_join_disable_detail">Lasă această categorie dezactivată</string>
+  <string name="cloud_join_upload_note">%s: încă nu există date în cloud, vor fi încărcate de pe acest dispozitiv.</string>
+  <string name="cloud_join_confirm_title">Pornești sincronizarea?</string>
+  <string name="cloud_join_confirm_lead">Iată ce se va întâmpla:</string>
+  <string name="cloud_join_outcome_merge">%s: îmbinat cu cloudul. Nu se pierde nimic.</string>
+  <string name="cloud_join_outcome_fetch">%s: datele de pe acest dispozitiv sunt înlocuite cu cele din cloud.</string>
+  <string name="cloud_join_outcome_create">%s: datele din cloud sunt înlocuite cu cele de pe acest dispozitiv.</string>
+  <string name="cloud_join_outcome_disable">%s: rămâne dezactivat.</string>
+  <string name="cloud_join_outcome_upload">%s: încărcat de pe acest dispozitiv.</string>
+  <string name="cloud_join_warning">Datele înlocuite nu pot fi recuperate. Dacă ai dubii, fă mai întâi o copie de siguranță.</string>
+  <string name="cloud_join_next">Înainte</string>
+  <string name="cloud_join_back">Înapoi</string>
+  <string name="cloud_join_start">Pornește sincronizarea</string>
+  <string name="cloud_join_replace">Înlocuiește și sincronizează</string>
   <string name="sign_in_failed_lead">Autentificarea la serviciul de sincronizare nu a reușit.</string>
   <string name="sync_too_old_lead">Această aplicație este prea veche pentru a sincroniza %s.</string>
   <string name="sync_too_old_detail">Datele din cloud folosesc o versiune mai nouă decât cea acceptată de această aplicație. Sincronizarea lor este oprită deocamdată; actualizează aplicația ca să o pornești din nou.</string>

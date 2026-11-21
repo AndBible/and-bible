@@ -46,6 +46,8 @@ emptyStudyPad: खाली स्टडी पैड। यहां टेक�
 doYouWantToDeleteEntry: इस स्टडी पैड प्रविष्टि को हटाएं?
 removeStudyPadConfirmationTitle: स्टडी पैड प्रविष्टि को हटाएं?
 dragHelp: व्यवस्थित करने के लिए खींचे
+addonBookmarkThisVerse: इस पद को बुकमार्क करें
+addonReadOnly: यह सामग्री एक ऐड-ऑन संग्रह से आती है और केवल पढ़ने योग्य है। संपादन योग्य प्रति पाने के लिए “मेरे लेबल में कॉपी करें” का उपयोग करें।
 openAll: सभी संदर्भ खोलें
 editBookmarkPlaceholder: इस बुकमार्क के लिए मेरे नोट्स संपादित करने के लिए टैप करें
 onlyLabel: केवल लेबल

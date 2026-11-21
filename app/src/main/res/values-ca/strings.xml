@@ -124,6 +124,13 @@
   <string name="search_clear">Esborra el text de cerca</string>
   <string name="search_engine_changed_reindex">El motor de cerca s\'ha actualitzat. Cal tornar a crear l\'índex de cerca; això pot trigar una estona.</string>
   <string name="search_unsupported_syntax">Aquesta cerca utilitza una sintaxi no admesa: %s</string>
+  <string name="search_regex">Expressió regular (experimental)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">La cerca ha trigat massa i s\'ha aturat. Els resultats són incomplets; proveu una expressió més senzilla.</string>
+  <string name="search_invalid_regex">Expressió regular no vàlida: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Aquesta expressió regular té massa comodins oberts (com .* o \\w+). Useu-ne menys o delimiteu-los, per exemple .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Aquesta expressió regular repeteix un grup que ja conté una repetició, com ara (a+)+. Això pot trigar pràcticament una eternitat a coincidir. Reescriviu-la sense niar repeticions.</string>
+  <string name="search_regex_busy">Una cerca amb expressió regular anterior encara s\'està executant en segon pla. Torneu-ho a provar d\'aquí a un moment; si no acaba, reinicieu l\'aplicació.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +321,8 @@
   <string name="hide_window_buttons_summary">Els botons de finestra que es mostren a la dreta de les vistes bíbliques estan ocults. La barra de navegació de finestres a la part inferior continua visible i pots obrir el menú emergent de la finestra prement-los de manera prolongada.</string>
   <string name="hide_bible_reference_overlay_title">Amaga la superposició de referència bíblica</string>
   <string name="hide_bible_reference_overlay_summary">No mostris la superposició semitransparent de referència bíblica quan l\'aplicació estigui en mode de pantalla completa</string>
+  <string name="text_under_window_buttons_title">Mostra el text sota els botons de finestra</string>
+  <string name="text_under_window_buttons_summary">El text bíblic arriba fins a la part inferior de la pantalla, sota la barra de botons de finestra. Si està desactivat, es manté lliure una franja sota la barra a les finestres inferiors que ocupa.</string>
   <string name="full_screen_hide_buttons_pref_title">Amaga la barra de botons de finestra en pantalla completa</string>
   <string name="full_screen_hide_buttons_pref_summary">En canviar al mode de pantalla completa, amaga automàticament la barra de botons de finestra que hi ha a la part inferior de la pantalla</string>
   <string name="prefs_hide_status_bar_title">Amaga la barra d\'estat</string>
@@ -556,7 +565,50 @@
   <string name="sleep_timer_active_at">Temporitzador de son: queden %s minuts.</string>
   <string name="speak_next">Següent</string>
   <string name="speak_previous">Anterior</string>
+  <string name="widget_play">Reprodueix</string>
   <string name="widget_toggle_sleep_timer">Activa/desactiva el temporitzador de son</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Parla</string>
+  <string name="widget_speak_text_name">Parla amb text</string>
+  <string name="widget_listening_list_name">Llista d\'escolta</string>
+  <string name="widget_verse_name">Verset</string>
+  <string name="widget_continue_from">Continua des de %1$s · %2$s</string>
+  <string name="widget_continue_listening">Continua escoltant</string>
+  <string name="widget_paused">En pausa</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Encara no hi ha marcadors de lectura en veu alta</string>
+  <string name="widget_listening_list_empty_text">Els marcadors amb l\'etiqueta Parla apareixen aquí. Activeu els marcadors automàtics a la configuració de lectura en veu alta, o afegiu l\'etiqueta a qualsevol marcador.</string>
+  <string name="widget_open_app">Obre AndBible</string>
+  <string name="widget_open_app_to_load">Obre AndBible per carregar versets</string>
+  <string name="widget_verse_unavailable_no_bible">Instal·leu una Bíblia per veure versets aquí</string>
+  <string name="widget_verse_unavailable_label_missing">L\'etiqueta d\'aquest widget ja no existeix. Toqueu per triar versets.</string>
+  <string name="widget_verse_unavailable_label_empty">Aquesta etiqueta encara no té marcadors bíblics. Toqueu per triar altres versets.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">No hi ha cap pla de lectura actiu. Toqueu per triar altres versets.</string>
+  <string name="widget_verse_source_random_whole_bible">Verset aleatori</string>
+  <string name="widget_verse_source_random_new_testament">Verset aleatori · Nou Testament</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Verset aleatori · Salms i Proverbis</string>
+  <string name="widget_shuffle">Barreja el verset</string>
+  <string name="widget_speak_verse">Llegeix el verset en veu alta</string>
+  <string name="widget_verse_config_title">Widget de verset</string>
+  <string name="widget_verse_config_source_label">Versets de</string>
+  <string name="widget_verse_config_source_label_option">Una etiqueta</string>
+  <string name="widget_verse_config_source_random">Verset aleatori</string>
+  <string name="widget_verse_config_random_whole">Tota la Bíblia</string>
+  <string name="widget_verse_config_random_nt">Nou Testament</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Salms i Proverbis</string>
+  <string name="widget_verse_config_source_plan">Pla de lectura d\'avui</string>
+  <string name="widget_verse_config_changes">Canvis</string>
+  <string name="widget_verse_config_daily">Cada dia</string>
+  <string name="widget_verse_config_every_few_hours">Cada unes hores</string>
+  <string name="widget_verse_config_on_shuffle">Només quan toqui barreja</string>
+  <string name="widget_verse_config_bible">Bíblia</string>
+  <string name="widget_verse_config_bible_default">Per defecte (%s)</string>
+  <string name="widget_verse_config_show_buttons">Mostra els botons de barreja i de lectura en veu alta</string>
+  <string name="widget_verse_config_show_source">Mostra l\'origen i la data</string>
+  <string name="widget_verse_config_add">Afegeix el widget</string>
+  <string name="widget_verse_config_save">Desa</string>
+  <string name="widget_verse_source_reading_plan">Lectura d\'avui</string>
   <string name="speak_status_stopped">aturat</string>
   <string name="speak_autobookmarking_disabled">Marcador automàtic desactivat!</string>
   <string name="system_speak_settings">Obre la configuració de TTS del sistema</string>
@@ -601,11 +653,25 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Senyor</item>
+    <item>Déu</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Jahvè</item>
+    <item>Jahvè</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">Llibre canviat.</string>
   <string name="speak_chapter_changed">Capítol</string>
   <string name="speak_first">Primer</string>
@@ -660,6 +726,30 @@
   <string name="install_zip_canceled">Instal·lació del mòdul cancel·lada</string>
   <string name="restore">Restaura</string>
   <string name="import2">Importa</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (còpia)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">De l\'addició %1$s</string>
+  <string name="addon_label_from_module_hint">Obre l\'addició al gestor de documents</string>
+  <string name="addon_label_read_only_note">Aquesta etiqueta, els seus marcadors i el seu bloc d\'estudi pertanyen a l\'addició i no es poden editar. Podeu marcar-la com a preferida, triar com la mostra aquest espai de treball i crear marcadors dels seus versets per a vosaltres.</string>
+  <string name="addon_copy_to_my_labels">Copia a les meves etiquetes</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Copiat a la vostra etiqueta \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Aquest contingut prové de l\'addició %1$s i no es pot canviar. Useu \"Copia a les meves etiquetes\" per obtenir una còpia editable.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Aquest contingut prové d\'una addició i no es pot canviar. Useu \"Copia a les meves etiquetes\" per obtenir una còpia editable.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">No s\'ha pogut copiar l\'etiqueta</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">S\'ha omès %1$d element de la col·lecció d\'addició. Useu \"Copia a les meves etiquetes\" a l\'etiqueta per obtenir-ne una còpia pròpia.</item>
+    <item quantity="many">S\'han omès %1$d d\'elements de la col·lecció d\'addició. Useu \"Copia a les meves etiquetes\" a l\'etiqueta per obtenir-ne una còpia pròpia.</item>
+    <item quantity="other">S\'han omès %1$d elements de la col·lecció d\'addició. Useu \"Copia a les meves etiquetes\" a l\'etiqueta per obtenir-ne una còpia pròpia.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" i %2$s altra(es) etiqueta(es) / bloc(s) d\'estudi i %3$s marcadors</string>
   <!--About-->
@@ -694,6 +784,8 @@
   <string name="doc_type_all">Tots els tipus</string>
   <string name="doc_type_bible">Bíblia</string>
   <string name="doc_type_commentary">Comentari</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Documents</string>
   <string name="doc_type_dictionary">Diccionari</string>
   <string name="doc_type_book">Llibre</string>
   <string name="doc_type_map">Mapa</string>
@@ -729,6 +821,10 @@
   <string name="crash_recovery_continue">Continua</string>
   <string name="report_error">Envia l\'informe</string>
   <string name="error_occurred">S\'ha produït un error</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">L\'aplicació s\'ha aturat en iniciar-se</string>
+  <string name="startup_crash_detail">Envieu-nos un informe d\'error perquè puguem solucionar el problema. Conté els detalls de l\'error i informació sobre el vostre dispositiu i la versió de l\'aplicació.</string>
+  <string name="startup_crash_try_again">Torna-ho a provar</string>
   <string name="error_occurred_crash_last_time">L\'última vegada que has usat l\'aplicació, s\'ha produït una fallada. Per ajudar-nos a corregir l\'error, t\'agrairíem que ens enviessis un informe d\'error.</string>
   <string name="error_occurred_with_link">S\'ha produït un error. %s</string>
   <string name="error_no_content">No hi ha contingut per al verset seleccionat</string>
@@ -1169,10 +1265,6 @@
   <string name="reading_progress_new_cycle">Nou cicle</string>
   <string name="reading_progress_previous_cycle">Cicle anterior</string>
   <string name="reading_progress_next_cycle">Cicle següent</string>
-  <string name="cloud_merge_data">Combina les dades</string>
-  <string name="cloud_fetch_and_restore_initial">Copia del núvol a aquest dispositiu</string>
-  <string name="cloud_create_new">Copia d\'aquest dispositiu al núvol</string>
-  <string name="cloud_disable_sync">Cancel·la i desactiva la sincronització</string>
   <string name="cloud_sync_title">Sincronització del dispositiu</string>
   <string name="reset_sync">Tanca la sessió</string>
   <string name="prefs_reset_sync_summary">Desactiva la sincronització i restableix la configuració relacionada.</string>
@@ -1188,8 +1280,20 @@
   <string name="google_drive_signin_interrupted">L\'inici de sessió a Google s\'ha interromput. Torna-ho a provar.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adreça del vostre servidor, p. ex. https://cloud.example.com (s\'afegeix https:// si l\'ometeu)</string>
   <string name="webdav_server_url_hint">Adreça de la carpeta WebDAV, p. ex. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La sincronització requereix una adreça segura https://.</string>
+  <string name="sync_waiting_for_pass">S\'està esperant que acabi la sincronització actual…</string>
+  <string name="sync_pending_on">S\'activarà</string>
+  <string name="sync_pending_off">Es desactivarà</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d canvi</item>
+    <item quantity="many">%1$d de canvis</item>
+    <item quantity="other">%1$d canvis</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Voleu aplicar els canvis de sincronització?</string>
+  <string name="sync_checking_cloud_title">S\'està comprovant el núvol…</string>
+  <string name="sync_checking_cloud_text">S\'estan cercant dades que altres dispositius ja han sincronitzat.</string>
   <string name="webdav_certificate_title">Certificat del servidor</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Certificat de servidor no fiable</string>
@@ -1207,7 +1311,6 @@
   <string name="synchronization_categories">Categories de sincronització</string>
   <string name="sync_general_settings">Informació i configuració general</string>
   <string name="sync_introduction">Introducció</string>
-  <string name="are_you_sure_merge">Es conservaran tant les dades d\'aquest dispositiu com les del %s al núvol. Quan un mateix element s\'hagi canviat en tots dos, es conservarà el canvi més recent. Les dades d\'aquest dispositiu s\'enviaran als teus altres dispositius.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Desactivant la sincronització al núvol. Cal tornar a activar-la manualment després de la restauració.</string>
   <string name="report">Informe</string>
@@ -2171,18 +2274,30 @@
   <string name="dialog_dont_apply">No ho apliquis</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">El núvol ja té els teus %s. Què ha de passar?</string>
-  <string name="cloud_merge_consequence">Es conserven les dues bandes; quan un element ha canviat en totes dues, guanya el canvi més recent.</string>
-  <string name="cloud_fetch_consequence">Substitueix les dades d\'aquest dispositiu per la còpia del núvol.</string>
-  <string name="cloud_create_consequence">Substitueix la còpia del núvol per les dades d\'aquest dispositiu.</string>
-  <string name="cloud_disable_consequence">La sincronització continua desactivada per a aquestes dades.</string>
-  <string name="cloud_merge_lead">Vols combinar els teus %s amb el núvol?</string>
-  <string name="cloud_merge_confirm">Combina</string>
   <string name="cloud_replace_confirm">Substitueix</string>
-  <string name="cloud_replace_local_lead">Vols substituir els %s d\'aquest dispositiu per la còpia del núvol?</string>
-  <string name="cloud_replace_local_detail">El que hi ha ara en aquest dispositiu se sobreescriu i no es pot recuperar.</string>
-  <string name="cloud_replace_cloud_lead">Vols substituir la còpia del núvol de %s per les dades d\'aquest dispositiu?</string>
-  <string name="cloud_replace_cloud_detail">El que hi ha ara al núvol se sobreescriu, i els teus altres dispositius rebran les dades d\'aquest dispositiu.</string>
+  <string name="cloud_join_plan_title">El núvol ja té dades</string>
+  <string name="cloud_join_plan_lead">Trieu què fer amb cada categoria.</string>
+  <string name="cloud_join_merge">Fusiona</string>
+  <string name="cloud_join_merge_detail">Combina aquest dispositiu i el núvol</string>
+  <string name="cloud_join_fetch">Copia des del núvol</string>
+  <string name="cloud_join_fetch_detail">Substitueix les dades d\'aquest dispositiu</string>
+  <string name="cloud_join_create">Copia al núvol</string>
+  <string name="cloud_join_create_detail">Substitueix les dades del núvol</string>
+  <string name="cloud_join_disable">No sincronitzis</string>
+  <string name="cloud_join_disable_detail">Deixa aquesta categoria desactivada</string>
+  <string name="cloud_join_upload_note">%s: encara no hi ha dades al núvol; es pujaran des d\'aquest dispositiu.</string>
+  <string name="cloud_join_confirm_title">Voleu iniciar la sincronització?</string>
+  <string name="cloud_join_confirm_lead">Això és el que passarà:</string>
+  <string name="cloud_join_outcome_merge">%s: es fusiona amb el núvol. No es perd res.</string>
+  <string name="cloud_join_outcome_fetch">%s: les dades d\'aquest dispositiu se substitueixen per les del núvol.</string>
+  <string name="cloud_join_outcome_create">%s: les dades del núvol se substitueixen per les d\'aquest dispositiu.</string>
+  <string name="cloud_join_outcome_disable">%s: continua desactivat.</string>
+  <string name="cloud_join_outcome_upload">%s: pujat des d\'aquest dispositiu.</string>
+  <string name="cloud_join_warning">Les dades substituïdes no es poden recuperar. Feu una còpia de seguretat abans si teniu dubtes.</string>
+  <string name="cloud_join_next">Següent</string>
+  <string name="cloud_join_back">Enrere</string>
+  <string name="cloud_join_start">Inicia la sincronització</string>
+  <string name="cloud_join_replace">Substitueix i sincronitza</string>
   <string name="sign_in_failed_lead">No s\'ha pogut iniciar la sessió al servei de sincronització.</string>
   <string name="sync_too_old_lead">Aquesta aplicació és massa antiga per sincronitzar %s.</string>
   <string name="sync_too_old_detail">Les dades del núvol usen una versió més nova de la que admet aquesta aplicació. La sincronització per a aquestes dades està desactivada de moment; actualitza l\'aplicació per tornar-la a activar.</string>

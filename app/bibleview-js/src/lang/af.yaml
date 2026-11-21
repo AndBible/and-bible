@@ -46,6 +46,8 @@ emptyStudyPad: "Leë studieblok. Begin by hierdie studieblok voeg deur teks insk
 doYouWantToDeleteEntry: Skrap hierdie studie blok inskrywing?
 removeStudyPadConfirmationTitle: Verwyder studieblok inskrywing?
 dragHelp: Sleep om te herbestel
+addonBookmarkThisVerse: Boekmerk hierdie vers
+addonReadOnly: "Hierdie inhoud kom van 'n byvoegsel-versameling en is leesalleen. Gebruik “Kopieer na my etikette” om 'n wysigbare kopie te kry."
 openAll: Maak alle verwysings oop
 editBookmarkPlaceholder: Tik om My Notas vir hierdie boekmerk te redigeer
 onlyLabel: Slegs etiket

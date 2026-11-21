@@ -46,6 +46,8 @@ emptyStudyPad: Tuščias bloknotas. Galite pridėti turinį į šį bloknotą ,s
 doYouWantToDeleteEntry: Ištrinti šį bloknoto įrašą?
 removeStudyPadConfirmationTitle: Šalinti bloknoto įrašą?
 dragHelp: Tempkite, norėdami pertvarkyti
+addonBookmarkThisVerse: Pažymėti šią eilutę
+addonReadOnly: Šis turinys yra iš priedų rinkinio ir yra tik skaitomas. Naudokite „Kopijuoti į mano etiketes“, kad gautumėte redaguojamą kopiją.
 openAll: Atverti visas nuorodas
 editBookmarkPlaceholder: Bakstelėkite, norėdami taisyti šioje eilutėje mano pastabas
 onlyLabel: Tik etiketę

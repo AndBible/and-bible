@@ -46,6 +46,8 @@ emptyStudyPad: Radna Sveska je prazna. Krenite sa njenim popunjavanjem tako što
 doYouWantToDeleteEntry: Izbrisati unos ove radne sveske?
 removeStudyPadConfirmationTitle: Ukloniti unos radne sveske?
 dragHelp: Zadržite i povucite radi menjanja redosleda
+addonBookmarkThisVerse: Obeleži ovaj stih
+addonReadOnly: Ovaj sadržaj potiče iz kolekcije dodataka i samo je za čitanje. Koristite „Kopiraj u moje oznake“ da dobijete kopiju koja se može uređivati.
 openAll: Otvori sve reference
 editBookmarkPlaceholder: Dodirnite radi uređivanja Moje Beleške za ovaj obeleživač
 onlyLabel: Jedina oznaka

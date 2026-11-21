@@ -46,6 +46,8 @@ emptyStudyPad: Tomt studiebrett. Begynn å legge til i dette studiebrettet ved �
 doYouWantToDeleteEntry: Slette denne studiebrettoppføringen?
 removeStudyPadConfirmationTitle: Fjerne studiebrettoppføring?
 dragHelp: Dra for å sortere
+addonBookmarkThisVerse: Lag bokmerke for dette verset
+addonReadOnly: Dette innholdet kommer fra en tilleggssamling og er skrivebeskyttet. Bruk «Kopier til mine etiketter» for å få en redigerbar kopi.
 openAll: Åpne alle referanser
 editBookmarkPlaceholder: Trykk for å redigere mine notater for dette bokmerket
 onlyLabel: Kun gruppe

@@ -46,6 +46,8 @@ emptyStudyPad: Bloc-notes vide. Commencez à compléter ce bloc-notes en créant
 doYouWantToDeleteEntry: Supprimer cette entrée du bloc-note ?
 removeStudyPadConfirmationTitle: "Supprimer l'entrée du bloc-note ?"
 dragHelp: Faites glisser pour réorganiser
+addonBookmarkThisVerse: Ajouter un signet à ce verset
+addonReadOnly: "Ce contenu provient d'une collection de module complémentaire et est en lecture seule. Utilisez « Copier dans mes étiquettes » pour obtenir une copie modifiable."
 openAll: Ouvrir toutes les références
 editBookmarkPlaceholder: Tapez pour éditer Mes notes pour ce signet
 onlyLabel: "Seulement l'étiquette"

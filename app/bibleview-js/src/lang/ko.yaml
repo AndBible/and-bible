@@ -46,6 +46,8 @@ emptyStudyPad: 빈 스터디 패드. 이 스터디 패드에 텍스트 항목을
 doYouWantToDeleteEntry: 이 스터디 패드 항목을 삭제할까요?
 removeStudyPadConfirmationTitle: 스터디 패드 항목 지우기?
 dragHelp: 드래그하여 순서 변경
+addonBookmarkThisVerse: 이 구절 북마크
+addonReadOnly: 이 콘텐츠는 애드온 모음에서 가져온 것이라 읽기 전용입니다. 편집 가능한 사본을 받으려면 “내 레이블로 복사”를 사용하세요.
 openAll: 모든 참조 열기
 editBookmarkPlaceholder: 탭하여 이 북마크의 내 노트 편집
 onlyLabel: 레이블만

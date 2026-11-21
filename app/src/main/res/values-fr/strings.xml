@@ -124,6 +124,13 @@
   <string name="search_clear">Effacer le texte de recherche</string>
   <string name="search_engine_changed_reindex">Le moteur de recherche a été mis à jour. L\'index de recherche doit être recréé ; cela peut prendre un certain temps.</string>
   <string name="search_unsupported_syntax">Cette recherche utilise une syntaxe non prise en charge : %s</string>
+  <string name="search_regex">Expression régulière (expérimental)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">La recherche a pris trop de temps et a été arrêtée. Les résultats sont incomplets ; essayez une expression plus simple.</string>
+  <string name="search_invalid_regex">Expression régulière invalide : %1$s</string>
+  <string name="search_regex_too_many_wildcards">Cette expression régulière contient trop de jokers ouverts (comme .* ou \\w+). Utilisez-en moins ou restreignez-les, par exemple .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Cette expression régulière répète un groupe qui contient lui-même une répétition, comme (a+)+. La recherche peut alors durer pratiquement indéfiniment. Réécrivez-la sans imbriquer de répétitions.</string>
+  <string name="search_regex_busy">Une recherche par expression régulière précédente est toujours en cours en arrière-plan. Réessayez dans un instant ; si elle ne se termine pas, redémarrez l\'application.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +321,8 @@
   <string name="hide_window_buttons_summary">Les boutons de fenêtre qui sont affichés sur le côté droit des vues de la Bible sont cachés. La barre de navigation des fenêtres en bas est toujours affichée et vous pouvez ouvrir le menu contextuel des fenêtres en les cliquant longuement.</string>
   <string name="hide_bible_reference_overlay_title">Masquer la superposition des références bibliques</string>
   <string name="hide_bible_reference_overlay_summary">Ne pas afficher la superposition semi-transparente des références bibliques lorsque l’application est en mode plein écran.</string>
+  <string name="text_under_window_buttons_title">Afficher le texte sous les boutons de fenêtre</string>
+  <string name="text_under_window_buttons_summary">Le texte biblique s\'étend jusqu\'en bas de l\'écran, sous la barre des boutons de fenêtre. Lorsque cette option est désactivée, une bande reste libre sous la barre dans les fenêtres du bas qu\'elle recouvre.</string>
   <string name="full_screen_hide_buttons_pref_title">Masquer la barre de boutons de la fenêtre en plein écran</string>
   <string name="full_screen_hide_buttons_pref_summary">Lorsque vous passez en mode plein écran, masquer automatiquement la barre de boutons de la fenêtre qui se trouve en bas de l’écran</string>
   <string name="prefs_hide_status_bar_title">Masquer la barre d\'état</string>
@@ -571,7 +580,50 @@ l’emplacement de ces signets/notes se déplace à l’intérieur du document o
   <string name="sleep_timer_active_at">Mise en sommeil : reste %s minutes</string>
   <string name="speak_next">Suivant</string>
   <string name="speak_previous">Précédent</string>
+  <string name="widget_play">Lecture</string>
   <string name="widget_toggle_sleep_timer">Inverser la mise en sommeil</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Lecture audio</string>
+  <string name="widget_speak_text_name">Lecture audio avec texte</string>
+  <string name="widget_listening_list_name">Liste d\'écoute</string>
+  <string name="widget_verse_name">Verset</string>
+  <string name="widget_continue_from">Reprendre à partir de %1$s · %2$s</string>
+  <string name="widget_continue_listening">Reprendre l\'écoute</string>
+  <string name="widget_paused">En pause</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Aucun signet de lecture audio pour le moment</string>
+  <string name="widget_listening_list_empty_text">Les signets portant l\'étiquette Lecture audio apparaissent ici. Activez les signets automatiques dans les paramètres de lecture audio, ou ajoutez l\'étiquette à n\'importe quel signet.</string>
+  <string name="widget_open_app">Ouvrir AndBible</string>
+  <string name="widget_open_app_to_load">Ouvrez AndBible pour charger les versets</string>
+  <string name="widget_verse_unavailable_no_bible">Installez une Bible pour voir des versets ici</string>
+  <string name="widget_verse_unavailable_label_missing">L\'étiquette de ce widget n\'existe plus. Touchez pour choisir des versets.</string>
+  <string name="widget_verse_unavailable_label_empty">Cette étiquette ne contient pas encore de signets bibliques. Touchez pour choisir d\'autres versets.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Aucun plan de lecture n\'est actif. Touchez pour choisir d\'autres versets.</string>
+  <string name="widget_verse_source_random_whole_bible">Verset aléatoire</string>
+  <string name="widget_verse_source_random_new_testament">Verset aléatoire · Nouveau Testament</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Verset aléatoire · Psaumes &amp; Proverbes</string>
+  <string name="widget_shuffle">Verset aléatoire suivant</string>
+  <string name="widget_speak_verse">Lire le verset à voix haute</string>
+  <string name="widget_verse_config_title">Widget de verset</string>
+  <string name="widget_verse_config_source_label">Versets provenant de</string>
+  <string name="widget_verse_config_source_label_option">Une étiquette</string>
+  <string name="widget_verse_config_source_random">Verset aléatoire</string>
+  <string name="widget_verse_config_random_whole">Bible entière</string>
+  <string name="widget_verse_config_random_nt">Nouveau Testament</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psaumes &amp; Proverbes</string>
+  <string name="widget_verse_config_source_plan">Lecture du jour du plan de lecture</string>
+  <string name="widget_verse_config_changes">Changement</string>
+  <string name="widget_verse_config_daily">Quotidien</string>
+  <string name="widget_verse_config_every_few_hours">Toutes les quelques heures</string>
+  <string name="widget_verse_config_on_shuffle">Uniquement lorsque je touche le bouton aléatoire</string>
+  <string name="widget_verse_config_bible">Bible</string>
+  <string name="widget_verse_config_bible_default">Par défaut (%s)</string>
+  <string name="widget_verse_config_show_buttons">Afficher les boutons aléatoire et lecture audio</string>
+  <string name="widget_verse_config_show_source">Afficher la source et la date</string>
+  <string name="widget_verse_config_add">Ajouter le widget</string>
+  <string name="widget_verse_config_save">Enregistrer</string>
+  <string name="widget_verse_source_reading_plan">Lecture du jour</string>
   <string name="speak_status_stopped">arrêt</string>
   <string name="speak_autobookmarking_disabled">Mise en signet automatique désactivée! </string>
   <string name="system_speak_settings">Paramètres de la synthèse vocale</string>
@@ -697,6 +749,30 @@ Le fichier est peut-être invalide.</string>
   <string name="install_zip_canceled">Installation du module annulée</string>
   <string name="restore">Restaurer</string>
   <string name="import2">Importer</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (copie)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Provient du module complémentaire %1$s</string>
+  <string name="addon_label_from_module_hint">Ouvrir le module complémentaire dans le gestionnaire de documents</string>
+  <string name="addon_label_read_only_note">Cette étiquette, ses signets et son StudyPad appartiennent au module complémentaire et ne peuvent pas être modifiés. Vous pouvez la marquer comme favorite, choisir comment cet espace de travail l\'affiche et y ajouter vos propres signets sur ses versets.</string>
+  <string name="addon_copy_to_my_labels">Copier dans mes étiquettes</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Copié dans votre étiquette \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Ce contenu provient du module complémentaire %1$s et ne peut pas être modifié. Utilisez \"Copier dans mes étiquettes\" pour obtenir une copie modifiable.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Ce contenu provient d\'un module complémentaire et ne peut pas être modifié. Utilisez \"Copier dans mes étiquettes\" pour obtenir une copie modifiable.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Impossible de copier l\'étiquette</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d élément de la collection du module complémentaire a été ignoré. Utilisez \"Copier dans mes étiquettes\" sur l\'étiquette pour obtenir votre propre copie.</item>
+        <item quantity="many">%1$d d\'éléments de la collection du module complémentaire ont été ignorés. Utilisez \"Copier dans mes étiquettes\" sur l\'étiquette pour obtenir votre propre copie.</item>
+        <item quantity="other">%1$d éléments de la collection du module complémentaire ont été ignorés. Utilisez \"Copier dans mes étiquettes\" sur l\'étiquette pour obtenir votre propre copie.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">« %1$s » et %2$s autres étiquette(s) / Bloc-note(s) et %3$ssignets</string>
   <!--About-->
@@ -731,6 +807,8 @@ Le fichier est peut-être invalide.</string>
   <string name="doc_type_all">Tous types</string>
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Commentaire</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Documents</string>
   <string name="doc_type_dictionary">Dictionnaire</string>
   <string name="doc_type_book">Livre</string>
   <string name="doc_type_map">Carte</string>
@@ -766,6 +844,10 @@ Le fichier est peut-être invalide.</string>
   <string name="crash_recovery_continue">Continuer</string>
   <string name="report_error">Envoyer un rapport </string>
   <string name="error_occurred">Une erreur s\'est produite</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">L\'application s\'est arrêtée au démarrage</string>
+  <string name="startup_crash_detail">Veuillez nous envoyer un rapport d\'erreur afin que nous puissions corriger le problème. Il contient les détails de l\'erreur ainsi que des informations sur votre appareil et la version de l\'application.</string>
+  <string name="startup_crash_try_again">Réessayer</string>
   <string name="error_occurred_crash_last_time">La dernière fois que vous avez utilisé l’application, elle a planté. Pour nous aider à corriger le bogue, nous vous serions reconnaissants de nous envoyer un rapport. </string>
   <string name="error_occurred_with_link">Un erreur s’est produite. %s</string>
   <string name="error_no_content">Aucun contenu pour le verset sélectionné</string>
@@ -1275,10 +1357,6 @@ Lors de l’utilisation de Google Drive, l’accès à %s n’est accordé qu’
   <string name="reading_progress_new_cycle">Nouveau cycle</string>
   <string name="reading_progress_previous_cycle">Cycle précédent</string>
   <string name="reading_progress_next_cycle">Cycle suivant</string>
-  <string name="cloud_merge_data">Fusionner les données</string>
-  <string name="cloud_fetch_and_restore_initial">Copiez du Cloud vers le périphérique</string>
-  <string name="cloud_create_new">Copier du périphérique vers le Cloud</string>
-  <string name="cloud_disable_sync">Annuler &amp;amp ; désactiver la synchronisation</string>
   <string name="cloud_sync_title">Synchronisation du périphérique</string>
   <string name="reset_sync">Se déconnecter</string>
   <string name="prefs_reset_sync_summary">Désactiver la synchronisation et réinitialiser les paramètres correspondants.</string>
@@ -1294,8 +1372,20 @@ Lors de l’utilisation de Google Drive, l’accès à %s n’est accordé qu’
   <string name="google_drive_signin_interrupted">La connexion à Google a été interrompue. Réessayez.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adresse de votre serveur, par ex. https://cloud.example.com (https:// est ajouté si vous l\'omettez)</string>
   <string name="webdav_server_url_hint">Adresse du dossier WebDAV, par exemple https://nas.local/dav/ ou https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La synchronisation nécessite une adresse sécurisée https://.</string>
+  <string name="sync_waiting_for_pass">En attente de la fin de la synchronisation en cours…</string>
+  <string name="sync_pending_on">Sera activée</string>
+  <string name="sync_pending_off">Sera désactivée</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d modification</item>
+        <item quantity="many">%1$d de modifications</item>
+        <item quantity="other">%1$d modifications</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Appliquer vos modifications de synchronisation ?</string>
+  <string name="sync_checking_cloud_title">Vérification du cloud…</string>
+  <string name="sync_checking_cloud_text">Recherche de données que d\'autres appareils ont déjà synchronisées.</string>
   <string name="webdav_certificate_title">Certificat du serveur</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Certificat de serveur non approuvé</string>
@@ -1313,7 +1403,6 @@ Lors de l’utilisation de Google Drive, l’accès à %s n’est accordé qu’
   <string name="synchronization_categories">Catégories à synchroniser</string>
   <string name="sync_general_settings">Info &amp; paramètres généraux</string>
   <string name="sync_introduction">Introduction</string>
-  <string name="are_you_sure_merge">Les données de cet appareil et celles de %s dans le cloud seront toutes conservées. Lorsqu\'un même élément a été modifié des deux côtés, la modification la plus récente est conservée. Les données de cet appareil seront envoyées à vos autres appareils.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Désactivation de la synchronisation dans le nuage. Vous devez la réactiver manuellement après la restauration.</string>
   <string name="report">Rapport</string>
@@ -2279,18 +2368,30 @@ Lors de l’utilisation de Google Drive, l’accès à %s n’est accordé qu’
   <string name="dialog_dont_apply">Ne pas appliquer</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Le cloud contient déjà vos %s. Que faut-il faire ?</string>
-  <string name="cloud_merge_consequence">Les deux côtés sont conservés ; lorsqu\'un élément a changé des deux côtés, la modification la plus récente l\'emporte.</string>
-  <string name="cloud_fetch_consequence">Remplace les données de cet appareil par la copie du cloud.</string>
-  <string name="cloud_create_consequence">Remplace la copie du cloud par les données de cet appareil.</string>
-  <string name="cloud_disable_consequence">La synchronisation reste désactivée pour ces données.</string>
-  <string name="cloud_merge_lead">Fusionner vos %s avec le cloud ?</string>
-  <string name="cloud_merge_confirm">Fusionner</string>
   <string name="cloud_replace_confirm">Remplacer</string>
-  <string name="cloud_replace_local_lead">Remplacer les %s de cet appareil par la copie du cloud ?</string>
-  <string name="cloud_replace_local_detail">Ce qui se trouve actuellement sur cet appareil est écrasé et ne peut pas être récupéré.</string>
-  <string name="cloud_replace_cloud_lead">Remplacer la copie du cloud de %s par les données de cet appareil ?</string>
-  <string name="cloud_replace_cloud_detail">Ce qui se trouve actuellement dans le cloud est écrasé, et vos autres appareils recevront les données de cet appareil.</string>
+  <string name="cloud_join_plan_title">Le cloud contient déjà des données</string>
+  <string name="cloud_join_plan_lead">Choisissez quoi faire pour chaque catégorie.</string>
+  <string name="cloud_join_merge">Fusionner</string>
+  <string name="cloud_join_merge_detail">Combiner cet appareil et le cloud</string>
+  <string name="cloud_join_fetch">Copier depuis le cloud</string>
+  <string name="cloud_join_fetch_detail">Remplacer les données de cet appareil</string>
+  <string name="cloud_join_create">Copier vers le cloud</string>
+  <string name="cloud_join_create_detail">Remplacer les données du cloud</string>
+  <string name="cloud_join_disable">Ne pas synchroniser</string>
+  <string name="cloud_join_disable_detail">Laisser cette catégorie désactivée</string>
+  <string name="cloud_join_upload_note">%s : aucune donnée dans le cloud pour le moment, elles seront envoyées depuis cet appareil.</string>
+  <string name="cloud_join_confirm_title">Démarrer la synchronisation ?</string>
+  <string name="cloud_join_confirm_lead">Voici ce qui va se passer :</string>
+  <string name="cloud_join_outcome_merge">%s : fusionné avec le cloud. Rien n\'est perdu.</string>
+  <string name="cloud_join_outcome_fetch">%s : les données de cet appareil sont remplacées par celles du cloud.</string>
+  <string name="cloud_join_outcome_create">%s : les données du cloud sont remplacées par celles de cet appareil.</string>
+  <string name="cloud_join_outcome_disable">%s : reste désactivé.</string>
+  <string name="cloud_join_outcome_upload">%s : envoyé depuis cet appareil.</string>
+  <string name="cloud_join_warning">Les données remplacées ne peuvent pas être récupérées. Faites d\'abord une sauvegarde en cas de doute.</string>
+  <string name="cloud_join_next">Suivant</string>
+  <string name="cloud_join_back">Retour</string>
+  <string name="cloud_join_start">Démarrer la synchronisation</string>
+  <string name="cloud_join_replace">Remplacer et synchroniser</string>
   <string name="sign_in_failed_lead">Impossible de se connecter au service de synchronisation.</string>
   <string name="sync_too_old_lead">Cette application est trop ancienne pour synchroniser %s.</string>
   <string name="sync_too_old_detail">Les données du cloud utilisent une version plus récente que celle prise en charge par cette application. Leur synchronisation est désactivée pour le moment ; mettez l\'application à jour pour la réactiver.</string>

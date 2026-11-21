@@ -46,6 +46,8 @@ emptyStudyPad: "ఖాళీ స్టడీ ప్యాడ్. ఇక్కడ
 doYouWantToDeleteEntry: ఈ స్టడీ ప్యాడ్ ఎంట్రీని తొలగించాలా?
 removeStudyPadConfirmationTitle: స్టడీ ప్యాడ్ ఎంట్రీని తీసివేయాలా?
 dragHelp: క్రమాన్ని మార్చడానికి లాగండి
+addonBookmarkThisVerse: ఈ వచనాన్ని బుక్‌మార్క్ చేయి
+addonReadOnly: ఈ కంటెంట్ యాడ్-ఆన్ సేకరణ నుండి వచ్చింది, చదవడానికి మాత్రమే. సవరించగల కాపీ కోసం “నా లేబుల్‌లకు కాపీ చేయి” ఉపయోగించండి.
 openAll: అన్ని రిఫరెన్సెస్ తెరవండి
 editBookmarkPlaceholder: ఈ బుక్‌మార్క్ కోసం నా నోట్స్ సవరించడానికి నొక్కండి
 onlyLabel: లేబుల్ మాత్రమే

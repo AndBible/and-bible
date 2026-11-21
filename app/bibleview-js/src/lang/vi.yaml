@@ -46,6 +46,8 @@ emptyStudyPad: Sổ tay nghiên cứu trống. Bắt đầu thêm nội dung b�
 doYouWantToDeleteEntry: Xóa mục sổ tay nghiên cứu này?
 removeStudyPadConfirmationTitle: Xóa mục sổ tay nghiên cứu?
 dragHelp: Kéo để sắp xếp lại
+addonBookmarkThisVerse: Đánh dấu câu này
+addonReadOnly: Nội dung này đến từ một bộ sưu tập tiện ích bổ sung và chỉ có thể đọc. Hãy dùng “Sao chép vào nhãn của tôi” để có một bản có thể chỉnh sửa.
 openAll: Mở tất cả tham chiếu
 editBookmarkPlaceholder: Nhấn để chỉnh sửa Ghi chú của tôi cho đánh dấu này
 onlyLabel: Chỉ nhãn

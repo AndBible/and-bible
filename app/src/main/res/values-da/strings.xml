@@ -124,6 +124,13 @@
   <string name="search_clear">Ryd søgetekst</string>
   <string name="search_engine_changed_reindex">Søgemotoren er blevet opdateret. Søgeindekset skal oprettes igen; det kan tage et stykke tid.</string>
   <string name="search_unsupported_syntax">Denne søgning bruger syntaks, der ikke understøttes: %s</string>
+  <string name="search_regex">Regulært udtryk (eksperimentelt)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Søgningen tog for lang tid og blev stoppet. Resultaterne er ufuldstændige; prøv et enklere udtryk.</string>
+  <string name="search_invalid_regex">Ugyldigt regulært udtryk: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Dette regulære udtryk har for mange åbne jokertegn (som .* eller \\w+). Brug færre af dem, eller afgræns dem, for eksempel .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Dette regulære udtryk gentager en gruppe, der selv indeholder en gentagelse, som f.eks. (a+)+. Det kan tage praktisk talt uendelig lang tid at matche. Omskriv det uden indlejrede gentagelser.</string>
+  <string name="search_regex_busy">En tidligere søgning med regulært udtryk kører stadig i baggrunden. Prøv igen om lidt; hvis den ikke bliver færdig, så genstart appen.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -312,6 +319,8 @@
   <string name="hide_window_buttons_summary">Vinduesknapper, der vises i højre side af Bibelvisningerne, skjules. Vinduesnavigationslinjen i bunden vises stadig, og du kan åbne vindues-pop-up-menuen ved at trykke længe på dem.</string>
   <string name="hide_bible_reference_overlay_title">Skjul Bibel-referenceovertræk</string>
   <string name="hide_bible_reference_overlay_summary">Vis ikke det halvgennemsigtige Bibel-referenceovertræk, når appen er i fuldskærmstilstand</string>
+  <string name="text_under_window_buttons_title">Vis tekst under vinduesknapper</string>
+  <string name="text_under_window_buttons_summary">Bibelteksten løber ned til bunden af skærmen, under vinduesknaplinjen. Når den er slået fra, holdes en strimmel fri under linjen i de nederste vinduer, den dækker.</string>
   <string name="full_screen_hide_buttons_pref_title">Skjul vinduesknaplinje i fuldskærm</string>
   <string name="full_screen_hide_buttons_pref_summary">Når fuldskærmstilstand aktiveres, skjules automatisk vinduesknapplinjen i bunden af skærmen</string>
   <string name="prefs_hide_status_bar_title">Skjul statuslinje</string>
@@ -554,7 +563,50 @@
   <string name="sleep_timer_active_at">Sove-timer: %s minutter tilbage.</string>
   <string name="speak_next">Næste</string>
   <string name="speak_previous">Forrige</string>
+  <string name="widget_play">Afspil</string>
   <string name="widget_toggle_sleep_timer">Slå sove-timer til/fra</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Oplæs</string>
+  <string name="widget_speak_text_name">Oplæs med tekst</string>
+  <string name="widget_listening_list_name">Lyttelisten</string>
+  <string name="widget_verse_name">Vers</string>
+  <string name="widget_continue_from">Fortsæt fra %1$s · %2$s</string>
+  <string name="widget_continue_listening">Fortsæt med at lytte</string>
+  <string name="widget_paused">På pause</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Ingen oplæsningsbogmærker endnu</string>
+  <string name="widget_listening_list_empty_text">Bogmærker med etiketten Oplæs vises her. Slå automatiske bogmærker til i oplæsningsindstillingerne, eller tilføj etiketten til et vilkårligt bogmærke.</string>
+  <string name="widget_open_app">Åbn AndBible</string>
+  <string name="widget_open_app_to_load">Åbn AndBible for at indlæse vers</string>
+  <string name="widget_verse_unavailable_no_bible">Installer en bibel for at se vers her</string>
+  <string name="widget_verse_unavailable_label_missing">Denne widgets etiket findes ikke længere. Tryk for at vælge vers.</string>
+  <string name="widget_verse_unavailable_label_empty">Denne etiket har endnu ingen bibelbogmærker. Tryk for at vælge andre vers.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Ingen læseplan er aktiv. Tryk for at vælge andre vers.</string>
+  <string name="widget_verse_source_random_whole_bible">Tilfældigt vers</string>
+  <string name="widget_verse_source_random_new_testament">Tilfældigt vers · Det Nye Testamente</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Tilfældigt vers · Salmerne og Ordsprogene</string>
+  <string name="widget_shuffle">Bland vers</string>
+  <string name="widget_speak_verse">Oplæs vers</string>
+  <string name="widget_verse_config_title">Vers-widget</string>
+  <string name="widget_verse_config_source_label">Vers fra</string>
+  <string name="widget_verse_config_source_label_option">En etiket</string>
+  <string name="widget_verse_config_source_random">Tilfældigt vers</string>
+  <string name="widget_verse_config_random_whole">Hele Bibelen</string>
+  <string name="widget_verse_config_random_nt">Det Nye Testamente</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Salmerne og Ordsprogene</string>
+  <string name="widget_verse_config_source_plan">Dagens læseplan</string>
+  <string name="widget_verse_config_changes">Skifter</string>
+  <string name="widget_verse_config_daily">Dagligt</string>
+  <string name="widget_verse_config_every_few_hours">Hver par timer</string>
+  <string name="widget_verse_config_on_shuffle">Kun når jeg trykker på bland</string>
+  <string name="widget_verse_config_bible">Bibel</string>
+  <string name="widget_verse_config_bible_default">Standard (%s)</string>
+  <string name="widget_verse_config_show_buttons">Vis knapper til at blande og oplæse</string>
+  <string name="widget_verse_config_show_source">Vis kilde og dato</string>
+  <string name="widget_verse_config_add">Tilføj widget</string>
+  <string name="widget_verse_config_save">Gem</string>
+  <string name="widget_verse_source_reading_plan">Dagens læsning</string>
   <string name="speak_status_stopped">stoppet</string>
   <string name="speak_autobookmarking_disabled">Automatisk bogmærkning deaktiveret!</string>
   <string name="system_speak_settings">Åbn systemets TTS-indstillinger</string>
@@ -599,11 +651,25 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Herren</item>
+    <item>Gud</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Jahve</item>
+    <item>Jahve</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">Bog skiftet.</string>
   <string name="speak_chapter_changed">Kapitel</string>
   <string name="speak_first">Første</string>
@@ -658,6 +724,24 @@
   <string name="install_zip_canceled">Modulinstallation annulleret</string>
   <string name="restore">Gendan</string>
   <string name="import2">Importér</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopi)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Fra tilføjelsen %1$s</string>
+  <string name="addon_label_from_module_hint">Åbn tilføjelsen i dokumenthåndteringen</string>
+  <string name="addon_label_read_only_note">Denne etiket, dens bogmærker og dens StudyPad hører til tilføjelsen og kan ikke redigeres. Du kan markere den som favorit, vælge hvordan dette arbejdsområde viser den og bogmærke dens vers for dig selv.</string>
+  <string name="addon_copy_to_my_labels">Kopiér til mine etiketter</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Kopieret til din etiket \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Dette indhold kommer fra tilføjelsen %1$s og kan ikke ændres. Brug \"Kopiér til mine etiketter\" for at få en redigerbar kopi.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Dette indhold kommer fra en tilføjelse og kan ikke ændres. Brug \"Kopiér til mine etiketter\" for at få en redigerbar kopi.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Etiketten kunne ikke kopieres</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" og %2$s andre etiketter/studieblokke og %3$s bogmærker</string>
   <!--About-->
@@ -692,6 +776,8 @@
   <string name="doc_type_all">Alle typer</string>
   <string name="doc_type_bible">Bibel</string>
   <string name="doc_type_commentary">Kommentar</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumenter</string>
   <string name="doc_type_dictionary">Ordbog</string>
   <string name="doc_type_book">Bog</string>
   <string name="doc_type_map">Kort</string>
@@ -727,6 +813,10 @@
   <string name="crash_recovery_continue">Fortsæt</string>
   <string name="report_error">Send rapport</string>
   <string name="error_occurred">Der er opstået en fejl</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Appen stoppede under opstart</string>
+  <string name="startup_crash_detail">Send os venligst en fejlrapport, så vi kan rette problemet. Den indeholder fejldetaljerne og oplysninger om din enhed og appversion.</string>
+  <string name="startup_crash_try_again">Prøv igen</string>
   <string name="error_occurred_crash_last_time">Sidste gang du brugte applikationen, gik den ned. For at hjælpe os med at rette fejlen sætter vi pris på, hvis du sender os en fejlrapport.</string>
   <string name="error_occurred_with_link">Der er opstået en fejl. %s</string>
   <string name="error_no_content">Intet indhold for det valgte vers</string>
@@ -1167,10 +1257,6 @@
   <string name="reading_progress_new_cycle">Ny cyklus</string>
   <string name="reading_progress_previous_cycle">Forrige cyklus</string>
   <string name="reading_progress_next_cycle">Næste cyklus</string>
-  <string name="cloud_merge_data">Flet data</string>
-  <string name="cloud_fetch_and_restore_initial">Kopiér fra Cloud til denne enhed</string>
-  <string name="cloud_create_new">Kopiér fra denne enhed til Cloud</string>
-  <string name="cloud_disable_sync">Annullér og deaktivér synkronisering</string>
   <string name="cloud_sync_title">Enhedssynkronisering</string>
   <string name="reset_sync">Log ud</string>
   <string name="prefs_reset_sync_summary">Deaktivér synkronisering og nulstil relaterede indstillinger.</string>
@@ -1186,8 +1272,15 @@
   <string name="google_drive_signin_interrupted">Google-login blev afbrudt. Prøv igen.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adressen på din server, f.eks. https://cloud.example.com (https:// tilføjes, hvis du udelader det)</string>
   <string name="webdav_server_url_hint">Adressen på WebDAV-mappen, f.eks. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronisering kræver en sikker https://-adresse.</string>
+  <string name="sync_waiting_for_pass">Venter på, at den igangværende synkronisering bliver færdig…</string>
+  <string name="sync_pending_on">Bliver slået til</string>
+  <string name="sync_pending_off">Bliver slået fra</string>
+  <string name="sync_pending_leave_title">Anvend dine synkroniseringsændringer?</string>
+  <string name="sync_checking_cloud_title">Tjekker skyen…</string>
+  <string name="sync_checking_cloud_text">Leder efter data, som andre enheder allerede har synkroniseret.</string>
   <string name="webdav_certificate_title">Servercertifikat</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Ikke-betroet servercertifikat</string>
@@ -1205,7 +1298,6 @@
   <string name="synchronization_categories">Synkroniseringskategorier</string>
   <string name="sync_general_settings">Info og generelle indstillinger</string>
   <string name="sync_introduction">Introduktion</string>
-  <string name="are_you_sure_merge">Både dataene på denne enhed og %s i skyen beholdes. Hvor det samme element er ændret begge steder, beholdes den nyeste ændring. Denne enheds data sendes til dine andre enheder.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Deaktiverer cloud-synkronisering. Du skal genaktivere manuelt efter gendannelse.</string>
   <string name="report">Rapport</string>
@@ -1925,6 +2017,15 @@
     <item quantity="one">%1$d bogmærke kunne ikke placeres pålideligt og blev ikke importeret. Det opbevares sammen med dine gamle data på denne enhed.</item>
     <item quantity="other">%1$d bogmærker kunne ikke placeres pålideligt og blev ikke importeret. De opbevares sammen med dine gamle data på denne enhed.</item>
   </plurals>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d element fra tilføjelsessamlingen blev sprunget over. Brug \"Kopiér til mine etiketter\" på etiketten for at få din egen kopi.</item>
+    <item quantity="other">%1$d elementer fra tilføjelsessamlingen blev sprunget over. Brug \"Kopiér til mine etiketter\" på etiketten for at få din egen kopi.</item>
+  </plurals>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d ændring</item>
+    <item quantity="other">%1$d ændringer</item>
+  </plurals>
   <!--H2: platform-neutral iOS recommendation.-->
   <string name="tell_friend_message2_device">Det er et kraftfuldt, men alligevel let at bruge, offline bibelstudieprogram.</string>
   <string name="webdav_untrusted_certificate_message_device">Certifikatet for %1$s er ikke betroet af denne enhed. Betro det kun, hvis du genkender det, for eksempel fordi du selv har oprettet denne server.\n\nEmne: %2$s\nUdsteder: %3$s\nGyldigt: %4$s – %5$s\nSHA-256: %6$s</string>
@@ -2162,18 +2263,30 @@
   <string name="dialog_dont_apply">Anvend ikke</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Skyen har allerede dine %s. Hvad skal der ske?</string>
-  <string name="cloud_merge_consequence">Begge sider bevares; hvor et element er ændret på begge, vinder den nyeste ændring.</string>
-  <string name="cloud_fetch_consequence">Erstatter dataene på denne enhed med kopien i skyen.</string>
-  <string name="cloud_create_consequence">Erstatter kopien i skyen med dataene på denne enhed.</string>
-  <string name="cloud_disable_consequence">Synkronisering forbliver slået fra for disse data.</string>
-  <string name="cloud_merge_lead">Flet dine %s med skyen?</string>
-  <string name="cloud_merge_confirm">Flet</string>
   <string name="cloud_replace_confirm">Erstat</string>
-  <string name="cloud_replace_local_lead">Erstat denne enheds %s med kopien i skyen?</string>
-  <string name="cloud_replace_local_detail">Det, der er på denne enhed nu, overskrives og kan ikke gendannes.</string>
-  <string name="cloud_replace_cloud_lead">Erstat kopien af %s i skyen med denne enheds data?</string>
-  <string name="cloud_replace_cloud_detail">Det, der er i skyen nu, overskrives, og dine andre enheder modtager denne enheds data.</string>
+  <string name="cloud_join_plan_title">Skyen indeholder allerede data</string>
+  <string name="cloud_join_plan_lead">Vælg, hvad der skal ske for hver kategori.</string>
+  <string name="cloud_join_merge">Flet</string>
+  <string name="cloud_join_merge_detail">Kombinér denne enhed og skyen</string>
+  <string name="cloud_join_fetch">Kopiér fra skyen</string>
+  <string name="cloud_join_fetch_detail">Erstat denne enheds data</string>
+  <string name="cloud_join_create">Kopiér til skyen</string>
+  <string name="cloud_join_create_detail">Erstat skyens data</string>
+  <string name="cloud_join_disable">Synkronisér ikke</string>
+  <string name="cloud_join_disable_detail">Lad denne kategori være slået fra</string>
+  <string name="cloud_join_upload_note">%s: ingen data i skyen endnu, de uploades fra denne enhed.</string>
+  <string name="cloud_join_confirm_title">Start synkronisering?</string>
+  <string name="cloud_join_confirm_lead">Det vil ske:</string>
+  <string name="cloud_join_outcome_merge">%s: flettet med skyen. Intet går tabt.</string>
+  <string name="cloud_join_outcome_fetch">%s: dataene på denne enhed erstattes med skyens.</string>
+  <string name="cloud_join_outcome_create">%s: dataene i skyen erstattes med denne enheds.</string>
+  <string name="cloud_join_outcome_disable">%s: forbliver slået fra.</string>
+  <string name="cloud_join_outcome_upload">%s: uploadet fra denne enhed.</string>
+  <string name="cloud_join_warning">Erstattede data kan ikke gendannes. Tag en sikkerhedskopi først, hvis du er i tvivl.</string>
+  <string name="cloud_join_next">Næste</string>
+  <string name="cloud_join_back">Tilbage</string>
+  <string name="cloud_join_start">Start synkronisering</string>
+  <string name="cloud_join_replace">Erstat og synkronisér</string>
   <string name="sign_in_failed_lead">Kunne ikke logge ind på synkroniseringstjenesten.</string>
   <string name="sync_too_old_lead">Denne app er for gammel til at synkronisere %s.</string>
   <string name="sync_too_old_detail">Skydataene bruger en nyere version, end denne app understøtter. Synkronisering af dem er slået fra for nu; opdatér appen for at slå den til igen.</string>

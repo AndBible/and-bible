@@ -124,6 +124,13 @@
   <string name="search_clear">தேடல் உரையை அழி</string>
   <string name="search_engine_changed_reindex">தேடு பொறி புதுப்பிக்கப்பட்டுள்ளது. தேடல் குறியீட்டை மீண்டும் உருவாக்க வேண்டும்; இதற்குச் சிறிது நேரம் ஆகலாம்.</string>
   <string name="search_unsupported_syntax">இந்தத் தேடல் ஆதரிக்கப்படாத தொடரமைப்பைப் பயன்படுத்துகிறது: %s</string>
+  <string name="search_regex">வழக்கமான கோவை (சோதனை நிலை)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">தேடல் மிக நீண்ட நேரம் எடுத்ததால் நிறுத்தப்பட்டது. முடிவுகள் முழுமையானவை அல்ல; எளிமையான கோவையை முயற்சிக்கவும்.</string>
+  <string name="search_invalid_regex">தவறான வழக்கமான கோவை: %1$s</string>
+  <string name="search_regex_too_many_wildcards">இந்த வழக்கமான கோவையில் வரம்பற்ற வைல்டுகார்டுகள் (.* அல்லது \\w+ போன்றவை) மிக அதிகமாக உள்ளன. குறைவாகப் பயன்படுத்தவும் அல்லது .{0,40} போல் வரம்பிடவும்.</string>
+  <string name="search_regex_nested_repetition">இந்த வழக்கமான கோவை, (a+)+ போல் ஏற்கெனவே மீள்வைக் கொண்டுள்ள ஒரு குழுவை மீண்டும் மீண்டும் பொருத்துகிறது. அது பொருத்தப்பட நடைமுறையில் எல்லையற்ற நேரம் ஆகலாம். மீள்வுகளை உள்ளடக்காமல் மாற்றி எழுதவும்.</string>
+  <string name="search_regex_busy">முந்தைய வழக்கமான கோவைத் தேடல் இன்னும் பின்னணியில் இயங்குகிறது. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்; முடியாவிட்டால் செயலியை மறுதொடக்கம் செய்யவும்.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +321,8 @@
   <string name="hide_window_buttons_summary">விவிலிய வாசிப்பு பக்கத்தின் வலப்புறம் காட்டப்படும் சாளர பொத்தான்கள் மறைக்கப்பட்டுள்ளன. கீழே உள்ள சாளர வழிசெலுத்தல் பட்டி இன்னும் காட்டப்படும் மற்றும் அவற்றை நீண்ட கிளிக் செய்வதன் மூலம் சாளர பாப்அப் மெனுவைத் திறக்கலாம்.</string>
   <string name="hide_bible_reference_overlay_title">விவிலிய குறிப்பு மேலடுக்கை மறை</string>
   <string name="hide_bible_reference_overlay_summary">முழுத்திரை பயன்முறையில் இருக்கும்போது, அரை-வெளிப்படையான விவிலிய குறிப்பு மேலடுக்கைக் மறை</string>
+  <string name="text_under_window_buttons_title">சாளர பொத்தான்களின் கீழ் உரையைக் காட்டு</string>
+  <string name="text_under_window_buttons_summary">பைபிள் உரை, சாளர பொத்தான் பட்டையின் கீழ் திரையின் அடிப்பகுதி வரை நீள்கிறது. அணைத்திருந்தால், பட்டை பரவியுள்ள கீழ்ச் சாளரங்களில் அதன் கீழ் ஒரு பகுதி காலியாக விடப்படும்.</string>
   <string name="full_screen_hide_buttons_pref_title">முழு திரை பயன் முறையில் சாரல பொத்தான் பட்டையை மறை</string>
   <string name="full_screen_hide_buttons_pref_summary">முழு திரை நிலைக்கு செல்லும் பொழுது திரை அடியில் தெரியும் சாரல பொத்தானை தானாக மறை</string>
   <string name="prefs_hide_status_bar_title">நிலைப் பட்டியை மறை</string>
@@ -576,7 +585,50 @@
   <string name="sleep_timer_active_at">தூங்கு கடிகாரம்: இன்னும் %s நிமிடங்கள் உள்ளன.</string>
   <string name="speak_next">அடுத்தது</string>
   <string name="speak_previous">முந்தையது</string>
+  <string name="widget_play">இயக்கு</string>
   <string name="widget_toggle_sleep_timer">தூங்கு கடிகார நிலையை மாற்று</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">ஒலிக்கச் செய்</string>
+  <string name="widget_speak_text_name">உரையுடன் ஒலிக்கச் செய்</string>
+  <string name="widget_listening_list_name">கேட்கும் பட்டியல்</string>
+  <string name="widget_verse_name">வசனம்</string>
+  <string name="widget_continue_from">%1$s · %2$s இலிருந்து தொடரவும்</string>
+  <string name="widget_continue_listening">கேட்பதைத் தொடரவும்</string>
+  <string name="widget_paused">இடைநிறுத்தப்பட்டது</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">ஒலிப்பு புக்மார்க்குகள் இன்னும் இல்லை</string>
+  <string name="widget_listening_list_empty_text">ஒலிப்பு லேபிளுள்ள புக்மார்க்குகள் இங்கே தோன்றும். ஒலிப்பு அமைப்புகளில் தானியங்கி புக்மார்க்குகளை இயக்கவும், அல்லது ஏதேனும் புக்மார்க்கில் அந்த லேபிளைச் சேர்க்கவும்.</string>
+  <string name="widget_open_app">AndBible ஐத் திறக்கவும்</string>
+  <string name="widget_open_app_to_load">வசனங்களை ஏற்ற AndBible ஐத் திறக்கவும்</string>
+  <string name="widget_verse_unavailable_no_bible">வசனங்களைக் காண ஒரு பைபிளை நிறுவவும்</string>
+  <string name="widget_verse_unavailable_label_missing">இந்த விட்ஜெட்டின் லேபிள் இனி இல்லை. வசனங்களைத் தேர்ந்தெடுக்கத் தட்டவும்.</string>
+  <string name="widget_verse_unavailable_label_empty">இந்த லேபிளில் பைபிள் புக்மார்க்குகள் இன்னும் இல்லை. வேறு வசனங்களைத் தேர்ந்தெடுக்கத் தட்டவும்.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">எந்த வாசிப்புத் திட்டமும் செயலில் இல்லை. வேறு வசனங்களைத் தேர்ந்தெடுக்கத் தட்டவும்.</string>
+  <string name="widget_verse_source_random_whole_bible">சீரற்ற வசனம்</string>
+  <string name="widget_verse_source_random_new_testament">சீரற்ற வசனம் · புதிய ஏற்பாடு</string>
+  <string name="widget_verse_source_random_psalms_proverbs">சீரற்ற வசனம் · சங்கீதம் &amp; நீதிமொழிகள்</string>
+  <string name="widget_shuffle">வசனத்தைக் கலக்கு</string>
+  <string name="widget_speak_verse">வசனத்தை ஒலிக்கச் செய்</string>
+  <string name="widget_verse_config_title">வசன விட்ஜெட்</string>
+  <string name="widget_verse_config_source_label">வசனங்களின் மூலம்</string>
+  <string name="widget_verse_config_source_label_option">ஒரு லேபிள்</string>
+  <string name="widget_verse_config_source_random">சீரற்ற வசனம்</string>
+  <string name="widget_verse_config_random_whole">முழு பைபிள்</string>
+  <string name="widget_verse_config_random_nt">புதிய ஏற்பாடு</string>
+  <string name="widget_verse_config_random_psalms_proverbs">சங்கீதம் &amp; நீதிமொழிகள்</string>
+  <string name="widget_verse_config_source_plan">இன்றைய வாசிப்புத் திட்டம்</string>
+  <string name="widget_verse_config_changes">மாறும் முறை</string>
+  <string name="widget_verse_config_daily">தினமும்</string>
+  <string name="widget_verse_config_every_few_hours">சில மணிநேரத்துக்கு ஒருமுறை</string>
+  <string name="widget_verse_config_on_shuffle">நான் கலக்கு என்பதைத் தட்டினால் மட்டும்</string>
+  <string name="widget_verse_config_bible">பைபிள்</string>
+  <string name="widget_verse_config_bible_default">இயல்புநிலை (%s)</string>
+  <string name="widget_verse_config_show_buttons">கலக்கு மற்றும் ஒலிப்பு பொத்தான்களைக் காட்டு</string>
+  <string name="widget_verse_config_show_source">மூலத்தையும் தேதியையும் காட்டு</string>
+  <string name="widget_verse_config_add">விட்ஜெட்டைச் சேர்</string>
+  <string name="widget_verse_config_save">சேமி</string>
+  <string name="widget_verse_source_reading_plan">இன்றைய வாசிப்பு</string>
   <string name="speak_status_stopped">நிறுத்தப்பட்டது</string>
   <string name="speak_autobookmarking_disabled">தானாக புக் மார்க் செய்வது முடக்கப்பட்டது!</string>
   <string name="system_speak_settings">கருவியின் TTS அமைப்புகளைத் திற</string>
@@ -714,6 +766,29 @@
   <string name="install_zip_canceled">மாடியுல்களை நிறுவுவது ரத்து செய்யப்பட்டது</string>
   <string name="restore">மீட்டமை</string>
   <string name="import2">இறக்குமதி</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (நகல்)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">துணைநிரல் %1$s இலிருந்து</string>
+  <string name="addon_label_from_module_hint">ஆவண மேலாளரில் துணைநிரலைத் திறக்கவும்</string>
+  <string name="addon_label_read_only_note">இந்த லேபிள், அதன் புக்மார்க்குகள் மற்றும் அதன் StudyPad ஆகியவை துணைநிரலுக்குச் சொந்தமானவை; அவற்றைத் திருத்த முடியாது. நீங்கள் இதை விருப்பமானதாகக் குறிக்கலாம், இந்தப் பணியிடம் இதை எவ்வாறு காட்டுகிறது என்பதைத் தேர்வு செய்யலாம், மேலும் அதன் வசனங்களுக்கு உங்களுக்காக புக்மார்க் இடலாம்.</string>
+  <string name="addon_copy_to_my_labels">என் லேபிள்களுக்கு நகலெடு</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">உங்கள் லேபிள் \"%1$s\" க்கு நகலெடுக்கப்பட்டது</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">இந்த உள்ளடக்கம் துணைநிரல் %1$s இலிருந்து வருகிறது; இதை மாற்ற முடியாது. திருத்தக்கூடிய நகலைப் பெற \"என் லேபிள்களுக்கு நகலெடு\" என்பதைப் பயன்படுத்தவும்.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">இந்த உள்ளடக்கம் ஒரு துணைநிரலிலிருந்து வருகிறது; இதை மாற்ற முடியாது. திருத்தக்கூடிய நகலைப் பெற \"என் லேபிள்களுக்கு நகலெடு\" என்பதைப் பயன்படுத்தவும்.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">லேபிளை நகலெடுக்க முடியவில்லை</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">துணைநிரல் தொகுப்பின் %1$d உருப்படி தவிர்க்கப்பட்டது. உங்களுக்கான நகலைப் பெற அந்த லேபிளில் \"என் லேபிள்களுக்கு நகலெடு\" என்பதைப் பயன்படுத்தவும்.</item>
+    <item quantity="other">துணைநிரல் தொகுப்பின் %1$d உருப்படிகள் தவிர்க்கப்பட்டன. உங்களுக்கான நகலைப் பெற அந்த லேபிளில் \"என் லேபிள்களுக்கு நகலெடு\" என்பதைப் பயன்படுத்தவும்.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" மற்றும் %2$s பிற லேபிள்(கள்) / ஸ்டடி பேடு(கள்) மற்றும் %3$s புக்மார்க்குகள்</string>
   <!--About-->
@@ -749,6 +824,8 @@
   <string name="doc_type_all">எல்லா வகைகள்</string>
   <string name="doc_type_bible">திருவிவிலியம்</string>
   <string name="doc_type_commentary">விளக்க உரை</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">ஆவணங்கள்</string>
   <string name="doc_type_dictionary">அகராதி</string>
   <string name="doc_type_book">நூல்</string>
   <string name="doc_type_map">வரைபடம்</string>
@@ -784,6 +861,10 @@
   <string name="crash_recovery_continue">தொடர்</string>
   <string name="report_error">அறிக்கையை அனுப்புக</string>
   <string name="error_occurred">பிழை ஏற்பட்டது</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">தொடங்கும்போது செயலி நின்றுவிட்டது</string>
+  <string name="startup_crash_detail">சிக்கலைச் சரிசெய்ய, தயவுசெய்து எங்களுக்குப் பிழை அறிக்கையை அனுப்பவும். அதில் பிழை விவரங்களும் உங்கள் கருவி மற்றும் செயலி பதிப்பு பற்றிய தகவல்களும் உள்ளன.</string>
+  <string name="startup_crash_try_again">மீண்டும் முயற்சி</string>
   <string name="error_occurred_crash_last_time">அடந்தமுறை நீங்கள் செயலியைப் பயன்படுத்தியபோது, அது எதிர்பாரா விதமாக முடங்கியது. பஎங்களுக்கு பிழை அறிக்கையை அனுப்பினால், அதனை சரி செய்ய ஏதுவாக இருக்கும்.</string>
   <string name="error_occurred_with_link">பிழை ஏற்பட்டது. %s</string>
   <string name="error_no_content">தேர்ந்தெடுக்கப்பட்ட வசனத்திற்கு உள்ளடக்கம் எதுவும் இல்லை</string>
@@ -1301,10 +1382,6 @@
   <string name="reading_progress_new_cycle">புதிய சுழற்சி</string>
   <string name="reading_progress_previous_cycle">முந்தைய சுழற்சி</string>
   <string name="reading_progress_next_cycle">அடுத்த சுழற்சி</string>
-  <string name="cloud_merge_data">தரவை ஒன்றிணை</string>
-  <string name="cloud_fetch_and_restore_initial">மேக சேமிப்பகத்திலிருந்து இந்தக் கருவிக்கு நகலெடுக்கவும்</string>
-  <string name="cloud_create_new">இந்தக் கருவியிலிருந்து மேக சேமிப்பகத்துக்கு நகலெடுக்கவும்</string>
-  <string name="cloud_disable_sync">ரத்து செய்  &amp; ஒத்திசைவை முடக்கு</string>
   <string name="cloud_sync_title">கருவி ஒத்திசைவு</string>
   <string name="reset_sync">வெளியேறு</string>
   <string name="prefs_reset_sync_summary">ஒத்திசைவை முடக்கி, தொடர்புடைய அமைப்புகளை மீட்டமைக்கவும்.</string>
@@ -1320,8 +1397,19 @@
   <string name="google_drive_signin_interrupted">Google உள்நுழைவு குறுக்கிடப்பட்டது. மீண்டும் முயலவும்.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">உங்கள் சேவையகத்தின் முகவரி, எ.கா. https://cloud.example.com (விட்டுவிட்டால் https:// சேர்க்கப்படும்)</string>
   <string name="webdav_server_url_hint">WebDAV கோப்புறையின் முகவரி, எ.கா. https://nas.local/dav/ அல்லது https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">ஒத்திசைவுக்குப் பாதுகாப்பான https:// முகவரி தேவை.</string>
+  <string name="sync_waiting_for_pass">நடப்பு ஒத்திசைவு முடியும் வரை காத்திருக்கிறது…</string>
+  <string name="sync_pending_on">இயக்கப்படும்</string>
+  <string name="sync_pending_off">முடக்கப்படும்</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d மாற்றம்</item>
+    <item quantity="other">%1$d மாற்றங்கள்</item>
+  </plurals>
+  <string name="sync_pending_leave_title">உங்கள் ஒத்திசைவு மாற்றங்களைப் பயன்படுத்தவா?</string>
+  <string name="sync_checking_cloud_title">மேக சேமிப்பகத்தைச் சரிபார்க்கிறது…</string>
+  <string name="sync_checking_cloud_text">மற்ற கருவிகள் ஏற்கெனவே ஒத்திசைத்த தரவைத் தேடுகிறது.</string>
   <string name="webdav_certificate_title">சர்வர் சான்றிதழ்</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">நம்பப்படாத சர்வர் சான்றிதழ்</string>
@@ -1339,7 +1427,6 @@
   <string name="synchronization_categories">ஒத்திசைவு வகைகள்</string>
   <string name="sync_general_settings">தகவல் &amp; பொது அமைப்புகள்</string>
   <string name="sync_introduction">முன்னுரை</string>
-  <string name="are_you_sure_merge">இந்தச் சாதனத்தில் உள்ள தரவும் மேகத்தில் உள்ள %s தரவும் இரண்டும் வைத்திருக்கப்படும். ஒரே உருப்படி இரண்டிலும் மாற்றப்பட்டிருந்தால் புதிய மாற்றம் வைத்திருக்கப்படும். இந்தச் சாதனத்தின் தரவு உங்கள் பிற சாதனங்களுக்கு அனுப்பப்படும்.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">மேக சேமிப்பக ஒத்திசைவு முடக்கப்படுகிறது. மீட்டமைத்த பிறகு இதை நீங்கள் கைமுறையாக இயக்க வேண்டும்.</string>
   <string name="report">புகார் அளி</string>
@@ -2298,18 +2385,30 @@
   <string name="dialog_dont_apply">செயல்படுத்த வேண்டாம்</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">கிளவுடில் ஏற்கனவே உங்கள் %s உள்ளது. என்ன செய்ய வேண்டும்?</string>
-  <string name="cloud_merge_consequence">இரு பக்கங்களும் வைக்கப்படும்; இரண்டிலும் மாறிய உருப்படியில் புதிய மாற்றம் நிலைக்கும்.</string>
-  <string name="cloud_fetch_consequence">இந்தச் சாதனத்திலுள்ள தரவை கிளவுடு நகலால் மாற்றும்.</string>
-  <string name="cloud_create_consequence">கிளவுடு நகலை இந்தச் சாதனத்திலுள்ள தரவால் மாற்றும்.</string>
-  <string name="cloud_disable_consequence">இந்தத் தரவுக்கு ஒத்திசைவு அணைந்தே இருக்கும்.</string>
-  <string name="cloud_merge_lead">உங்கள் %s ஐ கிளவுடுடன் இணைக்கவா?</string>
-  <string name="cloud_merge_confirm">இணை</string>
   <string name="cloud_replace_confirm">மாற்று</string>
-  <string name="cloud_replace_local_lead">இந்தச் சாதனத்தின் %s ஐ கிளவுடு நகலால் மாற்றவா?</string>
-  <string name="cloud_replace_local_detail">இந்தச் சாதனத்தில் இப்போது உள்ளவை மேலெழுதப்படும்; அவற்றை மீட்க முடியாது.</string>
-  <string name="cloud_replace_cloud_lead">%s இன் கிளவுடு நகலை இந்தச் சாதனத்தின் தரவால் மாற்றவா?</string>
-  <string name="cloud_replace_cloud_detail">கிளவுடில் இப்போது உள்ளவை மேலெழுதப்படும்; உங்கள் மற்ற சாதனங்களுக்கு இந்தச் சாதனத்தின் தரவு கிடைக்கும்.</string>
+  <string name="cloud_join_plan_title">மேக சேமிப்பகத்தில் ஏற்கெனவே தரவு உள்ளது</string>
+  <string name="cloud_join_plan_lead">ஒவ்வொரு வகைக்கும் என்ன செய்வது என்பதைத் தேர்வு செய்யவும்.</string>
+  <string name="cloud_join_merge">ஒன்றிணை</string>
+  <string name="cloud_join_merge_detail">இந்தக் கருவியையும் மேக சேமிப்பகத்தையும் இணைக்கும்</string>
+  <string name="cloud_join_fetch">மேக சேமிப்பகத்திலிருந்து நகலெடு</string>
+  <string name="cloud_join_fetch_detail">இந்தக் கருவியின் தரவை மாற்றும்</string>
+  <string name="cloud_join_create">மேக சேமிப்பகத்துக்கு நகலெடு</string>
+  <string name="cloud_join_create_detail">மேக சேமிப்பகத்தின் தரவை மாற்றும்</string>
+  <string name="cloud_join_disable">ஒத்திசைக்க வேண்டாம்</string>
+  <string name="cloud_join_disable_detail">இந்த வகையை முடக்கியே வைக்கும்</string>
+  <string name="cloud_join_upload_note">%s: மேக சேமிப்பகத்தில் இன்னும் தரவு இல்லை; அது இந்தக் கருவியிலிருந்து பதிவேற்றப்படும்.</string>
+  <string name="cloud_join_confirm_title">ஒத்திசைவைத் தொடங்கவா?</string>
+  <string name="cloud_join_confirm_lead">நடக்கப்போவது இதுதான்:</string>
+  <string name="cloud_join_outcome_merge">%s: மேக சேமிப்பகத்துடன் ஒன்றிணைக்கப்பட்டது. எதுவும் இழக்கப்படாது.</string>
+  <string name="cloud_join_outcome_fetch">%s: இந்தக் கருவியிலுள்ள தரவு மேக சேமிப்பகத்தின் தரவால் மாற்றப்படும்.</string>
+  <string name="cloud_join_outcome_create">%s: மேக சேமிப்பகத்திலுள்ள தரவு இந்தக் கருவியின் தரவால் மாற்றப்படும்.</string>
+  <string name="cloud_join_outcome_disable">%s: முடக்கியே இருக்கும்.</string>
+  <string name="cloud_join_outcome_upload">%s: இந்தக் கருவியிலிருந்து பதிவேற்றப்பட்டது.</string>
+  <string name="cloud_join_warning">மாற்றப்பட்ட தரவை மீட்க முடியாது. உறுதியில்லையெனில் முதலில் காப்புப்பிரதி எடுக்கவும்.</string>
+  <string name="cloud_join_next">அடுத்து</string>
+  <string name="cloud_join_back">பின்</string>
+  <string name="cloud_join_start">ஒத்திசைவைத் தொடங்கு</string>
+  <string name="cloud_join_replace">மாற்றி ஒத்திசை</string>
   <string name="sign_in_failed_lead">ஒத்திசைவு சேவையில் உள்நுழைய முடியவில்லை.</string>
   <string name="sync_too_old_lead">%s ஐ ஒத்திசைக்க இந்தச் செயலி மிகவும் பழையது.</string>
   <string name="sync_too_old_detail">கிளவுடு தரவு இந்தச் செயலி ஆதரிப்பதை விடப் புதிய பதிப்பைப் பயன்படுத்துகிறது. அதற்கான ஒத்திசைவு தற்போதைக்கு அணைக்கப்பட்டுள்ளது; மீண்டும் இயக்க செயலியைப் புதுப்பிக்கவும்.</string>

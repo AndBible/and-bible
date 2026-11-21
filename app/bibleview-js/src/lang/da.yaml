@@ -46,6 +46,8 @@ emptyStudyPad: Tom studieblok. Begynd at tilføje til denne studieblok ved at op
 doYouWantToDeleteEntry: Slet dette studieblokindlæg?
 removeStudyPadConfirmationTitle: Fjern studieblokindlæg?
 dragHelp: Træk for at ændre rækkefølge
+addonBookmarkThisVerse: Bogmærk dette vers
+addonReadOnly: Dette indhold kommer fra en tilføjelsessamling og er skrivebeskyttet. Brug “Kopiér til mine etiketter” for at få en redigerbar kopi.
 openAll: Åbn alle referencer
 editBookmarkPlaceholder: Tryk for at redigere Mine noter for dette bogmærke
 onlyLabel: Kun etiket
