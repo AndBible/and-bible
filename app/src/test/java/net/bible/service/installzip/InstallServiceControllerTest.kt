@@ -133,6 +133,46 @@ class InstallServiceControllerTest {
         assertEquals(InstallOutcome.Ok, outcome)
     }
 
+    @Test fun `second decision request waits for its own answer instead of reusing the first`() = runTest {
+        // Issue #4192: restoring a documents backup asks ModuleBackupRestore, then Overwrite.
+        // The Yes to the first question must not auto-confirm the second.
+        val c = controller()
+        val asked = mutableListOf<DecisionRequest>()
+        var overwritten = false
+        c.runOne = { _, _, _, onPhase, awaitDecision ->
+            asked += DecisionRequest.ModuleBackupRestore
+            onPhase(InstallPhase.AwaitingDecision(DecisionRequest.ModuleBackupRestore))
+            if (!awaitDecision(DecisionRequest.ModuleBackupRestore)) {
+                InstallPhase.Cancelled
+            } else {
+                val overwrite = DecisionRequest.Overwrite(listOf("existing.conf"))
+                asked += overwrite
+                onPhase(InstallPhase.AwaitingDecision(overwrite))
+                if (!awaitDecision(overwrite)) {
+                    InstallPhase.Cancelled
+                } else {
+                    overwritten = true
+                    InstallPhase.Done
+                }
+            }
+        }
+        val resolver = launch(Dispatchers.Default) {
+            suspend fun awaitRequest(match: (DecisionRequest) -> Boolean): JobId =
+                c.jobs.first { l -> l.any { (it.phase as? InstallPhase.AwaitingDecision)?.request?.let(match) == true } }
+                    .first { (it.phase as? InstallPhase.AwaitingDecision)?.request?.let(match) == true }.jobId
+            c.resolveDecision(awaitRequest { it is DecisionRequest.ModuleBackupRestore }, true)
+            val jobId = awaitRequest { it is DecisionRequest.Overwrite }
+            // The Overwrite question is still pending (not auto-answered); decline it.
+            c.resolveDecision(jobId, false)
+        }
+
+        val outcome = c.enqueue(listOf(src("a")), deps())
+
+        resolver.join()
+        assertFalse("Overwrite must not be auto-confirmed by the earlier Yes", overwritten)
+        assertEquals(InstallOutcome.Cancelled, outcome)
+    }
+
     @Test fun `cancel on a paused job cancels it and fires onTerminal`() = runTest {
         var terminalJobId: JobId? = null
         var terminalPhase: InstallPhase? = null

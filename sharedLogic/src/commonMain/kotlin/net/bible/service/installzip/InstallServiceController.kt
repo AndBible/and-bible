@@ -148,15 +148,33 @@ class InstallServiceController(
 
     /** Runs one job to its terminal phase, updates [jobs] accordingly, and reports [onTerminal]. */
     private suspend fun runSingleJob(jobId: JobId, source: InstallSource, deps: JobDeps): InstallPhase {
-        val decision = CompletableDeferred<Boolean>()
-        synchronized(mapsLock) { decisions[jobId] = decision } // L1-common-ok: atomicfu lock
+        // One fresh deferred per decision request (#4192): a job can ask several questions in a
+        // row (ModuleBackupRestore, then Overwrite), and a single shared deferred would hand the
+        // first answer to every later question. The deferred is registered *before* the
+        // AwaitingDecision phase is published, so an answer to a visible question is never lost.
+        val publishPhase: (InstallPhase) -> Unit = { phase ->
+            if (phase is InstallPhase.AwaitingDecision) {
+                synchronized(mapsLock) { decisions[jobId] = CompletableDeferred() } // L1-common-ok: atomicfu lock
+            }
+            updateJobPhase(jobId, source.displayName, phase)
+        }
+        val awaitCurrentDecision: suspend (DecisionRequest) -> Boolean = {
+            val current = synchronized(mapsLock) { // L1-common-ok: atomicfu lock
+                decisions[jobId] ?: CompletableDeferred<Boolean>().also { decisions[jobId] = it }
+            }
+            try {
+                current.await()
+            } finally {
+                synchronized(mapsLock) { if (decisions[jobId] === current) decisions.remove(jobId) } // L1-common-ok: atomicfu lock
+            }
+        }
         var terminal: InstallPhase = InstallPhase.Cancelled
         val job = workerScope.launch {
             terminal = try {
                 runOne(
                     jobId, source, deps,
-                    { phase -> updateJobPhase(jobId, source.displayName, phase) },
-                    { request -> decision.await() },
+                    publishPhase,
+                    { request -> awaitCurrentDecision(request) },
                 )
             } catch (e: CancellationException) {
                 InstallPhase.Cancelled
