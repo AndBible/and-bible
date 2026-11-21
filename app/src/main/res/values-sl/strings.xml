@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s rezultatov v %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Napredek</string>
-  <string name="task_kill_warning">Ta dolgo trajajoča opravila lahko končate, če preklopite na drugo aplikacijo, še preden se le-ta zaključijo.</string>
   <string name="no_tasks_running">Trenutno se ne izvaja nobeno opravilo.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Najdi vrstice:</string>

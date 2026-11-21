@@ -91,7 +91,6 @@
   <string name="search_with_results2">%2$s இல் %1$s முடிவுகள்</string>
   <!--Tasks-->
   <string name="progress_status">முன்னேற்றம்</string>
-  <string name="task_kill_warning">நெடுநேரம் இயங்கும் இந்தப் பணிகள் முடிவதற்குள் வேறொரு ஆப்புக்கு மாறினால் இவை நிறுத்தப்படலாம்.</string>
   <string name="no_tasks_running">தற்போது எந்த பணிகளும் செயல்பாட்டில் இல்லை.</string>
   <!--Search-->
   <string name="search_words_group_prompt">வசனங்களைத் தேடு</string>

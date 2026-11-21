@@ -93,7 +93,6 @@
   <string name="search_with_results2">%1$s תוצאות ב %2$s</string>
   <!--Tasks-->
   <string name="progress_status">בתהליך</string>
-  <string name="task_kill_warning">יותר מדי משימות רצות כעת, ולכן אם תצא מהתוכנה הן עלולות להסגר לפני שיסתיימו.</string>
   <string name="no_tasks_running">אין משימות שפועלות כעת.</string>
   <!--Search-->
   <string name="search_words_group_prompt">חיפוש פסוקים</string>

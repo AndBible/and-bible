@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s wyników w %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Postęp</string>
-  <string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikacji.</string>
   <string name="no_tasks_running">Obecnie żadne zadanie nie jest wykonywane.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Znajdź wersety zawierające</string>

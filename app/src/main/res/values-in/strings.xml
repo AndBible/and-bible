@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s hasil di %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Kemajuan</string>
-  <string name="task_kill_warning">Hubungan akan terputus jika anda beralih ke aplikasi lain sebelum tugas selesai.</string>
   <string name="no_tasks_running">Tidak ada tugas yang sedang berjalan.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Temukan ayat</string>

@@ -91,7 +91,6 @@
   <string name="search_with_results2">%2$s में %1$s परिणाम</string>
   <!--Tasks-->
   <string name="progress_status">प्रगति</string>
-  <string name="task_kill_warning">अगर आप आन्ड बाइबिल को छोड़ जाऐं, तो लंबे कार्य अंत होने की संभावना है</string>
   <string name="no_tasks_running">कोई कार्य इस समय क्रियान्वित नही</string>
   <!--Search-->
   <string name="search_words_group_prompt">छंद खोज</string>

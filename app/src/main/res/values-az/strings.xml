@@ -29,7 +29,6 @@
   <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">İrəliləmə</string>
-  <string name="task_kill_warning">Bu əməliyyat üçün vaxt lazımdır. Əgər tətbiqi dayandırsanız əməliyyat qurtarmamış dayanacaq. Əməliyyat görən vəzifə yoxdur.</string>
   <string name="no_tasks_running">Işlem gören görev yok.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Ayə tap</string>

@@ -219,9 +219,9 @@ Turn it on or off with
 *Show background activity in the menu* in the *Look & feel* section of the
 application settings (see [Appearance and settings](look_and_feel.md#look-feel)).
 
-On Android, tapping the progress notification of a download or install opens the
+Tapping the progress notification of a download or install opens the
 reading view with the *Background activity* list on top, whether or not the
-setting is on.
+setting is on. This applies on Android, desktop and iOS.
 
 When the setting is on:
 

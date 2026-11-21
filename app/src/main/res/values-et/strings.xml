@@ -91,7 +91,6 @@
   <string name="search_with_results2"> %2$s sisaldab %1$s tulemust</string>
   <!--Tasks-->
   <string name="progress_status">Edenemine</string>
-  <string name="task_kill_warning">Need kaua töötavad toimingud võivad katkeda, kui sa lülitud enne nende lõpetamist mõnele teisele rakendusele.</string>
   <string name="no_tasks_running">Ühtegi ülesannet pole momendil täitmisel.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Leia salmid</string>

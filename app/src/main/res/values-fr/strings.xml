@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s résultats dans %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progression</string>
-  <string name="task_kill_warning">Merci de patienter. Ne pas basculer vers une autre application, ces tâches risqueraient d\'être interrompues.</string>
   <string name="no_tasks_running">Il n\'y a pas de tâches en cours d\'exécution.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Type de requête</string>

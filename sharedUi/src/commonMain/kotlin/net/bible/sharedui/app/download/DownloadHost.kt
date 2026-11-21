@@ -138,7 +138,6 @@ class DownloadHost(
     private val backgroundNotificationPermission: net.bible.sharedcore.platform.NotificationPermission? = null,
     private val clipboard: ClipboardText,
     private val openInstallZip: InstallZipOpener,
-    /** Progress status' running-job feed (the search host owns the index jobs it reports). */
     private val appSettingsProvider: () -> AppSettings,
     private val userNotifierProvider: () -> UserNotifier,
     private val directoriesProvider: () -> AppDirectories,

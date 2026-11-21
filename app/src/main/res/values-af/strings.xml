@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s resultate in %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Vordering</string>
-  <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
   <string name="no_tasks_running">Daar is geen take wat tans uitgevoer word nie.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Vind verse</string>

@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s rezultoj en %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
-  <string name="task_kill_warning">Tiuj ĉi tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ol ili finiĝos.</string>
   <string name="no_tasks_running">Nune neniu tasko estas lanĉata.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Serĉi versojn enhavantajn:</string>

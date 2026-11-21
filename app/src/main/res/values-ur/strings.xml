@@ -91,7 +91,6 @@
   <string name="search_with_results2">%2$s میں %1$s نتائج</string>
   <!--Tasks-->
   <string name="progress_status">پیشرفت</string>
-  <string name="task_kill_warning">یہ طویل کام ختم ہو سکتے ہیں اگر آپ انہیں مکمل ہونے سے پہلے کسی اور ایپ پر چلے جائیں۔</string>
   <string name="no_tasks_running">فی الحال کوئی کام نہیں چل رہا۔</string>
   <!--Search-->
   <string name="search_words_group_prompt">آیات تلاش کریں</string>

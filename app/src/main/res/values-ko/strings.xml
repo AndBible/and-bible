@@ -91,7 +91,6 @@
   <string name="search_with_results2">%2$s에서 %1$s개의 결과</string>
   <!--Tasks-->
   <string name="progress_status">진행</string>
-  <string name="task_kill_warning">다른 어플리케이션으로 전환하면, 이 긴 작업은 마치기 전에 중단될 수 있습니다.</string>
   <string name="no_tasks_running">현재 실행 중인 작업이 없습니다.</string>
   <!--Search-->
   <string name="search_words_group_prompt">구절 찾기</string>

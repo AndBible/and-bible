@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s resultater i %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Fremgang</string>
-  <string name="task_kill_warning">Disse langvarige opgaver kan afsluttes, hvis du skifter til et andet program, før de er færdige.</string>
   <string name="no_tasks_running">Der er ingen opgaver i gang i øjeblikket.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Find vers</string>

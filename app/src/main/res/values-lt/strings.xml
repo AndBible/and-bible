@@ -91,7 +91,6 @@
   <string name="search_with_results2">Rezultatų (%1$s): %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Pažanga</string>
-  <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
   <string name="no_tasks_running">Šiuo metu nevykdomi jokie darbai.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Ieškoti eilučių</string>

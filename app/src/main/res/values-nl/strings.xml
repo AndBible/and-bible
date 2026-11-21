@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s resultaten in %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Voortgang</string>
-  <string name="task_kill_warning">Deze langlopende taken kunnen beëindigd worden als je overschakelt naar een andere app.</string>
   <string name="no_tasks_running">Er worden momenteel geen taken uitgevoerd.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Verzen zoeken</string>

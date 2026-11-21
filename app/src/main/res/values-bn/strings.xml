@@ -91,7 +91,6 @@
   <string name="search_with_results2">%2$s-এ %1$s ফলাফল</string>
   <!--Tasks-->
   <string name="progress_status">উন্নতি</string>
-  <string name="task_kill_warning">এই দীর্ঘ চলমান কাজগুলি যদি আপনি অন্য অ্যাপ্লিকেশনটি শেষ করার আগে সুইচ করেন তবে তা শেস হতে পারে । </string>
   <string name="no_tasks_running">বর্তমানে কোন কাজ নির্গত করা হচ্ছে না । </string>
   <!--Search-->
   <string name="search_words_group_prompt">পদগুলি খুঁজুন </string>

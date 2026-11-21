@@ -135,7 +135,7 @@ class ClassicSearchRemovalGuardTest {
     @Test fun theSurvivingSearchCollaboratorsStillExist() {
         val expected = listOf(
             // The two pure helpers moved to :sharedUi commonMain (same FQN) in I2 Stream A Task 5, because the
-            // common SearchHost needs them.
+            // the (since removed) common SearchHost needed them.
             "../sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/search/EpubSearchResultKey.kt",
             "src/main/java/net/bible/android/view/activity/search/AndroidEpubSearchService.kt",
             "../sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/search/EpubSearchModeWire.kt",

@@ -169,7 +169,7 @@ object ScreenLauncher {
         // takes no argument at all, and classic CloudDocumentsComposeActivity read none either.
         // `targetFor`'s own CloudDocuments arm returned the real CloudDocumentsComposeActivity class
         // until nav-graph slice 4 Task 9 deleted it and pointed the arm at targetForMigratedScreen,
-        // the same shape Screen.CustomRepositories/Screen.ProgressStatus now share.
+        // the same shape Screen.CustomRepositories now shares.
         Screen.CloudDocuments to NavRoutes.cloudDocuments(),
         // — nav-graph slice 8, Task B7: slice 7's seven destinations —
         // Every live caller builds its route directly (B3-B6); these rows are the routing default for
@@ -218,7 +218,7 @@ object ScreenLauncher {
         // the reading-plan, search and settings clusters followed in nav-graph 3/5/6 Task 9, the
         // bookmark cluster (LabelEdit/ManageLabels/Bookmarks) in nav-graph slices 2+4 Task 7, and
         // MyDocuments/MyDocumentPages/Download/CustomRepositories/CustomRepositoryEditor/
-        // ProgressStatus/CloudDocuments in nav-graph slice 4 Task 9. See targetForMigratedScreen
+        // CloudDocuments in nav-graph slice 4 Task 9. See targetForMigratedScreen
         // below for why all 43 of those arms are kept, one per screen.
         Screen.AiConnectionSettings -> targetForMigratedScreen(screen)
         Screen.AiProviders -> targetForMigratedScreen(screen)

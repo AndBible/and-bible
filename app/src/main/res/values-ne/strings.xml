@@ -91,7 +91,6 @@
   <string name="search_with_results2">%2$s मा %1$s परिणामहरू</string>
   <!--Tasks-->
   <string name="progress_status">प्रगति</string>
-  <string name="task_kill_warning">यी लामो समय चल्ने कार्यहरू सम्पन्न हुनुअघि अर्को अनुप्रयोगमा गए समाप्त हुन सक्छन्।</string>
   <string name="no_tasks_running">अहिले कुनै कार्य चलिरहेको छैन।</string>
   <!--Search-->
   <string name="search_words_group_prompt">श्लोकहरू खोज्नुहोस्</string>

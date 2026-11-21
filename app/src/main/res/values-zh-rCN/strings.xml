@@ -91,7 +91,6 @@
   <string name="search_with_results2">在 %2$s 中找到 %1$s 个结果</string>
   <!--Tasks-->
   <string name="progress_status">进度</string>
-  <string name="task_kill_warning">当前任务可能运行很久，若你在完成前切换到其它应用，可能会导致任务终止。</string>
   <string name="no_tasks_running">当前没有正在执行的任务</string>
   <!--Search-->
   <string name="search_words_group_prompt">查找经文</string>

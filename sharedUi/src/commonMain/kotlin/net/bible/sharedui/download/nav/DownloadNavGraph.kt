@@ -478,7 +478,7 @@ private fun downloadGateKey(
  * The Documents/downloads cluster's destinations. Registered into the app's single `NavHost` by the
  * host Activity. This task builds the batch's simplest shape -- a parent and a child, one channel
  * between them, no external entry to the child -- and the arm below is the template the later
- * `ProgressStatus`/`Download`/`CloudDocuments` arms (Tasks 4, 7a, 8) follow.
+ * `Download`/`CloudDocuments` arms (Tasks 4, 7a, 8) follow.
  *
  * [NavRoutes.CUSTOM_REPOSITORIES_PATTERN] is reachable through `ScreenLauncher.MIGRATED`;
  * [NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN] deliberately is not, because its `repositoryId`

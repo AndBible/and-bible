@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s výsledků v %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Průběh</string>
-  <string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>
   <string name="no_tasks_running">Nejsou spuštěny žádné úlohy.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Hledat verše</string>

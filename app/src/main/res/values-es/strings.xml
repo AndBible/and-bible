@@ -91,7 +91,6 @@
   <string name="search_with_results2">%1$s resultados en %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
-  <string name="task_kill_warning">Estas tareas de larga duración pueden interrumpirse si cambia a otra aplicación antes de que terminen.</string>
   <string name="no_tasks_running">Actualmente no hay tareas siendo ejecutadas.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Encuentra versos</string>
