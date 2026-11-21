@@ -58,7 +58,7 @@ class AndroidMediaSession(
                 override fun onSkipToNext() { Log.i(TAG, "onSkipToNext"); commands.next() }
                 override fun onSkipToPrevious() { Log.i(TAG, "onSkipToPrevious"); commands.previous() }
                 override fun onFastForward() { Log.i(TAG, "onFastForward"); commands.fastForward() }
-                override fun onRewind() { Log.i(TAG, "onFastForward"); commands.rewind() }
+                override fun onRewind() { Log.i(TAG, "onRewind"); commands.rewind() }
             }, Handler(Looper.getMainLooper()))
             setPlaybackState(state)
             isActive = true

@@ -235,7 +235,7 @@ class ReadingPlanPatchSyncTest {
             userPlanFolder = { "/nonexistent".toPath() }, providedPlans = { emptyMap() })
         val koin = GlobalContext.get()
         originalPlan = originalPlan ?: settings.getString("reading_plan", "")
-        return ReadingPlanControl(koin.get(), koin.get(), repo, textDao, settings, AndroidLocalCalendar())
+        return ReadingPlanControl(lazyOf(koin.get()), koin.get(), repo, textDao, settings, AndroidLocalCalendar())
             .also { it.setReadingPlan(PLAN) }
     }
 

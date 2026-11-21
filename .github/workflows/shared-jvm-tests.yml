@@ -106,6 +106,8 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p test_shared_test_summary.py
       - name: R8 reflective-constructor checker tests
         # The tests skip without javac and the SDK's d8; a skipped run would be a check that cannot fail.
+        # shell: bash runs with -eo pipefail, so a failing unittest is not hidden by the tee pipe.
+        shell: bash
         run: |
           python3 -m unittest discover -v -s scripts/tests -p test_check_r8_reflective_constructors.py 2>&1 | tee "$RUNNER_TEMP/r8-checker-tests.log"
           ! grep -q 'skipped' "$RUNNER_TEMP/r8-checker-tests.log" || { echo 'R8 checker tests were skipped (javac or d8 missing)' >&2; exit 1; }

@@ -42,7 +42,7 @@ class ReadingPlanSyncStateTest {
     private val control by lazy {
         val koin = GlobalContext.get()
         ReadingPlanControl(
-            koin.get(), koin.get(),
+            lazyOf(koin.get()), koin.get(),
             net.bible.service.db.readingplan.ReadingPlanRepository(
                 { dao }, net.bible.sharedcore.platform.AppCoroutineScope(scope.coroutineContext),
                 net.bible.android.platform.AndroidLocalCalendar(),
@@ -176,7 +176,7 @@ class ReadingPlanSyncStateTest {
         }
         val koin = GlobalContext.get()
         val slowControl = ReadingPlanControl(
-            koin.get(), koin.get(),
+            lazyOf(koin.get()), koin.get(),
             net.bible.service.db.readingplan.ReadingPlanRepository(
                 { slow }, net.bible.sharedcore.platform.AppCoroutineScope(bg.coroutineContext),
                 net.bible.android.platform.AndroidLocalCalendar(),
