@@ -17,6 +17,7 @@
 package net.bible.android.control.report
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -203,11 +204,14 @@ class StartupCrashGuardTest {
     @Test fun anUnfinishedStartEndedByASignalCountsAsOneOrdinaryCrash() =
         assertUnfinishedStartIsOneOrdinaryCrash(android.app.ApplicationExitInfo.REASON_SIGNALED)
 
-    @Test fun anUnfinishedStartEndedByANativeCrashOrAnAnrIsAStartupCrash() {
+    @Test fun anUnfinishedStartEndedByAnAnrCountsAsOneOrdinaryCrash() =
+        assertUnfinishedStartIsOneOrdinaryCrash(android.app.ApplicationExitInfo.REASON_ANR)
+
+    @Test fun anUnfinishedStartEndedByANativeCrashOrAnInitializationFailureIsAStartupCrash() {
         for (reason in listOf(
             android.app.ApplicationExitInfo.REASON_CRASH_NATIVE,
-            android.app.ApplicationExitInfo.REASON_ANR,
             android.app.ApplicationExitInfo.REASON_CRASH,
+            android.app.ApplicationExitInfo.REASON_INITIALIZATION_FAILURE,
         )) {
             val dir = tmp.newFolder("crash-$reason")
             dieDuringDatabaseOpen(dir, reason)
@@ -234,6 +238,21 @@ class StartupCrashGuardTest {
         app.packageManager.setComponentEnabledSetting(provider, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
         assertFalse(startProcess(dir))
         assertEquals(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, app.packageManager.getComponentEnabledSetting(provider))
+    }
+
+    @Test fun theRealInitializationProviderInstallsByHandWithoutAnException() {
+        val dir = tmp.newFolder("crash")
+        val provider = ComponentName(app.packageName, "androidx.startup.InitializationProvider")
+        app.packageManager.setComponentEnabledSetting(provider, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+        assertFalse(startProcess(dir))
+        // The provider the feature exists for, not the debug stand-in: its onCreate runs the manifest's initialisers.
+        StartupCrashGuard.installReenabledProviders(app)
+        // androidx.startup / WorkManager are transitive (not on the compile classpath): reflection.
+        val cl = app.classLoader
+        val initializer = cl.loadClass("androidx.startup.AppInitializer").getMethod("getInstance", Context::class.java).invoke(null, app)
+        assertNotNull(initializer)
+        val work = cl.loadClass("androidx.work.WorkManager").getMethod("getInstance", Context::class.java).invoke(null, app)
+        assertNotNull("WorkManager must be initialised by the provider's initialisers", work)
     }
 
     @Test fun aProviderSwitchedOnAgainIsInstalledInTheCurrentProcess() {

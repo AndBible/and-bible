@@ -125,8 +125,8 @@ class StartupCrashStore(val dir: File, private val clock: () -> Long = System::c
     /**
      * How the last process ended, as far as Android tells ([description] names the exit reason):
      * - [Kind.NOT_A_CRASH]: the user or the system closed it (swiped away, low memory, update);
-     * - [Kind.CRASH]: a crash Android saw (native crash, ANR, a Java crash the handler missed);
-     * - [Kind.UNCLEAR]: anything else, or nothing known (Android before 11): it might have been a crash.
+     * - [Kind.CRASH]: a crash Android saw (native crash, a Java crash the handler missed);
+     * - [Kind.UNCLEAR]: an ANR, anything else, or nothing known (Android before 11): it might have been a crash.
      */
     data class LastExit(val kind: Kind, val description: String) {
         enum class Kind { NOT_A_CRASH, CRASH, UNCLEAR }
@@ -302,9 +302,10 @@ object StartupCrashGuard {
         android.app.ApplicationExitInfo.REASON_PERMISSION_CHANGE,
         android.app.ApplicationExitInfo.REASON_EXIT_SELF -> StartupCrashStore.LastExit.Kind.NOT_A_CRASH
         android.app.ApplicationExitInfo.REASON_CRASH_NATIVE,
-        android.app.ApplicationExitInfo.REASON_ANR,
         android.app.ApplicationExitInfo.REASON_CRASH,
         android.app.ApplicationExitInfo.REASON_INITIALIZATION_FAILURE -> StartupCrashStore.LastExit.Kind.CRASH
+        // An ANR is UNCLEAR on purpose: one slow start (a big migration on a weak phone) is not a crash loop, so it
+        // counts as one ordinary crash and the safe mode needs a second one within the hour.
         else -> StartupCrashStore.LastExit.Kind.UNCLEAR
     }
 
