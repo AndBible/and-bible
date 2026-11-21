@@ -41,6 +41,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.first
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.utf16CodePoint
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.IosDeviceSettings
@@ -120,6 +127,10 @@ object IosAppHostPlatform : AppHostPlatform {
         val id = org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
             .activeWindow.id.toString()
         if (!HostReadingWindows.hasAssembly(id) || HostReadingWindows.sessionFor(id).editingTextInJs) return false
+        if (event.isMetaPressed && event.type == androidx.compose.ui.input.key.KeyEventType.KeyDown) {
+            nsLog("DEBUG IosShortcutKey: key=${event.key} utf16CodePoint=${event.utf16CodePoint} " +
+                "meta=${event.isMetaPressed} ctrl=${event.isCtrlPressed} alt=${event.isAltPressed} shift=${event.isShiftPressed}")
+        }
         net.bible.sharedui.reading.nativeShortcut(event, editing = false)?.let {
             return IosNativeShortcutRunner.run(it)
         }
