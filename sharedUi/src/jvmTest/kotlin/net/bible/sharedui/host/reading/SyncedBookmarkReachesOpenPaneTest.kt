@@ -80,13 +80,14 @@ class SyncedBookmarkReachesOpenPaneTest {
     private val main = SwingMainDispatcher
     private lateinit var root: Path
     private var previousHost: DatabaseHost? = null
+    private var previousBookmarksSynced: net.bible.sharedcore.event.EventSource<List<net.bible.android.database.LogEntry>>? = null
 
     @BeforeTest fun setUp() {
         assertNull(KoinPlatform.getKoinOrNull(), "a Koin context leaked into this test")
         Dispatchers.setMain(main)
         previousHost = runCatching { DatabaseContainer.host }.getOrNull()
         // Drop BookmarkControls of earlier desktop startups in this JVM: only this test's control may hear the sync.
-        DatabaseContainer.resetBookmarksSyncedForTest()
+        previousBookmarksSynced = DatabaseContainer.resetBookmarksSyncedForTest()
         root = Files.createTempDirectory("synced-bookmark-pane")
     }
 
@@ -98,6 +99,7 @@ class SyncedBookmarkReachesOpenPaneTest {
             DesktopAppStartup.resetForTest()
         } finally {
             previousHost?.let { DatabaseContainer.installHost(it) }
+            previousBookmarksSynced?.let { DatabaseContainer.restoreBookmarksSyncedForTest(it) }
             root.toFile().deleteRecursively()
             Dispatchers.resetMain()
         }
@@ -162,7 +164,7 @@ class SyncedBookmarkReachesOpenPaneTest {
             pane.evaluated.clear()
 
             // What CloudSync does with a downloaded patch.
-            accessor.reactToUpdates(applyPatchesForDatabase(accessor, env, patch))
+            applyPatchesForDatabase(accessor, env, patch, onApplied = { accessor.reactToUpdates(it) })
             assertEquals(1, dao.bibleBookmarksByIds(listOf(bookmark.id)).size, "sanity: the patch was applied")
 
             val deadline = System.currentTimeMillis() + 10_000

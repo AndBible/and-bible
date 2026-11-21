@@ -143,7 +143,7 @@ class SyncPatchTransactionTest {
         assertNotEquals(true, dbDef2.dao.getBoolean(TRIGGERS_DISABLED_KEY))
         // ... and back on afterwards.
         dbDef2.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 3"))
-        assertEquals(listOf(dbDef2.deviceId), dbDef2.dao.newLogEntries(0, dbDef1.deviceId).map { it.sourceDevice })
+        assertEquals(listOf(dbDef2.deviceId), dbDef2.dao.allLogEntries().filter { it.sourceDevice != dbDef1.deviceId }.map { it.sourceDevice })
 
         assertNull(createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java)))
         // Device 2 has written no patch yet: its first one carries every logged row (label 3 and the merged ones).
