@@ -162,11 +162,18 @@ AndBibleProvidesFont=Desktop Study;css/extra.woff2
         for (u in listOf(
             "/module/EpiphanyMaps//../KJV/pic.png", "/module/EpiphanyMaps//%2e%2e/KJV/pic.png",
             "/module/EpiphanyMaps//images/../../KJV/pic.png", "/module/EpiphanyMaps//C:/Windows/win.ini",
-            "/module/EpiphanyMaps/C:%5cWindows%5cwin.ini", "/module/EpiphanyMaps//$secret",
+            "/module/EpiphanyMaps/C:%5cWindows%5cwin.ini",
         )) assertNull(h.resolve("$BUNDLE_ORIGIN$u"), u)
+        // A host-absolute path names a file under the book, never the host file itself.
+        assertNull(h.resolve("$BUNDLE_ORIGIN/module/EpiphanyMaps/$secret"))
+        val decoy = maps.resolve(secret.toString().trimStart('/')).also { it.parent.createDirectories(); it.writeText("decoy") }
+        assertEquals(decoy, assertNotNull(h.resolve("$BUNDLE_ORIGIN/module/EpiphanyMaps/$secret")).file)
     }
 
-    /** #4185: on Windows `URI.getPath()` is `/C:/...`, which `Paths.get` refuses; the book directory comes from the URI. */
+    /**
+     * #4185: on Windows `URI.getPath()` is `/C:/...`, which `Paths.get` refuses; the book directory comes from the URI.
+     * The Windows parser cannot run on Linux, so this pins the URI-based conversion and the non-file cases only.
+     */
     @Test fun bookDirectoryComesFromTheLocationUri() {
         val dir = tmp.resolve("Jane Doe/modules/maps").createDirectories()
         assertEquals(dir, DesktopPageAssetRoutes.bookDirectory(dir.toUri()))
