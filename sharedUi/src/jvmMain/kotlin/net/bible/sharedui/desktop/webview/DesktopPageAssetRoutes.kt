@@ -15,6 +15,7 @@ import okio.buffer
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.koin.mp.KoinPlatform
+import java.net.URI
 import java.net.URLConnection
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -97,6 +98,13 @@ class DesktopPageAssetRoutes(
             }
         }
 
+        /**
+         * The directory of a book's JSword `location` (a `file:` URI), or null for no or a non-file location.
+         * Converted from the URI itself: on Windows `URI.getPath()` is `/C:/...`, which `Paths.get` refuses (#4185).
+         */
+        fun bookDirectory(location: URI?): Path? =
+            location?.takeIf { it.scheme.equals("file", ignoreCase = true) }?.let { runCatching { Paths.get(it) }.getOrNull() }
+
         /** The Koin-backed routes: installed books from JSword, backgrounds from [BackgroundImageCatalog]. */
         fun fromKoin(log: (String) -> Unit): DesktopPageAssetRoutes {
             val verifier by lazy { FeatureSignatureVerifier() }
@@ -105,9 +113,7 @@ class DesktopPageAssetRoutes(
                     KoinPlatform.getKoin().get<BackgroundImageCatalog>().backgroundImages
                         .mapValues { Paths.get(it.value.path.toString()) }
                 },
-                bookLocation = { initials ->
-                    Books.installed().getBook(initials)?.bookMetaData?.location?.getPath()?.let { Paths.get(it) }
-                },
+                bookLocation = { initials -> bookDirectory(Books.installed().getBook(initials)?.bookMetaData?.location) },
                 bookStyleFile = { initials -> Books.installed().getBook(initials)?.bookMetaData?.getProperty("AndBibleCSS") },
                 verify = { content, signature -> verifier.verifyBytes(content, signature.toOkioPath()) },
                 log = log,
