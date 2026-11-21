@@ -1010,17 +1010,42 @@ open class BookmarkControl constructor(
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filterNot { it.bookmarkId.isAddonId }
         val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filterNot { it.bookmarkId.isAddonId }
         val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId)
+        // Equal order numbers (legacy -1) are tied the way the StudyPad view shows them (StudyPadDocument.vue):
+        // Bible bookmarks in the document's bookmark order, then generic bookmarks, then journal entries in
+        // query order. Renumbering must not reorder the pad, since the cursor is a display index.
+        val bibleRank = dao.bookmarksWithLabel(labelId).withIndex().associate { (i, b) -> b.id to i }
+        val genericRank = dao.genericBookmarksWithLabel(labelId).withIndex().associate { (i, b) -> b.id to i }
+        val journalRank = studyPadTextEntries.withIndex().associate { (i, e) -> e.id to i }
         val all = ArrayList<Any>()
         all.addAll(studyPadTextEntries)
         all.addAll(bookmarkToLabels)
         all.addAll(genericBookmarkToLabels)
-        all.sortBy {
-            when (it) {
-                is BaseBookmarkToLabel -> it.orderNumber
-                is StudyPadTextEntryWithText -> it.orderNumber
-                else -> 0
-            }
-        }
+        all.sortWith(
+            compareBy<Any>(
+                {
+                    when (it) {
+                        is BaseBookmarkToLabel -> it.orderNumber
+                        is StudyPadTextEntryWithText -> it.orderNumber
+                        else -> 0
+                    }
+                },
+                {
+                    when (it) {
+                        is BibleBookmarkToLabel -> 0
+                        is GenericBookmarkToLabel -> 1
+                        else -> 2
+                    }
+                },
+                {
+                    when (it) {
+                        is BibleBookmarkToLabel -> bibleRank[it.bookmarkId] ?: Int.MAX_VALUE
+                        is GenericBookmarkToLabel -> genericRank[it.bookmarkId] ?: Int.MAX_VALUE
+                        is StudyPadTextEntryWithText -> journalRank[it.id] ?: Int.MAX_VALUE
+                        else -> 0
+                    }
+                },
+            )
+        )
         val changedBookmarkToLabels = mutableListOf<BibleBookmarkToLabel>()
         val changedGenericBookmarkToLabels = mutableListOf<GenericBookmarkToLabel>()
         val changedJournalTextEntries = mutableListOf<StudyPadTextEntryWithText>()

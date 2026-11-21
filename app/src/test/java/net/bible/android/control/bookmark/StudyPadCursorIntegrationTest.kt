@@ -542,6 +542,41 @@ class StudyPadCursorIntegrationTest {
         Assert.assertEquals(listOf(0, 1, 2, 3), orders)
     }
 
+    @Test
+    fun testLegacyMixedEntriesKeepViewOrderAndCursorInsert() = runTest {
+        val label = createTestLabel()
+        val dao = net.bible.service.db.DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        // Created in an order that differs from the view's order, so a tie-break by insertion would show.
+        val genericB = bookmarkControl!!.addOrUpdateGenericBookmark(genericBookmark("key-b"), setOf(label.id))
+        val genericA = bookmarkControl!!.addOrUpdateGenericBookmark(genericBookmark("key-a"), setOf(label.id))
+        val b1 = createTestBookmark()
+        val b2 = createTestBookmark()
+        for (b in listOf(b2, b1)) bookmarkControl!!.setLabelsForBookmark(b, listOf(label))
+        bookmarkControl!!.createStudyPadEntry(label.id, 0)
+        bookmarkControl!!.createStudyPadEntry(label.id, 0)
+
+        // Legacy data: everything -1.
+        val bible = dao.getBookmarkToLabelsForLabel(label.id).onEach { it.orderNumber = -1 }
+        dao.updateBibleBookmarkToLabels(bible)
+        val generic = dao.getGenericBookmarkToLabelsForLabel(label.id).onEach { it.orderNumber = -1 }
+        dao.updateGenericBookmarkToLabels(generic)
+        val journals = dao.studyPadTextEntriesByLabelId(label.id).onEach { it.orderNumber = -1 }
+        dao.updateStudyPadTextEntries(journals.map { it.studyPadTextEntryEntity })
+
+        // The view shows: Bible bookmarks (verse order), generic bookmarks (book, key), journal entries.
+        // Cursor 3 = after b1, b2, genericA.
+        workspaceSettings.setStudyPadCursor(label.id, 3)
+        val newBookmark = createTestBookmark()
+        bookmarkControl!!.setLabelsForBookmark(newBookmark, listOf(label))
+
+        assertBookmarkOrder(b1, label, 0)
+        assertBookmarkOrder(b2, label, 1)
+        Assert.assertEquals(2, dao.getGenericBookmarkToLabel(genericA.id, label.id)!!.orderNumber)
+        assertBookmarkOrder(newBookmark, label, 3)
+        Assert.assertEquals(4, dao.getGenericBookmarkToLabel(genericB.id, label.id)!!.orderNumber)
+        Assert.assertEquals(listOf(5, 6), dao.studyPadTextEntriesByLabelId(label.id).map { it.orderNumber })
+    }
+
     // ========== HELPER METHODS ==========
 
     private fun createTestLabel(): Label {
@@ -549,6 +584,11 @@ class StudyPadCursorIntegrationTest {
         label.name = "Test Label ${++testLabelCounter}"
         return runBlocking { bookmarkControl!!.insertOrUpdateLabel(label) }
     }
+
+    private fun genericBookmark(key: String) = net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes(
+        key = key, bookInitials = "missing-test-document", ordinalStart = null, ordinalEnd = null,
+        startOffset = null, endOffset = null, playbackSettings = null, new = true,
+    )
 
     private fun createTestBookmark(): BibleBookmarkWithNotes {
         val verse = "Psalms 119:${++testVerseCounter}"
