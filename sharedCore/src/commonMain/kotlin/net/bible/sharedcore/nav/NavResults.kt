@@ -122,8 +122,8 @@ sealed interface MyDocumentPagesResult {
 }
 
 /**
- * What the three KEY choosers -- `ChooseGeneralBookKey`, `ChooseMapKey`, `ChooseDictionaryWord` --
- * hand back. ONE type and, on `ChooserNavDeps`, one channel for
+ * What the dictionary word chooser hands back (and, until #4172 replaced them with the reading view's
+ * key-list quick sheet, the general-book and map key choosers, whose result shape it shares). ONE type and, on `ChooserNavDeps`, one channel for
  * all three (design §6.2): their three classic result `Intent`s are deliberately identical, and
  * `MainBibleActivity.onActivityResult` dispatches all of them through the single
  * `ActivityResultKind.GenBookKey` arm into `applyChosenGenBookKey`. Three channels would be three

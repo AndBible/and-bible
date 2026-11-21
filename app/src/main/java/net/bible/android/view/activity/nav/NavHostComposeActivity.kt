@@ -1711,9 +1711,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * separate Activity rather than a nav-graph destination: `ChooseDocument` (the document sheet's
      * full-screen footer row, `AndroidReadingNavigator.openChooseDocument`,
      * `ReadingCommands.startDocumentChooser`, `MenuCommandHandler`'s `chooseDocumentButton`),
-     * `ChooseDictionaryWord` and `ChooseMapKey` (`KeyChooserRoute.sheetFor` deliberately returns
-     * null for the dictionary, so that chooser is ALWAYS the full screen), `ChooseGeneralBookKey`
-     * (and, until #4169 removed it, the full-screen passage grid). With this host as the launcher and nothing overriding
+     * `ChooseDictionaryWord` (`KeyChooserRoute.sheetFor` deliberately returns null for the
+     * dictionary, so that chooser is ALWAYS the full screen), and, until #4172 and #4169 removed
+     * them, `ChooseMapKey`, `ChooseGeneralBookKey` and the full-screen passage grid. With this host as the launcher and nothing overriding
      * `onActivityResult`, every one of those results fell through `ActivityBase`'s
      * `resultByCode[requestCode - ASYNC_REQUEST_CODE_START]` miss to `super` and was discarded in
      * silence -- the batch's Ruling D failure, and the same defect step 0 fixed one level up.

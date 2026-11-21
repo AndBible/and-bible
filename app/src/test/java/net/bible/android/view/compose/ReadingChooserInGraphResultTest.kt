@@ -206,19 +206,19 @@ class ReadingChooserInGraphResultTest {
     fun anAwaitedKeyChooserSelfLaunchNavigatesInsteadOfReachingThePlatform() {
         val activity = composedReadingHost()
         // `lifecycleScope` is `Main.immediate`: the launch runs up to awaitIntent's suspension, i.e.
-        // through startActivityForResult, before it returns. Asserted BEFORE any idle: composing the
-        // real general-book chooser needs a general book in the active window (classic's `doc!!`
-        // fallback in `generalBookKeyResult`), which the test modules do not provide.
+        // through startActivityForResult, before it returns. Asserted BEFORE any idle, before the
+        // dictionary chooser composes (the general-book chooser this used, removed in #4172, shared
+        // its channel and collector).
         var result: ActivityResult? = null
         val job = activity.lifecycleScope.launch {
-            result = activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
+            result = activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.CHOOSE_DICTIONARY_WORD))
         }
         assertEquals(
             "F53's interception must now cover the key chooser -- it has a collector",
             null,
             shadowOf(activity).nextStartedActivityForResult,
         )
-        assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, nav(activity).currentDestination?.route)
+        assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, nav(activity).currentDestination?.route)
         // Back out before the chooser ever composes; the abandonment answer resumes the await, so
         // no coroutine is left parked for tearDown.
         nav(activity).popBackStack()

@@ -251,13 +251,11 @@ class ScreenLauncherTest {
         assertEquals(NavRoutes.installZip(), ScreenLauncher.MIGRATED[Screen.InstallZip])
     }
 
-    // ——— slice 8 B7: the seven slice-7 screens route to the nav graph ———————————————————————————
-    // Task F6 deleted their Activities; targetFor throws for all seven now, and MIGRATED is what intentFor reads.
+    // ——— slice 8 B7: the slice-7 screens route to the nav graph (general-book and map key choosers removed, #4172) ———
+    // Task F6 deleted their Activities; targetFor throws for each of them now, and MIGRATED is what intentFor reads.
 
     @Test
     fun theSevenSliceSevenScreensRouteToTheNavGraph() {
-        assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, ScreenLauncher.MIGRATED[Screen.ChooseGeneralBookKey])
-        assertEquals(NavRoutes.CHOOSE_MAP_KEY, ScreenLauncher.MIGRATED[Screen.ChooseMapKey])
         assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, ScreenLauncher.MIGRATED[Screen.ChooseDictionaryWord])
         assertEquals(NavRoutes.chooseDocument(), ScreenLauncher.MIGRATED[Screen.ChooseDocument])
         assertEquals(NavRoutes.WORKSPACE_SELECTOR, ScreenLauncher.MIGRATED[Screen.WorkspaceSelector])
@@ -267,7 +265,7 @@ class ScreenLauncherTest {
     @Test
     fun theTenSliceEightScreensHaveNoActivityOfTheirOwn() {
         listOf(
-            Screen.ChooseGeneralBookKey, Screen.ChooseMapKey, Screen.ChooseDictionaryWord,
+            Screen.ChooseDictionaryWord,
             Screen.ChooseDocument, Screen.WorkspaceSelector, Screen.Startup, Screen.InstallZip,
             Screen.TextDisplaySettings, Screen.Backup,
         ).forEach { screen -> assertFailsWith<IllegalStateException> { ScreenLauncher.targetFor(screen) } }

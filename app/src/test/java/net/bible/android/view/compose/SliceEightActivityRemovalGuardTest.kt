@@ -54,7 +54,7 @@ class SliceEightActivityRemovalGuardTest {
     @Test fun theirLauncherArmsAreStillThereAndUnconditional() = ClassicRemovalScan.assertLauncherArmsUnconditional(
         listOf(
             "Screen.Backup", "Screen.Startup", "Screen.InstallZip", "Screen.ChooseDocument",
-            "Screen.ChooseDictionaryWord", "Screen.ChooseGeneralBookKey", "Screen.ChooseMapKey", "Screen.WorkspaceSelector",
+            "Screen.ChooseDictionaryWord", "Screen.WorkspaceSelector",
             "Screen.TextDisplaySettings",
         ),
         "every Screen keeps its own targetFor arm (targetForMigratedScreen body) -- never merged, never removed",

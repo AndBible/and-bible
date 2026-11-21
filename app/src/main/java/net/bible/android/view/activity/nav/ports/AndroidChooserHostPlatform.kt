@@ -4,26 +4,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.CurrentGeneralBookPage
-import net.bible.android.control.page.CurrentMapPage
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.navigation.DocRowMapper
-import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
 import net.bible.android.platform.AndroidBackupHost
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedui.app.chooser.ChooserHostPlatform
 import net.bible.sharedui.app.chooser.ChooserOverflowItem
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.passage.Key
 import org.koin.java.KoinJavaComponent.get
 
 /**
@@ -39,11 +33,6 @@ class AndroidChooserHostPlatform(private val activity: NavHostComposeActivity) :
     override fun backupModules() {
         activity.lifecycleScope.launch { backupControl.backupModulesViaIntent(AndroidBackupHost { activity }) }
     }
-
-    override suspend fun generalBookKeys(page: CurrentGeneralBookPage): List<Key> =
-        withContext(Dispatchers.IO) { page.keyChooserKeys() }
-
-    override fun mapKeys(page: CurrentMapPage): List<Key> = page.keyChooserKeys()
 
 
     override fun docRows(books: List<Book>): List<DocRow> {

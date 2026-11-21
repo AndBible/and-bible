@@ -17,10 +17,7 @@
 
 package net.bible.sharedui.navigation.nav
 
-import kotlinx.coroutines.flow.first
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,8 +35,6 @@ import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.navigation.ChooseDictionaryWordController
-import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
-import net.bible.sharedcore.navigation.ChooseMapKeyController
 import net.bible.sharedcore.navigation.DictRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
@@ -48,59 +43,16 @@ import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.navigation.ChooseDictionaryWordScreen
-import net.bible.sharedui.navigation.ChooseGeneralBookKeyScreen
-import net.bible.sharedui.navigation.ChooseMapKeyScreen
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
-
-/**
- * [ChooseGeneralBookKeyScreen]'s platform-supplied slots, ported from
- * `ChooseGeneralBookKeyComposeActivity` (still in the tree, unreachable, until nav-graph slice 7
- * Task 13 deletes it -- the standing rule of this phase, which is what keeps a mid-batch bisect
- * possible).
- *
- * - [controllerFor] resolves the page's key list host-side (`page.keyChooserKeys()`, JSword) and
- *   builds the controller around it, reporting the chosen key through [onResult]. It returns
- *   **null** at exactly the point classic's `onCreate` returned early: an EMPTY key list (`:79-83`).
- *   A per-entry factory, not a host-memoised one: the list is read off
- *   `windowControl.activeWindowPageManager.currentGeneralBook`, i.e. off whatever page is active at
- *   the moment the chooser is opened, and classic re-read it on every launch by getting a fresh
- *   Activity. A memoised controller would go on offering the keys of a document the user has since
- *   left.
- * - [emptyResult] is classic's `buildResult(null)` on that same empty-list path -- the FALLBACK
- *   selection (`doc.globalKeyList.first()`), which classic delivered with `setResult` before
- *   finishing. It is a separate slot rather than a nullable return from [controllerFor] because it
- *   is only ever asked for on that branch, and because both halves read the same host-side key list
- *   [controllerFor] just resolved.
- * - [title] is `R.string.general_book`, which is BOTH the screen's own top-bar title and the
- *   manifest `android:label` this destination's window title has to reproduce.
- */
-class ChooseGeneralBookKeyDeps(
-    val title: String,
-    val controllerFor: suspend (onResult: (KeyChooserResult) -> Unit) -> ChooseGeneralBookKeyController?,
-    val emptyResult: () -> KeyChooserResult,
-)
-
-/**
- * [ChooseMapKeyScreen]'s platform-supplied slots, ported from `ChooseMapKeyComposeActivity`. The
- * same three slots as [ChooseGeneralBookKeyDeps], for the same reasons -- see its kdoc; this
- * destination differs only in the page it reads (`currentMap`), in its title
- * (`R.string.doc_type_map`) and in its result never carrying a `bookAndKey` (classic's
- * `buildResult` sets `key`/`book` unconditionally).
- */
-class ChooseMapKeyDeps(
-    val title: String,
-    val controllerFor: (onResult: (KeyChooserResult) -> Unit) -> ChooseMapKeyController?,
-    val emptyResult: () -> KeyChooserResult,
-)
 
 /**
  * [ChooseDictionaryWordScreen]'s platform-supplied slots, ported from
  * `ChooseDictionaryWordComposeActivity`.
  *
  * - [controllerFor] returns **null** where classic returned early -- `page.currentDocument == null`
- *   (`:72`) -- and that branch is NOT the same as [ChooseGeneralBookKeyDeps]'s empty-list one:
+ *   (`:72`) -- and that branch is NOT the same as the removed general-book chooser's empty-list one:
  *   classic `finish()`ed there with NO `setResult` at all, so the arm pops with nothing published
  *   rather than delivering a fallback. There is no fallback key to deliver when there is no
  *   dictionary.
@@ -184,24 +136,19 @@ class ChooseDocumentDeps(
 )
 
 /**
- * Platform-supplied slots the four chooser destinations need but `commonMain` cannot provide. Same
+ * Platform-supplied slots the two chooser destinations need but `commonMain` cannot provide. Same
  * top-level shape as [net.bible.sharedui.download.nav.DownloadNavDeps] and
  * [net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps]: [exitHost] and [setWindowTitle] are
  * graph-wide, the result channels next, then one nested holder per destination.
  *
- * **Two channels for four destinations** (design §6.2; the full-screen passage grid, with its own
- * channel, was removed by #4169), and that is the point rather than an
- * economy: `ChooseGeneralBookKey`, `ChooseMapKey` and `ChooseDictionaryWord` already produce a
- * deliberately identical payload -- the classic `Intent`s differ in nothing but which of
- * `bookAndKey` / `key`+`book` they fill -- and a single arm
- * (`MainBibleActivity.onActivityResult`'s `ActivityResultKind.GenBookKey` branch) consumes all
- * three. Five channels would be five names for one contract, and the consumer (Task 9) would have to
- * merge them back.
+ * **One channel per destination** (design §6.2): the key channel is the dictionary word chooser's,
+ * once shared with the full-screen general-book and map key choosers (removed by #4172: those keys
+ * are chosen in the reading view's key-list quick sheet) and the passage grid (removed by #4169).
  */
 class ChooserNavDeps(
     /**
      * Leave the host. Reachable only through [popOrExitOnFailedPop] below, i.e. only if a pop
-     * somehow fails -- these four destinations are entered from inside the graph, so there is always
+     * somehow fails -- these destinations are entered from inside the graph, so there is always
      * a parent to pop to. Note the deliberate asymmetry with the channels' own `exitWithResult`,
      * which is a hard `error(...)` on the host side (design §1.1): losing a RESULT silently is a
      * defect worth failing loudly on, whereas a bare up-press has nothing to lose, and leaving the
@@ -216,7 +163,7 @@ class ChooserNavDeps(
      */
     val setWindowTitle: (String) -> Unit,
     /**
-     * The ONE channel the three key choosers share -- see this class's own kdoc, and
+     * The dictionary word chooser's key channel -- see this class's own kdoc, and
      * [NavResultChannel]'s for the two branches `deliver` can take. Design §1.1 rules out the exit
      * branch for this slice entirely: the host's `exitWithResult` for this channel is an `error(...)`,
      * so a destination reached with no parent entry fails loudly instead of silently packing an
@@ -225,10 +172,6 @@ class ChooserNavDeps(
     val keyChooserResults: NavResultChannel<KeyChooserResult>,
     /** `ChooseDocument`'s channel -- same in-graph-only contract as [keyChooserResults]. */
     val documentResults: NavResultChannel<DocumentResult>,
-    // — CHOOSE GENERAL BOOK KEY —
-    val chooseGeneralBookKey: ChooseGeneralBookKeyDeps,
-    // — CHOOSE MAP KEY —
-    val chooseMapKey: ChooseMapKeyDeps,
     // — CHOOSE DICTIONARY WORD —
     val chooseDictionaryWord: ChooseDictionaryWordDeps,
     // — CHOOSE DOCUMENT —
@@ -269,7 +212,8 @@ private fun chooserTypeFilterLabels(strings: Strings): List<Pair<DocTypeFilter, 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 
 /**
- * The four chooser destinations, registered into the app's single `NavHost` by the host Activity.
+ * The chooser destinations (dictionary word and choose document), registered into the app's single
+ * `NavHost` by the host Activity.
  *
  * **Nothing routes to any of them yet.** `ScreenLauncher.MIGRATED` is untouched until nav-graph
  * slice 7 Task 8, the reading destination that consumes the channels arrives in Task 9, and
@@ -282,83 +226,6 @@ private fun chooserTypeFilterLabels(strings: Strings): List<Pair<DocTypeFilter, 
  * an entry with no parent is a loud failure instead of a silent one.
  */
 fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: ChooserNavDeps) {
-    // ——— CHOOSE GENERAL BOOK KEY ———
-    composable(route = NavRoutes.CHOOSE_GENERAL_BOOK_KEY) { entry ->
-        val d = deps.chooseGeneralBookKey
-
-        var resolvedController by remember { mutableStateOf<ChooseGeneralBookKeyController?>(null) }
-        var loaded by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
-            resolvedController = d.controllerFor { result ->
-                if (navController.currentBackStackEntry === entry) deps.keyChooserResults.deliver(navController, entry, result)
-            }
-            loaded = true
-        }
-        if (!loaded) return@composable
-        val controller = resolvedController
-
-        // Classic's `keys.isEmpty()` early exit (`:79-83`): deliver the FALLBACK selection and leave
-        // without ever showing a list. Deliberately BEFORE the window-title effect -- a destination
-        // that pops in the same frame it composed should not leave its title on the window, since
-        // the parent's own `LaunchedEffect(title)` will not re-run to put it back.
-        if (controller == null) {
-            LaunchedEffect(Unit) {
-                entry.lifecycle.currentStateFlow.first { it == androidx.lifecycle.Lifecycle.State.RESUMED }
-                if (navController.currentBackStackEntry === entry) deps.keyChooserResults.deliver(navController, entry, d.emptyResult())
-            }
-            return@composable
-        }
-
-        LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
-
-        val rows by controller.rows.collectAsState()
-        val currentKeyId by controller.currentKeyId.collectAsState()
-        val error by controller.error.collectAsState()
-
-        ChooseGeneralBookKeyScreen(
-            title = d.title,
-            rows = rows,
-            currentKeyId = currentKeyId,
-            error = error,
-            onSelect = controller::select,
-            onDismissError = controller::dismissError,
-            // Classic's `onNavigateUp = { finish() }`: a bare leave with NO result, which classic
-            // never routed through `setResult` at all.
-            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
-        )
-    }
-
-    // ——— CHOOSE MAP KEY ———
-    composable(route = NavRoutes.CHOOSE_MAP_KEY) { entry ->
-        val d = deps.chooseMapKey
-
-        val controller = remember {
-            d.controllerFor { result -> deps.keyChooserResults.deliver(navController, entry, result) }
-        }
-
-        // Classic `ChooseMapKeyComposeActivity:70-74`, identical to the general-book arm above.
-        if (controller == null) {
-            LaunchedEffect(Unit) { deps.keyChooserResults.deliver(navController, entry, d.emptyResult()) }
-            return@composable
-        }
-
-        LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
-
-        val rows by controller.rows.collectAsState()
-        val currentKeyId by controller.currentKeyId.collectAsState()
-        val error by controller.error.collectAsState()
-
-        ChooseMapKeyScreen(
-            title = d.title,
-            rows = rows,
-            currentKeyId = currentKeyId,
-            error = error,
-            onSelect = controller::select,
-            onDismissError = controller::dismissError,
-            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
-        )
-    }
-
     // ——— CHOOSE DICTIONARY WORD ———
     composable(route = NavRoutes.CHOOSE_DICTIONARY_WORD) { entry ->
         val d = deps.chooseDictionaryWord

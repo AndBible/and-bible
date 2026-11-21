@@ -156,7 +156,7 @@ internal enum class ReadingResultKind(
      * behaviour.
      */
     val answersAbandonment: Boolean,
-    /** Every route BASE that addresses this kind's destination(s) -- the three key choosers share one channel. */
+    /** Every route BASE that addresses this kind's destination(s). */
     vararg val routeBases: String,
 ) {
     ManageLabels(false, NavRoutes.MANAGE_LABELS_PATTERN.substringBefore('?')),
@@ -165,7 +165,8 @@ internal enum class ReadingResultKind(
     Bookmarks(false, NavRoutes.BOOKMARKS_PATTERN.substringBefore('?')),
     MyDocuments(false, NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?')),
     // ——— slice 8 B1: slice 7's destinations, now reached from the reading view ———
-    KeyChooser(true, NavRoutes.CHOOSE_GENERAL_BOOK_KEY, NavRoutes.CHOOSE_MAP_KEY, NavRoutes.CHOOSE_DICTIONARY_WORD),
+    // The dictionary word chooser; the general-book and map key choosers are the reading view's sheet (#4172).
+    KeyChooser(true, NavRoutes.CHOOSE_DICTIONARY_WORD),
     ChooseDocument(true, NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?')),
     /**
      * Not an abandonment kind: classic's cancel was an empty-Intent `RESULT_CANCELED` its consumer

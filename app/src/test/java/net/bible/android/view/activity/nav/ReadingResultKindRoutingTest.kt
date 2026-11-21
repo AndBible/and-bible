@@ -29,8 +29,6 @@ class ReadingResultKindRoutingTest {
 
     @Test
     fun everyNewRouteMapsToItsKindWithOrWithoutArguments() {
-        assertEquals(ReadingResultKind.KeyChooser, ReadingResultKind.forRoute(NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
-        assertEquals(ReadingResultKind.KeyChooser, ReadingResultKind.forRoute(NavRoutes.CHOOSE_MAP_KEY))
         assertEquals(ReadingResultKind.KeyChooser, ReadingResultKind.forRoute(NavRoutes.CHOOSE_DICTIONARY_WORD))
         assertEquals(ReadingResultKind.ChooseDocument, ReadingResultKind.forRoute(NavRoutes.chooseDocument()))
         assertEquals(ReadingResultKind.ChooseDocument, ReadingResultKind.forRoute(NavRoutes.chooseDocument("BIBLE")))

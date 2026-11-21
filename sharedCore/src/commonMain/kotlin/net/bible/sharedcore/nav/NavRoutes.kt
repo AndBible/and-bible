@@ -303,8 +303,6 @@ object NavRoutes {
 
     /** The reading view itself — the graph's start destination once slice 7 lands. */
     const val READING: String = "reading"
-    const val CHOOSE_GENERAL_BOOK_KEY: String = "navigation/chooseGeneralBookKey"
-    const val CHOOSE_MAP_KEY: String = "navigation/chooseMapKey"
     const val CHOOSE_DICTIONARY_WORD: String = "navigation/chooseDictionaryWord"
     const val WORKSPACE_SELECTOR: String = "workspaces/selector"
 

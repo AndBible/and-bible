@@ -173,8 +173,38 @@ class ClassicKeyChooserRemovalGuardTest {
      * surviving inlined one.
      */
     @Test fun screenLauncherDoesNotBranchForKeyChoosers() = ClassicRemovalScan.assertLauncherArmsUnconditional(
-        listOf("Screen.ChooseGeneralBookKey", "Screen.ChooseMapKey", "Screen.ChooseDictionaryWord"),
+        listOf("Screen.ChooseDictionaryWord"),
         "these key-chooser arms still branch on the flag (or are missing entirely) — S3 " +
             "collapses them to the Compose class unconditionally",
     )
+
+    /**
+     * #4172: the full-screen general-book and map key choosers (the nav destinations that replaced these classic screens)
+     * are gone as well: those keys are chosen in the reading view's key-list quick sheet, from every entry point. Their
+     * routes, destinations, deps, controllers, screens and `Screen` entries must not come back in any shipping source,
+     * `:app` or shared. The needles are assembled from pieces so this file cannot become its own offender.
+     */
+    @Test fun theFullScreenGeneralBookAndMapKeyChoosersAreGone() {
+        val needles = listOf(
+            "CHOOSE_GENERAL" + "_BOOK_KEY", "CHOOSE_MAP" + "_KEY",
+            "navigation/chooseGeneral" + "BookKey", "navigation/chooseMap" + "Key\"",
+            "ChooseGeneralBookKey" + "Screen", "ChooseMapKey" + "Screen",
+            "ChooseGeneralBookKey" + "Controller", "ChooseMapKey" + "Controller",
+            "ChooseGeneralBookKey" + "Deps", "ChooseMapKey" + "Deps",
+            "Screen.ChooseGeneral" + "BookKey", "Screen.ChooseMap" + "Key",
+        )
+        val shared = listOf("../sharedCore/src", "../sharedLogic/src", "../sharedUi/src").flatMap { root ->
+            java.io.File(root).listFiles { f -> f.isDirectory && !f.name.endsWith("Test") }.orEmpty().flatMap { set ->
+                set.walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+            }
+        }
+        check(shared.isNotEmpty()) { "no shared sources found; the scan would go blind" }
+        // The retired-route list names the old routes on purpose: a restored start route must open reading.
+        val retiredRoutes = java.io.File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/AppRoutes.kt").canonicalFile
+        val offenders = (ClassicRemovalScan.appSources() + shared)
+            .filter { it.canonicalFile != retiredRoutes }
+            .filter { file -> file.readText().let { text -> needles.any { it in text } } }
+        org.junit.Assert.assertTrue(
+            "the full-screen general-book or map key chooser is back at: ${offenders.map { it.path }}", offenders.isEmpty())
+    }
 }

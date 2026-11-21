@@ -64,6 +64,18 @@ class AppRoutesTest {
         assertEquals("documents/progressive", withoutRetiredRoute("documents/progressive"))
     }
 
+    /** #4172: a restored stale start route naming a removed general-book or map key chooser must open reading. */
+    @Test
+    fun theRemovedGeneralBookAndMapKeyChooserRoutesOpenReading() {
+        for (stale in listOf("navigation/chooseGeneralBookKey", "navigation/chooseMapKey")) {
+            assertEquals(NavRoutes.READING, withoutRetiredRoute(stale), stale)
+            assertEquals(NavRoutes.READING, navHostStartRoute(null, stale, onMissing = { fail() }), stale)
+            assertEquals(NavRoutes.READING, navHostStartRoute(stale, null, onMissing = { fail() }), stale)
+        }
+        assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, withoutRetiredRoute(NavRoutes.CHOOSE_DICTIONARY_WORD))
+        assertEquals("navigation/chooseMapKeys", withoutRetiredRoute("navigation/chooseMapKeys"))
+    }
+
     @Test
     fun missingDefaultsToReadingAndReports() {
         var missing = 0

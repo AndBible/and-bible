@@ -14,6 +14,12 @@ to see all 66 books of the Bible, but if you go to the *Book Chooser* when the
 active window is a smaller commentary, it will only show the books that are
 available in that commentary.
 
+In a general book (other than a StudyPad or one of your own documents) or a map, the title, the
+same keyboard shortcuts and a switch to a book that
+has not been opened yet all open a list of the book's entries (for an EPUB, its table of contents)
+as a sheet over the reading view instead. Pick an entry to open it; closing the list without a
+choice after switching to such a book returns you to where you were.
+
 After you select the book, the sheet moves on to the chapters, where you can
 select the chapter. When you pick the book you are reading, the chapter you are
 reading (and, at the verse step, the verse) is highlighted and scrolled into
