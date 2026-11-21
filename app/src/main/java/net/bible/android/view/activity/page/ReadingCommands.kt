@@ -426,8 +426,7 @@ class ReadingCommands(
      * retargeted into a hosted Compose activity's search; returns whether it did. Same "leading
      * guard, fall through to classic otherwise" idiom as [composeSearchIfHosted] — `LinkControl`
      * calls this only once it has already decided the search document is indexed (the not-indexed
-     * branch keeps classic's `Screen.SearchIndex` route unconditionally: prompting to index a
-     * document other than the active window's is Task 11's machinery, which does not exist yet).
+     * branch is handled by the caller, not here).
      *
      * A `false` return means the caller MUST use its own classic fallback — this is not just "no
      * host mounted" any more: [ComposeReadingViewHost.openSearchStrongs] also returns `false` (and

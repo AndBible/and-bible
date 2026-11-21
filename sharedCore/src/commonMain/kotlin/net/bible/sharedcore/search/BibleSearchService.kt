@@ -34,7 +34,7 @@ fun BibleSearchService.unindexedAmong(translationIds: List<String>, regex: Boole
 
 interface SearchIndexService {
     fun hasIndex(docId: String): Boolean
-    fun createIndex(docId: String)   // kickoff only; progress = Screen.SearchIndexProgress (Batch 1)
+    fun createIndex(docId: String)   // kickoff only; progress is shown by the shared search-index progress screen
 
     /**
      * True when the document was indexed by the previous search engine (its legacy index directory still exists)

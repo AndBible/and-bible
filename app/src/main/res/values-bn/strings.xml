@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">সূচক শেষ হয়ে গেলে আপনাকে অনুসন্ধান পর্দায় নেওয়া হবে । </string>
   <string name="index_create">তৈরি করুন </string>
   <string name="rebuild_index">পুনরায় সূচক তৈরি করুন </string>
-  <string name="search_in">%s তে খুঁজুন </string>
   <string name="do_in_background">পটভূমিতে চালিয়ে যান</string>
   <string name="rebuild_index_button">পুনরায় তৈরি করুন </string>
   <string name="creating_index_for">সূচক তৈরি করা হচ্ছে%s</string>

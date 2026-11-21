@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">När indexeringen är färdig kommer du att tas till sökskärmen.</string>
   <string name="index_create">Skapa</string>
   <string name="rebuild_index">Återuppbygg register</string>
-  <string name="search_in">Hitta i %s</string>
   <string name="do_in_background">Fortsätt i bakgrunden</string>
   <string name="rebuild_index_button">Återuppbygg</string>
   <string name="creating_index_for">Skapar register för%s...</string>

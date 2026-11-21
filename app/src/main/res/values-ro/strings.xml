@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">După terminarea indexării, vei fi redirecționat către pagina de căutare.</string>
   <string name="index_create">Creează</string>
   <string name="rebuild_index">Refă indexul</string>
-  <string name="search_in">Caută în %s</string>
   <string name="do_in_background">Continuă în ascuns</string>
   <string name="rebuild_index_button">Refă</string>
   <string name="creating_index_for">Se creează indexul pentru %s…</string>

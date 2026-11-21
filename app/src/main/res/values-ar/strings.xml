@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">بعد اكتمال عملية الفهرسة، سيتم توجيهك لشاشة البحث.</string>
   <string name="index_create">إنشاء</string>
   <string name="rebuild_index">اعادة الفهرسة</string>
-  <string name="search_in">ابحث في %s</string>
   <string name="do_in_background">استكمال في الخلفية</string>
   <string name="rebuild_index_button">اعادة بناء</string>
   <string name="creating_index_for">إنشاء فهرس لـ %s...</string>

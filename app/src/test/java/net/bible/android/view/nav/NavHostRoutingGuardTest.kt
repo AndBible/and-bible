@@ -611,8 +611,7 @@ class NavHostRoutingGuardTest {
      *    never produces. A real precedent already exists in the tree:
      *    `app/src/main/java/net/bible/android/view/activity/page/BibleView.kt` spreads
      *    `ScreenLauncher.intentFor(` across several lines with the screen chosen by an `if`
-     *    expression (not a live miss today — `Screen.SearchIndex` aren't
-     *    migrated yet — but it WILL be, in a later slice). Fixed by locating each call by its own
+     *    expression (a hypothetical miss for any screen migrated later). Fixed by locating each call by its own
      *    `(` / matching `)` (brace-balance, reusing the same technique as the `.apply` block scan)
      *    rather than by a marker glued to one particular argument.
      *  - **Named or reordered arguments**, where the screen is not textually the last argument
@@ -639,11 +638,10 @@ class NavHostRoutingGuardTest {
      * found — one of them against a LIVE call site, not merely a future risk:
      *  - **`putExtras` (plural, a whole `Bundle`) matched none of the three checks**, because every
      *    one of them searched literally for `"putExtra("` / `\.putExtra\s*\(`, and the character
-     *    after `putExtra` in `putExtras(` is `s`, not `(`. Live today:
-     *    `LinkControl.kt`'s `intent.putExtras(searchParams)` after a plain assignment, targeting
-     *    `Screen.SearchIndex` (not migrated yet, so not a live BUG today --
-     *    but the guard existed to catch exactly this shape the day one of those screens migrates,
-     *    and it silently would not have). Fixed by giving every check the shared
+     *    after `putExtra` in `putExtras(` is `s`, not `(`. It was live at the time:
+     *    `LinkControl.kt` called `intent.putExtras(searchParams)` after a plain assignment (the
+     *    search routes it targeted have since been removed), the shape the guard exists to catch
+     *    the day an unmigrated screen migrates. Fixed by giving every check the shared
      *    [PUT_EXTRA_METHODS] alternation (`putExtras?`) instead of the bare singular name — see its
      *    kdoc for why this cannot also match an unrelated identifier that merely starts with those
      *    characters.
@@ -656,15 +654,15 @@ class NavHostRoutingGuardTest {
      * **Hardened again in nav-graph 3/5/6 Task 6** against a fifth fail-open shape -- and this one
      * failed open on a LIVE BUG, not a future risk, which is the worst thing a guard can do:
      *  - **The call as a BRANCH of a conditional whose RESULT is assigned**, i.e.
-     *    `val intent = if (needToIndex) { ScreenLauncher.intentFor(a, Screen.SearchIndex) } else {
-     *    ScreenLauncher.intentFor(a, Screen.SearchResults) }` followed by `intent.putExtras(...)`.
+     *    `val intent = if (flag) { ScreenLauncher.intentFor(a, Screen.X) } else {
+     *    ScreenLauncher.intentFor(a, Screen.Y) }` followed by `intent.putExtras(...)`.
      *    Both assignment regexes anchor immediately before the call (`(\w+)\s*=\s*$` and its typed
-     *    twin), and what sits there is the branch opener `if (needToIndex) {` -- not `intent =` --
+     *    twin), and what sits there is the branch opener `if (flag) {` -- not `intent =` --
      *    so neither matched, no scope-function form applied either, and the scan reported nothing.
-     *    `LinkControl.showAllOccurrences` had exactly this shape, and the day Task 4 migrated
-     *    `Screen.SearchIndex` it became a real dropped-argument bug (a Strong's link into an
-     *    unindexed module indexed the CURRENT page's book instead of the Strong's Bible, then
-     *    landed on an empty search form) that this test passed straight over. Fixed by a third
+     *    The since-removed `LinkControl.showAllOccurrences` search-index branch had exactly this
+     *    shape, and when its screen migrated it became a real dropped-argument bug (a Strong's link
+     *    into an unindexed module indexed the CURRENT page's book instead of the Strong's Bible,
+     *    then landed on an empty search form) that this test passed straight over. Fixed by a third
      *    assignment check: find the NEAREST `name = if (` / `name = when (` within
      *    [CONDITIONAL_ASSIGN_LOOKBEHIND_CHARS] behind the call, confirm the call is still INSIDE
      *    that conditional expression, then look ahead for `name.putExtra(s)(...)` exactly as the
@@ -689,9 +687,7 @@ class NavHostRoutingGuardTest {
      *    by the caller (`return if (x) intentFor(..) else intentFor(..)`, then
      *    `getSearchIntent(...)?.putExtra(...)` at the call site). There is no local name to follow,
      *    so this is the cross-function case below by another route -- it needs data flow, not a
-     *    regex. `SearchControl.getSearchIntent` is precisely this shape; Task 6 verified by hand
-     *    that all five of its callers pass the Intent straight to `startActivityForResult` with no
-     *    extras added, and rewrote its `Screen.SearchIndex` branch to build a concrete route anyway.
+     *    regex. The former `SearchControl.getSearchIntent` (since removed) was precisely this shape.
      *  - `with(intentVar) { putExtra(...) }` -- no live caller uses `with` on a `ScreenLauncher
      *    .intentFor(...)` result today; purely theoretical.
      *  - A helper function that receives the built `Intent` and adds extras to it elsewhere (e.g.
@@ -880,7 +876,7 @@ class NavHostRoutingGuardTest {
                     // Is this call a BRANCH of a conditional that is itself the RHS of an assignment --
                     // `val name = if (cond) { intentFor(..) } else { intentFor(..) }` -- followed by
                     // `name.putExtra(s)(...)`? Neither regex above can see this shape: what immediately
-                    // precedes the call is the branch opener (`if (needToIndex) {`), not `name =`. See
+                    // precedes the call is the branch opener (`if (flag) {`), not `name =`. See
                     // the kdoc's Task 6 hardening entry; live in LinkControl.showAllOccurrences.
                     var conditionalAssignedPutExtraName: String? = null
                     if (assignedPutExtraName == null) {

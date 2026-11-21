@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Ha az indexelés befejeződött, megjelenik a kereső képernyő.</string>
   <string name="index_create">Létrehozás</string>
   <string name="rebuild_index">Újraindexelés</string>
-  <string name="search_in">Keresés %s-ben</string>
   <string name="do_in_background">Folytassa a háttérben</string>
   <string name="rebuild_index_button">Adatbázis újraépítése</string>
   <string name="creating_index_for">Index létrehozása: %s…</string>

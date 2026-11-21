@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Ketika indeks sudah lengkap anda akan dibawa ke layar pencarian.</string>
   <string name="index_create">Buat baru</string>
   <string name="rebuild_index">Bangun kembail indeks</string>
-  <string name="search_in">Temukan di %s</string>
   <string name="do_in_background">Lanjutkan di latar belakang</string>
   <string name="rebuild_index_button">Bangun ulang</string>
   <string name="creating_index_for">Membuat indeks untuk %s…</string>

@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">索引完成时，您将会回到搜索界面。</string>
   <string name="index_create">创建</string>
   <string name="rebuild_index">重建索引</string>
-  <string name="search_in">在 %s 中查找</string>
   <string name="do_in_background">在后台运行</string>
   <string name="rebuild_index_button">重建</string>
   <string name="creating_index_for">为%s建立索引</string>

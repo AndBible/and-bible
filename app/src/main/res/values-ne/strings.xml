@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">अनुक्रमणिका सम्पन्न भएपछि तपाईंलाई खोज स्क्रिनमा लगिनेछ।</string>
   <string name="index_create">बनाउनुहोस्</string>
   <string name="rebuild_index">अनुक्रमणिका पुनर्निर्माण गर्नुहोस्</string>
-  <string name="search_in">%s मा खोज्नुहोस्</string>
   <string name="do_in_background">पृष्ठभूमिमा जारी राख्नुहोस्</string>
   <string name="rebuild_index_button">पुनर्निर्माण</string>
   <string name="creating_index_for">%s को लागि अनुक्रमणिका बनाउँदैछ…</string>

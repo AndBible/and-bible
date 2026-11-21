@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">ఇండెక్సింగ్ పూర్తయినప్పుడు మీరు శోధన స్క్రీన్‌కి తీసుకెళ్లబడతారు.</string>
   <string name="index_create">సృష్టించు</string>
   <string name="rebuild_index">సూచికను పునర్నిర్మించండి</string>
-  <string name="search_in">%s లో వెతుకు</string>
   <string name="do_in_background">నేపథ్యంలో కొనసాగించండి</string>
   <string name="rebuild_index_button">పునర్నిర్మించండి</string>
   <string name="creating_index_for">%s కోసం సూచికను సృష్టిస్తోంది</string>

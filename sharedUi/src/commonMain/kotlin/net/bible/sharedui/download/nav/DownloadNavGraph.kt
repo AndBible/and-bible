@@ -638,8 +638,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val scope = rememberCoroutineScope()
 
         // Five arguments, all OPTIONAL, all read plainly -- never through NavRoutes.decodeArg, which
-        // would double-decode a value the library already decoded (SearchNavGraph's searchArgs()
-        // kdoc documents that trap). A flag is emitted only when true (plan D2), so "true" is the
+        // would double-decode a value the library already decoded (the double-decode trap). A flag is emitted only when true (plan D2), so "true" is the
         // whole truth test and an ABSENT argument is false.
         val args = backStackEntry.arguments
         val firstDownload = args?.read { getStringOrNull(NavRoutes.ARG_FIRST_DOWNLOAD) } == "true"
