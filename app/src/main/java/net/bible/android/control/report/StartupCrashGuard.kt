@@ -115,6 +115,8 @@ class StartupCrashStore(val dir: File, private val clock: () -> Long = System::c
             "$details\nThread: $threadName\n$trace",
         )
         count(startup = currentPhase != null)
+        // This death is recorded: the next start must not count it again as an unfinished start.
+        clearPhase()
     }
 
     /** A breadcrumb was left over: the last run died in [phase] without a recorded exception. */

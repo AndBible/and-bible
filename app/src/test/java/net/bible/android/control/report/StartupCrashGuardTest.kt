@@ -113,6 +113,8 @@ class StartupCrashGuardTest {
 
         // The next start: the launcher's StartupActivity hands over to the safe mode before anything else.
         assertTrue(startProcess(dir))
+        assertFalse("The recorded crash is not counted again as an unfinished start",
+            File(dir, "pending.txt").readText().contains("Unfinished start"))
         val startup = Robolectric.buildActivity(net.bible.android.activity.StartupActivity::class.java).create()
         try {
             val next = shadowOf(startup.get()).nextStartedActivity
