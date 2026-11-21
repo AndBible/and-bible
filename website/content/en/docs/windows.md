@@ -75,7 +75,7 @@ in every window; the small expand, new-window or restore control does not reserv
 a strip. Navigation-bar and taskbar space is still kept clear in every bottom
 window.
 
-With `Show text under window buttons` on (Settings, `Look & feel`), no window
+With `Show text under window buttons` on (`Application preferences`, `Look & feel`), no window
 reserves the strip: the text runs to the bottom of the
 screen, under the buttons. This is the default on desktop; on Android, iPhone and
 iPad the strip is kept unless you turn the setting on.
