@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
@@ -38,6 +37,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Checkbox
+import net.bible.sharedui.reading.host.slots.LocalAgentStatusIcon
 import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -204,7 +204,7 @@ fun MyDocumentPagesScreen(
                                 }
                                 if (item.isAiGenerated) {
                                     Icon(
-                                        Icons.Filled.AutoAwesome, contentDescription = null,
+                                        LocalAgentStatusIcon.current(), contentDescription = null,
                                         modifier = Modifier.padding(end = 8.dp),
                                     )
                                 }
