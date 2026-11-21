@@ -304,7 +304,7 @@ When you tap a verse and its action menu is open, **B** adds a bookmark, **N** a
 
 With the reading view open, **Ctrl+F** opens the in-place search field, including
 on iPhone and iPad with a connected keyboard. On iOS, **Cmd+F** also opens search,
-and **Cmd+B** and **Cmd+L** perform the same reading action as **Ctrl+B**. You can also open
+and **Cmd+B** and **Cmd+L** on iOS open the same *Book Chooser* sheet as **Ctrl+B** does. You can also open
 the same search from **Find** in the main menu. Other Command-key combinations
 are not reading shortcuts. Press **Ctrl+F** again (**Cmd+F** on iOS) to focus the
 search field and select the whole query; typing replaces the old query without
