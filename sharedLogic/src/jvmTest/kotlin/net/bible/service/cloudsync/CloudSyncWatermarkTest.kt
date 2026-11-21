@@ -321,6 +321,89 @@ class CloudSyncWatermarkTest {
         assertHighlightReported(h, reported)
     }
 
+    /** [db]'s rows as the other device would send them: every log entry stamped [at] by "remote-device". */
+    private suspend fun remotePatch(f: Fixture, db: SyncableDatabaseAccessor<*>, at: Long): Path {
+        db.localDb.useWriterConnectionMarked { it.exec("UPDATE LogEntry SET lastUpdated = $at, sourceDevice = 'remote-device'") }
+        db.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+        @Suppress("UNCHECKED_CAST")
+        val remote = (db as SyncableDatabaseAccessor<net.bible.android.database.SyncableRoomDatabase>).let {
+            SyncableDatabaseAccessor(it.localDb, it.dbFactory, { error("unused") }, it.localDbPath, it.category, deviceId = "remote-device")
+        }
+        return checkNotNull(createPatchForDatabase(remote, f.env, false))
+    }
+
+    /**
+     * A device that missed many patches applies them in one sync: the listeners (an Android workspace switch rebuilds
+     * every window) hear once per category, with the union of the rows and the last entry of a row named twice.
+     */
+    @Test fun patchesOfOneSyncAreReportedOnceWithTheLastEntryPerRow() = withFixture { f ->
+        val dao = f.container.bookmarkDb.bookmarkDao()
+        val first = BookmarkEntities.Label(name = "first")
+        val other = BookmarkEntities.Label(name = "other")
+        dao.insert(first)
+        f.adapter.patches["p1"] = remotePatch(f, f.db, 1000L)
+        dao.update(first.copy(name = "renamed"))
+        dao.insert(other)
+        f.adapter.patches["p2"] = remotePatch(f, f.db, 2000L)
+        dao.delete(first)
+        dao.delete(other)
+        f.db.dao.clearLog()
+        val version = f.db.version()
+        f.adapter.files = listOf(
+            CloudFile("p1", "1.$version.sqlite3.gz", 1L, 200L, "remote-folder"),
+            CloudFile("p2", "2.$version.sqlite3.gz", 1L, 300L, "remote-folder"),
+        )
+        val calls = java.util.concurrent.CopyOnWriteArrayList<List<net.bible.android.database.LogEntry>>()
+        val subscription = DatabaseContainer.bookmarksSynced.subscribe { calls.add(it) }
+        try { f.cloud.synchronize() } finally { subscription.cancel() }
+
+        assertEquals(listOf("other", "renamed"), dao.allLabelsSortedByName().map { it.name }, "sanity: both patches applied")
+        assertEquals(1, calls.size, "one report per category and sync: $calls")
+        val labels = calls.single().filter { it.tableName == "Label" }
+        assertEquals(setOf(first.id, other.id), labels.map { it.entityId1 }.toSet())
+        assertEquals(2, labels.size, "one entry per row: $labels")
+        assertEquals(2000L, labels.single { it.entityId1 == first.id }.lastUpdated, "the later patch's entry wins")
+    }
+
+    /**
+     * Patch 1 resets the selected reading plan, patch 2 restarts it. The selection check must see the final rows,
+     * after all patches of the sync, or patch 1 alone clears the selection of a plan that is still there.
+     */
+    @Test fun readingPlanResetAndRestartInTwoPatchesKeepsTheSelection() = withFixture { f ->
+        val settings = DatabaseAppSettings({ f.container.settingsStore }, { true })
+        f.db.category.setSyncEnabled(settings, false)
+        val rp = DatabaseContainer.databaseAccessorsByCategory.getValue(SyncableDatabaseDefinition.READINGPLANS)
+        rp.category.setSyncEnabled(settings, true)
+        rp.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "sync-folder")
+        rp.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, "device-folder")
+        rp.dao.setConfig(LAST_SYNCHRONIZED_KEY, 100L)
+        val dao = f.container.readingPlanDb.readingPlanDao()
+        val original = net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan(
+            "plan", net.bible.android.database.DbDate(1_000_000_000L))
+        dao.updatePlan(original)
+        dao.deletePlanInfo("plan")
+        f.adapter.patches["reset"] = remotePatch(f, rp, 1000L)
+        val restarted = original.copy(planStartDate = net.bible.android.database.DbDate(2_000_000_000L),
+            id = net.bible.android.database.IdType())
+        dao.updatePlan(restarted)
+        f.adapter.patches["restart"] = remotePatch(f, rp, 2000L)
+        // Back to this device's state before the sync: the original plan, started and selected here.
+        dao.deletePlanInfo("plan")
+        dao.updatePlan(original)
+        rp.dao.clearLog()
+        val selection = net.bible.android.control.readingplan.CurrentReadingPlan(settings)
+        selection.select("plan")
+        val version = rp.version()
+        f.adapter.files = listOf(
+            CloudFile("reset", "1.$version.sqlite3.gz", 1L, 200L, "remote-folder"),
+            CloudFile("restart", "2.$version.sqlite3.gz", 1L, 300L, "remote-folder"),
+        )
+        f.cloud.synchronize()
+
+        assertEquals(restarted.id, dao.getPlan("plan")?.id, "sanity: reset and restart both applied")
+        assertEquals("plan", selection.code)
+    }
+
     @Test fun foregroundTransportFailureReportsOneSyncError() = withFixture { f ->
         val messages = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.control.event.UserMessage>()
         val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }

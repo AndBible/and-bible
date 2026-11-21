@@ -1023,9 +1023,9 @@ class CloudSync(
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.size, it.file.createdTime)
         }
 
-        // Each patch is reported as soon as it has committed: should a later one fail, the retry re-applies the earlier
-        // ones as no-ops and would never report them (#4151).
-        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray(), onPatchApplied = { dbDef.reactToUpdates(it) })
+        // Reported once for all patches, also those committed before a failing one: the retry re-applies them as no-ops
+        // and would never report them (#4151).
+        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray(), onApplied = { dbDef.reactToUpdates(it) })
         downloadedFiles.forEach { runCatching { FileSystem.SYSTEM.delete(it) } }
         dbDef.dao.addStatuses(syncStatuses)
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, synchronizedAt)

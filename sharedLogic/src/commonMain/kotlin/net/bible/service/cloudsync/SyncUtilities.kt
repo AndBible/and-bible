@@ -39,6 +39,8 @@ import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import kotlin.time.Clock
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 
 private suspend fun writePatchData(
@@ -263,59 +265,77 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  *
  * Returns the log entries the merge took over, one per row (the last patch's entry when several patches name it),
  * in patch and table order: what changed here. They carry the other device's edit times, which must not be compared
- * with this device's sync watermark (#4151). [onPatchApplied] gets each patch's entries as soon as that patch has
- * committed, outside the writer connection, so a later patch's failure cannot hide changes already in the database
- * (a retry re-applies them as no-ops and would never report them).
+ * with this device's sync watermark (#4151).
+ *
+ * [onApplied] gets those entries once, after the last patch and outside the writer connection, only when any patch
+ * changed something. It runs also when a later patch fails (or the sync is cancelled), with the patches committed
+ * before it: a retry re-applies them as no-ops and would never report them. Once, not per patch: listeners rebuild
+ * views (an Android workspace switch per call) and check final rows (a reading plan reset by one patch and
+ * restarted by the next stays selected).
  */
 suspend fun applyPatchesForDatabase(
     dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: Path?, mapIncomingIds: Boolean = true,
-    onPatchApplied: suspend (List<LogEntry>) -> Unit = {},
+    onApplied: suspend (List<LogEntry>) -> Unit = {},
 ): List<LogEntry> {
     val applied = LinkedHashMap<Triple<String, IdType, IdType>, LogEntry>()
-    for(gzippedPatchFile in patchFiles.filterNotNull()) {
-        val patchDbFile = createTempFile(env.tmpDir.toPath(), "downloaded-patch-${dbDef.categoryName}-", ".sqlite3")
-        Log.i(TAG, "Applying patch file ${patchDbFile.name}")
-        ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
-        // Let's apply possible migrations first
-        createWithSchema(dbDef, patchDbFile)
-        val patchEntries = dbDef.localDb.useWriterConnectionMarked { db ->
-            // ATTACH inside the protected region, as in createPatchForDatabase.
-            db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
-                db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
-                db.exec("PRAGMA foreign_keys=OFF;")
-                try {
-                    db.inTransaction<List<LogEntry>> {
-                        // An incoming patch never carries add-on rows (each device builds them from its own
-                        // module). Should one name an add-on row, the local add-on row wins: drop it from the patch.
-                        val addonRows = stripAddonRows(this, dbDef.category, "patch")
-                        if (addonRows > 0) Log.w(TAG, "Ignored $addonRows add-on rows in an incoming ${dbDef.categoryName} patch")
-                        val aliased = mapIncomingIds && dbDef.category.hasIdAliases
-                        if (aliased) aliasIncomingIds(dbDef.category, "patch")
-                        val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()
-                        buildList {
-                            for (tableDef in dbDef.tableDefinitions) {
-                                dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                                addAll(readPatchData(this@inTransaction, tableDef, restoreDropped = tableDef.tableName in restorable))
-                                dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+    var failure: Throwable? = null
+    try {
+        for(gzippedPatchFile in patchFiles.filterNotNull()) {
+            val patchDbFile = createTempFile(env.tmpDir.toPath(), "downloaded-patch-${dbDef.categoryName}-", ".sqlite3")
+            Log.i(TAG, "Applying patch file ${patchDbFile.name}")
+            ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
+            // Let's apply possible migrations first
+            createWithSchema(dbDef, patchDbFile)
+            val patchEntries = dbDef.localDb.useWriterConnectionMarked { db ->
+                // ATTACH inside the protected region, as in createPatchForDatabase.
+                db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
+                    db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
+                    db.exec("PRAGMA foreign_keys=OFF;")
+                    try {
+                        db.inTransaction<List<LogEntry>> {
+                            // An incoming patch never carries add-on rows (each device builds them from its own
+                            // module). Should one name an add-on row, the local add-on row wins: drop it from the patch.
+                            val addonRows = stripAddonRows(this, dbDef.category, "patch")
+                            if (addonRows > 0) Log.w(TAG, "Ignored $addonRows add-on rows in an incoming ${dbDef.categoryName} patch")
+                            val aliased = mapIncomingIds && dbDef.category.hasIdAliases
+                            if (aliased) aliasIncomingIds(dbDef.category, "patch")
+                            val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()
+                            buildList {
+                                for (tableDef in dbDef.tableDefinitions) {
+                                    dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
+                                    addAll(readPatchData(this@inTransaction, tableDef, restoreDropped = tableDef.tableName in restorable))
+                                    dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+                                }
                             }
                         }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
+                        throw e
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
-                    throw e
                 }
             }
+            if(!env.isDebugMode) {
+                FileSystem.SYSTEM.delete(patchDbFile)
+            }
+            // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one.
+            for (e in patchEntries) {
+                val key = Triple(e.tableName, e.entityId1, e.entityId2)
+                applied.remove(key)
+                applied[key] = e
+            }
         }
-        if(!env.isDebugMode) {
-            FileSystem.SYSTEM.delete(patchDbFile)
+    } catch (e: Throwable) {
+        failure = e
+        throw e
+    } finally {
+        if (applied.isNotEmpty()) {
+            try {
+                withContext(NonCancellable) { onApplied(applied.values.toList()) }
+            } catch (e: Throwable) {
+                // Never hide the patch failure behind a listener's.
+                failure?.addSuppressed(e) ?: throw e
+            }
         }
-        // Only a committed patch counts; a later patch's entry for the same row replaces the earlier one.
-        for (e in patchEntries) {
-            val key = Triple(e.tableName, e.entityId1, e.entityId2)
-            applied.remove(key)
-            applied[key] = e
-        }
-        onPatchApplied(patchEntries)
     }
     return applied.values.toList()
 }
