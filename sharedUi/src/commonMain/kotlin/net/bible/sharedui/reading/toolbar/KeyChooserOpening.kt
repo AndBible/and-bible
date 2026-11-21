@@ -57,11 +57,16 @@ suspend fun resolveKeyChooserOpening(
  * Makes [page]'s window the active one, so a key-chooser quick sheet opened for it answers it: the sheets read and
  * apply to the active window. Every Bible/commentary key-chooser entry point opens the passage sheet (#4169), also one
  * asked for by a window that is not active (the page's Ctrl+B in another pane, `CurrentPageManager`'s auto-open).
+ *
+ * Returns whether the sheet may be shown. A window that is closed, minimised or hidden behind a maximised window is
+ * not on screen: it is left alone (the user's active window does not change) and no sheet is opened for it, e.g. when
+ * an AI tool switches a background window to another document.
  */
 @kotlin.native.HiddenFromObjC
-fun activateWindowOf(page: CurrentPage) {
+fun activateWindowOf(page: CurrentPage): Boolean {
     val window = page.pageManager.window
     val repository = window.windowRepository
-    // A window closed (or a workspace switched away) since the chooser was asked for is not activated.
-    if (repository.activeWindow !== window && window in repository.windowList) repository.activeWindow = window
+    if (window !in repository.windowList || !window.isVisible) return false
+    if (repository.activeWindow !== window) repository.activeWindow = window
+    return true
 }

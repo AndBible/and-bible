@@ -47,7 +47,8 @@ class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?
     /**
      * A Bible or commentary page's key chooser is the reading view's passage quick sheet, the one a title tap opens
      * (#4169): there is no full-screen book grid. The sheet answers the active window, so [page]'s window is activated
-     * first. Returns false, starting nothing, when [context] hosts no reading view to show the sheet on.
+     * first; a page whose window is not on screen opens no sheet. Returns false, starting nothing, when [context] hosts no
+     * reading view to show the sheet on (the launcher then has no reading host).
      */
     private fun startPassageSheet(page: CurrentPage, context: ActivityBase): Boolean {
         val host = (context as? NavHostComposeActivity)?.composeReadingViewHost
@@ -56,8 +57,7 @@ class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?
             return false
         }
         context.lifecycleScope.launch(Dispatchers.Main) {
-            activateWindowOf(page)
-            host.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
+            if (activateWindowOf(page)) host.showKeyChooserSheet(KeyChooserKind.Grid, emptyList())
         }
         return true
     }

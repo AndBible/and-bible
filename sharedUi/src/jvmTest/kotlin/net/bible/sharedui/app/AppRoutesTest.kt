@@ -64,6 +64,17 @@ class AppRoutesTest {
         assertEquals("documents/progressive", withoutRetiredRoute("documents/progressive"))
     }
 
+    /** #4169: a restored stale start route or EXTRA_ROUTE naming the removed full-screen passage grid opens reading. */
+    @Test
+    fun theRemovedPassageGridRouteOpensReading() {
+        for (stale in listOf("navigation/gridChoosePassage", "navigation/gridChoosePassage?isScripture=true")) {
+            assertEquals(NavRoutes.READING, withoutRetiredRoute(stale), stale)
+            assertEquals(NavRoutes.READING, navHostStartRoute(null, stale, onMissing = { fail() }), stale)
+            assertEquals(NavRoutes.READING, navHostStartRoute(stale, null, onMissing = { fail() }), stale)
+        }
+        assertEquals("navigation/gridChoosePassageX", withoutRetiredRoute("navigation/gridChoosePassageX"))
+    }
+
     @Test
     fun missingDefaultsToReadingAndReports() {
         var missing = 0
