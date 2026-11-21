@@ -233,6 +233,31 @@ class KeyListChooserEntryPointsTest {
         assertEquals("Chapter 2", manager.currentPage.key?.getName())
     }
 
+    /** Closing the sheet of a page that already shows a key is a plain close: no history step. */
+    @Test fun dismissingTheSheetOfAPageWithAKeyStays() = withHost { host, control ->
+        val page = pageOf(control, GEN_BOOK)
+        ctrlKeyB(host, control)
+        assertKeyListSheet(host, KeyChooserKind.GeneralBook, awaitChooser(host))
+        host.hostState.closeQuickSheet()
+        Snapshot.sendApplyNotifications()
+        delay(500)
+        val manager = control.activeWindow.pageManager
+        assertSame(page, manager.currentPage)
+        assertEquals("Part 1", manager.currentPage.key?.getName())
+    }
+
+    /** Another sheet replacing the auto-opened one (a second chooser opening) is not this chooser's cancel. */
+    @Test fun aSheetReplacedByAnotherIsNotACancel() = withHost { host, control ->
+        HostRootLinks.attachReading(host.navigator, { _, _ -> false })
+        val manager = control.activeWindow.pageManager
+        manager.setCurrentDocument(book(GEN_BOOK))
+        assertKeyListSheet(host, KeyChooserKind.GeneralBook, awaitChooser(host))
+        host.hostState.showDocumentSheet()
+        Snapshot.sendApplyNotifications()
+        delay(500)
+        assertSame(manager.currentGeneralBook, manager.currentPage, "no history step while another sheet is up")
+    }
+
     @Test fun keyChooserLauncherOpensTheKeyListSheet() = withHost { host, control ->
         HostRootLinks.attachReading(host.navigator, { _, _ -> false })
         val started = KoinPlatform.getKoin().get<KeyChooserLauncher>().startKeyChooser(pageOf(control, GEN_BOOK))

@@ -38,6 +38,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.history.HistoryManager
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
 import net.bible.sharedcore.log.nsLog
@@ -51,11 +52,10 @@ import net.bible.sharedui.reading.bridge.ReadingNavigator
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.reading.toolbar.activateWindowOf
 import net.bible.sharedui.reading.toolbar.openKeyListSheet
-import net.bible.service.history.HistoryManager
-import org.koin.mp.KoinPlatform
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.book.Book
+import org.koin.mp.KoinPlatform
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 

@@ -187,7 +187,7 @@ class KeyListSheetEntryPointsTest {
         assertKeyListSheet(KeyChooserKind.Map)
     }
 
-    /** `ReadingCommands`' title tap on a map: the sheet, through the same opening the other entry points use. */
+    /** `ReadingCommands`' title tap on a map still opens the key-list sheet (its own direct opening, kept). */
     @Test fun readingCommandsTitleTapOpensTheSheetForAMap() {
         mapPage()
         activity.readingCommands.composeStartKeyChooser()
@@ -202,6 +202,20 @@ class KeyListSheetEntryPointsTest {
         shadowOf(Looper.getMainLooper()).idle()
         assertNull(host.quickSheet.value)
         assertNull(shadowOf(activity).nextStartedActivityForResult, "no full-screen chooser is started")
+    }
+
+    /** A reading view whose workspace does not own the asking page (another live host's) shows nothing. */
+    @Test fun aPageOfAnotherHostsWorkspaceIsNotShownHere() {
+        val foreign = net.bible.test.testWindowRepository()
+        try {
+            foreign.initializeAtEdge()
+            val page = opened(genBook, foreign.activeWindow.pageManager)
+            assertEquals(false, launcher(page))
+            shadowOf(Looper.getMainLooper()).idle()
+            assertNull(host.quickSheet.value)
+        } finally {
+            windowControl.windowRepository = windowRepository
+        }
     }
 
     @Test fun anInactiveWindowsChooserActivatesItAndOpensTheSheet() {

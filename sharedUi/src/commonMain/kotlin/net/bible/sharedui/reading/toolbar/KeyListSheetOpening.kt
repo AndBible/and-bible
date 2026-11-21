@@ -41,9 +41,10 @@ private const val TAG = "KeyListSheetOpening"
  * Must be called on the main thread. The keys are resolved once, off-main, from [page] itself (an EPUB offers its table
  * of contents); a row's id is the index into them. The sheet reads and answers the ACTIVE window, so [page]'s window is
  * activated first ([activateWindowOf]); nothing opens when that window did not become active (closed, switched away
- * or refused), when [page] changed while the keys were resolved, or when there are no keys at all.
+ * or refused) or when [page] changed while the keys were resolved. With no keys at all nothing opens either, and a page
+ * without a key opens its document's first key instead (the full-screen choosers' fallback).
  *
- * Suspends until the sheet is gone. Left without a choice while [page] still has no key (an auto-open after switching
+ * Suspends until the sheet is gone. Closed without a choice while [page] still has no key (an auto-open after switching
  * to a book that was never opened), [onCancelledWithoutKey] runs: the full-screen choosers' cancel guard, which goes
  * back in history rather than leave an empty page.
  *
@@ -60,6 +61,9 @@ suspend fun openKeyListSheet(
     val keys = withContext(Dispatchers.Default) { keyListOf(page) }
     if (page.currentDocument != document) return false
     if (keys.isEmpty()) {
+        // Nothing to list (an EPUB without a table of contents): the full-screen choosers' fallback opens the book's
+        // first key rather than leave a book that has none on an empty page.
+        if (page.key == null && page.pageManager.currentPage === page) openFirstKeyOrGoBack(page, onCancelledWithoutKey)
         Log.w(TAG, "No keys to choose from in ${document?.initials}; no chooser shown.")
         return false
     }
@@ -71,11 +75,24 @@ suspend fun openKeyListSheet(
     }
     hostState.showKeyChooserSheet(kind, keys)
     val shown = hostState.quickSheet.value
-    // Compose state, observed through its apply notifications (sent by the running Compose UI every frame).
-    snapshotFlow { hostState.quickSheet.value }.first { it !== shown }
+    // Compose state, observed through its apply notifications (sent by the running Compose UI every frame). Only a
+    // close counts: another sheet replacing this one (a second chooser opening) is not this chooser's cancel.
+    val next = snapshotFlow { hostState.quickSheet.value }.first { it !== shown }
     // A picked key is applied in the same click that closes the sheet, so it is in place by now.
-    if (page.key == null && page.pageManager.currentPage === page) onCancelledWithoutKey()
+    if (next == null && page.key == null && page.pageManager.currentPage === page) onCancelledWithoutKey()
     return true
+}
+
+/** The removed full-screen choosers' empty-list answer: the document's first global key, else back in history. */
+private fun openFirstKeyOrGoBack(page: CurrentPage, onCancelledWithoutKey: () -> Unit) {
+    val document = page.currentDocument
+    val first = try {
+        document?.getGlobalKeyList()?.firstOrNull()
+    } catch (e: Exception) {
+        Log.w(TAG, "No global keys in ${document?.initials}", e)
+        null
+    }
+    if (document != null && first != null) page.pageManager.setCurrentDocumentAndKey(document, first) else onCancelledWithoutKey()
 }
 
 /** The key-list sheet kind of [page]: a map or a general book; null for every other page. */
