@@ -82,7 +82,7 @@ fun AbSyncJoinPlanDialog(
     initialChoices: Map<String, String> = emptyMap(),
 ) {
     var step by remember { mutableIntStateOf(initialStep) }
-    val chosen = remember(request) { mutableStateMapOf<String, String>().apply { request.rows.forEach { put(it.key, initialChoices[it.key] ?: request.defaultChoice) } } }
+    val chosen = remember { mutableStateMapOf<String, String>().apply { request.rows.forEach { put(it.key, initialChoices[it.key] ?: request.defaultChoice) } } }
     fun answer(value: String?) = request.choices.firstOrNull { it.value == value }
     val anyDestructive = request.rows.any { answer(chosen[it.key])?.destructive == true }
     val cancel = { onResult(AppDialogResult.Cancel) }
