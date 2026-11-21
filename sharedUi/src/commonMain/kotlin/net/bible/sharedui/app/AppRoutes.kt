@@ -115,12 +115,14 @@ private val RETIRED_ROUTE_BASES = setOf(
     "search/epub",
     "search/index",
     "search/indexProgress",
+    // #4174: the full-screen progress status.
+    "documents/progress",
 )
 
 /**
- * A start route naming a retired destination (the legacy search form, removed in #4164, and the EPUB search form, index prompt and index progress screens, removed in #4170) would make the NavHost throw
+ * A start route naming a retired destination (the legacy search form, removed in #4164, and the EPUB search form, index prompt and index progress screens, removed in #4170, and the full-screen progress status, removed in #4174) would make the NavHost throw
  * while building its graph, so it resolves to [NavRoutes.READING] instead: the reading view's own search sheet is what
- * every search entry point opens now. Any other route is returned unchanged.
+ * every search entry point opens now, and its activity list replaces the progress screen. Any other route is returned unchanged.
  */
 @kotlin.native.HiddenFromObjC
 fun withoutRetiredRoute(route: String): String =

@@ -251,11 +251,6 @@ class ScreenLauncherTest {
         assertEquals(NavRoutes.installZip(), ScreenLauncher.MIGRATED[Screen.InstallZip])
     }
 
-    @Test
-    fun progressStatus_routes_to_the_nav_graph() {
-        assertEquals(NavRoutes.progressStatus(), ScreenLauncher.MIGRATED[Screen.ProgressStatus])
-    }
-
     // ——— slice 8 B7: the seven slice-7 screens route to the nav graph ———————————————————————————
     // Task F6 deleted their Activities; targetFor throws for all seven now, and MIGRATED is what intentFor reads.
 

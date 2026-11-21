@@ -34,7 +34,7 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
  * Activity that no longer exists. Reaching them is a host call (`showHistorySheet()`,
  * `showSpeakTransport()`), not a launch.
  */
-enum class Screen { Calculator, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
+enum class Screen { Calculator, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup }
 
 /**
  * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
@@ -156,14 +156,6 @@ object ScreenLauncher {
         // absent here and falls through to targetFor instead, which now throws (nav-graph slice 4
         // Task 9 deleted classic CustomRepositoryEditorComposeActivity).
         Screen.CustomRepositories to NavRoutes.customRepositories(),
-        // — nav-graph slice 4, Task 4: the notification-launched progress screen —
-        // The ARGUMENT-FREE progress-status route, correctly so: classic
-        // ProgressStatusComposeActivity read no extras at all, and its only inbound edge --
-        // ProgressNotificationManager's getActivity PendingIntent -- cannot carry one either. This
-        // is the whole point of the seam: intentFor now returns a nav-host Intent carrying
-        // EXTRA_ROUTE instead of an Intent naming the classic Activity directly, with no change to
-        // ProgressNotificationManager itself.
-        Screen.ProgressStatus to NavRoutes.progressStatus(),
         // — nav-graph slice 4, Task 6: the My-Documents list —
         // The ARGUMENT-FREE My-Documents route, correctly so: NavRoutes.MY_DOCUMENTS_PATTERN takes
         // no argument at all, and classic MyDocumentsComposeActivity read no extras either. This
@@ -251,7 +243,6 @@ object ScreenLauncher {
         Screen.CustomRepositories -> targetForMigratedScreen(screen)
         Screen.CustomRepositoryEditor -> targetForMigratedScreen(screen)
         Screen.Backup -> targetForMigratedScreen(screen)
-        Screen.ProgressStatus -> targetForMigratedScreen(screen)
     }
 
     /**

@@ -413,36 +413,6 @@ class NavHostRoutingGuardTest {
     }
 
     /**
-     * nav-graph slice 4, Task 4. The ARGUMENT-FREE progress-status route is correct:
-     * `ProgressStatusComposeActivity` read no extras at all, and its only inbound edge is a
-     * getActivity `PendingIntent` from `ProgressNotificationManager`, which cannot carry one
-     * either -- same shape as [settingsResolvesToTheNavHostCarryingItsRoute] and
-     * [customRepositoriesResolvesToTheNavHostCarryingItsRoute].
-     */
-    @Test
-    fun progressStatusResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
-        val intent = ScreenLauncher.intentFor(context, Screen.ProgressStatus)
-        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
-        assertEquals(NavRoutes.progressStatus(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
-    }
-
-    /**
-     * The host is `launchMode="singleTop"`
-     * ([theNavHostIsSingleTopSoAHistoryRevertCannotShowAnotherClustersScreen]), so a notification
-     * tap while the host is already open lands in `onNewIntent` -> `navigateToRoute`, which needs
-     * the pattern registered by SOME graph -- not just resolvable through [ScreenLauncher.MIGRATED].
-     */
-    @Test
-    fun progressStatusPatternIsRegisteredByAGraph() {
-        val registered = registeredRoutePatterns()
-        assertTrue(
-            NavRoutes.PROGRESS_STATUS_PATTERN in registered,
-            "no *NavGraph.kt registers NavRoutes.PROGRESS_STATUS_PATTERN, so a notification tap " +
-                "while the host is already open cannot navigate to it. Registered: ${registered.sorted()}",
-        )
-    }
-
-    /**
      * nav-graph slice 4, Task 6. `Screen.MyDocuments` was the batch's last direct
      * `ScreenLauncher.targetFor` caller (`MyDocumentsComposeActivity.kt:215`, inside `openDocument`)
      * -- once it went into [ScreenLauncher.MIGRATED], `intentFor` never fell through to `targetFor`
@@ -1191,7 +1161,7 @@ class NavHostRoutingGuardTest {
          * the extra was always read there, the CALLER just used to build a `MainBibleActivity`
          * intent. Keep this list to extras a reader can point at an `intent.get*Extra` for.
          */
-        val EXTRAS_THE_NAV_HOST_READS = setOf("openLink")
+        val EXTRAS_THE_NAV_HOST_READS = setOf("openLink", "net.bible.android.openActivityList")
     }
 
     /**

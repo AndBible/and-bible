@@ -11,7 +11,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +29,7 @@ import net.bible.sharedcore.nav.NavRoutes
  * What a reading host needs to show background activity (#4007): the registry, the user's preference and what a
  * tapped row does. A host that leaves this out (`null`) renders today's toolbar.
  *
- * @param listRequests each emission opens the full list when the preference is on (a desktop notification click, #4012)
+ * @param listRequests each emission opens the full list, also when the preference is off (a notification click, #4012, #4174)
  * @param onOpenItem routes a tapped row to existing navigation (download screen, sync settings); other rows do nothing.
  * Kept last so Android's trailing-lambda call `ActivityHostWiring(center, preference) { ... }` still compiles.
  */
@@ -103,7 +102,9 @@ internal fun ActivityHostImpl(
     val unread = wiring.center.unreadFailures.collectAsState()
     val badge = wiring.center.badge.collectAsState()
     var listVisible by remember { mutableStateOf(false) }
-    val onShowAll = remember { { listVisible = true } }
+    // Opened from the menu (which exists only while the preference is on) vs. by a request such as a notification tap.
+    var listFromMenu by remember { mutableStateOf(false) }
+    val onShowAll = remember { { listFromMenu = true; listVisible = true } }
     val sync = wiring.syncNow
     val available = remember(sync, wiring) {
         object : State<Boolean> {
@@ -118,12 +119,11 @@ internal fun ActivityHostImpl(
         { wiring.center.markAllRead() }
     }
 
-    // Turning the preference off must not leave the list orphaned on screen.
-    LaunchedEffect(enabled) { if (!enabled) listVisible = false }
+    // Turning the preference off must not leave a menu-opened list orphaned on screen.
+    LaunchedEffect(enabled) { if (!enabled && listFromMenu) listVisible = false }
 
-    // A request while the preference is off is dropped, not remembered.
-    val enabledNow by rememberUpdatedState(enabled)
-    LaunchedEffect(wiring.listRequests) { wiring.listRequests?.collect { if (enabledNow) listVisible = true } }
+    // A request opens the list whether or not the menu item is shown (#4174: a notification tap must lead somewhere).
+    LaunchedEffect(wiring.listRequests) { wiring.listRequests?.collect { listFromMenu = false; listVisible = true } }
 
     val state = remember(enabled, items, unread, badge, onShowAll, onMenuOpened, syncState, wiring) {
         if (enabled) ActivityMenuState(
@@ -131,7 +131,7 @@ internal fun ActivityHostImpl(
         ) else null
     }
     content(state)
-    if (enabled && listVisible) {
+    if (listVisible) {
         ActivityListLayer(
             items = items,
             wiring = wiring,

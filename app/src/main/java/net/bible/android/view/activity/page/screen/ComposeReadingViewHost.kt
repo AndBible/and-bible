@@ -1429,7 +1429,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private fun activityWiring(): ActivityHostWiring? {
         val center = getKoin().getOrNull<ActivityCenter>() ?: return null
         val preference = getKoin().getOrNull<ActivityMenuPreference>() ?: return null
-        return ActivityHostWiring(center, preference, syncNow = getKoin().get(), reporter = getKoin().getOrNull(), onOpenAgent = { id ->
+        return ActivityHostWiring(center, preference, listRequests = getKoin().getOrNull<net.bible.android.control.activity.ActivityListRequests>()?.requests, syncNow = getKoin().get(), reporter = getKoin().getOrNull(), onOpenAgent = { id ->
             hostScope.launch {
                 if (activity.hostWindowRepository.id != id) activity.readingCommands.quickSwitchToWorkspace(id.toString())
                 if (activity.hostWindowRepository.id == id) {

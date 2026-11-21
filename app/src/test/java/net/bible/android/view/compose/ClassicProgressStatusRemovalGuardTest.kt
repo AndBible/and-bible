@@ -73,11 +73,4 @@ class ClassicProgressStatusRemovalGuardTest {
                 "android:parentActivityName; the latter compiles, tests and renders fine while " +
                 "pointing Up at a class that does not exist",
         )
-
-    @Test fun theProgressStatusArmIsUnconditional() =
-        ClassicRemovalScan.assertLauncherArmsUnconditional(
-            listOf("Screen.ProgressStatus"),
-            "the ProgressStatus arm still branches; slice S19 deleted the classic " +
-                "class it would branch to",
-        )
 }
