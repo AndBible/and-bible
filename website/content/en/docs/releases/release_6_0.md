@@ -63,6 +63,9 @@ See [Platform differences](../platform_differences.md).
     setting you want is easier to find.
 - **Links in the text:** on iOS and desktop, AndBible asks before opening an external link you tapped.
 - **Reading plans** are included in synchronization.
+- **Home-screen widgets:** on Android the Speak widgets are redesigned and a new Verse widget shows a verse every
+    day; iPhone and iPad have the same widgets, and iPhone adds Lock Screen widgets. See
+    [Home-screen widgets](../platform_differences.md#speak-widgets).
 - **Windows and Linux:** the desktop app uses WebView2 on Windows and Chromium (KCEF) on Linux,
     and installs as an MSI, `.deb` or AppImage. See [Windows and Linux](../desktop.md).
 
