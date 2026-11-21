@@ -517,24 +517,17 @@ class ReadingCommands(
     }
 
     /**
-     * The Compose toolbar title's TAP. Round 15b Task 9: with a Compose host mounted, the three key
-     * choosers simple enough for a sheet (`KeyChooserRoute`, spec §4.6) now open over the reading
-     * view instead of starting their full screen; everything else takes the classic path below,
-     * unchanged.
+     * The Compose toolbar title's TAP. With a Compose host mounted, the key choosers simple enough
+     * for a sheet (`KeyChooserRoute`, spec §4.6) open over the reading view; everything else goes
+     * through [net.bible.android.platform.AndroidKeyChooserLauncher], the entry every other key-chooser
+     * caller uses too.
      *
-     * Three separate conditions fall through to the classic path. Two are real cases, not
-     * belt-and-braces: a page shape `KeyChooserRoute` deliberately keeps on its own screen
-     * (dictionary, StudyPad, my-document, multi-document), and a chosen kind whose key list is
-     * EMPTY — where both chooser activities apply a fallback selection and finish without drawing
-     * anything, which a sheet cannot reproduce (E3). The third, no host mounted yet, is defensive
-     * rather than reachable in practice: this method's only caller is the Compose toolbar's title
-     * tap ([ComposeReadingViewHost.install]'s `onTitleTap`), wired inside `install()` itself, so the
-     * host is already non-null by the time this can fire.
-     *
-     * The `KeyChooserLauncher` fallback preserves `CurrentPageManager`'s auto-open behavior. (`BibleJavascriptInterface.refChooserDialog`, which this
-     * note used to list alongside it because it needed an Activity result, no longer does:
-     * nav-graph slice 7 Task 10 moved it onto [ComposeReadingViewHost.openVerseChooserSheetForResult],
-     * a `CompletableDeferred` the sheet's own selection callback completes.)
+     * Three conditions fall through to the launcher: a page shape `KeyChooserRoute` deliberately keeps
+     * on its own screen (dictionary, StudyPad, my-document, multi-document); a map or general book
+     * whose key list is EMPTY, for which the launcher shows nothing either (#4172: there is no
+     * full-screen map or general-book chooser any more, and an empty sheet with only a ✕ would be no
+     * better); and no host mounted yet, which is defensive rather than reachable: this method's only
+     * caller is the Compose toolbar's title tap, wired inside `ComposeReadingViewHost.install()`.
      */
     internal fun composeStartKeyChooser() {
         val host = composeReadingViewHost

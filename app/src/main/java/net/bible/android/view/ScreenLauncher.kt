@@ -34,7 +34,7 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
  * Activity that no longer exists. Reaching them is a host call (`showHistorySheet()`,
  * `showSpeakTransport()`), not a launch.
  */
-enum class Screen { Calculator, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, ChooseDocument, Download, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup }
+enum class Screen { Calculator, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseDictionaryWord, ChooseDocument, Download, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup }
 
 /**
  * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
@@ -171,15 +171,13 @@ object ScreenLauncher {
         // until nav-graph slice 4 Task 9 deleted it and pointed the arm at targetForMigratedScreen,
         // the same shape Screen.CustomRepositories now shares.
         Screen.CloudDocuments to NavRoutes.cloudDocuments(),
-        // — nav-graph slice 8, Task B7: slice 7's seven destinations —
+        // — nav-graph slice 8, Task B7: slice 7's destinations (the general-book and map key choosers left in #4172) —
         // Every live caller builds its route directly (B3-B6); these rows are the routing default for
         // a bare Screen.X. Each argument-free form is a real state, not a missing argument:
         //  - ChooseDocument: no type means "the saved filter" (chooseDocumentInitialTypeFilter).
         //  - TextDisplaySettings: no scope means GLOBAL, exactly what a bare classic launch opened
         //    (TextDisplaySettingsComposeActivityBareIntentTest).
         // Their targetFor arms keep the Activity bodies until Task F6 deletes the Activities.
-        Screen.ChooseGeneralBookKey to NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
-        Screen.ChooseMapKey to NavRoutes.CHOOSE_MAP_KEY,
         Screen.ChooseDictionaryWord to NavRoutes.CHOOSE_DICTIONARY_WORD,
         Screen.ChooseDocument to NavRoutes.chooseDocument(),
         Screen.WorkspaceSelector to NavRoutes.WORKSPACE_SELECTOR,
@@ -201,8 +199,6 @@ object ScreenLauncher {
         Screen.ReadingPlanSelector -> targetForMigratedScreen(screen)
         Screen.DailyReadingList -> targetForMigratedScreen(screen)
         Screen.ReadingPlan -> targetForMigratedScreen(screen)
-        Screen.ChooseGeneralBookKey -> targetForMigratedScreen(screen)
-        Screen.ChooseMapKey -> targetForMigratedScreen(screen)
         Screen.ChooseDictionaryWord -> targetForMigratedScreen(screen)
         Screen.ChooseDocument -> targetForMigratedScreen(screen)
         Screen.Download -> targetForMigratedScreen(screen)

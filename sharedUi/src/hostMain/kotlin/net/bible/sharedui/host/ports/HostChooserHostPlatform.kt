@@ -21,17 +21,12 @@ package net.bible.sharedui.host.ports
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.BackupHost
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.page.CurrentGeneralBookPage
-import net.bible.android.control.page.CurrentMapPage
 import net.bible.android.view.activity.navigation.DocRowMapper
-import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedui.app.chooser.ChooserHostPlatform
@@ -39,7 +34,6 @@ import net.bible.sharedui.app.chooser.ChooserOverflowItem
 import net.bible.sharedui.icons.AbIcons
 import net.bible.sharedui.strings.keyed.StringTable
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.passage.Key
 import org.jetbrains.compose.resources.painterResource
 import org.koin.core.Koin
 
@@ -53,11 +47,6 @@ class HostChooserHostPlatform(
     override fun backupModules() {
         hostScope.launch { koin.get<BackupControl>().backupModulesViaIntent(koin.get<BackupHost>()) }
     }
-
-    override suspend fun generalBookKeys(page: CurrentGeneralBookPage): List<Key> =
-        withContext(Dispatchers.IO) { page.keyChooserKeys() }
-
-    override fun mapKeys(page: CurrentMapPage): List<Key> = page.keyChooserKeys()
 
 
     override fun docRows(books: List<Book>): List<DocRow> {

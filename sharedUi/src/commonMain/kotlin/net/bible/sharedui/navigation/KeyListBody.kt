@@ -18,7 +18,6 @@ package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,28 +31,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import net.bible.sharedcore.navigation.ChooserError
 import net.bible.sharedcore.navigation.KeyRow
-import net.bible.sharedui.components.AbErrorDialog
-import net.bible.sharedui.components.AbScaffold
-import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.volumeScrollTarget
 
 /**
- * A single-line key list with current-item highlight + initial scroll. Reused shape for the key
- * choosers — by the two full screens in this file and in `MapKeyScreen.kt` and, since round 15b, by
- * their quick-sheet form in `ComposeReadingViewHost` (spec §4.6). Public rather than internal for
- * that third caller and for its golden.
+ * A single-line key list with current-item highlight + initial scroll: the body of the map and
+ * general-book key-list quick sheet (`QuickSheets.kt`), which every map and general-book key-chooser
+ * entry point opens (#4172: the full-screen choosers are gone). Public for its golden.
  *
  * [listState] is a parameter, not a private `remember`, for the sheet's sake: the quick-sheet shell
  * draws its bottom fade from a `canScrollForward` lambda it is handed, so the host has to pass the
  * body's OWN state or the fade can never appear (`AbSheetChrome.kt` — `canScrollForward` is read in
- * the draw phase). The two full screens keep the default and are unaffected.
+ * the draw phase).
  *
  * The `LazyColumn` sizes to CONTENT, not to `fillMaxSize` — under the sheet's
  * `heightIn(max = AbSheetContentMaxHeight)` a `fillMaxSize` here would set minHeight = maxHeight and
  * pin a five-row map list at 400dp (`WorkspaceQuickContent`'s I2 review fix records the same trap).
- * The two full screens pass `fillMaxSize` themselves, so their layout is unchanged.
  */
 @Composable
 fun KeyListBody(
@@ -80,24 +73,5 @@ fun KeyListBody(
                     .padding(horizontal = 16.dp, vertical = 14.dp),
             )
         }
-    }
-}
-
-@Composable
-fun ChooseGeneralBookKeyScreen(
-    title: String,
-    rows: List<KeyRow>,
-    currentKeyId: String?,
-    error: ChooserError?,
-    onSelect: (String) -> Unit,
-    onDismissError: () -> Unit,
-    onNavigateUp: () -> Unit,
-) {
-    val strings = LocalStrings.current
-    AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
-        KeyListBody(rows, currentKeyId, onSelect, Modifier.padding(padding).fillMaxSize())
-    }
-    if (error != null) {
-        AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)
     }
 }

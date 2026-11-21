@@ -66,6 +66,14 @@ chapter), you can enable the *Navigate to verse* option in Application preferenc
 Now after selecting the chapter number, you will be prompted to choose the exact
 verse number you would like to open.
 
+### General Books and Maps
+
+In a general book (other than a StudyPad or one of your own documents) or a map, the title, the
+same keyboard shortcuts and a switch to a book that
+has not been opened yet all open a list of the book's entries (for an EPUB, its table of contents)
+as a sheet over the reading view instead. Pick an entry to open it; closing the list without a
+choice after switching to such a book returns you to where you were.
+
 ## The Reading Toolbar {#the-reading-toolbar}
 
 The toolbar at the top of the reading screen has these parts, from left to right:

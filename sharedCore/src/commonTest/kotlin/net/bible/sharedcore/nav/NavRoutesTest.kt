@@ -198,8 +198,6 @@ class NavRoutesTest {
     @Test
     fun argumentFreeRoutesAreStableStrings() {
         assertEquals("reading", NavRoutes.READING)
-        assertEquals("navigation/chooseGeneralBookKey", NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
-        assertEquals("navigation/chooseMapKey", NavRoutes.CHOOSE_MAP_KEY)
         assertEquals("navigation/chooseDictionaryWord", NavRoutes.CHOOSE_DICTIONARY_WORD)
         assertEquals("workspaces/selector", NavRoutes.WORKSPACE_SELECTOR)
     }

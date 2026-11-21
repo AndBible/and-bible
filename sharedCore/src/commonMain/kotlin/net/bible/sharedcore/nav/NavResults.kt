@@ -122,12 +122,10 @@ sealed interface MyDocumentPagesResult {
 }
 
 /**
- * What the three KEY choosers -- `ChooseGeneralBookKey`, `ChooseMapKey`, `ChooseDictionaryWord` --
- * hand back. ONE type and, on `ChooserNavDeps`, one channel for
- * all three (design §6.2): their three classic result `Intent`s are deliberately identical, and
- * `MainBibleActivity.onActivityResult` dispatches all of them through the single
- * `ActivityResultKind.GenBookKey` arm into `applyChosenGenBookKey`. Three channels would be three
- * ways to say the same thing.
+ * What the dictionary word chooser hands back, on `ChooserNavDeps`' key channel. It once also carried
+ * the full-screen general-book and map key choosers' answers (removed by #4172: those keys are chosen
+ * in the reading view's key-list quick sheet), which is why it has their shapes too; the consumer
+ * still reads it through `MainBibleActivity`'s `ActivityResultKind.GenBookKey` arm shape.
  *
  * Two shapes in one flat type, mirroring the extras rather than inventing a sealed hierarchy (the
  * reason [BookmarkResult] is flat too -- the Intent itself carries one optional field per shape):

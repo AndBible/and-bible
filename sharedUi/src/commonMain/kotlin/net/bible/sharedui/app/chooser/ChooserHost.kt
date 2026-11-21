@@ -20,24 +20,19 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
-import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade.Companion.readOsisFragment
-import net.bible.service.sword.nameWithoutDocument
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.navigation.ChooseDictionaryWordController
-import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
-import net.bible.sharedcore.navigation.ChooseMapKeyController
 import net.bible.sharedcore.navigation.DictRow
 import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
-import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedui.app.HostShell
@@ -48,8 +43,6 @@ import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.navigation.nav.ChooseDictionaryWordDeps
 import net.bible.sharedui.navigation.nav.ChooseDocumentDeps
-import net.bible.sharedui.navigation.nav.ChooseGeneralBookKeyDeps
-import net.bible.sharedui.navigation.nav.ChooseMapKeyDeps
 import net.bible.sharedui.navigation.nav.ChooserNavDeps
 import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.book.Book
@@ -112,9 +105,9 @@ internal fun chooseDocumentInitialTypeFilter(type: String?, settings: AppSetting
 }
 
 /**
- * The chooser cluster's deps builder and host baggage: general book key, map key, dictionary word and choose
- * document. Ported from the classic chooser Activities (the full-screen passage grid is gone, #4169: Bible and
- * commentary keys are chosen in the reading view's passage quick sheet).
+ * The chooser cluster's deps builder and host baggage: dictionary word and choose document. Ported from the classic
+ * chooser Activities (the full-screen passage grid is gone, #4169, and the general-book and map key screens, #4172:
+ * those keys are chosen in the reading view's quick sheets).
  *
  * `KeyChooserResults` is a frozen `page` contract (A/B boundary), so the result channels stay declared in the
  * activity (the reading destination's collectors read them) and are passed to [navDeps]. Every service sits behind a
@@ -151,17 +144,6 @@ class ChooserHost(
         setWindowTitle = { title -> shell.setWindowTitle(title) },
         keyChooserResults = keyChooserResults,
         documentResults = documentResults,
-        chooseGeneralBookKey = ChooseGeneralBookKeyDeps(
-            // Classic's manifest android:label AND the screen's own title.
-            title = strings.generalBookTitle,
-            controllerFor = { onResult -> chooseGeneralBookKeyControllerFor(onResult) },
-            emptyResult = { generalBookKeyResult(null) },
-        ),
-        chooseMapKey = ChooseMapKeyDeps(
-            title = strings.docTypeMaps,
-            controllerFor = { onResult -> chooseMapKeyControllerFor(onResult) },
-            emptyResult = { mapKeyResult(null) },
-        ),
         chooseDictionaryWord = ChooseDictionaryWordDeps(
             title = strings.dictionaryTitle,
             hint = strings.search,
@@ -179,90 +161,6 @@ class ChooserHost(
         ),
     )
 
-    // ——— ChooseGeneralBookKey ————————————————————————————————————————————————————————————————————
-
-    /** Classic `ChooseGeneralBookKeyComposeActivity.page` (`:43-44`) -- a GETTER, not a captured value, so every
-     *  read sees the currently active window's general book exactly as classic did. */
-    private val chooseGeneralBookPage get() = windowControl.activeWindowPageManager.currentGeneralBook
-
-    /**
-     * Classic `buildResult` (`:49-61`) with the `Intent` removed: the same two shapes, the same fallback
-     * (`doc!!.globalKeyList.first()` when no key was chosen, double-bang included -- it is classic's, and this
-     * is a port, not a fix), minus the `ActivityResultKind.GenBookKey` tag, which named the INTENT's shape to
-     * `MainBibleActivity`'s dispatcher and has no meaning in-graph.
-     */
-    private fun generalBookKeyResult(key: Key?, doc: Book? = chooseGeneralBookPage.currentDocument): KeyChooserResult {
-        return if (key is BookAndKey) {
-            KeyChooserResult(bookAndKeyJson = key.serialized)
-        } else {
-            KeyChooserResult(
-                key = key?.getOsisRef() ?: doc!!.getGlobalKeyList().first().getOsisRef(),
-                book = doc?.initials,
-            )
-        }
-    }
-
-    /**
-     * Null exactly where classic's `onCreate` returned early on an EMPTY key list (`:77-83`); the arm then
-     * delivers [generalBookKeyResult] with a null key, which is classic's own fallback.
-     *
-     * The key list is a LOCAL closed over by the controller this call returns, never a host field: the destination
-     * is per-entry, so two entries of this route alive at once would share a single host field and the popped-back
-     * controller would resolve its `KeyRow.keyId` -- a plain INDEX -- against the other entry's list and publish
-     * the wrong `osisRef`. A local cannot be cross-wired.
-     */
-    private suspend fun chooseGeneralBookKeyControllerFor(
-        onResult: (KeyChooserResult) -> Unit,
-    ): ChooseGeneralBookKeyController? {
-        val page = chooseGeneralBookPage
-        val document = page.currentDocument
-        val currentKey = page.key
-        val keys = platform.generalBookKeys(page)
-        if (chooseGeneralBookPage !== page || page.currentDocument != document) throw CancellationException("Chooser page changed")
-        if (keys.isEmpty()) return null
-        return ChooseGeneralBookKeyController(
-            loadRows = {
-                keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) }
-            },
-            currentRow = {
-                currentKey?.let { cur ->
-                    keys.indexOf(cur).takeIf { it >= 0 }?.toString()
-                }
-            },
-            onSelect = { keyId ->
-                onResult(generalBookKeyResult(keys.getOrNull(keyId.toIntOrNull() ?: -1), document))
-            },
-        )
-    }
-
-    // ——— ChooseMapKey ————————————————————————————————————————————————————————————————————————————
-
-    /** Classic `ChooseMapKeyComposeActivity.page` (`:42-43`). */
-    private val chooseMapPage get() = windowControl.activeWindowPageManager.currentMap
-
-    /** Classic `buildResult` (`:47-53`): `key`+`book` unconditionally -- the map chooser never produces a
-     *  `bookAndKey`, unlike [generalBookKeyResult]. */
-    private fun mapKeyResult(key: Key?): KeyChooserResult = KeyChooserResult(
-        key = key?.getOsisRef(),
-        book = chooseMapPage.currentDocument?.initials,
-    )
-
-    /** Null on an empty key list, classic `:69-74` -- see [chooseGeneralBookKeyControllerFor], whose kdoc also
-     *  covers why the key list is a local of this call rather than a host field. */
-    private fun chooseMapKeyControllerFor(onResult: (KeyChooserResult) -> Unit): ChooseMapKeyController? {
-        val keys = platform.mapKeys(chooseMapPage)
-        if (keys.isEmpty()) return null
-        return ChooseMapKeyController(
-            loadRows = { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } },
-            currentRow = {
-                chooseMapPage.key?.let { cur -> keys.indexOf(cur).takeIf { it >= 0 }?.toString() }
-            },
-            onSelect = { keyId ->
-                onResult(mapKeyResult(keys.getOrNull(keyId.toIntOrNull() ?: -1)))
-            },
-        )
-    }
-
     // ——— ChooseDictionaryWord ————————————————————————————————————————————————————————————————————
 
     /** Classic `ChooseDictionaryWordComposeActivity.page` (`:49`). */
@@ -274,8 +172,7 @@ class ChooserHost(
      *
      * A session rather than host fields, for [ChooseDocumentSession]'s reason: the destination is per-entry, so a
      * host field shared by two live entries would let a popped-back controller resolve its `keyId` against the
-     * other entry's list. The two key choosers above close their list over the controller instead; this one
-     * cannot, because [loadChooseDictionaryRows] WRITES the list and [chooseDictionarySnippet] reads it, and both
+     * other entry's list. A chooser could close its list over its controller instead; this one cannot, because [loadChooseDictionaryRows] WRITES the list and [chooseDictionarySnippet] reads it, and both
      * are deps slots with frozen signatures that carry no controller.
      */
     private class ChooseDictionarySession {
@@ -286,7 +183,7 @@ class ChooserHost(
     private var chooseDictionarySession: ChooseDictionarySession? = null
 
     /** Null where classic finished immediately with NO result -- `page.currentDocument == null` (`:72`). Unlike
-     *  the two key choosers above there is no fallback key to hand back. */
+     *  the removed general-book and map key choosers there is no fallback key to hand back. */
     private fun chooseDictionaryWordControllerFor(
         onResult: (KeyChooserResult) -> Unit,
     ): ChooseDictionaryWordController? {
@@ -297,7 +194,7 @@ class ChooserHost(
             onSelect = { keyId ->
                 val key = session.keys.getOrNull(keyId.toIntOrNull() ?: -1)
                     ?: return@ChooseDictionaryWordController
-                // Classic `:58-63`: the dictionary shares ChooseGeneralBookKey's result shape.
+                // Classic `:58-63`: the dictionary shares the general-book key result shape.
                 onResult(
                     KeyChooserResult(
                         key = key.getOsisRef(),

@@ -24,8 +24,7 @@ import org.junit.Test
 class SliceEightCallerGuardTest {
 
     private val screens = listOf(
-        "ChooseDocument", "ChooseDictionaryWord", "ChooseGeneralBookKey",
-        "ChooseMapKey", "WorkspaceSelector", "TextDisplaySettings",
+        "ChooseDocument", "ChooseDictionaryWord", "WorkspaceSelector", "TextDisplaySettings",
     )
 
     private val excludedFiles = setOf("ScreenLauncher.kt")
