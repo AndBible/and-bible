@@ -466,4 +466,38 @@ class LabelAssignSheetHostTest {
         val answer = ManageLabelsContract.ManageLabelsData.fromJSON((asked.outcome as LabelAssignOutcome.Assigned).data)
         assertEquals(blue.id, answer.bookmarkPrimaryLabel)
     }
+
+    /** Review round 2: a long press on a label that is gone opens nothing; the sheet comes back instead of staying hidden. */
+    @Test
+    fun anEditorThatCannotOpenShowsTheSheetAgain() {
+        val activity = host()
+        val red = label("Red")
+        val asked = ask(activity, assignPayload(setOf(red.id)))
+        val (sheet, _) = openSheet(activity.appHosts.bookmark)
+
+        sheet.editLabel(IdType().toString())
+        idleUntil("the sheet to come back") { sheet.phase == LabelAssignSheetSession.Phase.OPEN }
+        assertEquals(NavRoutes.BACKUP, navController(activity).currentBackStackEntry?.destination?.route)
+        sheet.dismiss()
+        idleUntil("the request to end") { asked.outcome != null }
+    }
+
+    /** Review round 2: a requester cancelled while its sheet's editor is open closes that editor too. */
+    @Test
+    fun cancellingTheRequestWhileTheEditorIsOpenClosesTheEditor() {
+        val activity = host()
+        val red = label("Red")
+        val host = activity.appHosts.bookmark
+        val asked = ask(activity, assignPayload(setOf(red.id)))
+        val (sheet, _) = openSheet(host)
+        sheet.newLabel()
+        editorPayload(activity)
+
+        asked.job.cancel()
+        idleUntil("the editor to close") {
+            navController(activity).currentBackStackEntry?.destination?.route == NavRoutes.BACKUP
+        }
+        assertNull(host.labelAssignSheets.current)
+        assertNull(labelEditResults(activity).pending.value)
+    }
 }

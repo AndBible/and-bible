@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
@@ -1449,14 +1450,13 @@ class BookmarkHost(
         request: LabelAssignSheetRequests.Request,
     ): Pair<LabelAssignSheetSession, ManageLabelsController> {
         lateinit var sheet: LabelAssignSheetSession
+        // A memo for the same payload belongs to an earlier sheet whose requester was cancelled while its save ran:
+        // reusing it would keep that sheet's answer callback. Its save still finishes on its own session.
+        if (manageLabelsSession?.first == request.data) manageLabelsSession = null
         val controller = manageLabelsControllerFor(
             request.data,
-            onEditLabel = { payload ->
-                val nav = navController ?: return@manageLabelsControllerFor
-                labelEditResults?.consume() // a stale answer must not be taken for this editor's
-                sheet.onEditorOpened()
-                nav.navigate(NavRoutes.labelEdit(payload))
-            },
+            // The sheet opens the editor itself (startEditor below), so it can tell when that fails.
+            onEditLabel = {},
             onResult = { result -> sheet.onSaved(result.data) },
         )
         val session = manageLabelsSession?.second?.takeIf { it.controller === controller }
@@ -1464,12 +1464,42 @@ class BookmarkHost(
             request = request,
             hasChanges = controller::hasChanges,
             save = controller::save,
-            startEditor = { id -> if (id == null) controller.newLabel() else controller.editLabel(id) },
+            startEditor = { id ->
+                shell.hostScope.launch {
+                    val opened = try {
+                        val payload = session?.let { buildLabelEditPayload(it, id) }
+                        val nav = navController
+                        if (payload != null && nav != null) {
+                            labelEditResults?.consume() // a stale answer must not be taken for this editor's
+                            nav.navigate(NavRoutes.labelEdit(payload))
+                            true
+                        } else false
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e(TAG_MANAGE_LABELS, "Could not open the label editor from the assign sheet", e)
+                        false
+                    }
+                    if (!opened) sheet.onEditorFailed()
+                }
+            },
             applyEditorResult = ::applyLabelEditResult,
         )
         // A failed save delivers nothing: show the sheet again, so the user can retry or keep the ticks in view.
         session?.onSaveFailed = sheet::onSaveFailed
         return sheet to controller
+    }
+
+    /** Pops a label editor the assign sheet opened and drops its answer, once the sheet's request is gone. */
+    private fun closeOrphanedLabelEditor() {
+        val nav = navController ?: return
+        try {
+            if (nav.currentBackStackEntry?.destination?.route == NavRoutes.LABEL_EDIT_PATTERN) nav.popBackStack()
+        } catch (e: Exception) {
+            Log.e(TAG_MANAGE_LABELS, "Could not close the assign sheet's label editor", e)
+        }
+        labelEditResults?.consume()
+        manageLabelsSession?.second?.pendingEdit = null
     }
 
     /**
@@ -1483,7 +1513,11 @@ class BookmarkHost(
         val (sheet, controller) = remember(request) { assignSheetSessionFor(request) }
         DisposableEffect(sheet) {
             assignSheet = sheet
-            onDispose { if (assignSheet === sheet) assignSheet = null }
+            onDispose {
+                if (assignSheet === sheet) assignSheet = null
+                // The requester went away while the editor was open: the editor's answer has nobody to go to.
+                if (sheet.phase == LabelAssignSheetSession.Phase.EDITING) closeOrphanedLabelEditor()
+            }
         }
         val editorResults = labelEditResults
         if (editorResults != null) {

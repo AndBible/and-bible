@@ -39,8 +39,8 @@ import net.bible.sharedcore.nav.LabelEditResult
  *
  * @param hasChanges whether the sheet's working state differs from its seeds (`ManageLabelsController.hasChanges`)
  * @param save starts the save; its result arrives through [onSaved] or [onSaveFailed]
- * @param startEditor asks the controller for the editor (`null` = a new label); the host navigates once the editor's
- *   payload is built, and tells [onEditorOpened]
+ * @param startEditor opens the editor (`null` = a new label); the sheet is already [Phase.EDITING] when it is called.
+ *   A host that cannot open it (the label is gone, no navigation) calls [onEditorFailed]
  * @param applyEditorResult applies the editor's answer to the sheet's working state
  */
 @kotlin.native.HiddenFromObjC
@@ -93,14 +93,19 @@ class LabelAssignSheetSession(
     /** A row's long press: the full-screen label editor on that label. */
     fun editLabel(labelId: String) = openEditor(labelId)
 
+    /**
+     * Steps aside at once, before the editor's payload is built: a second tap cannot open a second editor, and the
+     * sheet (already slid away by its control) is not left composed but hidden.
+     */
     private fun openEditor(labelId: String?) {
         if (phase != Phase.OPEN) return
+        phase = Phase.EDITING
         startEditor(labelId)
     }
 
-    /** The editor is on screen: the sheet steps aside until [onEditorResult]. */
-    fun onEditorOpened() {
-        if (phase == Phase.OPEN) phase = Phase.EDITING
+    /** The editor could not be opened: show the sheet again. */
+    fun onEditorFailed() {
+        if (phase == Phase.EDITING) phase = Phase.OPEN
     }
 
     /** The editor answered (saved, deleted or cancelled): apply it and show the sheet again. */

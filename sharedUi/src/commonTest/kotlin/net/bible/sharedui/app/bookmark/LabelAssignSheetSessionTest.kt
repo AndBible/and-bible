@@ -83,9 +83,7 @@ class LabelAssignSheetSessionTest {
     fun theEditorRoundTripStepsAsideAndComesBack() {
         sheet.newLabel()
         assertEquals(listOf<String?>(null), editors)
-        assertEquals(LabelAssignSheetSession.Phase.OPEN, sheet.phase, "still drawn until the editor is open")
-        sheet.onEditorOpened()
-        assertEquals(LabelAssignSheetSession.Phase.EDITING, sheet.phase)
+        assertEquals(LabelAssignSheetSession.Phase.EDITING, sheet.phase, "steps aside before the editor's payload is built")
 
         sheet.dismiss()
         sheet.newLabel()
@@ -98,6 +96,19 @@ class LabelAssignSheetSessionTest {
 
         sheet.editLabel("7")
         assertEquals(listOf(null, "7"), editors)
+    }
+
+    @Test
+    fun anEditorThatCouldNotOpenShowsTheSheetAgain() {
+        sheet.editLabel("gone")
+        sheet.editLabel("gone") // a second tap before the first editor opened
+        assertEquals(listOf<String?>("gone"), editors, "one editor only")
+        sheet.onEditorFailed()
+        assertEquals(LabelAssignSheetSession.Phase.OPEN, sheet.phase)
+        sheet.onEditorFailed() // an open sheet stays open
+        changed = true
+        sheet.dismiss()
+        assertEquals(1, saves)
     }
 
     @Test
