@@ -200,6 +200,7 @@ class ReadingHostSlotsTest {
         override fun pause() = Unit
         override fun continueAfterPause() = Unit
         override fun stop() = Unit
+        override fun dismiss() = Unit
         override fun rewind() = Unit
         override fun forward() = Unit
         override fun prevVerse() = Unit

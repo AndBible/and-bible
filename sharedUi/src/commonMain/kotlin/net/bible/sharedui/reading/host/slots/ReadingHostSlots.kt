@@ -219,6 +219,7 @@ class ReadingHostSlots(
                 speakState,
                 onPlayPause = { speakTransport.togglePlayPause() },
                 onStop = { speakTransport.stop() },
+                onClose = { speakTransport.dismiss() },
                 onRewind = { speakTransport.rewind() },
                 onForward = { speakTransport.forward() },
                 onPrev = { speakTransport.prevVerse() },

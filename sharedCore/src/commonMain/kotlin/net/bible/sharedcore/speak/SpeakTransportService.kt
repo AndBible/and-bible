@@ -14,6 +14,8 @@ interface SpeakTransportService {
     fun pause()
     fun continueAfterPause()
     fun stop()                  // isStopped ⇒ direct state.copy(visible = false) (hide) else SpeakControl.stop()
+    /** Stops speech if it is still running or paused, then hides the transport bar (the bar's close "X"). */
+    fun dismiss()
     fun rewind()
     fun forward()
     fun prevVerse()             // rewind(ONE_VERSE)

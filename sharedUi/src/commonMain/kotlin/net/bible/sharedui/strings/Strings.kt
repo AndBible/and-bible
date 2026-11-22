@@ -456,6 +456,8 @@ interface Strings {
     val rewind: String
     val forward: String
     val speakNext: String
+    /** Content description of the transport bar's close "X" (R.string.speak_close_bar). */
+    val speakCloseBar: String
     val speakPrevious: String
     val speakBookmarksMenuTitle: String
 
