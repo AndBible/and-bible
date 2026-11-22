@@ -28,6 +28,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -1565,10 +1566,13 @@ class BookmarkHost(
      * nobody to take its Save. Pops it once the restored stack is in place, and drops its restored draft.
      */
     private fun popOrphanedSheetEditorOnRestore(nav: NavHostController) {
-        // Dispatched, not immediate: the restored stack is published from inside the controller's own graph set-up.
-        shell.hostScope.launch(Dispatchers.Main) {
-            val stack = nav.currentBackStack.first { it.isNotEmpty() }
-            val top = stack.last()
+        shell.hostScope.launch {
+            nav.currentBackStack.first { it.isNotEmpty() }
+            // The restored stack is published from inside the controller's own graph set-up, and the host scope may be
+            // immediate: step out of that call before popping.
+            yield()
+            val stack = nav.currentBackStack.value
+            val top = stack.lastOrNull() ?: return@launch
             if (top.destination.route != NavRoutes.LABEL_EDIT_PATTERN) return@launch
             val parent = stack.getOrNull(stack.size - 2)
             if (parent?.destination?.route == NavRoutes.MANAGE_LABELS_PATTERN) return@launch
