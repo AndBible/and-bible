@@ -449,6 +449,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val rewind: String get() = context.getString(R.string.rewind)
     override val forward: String get() = context.getString(R.string.forward)
     override val speakNext: String get() = context.getString(R.string.speak_next)
+    override val speakCloseBar: String get() = context.getString(R.string.speak_close_bar)
     override val speakPrevious: String get() = context.getString(R.string.speak_previous)
     override val speakBookmarksMenuTitle: String get() = context.getString(R.string.speak_bookmarks_menu_title)
 

@@ -32,8 +32,8 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.service.cloudsync.CloudSync
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.event.Subscriptions
-import net.bible.android.control.versification.wholeChapter
-import net.bible.service.common.titleName
+import net.bible.android.view.activity.page.pageTitlesFor
+import org.crosswire.jsword.passage.Key
 import org.koin.mp.KoinPlatform
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
@@ -113,8 +113,10 @@ class ToolbarStateServiceImpl(
         val swap = setting?.startsWith("swap-") == true
         val showBible = if (swap) documentControl.suggestedBible != null else documentControl.biblesForVerse.isNotEmpty()
         val showCommentary = if (swap) documentControl.suggestedCommentary != null else documentControl.commentariesForVerse.isNotEmpty()
+        val title = pageTitlesFor(titleKey())
         return ToolbarState(
-            pageTitle = pageTitleText(),
+            pageTitle = title.first ?: "",
+            pageTitleShort = title.second,
             documentTitle = page.currentDocumentName,
             syncRunning = false, // overwritten by refresh()'s copy(); cloudSync.runningChanged sets it directly
             showBible = showBible,
@@ -144,13 +146,12 @@ class ToolbarStateServiceImpl(
         )
     }
 
-    /** Port of `MainBibleActivity.pageTitleText` (MainBibleActivity.kt:1180). */
-    private fun pageTitleText(): String {
+    /** The key the reading title is derived from: the current Bible verse for a Bible, else the page's display key. */
+    private fun titleKey(): Key? {
         val page = pageControl.currentPageManager.currentPage
         val doc = page.currentDocument
         var key = page.displayKey
         if (doc?.bookCategory == BookCategory.BIBLE) key = pageControl.currentBibleVerse
-        return if (key is Verse && key.verse == 0) wholeChapter(key, false).titleName
-        else key?.titleName ?: ""
+        return key
     }
 }

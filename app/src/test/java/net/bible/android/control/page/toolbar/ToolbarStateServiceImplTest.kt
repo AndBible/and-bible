@@ -143,6 +143,7 @@ class ToolbarStateServiceImplTest {
         val pageManager = windowControl.activeWindowPageManager
         assertThat(state.documentTitle, equalTo(PassageTestData.ESV.name))
         assertThat(state.pageTitle, equalTo("Psalm 139:2")) // singular psalm title (#3430)
+        assertThat(state.pageTitleShort, equalTo("Psa 139:2")) // #4200: what the toolbar falls back to when too narrow
         assertThat(state.showBible, equalTo(true)) // at least one bible (ESV/KJV) is installed
         assertThat(state.showStrongs, equalTo(pageManager.hasStrongs))
         assertThat(state.searchable, equalTo(true))

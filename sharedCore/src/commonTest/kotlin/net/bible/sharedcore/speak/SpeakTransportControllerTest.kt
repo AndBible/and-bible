@@ -20,6 +20,8 @@ class SpeakTransportControllerTest {
         override fun pause() { paused++ }
         override fun continueAfterPause() { continued++ }
         override fun stop() { stopped++ }
+        var dismissed = 0
+        override fun dismiss() { dismissed++ }
         override fun rewind() { rewound++ }
         override fun forward() { forwarded++ }
         override fun prevVerse() { prev++ }
@@ -65,6 +67,12 @@ class SpeakTransportControllerTest {
         c.stop(); c.rewind(); c.forward(); c.prevVerse(); c.nextVerse()
         assertEquals(1, t.stopped); assertEquals(1, t.rewound); assertEquals(1, t.forwarded)
         assertEquals(1, t.prev); assertEquals(1, t.next)
+    }
+
+    @Test fun dismiss_delegates_to_transport_and_is_not_stop() {
+        val t = FakeTransport(); val c = controller(t, FakeSettings())
+        c.dismiss()
+        assertEquals(1, t.dismissed); assertEquals(0, t.stopped)
     }
 
     @Test fun set_speed_delegates_to_settings() {

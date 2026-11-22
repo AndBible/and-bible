@@ -666,6 +666,7 @@
     <string name="sleep_timer_active_at">Sleep timer: %s minutes left.</string>
 
     <string name="speak_next">Next</string>
+    <string name="speak_close_bar">Close speak bar</string>
     <string name="speak_previous">Previous</string>
     <string name="widget_play">Play</string>
     <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>

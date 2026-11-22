@@ -62,6 +62,7 @@ links inside study notes are only spoken when those footnotes are enabled. If a 
 To start speaking, choose `☰ > Speak` or tap the Speak button in the toolbar. A playback bar appears at the bottom of the
 screen, with bookmark (when a Speak bookmark exists), rewind, previous, stop, play/pause, next and fast-forward buttons.
 The settings open from the gear button at the right end of the playback bar, or by long-pressing the Speak button in the toolbar.
+The close button (✕) at the end of the status line hides it. It is dimmed while speech is playing and works when speech is paused or stopped; it stops any paused speech (quietly) and hides the bar.
 
 The first page, **Playback Settings**, has:
 
