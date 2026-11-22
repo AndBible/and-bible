@@ -19,6 +19,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
@@ -156,6 +158,9 @@ class ManageLabelsSession(
 ) {
     lateinit var controller: ManageLabelsController
     var pendingEdit: PendingLabelEdit? = null
+
+    /** Told when the exit's writes failed and no result was delivered (the assign sheet shows itself again). */
+    var onSaveFailed: () -> Unit = {}
 }
 
 /** The label whose editor is currently open, and whether it was created by this visit. */
@@ -666,14 +671,23 @@ class BookmarkHost(
      * memoised controller behind: the full-screen list opened next with the same payload must not resume it, and
      * would otherwise answer this finished request instead of its own caller.
      */
-    suspend fun requestLabelAssign(data: String): LabelAssignOutcome = try {
-        labelAssignSheets.request(data)
-    } finally {
-        // Callers are on Main (the sheet is UI), so the plain field is touched where it always is.
-        manageLabelsSession?.let { (key, session) ->
-            if (key == data && !session.writes.isStarted) manageLabelsSession = null
+    suspend fun requestLabelAssign(data: String): LabelAssignOutcome = labelAssignRequests.withLock {
+        try {
+            labelAssignSheets.request(data)
+        } finally {
+            // Callers are on Main (the sheet is UI), so the plain field is touched where it always is.
+            manageLabelsSession?.let { (key, session) ->
+                if (key == data && !session.writes.isStarted) manageLabelsSession = null
+            }
         }
     }
+
+    /**
+     * One assign sheet at a time, queued like the full screen's requests were (`HostReadingNavigator.labelRequests`): a
+     * second request waits until the first sheet has saved and answered, instead of cancelling it (its ticks would be
+     * lost) or meeting its still-running save in the memo (it would resume the first request's controller).
+     */
+    private val labelAssignRequests = Mutex()
 
     /** Raised from the ManageLabels overflow; rendered host-level in [Overlays]. */
     internal var manageLabelsHelpOpen by mutableStateOf(false)
@@ -963,7 +977,7 @@ class BookmarkHost(
 
         shell.hostScope.launch {
             // A failed write was already logged by the app scope's handler; stay on the screen.
-            val idRemap = try { writes.await() } catch (e: Exception) { return@launch }
+            val idRemap = try { writes.await() } catch (e: Exception) { session.onSaveFailed(); return@launch }
 
             fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
             fun remapId(id: String?) = id?.let { idRemap[it] ?: it }
@@ -1433,6 +1447,8 @@ class BookmarkHost(
         }
         val session = remember(request) { manageLabelsSession?.second?.takeIf { it.controller === controller } }
         var closing by remember(request) { mutableStateOf(false) }
+        // A failed save delivers nothing: show the sheet again, so the user can retry or keep the ticks in view.
+        session?.onSaveFailed = { expand = false; closing = false }
         var naming by remember(request) { mutableStateOf<String?>(null) }
         val rows by controller.rows.collectAsState()
         val searchText by controller.searchText.collectAsState()

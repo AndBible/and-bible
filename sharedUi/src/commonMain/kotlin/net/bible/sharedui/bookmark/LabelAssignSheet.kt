@@ -15,11 +15,15 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.bookmark
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -62,6 +66,7 @@ const val LABEL_ASSIGN_EDIT_LABELS_TAG = "label-assign-edit-labels"
  * Everything the assign sheet shows and every action it offers. One value instead of fifteen
  * parameters, because the sheet and its golden-capturable twin ([LabelAssignSheetFrame]) take the same set.
  */
+@kotlin.native.HiddenFromObjC
 class LabelAssignSheetState(
     val title: String,
     val rows: List<ManageLabelsRow>,
@@ -72,6 +77,7 @@ class LabelAssignSheetState(
 )
 
 /** The assign sheet's actions; see [LabelAssignSheet]. */
+@kotlin.native.HiddenFromObjC
 class LabelAssignSheetActions(
     val onSearch: (String) -> Unit,
     val onSetSearchMode: (SearchMode) -> Unit,
@@ -96,6 +102,7 @@ class LabelAssignSheetActions(
  *
  * ROBORAZZI: never capture this composable; capture [LabelAssignSheetFrame].
  */
+@kotlin.native.HiddenFromObjC
 @Composable
 fun LabelAssignSheet(state: LabelAssignSheetState, actions: LabelAssignSheetActions, onDismiss: () -> Unit) {
     val listState = rememberLazyListState()
@@ -106,12 +113,18 @@ fun LabelAssignSheet(state: LabelAssignSheetState, actions: LabelAssignSheetActi
         onDismiss = onDismiss,
         canScrollForward = { listState.canScrollForward },
         footer = { EditLabelsFooter(actions.onEditLabels) },
+        bodyMaxHeightFraction = LabelAssignSheetBodyFraction,
     ) {
         LabelAssignSheetContent(state, actions, listState)
     }
 }
 
+/** The body's share of the window: a label list wants more than the quick sheets' fixed 400dp, and search and chips
+ *  sit above it, but the screen behind stays visible above the sheet. */
+private const val LabelAssignSheetBodyFraction = 0.7f
+
 /** [LabelAssignSheet] without the modal window: the same header, body and footer, for goldens and UI tests. */
+@kotlin.native.HiddenFromObjC
 @Composable
 fun LabelAssignSheetFrame(
     state: LabelAssignSheetState,
@@ -125,6 +138,7 @@ fun LabelAssignSheetFrame(
         actions = actions.newLabelAction,
         canScrollForward = { listState.canScrollForward },
         footer = { EditLabelsFooter(actions.onEditLabels) },
+        bodyMaxHeightFraction = LabelAssignSheetBodyFraction,
     ) {
         LabelAssignSheetContent(state, actions, listState)
     }
@@ -143,6 +157,7 @@ private fun EditLabelsFooter(onEditLabels: () -> Unit) {
  * columns): their icons are the columns' own, so they explain themselves, and in a short sheet they
  * are the quickest way to the user's favourite labels.
  */
+@kotlin.native.HiddenFromObjC
 @Composable
 fun LabelAssignSheetContent(
     state: LabelAssignSheetState,
@@ -158,14 +173,15 @@ fun LabelAssignSheetContent(
             modifier = Modifier.testTag(LABEL_ASSIGN_SEARCH_TAG),
             verticalPadding = 4.dp,
         )
-        FlowRow(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        // One line that scrolls sideways, not a wrapping FlowRow: three wrapped chips took a third of the sheet.
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             val favourite = LabelFilter.FAVOURITE in state.filters
             AssignChip(
                 selected = favourite,
-                text = strings.labelsFilterFavourite,
+                text = strings.labelAssignFilterFavourites,
                 tag = LABEL_ASSIGN_FILTER_FAVOURITE_TAG,
                 icon = { Icon(if (favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, contentDescription = null) },
                 onClick = { actions.onToggleFilter(LabelFilter.FAVOURITE) },
@@ -173,7 +189,7 @@ fun LabelAssignSheetContent(
             val autoAssign = LabelFilter.AUTO_ADD in state.filters
             AssignChip(
                 selected = autoAssign,
-                text = strings.labelsFilterAutoAssign,
+                text = strings.labelAssignFilterAutoAssign,
                 tag = LABEL_ASSIGN_FILTER_AUTO_ASSIGN_TAG,
                 icon = { Icon(if (autoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline, contentDescription = null) },
                 onClick = { actions.onToggleFilter(LabelFilter.AUTO_ADD) },
@@ -181,7 +197,7 @@ fun LabelAssignSheetContent(
             val contains = state.searchMode == SearchMode.NAME_CONTAINS
             AssignChip(
                 selected = contains,
-                text = strings.searchModeNameContains,
+                text = strings.labelAssignSearchContains,
                 tag = LABEL_ASSIGN_SEARCH_CONTAINS_TAG,
                 icon = { Icon(Icons.Filled.Abc, contentDescription = null) },
                 onClick = { actions.onSetSearchMode(if (contains) SearchMode.NAME_START else SearchMode.NAME_CONTAINS) },

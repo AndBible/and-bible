@@ -27,8 +27,8 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
 - Tap a label to tick it, or tap it again to untick it. When the bookmark has no
     main label yet, the first label you tick becomes its main label.
 - Type in the search field to find a label by the start of its name. The chips
-    under the field show only favourite labels, only auto-assign labels, or search
-    anywhere in the name (*Name (contains)*). A label you have ticked stays listed
+    under the field show only favourite labels (*Favourites*), only auto-assign
+    labels (*Auto-assign*), or search anywhere in the name (*Name contains*). A label you have ticked stays listed
     whatever you search.
 - The *Plus* (+) button at the top creates a new label: enter its name, and the
     label is added, ticked and made the main label. Its colour is chosen at random; change it in

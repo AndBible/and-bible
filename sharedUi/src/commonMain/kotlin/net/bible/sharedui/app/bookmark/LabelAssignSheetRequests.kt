@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.bookmark
 
 import androidx.compose.runtime.getValue
@@ -24,6 +26,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 /** How one label-assign sheet ended (issue #4201). Each carries a `ManageLabelsData` JSON payload. */
+@kotlin.native.HiddenFromObjC
 sealed interface LabelAssignOutcome {
     /** The sheet closed and saved: [data] is the label manager's result payload, as the full screen delivers it. */
     data class Assigned(val data: String) : LabelAssignOutcome
@@ -44,6 +47,7 @@ typealias LabelAssignSheetOpener = suspend (data: String) -> LabelAssignOutcome
  * view alike) and calls [Request.finish] once. A new request replaces an open one, which ends Cancelled.
  * Main thread only, like the composition that reads [current].
  */
+@kotlin.native.HiddenFromObjC
 class LabelAssignSheetRequests {
     /** One open sheet: its payload and the continuation it answers. */
     class Request internal constructor(val data: String, private val onFinish: (LabelAssignOutcome) -> Unit) {
@@ -60,15 +64,19 @@ class LabelAssignSheetRequests {
     var current: Request? by mutableStateOf(null)
         private set
 
-    suspend fun request(data: String): LabelAssignOutcome = suspendCancellableCoroutine { cont ->
+    suspend fun request(data: String): LabelAssignOutcome {
         current?.finish(LabelAssignOutcome.Cancelled)
-        lateinit var request: Request
-        request = Request(data) { outcome ->
+        var request: Request? = null
+        try {
+            return suspendCancellableCoroutine { cont ->
+                val open = Request(data) { outcome -> if (cont.isActive) cont.resume(outcome) }
+                request = open
+                current = open
+            }
+        } finally {
+            // On the requester's own thread (Main), also when it was cancelled.
             if (current === request) current = null
-            if (cont.isActive) cont.resume(outcome)
         }
-        current = request
-        cont.invokeOnCancellation { if (current === request) current = null }
     }
 }
 
@@ -78,6 +86,7 @@ class LabelAssignSheetRequests {
  * full-screen list with a payload and returns its result payload, or null when it was left without one.
  * Returns the result payload, or null for no answer.
  */
+@kotlin.native.HiddenFromObjC
 suspend fun resolveLabelAssign(
     data: String,
     sheet: LabelAssignSheetOpener?,
