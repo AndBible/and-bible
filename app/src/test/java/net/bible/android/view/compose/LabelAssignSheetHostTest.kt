@@ -452,6 +452,31 @@ class LabelAssignSheetHostTest {
         return requireNotNull(nav.currentBackStackEntry?.arguments?.getString(NavRoutes.ARG_LABEL_DATA))
     }
 
+    /** Issue #4201 follow-up: from the bookmark list the main label has no effect, so the editor is told to hide its switch. */
+    @Test
+    fun theEditorOpenedFromTheBookmarkListHidesTheMainLabelSwitch() {
+        val activity = host()
+        val red = label("Red")
+        val (sheet, _) = assignSeveral(activity, bookmark("Psalms 119:1", red))
+
+        sheet.editLabel(red.id.toString())
+        val payload = LabelEditContract.LabelData.fromJSON(editorPayload(activity))
+        assertFalse(payload.thisBookmarkPrimaryApplies)
+    }
+
+    /** The reading view labels one bookmark with a primary label: its editor keeps the switch. */
+    @Test
+    fun theEditorOpenedFromTheReadingViewKeepsTheMainLabelSwitch() {
+        val activity = host()
+        val red = label("Red")
+        ask(activity, assignPayload(setOf(red.id)))
+        val (sheet, _) = openSheet(activity.appHosts.bookmark)
+
+        sheet.editLabel(red.id.toString())
+        val payload = LabelEditContract.LabelData.fromJSON(editorPayload(activity))
+        assertTrue(payload.thisBookmarkPrimaryApplies)
+    }
+
     private fun answerEditor(activity: NavHostComposeActivity, result: LabelEditResult) {
         val nav = navController(activity)
         labelEditResults(activity).deliver(nav, nav.currentBackStackEntry, result)

@@ -55,6 +55,9 @@ object ManageLabelsContract {
 
         val isWindow: Boolean = false,
 
+        /** False when the labelled bookmarks take no primary label from this payload (the bookmark list): the editor hides its "main label" switch. */
+        val bookmarkPrimaryApplies: Boolean = true,
+
         var reset: Boolean = false,
     ) {
         val showUnassigned: Boolean get() = setOf(Mode.HIDELABELS, Mode.WORKSPACE).contains(mode)

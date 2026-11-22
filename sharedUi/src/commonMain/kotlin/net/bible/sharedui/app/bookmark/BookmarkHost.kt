@@ -533,6 +533,7 @@ class BookmarkHost(
             val payload = ManageLabelsContract.ManageLabelsData(
                 mode = ManageLabelsContract.Mode.ASSIGN,
                 selectedLabels = labels,
+                bookmarkPrimaryApplies = false,
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
             withContext(Dispatchers.Main) {
                 session.pendingAssign = bookmarks
@@ -832,6 +833,7 @@ class BookmarkHost(
             suggestedName = suggestedName,
             workspaceOverride = workspaceOverride,
             hasWorkspaceContext = workspaceContext,
+            thisBookmarkPrimaryApplies = session.data.bookmarkPrimaryApplies,
             addonModuleName = if (isNew) null else bookmarkControl.addonModuleOfLabel(label.id)?.let(bookmarkControl::addonModuleName),
         )
         if (isNew) {

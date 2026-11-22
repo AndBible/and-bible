@@ -45,8 +45,9 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
     labels: a label you leave ticked is added to the bookmarks that did not have it.
     The bookmarks' labels change only when you change the ticks: renaming a label,
     making it a favourite or changing its auto-assign setting keeps each bookmark's
-    own labels. The *main label* switch in a label's settings applies when you label a
-    single bookmark from the Bible text; from the bookmarks list it changes nothing.
+    own labels. The *main label* switch in a label's settings is shown only where it applies:
+    when you label a single bookmark from the Bible text. From the bookmarks list
+    the switch is hidden, because it would change nothing.
 - *Edit labels* at the bottom opens the full label list with your choice so far.
     There you can open a label's settings and set the main label, favourites and
     auto-assign labels; going back saves.

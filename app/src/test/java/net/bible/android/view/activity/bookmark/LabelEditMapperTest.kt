@@ -92,6 +92,24 @@ class LabelEditMapperTest {
     }
 
     @Test
+    fun `toState carries thisBookmarkPrimaryApplies, which defaults to true`() {
+        val data = buildData()
+        assertEquals(true, LabelEditMapper.toState(data).thisBookmarkPrimaryApplies)
+        assertEquals(false, LabelEditMapper.toState(data.copy(thisBookmarkPrimaryApplies = false)).thisBookmarkPrimaryApplies)
+    }
+
+    @Test
+    fun `thisBookmarkPrimaryApplies survives the payload JSON and the saved-state draft`() {
+        val data = buildData().copy(thisBookmarkPrimaryApplies = false)
+        val decoded = LabelEditContract.LabelData.fromJSON(data.toJSON())
+        assertEquals(false, decoded.thisBookmarkPrimaryApplies)
+        val state = LabelEditMapper.toState(decoded)
+        val recreated = LabelDraftValue.from(state).toState()
+        assertEquals(false, recreated.thisBookmarkPrimaryApplies)
+        assertEquals(state, recreated)
+    }
+
+    @Test
     fun `toState reads isSpecialLabel and isSpeakLabel from the label`() {
         val data = buildData()
         val state = LabelEditMapper.toState(data)

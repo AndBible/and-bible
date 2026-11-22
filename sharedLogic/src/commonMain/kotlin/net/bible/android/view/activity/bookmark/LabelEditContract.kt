@@ -45,6 +45,8 @@ object LabelEditContract {
         var hasWorkspaceContext: Boolean = false,
         /** The display name of the add-on module providing [label] (a read-only collection label), else null. */
         val addonModuleName: String? = null,
+        /** False when the main label of the bookmark has no effect for this editor (opened from the bookmark list). */
+        val thisBookmarkPrimaryApplies: Boolean = true,
     ) {
         fun toJSON(): String = AppJson.encodeToString(serializer(), this)
 
