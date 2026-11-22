@@ -73,6 +73,8 @@ import net.bible.sharedcore.search.forEpubOf
 import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.search.searchTranslationIds
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
+import net.bible.sharedui.reading.searchResultsAlwaysTakeFocus
+import net.bible.sharedui.search.FindKeyboardInput
 import net.bible.sharedui.search.SEARCH_RECENT_TERMS_KEY
 import net.bible.sharedui.search.parseSavedSearchTranslations
 import net.bible.sharedui.search.seedSearchTranslations
@@ -391,7 +393,7 @@ internal class ReadingSearchSession(
      */
     val searchBarCallbacks = ReadingSearchBarCallbacks(
         onQueryChange = { queries.setQuery(it) },
-        onSubmit = { controller.submit() },
+        onSubmit = { submitFromField() },
         onRecentTermsOpen = { searchRecentMenuOpen.value = true },
         onRecentTermsDismiss = { searchRecentMenuOpen.value = false },
         // Picking a recent term fills the field, it does not search by itself.
@@ -523,6 +525,30 @@ internal class ReadingSearchSession(
             return true
         }
         return false
+    }
+
+    /**
+     * Enter in the toolbar query field (#4197), see [ReadingSearchController.submitFromField]. Opening result 0 is
+     * limited to hardware-keyboard input: always on desktop, on mobile only when the last key came from a hardware
+     * keyboard (a touch user's IME "Search" action re-runs the search as before).
+     */
+    fun submitFromField() {
+        controller.submitFromField(
+            keyboardInput = searchResultsAlwaysTakeFocus || FindKeyboardInput.lastWasHardwareKey,
+            resultsLoading = { forEpub -> if (forEpub) epubSearchResults.loading.value else searchResults.loading.value },
+            openFirstResult = ::openFirstResult,
+        )
+    }
+
+    private fun openFirstResult(forEpub: Boolean): Boolean {
+        if (forEpub) {
+            val row = epubSearchResults.results.value.firstOrNull() ?: return false
+            epubSearchResults.select(row.keyId, row.ordinal)
+        } else {
+            val row = searchResults.displayed.value.firstOrNull() ?: return false
+            onSearchResultSelected(row.referenceName, row.matches.firstOrNull()?.translationId)
+        }
+        return true
     }
 
     /** Leaves search entirely (the toolbar's close affordance, and the index prompt's Cancel). */

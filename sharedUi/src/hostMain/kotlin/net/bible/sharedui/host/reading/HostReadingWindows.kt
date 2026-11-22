@@ -279,6 +279,11 @@ object HostReadingWindows {
         binding?.host?.let { it.setFullScreen(!it.fullScreen.state.value) }
     }
 
+    /** Opens the navigation history sheet of the bound reading host. */
+    fun showHistorySheet() {
+        binding?.host?.hostState?.showHistorySheet()
+    }
+
     /** Leaves fullscreen if it is active. */
     fun leaveFullScreen(): Boolean {
         val host = binding?.host ?: return false

@@ -291,7 +291,8 @@ jobs (under a second) are not shown.
 
 With a hardware keyboard, the reading view understands the shortcuts below. They work in the
 reading view, not in text fields or in the note editor (see the notes under
-[Keyboard Search](#keyboard-search)).
+[Keyboard Search](#keyboard-search)); the exceptions on desktop are **Ctrl+S** and **Ctrl+B**, which also
+work while a native text field of the app (for example the search field) has focus.
 
 | Keys | Action | Platforms |
 |---|---|---|
@@ -307,12 +308,15 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Alt+Left** | Go back (same as **Esc**, see [below](#esc-key-as-back)); **Alt+Right** does nothing | Desktop |
 | Mouse back button | Go back | Desktop |
 | **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop, iOS |
-| **Ctrl+Plus**, **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** (**Cmd+Plus**, **Cmd+Minus**, **Cmd+0** on iOS, no wheel) | Larger text, smaller text, default text size | Desktop, iOS |
+| **Ctrl+Plus** (also **Ctrl+=**), **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** (**Cmd+Plus**, **Cmd+=**, **Cmd+Minus**, **Cmd+0** on iOS, no wheel) | Larger text, smaller text, default text size | Desktop, iOS |
+| **Ctrl+H** or **Ctrl+Y** (**Cmd+Y** on macOS; **Cmd+H** is taken by macOS) | Open the *History* list; a focused text field keeps these keys on Linux and Windows (**Ctrl+Y** is redo there); not yet checked on macOS | Desktop |
 | **Ctrl+,** (**Cmd+,** on iOS, from the reading screen only) | Open *Application preferences* | Desktop, iOS |
 | **Ctrl+S** (**Cmd+S** on macOS and iOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop, iOS |
 | **F11** | Toggle the reading fullscreen of the app (on iOS and Mac it does not toggle the Mac window's full screen; a Mac keyboard may need **Fn**+**F11**) | Desktop, iOS |
 | **Esc** | Go back, see [below](#esc-key-as-back) | All |
-| **Up / Down** | Scroll the text | All |
+| **Up / Down** | Scroll the text; while the search results list has focus they move its selection instead, and **Up** on the first result returns to the search field | All |
+| **Enter** in the search results | Open the highlighted result, or the first one when nothing is highlighted. On desktop the list takes the focus when results appear; elsewhere it does so when you used the keyboard | All |
+| **Enter** in the search field, with the results of the same query shown | With a hardware keyboard (always on desktop; on Android and iOS when the last key you pressed came from a hardware keyboard): open the first result instead of searching again. Nothing happens while the results still load. After you change the query, or with the on-screen keyboard's search key, it searches | All |
 | **Space** | Pause or resume speaking, while speech is not stopped | All |
 
 When you tap a verse and its action menu is open, **B** adds a bookmark, **N** adds a note and
