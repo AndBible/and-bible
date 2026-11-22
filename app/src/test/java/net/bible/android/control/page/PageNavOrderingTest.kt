@@ -47,7 +47,15 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
-/** Removing the ordered launch in either real caller loses a StudyPad step while its DAO is held. */
+/**
+ * Removing the ordered launch in either real caller loses a StudyPad step while its DAO is held.
+ *
+ * Tests that mix both callers queue the bridge call first. The bridge step carries a document ticket
+ * taken at call time, and the first step's key change makes the view admit its first document; a
+ * bridge step queued behind it is rightly dropped once that admission has happened (a stale JS call
+ * must not move a replaced document), so the order would depend on a real IO thread (flaky under
+ * load). The swipe step has no ticket, so it can follow the bridge step deterministically.
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [35])
@@ -73,14 +81,14 @@ class PageNavOrderingTest {
     }
 
     @Test fun swipeAndJavascriptShareTheWindowQueue() = navigation { commands, bridge, page, labels ->
-        commands.next()
         bridge.goToNextChapter()
+        commands.next()
         labels[2].id to { (page.currentGeneralBook.key as StudyPadKey).label.id }
     }
 
     @Test fun twoRapidPrevioussMoveTwoLabelsInOrder() = navigation(startAtEnd = true) { commands, bridge, page, labels ->
-        commands.previous()
         bridge.goToPreviousChapter()
+        commands.previous()
         labels[0].id to { (page.currentGeneralBook.key as StudyPadKey).label.id }
     }
 
@@ -91,8 +99,8 @@ class PageNavOrderingTest {
 
     @Test fun commentaryNextTwiceAdvancesTwoVerses() = navigation(commentary = true) { commands, bridge, page, _ ->
         val start = (page.currentCommentary.key as Verse).ordinal
-        commands.next()
         bridge.goToNextChapter()
+        commands.next()
         start + 2 to { (page.currentCommentary.key as Verse).ordinal }
     }
 
