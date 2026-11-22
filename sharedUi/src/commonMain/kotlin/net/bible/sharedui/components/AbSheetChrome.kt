@@ -55,6 +55,14 @@ import kotlin.math.roundToInt
 const val AbSheetMaxHeightFraction: Float = 0.5f
 
 /**
+ * The floor of the half cap (#4207): a sheet is never capped below `min(offered height, AbSheetMinCapHeight)`. It only
+ * bites when the window offers less than twice this, i.e. under 320dp: a phone in landscape with the soft keyboard up
+ * offers ~120dp, half of which (60dp) would clip the sheet's own header and search field. Portrait and landscape
+ * without a keyboard are unchanged.
+ */
+val AbSheetMinCapHeight: Dp = 160.dp
+
+/**
  * The upper limit of a new sheet's scrolling region where nothing else bounds it: content-only frames (goldens,
  * UI tests) that render without a sheet window, and bodies that are not given the flexible height. 400dp is
  * round 12c's shipped cap (`SettingsEditorSheet.kt`) and round 13a's (`SpeakSettingsSheet.kt`).
@@ -76,11 +84,14 @@ val AbSheetContentMaxHeight: Dp = 400.dp
 val LocalAbSheetHeightCapped = staticCompositionLocalOf { false }
 
 /**
- * [AbModalBottomSheet]'s bound: measures its content with at most [fraction] of the height it is offered. Unbounded
+ * [AbModalBottomSheet]'s bound: measures its content with at most [fraction] of the height it is offered (but see the floor, [AbSheetMinCapHeight]). Unbounded
  * constraints (a content-only frame) pass through untouched.
  */
 fun Modifier.abSheetHeightCap(fraction: Float = AbSheetMaxHeightFraction): Modifier = layout { measurable, constraints ->
-    val cap = if (constraints.hasBoundedHeight) (constraints.maxHeight * fraction).roundToInt() else constraints.maxHeight
+    val cap = if (constraints.hasBoundedHeight) {
+        // cap = max(fraction * offered, min(offered, AbSheetMinCapHeight)): see [AbSheetMinCapHeight].
+        maxOf((constraints.maxHeight * fraction).roundToInt(), minOf(constraints.maxHeight, AbSheetMinCapHeight.roundToPx()))
+    } else constraints.maxHeight
     val placeable = measurable.measure(constraints.copy(minHeight = minOf(constraints.minHeight, cap), maxHeight = cap))
     layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
 }

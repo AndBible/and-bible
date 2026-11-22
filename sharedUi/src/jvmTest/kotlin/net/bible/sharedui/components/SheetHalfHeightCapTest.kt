@@ -56,6 +56,7 @@ import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedui.bookmark.LABEL_ASSIGN_SEARCH_TAG
 import net.bible.sharedui.bookmark.LabelAssignSheet
 import net.bible.sharedui.bookmark.LabelAssignSheetActions
 import net.bible.sharedui.bookmark.LabelAssignSheetState
@@ -227,7 +228,7 @@ class SheetHalfHeightCapTest {
 
     private val scope = CoroutineScope(Job() + Dispatchers.Unconfined)
 
-    private fun labelAssign(window: Size) = run(window) { h ->
+    private fun labelAssign(window: Size, search: String? = null) = run(window) { h ->
         try {
         fun label(i: Int) = LabelItem("l$i", "Label ${i.toString().padStart(2, '0')}", 0xFF3366CC.toInt(),
             favourite = false, isUnlabeled = false, isSpecial = false, customIcon = null)
@@ -247,6 +248,7 @@ class SheetHalfHeightCapTest {
             initialAutoAssign = emptySet(), initialAutoAssignPrimary = null, initialBookmarkPrimary = null,
             highlightLabelId = null, onEditLabel = {}, onSelectStudyPad = { _, _ -> }, onSave = {}, onReset = {},
         )
+        if (search != null) controller.setSearch(search)
         mount {
             val rows by controller.rows.collectAsState()
             val searchText by controller.searchText.collectAsState()
@@ -270,10 +272,23 @@ class SheetHalfHeightCapTest {
             )
         }
         waitForIdle()
-        assertCapped(h, "label assign $window")
-        assertOnScreen(strings.assignLabelsLabel, h, "label assign $window")
-        // The compact header (one chip row, #4207) leaves the list room even in a 360dp-high landscape window.
-        assertListReachesLastRow("Label 40", "label assign $window")
+        if (window.height < 200f) {
+            // #4207 floor: a 120dp-high window (landscape with the keyboard up) keeps usable chrome. The cap
+            // is the floor (offered height here), never beyond the window, and the title and the search field
+            // the user types into are fully visible.
+            val height = sheetHeight(h)
+            assertTrue(height <= h + 1f, "label assign $window: sheet $height dp over the offered $h dp")
+            assertOnScreen(strings.assignLabelsLabel, h, "label assign $window")
+            val field = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertIsDisplayed().fetchSemanticsNode()
+            assertTrue(field.size.height >= 16, "label search field clipped to ${field.size.height} dp")
+            assertTrue(field.positionInRoot.y >= 0f && field.positionInRoot.y + field.size.height <= h + 1f,
+                "label search field outside the window")
+        } else {
+            assertCapped(h, "label assign $window")
+            assertOnScreen(strings.assignLabelsLabel, h, "label assign $window")
+            // The compact header (one chip row, #4207) leaves the list room even in a 360dp-high landscape window.
+            assertListReachesLastRow("Label 40", "label assign $window")
+        }
         } finally {
             scope.cancel()
         }
@@ -281,6 +296,7 @@ class SheetHalfHeightCapTest {
 
     @Test fun labelAssignPortrait() = labelAssign(portrait)
     @Test fun labelAssignLandscape() = labelAssign(landscape)
+    @Test fun labelAssignWithKeyboardUpKeepsTheSearchFieldVisible() = labelAssign(Size(760f, 120f), search = "Label")
 }
 
 @androidx.compose.runtime.Composable
