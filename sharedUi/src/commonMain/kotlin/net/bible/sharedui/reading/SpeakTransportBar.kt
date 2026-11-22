@@ -120,7 +120,7 @@ fun SpeakTransportBar(
                 // speech starts/stops (A/B batch 2 F4 fix wave). An empty string still reserves its line
                 // height, so the bar stays a constant height either way.
                 // The X sits in the status row's end corner (not a ninth weighted slot, to keep the 320dp
-                // touch targets). It is always present, so neither the bar's height nor the text width changes.
+                // touch targets). It is always present, so playback state never changes the bar height or the text width (the 48dp touch target makes the row taller than the bare text line).
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         state.statusText,

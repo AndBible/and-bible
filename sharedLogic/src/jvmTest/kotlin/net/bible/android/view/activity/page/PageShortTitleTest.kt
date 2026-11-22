@@ -13,7 +13,6 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 /** #4200: the short variant of the reading title (what the toolbar falls back to when the full one does not fit). */
 class PageShortTitleTest {
@@ -33,8 +32,7 @@ class PageShortTitleTest {
     }
 
     private fun both(key: Verse): Pair<String?, String?> {
-        val full = pageTitleFor(key)
-        return full to pageShortTitleFor(key, full)
+        return pageTitlesFor(key)
     }
 
     @Test fun finnishVerseHasShortBookNameVariant() = inLocale("fi") {
@@ -46,9 +44,9 @@ class PageShortTitleTest {
     }
 
     @Test fun shortVariantDoesNotLeaveShortNamesOnForLaterFullTitles() = inLocale("fi") {
-        pageShortTitleFor(Verse(kjv, BibleBook.EXOD, 1, 2), "x")
+        pageTitlesFor(Verse(kjv, BibleBook.EXOD, 1, 2))
         assertEquals("2. Mooseksen kirja 1:2", pageTitleFor(Verse(kjv, BibleBook.EXOD, 1, 2)))
     }
 
-    @Test fun noKeyHasNoShortVariant() = assertNull(pageShortTitleFor(null, null))
+    @Test fun noKeyHasNoShortVariant() = assertEquals(null to null, pageTitlesFor(null))
 }
