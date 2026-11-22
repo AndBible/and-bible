@@ -43,6 +43,10 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
 - With several bookmarks selected, the sheet starts with every label that any of
     them has ticked, and saving gives **each** selected bookmark exactly the ticked
     labels: a label you leave ticked is added to the bookmarks that did not have it.
+    The bookmarks' labels change only when you change the ticks: renaming a label,
+    making it a favourite or changing its auto-assign setting keeps each bookmark's
+    own labels. The *main label* switch in a label's settings applies to a single
+    bookmark only; with several bookmarks selected it changes nothing.
 - *Edit labels* at the bottom opens the full label list with your choice so far.
     There you can open a label's settings and set the main label, favourites and
     auto-assign labels; going back saves.

@@ -42,6 +42,8 @@ import net.bible.sharedcore.nav.LabelEditResult
  * @param startEditor opens the editor (`null` = a new label); the sheet is already [Phase.EDITING] when it is called.
  *   A host that cannot open it (the label is gone, no navigation) calls [onEditorFailed]
  * @param applyEditorResult applies the editor's answer to the sheet's working state
+ * @param bookmarkLabelsChanged whether the ticks differ from the seeds (`ManageLabelsController.bookmarkLabelsChanged`),
+ *   carried by [LabelAssignOutcome.Assigned]
  */
 @kotlin.native.HiddenFromObjC
 class LabelAssignSheetSession(
@@ -50,6 +52,7 @@ class LabelAssignSheetSession(
     private val save: () -> Unit,
     private val startEditor: (labelId: String?) -> Unit,
     private val applyEditorResult: (LabelEditResult) -> Unit,
+    private val bookmarkLabelsChanged: () -> Boolean = { true },
 ) {
     /** Where the sheet is in its life; only [Phase.OPEN] draws it. */
     enum class Phase { OPEN, EDITING, CLOSING }
@@ -78,7 +81,9 @@ class LabelAssignSheetSession(
 
     /** The save delivered [data]: the request's answer. */
     fun onSaved(data: String) {
-        request.finish(if (expand) LabelAssignOutcome.Expand(data) else LabelAssignOutcome.Assigned(data))
+        request.finish(
+            if (expand) LabelAssignOutcome.Expand(data) else LabelAssignOutcome.Assigned(data, bookmarkLabelsChanged()),
+        )
     }
 
     /** The save failed and delivered nothing: show the sheet again, so the user can retry. */

@@ -28,8 +28,12 @@ import kotlin.coroutines.resume
 /** How one label-assign sheet ended (issue #4201). Each carries a `ManageLabelsData` JSON payload. */
 @kotlin.native.HiddenFromObjC
 sealed interface LabelAssignOutcome {
-    /** The sheet closed and saved: [data] is the label manager's result payload, as the full screen delivers it. */
-    data class Assigned(val data: String) : LabelAssignOutcome
+    /**
+     * The sheet closed and saved: [data] is the label manager's result payload, as the full screen delivers it.
+     * [bookmarkLabelsChanged] is false when only labels themselves (name, colour, favourite, auto-assign) changed:
+     * the ticks are as seeded, so a caller labelling several bookmarks must not give each of them the seeded union.
+     */
+    data class Assigned(val data: String, val bookmarkLabelsChanged: Boolean = true) : LabelAssignOutcome
 
     /** "Edit labels": the sheet saved its working state into [data]; open the full-screen ASSIGN list with it. */
     data class Expand(val data: String) : LabelAssignOutcome

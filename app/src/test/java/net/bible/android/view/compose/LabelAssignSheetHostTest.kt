@@ -234,6 +234,70 @@ class LabelAssignSheetHostTest {
         assertTrue("the close opened nothing else", navigated.isEmpty())
     }
 
+    /** Starts the bookmark list's multi-select assign over [bookmarks] and returns the open sheet. */
+    private fun assignSeveral(
+        activity: NavHostComposeActivity,
+        vararg bookmarks: BookmarkEntities.BaseBookmarkWithNotes,
+    ): Pair<LabelAssignSheetSession, ManageLabelsController> {
+        loadBookmarkRows()
+        val list = realBookmarksController(activity, mutableListOf())
+        list.enterSelection(bookmarks.first().id.toString())
+        bookmarks.drop(1).forEach { list.toggleSelection(it.id.toString()) }
+        list.assignSelected()
+        return openSheet(activity.appHosts.bookmark)
+    }
+
+    /**
+     * Review round 3, finding 1A: the multi-select payload has no primary, so ticking and unticking a label leaves a
+     * primary behind (ensureNotContextPrimary). The ticks are back where they started: no bookmark may change.
+     */
+    @Test
+    fun tickingAndUntickingWithSeveralBookmarksLeavesThemAsTheyWere() {
+        val activity = host()
+        val red = label("Red")
+        val blue = label("Blue")
+        val green = label("Green")
+        val a = bookmark("Psalms 119:1", red)
+        val b = bookmark("John 3:16", blue)
+        val (sheet, controller) = assignSeveral(activity, a, b)
+
+        controller.toggleChecked(green.id.toString())
+        controller.toggleChecked(green.id.toString())
+        sheet.dismiss()
+        idleUntil("the sheet to close") { activity.appHosts.bookmark.labelAssignSheets.current == null }
+        idleWallTime(1500)
+
+        assertEquals(setOf("Red"), labelNames(a))
+        assertEquals(setOf("Blue"), labelNames(b))
+    }
+
+    /**
+     * Review round 3, finding 1B: renaming a label through the long-press editor is saved, but the bookmarks keep
+     * their own labels (the ticks did not change).
+     */
+    @Test
+    fun aRenameWithSeveralBookmarksSavesTheLabelButNotTheUnion() {
+        val activity = host()
+        val red = label("Red")
+        val blue = label("Blue")
+        val a = bookmark("Psalms 119:1", red)
+        val b = bookmark("John 3:16", blue)
+        val (sheet, _) = assignSeveral(activity, a, b)
+
+        sheet.editLabel(blue.id.toString())
+        val payload = LabelEditContract.LabelData.fromJSON(editorPayload(activity))
+        payload.label.name = "Azure"
+        answerEditor(activity, LabelEditResult.Saved(payload.toJSON()))
+        idleUntil("the sheet to come back") { sheet.phase == LabelAssignSheetSession.Phase.OPEN }
+        sheet.dismiss()
+        idleUntil("the rename to be saved") { runBlocking { control.labelById(blue.id) }?.name == "Azure" }
+        idleUntil("the sheet to close") { activity.appHosts.bookmark.labelAssignSheets.current == null }
+        idleWallTime(1500)
+
+        assertEquals(setOf("Red"), labelNames(a))
+        assertEquals(setOf("Azure"), labelNames(b))
+    }
+
     /** The same close after a real change still saves, onto every selected bookmark. */
     @Test
     fun closingTheSheetAfterAChangeSavesOntoEverySelectedBookmark() {
@@ -499,5 +563,34 @@ class LabelAssignSheetHostTest {
         }
         assertNull(host.labelAssignSheets.current)
         assertNull(labelEditResults(activity).pending.value)
+    }
+
+    /**
+     * Review round 3, finding 2: the editor entry is popped without an answer (iOS/desktop `openReading` pops to the
+     * reading route). The sheet must not stay EDITING, or every later request waits on its lock.
+     */
+    @Test
+    fun anEditorPoppedWithoutAnAnswerShowsTheSheetAgain() {
+        val activity = host()
+        val red = label("Red")
+        val blue = label("Blue")
+        val host = activity.appHosts.bookmark
+        val first = ask(activity, assignPayload(setOf(red.id)))
+        val (sheet, _) = openSheet(host)
+        sheet.newLabel()
+        editorPayload(activity)
+
+        navController(activity).popBackStack()
+        idleUntil("the sheet to come back") { sheet.phase == LabelAssignSheetSession.Phase.OPEN }
+        assertFalse("the dropped editor changed nothing", session(host).controller.hasChanges())
+
+        sheet.dismiss()
+        idleUntil("the first request to end") { first.outcome != null }
+        assertEquals(LabelAssignOutcome.Cancelled, first.outcome)
+        val second = ask(activity, assignPayload(setOf(blue.id)))
+        val (secondSheet, _) = openSheet(host)
+        assertNotSame(sheet, secondSheet)
+        secondSheet.dismiss()
+        idleUntil("the second request to end") { second.outcome != null }
     }
 }

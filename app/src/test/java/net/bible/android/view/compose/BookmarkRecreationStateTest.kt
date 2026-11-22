@@ -402,6 +402,45 @@ class BookmarkRecreationStateTest {
         assertFalse(during.contains("\"changed\":[\""))
     }
 
+    /**
+     * Review round 3, finding 3 (#4201): the sheet is not restored after recreation (decision 6), so neither is the
+     * label editor it opened: nobody would take that editor's Save. The restored host pops it, the sheet's ticks are
+     * not in the saved state, and the same request opened later starts from its own seeds.
+     */
+    @Test fun anAssignSheetsEditorIsNotRestoredAndItsTicksAreDropped() {
+        val bookmark = seedBookmark()
+        val red = runBlocking { control.insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "Red" }) }
+        val activity = host()
+        val host = activity.appHosts.bookmark
+        bookmarks(activity).enterSelection(bookmark.id.toString())
+        bookmarks(activity).assignSelected()
+        awaitHostCondition("the assign sheet opens", ::advance) { host.assignSheet != null && managerOrNull(activity) != null }
+        val sheetController = manager(activity)
+        awaitHostCondition("the sheet's labels load", ::advance) { sheetController.currentLabelItems().isNotEmpty() }
+        sheetController.toggleChecked(red.id.toString())
+        host.assignSheet!!.newLabel()
+        awaitHostRoute(activity, NavRoutes.LABEL_EDIT_PATTERN, ::advance)
+
+        val saved = savedPayload()
+        assertFalse("the sheet's working state is not saved: $saved", saved.contains(red.id.toString()))
+
+        val recreated = recreate(activity, NavRoutes.BOOKMARKS_PATTERN)
+        assertTrue("the orphaned editor is gone from the back stack",
+            nav(recreated).currentBackStack.value.none { it.destination.route == NavRoutes.LABEL_EDIT_PATTERN })
+
+        awaitHostCondition("the recreated list loads", ::advance) {
+            !bookmarks(recreated).loading.value && bookmarks(recreated).rows.value.isNotEmpty()
+        }
+        bookmarks(recreated).enterSelection(bookmark.id.toString())
+        bookmarks(recreated).assignSelected()
+        val recreatedHost = recreated.appHosts.bookmark
+        awaitHostCondition("the assign sheet opens again", ::advance) {
+            recreatedHost.assignSheet != null && managerOrNull(recreated) != null
+        }
+        assertEquals("the reopened sheet starts from the bookmark's own labels", emptySet<String>(),
+            manager(recreated).resultSelected())
+    }
+
     @Test fun malformedBookmarkRecreationBundleFallsBackToAFreshHost() {
         val saved = Bundle().apply { putString("nav_app_hosts", "{not-json") }
         resetComposeUiDispatcher()

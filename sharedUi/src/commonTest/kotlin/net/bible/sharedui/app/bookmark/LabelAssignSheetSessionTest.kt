@@ -27,6 +27,7 @@ import kotlin.test.assertTrue
 class LabelAssignSheetSessionTest {
     private var outcome: LabelAssignOutcome? = null
     private var changed = false
+    private var ticksChanged = true
     private var saves = 0
     private val editors = mutableListOf<String?>()
     private val applied = mutableListOf<LabelEditResult>()
@@ -37,6 +38,7 @@ class LabelAssignSheetSessionTest {
         save = { saves++ },
         startEditor = { editors += it },
         applyEditorResult = { applied += it },
+        bookmarkLabelsChanged = { ticksChanged },
     )
 
     @Test
@@ -56,6 +58,16 @@ class LabelAssignSheetSessionTest {
         assertNull(outcome, "the answer waits for the save")
         sheet.onSaved("saved")
         assertEquals(LabelAssignOutcome.Assigned("saved"), outcome)
+    }
+
+    /** Review round 3: a save of label edits only says so, so several bookmarks are not given the seeded union. */
+    @Test
+    fun aSaveWithTheTicksAsSeededSaysTheBookmarksLabelsDidNotChange() {
+        changed = true
+        ticksChanged = false
+        sheet.dismiss()
+        sheet.onSaved("saved")
+        assertEquals(LabelAssignOutcome.Assigned("saved", bookmarkLabelsChanged = false), outcome)
     }
 
     @Test

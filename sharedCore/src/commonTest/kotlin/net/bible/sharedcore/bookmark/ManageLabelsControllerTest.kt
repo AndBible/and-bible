@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -1004,5 +1005,25 @@ class ManageLabelsControllerTest {
         assertTrue(fresh().apply { toggleAutoAssign("A") }.hasChanges())
         assertTrue(fresh().apply { applyLabelChanged(label("N", "New"), true, false, true, false) }.hasChanges())
         assertTrue(fresh().apply { applyLabelDeleted("B", orphaned = false) }.hasChanges())
+    }
+
+    /** Review round 3 (#4201): only the ticks decide whether several bookmarks are rewritten. */
+    @Test
+    fun bookmarkLabelsChanged_ignores_a_primary_that_ticking_left_behind_without_a_seed() {
+        val several = controller(ManageLabelsMode.ASSIGN, labels = listOf(A, B, C), initialSelected = setOf("A", "B"))
+        several.toggleChecked("C"); several.toggleChecked("C")
+        assertNotNull(several.resultBookmarkPrimary(), "fixture: the tick left a primary behind")
+        assertFalse(several.bookmarkLabelsChanged())
+        several.toggleFavourite("A"); several.toggleAutoAssign("B")
+        assertFalse(several.bookmarkLabelsChanged(), "favourites and auto-assign are not the bookmarks' labels")
+        several.toggleChecked("C")
+        assertTrue(several.bookmarkLabelsChanged())
+
+        val one = controller(
+            ManageLabelsMode.ASSIGN, labels = listOf(A, B), initialSelected = setOf("A", "B"), initialBookmarkPrimary = "A",
+        )
+        assertFalse(one.bookmarkLabelsChanged())
+        one.setPrimary("B")
+        assertTrue(one.bookmarkLabelsChanged(), "a seeded main label that changed is the bookmark's change")
     }
 }
