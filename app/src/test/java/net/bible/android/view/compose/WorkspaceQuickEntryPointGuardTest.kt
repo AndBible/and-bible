@@ -75,7 +75,7 @@ class WorkspaceQuickEntryPointGuardTest {
      * launch in the same file is still policed. Each entry records WHY no `showWorkspaceSheet`
      * branch is required there. (The classic title-fling and `workspaceButton` exclusions went with
      * `MainBibleActivity` in slice 8 F4.)
-     *  - (the quick sheet's own footer row, "manage workspaces", used to be excluded here. Since I2
+     *  - (the quick sheet's own manage action, "manage workspaces", used to be excluded here. Since I2
      *    phase 2 R1 Task 7 it calls `ReadingNavigator.openWorkspaceSelector()` from the common
      *    `QuickSheets.kt`; that call is pinned exactly by
      *    [theNavigatorWorkspaceSelectorHasOneCallerAndItIsGatedByTheHostedSheet].)
@@ -176,17 +176,17 @@ class WorkspaceQuickEntryPointGuardTest {
             }
         assertEquals(
             "exactly two production callers of ReadingNavigator.openWorkspaceSelector(): the Ctrl+W branch gated on " +
-                "showWorkspaceSheetIfHosted(), and the workspace quick sheet's own footer row (it IS the reroute target)",
+                "showWorkspaceSheetIfHosted(), and the workspace quick sheet's own header manage icon (it IS the reroute target)",
             listOf(
                 "QuickSheets.kt" to "slots.navigator.openWorkspaceSelector()",
                 "ReadingBridge.kt" to "\"CtrlKeyW\" -> if (keys?.showWorkspaceSheetIfHosted() != true) session.navigator.openWorkspaceSelector()",
             ),
             callers.sortedBy { it.first },
         )
-        // The footer call must stay inside the sheet's own AbQuickSheetFooterRow.
+        // The call must stay inside the sheet's own header manage action (WorkspaceManageAction).
         val sheets = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots/QuickSheets.kt").readLines()
         val at = sheets.indexOfFirst { it.contains("slots.navigator.openWorkspaceSelector()") }
-        assertTrue("the footer reroute must sit within an AbQuickSheetFooterRow", sheets.subList(maxOf(0, at - 4), at).any { it.contains("AbQuickSheetFooterRow") })
+        assertTrue("the reroute must sit within the sheet's WorkspaceManageAction", sheets.subList(maxOf(0, at - 4), at).any { it.contains("WorkspaceManageAction") })
     }
 
     @Test fun theHostExposesExactlyOneWorkspaceSheetOpener() {

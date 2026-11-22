@@ -77,6 +77,7 @@ import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.reading.ShareVersesSheet
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.workspaces.WorkspaceManageAction
 import net.bible.sharedui.workspaces.WorkspaceQuickContent
 import net.bible.sharedui.workspaces.WorkspaceCreateAction
 import org.crosswire.jsword.passage.Key
@@ -332,16 +333,16 @@ private fun WorkspacesSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet) {
     AbQuickSheet(
         open = true,
         title = strings.switchToWorkspace,
-        actions = { WorkspaceCreateAction(rows.size, controller::createNew) },
-        onDismiss = { controller.dispose(); slots.hostState.closeQuickSheet() },
-        canScrollForward = { listState.canScrollForward },
-        footer = {
-            AbQuickSheetFooterRow(text = strings.manageWorkspaces) {
+        actions = {
+            WorkspaceCreateAction(rows.size, controller::createNew)
+            WorkspaceManageAction {
                 controller.dispose()
                 slots.hostState.closeQuickSheet()
                 slots.navigator.openWorkspaceSelector()
             }
         },
+        onDismiss = { controller.dispose(); slots.hostState.closeQuickSheet() },
+        canScrollForward = { listState.canScrollForward },
     ) {
         WorkspaceQuickContent(rows = rows, onSelect = { controller.select(it) }, listState = listState)
     }
