@@ -19,6 +19,8 @@
 
 package net.bible.sharedui.bookmark
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -30,9 +32,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Abc
@@ -46,9 +50,11 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +63,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -67,9 +74,11 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.ManageLabelsMode
@@ -82,6 +91,7 @@ import net.bible.sharedui.components.LocalAbSheetAnimatedClose
 import net.bible.sharedui.components.abFilterChipBorder
 import net.bible.sharedui.components.abFilterChipColors
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.isPureMonochrome
 
 /** Test tags of the assign sheet's own controls. */
 const val LABEL_ASSIGN_SEARCH_TAG = "label-assign-search"
@@ -251,6 +261,7 @@ fun LabelAssignSheetContent(
             val favourite = LabelFilter.FAVOURITE in state.filters
             AssignChip(
                 selected = favourite,
+                compact = open,
                 text = if (open) null else strings.labelAssignFilterFavourites,
                 tag = LABEL_ASSIGN_FILTER_FAVOURITE_TAG,
                 icon = {
@@ -264,6 +275,7 @@ fun LabelAssignSheetContent(
             val autoAssign = LabelFilter.AUTO_ADD in state.filters
             AssignChip(
                 selected = autoAssign,
+                compact = open,
                 text = if (open) null else strings.labelAssignFilterAutoAssign,
                 tag = LABEL_ASSIGN_FILTER_AUTO_ASSIGN_TAG,
                 icon = {
@@ -345,21 +357,38 @@ private fun SearchField(
                     .testTag(LABEL_ASSIGN_SEARCH_TAG),
             )
         }
-        AssignChip(
+        // Borderless and compact: a bordered chip inside the field's own border read as a chip in a chip.
+        CompactToggle(
             selected = contains,
-            text = null,
             tag = LABEL_ASSIGN_SEARCH_CONTAINS_TAG,
-            icon = { Icon(Icons.Filled.Abc, contentDescription = strings.labelAssignSearchContains) },
+            width = 32.dp,
+            height = 32.dp,
+            bordered = false,
             onClick = { actions.onSetSearchMode(if (contains) SearchMode.NAME_START else SearchMode.NAME_CONTAINS) },
-        )
+        ) { Icon(Icons.Filled.Abc, contentDescription = strings.labelAssignSearchContains) }
         IconButton(onClick = onCollapse, modifier = Modifier.size(32.dp)) {
             Icon(Icons.Filled.Clear, contentDescription = strings.searchClear, modifier = Modifier.size(18.dp))
         }
     }
 }
 
+/**
+ * A filter chip; [compact] (icon only, while the search is open) is a [CompactToggle] 40dp wide instead of the
+ * ~56dp an icon-only FilterChip takes, still 48dp tall to touch and drawn 32dp tall like the field.
+ */
 @Composable
-private fun AssignChip(selected: Boolean, text: String?, tag: String, icon: @Composable () -> Unit, onClick: () -> Unit) {
+private fun AssignChip(
+    selected: Boolean,
+    text: String?,
+    tag: String,
+    icon: @Composable () -> Unit,
+    onClick: () -> Unit,
+    compact: Boolean = false,
+) {
+    if (compact) {
+        CompactToggle(selected, tag, width = 40.dp, height = 48.dp, bordered = true, onClick = onClick, content = icon)
+        return
+    }
     FilterChip(
         selected = selected,
         onClick = onClick,
@@ -370,4 +399,49 @@ private fun AssignChip(selected: Boolean, text: String?, tag: String, icon: @Com
         label = { if (text != null) Text(text) else icon() },
         modifier = Modifier.testTag(tag),
     )
+}
+
+/**
+ * A small toggle with the chip's colours (selected: secondaryContainer, or inverted ink in monochrome, no hue). The
+ * outer box is [height] tall for touch; the drawn shape is at most 32dp tall, centred. Toggleable semantics like a chip.
+ */
+@Composable
+private fun CompactToggle(
+    selected: Boolean,
+    tag: String,
+    width: Dp,
+    height: Dp,
+    bordered: Boolean,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val mono = isPureMonochrome()
+    val scheme = MaterialTheme.colorScheme
+    val container = when {
+        !selected -> Color.Transparent
+        mono -> scheme.onSurface
+        else -> scheme.secondaryContainer
+    }
+    val ink = when {
+        !selected -> scheme.onSurfaceVariant
+        mono -> scheme.surface
+        else -> scheme.onSecondaryContainer
+    }
+    val shape = FilterChipDefaults.shape
+    val drawn = Modifier.height(minOf(height, 32.dp)).width(width)
+        .clip(shape)
+        .background(container)
+        .let { if (bordered) it.border(abFilterChipBorder(true, selected) ?: BorderStroke(0.dp, Color.Transparent), shape) else it }
+    Box(
+        modifier = Modifier.size(width, height)
+            .testTag(tag)
+            .toggleable(value = selected, role = Role.Checkbox, onValueChange = { onClick() }),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(drawn, contentAlignment = Alignment.Center) {
+            CompositionLocalProvider(LocalContentColor provides ink) {
+                Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { content() }
+            }
+        }
+    }
 }
