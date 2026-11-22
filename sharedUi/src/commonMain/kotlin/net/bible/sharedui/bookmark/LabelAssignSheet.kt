@@ -23,6 +23,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +56,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -256,7 +259,16 @@ fun LabelAssignSheetContent(
         Modifier.fillMaxWidth().onPreviewKeyEvent { event ->
             if (event.key != Key.Escape) return@onPreviewKeyEvent false
             when (event.type) {
-                KeyEventType.KeyDown -> if (open) { escapeDown = true; collapse(); true } else false
+                KeyEventType.KeyDown -> if (open) {
+                    escapeDown = true
+                    collapse()
+                    true
+                } else {
+                    // A collapse from the field never sees its KeyUp here (the field left with the focus): forget it,
+                    // or this press's release would be swallowed and Android's Escape-to-Back would not fire.
+                    escapeDown = false
+                    false
+                }
                 // Swallow the release of the press that collapsed, so it does not reach the sheet as a second Escape.
                 KeyEventType.KeyUp -> if (escapeDown) { escapeDown = false; true } else false
                 else -> open
@@ -357,8 +369,9 @@ private fun SearchField(
     }
     val ink = MaterialTheme.colorScheme.onSurface
     val contains = state.searchMode == SearchMode.NAME_CONTAINS
-    // The row is the 48dp touch height; the border is drawn 8dp inside it top and bottom (32dp at the default font),
-    // and the text keeps the same 8dp, so a taller text (large font scale) grows the row and the border with it.
+    // The row is the 48dp touch height; the border is drawn 8dp inside it top and bottom (32dp at the default font).
+    // The text keeps 2dp more than that, so a taller text (large font scale) grows the row and the border with it
+    // without touching the outline.
     Box(modifier.heightIn(min = 48.dp)) {
         Box(Modifier.matchParentSize().padding(vertical = 8.dp).border(abFilterChipBorder(true, false), FilterChipDefaults.shape))
         Row(
@@ -366,7 +379,7 @@ private fun SearchField(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp), tint = ink)
-            Box(Modifier.weight(1f).padding(horizontal = 6.dp, vertical = 8.dp), contentAlignment = Alignment.CenterStart) {
+            Box(Modifier.weight(1f).padding(horizontal = 6.dp, vertical = 10.dp), contentAlignment = Alignment.CenterStart) {
                 if (state.searchText.isEmpty()) {
                     // Visual only: the field itself is named by its contentDescription below (no double announcement).
                     Text(
@@ -462,14 +475,20 @@ private fun CompactToggle(
         else -> scheme.onSecondaryContainer
     }
     val shape = FilterChipDefaults.shape
+    // The touch box is larger than the drawn shape: the ripple belongs on the shape, not the whole touch box.
+    val interactions = remember { MutableInteractionSource() }
     val drawn = Modifier.height(minOf(height, 32.dp)).width(drawnWidth)
         .clip(shape)
         .background(container)
+        .indication(interactions, ripple())
         .let { if (bordered) it.border(abFilterChipBorder(true, selected) ?: BorderStroke(0.dp, Color.Transparent), shape) else it }
     Box(
         modifier = Modifier.size(width, height)
             .testTag(tag)
-            .toggleable(value = selected, role = Role.Checkbox, onValueChange = { onClick() }),
+            .toggleable(
+                value = selected, interactionSource = interactions, indication = null, role = Role.Checkbox,
+                onValueChange = { onClick() },
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Box(drawn, contentAlignment = Alignment.Center) {
