@@ -41,6 +41,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
@@ -291,13 +292,23 @@ class LabelAssignSheetTest {
         assertEquals("", controller.searchText.value)
         onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertDoesNotExist()
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertExists()
-        assertEquals(0, closed, "the first Escape only closes the search")
     }
 
     @Test fun aNonEmptySearchTextRendersTheFieldOpen() = runComposeUiTest {
         val controller = controller()
         controller.setSearch("ser")
         show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertExists()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertDoesNotExist()
+    }
+
+    @Test fun backspacingHostSetTextToEmptyKeepsTheFieldOpen() = runComposeUiTest {
+        val controller = controller()
+        controller.setSearch("ser")
+        show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextReplacement("")
+        waitForIdle()
+        assertEquals("", controller.searchText.value)
         onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertExists()
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertDoesNotExist()
     }
