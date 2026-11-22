@@ -1597,6 +1597,39 @@ final class ReadingUITests: RealAppUITestCase {
         shot(app, "command-f-search")
     }
 
+    private func historySheetTitle(_ app: XCUIApplication) -> XCUIElement {
+        app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'History ('")).firstMatch
+    }
+
+    /// #4204: Cmd+Y (Safari's History key) on the reading pane opens the History sheet. Run it in its own xcodebuild
+    /// invocation when possible: after another class's chord tests the simulator can drop the Command flag (the press
+    /// then arrives as a plain "y", seen 2026-11-22; see #3980 / #3989).
+    func testCommandYOpensHistory() throws {
+        let app = try launchReading()
+        let pane = firstPane(app)
+        XCTAssertTrue(pane.waitForExistence(timeout: 15))
+        pane.typeKey("y", modifierFlags: .command)
+        app.typeKey("y", modifierFlags: [])
+        let opened = historySheetTitle(app).waitForExistence(timeout: 15)
+        shot(app, "command-y-history")
+        if !opened { attachTree(app, "command-y-no-history") }
+        XCTAssertTrue(opened, "Cmd+Y must open the History sheet")
+    }
+
+    /// #4204: the focused Find field keeps Cmd+Y; it is no reading shortcut there.
+    func testCommandYInFindFieldStaysWithTheField() throws {
+        let app = try launchReading()
+        guard let field = openFind(app, "command-y-field") else { return }
+        field.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { field.debugDescription.contains("Keyboard Focused") }, "the Find field has no keyboard focus")
+        field.typeKey("y", modifierFlags: .command)
+        usleep(2_000_000)
+        shot(app, "command-y-in-field")
+        XCTAssertFalse(historySheetTitle(app).exists, "Cmd+Y in the Find field must not open History")
+        XCTAssertTrue(field.debugDescription.contains("Keyboard Focused"), "the field must keep the keyboard focus")
+        field.typeKey("y", modifierFlags: [])
+    }
+
     /// Repeating Cmd+F over results replaces the previous query, without a manual field tap or clear.
     func testCommandFSelectsAnExistingSearchQuery() throws {
         throw XCTSkip("Cmd+F is not delivered natively yet (#3989); the shared select-all path is covered by Compose tests")
