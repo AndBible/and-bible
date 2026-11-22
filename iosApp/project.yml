@@ -122,11 +122,11 @@ targets:
           cd "$SRCROOT/.."
           # Release links run out of the shared daemon's 4g heap (OutOfMemoryError in
           # linkReleaseFrameworkIosSimulatorArm64). Run the K/N compiler in its own process with a larger heap
-          # for Release only (6g stopped being enough in Nov 2026: OOM in DevirtualizationAnalysis);
+          # for Release only (6g, then 8g, stopped being enough in Nov 2026: OOM in DevirtualizationAnalysis; 12g since the 1281 release);
           # the daemon's jvmargs stay unchanged.
           EXTRA=""
           if [ "$CONFIGURATION" = "Release" ]; then
-            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx8g"
+            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx12g"
           fi
           ./gradlew -Dorg.gradle.native=false $EXTRA :sharedUi:embedAndSignAppleFrameworkForXcode
       - name: "Copy app resources"
