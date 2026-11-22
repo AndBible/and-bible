@@ -1512,6 +1512,7 @@ class BookmarkHost(
                     nav.currentBackStack.first { stack -> stack.none { it.id == entry.id } }
                     if (binding.editorEntry === entry) binding.editorEntry = null
                     if (stillEditing() && labelEditResults?.pending?.value == null) {
+                        dropLabelEditSession(entry)
                         sheet.onEditorResult(NavLabelEditResult.Cancelled)
                     }
                 }
