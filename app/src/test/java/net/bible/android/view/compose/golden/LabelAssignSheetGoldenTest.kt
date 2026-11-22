@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import com.github.takahirom.roborazzi.RoborazziComposeSizeOption
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelCategory
@@ -102,6 +103,15 @@ class LabelAssignSheetGoldenTest {
 
     @Test fun labelAssignSheet_default() =
         captureMatrix("LabelAssignSheet", "default", heightDp = 800, content = sheet())
+
+    /** The common 360dp phone width: all three filter chips fit (the icon-only third chip); at the harness's 320dp
+     *  the chip row scrolls sideways. */
+    @Test fun labelAssignSheet_chipsAt360dp() =
+        captureMatrix(
+            "LabelAssignSheet", "chips360",
+            captureOptions = listOf(RoborazziComposeSizeOption(widthDp = 360, heightDp = 400)),
+            content = sheet(),
+        )
 
     /** A query, the favourites filter and "Name (contains)" on: the chips' selected state, and the ticked
      *  label that stays listed although the query excludes it. */
