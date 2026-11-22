@@ -120,6 +120,10 @@ class BookmarkRecreationStateTest {
     private fun openNewAssignedLabel(activity: NavHostComposeActivity, bookmarkId: String) {
         bookmarks(activity).enterSelection(bookmarkId)
         bookmarks(activity).assignSelected()
+        // Issue #4201: assigning opens the sheet; its "Edit labels" leads to the full-screen list this test recreates.
+        val sheets = activity.appHosts.bookmark.labelAssignSheets
+        awaitHostCondition("the assign sheet opens", ::advance) { sheets.current != null }
+        sheets.current!!.let { it.finish(net.bible.sharedui.app.bookmark.LabelAssignOutcome.Expand(it.data)) }
         awaitHostRoute(activity, NavRoutes.MANAGE_LABELS_PATTERN, ::advance)
         awaitHostCondition("manager finishes its DAO label load", ::advance) { manager(activity).rows.value.isNotEmpty() }
         manager(activity).newLabel()

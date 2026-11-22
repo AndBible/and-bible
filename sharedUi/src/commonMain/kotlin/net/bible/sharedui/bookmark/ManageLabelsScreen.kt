@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -211,39 +212,24 @@ fun ManageLabelsScreen(
     ) { padding: PaddingValues ->
         Column(modifier = Modifier.fillMaxWidth().padding(padding)) {
             val listState = rememberLazyListState()
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val shown = manageLabelsRowTogglesShown(mode, maxWidth)
-                SideEffect {
+            ManageLabelsList(
+                rows = rows,
+                mode = mode,
+                styleTagsVisible = styleTagsVisible,
+                onRowClick = onRowClick,
+                onRowLongClick = onRowLongClick,
+                onToggleChecked = onToggleChecked,
+                onToggleFavourite = onToggleFavourite,
+                onSetPrimary = onSetPrimary,
+                onToggleAutoAssign = onToggleAutoAssign,
+                iconSlot = iconSlot,
+                listState = listState,
+                modifier = Modifier.volumeScrollTarget(listState),
+                onRowTogglesShownChange = { shown ->
                     rowTogglesShown = shown
                     onRowTogglesShownChange(shown)
-                }
-                LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState)) {
-                    items(rows, key = ::rowKey) { row ->
-                        when (row) {
-                            is ManageLabelsRow.Header -> CategoryHeaderRow(row.category, strings)
-                            is ManageLabelsRow.Item -> LabelItemRow(
-                                row = row,
-                                mode = mode,
-                                styleTagsVisible = styleTagsVisible,
-                                rowTogglesShown = shown,
-                                onRowClick = onRowClick,
-                                onRowLongClick = onRowLongClick,
-                                onToggleChecked = onToggleChecked,
-                                onToggleFavourite = onToggleFavourite,
-                                onSetPrimary = onSetPrimary,
-                                onToggleAutoAssign = onToggleAutoAssign,
-                                iconSlot = iconSlot,
-                                strings = strings,
-                            )
-                            is ManageLabelsRow.SearchResult -> SearchResultRow(
-                                row = row,
-                                onRowClick = onRowClick,
-                                strings = strings,
-                            )
-                        }
-                    }
-                }
-            }
+                },
+            )
         }
     }
 
@@ -262,6 +248,61 @@ fun ManageLabelsScreen(
             )
         }
         ManageLabelsDialog.None -> {}
+    }
+}
+
+/**
+ * The label list itself, shared by the full-screen [ManageLabelsScreen] and the assign sheet
+ * ([LabelAssignSheetContent], issue #4201): category headers, [LabelItemRow]s and StudyPad
+ * content-search hits. The list measures its own width and decides whether rows draw their trailing
+ * toggles ([manageLabelsRowTogglesShown]); [onRowTogglesShownChange] publishes that decision.
+ */
+@Composable
+fun ManageLabelsList(
+    rows: List<ManageLabelsRow>,
+    mode: ManageLabelsMode,
+    styleTagsVisible: Boolean,
+    onRowClick: (labelId: String) -> Unit,
+    onRowLongClick: (labelId: String) -> Unit,
+    onToggleChecked: (labelId: String) -> Unit,
+    onToggleFavourite: (labelId: String) -> Unit,
+    onSetPrimary: (labelId: String) -> Unit,
+    onToggleAutoAssign: (labelId: String) -> Unit,
+    iconSlot: @Composable (customIcon: String?, tint: Color) -> Unit,
+    listState: LazyListState = rememberLazyListState(),
+    modifier: Modifier = Modifier,
+    onRowTogglesShownChange: (Boolean) -> Unit = {},
+) {
+    val strings = LocalStrings.current
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val shown = manageLabelsRowTogglesShown(mode, maxWidth)
+        SideEffect { onRowTogglesShownChange(shown) }
+        LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
+            items(rows, key = ::rowKey) { row ->
+                when (row) {
+                    is ManageLabelsRow.Header -> CategoryHeaderRow(row.category, strings)
+                    is ManageLabelsRow.Item -> LabelItemRow(
+                        row = row,
+                        mode = mode,
+                        styleTagsVisible = styleTagsVisible,
+                        rowTogglesShown = shown,
+                        onRowClick = onRowClick,
+                        onRowLongClick = onRowLongClick,
+                        onToggleChecked = onToggleChecked,
+                        onToggleFavourite = onToggleFavourite,
+                        onSetPrimary = onSetPrimary,
+                        onToggleAutoAssign = onToggleAutoAssign,
+                        iconSlot = iconSlot,
+                        strings = strings,
+                    )
+                    is ManageLabelsRow.SearchResult -> SearchResultRow(
+                        row = row,
+                        onRowClick = onRowClick,
+                        strings = strings,
+                    )
+                }
+            }
+        }
     }
 }
 

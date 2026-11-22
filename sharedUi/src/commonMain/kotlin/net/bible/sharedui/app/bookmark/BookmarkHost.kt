@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,6 +71,9 @@ import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.installzip.InstallZipOpener
+import net.bible.sharedui.bookmark.LabelAssignSheet
+import net.bible.sharedui.bookmark.LabelAssignSheetActions
+import net.bible.sharedui.bookmark.LabelAssignSheetState
 import net.bible.sharedui.bookmark.ManageLabelsHelpDialog
 import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.bookmark.nav.BookmarksDeps
@@ -79,6 +84,7 @@ import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectSheet
+import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.strings.Strings
@@ -509,8 +515,15 @@ class BookmarkHost(
             withContext(Dispatchers.Main) {
                 session.pendingAssign = bookmarks
                 session.restoredAssignIds = null
-                session.awaitingManageLabels = true
-                navigateToManageLabels(payload)
+                // Issue #4201: the sheet first; "Edit labels" in it opens the full-screen list as before.
+                when (val outcome = requestLabelAssign(payload)) {
+                    is LabelAssignOutcome.Assigned -> applyBookmarksManageLabelsResult(ManageLabelsResult(outcome.data))
+                    is LabelAssignOutcome.Expand -> {
+                        session.awaitingManageLabels = true
+                        navigateToManageLabels(outcome.data)
+                    }
+                    LabelAssignOutcome.Cancelled -> if (session.pendingAssign === bookmarks) session.pendingAssign = null
+                }
             }
         }
     }
@@ -640,6 +653,27 @@ class BookmarkHost(
      * this one has finished — is seeded afresh rather than resuming a stale working set.
      */
     internal var manageLabelsSession: Pair<String, ManageLabelsSession>? = null
+
+    /**
+     * The label-assign sheet (issue #4201): the bookmark list's multi-select and the reading view's
+     * bookmark flow ask through it, and [Overlays] renders the open request above every destination.
+     */
+    val labelAssignSheets = LabelAssignSheetRequests()
+
+    /**
+     * Opens the assign sheet with an ASSIGN payload and waits for how it ended; the [LabelAssignSheetOpener] of
+     * every entry point. A sheet that ended without its save (a cancelled requester, a replaced request) leaves no
+     * memoised controller behind: the full-screen list opened next with the same payload must not resume it, and
+     * would otherwise answer this finished request instead of its own caller.
+     */
+    suspend fun requestLabelAssign(data: String): LabelAssignOutcome = try {
+        labelAssignSheets.request(data)
+    } finally {
+        // Callers are on Main (the sheet is UI), so the plain field is touched where it always is.
+        manageLabelsSession?.let { (key, session) ->
+            if (key == data && !session.writes.isStarted) manageLabelsSession = null
+        }
+    }
 
     /** Raised from the ManageLabels overflow; rendered host-level in [Overlays]. */
     internal var manageLabelsHelpOpen by mutableStateOf(false)
@@ -1270,6 +1304,9 @@ class BookmarkHost(
         // leave it pending, and apply it stale the next time the list composed.
         BookmarksManageLabelsCollector()
 
+        // Read unconditionally (snapshot state), for the reason the comment below spells out.
+        labelAssignSheets.current?.let { request -> key(request) { LabelAssignSheetHost(request) } }
+
         // Host-level, deliberately OUTSIDE the NavHost: the export runs in the host scope
         // and outlives the destination that started it, so a chooser scoped
         // to that destination's composition could be disposed mid-await and leave the
@@ -1374,6 +1411,99 @@ class BookmarkHost(
                 )
             }
         }
+    }
+
+    /**
+     * One open assign sheet. Its controller is the full screen's own (the host memo
+     * [manageLabelsControllerFor], ASSIGN mode), and every close saves through the same
+     * [saveManageLabelsAndExit], so the answer is the result payload the full screen would deliver.
+     * The sheet is taken down at once and the save finishes on the host scope.
+     */
+    @Composable
+    private fun LabelAssignSheetHost(request: LabelAssignSheetRequests.Request) {
+        var expand by remember(request) { mutableStateOf(false) }
+        val controller = remember(request) {
+            manageLabelsControllerFor(
+                request.data,
+                onEditLabel = {},
+                onResult = { result ->
+                    request.finish(if (expand) LabelAssignOutcome.Expand(result.data) else LabelAssignOutcome.Assigned(result.data))
+                },
+            )
+        }
+        val session = remember(request) { manageLabelsSession?.second?.takeIf { it.controller === controller } }
+        var closing by remember(request) { mutableStateOf(false) }
+        var naming by remember(request) { mutableStateOf<String?>(null) }
+        val rows by controller.rows.collectAsState()
+        val searchText by controller.searchText.collectAsState()
+        val searchMode by controller.searchMode.collectAsState()
+        val styleTagsVisible by controller.styleTagsVisible.collectAsState()
+        val filters by controller.filters.collectAsState()
+        if (closing) return
+        val close: (Boolean) -> Unit = { toFullScreen ->
+            expand = toFullScreen
+            closing = true
+            controller.save()
+        }
+        LabelAssignSheet(
+            state = LabelAssignSheetState(
+                title = strings.assignLabelsLabel,
+                rows = rows,
+                styleTagsVisible = styleTagsVisible,
+                searchText = searchText,
+                searchMode = searchMode,
+                filters = filters,
+            ),
+            actions = LabelAssignSheetActions(
+                onSearch = controller::setSearch,
+                onSetSearchMode = controller::setSearchMode,
+                onToggleFilter = controller::toggleFilter,
+                onToggleChecked = controller::toggleChecked,
+                onToggleFavourite = controller::toggleFavourite,
+                onSetPrimary = controller::setPrimary,
+                onToggleAutoAssign = controller::toggleAutoAssign,
+                onEditLabels = { close(true) },
+                newLabelAction = { NewLabelIcon(onClick = { naming = searchText.trim() }) },
+                iconSlot = { customIcon, tint -> icons.ManageLabelIcon(customIcon, tint, false) },
+            ),
+            onDismiss = { close(false) },
+        )
+        naming?.let { initial ->
+            AbTextInputDialog(
+                title = strings.labelAssignNewLabelTitle,
+                initial = initial,
+                confirmText = strings.create,
+                dismissText = strings.cancel,
+                onConfirm = { name ->
+                    naming = null
+                    session?.let { addLabelFromSheet(it, name) }
+                },
+                onDismiss = { naming = null },
+            )
+        }
+    }
+
+    /**
+     * The assign sheet's New (+): a label named [name], with a random colour and the editor's ASSIGN
+     * presets (ticked, primary), staged in [session] exactly as a new label returned by the editor is
+     * ([applyLabelEditResult]): inserted, and its temporary id remapped, when the sheet saves.
+     */
+    internal fun addLabelFromSheet(session: ManageLabelsSession, name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return
+        val label = BookmarkEntities.Label(new = true).apply {
+            this.name = trimmed
+            color = manageLabelsService.randomColorArgb()
+        }
+        session.labelsById[label.id.toString()] = label
+        val presets = ManageLabelsMapper.newLabelPresets(session.data.mode)
+        session.controller.applyLabelChanged(
+            item = label.toLabelItem(),
+            selectedFlag = presets.thisBookmarkSelected,
+            autoAssignFlag = presets.autoAssign,
+            bookmarkPrimaryFlag = presets.thisBookmarkPrimary,
+            autoAssignPrimaryFlag = presets.autoAssignPrimary,
+        )
     }
 
     /**

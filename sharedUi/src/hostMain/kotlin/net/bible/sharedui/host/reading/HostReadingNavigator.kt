@@ -18,6 +18,8 @@
 
 package net.bible.sharedui.host.reading
 
+import net.bible.sharedui.app.bookmark.LabelAssignSheetOpener
+import net.bible.sharedui.app.bookmark.resolveLabelAssign
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -98,6 +100,8 @@ class HostReadingNavigator(
     private val openReadingSearch: () -> Unit,
     /** Where a key-list sheet left without a key, on a page that has none, goes back to (the choosers' cancel guard). */
     private val history: () -> HistoryManager = { KoinPlatform.getKoin().get() },
+    /** The app's label-assign sheet (issue #4201); null: [assignLabels] opens the full-screen list as before. */
+    private val labelAssignSheet: () -> LabelAssignSheetOpener? = { null },
 ) : ReadingNavigator {
     private val labelRequests = Mutex()
 
@@ -237,8 +241,9 @@ class HostReadingNavigator(
             selectedLabels = labelIds.toMutableSet(),
             bookmarkPrimaryLabel = bookmark.primaryLabelId,
         ).applyFrom(workspaceSettings()).toJSON()
-        val result = awaitManageLabels(data) ?: return null
-        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
+        val resultJson = resolveLabelAssign(data, labelAssignSheet()) { payload -> awaitManageLabels(payload)?.data }
+            ?: return null
+        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(resultJson)
         bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
         workspaceSettings()?.updateFrom(resultData)
         return resultData.selectedLabels.toList()

@@ -12,11 +12,32 @@ To manage and see a list of all of your labels:
 1. Click the vertical ‘three-dot’ menu on the top right of the main toolbar.
 2. Click *Label settings…*. This opens the *Labels* screen.
 
-Alternatively, when creating a bookmark, you can assign and manage labels by
-clicking on the *Select or edit labels…* button on the bottom of the
-*Bookmark labels* sheet.
+Alternatively, when creating a bookmark, you can assign labels by clicking on
+the *Select or edit labels…* button on the bottom of the *Bookmark labels* sheet.
+This opens the [Assign labels](#assign-labels) sheet.
 
 [![Labels screen with favourite, auto-assign and main label controls](/media/docs/images/label-settings-dialog.png){ .align-center style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/label-settings-dialog.png)
+
+## Assign labels {#assign-labels}
+
+Choosing labels for bookmarks opens the *Assign labels* sheet: from the
+*Bookmark labels* sheet's *Select or edit labels…* button, and from *Assign labels*
+when several bookmarks are selected in the [bookmarks list](bookmarks.md).
+
+- Tap a label to tick it, or tap it again to untick it. When the bookmark has no
+    main label yet, the first label you tick becomes its main label.
+- Type in the search field to find a label by the start of its name. The chips
+    under the field show only favourite labels, only auto-assign labels, or search
+    anywhere in the name (*Name (contains)*). A label you have ticked stays listed
+    whatever you search.
+- The *Plus* (+) button at the top creates a new label: enter its name, and the
+    label is added, ticked and made the main label. Its colour is chosen at random; change it in
+    *Edit labels*.
+- Close the sheet (swipe it down, tap outside it or click the close button) to
+    save the labels.
+- *Edit labels* at the bottom opens the full label list with your choice so far.
+    There you can open a label's settings and set the main label, favourites and
+    auto-assign labels; going back saves.
 
 ## Searching for a Label
 
@@ -70,6 +91,7 @@ In the label list the lightning bolt marks auto-assign labels, the heart
 favourites and the bookmark icon main labels. On a narrow screen (a phone held
 upright), the list you open to choose a bookmark's labels leaves these three icons
 out so that the label names have room; tap a label to set them in its settings.
+(The *Assign labels* sheet follows the same rule.)
 In this narrow list, *Search settings* also leaves out the auto-assign and favourite
 filters, since their states are not displayed in the rows. Wider lists, and the
 workspace label settings list, keep these filters. If a wider list becomes narrow

@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.host.app
 
+import net.bible.sharedui.app.bookmark.LabelAssignSheetOpener
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityListRequests
 import net.bible.android.control.activity.ActivityMenuPreference
@@ -461,7 +462,9 @@ private fun HostAppContent(
             activeAskerProvider = { koin.get<WindowControl>().activeWindowPageManager },
         )
     }
-    val readingHostHolder = remember { ReadingHostHolder(channels.manageLabels, readingResults) }
+    val readingHostHolder = remember {
+        ReadingHostHolder(channels.manageLabels, readingResults) { appHosts.bookmark::requestLabelAssign }
+    }
     DisposableEffect(Unit) { val restoreReload = installRestoreReload(koin, scope); onDispose { restoreReload.cancel() } }
     val debugReadingReady = remember { androidx.compose.runtime.mutableStateOf(false) }
     val language = holder.current.tag
@@ -709,6 +712,8 @@ private fun HostAppContent(
 private class ReadingHostHolder(
     private val labelResults: NavResultChannel<ManageLabelsResult>,
     private val readingResults: HostReadingResults,
+    /** The app's label-assign sheet (issue #4201), for the reading navigator's label chooser. */
+    private val labelAssignSheet: () -> LabelAssignSheetOpener?,
 ) {
     private var host: HostReadingHost? = null
 
@@ -730,6 +735,7 @@ private class ReadingHostHolder(
             { currentStrings ?: strings },
             labelResults = labelResults,
             readingResults = readingResults,
+            labelAssignSheet = labelAssignSheet,
         ).also {
             host = it
             backRoute.chain = it.backChain

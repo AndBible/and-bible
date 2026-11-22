@@ -105,6 +105,7 @@ import net.bible.android.view.activity.nav.ports.AndroidAiHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidBugReportPlatform
 import net.bible.android.view.activity.nav.ports.AndroidPromptFiles
 import net.bible.sharedui.app.AppHosts
+import net.bible.sharedui.app.bookmark.LabelAssignSheetOpener
 import net.bible.sharedui.app.AppHostsState
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.HostPorts
@@ -228,6 +229,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
     internal lateinit var appHosts: AppHosts
         private set
+
+    /** The label-assign sheet of this host's overlays (issue #4201), or null before [appHosts] exists. */
+    internal fun labelAssignSheetOpener(): LabelAssignSheetOpener? =
+        if (::appHosts.isInitialized) appHosts.bookmark::requestLabelAssign else null
 
     override val hostScope: CoroutineScope get() = lifecycleScope
     override fun exitHost() = finish()

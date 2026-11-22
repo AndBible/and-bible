@@ -912,6 +912,8 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Batch 7b-1 — ManageLabelsScreen
     override val labelsSearchHint: String get() = context.getString(R.string.labels_search_hint)
+    override val labelAssignEditLabels: String get() = context.getString(R.string.label_assign_edit_labels)
+    override val labelAssignNewLabelTitle: String get() = context.getString(R.string.label_assign_new_label_title)
     override val activeLabelsHeader: String get() = context.getString(R.string.active_labels)
     override val recentLabelsHeader: String get() = context.getString(R.string.recent_labels)
     override val otherLabelsHeader: String get() = context.getString(R.string.other_labels)
