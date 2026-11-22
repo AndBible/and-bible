@@ -341,6 +341,9 @@ main menu, the search results and **Find**), and on a screen opened over the Bib
 settings or the Bible chooser, it returns to the previous screen.
 On the Android and desktop reading screens, Esc also exits fullscreen; with nothing open it does
 nothing (unlike Back, it never steps back through your reading history or closes the app).
+On Android, Esc does not yet close sheets and dialogs that open in their own window, such as
+*Workspaces*, and after you tap the Bible text it closes only popups in the text, not **Find**;
+use Back for those.
 
 On iPhone, iPad and the iOS app on a Mac, while you type in a text field, the
 first Esc only leaves the field (and hides the on-screen keyboard); press Esc
