@@ -129,22 +129,22 @@ fun AbModalBottomSheet(
         scrimColor = if (mono) Color.Transparent else BottomSheetDefaults.ScrimColor,
         // M3 1.4.0 defaults tonalElevation to 0.dp and Surface's shadowElevation to 0.dp.
         tonalElevation = 0.dp,
-        // With a description the compact handle is drawn by us as the first row of the content
-        // so that ONE node carries both the name and the dismiss action; M3's wrapper node merged an
-        // empty label on iOS (audit: "Element has no description" on the 32x48 handle).
-        dragHandle = if (!showDragHandle || handleDescription != null) null
-            else ({ AbSheetDragHandle(description = null, mono = mono) }),
+        // The handle is always drawn by us as the first row of the capped content (#4207: the cap covers the whole
+        // sheet, which M3's own handle slot, outside the content, would escape). With a description ONE node carries
+        // both the name and the dismiss action; M3's wrapper node merged an empty label on iOS (audit: "Element has
+        // no description" on the 32x48 handle).
+        dragHandle = null,
     ) {
         // The cap lives HERE, once: every sheet's content (drag handle included) is measured with at most
         // AbSheetMaxHeightFraction of the height the sheet window offers (#4207). Scroll regions inside are flexible
         // (`sheetFlexible`), so the header and footer rows stay and the list takes the rest.
         Column(Modifier.fillMaxWidth().abSheetHeightCap()) {
-            if (showDragHandle && handleDescription != null) {
+            if (showDragHandle) {
                 AbSheetDragHandle(
                     description = handleDescription,
                     mono = mono,
-                    onDismiss = {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() }
+                    onDismiss = if (handleDescription == null) null else {
+                        { scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() } }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )

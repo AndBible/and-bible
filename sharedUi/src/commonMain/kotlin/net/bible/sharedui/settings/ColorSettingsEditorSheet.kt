@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.BackgroundImageOption
 import net.bible.sharedcore.settings.ColorField
@@ -206,6 +207,8 @@ fun ColorSettingsEditorSheet(
                         working = working,
                         onWorkingChange = { working = it },
                         presetsPage = presetsPage,
+                        // The enclosing SheetScrollBody scrolls; no second same-axis scroll inside it.
+                        maxHeight = Dp.Unspecified,
                     )
                     if (page.field == ColorField.WORKSPACE) {
                         // F78: back to "unset" (stock theme); applies at once, so it is its own confirm.

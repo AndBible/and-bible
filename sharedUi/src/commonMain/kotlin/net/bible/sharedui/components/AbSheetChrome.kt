@@ -185,7 +185,9 @@ fun AbSheetCloseOverlay(onClose: () -> Unit, content: @Composable () -> Unit) {
 
 /**
  * Scrolls vertically inside a capped sheet ([LocalAbSheetHeightCapped]); a no-op elsewhere, where the column is
- * unbounded (content-only frames render at their natural height). For a sheet body that is not a list.
+ * unbounded (content-only frames render at their natural height). For a sheet body that is not a list: the content
+ * must not contain lazy lists or flexible scroll regions ([AbSheetScrollBound], [sheetFlexible]); inside a scrolling
+ * column they collapse to zero height or throw.
  */
 @Composable
 fun Modifier.sheetVerticalScroll(): Modifier {
@@ -196,7 +198,8 @@ fun Modifier.sheetVerticalScroll(): Modifier {
 /**
  * A form-like sheet body (fields, switches, explanatory text) between a header and a pinned confirm row: flexible
  * ([sheetFlexible]) and scrolling, so a body taller than the half-window cap scrolls while the rows after it stay
- * on screen. A plain [Column] outside a capped sheet.
+ * on screen. A plain [Column] outside a capped sheet. Same restriction as [sheetVerticalScroll]: no lazy lists or
+ * flexible scroll regions inside, and any nested scroller must be unbounded-height-safe (no own same-axis scroll).
  */
 @Composable
 fun ColumnScope.SheetScrollBody(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {

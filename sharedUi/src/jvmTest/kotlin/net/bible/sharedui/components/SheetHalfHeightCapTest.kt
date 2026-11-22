@@ -62,6 +62,8 @@ import net.bible.sharedui.bookmark.LabelAssignSheetState
 import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.settings.GenericSettingsEditorSheet
+import net.bible.sharedui.settings.SettingsEditorSheet
+import net.bible.sharedui.settings.TextInputRowEditorContent
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
@@ -74,7 +76,7 @@ import kotlin.test.assertTrue
  * confirm row stay on screen whatever the list length, and the list scrolls to its last row. A short sheet keeps its
  * natural height. The sheets are the real ones, in a window of a phone's size (1 px = 1 dp), portrait and landscape.
  */
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 class SheetHalfHeightCapTest {
     private val strings = iosStrings("en")
     private val portrait = Size(360f, 760f)
@@ -190,9 +192,43 @@ class SheetHalfHeightCapTest {
     @Test fun readHistoryPortrait() = readHistory(portrait)
     @Test fun readHistoryLandscape() = readHistory(landscape)
 
+    /** The cap covers the whole sheet, the drag handle included (default handle, no description, no header close). */
+    @Test fun sheetWithDefaultDragHandleIsCappedIncludingTheHandle() {
+        for (window in listOf(portrait, landscape)) run(window) { h ->
+            mount {
+                AbModalBottomSheet(onDismissRequest = {}, modifier = Modifier.testTag("handle-sheet")) {
+                    androidx.compose.foundation.layout.Column(Modifier.sheetVerticalScroll()) {
+                        repeat(40) { Box(Modifier.fillMaxWidth().height(48.dp)) { Text("Row $it") } }
+                    }
+                }
+            }
+            waitForIdle()
+            val height = onNodeWithTag("handle-sheet").fetchSemanticsNode().size.height.toFloat()
+            assertTrue(height <= h * 0.5f + 1f, "sheet with a handle: $height dp of a $h dp window is over half")
+            assertTrue(height > h * 0.4f, "sheet with a handle: $height dp did not use the room it has")
+        }
+    }
+
+    /** A form page with a pinned confirm row keeps the row on screen at the cap, also in landscape. */
+    @Test fun textInputPageKeepsItsConfirmRowAtTheCap() {
+        for (window in listOf(portrait, landscape)) run(window) { h ->
+            val row = SettingsItem.TextInputRow("k", "Server address", value = "https://example.org")
+            mount {
+                SettingsEditorSheet(SettingsEditorPage.Row("k"), "Server address", false, {}, {}) {
+                    TextInputRowEditorContent(row, onApply = {}, onCancel = {})
+                }
+            }
+            waitForIdle()
+            assertCapped(h, "text input page $window")
+            assertOnScreen(strings.settingsEditorApply, h, "text input page $window")
+            assertOnScreen(strings.cancel, h, "text input page $window")
+        }
+    }
+
     private val scope = CoroutineScope(Job() + Dispatchers.Unconfined)
 
     private fun labelAssign(window: Size) = run(window) { h ->
+        try {
         fun label(i: Int) = LabelItem("l$i", "Label ${i.toString().padStart(2, '0')}", 0xFF3366CC.toInt(),
             favourite = false, isUnlabeled = false, isSpecial = false, customIcon = null)
         val service = object : ManageLabelsService {
@@ -244,7 +280,9 @@ class SheetHalfHeightCapTest {
             assertListReachesLastRow("Label 40", "label assign $window")
             assertOnScreen(strings.labelAssignEditLabels, h, "label assign $window after scrolling")
         }
-        scope.cancel()
+        } finally {
+            scope.cancel()
+        }
     }
 
     @Test fun labelAssignPortrait() = labelAssign(portrait)
