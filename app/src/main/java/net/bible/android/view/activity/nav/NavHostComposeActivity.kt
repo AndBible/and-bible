@@ -577,17 +577,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     internal val readingBackChain: List<BackStep> by lazy {
         listOf(
             // Classic :778. The Compose drawer is modal -- it must win.
-            BackStep("drawer") { readingCommands.composeCloseDrawerIfOpen() },
+            BackStep("drawer", closesLayer = true) { readingCommands.composeCloseDrawerIfOpen() },
             // Classic :797. Three stages: the results list after a result tap (F83), then the sheet, then search mode.
-            BackStep("search") { readingCommands.composeCloseSearchIfOpen() },
+            BackStep("search", closesLayer = true) { readingCommands.composeCloseSearchIfOpen() },
             // Classic :798-801.
-            BackStep("fullscreen") {
+            BackStep("fullscreen", closesLayer = true) {
                 if (!fullScreen) false else { toggleFullScreen(); true }
             },
             // Classic :806, `documentViewManager.documentView.backButtonPressed()` -- closes an open
             // BibleView modal. Guarded on the reading view existing, because `documentView` CREATES a
             // BibleView when absent (see the note at :1004-1013) and a back press must never do that.
-            BackStep("webViewModal", clearsExitWarning = true) {
+            BackStep("webViewModal", clearsExitWarning = true, closesLayer = true) {
                 composeReadingViewHost != null && documentViewManager.documentView.backButtonPressed()
             },
             // #4141: the links pane beside a maximised window closes once Back has walked what was opened in it since it
@@ -695,6 +695,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             controller.popBackStack()
             return
         }
+        if (escapeBackInProgress) return
         hostBack.isEnabled = false
         try {
             onBackPressedDispatcher.onBackPressed()
@@ -731,12 +732,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     internal fun readingBack(passThrough: () -> Unit) {
         for (step in readingBackChain) {
+            if (escapeBackInProgress && !step.closesLayer) continue
             if (step.run()) {
                 Log.i(TAG_BACK, "BACK consumed by ${step.name}")
                 if (step.clearsExitWarning) lastBackPressed = null
                 return
             }
         }
+        // Esc (#4196) closes layers only; the exit warning and the exit stay Back's.
+        if (escapeBackInProgress) return
         val last = lastBackPressed
         val now = System.currentTimeMillis()
         if (last == null || last < now - BACK_EXIT_WINDOW_MS) {
@@ -804,6 +808,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Activity; every other destination reaches `super` unchanged.
      */
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (isPlainEscape(event)) {
+            if (event.isTracking && !event.isCanceled) escapeBack()
+            return true
+        }
         if (keyCode == KeyEvent.KEYCODE_SEARCH && !event.isCanceled && readingDestinationIsCurrent() &&
             windowControl.activeWindowPageManager.currentPage.isSearchable
         ) {
@@ -819,6 +827,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (isPlainEscape(event)) {
+            event.startTracking()
+            return true
+        }
         // Fix batch 5 F105: every non-reading destination's Compose list, under ActivityBase's gates.
         if (volumeKeyPagesComposeList(keyCode)) {
             lifecycleScope.launch { volumeScrollRegistry.scrollPage(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) }
@@ -833,6 +845,34 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (key != null && handlers.onKey(key)) return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    /**
+     * Issue #4196: a hardware Esc that no view consumed is Back, as on desktop and iOS. Android 16's `Generic.kcm` maps
+     * ESCAPE to nothing (earlier releases sent a fallback BACK for an unhandled Esc; system Back is now Meta+Esc), so the
+     * host answers it itself. Only the unconsumed key gets here: a note editor or a Compose field that uses Esc keeps it,
+     * and answering the key-down also stops an older release from sending its fallback BACK as a second press. Alt+Esc
+     * and Ctrl+Esc stay the platform's HOME/MENU fallbacks.
+     */
+    private fun isPlainEscape(event: KeyEvent): Boolean =
+        event.keyCode == KeyEvent.KEYCODE_ESCAPE && event.hasNoModifiers()
+
+    /** True while [escapeBack] dispatches: such a press closes what is open but never exits or warns about exiting. */
+    private var escapeBackInProgress = false
+
+    /**
+     * Runs Esc through the same back dispatcher as Back (sheets, dialogs, the drawer, find mode, a pop to the previous
+     * screen), except that it never leaves the app or the page: on reading it runs only the steps that close a layer
+     * ([BackStep.closesLayer], no history step, no exit warning; [readingBack]), and where Back would fall through to
+     * the platform's finish ([passThroughHostBack]) it stops.
+     */
+    private fun escapeBack() {
+        escapeBackInProgress = true
+        try {
+            onBackPressedDispatcher.onBackPressed()
+        } finally {
+            escapeBackInProgress = false
+        }
     }
 
     /**

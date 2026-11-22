@@ -41,11 +41,14 @@ package net.bible.android.view.activity.nav
  *   fullscreen branches `return` before reaching that assignment, leaving the timer standing. Modelled
  *   explicitly rather than reproduced by control flow, because it is the kind of detail a rewrite
  *   silently drops.
+ * @param closesLayer whether the step closes something open over the text (the drawer, find mode, fullscreen, a
+ *   BibleView modal). A hardware Esc runs only these (#4196): like desktop's Esc it never walks the history.
  * @param consume runs the step. `true` means the press was consumed and the chain stops here.
  */
 class BackStep(
     val name: String,
     val clearsExitWarning: Boolean = false,
+    val closesLayer: Boolean = false,
     private val consume: () -> Boolean,
 ) {
     fun run(): Boolean = consume()
