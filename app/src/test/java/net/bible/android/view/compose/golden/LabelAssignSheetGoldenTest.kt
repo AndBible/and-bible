@@ -42,7 +42,8 @@ import org.robolectric.annotation.GraphicsMode
 
 /**
  * The label-assign sheet (issue #4201), captured through [LabelAssignSheetFrame]: the sheet's header,
- * search field, filter chips, the full screen's own label list and the "Edit labels" footer, without
+ * Search chip row (the field opens inline while searching), the header icons (add, edit labels, close) and the
+ * full screen's own label list, without
  * the modal window (an open `ModalBottomSheet` must never be captured).
  */
 @RunWith(RobolectricTestRunner::class)
@@ -123,6 +124,17 @@ class LabelAssignSheetGoldenTest {
                 searchText = "pro",
                 filters = setOf(LabelFilter.FAVOURITE),
                 searchMode = SearchMode.NAME_CONTAINS,
+            ),
+        )
+
+    /** Search open with the text "pr": the inline field with the Abc toggle at its end and the clear button,
+     *  Favourites and Auto-assign collapsed to icon-only chips. */
+    @Test fun labelAssignSheet_searching() =
+        captureMatrix(
+            "LabelAssignSheet", "searching", heightDp = 800,
+            content = sheet(
+                rows = listOf(rows()[1], rows()[6], rows()[7]),
+                searchText = "pr",
             ),
         )
 }

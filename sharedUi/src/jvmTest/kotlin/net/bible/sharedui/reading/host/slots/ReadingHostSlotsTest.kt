@@ -842,19 +842,21 @@ class ReadingHostSlotsTest {
     }
 
     @Test
-    fun workspaceBranchCurrentRowIsInertAndFooterOpensTheSelector() = runComposeUiTest {
+    fun workspaceBranchCurrentRowIsInertAndHeaderIconOpensTheSelector() = runComposeUiTest {
         val quick = QuickFakes()
         val (slots, state) = slots(quick = quick)
         state.showWorkspaceSheet()
         setContent {
             CompositionLocalProvider(LocalStrings provides strings) {
-                net.bible.sharedui.theme.AbTheme(darkTheme = false) { slots.QuickSheet(state.quickSheet.value!!) }
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) { state.quickSheet.value?.let { slots.QuickSheet(it) } }
             }
         }
         waitForIdle()
         onNodeWithText(strings.workspaceListingWithCurrent("Alpha")).performClick()
         assertTrue(quick.switched.isEmpty(), "the current workspace row does nothing")
-        onNodeWithText(strings.manageWorkspaces).performClick()
+        onNodeWithText(strings.manageWorkspaces).assertDoesNotExist()
+        onNodeWithTag(net.bible.sharedui.workspaces.WORKSPACE_MANAGE_TAG).performClick()
+        waitForIdle()
         assertEquals(1, quick.workspaceSelectorOpens.size)
         assertTrue(state.quickSheet.value == null)
     }

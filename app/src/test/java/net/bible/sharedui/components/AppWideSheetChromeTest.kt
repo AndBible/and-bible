@@ -135,8 +135,9 @@ class AppWideSheetChromeTest {
         }
         rule.onNodeWithContentDescription("Sheet handle").assertExists()
         rule.runOnIdle {
-            org.junit.Assert.assertTrue(state.hasPartiallyExpandedState)
-            org.junit.Assert.assertTrue(state.hasExpandedState)
+            // #4207: the sheet is capped at half the window, so even 600dp of content leaves no half-way state to
+            // drag to; the handle stays compact and the sheet has only its one (capped) height.
+            org.junit.Assert.assertFalse(state.hasPartiallyExpandedState)
         }
     }
 

@@ -27,6 +27,7 @@ import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.TextSettingRow
 import net.bible.sharedcore.settings.TextSettingRowValue
 import net.bible.sharedcore.settings.TextSettingType
+import net.bible.sharedui.components.SheetScrollBody
 
 /**
  * The sheet pages for the text display settings whose editor is a slider or a set of sliders:
@@ -95,13 +96,17 @@ fun TextSettingRowEditorSheet(
                 var left by remember(margins) { mutableIntStateOf(margins.left) }
                 var right by remember(margins) { mutableIntStateOf(margins.right) }
                 var maxWidth by remember(margins) { mutableIntStateOf(margins.maxWidth) }
-                MarginContent(
-                    margins = margins,
-                    leftLabelFormat = dialogLabels.marginLeftLabelFormat,
-                    rightLabelFormat = dialogLabels.marginRightLabelFormat,
-                    maxWidthLabelFormat = dialogLabels.marginMaxWidthLabelFormat,
-                    onValueChange = { l, r, m -> left = l; right = r; maxWidth = m },
-                )
+                // SheetScrollBody (#4207): under the half-window cap the sliders scroll and the confirm row below
+                // keeps its height; a plain body would squeeze the row to nothing.
+                SheetScrollBody {
+                    MarginContent(
+                        margins = margins,
+                        leftLabelFormat = dialogLabels.marginLeftLabelFormat,
+                        rightLabelFormat = dialogLabels.marginRightLabelFormat,
+                        maxWidthLabelFormat = dialogLabels.marginMaxWidthLabelFormat,
+                        onValueChange = { l, r, m -> left = l; right = r; maxWidth = m },
+                    )
+                }
                 SheetResetConfirmRow(
                     resetLabel = dialogLabels.resetToInheritedLabel,
                     confirmLabel = dialogLabels.okLabel,
@@ -120,15 +125,18 @@ fun TextSettingRowEditorSheet(
                 val fontChoice = rows[TextSettingType.FONTFAMILY]?.value as? TextSettingRowValue.Choice
                 val font = fontChoice?.entries?.firstOrNull { it.value == fontChoice.selectedValue }?.font
                     ?: fontChoice?.selectedValue?.let { net.bible.sharedcore.settings.SettingsItem.ChoiceFont.Family(it) }
-                NumericTextSettingContent(
-                    type = pageType,
-                    numeric = numeric,
-                    fontSize = (rows[TextSettingType.FONTSIZE]?.value as? TextSettingRowValue.Numeric)?.value ?: 16,
-                    lineSpacing = (rows[TextSettingType.LINE_SPACING]?.value as? TextSettingRowValue.Numeric)?.value ?: 16,
-                    font = font,
-                    fontSizeMultiplierPercent = fontSizeMultiplierPercent,
-                    onValueChange = { current = it },
-                )
+                // Same as the margins page: the slider and its fixed-height preview scroll, the row stays.
+                SheetScrollBody {
+                    NumericTextSettingContent(
+                        type = pageType,
+                        numeric = numeric,
+                        fontSize = (rows[TextSettingType.FONTSIZE]?.value as? TextSettingRowValue.Numeric)?.value ?: 16,
+                        lineSpacing = (rows[TextSettingType.LINE_SPACING]?.value as? TextSettingRowValue.Numeric)?.value ?: 16,
+                        font = font,
+                        fontSizeMultiplierPercent = fontSizeMultiplierPercent,
+                        onValueChange = { current = it },
+                    )
+                }
                 SheetResetConfirmRow(
                     resetLabel = dialogLabels.resetToInheritedLabel,
                     confirmLabel = dialogLabels.okLabel,

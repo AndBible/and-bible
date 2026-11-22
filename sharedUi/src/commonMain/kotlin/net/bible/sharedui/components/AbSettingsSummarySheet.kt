@@ -98,9 +98,9 @@ fun AbSettingsSummarySheetContent(
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         if (title.isNotBlank()) {
             AbSheetHeader(title = title, onClose = onClose)
-            content()
+            SheetScrollBody { content() }
         } else {
-            AbSheetCloseOverlay(onClose) { Column { content() } }
+            AbSheetCloseOverlay(onClose) { Column(Modifier.sheetVerticalScroll()) { content() } }
         }
     }
 }

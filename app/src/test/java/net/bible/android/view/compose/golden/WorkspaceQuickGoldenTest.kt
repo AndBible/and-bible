@@ -4,8 +4,8 @@ import net.bible.android.TEST_SDK
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.workspaces.WorkspaceQuickContent
 import net.bible.sharedui.workspaces.WorkspaceCreateAction
+import net.bible.sharedui.workspaces.WorkspaceManageAction
 import net.bible.sharedui.components.AbQuickSheetContent
-import net.bible.sharedui.components.AbQuickSheetFooterRow
 import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,8 +36,10 @@ class WorkspaceQuickGoldenTest {
             AbQuickSheetContent(
                 title = strings.switchToWorkspace,
                 onClose = {},
-                actions = { WorkspaceCreateAction(rows().size, {}) },
-                footer = { AbQuickSheetFooterRow(strings.manageWorkspaces) {} },
+                actions = {
+                    WorkspaceCreateAction(rows().size, {})
+                    WorkspaceManageAction {}
+                },
             ) {
                 WorkspaceQuickContent(rows = rows(), onSelect = {})
             }
@@ -54,7 +56,7 @@ class WorkspaceQuickGoldenTest {
             AbQuickSheetContent(
                 title = strings.switchToWorkspace,
                 onClose = {},
-                footer = { AbQuickSheetFooterRow(strings.manageWorkspaces) {} },
+                actions = { WorkspaceManageAction {} },
             ) {
                 WorkspaceQuickContent(rows = many, onSelect = {})
             }

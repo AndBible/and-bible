@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.speak.PickedVerse
 import net.bible.sharedui.components.AbSettingsRow
+import net.bible.sharedui.components.SheetScrollBody
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -63,29 +64,33 @@ fun SpeakRangeContent(
 ) {
     val strings = LocalStrings.current
     Column(modifier.fillMaxWidth()) {
-        AbSettingsRow(
-            title = strings.speakBeginningOfPassage,
-            summary = start?.label,
-            enabled = true,
-            onClick = onPickStart,
-            leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null) },
-            trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
-        )
-        AbSettingsRow(
-            title = strings.speakEndingOfPassage,
-            summary = end?.label,
-            enabled = true,
-            onClick = onPickEnd,
-            leadingIcon = { Icon(Icons.Filled.Flag, contentDescription = null) },
-            trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
-        )
-        if (showOrderError) {
-            Text(
-                strings.speakEndingVerseMustBeLater,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        // SheetScrollBody (#4207): under the half-window cap (landscape) the endpoint rows scroll and the action row
+        // below keeps its height; in a plain Column it was squeezed to nothing.
+        SheetScrollBody {
+            AbSettingsRow(
+                title = strings.speakBeginningOfPassage,
+                summary = start?.label,
+                enabled = true,
+                onClick = onPickStart,
+                leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null) },
+                trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             )
+            AbSettingsRow(
+                title = strings.speakEndingOfPassage,
+                summary = end?.label,
+                enabled = true,
+                onClick = onPickEnd,
+                leadingIcon = { Icon(Icons.Filled.Flag, contentDescription = null) },
+                trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+            )
+            if (showOrderError) {
+                Text(
+                    strings.speakEndingVerseMustBeLater,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                )
+            }
         }
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
