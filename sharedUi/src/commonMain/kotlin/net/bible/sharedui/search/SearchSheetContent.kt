@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import kotlinx.coroutines.launch
@@ -137,7 +138,19 @@ fun SearchSheetContent(
             focusRequester.requestFocus()
         }
     }
-    Column(Modifier.fillMaxWidth()) {
+    Column(
+        Modifier.fillMaxWidth().onKeyEvent { event ->
+            // #4197: focus elsewhere in the sheet (it never moved to the list after a mouse-started search) must not
+            // leave Enter dead. Bubble phase: a focused button or row consumed its own Enter first, and the list's
+            // own handler has already taken it when the list is focused.
+            if (event.type == KeyEventType.KeyDown && (event.key == Key.Enter || event.key == Key.NumPadEnter) &&
+                !listFocused && hasResults
+            ) {
+                onOpenResult(selected.coerceIn(0, resultCount - 1))
+                true
+            } else false
+        },
+    ) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,

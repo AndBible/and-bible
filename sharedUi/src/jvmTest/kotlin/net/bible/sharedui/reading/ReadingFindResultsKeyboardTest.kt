@@ -1,6 +1,7 @@
 package net.bible.sharedui.reading
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -70,6 +72,7 @@ class ReadingFindResultsKeyboardTest {
         count: Int = 2,
         dark: Boolean = false,
         colorMode: DisplayColorMode = DisplayColorMode.NORMAL,
+        extraFocusable: Boolean = false,
     ): Results {
         val result = Results()
         setContent {
@@ -89,6 +92,9 @@ class ReadingFindResultsKeyboardTest {
                             resultCount = count,
                             onOpenResult = { result.opened = it },
                             onEditQuery = { result.edits.add(it) },
+                            actions = {
+                                if (extraFocusable) Box(Modifier.testTag("sheetAction").focusable().padding(8.dp)) { Text("act") }
+                            },
                         ) { selected ->
                             result.selected = selected
                             items((0 until count).toList()) { index ->
@@ -114,6 +120,17 @@ class ReadingFindResultsKeyboardTest {
             onRoot().performKeyInput { pressKey(Key.Enter) }
             runOnIdle { assertEquals(0, result.opened) }
         }
+    }
+
+    // #4197: focus on the sheet's chrome (or anywhere but the list) must not leave Enter dead.
+    @Test fun enterOpensSelectedResultWhenListIsNotFocused() = runComposeUiTest {
+        val result = showResults(extraFocusable = true)
+        runOnIdle { net.bible.sharedui.search.FindKeyboardInput.lastWasHardwareKey = false }
+        runOnIdle { net.bible.sharedui.search.FindKeyboardInput.lastWasHardwareKey = false }
+        onNodeWithTag("sheetAction").requestFocus()
+        onNodeWithTag("sheetAction").assertIsFocused()
+        onRoot().performKeyInput { pressKey(Key.Enter) }
+        runOnIdle { assertEquals(0, result.opened) }
     }
 
     @Test fun downThenEnterOpensSecondResult() = runComposeUiTest {
