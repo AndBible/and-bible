@@ -15,6 +15,7 @@ class NativeShortcutDispatchTest {
         override fun focusNextWindow() { calls += "next" }
         override fun focusPreviousWindow() { calls += "previous" }
         override fun toggleFullScreen() { calls += "fullscreen" }
+        override fun showHistory() { calls += "history" }
         override fun bookmarkSelectionOrChooser(): Boolean { calls += "bookmark"; return bookmarkHandled }
     }
 
@@ -24,7 +25,7 @@ class NativeShortcutDispatchTest {
             NativeShortcut.FontLarger to "font:Larger", NativeShortcut.FontSmaller to "font:Smaller",
             NativeShortcut.FontReset to "font:Reset", NativeShortcut.NextWindow to "next",
             NativeShortcut.PreviousWindow to "previous", NativeShortcut.ToggleFullScreen to "fullscreen",
-            NativeShortcut.BookmarkSelection to "bookmark",
+            NativeShortcut.BookmarkSelection to "bookmark", NativeShortcut.ShowHistory to "history",
         )
         assertEquals(NativeShortcut.entries.toSet(), expected.keys, "a new shortcut needs a dispatch test")
         for ((shortcut, call) in expected) {

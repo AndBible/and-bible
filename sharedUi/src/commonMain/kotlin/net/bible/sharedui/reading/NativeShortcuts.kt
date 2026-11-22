@@ -20,6 +20,9 @@ internal enum class NativeShortcut {
 
     /** Cmd+B: bookmarks the page's text selection; without one it opens the key chooser like Ctrl+B. */
     BookmarkSelection,
+
+    /** Cmd+Y (Safari's History, #4204): the History sheet, like desktop's Ctrl+H / Ctrl+Y. */
+    ShowHistory,
 }
 
 /**
@@ -38,6 +41,7 @@ internal fun nativeShortcut(
         "-", "_" -> NativeShortcut.FontSmaller
         "0" -> NativeShortcut.FontReset
         "b" -> NativeShortcut.BookmarkSelection.takeUnless { shift }
+        "y" -> NativeShortcut.ShowHistory.takeUnless { shift }
         else -> null
     }
     if (ctrl) return if (k == "Tab") {

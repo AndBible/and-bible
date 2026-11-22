@@ -66,6 +66,18 @@ class NativeShortcutsTest {
         assertEquals(NativeShortcut.FontReset, cmd("0"))
         assertEquals(NativeShortcut.BookmarkSelection, cmd("b"))
         assertEquals(NativeShortcut.SyncNow, cmd("S"))
+        assertEquals(NativeShortcut.ShowHistory, cmd("y"))
+        assertEquals(NativeShortcut.ShowHistory, cmd("Y"))
+    }
+
+    /** #4204: Cmd+Y opens History (Safari's key); Cmd+Shift+Y, Ctrl+Y and Cmd+H (the system's Hide) are not claimed. */
+    @Test fun commandYShowsHistoryAndNothingElseIsTaken() {
+        assertEquals(NativeShortcut.ShowHistory, chord(Key.Y, 'y'.code))
+        assertEquals(NativeShortcut.ShowHistory, chord(Key.Z, 'y'.code), "German layout: Y is printed on the US Z key")
+        assertNull(cmd("y", shift = true))
+        assertNull(cmd("h"))
+        assertNull(nativeShortcut("y", ctrl = true, alt = false, shift = false, meta = false, editing = false))
+        assertNull(nativeShortcut("h", ctrl = true, alt = false, shift = false, meta = false, editing = false))
     }
 
     @Test fun shiftedSyncAndBookmarkAreNotClaimed() {
@@ -82,7 +94,7 @@ class NativeShortcutsTest {
     }
 
     @Test fun everyShortcutIsIgnoredWhileEditing() {
-        for (k in listOf("s", ",", "=", "-", "0", "b")) assertNull(cmd(k, editing = true), k)
+        for (k in listOf("s", ",", "=", "-", "0", "b", "y")) assertNull(cmd(k, editing = true), k)
         assertNull(nativeShortcut("Tab", ctrl = true, alt = false, shift = false, meta = false, editing = true))
         assertNull(nativeShortcut("F11", ctrl = false, alt = false, shift = false, meta = false, editing = true))
     }
