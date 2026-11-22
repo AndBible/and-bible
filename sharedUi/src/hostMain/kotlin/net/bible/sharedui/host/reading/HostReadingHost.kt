@@ -749,6 +749,9 @@ class HostReadingHost(
         return paneBackgroundArgb(colors, nightState.value, monochromeState.value)?.let { Color(it) }
     }
 
+    /** Whether the reading search bar (Find) is open; the panes' resume focus claim yields to it (#4196). */
+    internal val isSearchBarOpen: Boolean get() = searchState.searchBar.value != null
+
     /** Android's `restorePaneFocus`: not while the search field is open (it keeps the focus). */
     private fun restorePaneFocus() {
         if (!shouldRestorePaneFocusOnDrawerClose(searchBarOpen = searchState.searchBar.value != null)) return

@@ -557,6 +557,8 @@ fun iosReadingPaneFactory(
     gesturesFor: (windowId: String) -> HostReadingGestures? = { HostReadingWindows.gesturesFor(it) },
     /** The text-selection menu of the bound host; null (no host bound) leaves WebKit's edit menu untouched. */
     selectionMenu: () -> HostSelectionMenu? = { HostReadingWindows.selectionMenu },
+    /** Whether the reading search bar (Find) is open: the pane then leaves first responder to it on resume (#4196). */
+    searchBarOpen: () -> Boolean = { HostReadingWindows.isSearchBarOpen },
 ): ReadingPaneFactory = { windowId, modifier ->
     attachReadingPane(windowId, sessionFor, bridgeFor, nightMode, isOpen, selectionMenu())
     if (isOpen(windowId)) attachReadingGestures(windowId, gesturesFor(windowId))
@@ -589,6 +591,8 @@ fun iosReadingPaneFactory(
         // At the same moment the web view takes first responder (unless it already has it or a text field elsewhere
         // does): WebKit shows no edit menu for a long-press selection that only made its content view first responder
         // during the gesture, so the first selection after launch or after a route return had no menu (issue #3968).
+        // Not while Find is open (#4196): RESUMED also follows the app's re-activation, when Compose's own input view (not
+        // a text input) can hold first responder, and the claim then gave the keys (Esc) to the web view.
         LaunchedEffect(entry.webView, lifecycle) {
             lifecycle.currentStateFlow.collectLatest { state ->
                 if (state == Lifecycle.State.RESUMED) {
@@ -596,7 +600,7 @@ fun iosReadingPaneFactory(
                     withFrameNanos { }
                     attachGeneration++
                     entry.webView.window?.let { window ->
-                        claimFirstResponderForSelection(entry.webView, firstResponderIn(window))
+                        claimPaneFirstResponderOnResume(entry.webView, firstResponderIn(window), searchBarOpen())
                     }
                 }
             }

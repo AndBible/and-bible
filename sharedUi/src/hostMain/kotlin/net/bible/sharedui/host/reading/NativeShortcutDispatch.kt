@@ -10,6 +10,7 @@ internal interface NativeShortcutTarget {
     fun focusNextWindow()
     fun focusPreviousWindow()
     fun toggleFullScreen()
+    fun showHistory()
 
     /** Cmd+B; false (not handled, the key bubbles on) when there is no reading web view to ask. */
     fun bookmarkSelectionOrChooser(): Boolean
@@ -27,6 +28,7 @@ internal fun dispatchNativeShortcut(shortcut: NativeShortcut, target: NativeShor
         NativeShortcut.PreviousWindow -> target.focusPreviousWindow()
         NativeShortcut.ToggleFullScreen -> target.toggleFullScreen()
         NativeShortcut.BookmarkSelection -> return target.bookmarkSelectionOrChooser()
+        NativeShortcut.ShowHistory -> target.showHistory()
     }
     return true
 }
@@ -39,5 +41,6 @@ internal class HostNativeShortcutTarget(private val bookmark: () -> Boolean) : N
     override fun focusNextWindow() = HostShortcutActions.focusNextWindow()
     override fun focusPreviousWindow() = HostShortcutActions.focusPreviousWindow()
     override fun toggleFullScreen() = HostReadingWindows.toggleFullScreen()
+    override fun showHistory() = HostShortcutActions.showHistory()
     override fun bookmarkSelectionOrChooser() = bookmark()
 }

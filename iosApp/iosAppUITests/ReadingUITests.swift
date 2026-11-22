@@ -1597,6 +1597,39 @@ final class ReadingUITests: RealAppUITestCase {
         shot(app, "command-f-search")
     }
 
+    private func historySheetTitle(_ app: XCUIApplication) -> XCUIElement {
+        app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'History ('")).firstMatch
+    }
+
+    /// #4204: Cmd+Y (Safari's History key) on the reading pane opens the History sheet. Run it in its own xcodebuild
+    /// invocation when possible: after another class's chord tests the simulator can drop the Command flag (the press
+    /// then arrives as a plain "y", seen 2026-11-22; see #3980 / #3989).
+    func testCommandYOpensHistory() throws {
+        let app = try launchReading()
+        let pane = firstPane(app)
+        XCTAssertTrue(pane.waitForExistence(timeout: 15))
+        pane.typeKey("y", modifierFlags: .command)
+        app.typeKey("y", modifierFlags: [])
+        let opened = historySheetTitle(app).waitForExistence(timeout: 15)
+        shot(app, "command-y-history")
+        if !opened { attachTree(app, "command-y-no-history") }
+        XCTAssertTrue(opened, "Cmd+Y must open the History sheet")
+    }
+
+    /// #4204: the focused Find field keeps Cmd+Y; it is no reading shortcut there.
+    func testCommandYInFindFieldStaysWithTheField() throws {
+        let app = try launchReading()
+        guard let field = openFind(app, "command-y-field") else { return }
+        field.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { field.debugDescription.contains("Keyboard Focused") }, "the Find field has no keyboard focus")
+        field.typeKey("y", modifierFlags: .command)
+        usleep(2_000_000)
+        shot(app, "command-y-in-field")
+        XCTAssertFalse(historySheetTitle(app).exists, "Cmd+Y in the Find field must not open History")
+        XCTAssertTrue(field.debugDescription.contains("Keyboard Focused"), "the field must keep the keyboard focus")
+        field.typeKey("y", modifierFlags: [])
+    }
+
     /// Repeating Cmd+F over results replaces the previous query, without a manual field tap or clear.
     func testCommandFSelectsAnExistingSearchQuery() throws {
         throw XCTSkip("Cmd+F is not delivered natively yet (#3989); the shared select-all path is covered by Compose tests")
@@ -1764,6 +1797,34 @@ final class ReadingUITests: RealAppUITestCase {
             attachTree(app, "\(step)-no-find-field"); XCTFail("Find did not open"); return nil
         }
         return field
+    }
+
+    /// #4196 regression guard: leaving the app with the Find field focused and coming back leaves the keyboard focus in
+    /// the field (the pane's resume claim, #3968, must not take it). The defect itself (Find open, field not focused, e.g.
+    /// with the results sheet up: the claim handed first responder to the WKWebView, which swallows a hardware Esc) is
+    /// not visible to XCTest, which neither sees a WKContentView first responder nor can press Esc on the simulator
+    /// (#4003 below); `SelectionFirstResponderTest` covers that gate.
+    func testFindFieldKeepsKeyboardFocusAfterAppRoundTrip() throws {
+        let app = try launchReading()
+        guard let field = openFind(app, "round-trip") else { return }
+        field.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { field.debugDescription.contains("Keyboard Focused") }, "the Find field has no keyboard focus")
+        field.typeText("love")
+        XCTAssertTrue(waitUntil(timeout: 5) { (field.value as? String) == "love" })
+        XCUIDevice.shared.press(.home)
+        XCTAssertTrue(app.wait(for: .runningBackgroundSuspended, timeout: 10) || app.wait(for: .runningBackground, timeout: 5))
+        app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        // The pane's claim runs two frames after RESUMED; give it time before reading the focus.
+        usleep(2_000_000)
+        shot(app, "round-trip-after-activate")
+        XCTAssertTrue(field.exists, "Find must still be open after the round trip")
+        let focused = field.debugDescription.contains("Keyboard Focused")
+        if !focused { attachTree(app, "round-trip-field-not-focused") }
+        XCTAssertTrue(focused, "after the app round trip the Find field must keep the keyboard focus (#4196)")
+        // The field still takes typed text.
+        field.typeText("x")
+        XCTAssertTrue(waitUntil(timeout: 5) { (field.value as? String) == "lovex" }, "typing after the round trip: \(field.value ?? "nil")")
     }
 
     /// Back from the reading view's chain: with Find open (and the index prompt or results sheet over it, when a search

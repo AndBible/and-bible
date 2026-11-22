@@ -309,7 +309,7 @@ work while a native text field of the app (for example the search field) has foc
 | Mouse back button | Go back | Desktop |
 | **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop, iOS |
 | **Ctrl+Plus** (also **Ctrl+=**), **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** (**Cmd+Plus**, **Cmd+=**, **Cmd+Minus**, **Cmd+0** on iOS, no wheel) | Larger text, smaller text, default text size | Desktop, iOS |
-| **Ctrl+H** or **Ctrl+Y** (**Cmd+Y** on macOS; **Cmd+H** is taken by macOS) | Open the *History* list; a focused text field keeps these keys on Linux and Windows (**Ctrl+Y** is redo there); not yet checked on macOS | Desktop |
+| **Ctrl+H** or **Ctrl+Y** (**Cmd+Y** on macOS; on iOS only **Cmd+Y**; **Cmd+H** is taken by the system) | Open the *History* list; a focused text field keeps these keys (on Linux and Windows **Ctrl+Y** is redo there; the desktop app is not yet checked on macOS) | Desktop, iOS |
 | **Ctrl+,** (**Cmd+,** on iOS, from the reading screen only) | Open *Application preferences* | Desktop, iOS |
 | **Ctrl+S** (**Cmd+S** on macOS and iOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop, iOS |
 | **F11** | Toggle the reading fullscreen of the app (on iOS and Mac it does not toggle the Mac window's full screen; a Mac keyboard may need **Fn**+**F11**) | Desktop, iOS |
@@ -427,4 +427,4 @@ Several buttons support long-press for quick access to additional features:
     (whichever is not what a plain tap does, depending on the *Links window* setting),
     *Open link in new window* and, for Bible reference links, *Copy link to clipboard*.
 
-The navigation history list is in the main menu as `History`.
+The navigation history list is in the main menu as `History`; with a keyboard, **Ctrl+H** opens it on the desktop and **Cmd+Y** on iOS.
