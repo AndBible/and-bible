@@ -124,6 +124,13 @@
   <string name="search_clear">Futa maandishi ya utafutaji</string>
   <string name="search_engine_changed_reindex">Injini ya utafutaji imesasishwa. Faharasa ya utafutaji inahitaji kuundwa upya; hii inaweza kuchukua muda.</string>
   <string name="search_unsupported_syntax">Utafutaji huu unatumia sintaksia isiyoungwa mkono: %s</string>
+  <string name="search_regex">Usemi wa kawaida (majaribio)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Utafutaji ulichukua muda mrefu sana na ukasimamishwa. Matokeo hayajakamilika; jaribu usemi rahisi zaidi.</string>
+  <string name="search_invalid_regex">Usemi wa kawaida si sahihi: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Usemi huu wa kawaida una vibadala vingi visivyo na kikomo (kama .* au \\w+). Tumia vichache zaidi, au vipunguze, kwa mfano .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Usemi huu wa kawaida unarudia kikundi ambacho chenyewe kina marudio, kama (a+)+. Hilo linaweza kuchukua muda usio na mwisho kulinganisha. Uandike upya bila marudio yaliyoingiliana.</string>
+  <string name="search_regex_busy">Utafutaji wa awali wa usemi wa kawaida bado unaendelea chinichini. Jaribu tena baada ya muda mfupi; usipokamilika, anzisha upya programu.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -312,6 +319,8 @@
   <string name="hide_window_buttons_summary">Vitufe vya dirisha vinavyoonyeshwa upande wa kulia wa maonyesho ya Biblia vimefichwa. Mwambaa wa uabiri wa dirisha chini bado unaonyeshwa na unaweza kufungua menyu ya ibuko ya dirisha kwa kubonyeza muda mrefu.</string>
   <string name="hide_bible_reference_overlay_title">Ficha kionyeshi cha rejeleo la Biblia</string>
   <string name="hide_bible_reference_overlay_summary">Usionyeshe kionyeshi cha rejeleo la Biblia chenye uwazi wa nusu wakati programu iko katika hali ya skrini nzima</string>
+  <string name="text_under_window_buttons_title">Onyesha maandishi chini ya vitufe vya dirisha</string>
+  <string name="text_under_window_buttons_summary">Maandishi ya Biblia yanaenea hadi chini ya skrini, chini ya upau wa vitufe vya dirisha. Ikizimwa, nafasi huachwa wazi chini ya upau katika madirisha ya chini inayoyafikia.</string>
   <string name="full_screen_hide_buttons_pref_title">Ficha mwambaa wa vitufe vya dirisha katika skrini nzima</string>
   <string name="full_screen_hide_buttons_pref_summary">Unapobadilisha hadi hali ya skrini nzima, ficha kiotomatiki mwambaa wa vitufe vya dirisha ulio chini ya skrini</string>
   <string name="prefs_hide_status_bar_title">Ficha upau wa hali</string>
@@ -561,7 +570,50 @@ Ikiwa muundo wa hati umebadilika, kusasisha hati hii kunaweza kufanya maeneo ya 
   <string name="sleep_timer_active_at">Kipima muda cha kulala: dakika %s zimebaki.</string>
   <string name="speak_next">Inayofuata</string>
   <string name="speak_previous">Iliyopita</string>
+  <string name="widget_play">Cheza</string>
   <string name="widget_toggle_sleep_timer">Badilisha kipima muda cha kulala</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Soma kwa sauti</string>
+  <string name="widget_speak_text_name">Soma kwa sauti na maandishi</string>
+  <string name="widget_listening_list_name">Orodha ya kusikiliza</string>
+  <string name="widget_verse_name">Mstari</string>
+  <string name="widget_continue_from">Endelea kutoka %1$s · %2$s</string>
+  <string name="widget_continue_listening">Endelea kusikiliza</string>
+  <string name="widget_paused">Imesitishwa</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Bado hakuna alamisho za kusoma kwa sauti</string>
+  <string name="widget_listening_list_empty_text">Alamisho zenye lebo ya Soma kwa sauti huonekana hapa. Washa alamisho za kiotomatiki katika mipangilio ya kusoma kwa sauti, au ongeza lebo kwa alamisho yoyote.</string>
+  <string name="widget_open_app">Fungua AndBible</string>
+  <string name="widget_open_app_to_load">Fungua AndBible ili kupakia mistari</string>
+  <string name="widget_verse_unavailable_no_bible">Sakinisha Biblia ili uone mistari hapa</string>
+  <string name="widget_verse_unavailable_label_missing">Lebo ya wijeti hii haipo tena. Gusa ili uchague mistari.</string>
+  <string name="widget_verse_unavailable_label_empty">Lebo hii bado haina alamisho za Biblia. Gusa ili uchague mistari mingine.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Hakuna mpango wa kusoma unaotumika. Gusa ili uchague mistari mingine.</string>
+  <string name="widget_verse_source_random_whole_bible">Mstari wowote</string>
+  <string name="widget_verse_source_random_new_testament">Mstari wowote · Agano Jipya</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Mstari wowote · Zaburi na Methali</string>
+  <string name="widget_shuffle">Changanya mstari</string>
+  <string name="widget_speak_verse">Soma mstari kwa sauti</string>
+  <string name="widget_verse_config_title">Wijeti ya mstari</string>
+  <string name="widget_verse_config_source_label">Mistari kutoka</string>
+  <string name="widget_verse_config_source_label_option">Lebo</string>
+  <string name="widget_verse_config_source_random">Mstari wowote</string>
+  <string name="widget_verse_config_random_whole">Biblia nzima</string>
+  <string name="widget_verse_config_random_nt">Agano Jipya</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Zaburi na Methali</string>
+  <string name="widget_verse_config_source_plan">Mpango wa kusoma wa leo</string>
+  <string name="widget_verse_config_changes">Hubadilika</string>
+  <string name="widget_verse_config_daily">Kila siku</string>
+  <string name="widget_verse_config_every_few_hours">Kila baada ya saa chache</string>
+  <string name="widget_verse_config_on_shuffle">Ninapogusa changanya tu</string>
+  <string name="widget_verse_config_bible">Biblia</string>
+  <string name="widget_verse_config_bible_default">Chaguo-msingi (%s)</string>
+  <string name="widget_verse_config_show_buttons">Onyesha vitufe vya kuchanganya na kusoma kwa sauti</string>
+  <string name="widget_verse_config_show_source">Onyesha chanzo na tarehe</string>
+  <string name="widget_verse_config_add">Ongeza wijeti</string>
+  <string name="widget_verse_config_save">Hifadhi</string>
+  <string name="widget_verse_source_reading_plan">Usomaji wa leo</string>
   <string name="speak_status_stopped">imesimama</string>
   <string name="speak_autobookmarking_disabled">Kuweka alamisho kiotomatiki kumezimwa!</string>
   <string name="system_speak_settings">Fungua mipangilio ya TTS ya mfumo</string>
@@ -683,6 +735,29 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="install_zip_canceled">Sanikisho la moduli limeghairiwa</string>
   <string name="restore">Rejesha</string>
   <string name="import2">Ingiza</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (nakala)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Kutoka kwa nyongeza %1$s</string>
+  <string name="addon_label_from_module_hint">Fungua nyongeza katika kidhibiti cha hati</string>
+  <string name="addon_label_read_only_note">Lebo hii, alamisho zake na StudyPad yake ni za nyongeza na haziwezi kuhaririwa. Unaweza kuiweka kama kipendwa, kuchagua jinsi nafasi hii ya kazi inavyoionyesha, na kuweka alamisho kwenye mistari yake kwa ajili yako mwenyewe.</string>
+  <string name="addon_copy_to_my_labels">Nakili kwenye lebo zangu</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Imenakiliwa kwenye lebo yako \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Maudhui haya yanatoka kwenye nyongeza %1$s na hayawezi kubadilishwa. Tumia \"Nakili kwenye lebo zangu\" kupata nakala inayoweza kuhaririwa.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Maudhui haya yanatoka kwenye nyongeza na hayawezi kubadilishwa. Tumia \"Nakili kwenye lebo zangu\" kupata nakala inayoweza kuhaririwa.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Imeshindwa kunakili lebo</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">Kipengee %1$d cha mkusanyiko wa nyongeza kiliruka. Tumia \"Nakili kwenye lebo zangu\" kwenye lebo ili upate nakala yako mwenyewe.</item>
+        <item quantity="other">Vipengee %1$d vya mkusanyiko wa nyongeza viliruka. Tumia \"Nakili kwenye lebo zangu\" kwenye lebo ili upate nakala yako mwenyewe.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" na Lebo %2$s nyingine / Daftari za Masomo na Alamisho %3$s</string>
   <!--About-->
@@ -717,6 +792,8 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="doc_type_all">Aina zote</string>
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Maoni</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Hati</string>
   <string name="doc_type_dictionary">Kamusi</string>
   <string name="doc_type_book">Kitabu</string>
   <string name="doc_type_map">Ramani</string>
@@ -752,6 +829,10 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="crash_recovery_continue">Endelea</string>
   <string name="report_error">Tuma Ripoti</string>
   <string name="error_occurred">Hitilafu imetokea</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Programu ilisimama wakati wa kuanza</string>
+  <string name="startup_crash_detail">Tafadhali tutumie ripoti ya hitilafu ili tuweze kurekebisha tatizo. Ina maelezo ya hitilafu na taarifa kuhusu kifaa chako na toleo la programu.</string>
+  <string name="startup_crash_try_again">Jaribu tena</string>
   <string name="error_occurred_crash_last_time">Mara ya mwisho ulipotumia programu, ilivunjika. Ili kutusaidia kurekebisha hitilafu, tutashukuru ikiwa utatuma ripoti ya hitilafu.</string>
   <string name="error_occurred_with_link">Hitilafu imetokea. %s</string>
   <string name="error_no_content">Hakuna maudhui kwa mstari uliochaguliwa</string>
@@ -1216,10 +1297,6 @@ Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili z
   <string name="reading_progress_new_cycle">Mzunguko Mpya</string>
   <string name="reading_progress_previous_cycle">Mzunguko uliopita</string>
   <string name="reading_progress_next_cycle">Mzunguko unaofuata</string>
-  <string name="cloud_merge_data">Unganisha data</string>
-  <string name="cloud_fetch_and_restore_initial">Nakili kutoka Wingu hadi kifaa hiki</string>
-  <string name="cloud_create_new">Nakili kutoka kifaa hiki hadi Wingu</string>
-  <string name="cloud_disable_sync">Ghairi na uzime usawazishaji</string>
   <string name="cloud_sync_title">Usawazishaji wa kifaa</string>
   <string name="reset_sync">Toka</string>
   <string name="prefs_reset_sync_summary">Zima usawazishaji na uweke upya mipangilio inayohusiana.</string>
@@ -1235,8 +1312,19 @@ Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili z
   <string name="google_drive_signin_interrupted">Kuingia kwenye Google kulikatizwa. Jaribu tena.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Anwani ya seva yako, mfano https://cloud.example.com (https:// huongezwa ukiiacha)</string>
   <string name="webdav_server_url_hint">Anwani ya folda ya WebDAV, k.m. https://nas.local/dav/ au https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Usawazishaji unahitaji anwani salama ya https://.</string>
+  <string name="sync_waiting_for_pass">Inasubiri ulandanishi wa sasa ukamilike…</string>
+  <string name="sync_pending_on">Itawashwa</string>
+  <string name="sync_pending_off">Itazimwa</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">Badiliko %1$d</item>
+        <item quantity="other">Mabadiliko %1$d</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Tekeleza mabadiliko yako ya ulandanishi?</string>
+  <string name="sync_checking_cloud_title">Inakagua wingu…</string>
+  <string name="sync_checking_cloud_text">Inatafuta data ambayo vifaa vingine tayari vimelandanisha.</string>
   <string name="webdav_certificate_title">Cheti cha seva</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Cheti cha seva kisichoaminika</string>
@@ -1254,7 +1342,6 @@ Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili z
   <string name="synchronization_categories">Makundi ya usawazishaji</string>
   <string name="sync_general_settings">Taarifa na mipangilio ya jumla</string>
   <string name="sync_introduction">Utangulizi</string>
-  <string name="are_you_sure_merge">Data iliyo kwenye kifaa hiki na %s iliyo kwenye wingu zitahifadhiwa zote mbili. Mahali kipengee kilekile kilibadilishwa pande zote, badiliko jipya zaidi linahifadhiwa. Data ya kifaa hiki itatumwa kwa vifaa vyako vingine.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Inazima usawazishaji wa wingu. Lazima uuruhusu tena kwa mkono baada ya urejesho.</string>
   <string name="report">Ripoti</string>
@@ -2212,18 +2299,30 @@ Usionyeshe ujumbe huu tena</string>
   <string name="dialog_dont_apply">Usitekeleze</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Wingu tayari lina %s yako. Nini kifanyike?</string>
-  <string name="cloud_merge_consequence">Pande zote mbili zinahifadhiwa; kipengee kilichobadilika kwenye zote mbili, badiliko jipya zaidi hushinda.</string>
-  <string name="cloud_fetch_consequence">Hubadilisha data kwenye kifaa hiki na nakala ya wingu.</string>
-  <string name="cloud_create_consequence">Hubadilisha nakala ya wingu na data kwenye kifaa hiki.</string>
-  <string name="cloud_disable_consequence">Usawazishaji unabaki umezimwa kwa data hii.</string>
-  <string name="cloud_merge_lead">Unganisha %s yako na wingu?</string>
-  <string name="cloud_merge_confirm">Unganisha</string>
   <string name="cloud_replace_confirm">Badilisha</string>
-  <string name="cloud_replace_local_lead">Badilisha %s ya kifaa hiki na nakala ya wingu?</string>
-  <string name="cloud_replace_local_detail">Kilichopo kwenye kifaa hiki sasa kinaandikwa juu na hakiwezi kurejeshwa.</string>
-  <string name="cloud_replace_cloud_lead">Badilisha nakala ya wingu ya %s na data ya kifaa hiki?</string>
-  <string name="cloud_replace_cloud_detail">Kilichopo kwenye wingu sasa kinaandikwa juu, na vifaa vyako vingine vitapokea data ya kifaa hiki.</string>
+  <string name="cloud_join_plan_title">Wingu tayari lina data</string>
+  <string name="cloud_join_plan_lead">Chagua cha kufanya kwa kila kategoria.</string>
+  <string name="cloud_join_merge">Unganisha</string>
+  <string name="cloud_join_merge_detail">Changanya kifaa hiki na wingu</string>
+  <string name="cloud_join_fetch">Nakili kutoka wingu</string>
+  <string name="cloud_join_fetch_detail">Badilisha data ya kifaa hiki</string>
+  <string name="cloud_join_create">Nakili kwenye wingu</string>
+  <string name="cloud_join_create_detail">Badilisha data ya wingu</string>
+  <string name="cloud_join_disable">Usilandanishe</string>
+  <string name="cloud_join_disable_detail">Acha kategoria hii imezimwa</string>
+  <string name="cloud_join_upload_note">%s: bado hakuna data kwenye wingu, itapakiwa kutoka kifaa hiki.</string>
+  <string name="cloud_join_confirm_title">Anza ulandanishi?</string>
+  <string name="cloud_join_confirm_lead">Hiki ndicho kitakachotokea:</string>
+  <string name="cloud_join_outcome_merge">%s: imeunganishwa na wingu. Hakuna kinachopotea.</string>
+  <string name="cloud_join_outcome_fetch">%s: data ya kifaa hiki inabadilishwa na ya wingu.</string>
+  <string name="cloud_join_outcome_create">%s: data ya wingu inabadilishwa na ya kifaa hiki.</string>
+  <string name="cloud_join_outcome_disable">%s: inabaki imezimwa.</string>
+  <string name="cloud_join_outcome_upload">%s: imepakiwa kutoka kifaa hiki.</string>
+  <string name="cloud_join_warning">Data iliyobadilishwa haiwezi kurejeshwa. Fanya nakala rudufu kwanza ikiwa huna uhakika.</string>
+  <string name="cloud_join_next">Endelea</string>
+  <string name="cloud_join_back">Rudi</string>
+  <string name="cloud_join_start">Anza kulandanisha</string>
+  <string name="cloud_join_replace">Badilisha na landanisha</string>
   <string name="sign_in_failed_lead">Imeshindwa kuingia kwenye huduma ya usawazishaji.</string>
   <string name="sync_too_old_lead">Programu hii ni ya zamani mno kusawazisha %s.</string>
   <string name="sync_too_old_detail">Data ya wingu inatumia toleo jipya zaidi kuliko programu hii inavyoweza kuunga mkono. Usawazishaji wake umezimwa kwa sasa; sasisha programu ili kuuwasha tena.</string>

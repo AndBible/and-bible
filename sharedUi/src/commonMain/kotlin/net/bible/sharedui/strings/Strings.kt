@@ -61,6 +61,8 @@ interface Strings {
     val hideBibleReferenceOverlayTitle: String
     val hideWindowButtonsSummary: String
     val hideWindowButtonsTitle: String
+    val textUnderWindowButtonsSummary: String
+    val textUnderWindowButtonsTitle: String
     val memorizeAutoMark: String
     val memorizeAutoMarkSummary: String
     val memorizeErrorHeatmap: String
@@ -184,6 +186,12 @@ interface Strings {
     val documentSyncWifiOnlyTitle: String
     val documentSyncAutoDeleteTitle: String
     val webdavHttpsRequired: String
+    val syncPendingOn: String                              // R.string.sync_pending_on
+    val syncPendingOff: String                             // R.string.sync_pending_off
+    fun syncPendingChanges(count: Int): String             // R.plurals.sync_pending_changes
+    val syncPendingLeaveTitle: String                      // R.string.sync_pending_leave_title
+    val syncCheckingCloudTitle: String                     // R.string.sync_checking_cloud_title
+    val syncCheckingCloudText: String                      // R.string.sync_checking_cloud_text
     // Search cluster
     /** "N verses in M translations": [verses]/[translations] are the already pluralised parts. */
     fun multiSearchResults(verses: String, translations: String): String   // R.string.multi_search_count_summary
@@ -483,6 +491,7 @@ interface Strings {
     val docTypeAll: String
     val docTypeBible: String
     val docTypeCommentary: String
+    val documentsSheetTitle: String           // R.string.documents_sheet_title
     val readingToolbarOptions: String         // R.string.reading_toolbar_options
     val prefsShowStrongsTitle: String         // R.string.prefs_show_strongs_title
     val switchToWorkspace: String             // R.string.switch_to_workspace

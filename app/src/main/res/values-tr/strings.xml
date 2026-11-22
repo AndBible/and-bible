@@ -124,6 +124,13 @@
   <string name="search_clear">Arama metnini temizle</string>
   <string name="search_engine_changed_reindex">Arama motoru güncellendi. Arama dizininin yeniden oluşturulması gerekiyor; bu biraz zaman alabilir.</string>
   <string name="search_unsupported_syntax">Bu arama, desteklenmeyen bir sözdizimi kullanıyor: %s</string>
+  <string name="search_regex">Düzenli ifade (deneysel)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Arama çok uzun sürdü ve durduruldu. Sonuçlar eksik; daha basit bir ifade deneyin.</string>
+  <string name="search_invalid_regex">Geçersiz düzenli ifade: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Bu düzenli ifadede çok fazla sınırsız joker karakter var (.* veya \\w+ gibi). Daha az kullanın veya daraltın, örneğin .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Bu düzenli ifade, kendisi de tekrar içeren bir grubu tekrarlıyor, örneğin (a+)+. Bunun eşleşmesi neredeyse sonsuza kadar sürebilir. İç içe tekrar kullanmadan yeniden yazın.</string>
+  <string name="search_regex_busy">Önceki bir düzenli ifade araması hâlâ arka planda çalışıyor. Birazdan tekrar deneyin; bitmezse uygulamayı yeniden başlatın.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +321,8 @@
   <string name="hide_window_buttons_summary">İncil görünümlerinin sağ tarafında görüntülenen pencere düğmeleri gizlenir. Aşağıdaki pencere gezinme çubuğu hala gösterilir ve pencerenin açılır menüsünü uzun tıklayarak açabilirsiniz.</string>
   <string name="hide_bible_reference_overlay_title">İncil’e gönderme yapan katmanı gizle</string>
   <string name="hide_bible_reference_overlay_summary">Uygulama tam ekrandayken yarı-şeffaf İncil’e gönderme yapan katmanı gösterme</string>
+  <string name="text_under_window_buttons_title">Pencere düğmelerinin altında metni göster</string>
+  <string name="text_under_window_buttons_summary">Kutsal Kitap metni, pencere düğmesi çubuğunun altından ekranın en altına kadar uzanır. Kapalıyken, çubuğun kapsadığı alt pencerelerde çubuğun altında boş bir şerit bırakılır.</string>
   <string name="full_screen_hide_buttons_pref_title">Tam ekranda pencere düğme çubuğunu gizle</string>
   <string name="full_screen_hide_buttons_pref_summary">Tam ekran moduna geçerken, ekranın altındaki pencere düğme çubuğunu otomatik olarak gizle</string>
   <string name="prefs_hide_status_bar_title">Durum çubuğunu gizle</string>
@@ -579,7 +588,50 @@
   <string name="sleep_timer_active_at">Uyku süre: %s dakika kaldı.</string>
   <string name="speak_next">Sonraki</string>
   <string name="speak_previous">Önceki</string>
+  <string name="widget_play">Oynat</string>
   <string name="widget_toggle_sleep_timer">Uygu süre ayarlayıcı değiştir</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Sesli oku</string>
+  <string name="widget_speak_text_name">Metinle sesli oku</string>
+  <string name="widget_listening_list_name">Dinleme listesi</string>
+  <string name="widget_verse_name">Ayet</string>
+  <string name="widget_continue_from">Şuradan devam et: %1$s · %2$s</string>
+  <string name="widget_continue_listening">Dinlemeye devam et</string>
+  <string name="widget_paused">Duraklatıldı</string>
+  <string name="widget_percent">%% %d</string>
+  <string name="widget_status_line">%1$s · %% %2$d · %3$s</string>
+  <string name="widget_listening_list_empty_title">Henüz sesli okuma yer imi yok</string>
+  <string name="widget_listening_list_empty_text">Sesli okuma etiketli yer imleri burada görünür. Sesli okuma ayarlarında otomatik yer imlerini açın veya herhangi bir yer imine etiketi ekleyin.</string>
+  <string name="widget_open_app">AndBible\'ı aç</string>
+  <string name="widget_open_app_to_load">Ayetleri yüklemek için AndBible\'ı açın</string>
+  <string name="widget_verse_unavailable_no_bible">Ayetleri burada görmek için bir Kutsal Kitap yükleyin</string>
+  <string name="widget_verse_unavailable_label_missing">Bu widget\'ın etiketi artık yok. Ayet seçmek için dokunun.</string>
+  <string name="widget_verse_unavailable_label_empty">Bu etiketin henüz Kutsal Kitap yer imi yok. Başka ayetler seçmek için dokunun.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Etkin bir okuma planı yok. Başka ayetler seçmek için dokunun.</string>
+  <string name="widget_verse_source_random_whole_bible">Rastgele ayet</string>
+  <string name="widget_verse_source_random_new_testament">Rastgele ayet · Yeni Antlaşma</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Rastgele ayet · Mezmurlar ve Süleyman\'ın Meselleri</string>
+  <string name="widget_shuffle">Ayeti karıştır</string>
+  <string name="widget_speak_verse">Ayeti sesli oku</string>
+  <string name="widget_verse_config_title">Ayet widget\'ı</string>
+  <string name="widget_verse_config_source_label">Ayetlerin kaynağı</string>
+  <string name="widget_verse_config_source_label_option">Bir etiket</string>
+  <string name="widget_verse_config_source_random">Rastgele ayet</string>
+  <string name="widget_verse_config_random_whole">Tüm Kutsal Kitap</string>
+  <string name="widget_verse_config_random_nt">Yeni Antlaşma</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Mezmurlar ve Süleyman\'ın Meselleri</string>
+  <string name="widget_verse_config_source_plan">Bugünün okuma planı</string>
+  <string name="widget_verse_config_changes">Değişim</string>
+  <string name="widget_verse_config_daily">Günlük</string>
+  <string name="widget_verse_config_every_few_hours">Birkaç saatte bir</string>
+  <string name="widget_verse_config_on_shuffle">Yalnızca karıştıra dokunduğumda</string>
+  <string name="widget_verse_config_bible">Kutsal Kitap</string>
+  <string name="widget_verse_config_bible_default">Varsayılan (%s)</string>
+  <string name="widget_verse_config_show_buttons">Karıştır ve sesli oku düğmelerini göster</string>
+  <string name="widget_verse_config_show_source">Kaynağı ve tarihi göster</string>
+  <string name="widget_verse_config_add">Widget ekle</string>
+  <string name="widget_verse_config_save">Kaydet</string>
+  <string name="widget_verse_source_reading_plan">Bugünün okuması</string>
   <string name="speak_status_stopped">durduruldu</string>
   <string name="speak_autobookmarking_disabled">Otomatik yer imleme devre dışı bırakıldı!</string>
   <string name="system_speak_settings">Sistem MOÇ ayarlarını açın</string>
@@ -717,6 +769,29 @@
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
   <string name="restore">Yedekten geri yükle</string>
   <string name="import2">İçe aktarın</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopya)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">%1$s eklentisinden</string>
+  <string name="addon_label_from_module_hint">Eklentiyi belge yöneticisinde aç</string>
+  <string name="addon_label_read_only_note">Bu etiket, yer imleri ve Çalışma Defteri eklentiye aittir ve düzenlenemez. Favori olarak işaretleyebilir, bu çalışma alanında nasıl gösterileceğini seçebilir ve ayetlerine kendiniz için yer imi ekleyebilirsiniz.</string>
+  <string name="addon_copy_to_my_labels">Etiketlerime kopyala</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">\"%1$s\" etiketinize kopyalandı</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Bu içerik %1$s eklentisinden gelir ve değiştirilemez. Düzenlenebilir bir kopya almak için \"Etiketlerime kopyala\" seçeneğini kullanın.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Bu içerik bir eklentiden gelir ve değiştirilemez. Düzenlenebilir bir kopya almak için \"Etiketlerime kopyala\" seçeneğini kullanın.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Etiket kopyalanamadı</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d eklenti koleksiyonu öğesi atlandı. Kendi kopyanızı almak için etikette \"Etiketlerime kopyala\" seçeneğini kullanın.</item>
+        <item quantity="other">%1$d eklenti koleksiyonu öğesi atlandı. Kendi kopyanızı almak için etikette \"Etiketlerime kopyala\" seçeneğini kullanın.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" ve %2$s diğer Etiket(ler) / Çalışma Defteri ve %3$s Yer İmi</string>
   <!--About-->
@@ -752,6 +827,8 @@
   <string name="doc_type_all">Tüm tipler</string>
   <string name="doc_type_bible">Kutsal Kitap</string>
   <string name="doc_type_commentary">Yorum Kitabı</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Belgeler</string>
   <string name="doc_type_dictionary">Sözlük</string>
   <string name="doc_type_book">Kitap</string>
   <string name="doc_type_map">Harita</string>
@@ -787,6 +864,10 @@
   <string name="crash_recovery_continue">Devam</string>
   <string name="report_error">Bildiri Gönder</string>
   <string name="error_occurred">Bir hata oldu</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Uygulama başlatılırken durdu</string>
+  <string name="startup_crash_detail">Sorunu giderebilmemiz için lütfen bize bir hata raporu gönderin. Rapor, hata ayrıntılarını ve cihazınız ile uygulama sürümünüz hakkında bilgi içerir.</string>
+  <string name="startup_crash_try_again">Tekrar dene</string>
   <string name="error_occurred_crash_last_time">Uygulamayı en son kullandığınızda çöktü. Hatayı düzeltmemize yardımcı olmak için bize bir hata raporu gönderirseniz memnun oluruz. </string>
   <string name="error_occurred_with_link">Bir hata oluştu. %s</string>
   <string name="error_no_content">Seçilen ayeti için içerik yok</string>
@@ -1305,10 +1386,6 @@
   <string name="reading_progress_new_cycle">Yeni Döngü</string>
   <string name="reading_progress_previous_cycle">Önceki döngü</string>
   <string name="reading_progress_next_cycle">Sonraki döngü</string>
-  <string name="cloud_merge_data">Verileri birleştir</string>
-  <string name="cloud_fetch_and_restore_initial">Buluttan bu cihaza kopyala</string>
-  <string name="cloud_create_new">Bu cihazdan Buluta kopyala</string>
-  <string name="cloud_disable_sync">İptal ve senkronizasyonu devre dışı bırak</string>
   <string name="cloud_sync_title">Cihaz senkronizasyonu</string>
   <string name="reset_sync">Çıkış Yapın</string>
   <string name="prefs_reset_sync_summary">Senkronizasyonu devre dışı bırakın ve ilgili ayarları sıfırlayın.</string>
@@ -1324,8 +1401,19 @@
   <string name="google_drive_signin_interrupted">Google oturum açma kesintiye uğradı. Tekrar deneyin.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Sunucunuzun adresi, örn. https://cloud.example.com (belirtmezseniz https:// eklenir)</string>
   <string name="webdav_server_url_hint">WebDAV klasörünün adresi, örn. https://nas.local/dav/ veya https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Eşitleme için güvenli bir https:// adresi gerekir.</string>
+  <string name="sync_waiting_for_pass">Geçerli eşitlemenin bitmesi bekleniyor…</string>
+  <string name="sync_pending_on">Açılacak</string>
+  <string name="sync_pending_off">Kapatılacak</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d değişiklik</item>
+        <item quantity="other">%1$d değişiklik</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Eşitleme değişiklikleriniz uygulansın mı?</string>
+  <string name="sync_checking_cloud_title">Bulut denetleniyor…</string>
+  <string name="sync_checking_cloud_text">Diğer cihazların daha önce eşitlediği veriler aranıyor.</string>
   <string name="webdav_certificate_title">Sunucu sertifikası</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Güvenilmeyen sunucu sertifikası</string>
@@ -1343,7 +1431,6 @@
   <string name="synchronization_categories">Senkronizasyon kategorileri</string>
   <string name="sync_general_settings">Bilgi ve genel ayarlar</string>
   <string name="sync_introduction">Giriş</string>
-  <string name="are_you_sure_merge">Bu cihazdaki veriler ve buluttaki %s birlikte korunacak. Aynı öğenin her iki tarafta da değiştirildiği durumlarda daha yeni değişiklik korunur. Bu cihazın verileri diğer cihazlarınıza gönderilecek.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Bulut senkronizasyonu devre dışı bırakılıyor. Geri yüklemeden sonra manuel olarak yeniden etkinleştirmeniz gerekir.</string>
   <string name="report">Rapor</string>
@@ -2302,18 +2389,30 @@
   <string name="dialog_dont_apply">Uygulama</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Bulutta zaten %s verileriniz var. Ne yapılsın?</string>
-  <string name="cloud_merge_consequence">Her iki taraf da saklanır; bir öğe her iki tarafta da değiştiyse daha yeni değişiklik geçerli olur.</string>
-  <string name="cloud_fetch_consequence">Bu cihazdaki verilerin yerine bulut kopyası konur.</string>
-  <string name="cloud_create_consequence">Bulut kopyasının yerine bu cihazdaki veriler konur.</string>
-  <string name="cloud_disable_consequence">Bu veriler için eşitleme kapalı kalır.</string>
-  <string name="cloud_merge_lead">%s verileriniz bulutla birleştirilsin mi?</string>
-  <string name="cloud_merge_confirm">Birleştir</string>
   <string name="cloud_replace_confirm">Değiştir</string>
-  <string name="cloud_replace_local_lead">Bu cihazdaki %s verileri bulut kopyasıyla değiştirilsin mi?</string>
-  <string name="cloud_replace_local_detail">Bu cihazdaki mevcut veriler üzerine yazılır ve kurtarılamaz.</string>
-  <string name="cloud_replace_cloud_lead">%s verilerinin bulut kopyası bu cihazın verileriyle değiştirilsin mi?</string>
-  <string name="cloud_replace_cloud_detail">Buluttaki mevcut veriler üzerine yazılır ve diğer cihazlarınız bu cihazın verilerini alır.</string>
+  <string name="cloud_join_plan_title">Bulutta zaten veri var</string>
+  <string name="cloud_join_plan_lead">Her kategori için ne yapılacağını seçin.</string>
+  <string name="cloud_join_merge">Birleştir</string>
+  <string name="cloud_join_merge_detail">Bu cihazı ve bulutu birleştir</string>
+  <string name="cloud_join_fetch">Buluttan kopyala</string>
+  <string name="cloud_join_fetch_detail">Bu cihazın verilerini değiştir</string>
+  <string name="cloud_join_create">Buluta kopyala</string>
+  <string name="cloud_join_create_detail">Bulutun verilerini değiştir</string>
+  <string name="cloud_join_disable">Eşitlenmesin</string>
+  <string name="cloud_join_disable_detail">Bu kategoriyi kapalı bırak</string>
+  <string name="cloud_join_upload_note">%s: bulutta henüz veri yok, bu cihazdan yüklenecek.</string>
+  <string name="cloud_join_confirm_title">Eşitleme başlatılsın mı?</string>
+  <string name="cloud_join_confirm_lead">Şunlar olacak:</string>
+  <string name="cloud_join_outcome_merge">%s: bulutla birleştirildi. Hiçbir şey kaybolmaz.</string>
+  <string name="cloud_join_outcome_fetch">%s: bu cihazdaki veriler bulutunkilerle değiştirilir.</string>
+  <string name="cloud_join_outcome_create">%s: buluttaki veriler bu cihazınkilerle değiştirilir.</string>
+  <string name="cloud_join_outcome_disable">%s: kapalı kalır.</string>
+  <string name="cloud_join_outcome_upload">%s: bu cihazdan yüklendi.</string>
+  <string name="cloud_join_warning">Değiştirilen veriler geri alınamaz. Emin değilseniz önce yedek alın.</string>
+  <string name="cloud_join_next">İleri</string>
+  <string name="cloud_join_back">Geri</string>
+  <string name="cloud_join_start">Eşitlemeyi başlat</string>
+  <string name="cloud_join_replace">Değiştir ve eşitle</string>
   <string name="sign_in_failed_lead">Eşitleme hizmetinde oturum açılamadı.</string>
   <string name="sync_too_old_lead">Bu uygulama %s verilerini eşitlemek için çok eski.</string>
   <string name="sync_too_old_detail">Bulut verileri, bu uygulamanın desteklediğinden daha yeni bir sürüm kullanıyor. Bunun eşitlemesi şimdilik kapalı; yeniden açmak için uygulamayı güncelleyin.</string>

@@ -54,7 +54,8 @@ interface ReadingToolbarHost {
     fun currentDocumentInitials(): String?
     fun biblesForVerse(): List<QuickDocRow>
     fun commentariesForVerse(): List<QuickDocRow>
-    fun generalBooksAndDictionaries(): List<QuickDocRow>
+    /** Installed general books, dictionaries and maps: the non-commentary candidates of the Documents sheet. */
+    fun otherDocumentsForSheet(): List<QuickDocRow>
     fun suggestedBibleInitials(): String?
     fun suggestedCommentaryInitials(): String?
 
@@ -120,14 +121,14 @@ class ReadingToolbarCommands(private val host: ReadingToolbarHost) {
         else host.openChooseDocument(DocumentSheetScope.BIBLE.chooserType)
     }
 
-    /** Commentary button, short press; the picker also lists general books and dictionaries (classic parity). */
+    /** Commentary button, short press; the Documents sheet also lists general books, dictionaries and maps. */
     fun commentaryClick() {
         if (swap) {
             switchToSuggested(host.suggestedCommentaryInitials())
         } else {
             openScopedDocumentSheet(
                 DocumentSheetScope.COMMENTARY,
-                host.commentariesForVerse() + host.generalBooksAndDictionaries(),
+                host.commentariesForVerse() + host.otherDocumentsForSheet(),
             )
         }
     }

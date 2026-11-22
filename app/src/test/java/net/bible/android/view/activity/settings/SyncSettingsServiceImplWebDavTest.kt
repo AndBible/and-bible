@@ -169,11 +169,13 @@ class SyncSettingsServiceImplWebDavTest {
         current = "WEBDAV"
         val service = impl()
         service.refreshAndWait()
-        assertNotNull(service.snapshot.value.serverUrlHint)
+        val webDavHint = service.snapshot.value.serverUrlHint
+        assertNotNull(webDavHint)
         assertTrue(service.snapshot.value.httpsOnly)
         current = "NEXT_CLOUD"
         service.refreshAndWait()
-        assertNull(service.snapshot.value.serverUrlHint)
+        assertNotNull(service.snapshot.value.serverUrlHint)
+        assertTrue(service.snapshot.value.serverUrlHint != webDavHint)
         assertFalse(service.snapshot.value.httpsOnly)
     }
 }

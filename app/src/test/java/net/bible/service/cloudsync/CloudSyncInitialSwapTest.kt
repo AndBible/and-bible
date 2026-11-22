@@ -38,7 +38,7 @@ class CloudSyncInitialSwapTest {
 
     @Before fun setUp() {
         // The suite is one JVM and DatabaseContainer is static: a prior class that never resets (e.g.
-        // CloudSyncAskInitialSyncOperationTest) leaves an instance open in a dead Robolectric data dir, whose
+        // CloudSyncAskJoinPlanTest) leaves an instance open in a dead Robolectric data dir, whose
         // db handle works but whose file is not at this test's getDatabasePath. Start from no instance.
         DatabaseResetter.resetDatabase()
         CommonUtils.settings.setBoolean("first-time", false)

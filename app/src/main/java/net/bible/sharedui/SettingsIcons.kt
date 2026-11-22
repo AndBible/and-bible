@@ -109,6 +109,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "hide_status_bar" -> R.drawable.ic_full_screen_24
     "full_screen_hide_buttons_pref" -> R.drawable.ic_hide_window_button_bar_24dp
     "hide_window_buttons" -> R.drawable.ic_hide_window_buttons_24dp
+    "text_under_window_buttons" -> R.drawable.ic_hide_window_button_bar_24dp
     "hide_bible_reference_overlay" -> R.drawable.ic_hide_bible_reference_overlay_24dp
     "show_active_window_indicator" -> R.drawable.ic_active_window_24dp
     "disable_bible_bookmark_modal_buttons" -> R.drawable.ic_one_tap_bible_24

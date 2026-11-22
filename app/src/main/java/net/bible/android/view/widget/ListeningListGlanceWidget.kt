@@ -19,7 +19,6 @@ package net.bible.android.view.widget
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
@@ -63,7 +62,8 @@ private val COMPACT_ROW_HEIGHT = 34.dp
 
 /** The speak bookmarks as a list: tap a row to speak from it. */
 class ListeningListGlanceWidget : GlanceAppWidget() {
-    override val sizeMode = SizeMode.Responsive(setOf(DpSize(110.dp, 110.dp), DpSize(LISTENING_WIDE_DP.dp, 110.dp)))
+    // Exact: Responsive reports the matched breakpoint, not the real height, so the row count never followed a resize (#4191).
+    override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideWidgetContent(context) { state, strings ->
         ListeningListContent(state, strings, LocalSize.current.width, LocalSize.current.height)
@@ -94,7 +94,8 @@ fun ListeningListContent(state: SpeakWidgetState, strings: WidgetStrings, width:
                 )
                 Gap(6.dp)
                 Column(modifier = GlanceModifier.defaultWeight()) { WidgetText(strings.listeningListName, size = 13, bold = true) }
-                if (!compact && state.listening.isNotEmpty()) WidgetText(state.listening.size.toString(), dim = true)
+                // Only when rows are left out, as "shown/total"; a bare number looked like a stack badge (#4191).
+                if (!compact && state.listening.size > fit) WidgetText("$fit/${state.listening.size}", dim = true)
             }
             if (state.listening.isEmpty()) {
                 Spacer(GlanceModifier.height(4.dp))

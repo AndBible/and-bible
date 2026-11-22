@@ -155,13 +155,28 @@ class DocumentQuickTabsTest {
         assertEquals(listOf("KJV"), ids(tabs, DocumentQuickTab.FOR_VERSE))
     }
 
-    @Test fun commentaryScopeKeepsGeneralBooksAndDictionariesButNoBiblesOrMaps() {
+    @Test fun commentaryScopeKeepsEveryNonBibleTypeIncludingMapsButNoBibles() {
         val tabs = buildDocumentQuickTabs(
             mixed, emptyList(), setOf("MHC"), null, DocTypeFilter.ALL, DocumentSheetScope.COMMENTARY,
         )
         assertEquals(
-            setOf("MHC", "TSK", "STRONG", "PILGRIM"),
+            setOf("MHC", "TSK", "STRONG", "PILGRIM", "MAP"),
             ids(tabs, DocumentQuickTab.ALL).toSet(),
+        )
+    }
+
+    @Test fun theDocumentsSheetAllTabIsGroupedByTypeThenLanguageThenAbbreviation() {
+        val docs = mixed + listOf(
+            row("ZED", DocCategory.COMMENTARY, lang = "fi"), row("AAA", DocCategory.MAPS, lang = "fi"),
+            row("BOOK", DocCategory.GENERAL_BOOK), row("DICT", DocCategory.DICTIONARY, lang = "de"),
+        )
+        val tabs = buildDocumentQuickTabs(
+            docs, emptyList(), emptySet(), null, DocTypeFilter.ALL, DocumentSheetScope.COMMENTARY,
+        )
+        assertEquals(
+            // commentaries, dictionaries, general books, maps; language then abbreviation inside each
+            listOf("MHC", "TSK", "ZED", "DICT", "STRONG", "BOOK", "PILGRIM", "MAP", "AAA"),
+            ids(tabs, DocumentQuickTab.ALL),
         )
     }
 

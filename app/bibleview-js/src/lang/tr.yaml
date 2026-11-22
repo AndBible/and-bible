@@ -46,6 +46,8 @@ emptyStudyPad: Boş çalışma defteri. Burada metin girişleri oluşturarak vey
 doYouWantToDeleteEntry: Bu çalışma defteri sililsin mi?
 removeStudyPadConfirmationTitle: Çalışma pedi kaldıralsın mı?
 dragHelp: Yeniden sıralamak için sürükleyin
+addonBookmarkThisVerse: Bu ayete yer imi ekle
+addonReadOnly: Bu içerik bir eklenti koleksiyonundan gelir ve salt okunurdur. Düzenlenebilir bir kopya almak için “Etiketlerime kopyala” seçeneğini kullanın.
 openAll: Tüm referansları açın
 editBookmarkPlaceholder: Bu yer iminin Notlarımı düzenlemek için dokunun
 onlyLabel: Sadece etiket

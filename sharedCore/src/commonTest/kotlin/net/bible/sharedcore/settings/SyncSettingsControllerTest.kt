@@ -1,5 +1,6 @@
 package net.bible.sharedcore.settings
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,6 @@ class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsServi
     override fun refresh() { refreshes++ }
     override suspend fun signIn(): Boolean { calls += "signIn"; return signInResult }
     override suspend fun scanDocuments(): DocSyncSummaryData { calls += "scan"; return scanResult }
-    override fun setCategoryEnabled(key: String, enabled: Boolean) { calls += "cat:$key=$enabled" }
     override fun setDocumentsEnabled(summary: DocSyncSummaryData) { calls += "docsEnable" }
     override fun disableDocuments() { calls += "docsDisable" }
     override fun setDocumentSyncToggle(key: String, value: Boolean) { calls += "docToggle:$key=$value" }
@@ -36,6 +36,29 @@ class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsServi
     var resetFailure: Throwable? = null
     override suspend fun resetSync() { calls += "reset"; resetFailure?.let { throw it } }
     override fun formatEnableDocumentsMessage(summary: DocSyncSummaryData) = "docs-msg"
+
+    var applyResult = ApplyResult.Applied
+    var applyCancelled = false
+    /** Held until completed: the apply is then "checking the cloud". */
+    var beforeProbe: CompletableDeferred<Unit>? = null
+    /** Held until completed: the apply is then past the probe (the cloud layer's dialog). */
+    var afterProbe: CompletableDeferred<Unit>? = null
+    val applied = mutableListOf<Map<String, Boolean>>()
+    override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): ApplyResult {
+        calls += "apply"
+        applied += changes
+        try {
+            if (changes.any { it.value }) {
+                beforeProbe?.await()
+                onProbed()
+                afterProbe?.await()
+            }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            applyCancelled = true
+            throw e
+        }
+        return applyResult
+    }
 }
 
 fun syncSnap(
@@ -55,6 +78,7 @@ fun syncSnap(
     certificateVisible: Boolean = false,
     certificateSummary: String = "",
     adapter: String = "NEXT_CLOUD",
+    enabledCategories: Set<String> = emptySet(),
 ) = SyncSettingsSnapshot(
     adapter = adapter,
     adapterChoices = listOf(Choice2("GOOGLE_DRIVE", "Google Drive"), Choice2("NEXT_CLOUD", "Nextcloud")),
@@ -64,7 +88,7 @@ fun syncSnap(
     serverUrl = serverUrl, username = "u", password = "p", folderPath = folderPath,
     credsVisible = credsVisible, credsEnabled = credsEnabled,
     resetVisible = resetVisible, cloudInfoVisible = cloudInfoVisible,
-    categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { false },
+    categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { it in enabledCategories },
     categorySummary = SyncCategoryKeys.DISPLAY.associateWith { "sum" },
     documentsEnabled = documentsEnabled,
     documentCategoryVisible = documentCategoryVisible,
@@ -122,14 +146,14 @@ class SyncSettingsControllerTest {
 
     // #3902: the docs promise a Reading Plans toggle; it sits between workspaces and my documents (classic order).
     @Test fun readingPlansRowShownWithTitleAndSwitchable() {
-        val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = true }
+        val svc = FakeSyncSettingsService(syncSnap())
         val ctrl = controller(svc)
         val keys = ctrl.state.value.screen.visibleItems.map { it.key }
         assertEquals(keys.indexOf("sync_enable_workspaces") + 1, keys.indexOf("sync_enable_readingplans"))
         val row = ctrl.state.value.screen.items.single { it.key == "sync_enable_readingplans" }
         assertEquals("Reading plans", (row as SettingsItem.SwitchRow).title)
         ctrl.onSwitch("sync_enable_readingplans", true)
-        assertEquals(listOf("signIn", "cat:sync_enable_readingplans=true"), svc.calls)
+        assertEquals(mapOf("sync_enable_readingplans" to true), ctrl.state.value.pending)
     }
 
     @Test fun certificateRow_hiddenByDefault_visibleWithPin() {
@@ -224,23 +248,306 @@ class SyncSettingsControllerTest {
         assertFalse(adapter.enabled)
     }
 
-    @Test fun enableCategory_signInSuccess_persistsAndRefreshes() {
-        val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = true }
-        controller(svc).onSwitch("sync_enable_bookmarks", true)
-        assertEquals(listOf("signIn", "cat:sync_enable_bookmarks=true"), svc.calls)
-        assertTrue(svc.refreshes >= 1)
+    private fun row(c: SyncSettingsController, key: String) =
+        c.state.value.screen.items.single { it.key == key } as SettingsItem.SwitchRow
+
+    @Test fun switchOnlyMarksPending() {
+        val svc = FakeSyncSettingsService(syncSnap(enabledCategories = setOf("sync_enable_progress")))
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onSwitch("sync_enable_progress", false)
+        assertEquals(emptyList(), svc.calls)  // nothing reached the service: no sign-in, no write
+        assertEquals(mapOf("sync_enable_bookmarks" to true, "sync_enable_progress" to false), c.state.value.pending)
+        val labels = SyncSettingsLabels.forTest()
+        assertTrue(row(c, "sync_enable_bookmarks").checked)
+        assertEquals(labels.pendingOn, row(c, "sync_enable_bookmarks").summary)
+        assertFalse(row(c, "sync_enable_progress").checked)
+        assertEquals(labels.pendingOff, row(c, "sync_enable_progress").summary)
+        assertEquals("sum", row(c, "sync_enable_workspaces").summary)
+        // flipping back to the persisted value is no change at all
+        c.onSwitch("sync_enable_bookmarks", false)
+        assertEquals(mapOf("sync_enable_progress" to false), c.state.value.pending)
+        assertEquals("sum", row(c, "sync_enable_bookmarks").summary)
     }
 
-    @Test fun enableCategory_signInFail_doesNotPersist() {
-        val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = false }
-        controller(svc).onSwitch("sync_enable_bookmarks", true)
-        assertEquals(listOf("signIn"), svc.calls)  // no cat write
-    }
-
-    @Test fun disableCategory_immediate() {
+    @Test fun pendingEntryDropsWhenPersistedMatches() {
         val svc = FakeSyncSettingsService(syncSnap())
-        controller(svc).onSwitch("sync_enable_progress", false)
-        assertEquals(listOf("cat:sync_enable_progress=false"), svc.calls)
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onSwitch("sync_enable_progress", true)
+        svc._snap.value = svc._snap.value.copy(categoryEnabled = svc._snap.value.categoryEnabled + ("sync_enable_bookmarks" to true))
+        assertEquals(mapOf("sync_enable_progress" to true), c.state.value.pending)
+    }
+
+    @Test fun signOutClearsPending() {
+        val svc = FakeSyncSettingsService(syncSnap(adapterEnabled = false))  // signed in
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        assertEquals(1, c.state.value.pending.size)
+        svc._snap.value = svc._snap.value.copy(adapterEnabled = true)         // signed out
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertFalse(row(c, "sync_enable_bookmarks").checked)
+
+        c.onSwitch("sync_enable_bookmarks", true)  // signed out: switches may be marked (sign-in happens on Apply)
+        assertEquals(1, c.state.value.pending.size)
+        svc._snap.value = svc._snap.value.copy(adapter = "GOOGLE_DRIVE")        // backend change
+        assertEquals(emptyMap(), c.state.value.pending)
+    }
+
+    @Test fun applyShowsCheckingUntilProbed() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply {
+            beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred()
+        }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertEquals(SyncDialog.CheckingCloud, c.state.value.dialog)
+        assertEquals(listOf(mapOf("sync_enable_bookmarks" to true)), svc.applied)
+        svc.beforeProbe!!.complete(Unit)
+        assertEquals(SyncDialog.None, c.state.value.dialog)           // probed: the plan dialog is the cloud layer's
+        assertEquals(1, c.state.value.pending.size)                    // not finished yet
+        svc.afterProbe!!.complete(Unit)
+        assertEquals(emptyMap(), c.state.value.pending)
+    }
+
+    @Test fun failedApplyKeepsPendingAndClosesTheDialog() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { applyResult = ApplyResult.SignInFailed }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertEquals(1, c.state.value.pending.size)
+    }
+
+    @Test fun applyWithOnlyOffsShowsNoDialog() {
+        val svc = FakeSyncSettingsService(syncSnap(enabledCategories = setOf("sync_enable_progress"))).apply {
+            beforeProbe = CompletableDeferred()  // would block an "on" apply; an off-only apply never waits
+        }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_progress", false)
+        c.applyPending()
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertEquals(listOf(mapOf("sync_enable_progress" to false)), svc.applied)
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertFalse(c.state.value.loading)
+    }
+
+    @Test fun cancelCheckingCancelsApply() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred() }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertEquals(SyncDialog.CheckingCloud, c.state.value.dialog)
+        c.cancelChecking()
+        assertTrue(svc.applyCancelled)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertFalse(c.state.value.loading)
+        assertTrue(svc.refreshes >= 1)
+        assertEquals(emptyMap(), c.state.value.pending, "progress Cancel reverts the ons: nothing stays pending")
+        // the screen is usable again: a second apply starts a fresh job
+        svc.beforeProbe = null
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertEquals(2, svc.applied.size)
+    }
+
+    @Test fun progressCancelKeepsOffsThatWereNotPersistedYet() {
+        val svc = FakeSyncSettingsService(syncSnap(enabledCategories = setOf("sync_enable_progress")))
+            .apply { beforeProbe = CompletableDeferred() }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onSwitch("sync_enable_progress", false)
+        c.applyPending()
+        c.cancelChecking()
+        assertEquals(mapOf("sync_enable_progress" to false), c.state.value.pending)
+    }
+
+    @Test fun cancelledJoinPlanClearsPending() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { applyResult = ApplyResult.Cancelled }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertEquals(emptyMap(), c.state.value.pending, "the cloud layer turned the ons off again; nothing is left to retry")
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertFalse(c.state.value.loading)
+    }
+
+    @Test fun confirmLeaveApplyWithPendingPrunedToEmptyStillLeaves() {
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), {}, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        assertFalse(c.onLeave())
+        // another path enables the category while the leave dialog is open: the pending entry is dropped
+        svc._snap.value = svc._snap.value.copy(categoryEnabled = svc._snap.value.categoryEnabled + ("sync_enable_bookmarks" to true))
+        c.confirmLeaveApply()
+        assertEquals(1, exits)
+        assertEquals(emptyList(), svc.applied)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun leavingWhileAnApplyRunsStaysWithoutAskingTwice() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred() }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        svc.beforeProbe!!.complete(Unit)
+        assertFalse(c.onLeave())
+        assertEquals(SyncDialog.None, c.state.value.dialog, "the apply already runs: no second Apply/Discard question")
+        svc.afterProbe!!.complete(Unit)
+        assertTrue(c.onLeave())
+    }
+
+    @Test fun leaveWithPendingAsks() {
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), {}, onExit = { exits++ })
+        assertTrue(c.onLeave())                                         // nothing pending: leave
+        c.onSwitch("sync_enable_bookmarks", true)
+        assertFalse(c.onLeave())
+        assertEquals(SyncDialog.LeaveWithPending, c.state.value.dialog)
+        c.confirmLeaveDiscard()
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertEquals(1, exits)
+        assertEquals(emptyList(), svc.calls)                            // discarded: nothing applied
+
+        c.onSwitch("sync_enable_progress", true)
+        assertFalse(c.onLeave())
+        c.confirmLeaveApply()
+        assertEquals(listOf(mapOf("sync_enable_progress" to true)), svc.applied)
+        assertEquals(2, exits)                                          // applied, then left
+    }
+
+    @Test fun hopWithoutPendingRunsAtOnce() {
+        var opened = 0
+        val c = controller(FakeSyncSettingsService(syncSnap()), onOpen = { opened++ })
+        c.onNavigate("document_sync_manage")
+        assertEquals(1, opened)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun hopWithPendingAsksAndRunsAfterDiscardInsteadOfExit() {
+        var opened = 0
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), { opened++ }, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onNavigate("document_sync_manage")
+        assertEquals(SyncDialog.LeaveWithPending, c.state.value.dialog)
+        assertEquals(0, opened)
+        c.confirmLeaveDiscard()
+        assertEquals(1, opened)
+        assertEquals(0, exits, "the hop replaces the exit")
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertEquals(emptyList(), svc.applied)
+    }
+
+    @Test fun applyClearsOnlyTheKeysItApplied() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred() }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        c.onSwitch("sync_enable_workspaces", true) // flipped while the Apply runs
+        svc.beforeProbe!!.complete(Unit)
+        svc.afterProbe!!.complete(Unit)
+        assertEquals(mapOf("sync_enable_workspaces" to true), c.state.value.pending, "the later switch is still pending")
+    }
+
+    @Test fun hopRefusedByARunningApplyDoesNotLeakIntoALaterLeave() {
+        var opened = 0
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred() }
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), { opened++ }, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        svc.beforeProbe!!.complete(Unit)
+        c.onNavigate("document_sync_manage") // refused: an Apply is running
+        assertEquals(0, opened)
+        svc.afterProbe!!.complete(Unit)
+        svc.beforeProbe = null; svc.afterProbe = null
+        c.onSwitch("sync_enable_workspaces", true)
+        assertFalse(c.onLeave())
+        c.confirmLeaveApply()
+        assertEquals(0, opened, "the refused hop did not come back")
+        assertEquals(1, exits)
+    }
+
+    @Test fun hopRefusedWhileApplyThenLeaveRunsKeepsTheConfirmedHop() {
+        var opened = 0
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap()).apply { beforeProbe = CompletableDeferred(); afterProbe = CompletableDeferred() }
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), { opened++ }, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onNavigate("document_sync_manage") // the leave question for hop 1
+        c.confirmLeaveApply()
+        c.onNavigate("document_sync_manage") // hop 2 refused: the Apply runs
+        svc.beforeProbe!!.complete(Unit)
+        svc.afterProbe!!.complete(Unit)
+        assertEquals(1, opened, "the confirmed hop still runs after the Apply")
+        assertEquals(0, exits, "the screen does not just exit")
+    }
+
+    @Test fun hopWithPendingRunsAfterApplyCompletes() {
+        var opened = 0
+        val svc = FakeSyncSettingsService(syncSnap()).apply { afterProbe = CompletableDeferred(); beforeProbe = CompletableDeferred() }
+        val c = controller(svc, onOpen = { opened++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onNavigate("document_sync_manage")
+        c.confirmLeaveApply()
+        svc.beforeProbe!!.complete(Unit)
+        assertEquals(0, opened, "not before the apply finished")
+        svc.afterProbe!!.complete(Unit)
+        assertEquals(1, opened)
+    }
+
+    @Test fun cancelledHopQuestionDoesNotLeakIntoALaterExit() {
+        var opened = 0
+        var exits = 0
+        val c = SyncSettingsController(FakeSyncSettingsService(syncSnap()), CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), { opened++ }, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.onNavigate("document_sync_manage")
+        c.dismissDialog()
+        assertFalse(c.onLeave())
+        c.confirmLeaveDiscard()
+        assertEquals(0, opened)
+        assertEquals(1, exits)
+    }
+
+    @Test fun abandonedLeaveDoesNotExitWhenTheApplyFinishesLater() {
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap()).apply { afterProbe = CompletableDeferred(); beforeProbe = CompletableDeferred() }
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), {}, onExit = { exits++ })
+        c.onSwitch("sync_enable_bookmarks", true)
+        assertFalse(c.onLeave())
+        c.confirmLeaveApply()
+        c.abandonLeave()  // the screen is gone (e.g. re-entered meanwhile): the late finish must not pop anything
+        svc.beforeProbe!!.complete(Unit); svc.afterProbe!!.complete(Unit)
+        assertEquals(0, exits)
+        assertEquals(emptyMap(), c.state.value.pending)
+    }
+
+    @Test fun applyingFlagCoversTheWholeApplyIncludingAfterTheProbe() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { afterProbe = CompletableDeferred(); beforeProbe = CompletableDeferred() }
+        val c = controller(svc)
+        assertFalse(c.state.value.applying)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertTrue(c.state.value.applying)
+        svc.beforeProbe!!.complete(Unit)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertTrue(c.state.value.applying, "the plan dialog is up: the bar must stay hidden")
+        svc.afterProbe!!.complete(Unit)
+        assertFalse(c.state.value.applying)
+    }
+
+    @Test fun documentsSwitchStillAppliesImmediately() {
+        val svc = FakeSyncSettingsService(syncSnap(documentsEnabled = true))
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", false)
+        c.onSwitch("sync_documents_wifi_only", false)
+        assertEquals(listOf("docsDisable", "docToggle:sync_documents_wifi_only=false"), svc.calls)
+        assertEquals(emptyMap(), c.state.value.pending)
     }
 
     @Test fun enableDocuments_showsDialogWithScannedSummary() {

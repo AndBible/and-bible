@@ -46,6 +46,8 @@ emptyStudyPad: Leerer Studienblock. Beginnen Sie, indem Sie hier Texteinträge e
 doYouWantToDeleteEntry: Diesen Studienmappeneintrag löschen?
 removeStudyPadConfirmationTitle: Studienmappeneintrag entfernen?
 dragHelp: Zum Umordnen Ziehen
+addonBookmarkThisVerse: Diesen Vers mit Lesezeichen versehen
+addonReadOnly: Dieser Inhalt stammt aus einer Add-on-Sammlung und ist schreibgeschützt. Verwende „In meine Labels kopieren“, um eine bearbeitbare Kopie zu erhalten.
 openAll: Öffne alle Querverweise
 editBookmarkPlaceholder: Tippen um die eigene Notiz für dieses Lesezeichen zu bearbeiten
 onlyLabel: Einzige Kategorie

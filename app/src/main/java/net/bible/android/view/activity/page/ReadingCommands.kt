@@ -791,7 +791,7 @@ class ReadingCommands(
         }
     }
 
-    /** Commentary toolbar button, short press. Lists general books and dictionaries too (classic parity). */
+    /** Commentary toolbar button, short press. Documents sheet: also lists general books, dictionaries and maps. */
     internal fun composeCommentaryClick() {
         if (toolbarButtonSetting?.startsWith("swap-") == true) {
             setCurrentDocument(documentControl.suggestedCommentary)
@@ -800,7 +800,8 @@ class ReadingCommands(
                 DocumentSheetScope.COMMENTARY,
                 documentControl.commentariesForVerse
                     + SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK)
-                    + SwordDocumentFacade.getBooks(BookCategory.DICTIONARY),
+                    + SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
+                    + SwordDocumentFacade.getBooks(BookCategory.MAPS),
             )
         }
     }

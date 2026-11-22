@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathEffect
@@ -166,7 +167,10 @@ private val MonoBorderWidth = 1.dp
  * cut the outer half); 1dp whole-pixel ink keeps that visible weight without the grey fringe.
  */
 private val MonoMinimisedBorderWidth = 1.dp
-private const val MinimisedAlpha = 0.62f
+private const val MinimisedAlpha = 0.5f
+
+/** Share of the workspace primary tinted into an open (non-active, non-minimised) button's fill. */
+private const val OpenTintAlpha = 0.16f
 /** Minimised outline dash/gap in dp, so they stay legible on high-density e-ink. */
 private val MinimisedDashOn = 4.dp
 private val MinimisedDashOff = 3.dp
@@ -208,10 +212,10 @@ private val RailBadgeRowHeight = BadgeIconSize + BadgeInset
  * degrades this button automatically, with no special-casing here:
  * - [isActive] → [androidx.compose.material3.ColorScheme.primaryContainer] fill (classic
  *   `*_active` drawable); inactive → [androidx.compose.material3.ColorScheme.surfaceVariant]
- *   (classic base drawable).
+ *   (classic base drawable), except an open one, which gets [OpenTintAlpha] of the workspace primary tinted in.
  * - [isMinimised] → a dp-sized dashed outline signals "known window, not currently shown".
  *   MONOCHROME keeps full ink content and ink dashes without fading, like classic's pure black/white
- *   monochrome palette. Other modes draw the whole button at [MinimisedAlpha] (~0.62) alpha with
+ *   monochrome palette. Other modes draw the whole button at [MinimisedAlpha] (~0.5) alpha with
  *   [androidx.compose.material3.ColorScheme.outline] dashes, to read as "temporarily set aside"
  *   rather than plain "not selected".
  * - [isPinned] → **Pane mode only** (`WindowButtonMode.Pane`): classic's `pinMode` `ic_pin` glyph,
@@ -266,7 +270,9 @@ fun WindowButton(
     val mono = isPureMonochrome()
     val colors = MaterialTheme.colorScheme
     val dark = LocalIsDarkTheme.current
-    val containerColor = if (mono) monoPaper(dark) else if (isActive) colors.primaryContainer else colors.surfaceVariant
+    val containerColor = if (mono) monoPaper(dark) else if (isActive) colors.primaryContainer
+        else if (isMinimised) colors.surfaceVariant
+        else colors.primary.copy(alpha = OpenTintAlpha).compositeOver(colors.surfaceVariant)
     // MONO keeps minimised content and dashes in ink: disabled grey reads as blur on e-ink.
     val contentColor = when {
         mono -> monoInk(dark)
@@ -286,9 +292,7 @@ fun WindowButton(
     Box(
         modifier = modifier
             .size(WindowButtonSize)
-            .alpha(if (isMinimised && !mono) MinimisedAlpha else 1f)
             .clip(cornerShape)
-            .background(containerColor)
             .then(
                 if (isMinimised) {
                     Modifier.drawWithContent {
@@ -332,6 +336,9 @@ fun WindowButton(
                     Modifier.border(BorderWidth, colors.outlineVariant, cornerShape)
                 },
             )
+            // Fill and content fade for minimised; the border drawn above stays crisp.
+            .alpha(if (isMinimised && !mono) MinimisedAlpha else 1f)
+            .background(containerColor)
             .pointerInput(mode) {
                 awaitPointerEventScope {
                     while (true) {

@@ -46,6 +46,8 @@ emptyStudyPad: Radna bilježnica je prazna. Krenite sa njenim popunjavanjem tako
 doYouWantToDeleteEntry: Izbrisati unos ove radne bilježnice?
 removeStudyPadConfirmationTitle: Ukloniti unos radne bilježnice?
 dragHelp: Zadržite i povucite radi mijenjanja redoslijeda
+addonBookmarkThisVerse: Označi ovaj redak zabilješkom
+addonReadOnly: Ovaj sadržaj potječe iz zbirke dodatka i samo je za čitanje. Upotrijebite „Kopiraj u moje oznake” za uređivu kopiju.
 openAll: Otvori sve reference
 editBookmarkPlaceholder: Dodirnite radi uređivanja Moje bilježnice za ovaj straničnik
 onlyLabel: Jedina oznaka

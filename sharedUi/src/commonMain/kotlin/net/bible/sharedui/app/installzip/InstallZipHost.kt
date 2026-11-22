@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.android.view.activity.installzip.INSTALL_ZIP_SAF_MIME_TYPES
 import net.bible.android.view.activity.installzip.InstallZipFlow
+import net.bible.service.installzip.DecisionRequest
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.JobId
 import net.bible.sharedcore.log.Log
@@ -56,7 +57,7 @@ interface InstallZipHostPlatform {
     fun formatsText(): String
 
     /** Answers a job's ask-back (overwrite / StudyPad import / EPUB upgrade). */
-    fun resolveDecision(jobId: JobId, proceed: Boolean)
+    fun resolveDecision(jobId: JobId, request: DecisionRequest, proceed: Boolean)
 
     /** Maps a job's phase to what the screen renders, with the platform's localized texts. */
     fun mapPhase(job: InstallJobState): InstallUiState

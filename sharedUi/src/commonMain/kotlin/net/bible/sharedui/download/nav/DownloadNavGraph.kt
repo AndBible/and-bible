@@ -363,6 +363,8 @@ class CloudDocumentsDeps(
     val topBarActions: @Composable RowScope.() -> Unit,
     val openOrGate: suspend () -> Boolean,
     val seedItems: suspend () -> List<CloudDocItem>,
+    /** #4180: keeps [controller]'s list following the listing cache while a document sync runs; never returns. */
+    val liveRefresh: suspend (CloudDocumentsController) -> Unit,
     val refreshFromNetwork: suspend () -> Unit,
     private val transferRunningProvider: () -> kotlinx.coroutines.flow.StateFlow<Boolean>,
     val subscribeProgress: (onRunning: (Boolean) -> Unit) -> () -> Unit,
@@ -944,9 +946,18 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         DisposableEffect(Unit) {
             var active = true
             val stop = d.subscribeProgress { running ->
-                if (active && !running) scope.launch { d.refreshFromNetwork() }
+                if (active && !running) {
+                    controller.onSyncEnded()
+                    scope.launch { d.refreshFromNetwork() }
+                }
             }
             onDispose { active = false; stop() }
+        }
+
+        // #4180: while a document sync runs the list follows the listing cache (cache-only re-read), instead of
+        // staying as seeded until the end-of-sync network rescan.
+        LaunchedEffect(Unit) {
+            d.liveRefresh(controller)
         }
 
         val grouped by controller.grouped.collectAsState()

@@ -212,6 +212,13 @@ remain reachable on a phone.
 - **Hide window buttons:** Hides the menu buttons at the top right of each
     window. You can still access the window menu by long-pressing the buttons in
     the bottom window bar.
+- **Show text under window buttons:** Lets the Bible text run to the bottom of
+    the screen, under the window button bar, instead of keeping a strip free
+    under the bar. The active window's corner highlight then sits at the real
+    bottom corners, so the buttons may cover it where they overlap. You can still
+    scroll the last verse up above the buttons. On by default on desktop
+    (Windows, Linux, macOS) and in the iPhone/iPad app running on a Mac; off on
+    Android, iPhone and iPad.
 - **Hide Bible reference overlay:** Hides the semi-transparent Bible reference
     indicator that appears near the bottom of the screen while scrolling in
     fullscreen mode. It disappears after scrolling stops; tapping the text does

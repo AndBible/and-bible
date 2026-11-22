@@ -124,6 +124,13 @@
   <string name="search_clear">Xóa văn bản tìm kiếm</string>
   <string name="search_engine_changed_reindex">Công cụ tìm kiếm đã được cập nhật. Cần tạo lại chỉ mục tìm kiếm; việc này có thể mất một lúc.</string>
   <string name="search_unsupported_syntax">Tìm kiếm này dùng cú pháp không được hỗ trợ: %s</string>
+  <string name="search_regex">Biểu thức chính quy (thử nghiệm)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Tìm kiếm mất quá nhiều thời gian nên đã bị dừng. Kết quả chưa đầy đủ; hãy thử một biểu thức đơn giản hơn.</string>
+  <string name="search_invalid_regex">Biểu thức chính quy không hợp lệ: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Biểu thức chính quy này có quá nhiều ký tự đại diện không giới hạn (như .* hoặc \\w+). Hãy dùng ít hơn, hoặc thu hẹp chúng, ví dụ .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Biểu thức chính quy này lặp một nhóm mà bản thân nó cũng chứa phần lặp, chẳng hạn (a+)+. Việc khớp có thể kéo dài gần như vô tận. Hãy viết lại mà không lồng các phần lặp.</string>
+  <string name="search_regex_busy">Một tìm kiếm bằng biểu thức chính quy trước đó vẫn đang chạy nền. Hãy thử lại sau giây lát; nếu vẫn chưa xong, hãy khởi động lại ứng dụng.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -310,6 +317,8 @@
   <string name="hide_window_buttons_summary">Các nút cửa sổ hiển thị ở bên phải của khung xem Kinh Thánh sẽ bị ẩn. Thanh điều hướng cửa sổ ở phía dưới vẫn hiển thị và bạn có thể mở menu bật lên của cửa sổ bằng cách nhấn giữ chúng.</string>
   <string name="hide_bible_reference_overlay_title">Ẩn lớp phủ tham chiếu Kinh Thánh</string>
   <string name="hide_bible_reference_overlay_summary">Không hiển thị lớp phủ tham chiếu Kinh Thánh bán trong suốt khi ứng dụng ở chế độ toàn màn hình</string>
+  <string name="text_under_window_buttons_title">Hiện văn bản dưới các nút cửa sổ</string>
+  <string name="text_under_window_buttons_summary">Văn bản Kinh Thánh kéo dài đến cuối màn hình, bên dưới thanh nút cửa sổ. Khi tắt, một dải trống được giữ lại bên dưới thanh trong các cửa sổ phía dưới mà thanh đó trải qua.</string>
   <string name="full_screen_hide_buttons_pref_title">Ẩn thanh nút cửa sổ khi toàn màn hình</string>
   <string name="full_screen_hide_buttons_pref_summary">Khi chuyển sang chế độ toàn màn hình, tự động ẩn thanh nút cửa sổ ở phía dưới màn hình</string>
   <string name="prefs_hide_status_bar_title">Ẩn thanh trạng thái</string>
@@ -552,7 +561,50 @@
   <string name="sleep_timer_active_at">Hẹn giờ ngủ: còn %s phút.</string>
   <string name="speak_next">Tiếp theo</string>
   <string name="speak_previous">Trước đó</string>
+  <string name="widget_play">Phát</string>
   <string name="widget_toggle_sleep_timer">Bật/tắt hẹn giờ ngủ</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Đọc</string>
+  <string name="widget_speak_text_name">Đọc kèm văn bản</string>
+  <string name="widget_listening_list_name">Danh sách nghe</string>
+  <string name="widget_verse_name">Câu Kinh Thánh</string>
+  <string name="widget_continue_from">Tiếp tục từ %1$s · %2$s</string>
+  <string name="widget_continue_listening">Tiếp tục nghe</string>
+  <string name="widget_paused">Đã tạm dừng</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Chưa có dấu đọc nào</string>
+  <string name="widget_listening_list_empty_text">Các đánh dấu có nhãn Đọc sẽ xuất hiện ở đây. Hãy bật đánh dấu tự động trong cài đặt đọc, hoặc thêm nhãn vào bất kỳ đánh dấu nào.</string>
+  <string name="widget_open_app">Mở AndBible</string>
+  <string name="widget_open_app_to_load">Mở AndBible để tải các câu</string>
+  <string name="widget_verse_unavailable_no_bible">Hãy cài một bản Kinh Thánh để xem các câu ở đây</string>
+  <string name="widget_verse_unavailable_label_missing">Nhãn của tiện ích này không còn tồn tại. Chạm để chọn các câu.</string>
+  <string name="widget_verse_unavailable_label_empty">Nhãn này chưa có đánh dấu Kinh Thánh nào. Chạm để chọn các câu khác.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Không có kế hoạch đọc nào đang hoạt động. Chạm để chọn các câu khác.</string>
+  <string name="widget_verse_source_random_whole_bible">Câu ngẫu nhiên</string>
+  <string name="widget_verse_source_random_new_testament">Câu ngẫu nhiên · Tân Ước</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Câu ngẫu nhiên · Thi Thiên &amp; Châm Ngôn</string>
+  <string name="widget_shuffle">Xáo trộn câu</string>
+  <string name="widget_speak_verse">Đọc câu</string>
+  <string name="widget_verse_config_title">Tiện ích câu Kinh Thánh</string>
+  <string name="widget_verse_config_source_label">Các câu từ</string>
+  <string name="widget_verse_config_source_label_option">Một nhãn</string>
+  <string name="widget_verse_config_source_random">Câu ngẫu nhiên</string>
+  <string name="widget_verse_config_random_whole">Toàn bộ Kinh Thánh</string>
+  <string name="widget_verse_config_random_nt">Tân Ước</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Thi Thiên &amp; Châm Ngôn</string>
+  <string name="widget_verse_config_source_plan">Kế hoạch đọc hôm nay</string>
+  <string name="widget_verse_config_changes">Thay đổi</string>
+  <string name="widget_verse_config_daily">Hằng ngày</string>
+  <string name="widget_verse_config_every_few_hours">Vài giờ một lần</string>
+  <string name="widget_verse_config_on_shuffle">Chỉ khi tôi chạm xáo trộn</string>
+  <string name="widget_verse_config_bible">Kinh Thánh</string>
+  <string name="widget_verse_config_bible_default">Mặc định (%s)</string>
+  <string name="widget_verse_config_show_buttons">Hiện nút xáo trộn và đọc</string>
+  <string name="widget_verse_config_show_source">Hiện nguồn và ngày</string>
+  <string name="widget_verse_config_add">Thêm tiện ích</string>
+  <string name="widget_verse_config_save">Lưu</string>
+  <string name="widget_verse_source_reading_plan">Bài đọc hôm nay</string>
   <string name="speak_status_stopped">đã dừng</string>
   <string name="speak_autobookmarking_disabled">Tự động đánh dấu đã tắt!</string>
   <string name="system_speak_settings">Mở cài đặt TTS hệ thống</string>
@@ -597,11 +649,25 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Đức Chúa Trời</item>
+    <item>Chúa</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Giê-hô-va</item>
+    <item>Giê-hô-va</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">Đã thay đổi sách.</string>
   <string name="speak_chapter_changed">Chương</string>
   <string name="speak_first">Thứ nhất</string>
@@ -656,6 +722,28 @@
   <string name="install_zip_canceled">Đã hủy cài đặt mô-đun</string>
   <string name="restore">Khôi phục</string>
   <string name="import2">Nhập</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (bản sao)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Từ tiện ích bổ sung %1$s</string>
+  <string name="addon_label_from_module_hint">Mở tiện ích bổ sung trong trình quản lý tài liệu</string>
+  <string name="addon_label_read_only_note">Nhãn này, các đánh dấu và StudyPad của nó thuộc về tiện ích bổ sung và không thể chỉnh sửa. Bạn có thể đánh dấu nó là yêu thích, chọn cách không gian làm việc này hiển thị nó, và đánh dấu các câu của nó cho riêng bạn.</string>
+  <string name="addon_copy_to_my_labels">Sao chép vào nhãn của tôi</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Đã sao chép vào nhãn \"%1$s\" của bạn</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Nội dung này đến từ tiện ích bổ sung %1$s và không thể thay đổi. Hãy dùng \"Sao chép vào nhãn của tôi\" để có một bản có thể chỉnh sửa.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Nội dung này đến từ một tiện ích bổ sung và không thể thay đổi. Hãy dùng \"Sao chép vào nhãn của tôi\" để có một bản có thể chỉnh sửa.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Không thể sao chép nhãn</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="other">Đã bỏ qua %1$d mục trong bộ sưu tập tiện ích bổ sung. Hãy dùng \"Sao chép vào nhãn của tôi\" trên nhãn để có bản sao của riêng bạn.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" và %2$s Nhãn/Sổ tay nghiên cứu khác và %3$s Đánh dấu</string>
   <!--About-->
@@ -690,6 +778,8 @@
   <string name="doc_type_all">Tất cả các loại</string>
   <string name="doc_type_bible">Kinh Thánh</string>
   <string name="doc_type_commentary">Chú giải</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Tài liệu</string>
   <string name="doc_type_dictionary">Từ điển</string>
   <string name="doc_type_book">Sách</string>
   <string name="doc_type_map">Bản đồ</string>
@@ -725,6 +815,10 @@
   <string name="crash_recovery_continue">Tiếp tục</string>
   <string name="report_error">Gửi báo cáo</string>
   <string name="error_occurred">Đã xảy ra lỗi</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Ứng dụng đã dừng khi khởi động</string>
+  <string name="startup_crash_detail">Vui lòng gửi cho chúng tôi báo cáo lỗi để chúng tôi khắc phục sự cố. Báo cáo chứa chi tiết lỗi cùng thông tin về thiết bị và phiên bản ứng dụng của bạn.</string>
+  <string name="startup_crash_try_again">Thử lại</string>
   <string name="error_occurred_crash_last_time">Lần trước khi bạn sử dụng ứng dụng, nó đã bị đóng đột ngột. Để giúp chúng tôi sửa lỗi, chúng tôi rất mong bạn gửi báo cáo lỗi.</string>
   <string name="error_occurred_with_link">Đã xảy ra lỗi. %s</string>
   <string name="error_no_content">Không có nội dung cho câu đã chọn</string>
@@ -1165,10 +1259,6 @@
   <string name="reading_progress_new_cycle">Chu kỳ mới</string>
   <string name="reading_progress_previous_cycle">Chu kỳ trước</string>
   <string name="reading_progress_next_cycle">Chu kỳ tiếp theo</string>
-  <string name="cloud_merge_data">Hợp nhất dữ liệu</string>
-  <string name="cloud_fetch_and_restore_initial">Sao chép từ Cloud sang thiết bị này</string>
-  <string name="cloud_create_new">Sao chép từ thiết bị này lên Cloud</string>
-  <string name="cloud_disable_sync">Hủy &amp; tắt đồng bộ hóa</string>
   <string name="cloud_sync_title">Đồng bộ hóa thiết bị</string>
   <string name="reset_sync">Đăng xuất</string>
   <string name="prefs_reset_sync_summary">Tắt đồng bộ hóa và đặt lại các cài đặt liên quan.</string>
@@ -1184,8 +1274,18 @@
   <string name="google_drive_signin_interrupted">Đăng nhập Google bị gián đoạn. Hãy thử lại.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Địa chỉ máy chủ của bạn, ví dụ https://cloud.example.com (https:// sẽ được thêm nếu bạn bỏ qua)</string>
   <string name="webdav_server_url_hint">Địa chỉ của thư mục WebDAV, ví dụ https://nas.local/dav/ hoặc https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Đồng bộ hóa yêu cầu địa chỉ https:// an toàn.</string>
+  <string name="sync_waiting_for_pass">Đang chờ lần đồng bộ hiện tại hoàn tất…</string>
+  <string name="sync_pending_on">Sẽ được bật</string>
+  <string name="sync_pending_off">Sẽ được tắt</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="other">%1$d thay đổi</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Áp dụng các thay đổi đồng bộ của bạn?</string>
+  <string name="sync_checking_cloud_title">Đang kiểm tra đám mây…</string>
+  <string name="sync_checking_cloud_text">Đang tìm dữ liệu mà các thiết bị khác đã đồng bộ.</string>
   <string name="webdav_certificate_title">Chứng chỉ máy chủ</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Chứng chỉ máy chủ không đáng tin cậy</string>
@@ -1203,7 +1303,6 @@
   <string name="synchronization_categories">Danh mục đồng bộ hóa</string>
   <string name="sync_general_settings">Thông tin &amp; cài đặt chung</string>
   <string name="sync_introduction">Giới thiệu</string>
-  <string name="are_you_sure_merge">Cả dữ liệu trên thiết bị này và %s trên đám mây đều sẽ được giữ lại. Khi cùng một mục được thay đổi ở cả hai nơi, thay đổi mới hơn sẽ được giữ lại. Dữ liệu của thiết bị này sẽ được gửi đến các thiết bị khác của bạn.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Đang tắt đồng bộ hóa đám mây. Bạn phải bật lại thủ công sau khi khôi phục.</string>
   <string name="report">Báo cáo</string>
@@ -2153,18 +2252,30 @@
   <string name="dialog_dont_apply">Không áp dụng</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Đám mây đã có %s của bạn. Nên làm gì?</string>
-  <string name="cloud_merge_consequence">Giữ cả hai phía; với mục thay đổi ở cả hai nơi, thay đổi mới hơn được ưu tiên.</string>
-  <string name="cloud_fetch_consequence">Thay dữ liệu trên thiết bị này bằng bản sao trên đám mây.</string>
-  <string name="cloud_create_consequence">Thay bản sao trên đám mây bằng dữ liệu trên thiết bị này.</string>
-  <string name="cloud_disable_consequence">Đồng bộ vẫn tắt cho dữ liệu này.</string>
-  <string name="cloud_merge_lead">Hợp nhất %s của bạn với đám mây?</string>
-  <string name="cloud_merge_confirm">Hợp nhất</string>
   <string name="cloud_replace_confirm">Thay thế</string>
-  <string name="cloud_replace_local_lead">Thay %s của thiết bị này bằng bản sao trên đám mây?</string>
-  <string name="cloud_replace_local_detail">Nội dung hiện có trên thiết bị này sẽ bị ghi đè và không thể khôi phục.</string>
-  <string name="cloud_replace_cloud_lead">Thay bản sao %s trên đám mây bằng dữ liệu của thiết bị này?</string>
-  <string name="cloud_replace_cloud_detail">Nội dung hiện có trên đám mây sẽ bị ghi đè, và các thiết bị khác của bạn sẽ nhận dữ liệu của thiết bị này.</string>
+  <string name="cloud_join_plan_title">Đám mây đã có dữ liệu</string>
+  <string name="cloud_join_plan_lead">Chọn việc cần làm cho từng danh mục.</string>
+  <string name="cloud_join_merge">Hợp nhất</string>
+  <string name="cloud_join_merge_detail">Kết hợp thiết bị này và đám mây</string>
+  <string name="cloud_join_fetch">Sao chép từ đám mây</string>
+  <string name="cloud_join_fetch_detail">Thay thế dữ liệu của thiết bị này</string>
+  <string name="cloud_join_create">Sao chép lên đám mây</string>
+  <string name="cloud_join_create_detail">Thay thế dữ liệu của đám mây</string>
+  <string name="cloud_join_disable">Không đồng bộ</string>
+  <string name="cloud_join_disable_detail">Để danh mục này tắt</string>
+  <string name="cloud_join_upload_note">%s: chưa có dữ liệu trên đám mây, dữ liệu sẽ được tải lên từ thiết bị này.</string>
+  <string name="cloud_join_confirm_title">Bắt đầu đồng bộ?</string>
+  <string name="cloud_join_confirm_lead">Điều sau sẽ xảy ra:</string>
+  <string name="cloud_join_outcome_merge">%s: được hợp nhất với đám mây. Không mất gì cả.</string>
+  <string name="cloud_join_outcome_fetch">%s: dữ liệu trên thiết bị này được thay bằng dữ liệu của đám mây.</string>
+  <string name="cloud_join_outcome_create">%s: dữ liệu trên đám mây được thay bằng dữ liệu của thiết bị này.</string>
+  <string name="cloud_join_outcome_disable">%s: vẫn tắt.</string>
+  <string name="cloud_join_outcome_upload">%s: đã được tải lên từ thiết bị này.</string>
+  <string name="cloud_join_warning">Dữ liệu bị thay thế không thể khôi phục. Hãy sao lưu trước nếu bạn không chắc.</string>
+  <string name="cloud_join_next">Tiếp theo</string>
+  <string name="cloud_join_back">Quay lại</string>
+  <string name="cloud_join_start">Bắt đầu đồng bộ</string>
+  <string name="cloud_join_replace">Thay thế và đồng bộ</string>
   <string name="sign_in_failed_lead">Không thể đăng nhập vào dịch vụ đồng bộ.</string>
   <string name="sync_too_old_lead">Ứng dụng này quá cũ để đồng bộ %s.</string>
   <string name="sync_too_old_detail">Dữ liệu trên đám mây dùng phiên bản mới hơn mức ứng dụng này hỗ trợ. Đồng bộ cho dữ liệu này tạm thời bị tắt; hãy cập nhật ứng dụng để bật lại.</string>

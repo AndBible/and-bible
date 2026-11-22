@@ -155,7 +155,8 @@ fun desktopSyncModule(
     }
     single<SecretStore> { DesktopSecretStore.create(get<DeviceLocalPrefs>(), secretBackend) }
     single<SyncSettingsPlatform> {
-        DesktopSyncSettingsPlatform(get<DeviceLocalPrefs>(), get<SecretStore>(), get<HostSyncStrings>().webDavServerUrlHint)
+        DesktopSyncSettingsPlatform(get<DeviceLocalPrefs>(), get<SecretStore>(), nextcloudUrlHint = get<HostSyncStrings>().nextcloudServerUrlHint,
+            serverUrlHint = get<HostSyncStrings>().webDavServerUrlHint)
     }
     // ONE loopback browser per module: a second sign-in supersedes a pending one (supersede is JVM-wide anyway).
     single {

@@ -124,6 +124,13 @@
   <string name="search_clear">खोज का पाठ मिटाएँ</string>
   <string name="search_engine_changed_reindex">खोज इंजन अपडेट हो गया है। खोज सूचकांक दोबारा बनाना होगा; इसमें कुछ समय लग सकता है।</string>
   <string name="search_unsupported_syntax">इस खोज में ऐसा सिंटैक्स है जो समर्थित नहीं है: %s</string>
+  <string name="search_regex">रेगुलर एक्सप्रेशन (प्रायोगिक)</string>
+  <string name="search_regex_summary">रेगेक्स</string>
+  <string name="search_results_truncated">खोज में बहुत अधिक समय लगा और उसे रोक दिया गया। परिणाम अधूरे हैं; कोई सरल एक्सप्रेशन आज़माएँ।</string>
+  <string name="search_invalid_regex">अमान्य रेगुलर एक्सप्रेशन: %1$s</string>
+  <string name="search_regex_too_many_wildcards">इस रेगुलर एक्सप्रेशन में बहुत अधिक खुले वाइल्डकार्ड हैं (जैसे .* या \\w+)। कम वाइल्डकार्ड इस्तेमाल करें, या उन्हें सीमित करें, उदाहरण के लिए .{0,40}।</string>
+  <string name="search_regex_nested_repetition">यह रेगुलर एक्सप्रेशन ऐसे समूह को दोहराता है जिसमें स्वयं एक दोहराव है, जैसे (a+)+। इसका मिलान होने में लगभग अनंत समय लग सकता है। इसे नेस्टेड दोहराव के बिना दोबारा लिखें।</string>
+  <string name="search_regex_busy">पिछली रेगुलर-एक्सप्रेशन खोज अभी भी पृष्ठभूमि में चल रही है। थोड़ी देर बाद पुनः प्रयास करें; यदि वह पूरी न हो, तो ऐप को पुनः आरंभ करें।</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +321,8 @@
   <string name="hide_window_buttons_summary">विंडो बटन जो बाइबिल के दृश्य के दाईं ओर प्रदर्शित होते हैं, छिपे हुए हैं। नीचे की ओर विंडो नेविगेशन बार अभी भी प्रदर्शित है और आप विंडो पॉपअप मेनू को लॉन्ग-क्लिक करके खोल सकते हैं।</string>
   <string name="hide_bible_reference_overlay_title">बाइबिल संदर्भ उपरिशायी छुपाएं </string>
   <string name="hide_bible_reference_overlay_summary">जब ऐप फ़ुलस्क्रीन मोड में हो तो अर्ध-पारदर्शी बाइबिल संदर्भ उपरिशायी न दिखाएँ</string>
+  <string name="text_under_window_buttons_title">विंडो बटनों के नीचे पाठ दिखाएँ</string>
+  <string name="text_under_window_buttons_summary">बाइबल का पाठ विंडो बटन बार के नीचे, स्क्रीन के निचले किनारे तक जाता है। बंद होने पर, निचली विंडो में बार के नीचे एक पट्टी खाली रखी जाती है।</string>
   <string name="full_screen_hide_buttons_pref_title">फुलस्क्रीन में विंडो बटन बार छिपाएं</string>
   <string name="full_screen_hide_buttons_pref_summary"> फ़ुलस्क्रीन मोड पर स्विच करते समय, स्वचालित रूप से विंडो बटन बार को छिपाएं जो स्क्रीन के निचले भाग पर है</string>
   <string name="prefs_hide_status_bar_title">स्टेटस बार छुपाएं</string>
@@ -574,7 +583,50 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="sleep_timer_active_at">सोने का टाइमर: %s मिनट बचे हुए है</string>
   <string name="speak_next">आगे</string>
   <string name="speak_previous"> पिछला</string>
+  <string name="widget_play">चलाएँ</string>
   <string name="widget_toggle_sleep_timer">सोने का टाइमर लगाए/हटाए</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">बोलें</string>
+  <string name="widget_speak_text_name">पाठ के साथ बोलें</string>
+  <string name="widget_listening_list_name">सुनने की सूची</string>
+  <string name="widget_verse_name">पद</string>
+  <string name="widget_continue_from">%1$s · %2$s से जारी रखें</string>
+  <string name="widget_continue_listening">सुनना जारी रखें</string>
+  <string name="widget_paused">रुका हुआ</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">अभी तक कोई बोलने वाले बुकमार्क नहीं</string>
+  <string name="widget_listening_list_empty_text">\"बोलें\" लेबल वाले बुकमार्क यहाँ दिखाई देते हैं। बोलने की सेटिंग में स्वचालित बुकमार्क चालू करें, या किसी भी बुकमार्क में यह लेबल जोड़ें।</string>
+  <string name="widget_open_app">AndBible खोलें</string>
+  <string name="widget_open_app_to_load">पद लोड करने के लिए AndBible खोलें</string>
+  <string name="widget_verse_unavailable_no_bible">यहाँ पद देखने के लिए कोई बाइबल इंस्टॉल करें</string>
+  <string name="widget_verse_unavailable_label_missing">इस विजेट का लेबल अब मौजूद नहीं है। पद चुनने के लिए टैप करें।</string>
+  <string name="widget_verse_unavailable_label_empty">इस लेबल में अभी तक कोई बाइबल बुकमार्क नहीं है। अन्य पद चुनने के लिए टैप करें।</string>
+  <string name="widget_verse_unavailable_no_reading_plan">कोई पठन योजना सक्रिय नहीं है। अन्य पद चुनने के लिए टैप करें।</string>
+  <string name="widget_verse_source_random_whole_bible">यादृच्छिक पद</string>
+  <string name="widget_verse_source_random_new_testament">यादृच्छिक पद · नया नियम</string>
+  <string name="widget_verse_source_random_psalms_proverbs">यादृच्छिक पद · भजन संहिता और नीतिवचन</string>
+  <string name="widget_shuffle">पद बदलें</string>
+  <string name="widget_speak_verse">पद बोलें</string>
+  <string name="widget_verse_config_title">पद विजेट</string>
+  <string name="widget_verse_config_source_label">पदों का स्रोत</string>
+  <string name="widget_verse_config_source_label_option">एक लेबल</string>
+  <string name="widget_verse_config_source_random">यादृच्छिक पद</string>
+  <string name="widget_verse_config_random_whole">पूरी बाइबल</string>
+  <string name="widget_verse_config_random_nt">नया नियम</string>
+  <string name="widget_verse_config_random_psalms_proverbs">भजन संहिता और नीतिवचन</string>
+  <string name="widget_verse_config_source_plan">आज की पठन योजना</string>
+  <string name="widget_verse_config_changes">बदलाव</string>
+  <string name="widget_verse_config_daily">प्रतिदिन</string>
+  <string name="widget_verse_config_every_few_hours">हर कुछ घंटों में</string>
+  <string name="widget_verse_config_on_shuffle">केवल जब मैं \"बदलें\" पर टैप करूँ</string>
+  <string name="widget_verse_config_bible">बाइबल</string>
+  <string name="widget_verse_config_bible_default">डिफ़ॉल्ट (%s)</string>
+  <string name="widget_verse_config_show_buttons">बदलें और बोलें बटन दिखाएँ</string>
+  <string name="widget_verse_config_show_source">स्रोत और तिथि दिखाएँ</string>
+  <string name="widget_verse_config_add">विजेट जोड़ें</string>
+  <string name="widget_verse_config_save">सहेजें</string>
+  <string name="widget_verse_source_reading_plan">आज का पठन</string>
   <string name="speak_status_stopped">रुका हुआ</string>
   <string name="speak_autobookmarking_disabled"> ऑटोबोकमार्किंग अक्षम!</string>
   <string name="system_speak_settings">सिस्टम TTS सेटिंग्स खोलें</string>
@@ -708,6 +760,29 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="install_zip_canceled">मॉड्यूल का इंस्टॉल होना रद्द</string>
   <string name="restore">बैकअप से नवीकरण</string>
   <string name="import2">आयात करें</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (प्रतिलिपि)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">ऐड-ऑन %1$s से</string>
+  <string name="addon_label_from_module_hint">दस्तावेज़ प्रबंधक में ऐड-ऑन खोलें</string>
+  <string name="addon_label_read_only_note">यह लेबल, इसके बुकमार्क और इसका स्टडीपैड ऐड-ऑन के हैं और इन्हें संपादित नहीं किया जा सकता। आप इसे पसंदीदा के रूप में चिह्नित कर सकते हैं, चुन सकते हैं कि यह कार्यक्षेत्र इसे कैसे दिखाए, और इसके पदों को अपने लिए बुकमार्क कर सकते हैं।</string>
+  <string name="addon_copy_to_my_labels">मेरे लेबल में कॉपी करें</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">आपके लेबल \"%1$s\" में कॉपी किया गया</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">यह सामग्री ऐड-ऑन %1$s से आती है और इसे बदला नहीं जा सकता। संपादन योग्य प्रति पाने के लिए \"मेरे लेबल में कॉपी करें\" का उपयोग करें।</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">यह सामग्री एक ऐड-ऑन से आती है और इसे बदला नहीं जा सकता। संपादन योग्य प्रति पाने के लिए \"मेरे लेबल में कॉपी करें\" का उपयोग करें।</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">लेबल कॉपी नहीं किया जा सका</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">ऐड-ऑन संग्रह का %1$d आइटम छोड़ दिया गया। अपनी प्रति पाने के लिए लेबल पर \"मेरे लेबल में कॉपी करें\" का उपयोग करें।</item>
+        <item quantity="other">ऐड-ऑन संग्रह के %1$d आइटम छोड़ दिए गए। अपनी प्रति पाने के लिए लेबल पर \"मेरे लेबल में कॉपी करें\" का उपयोग करें।</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" और %2$s अन्य लेबल/StudyPad(s) और %3$s बुकमार्क</string>
   <!--About-->
@@ -743,6 +818,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="doc_type_all">सभी प्रकार के</string>
   <string name="doc_type_bible"> बाइबिल</string>
   <string name="doc_type_commentary">कमेंटरी</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">दस्तावेज़</string>
   <string name="doc_type_dictionary">शब्दकोश</string>
   <string name="doc_type_book">पुस्तक</string>
   <string name="doc_type_map">नक्शा</string>
@@ -778,6 +855,10 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="crash_recovery_continue">जारी रखें</string>
   <string name="report_error"> रिपोर्ट भेजो</string>
   <string name="error_occurred">एक गलती हुई है</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">शुरू होते समय ऐप रुक गया</string>
+  <string name="startup_crash_detail">कृपया हमें त्रुटि रिपोर्ट भेजें ताकि हम समस्या ठीक कर सकें। इसमें त्रुटि का विवरण और आपके डिवाइस व ऐप संस्करण की जानकारी होती है।</string>
+  <string name="startup_crash_try_again">पुनः प्रयास करें</string>
   <string name="error_occurred_crash_last_time">पिछली बार जब आपने एप्लिकेशन का उपयोग किया था, तो यह क्रैश हो गया था। बग को ठीक करने में हमारी सहायता करने के लिए, यदि आप हमें बग रिपोर्ट भेजते हैं तो हम इसकी सराहना करेंगे।</string>
   <string name="error_occurred_with_link"> एक गलती हुई है, %s</string>
   <string name="error_no_content">यह छंद खाली है</string>
@@ -1273,10 +1354,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="reading_progress_new_cycle">नया चक्र</string>
   <string name="reading_progress_previous_cycle">पिछला चक्र</string>
   <string name="reading_progress_next_cycle">अगला चक्र</string>
-  <string name="cloud_merge_data">डेटा मर्ज करें</string>
-  <string name="cloud_fetch_and_restore_initial">क्लाउड से इस डिवाइस पर कॉपी करें</string>
-  <string name="cloud_create_new">इस डिवाइस से क्लाउड पर कॉपी करें</string>
-  <string name="cloud_disable_sync">रद्द करें और सिंक्रनाइज़ेशन अक्षम करें</string>
   <string name="cloud_sync_title">डिवाइस सिंक्रनाइज़ेशन</string>
   <string name="reset_sync">साइन आउट</string>
   <string name="prefs_reset_sync_summary">सिंक्रनाइज़ेशन अक्षम करें और संबंधित सेटिंग्स रीसेट करें।</string>
@@ -1292,8 +1369,19 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="google_drive_signin_interrupted">Google साइन-इन बाधित हो गया। फिर से प्रयास करें।</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">आपके सर्वर का पता, जैसे https://cloud.example.com (छोड़ने पर https:// अपने आप जोड़ दिया जाता है)</string>
   <string name="webdav_server_url_hint">WebDAV फ़ोल्डर का पता, जैसे https://nas.local/dav/ या https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">सिंक के लिए सुरक्षित https:// पता आवश्यक है।</string>
+  <string name="sync_waiting_for_pass">वर्तमान सिंक्रनाइज़ेशन पूरा होने की प्रतीक्षा है…</string>
+  <string name="sync_pending_on">चालू किया जाएगा</string>
+  <string name="sync_pending_off">बंद किया जाएगा</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d बदलाव</item>
+        <item quantity="other">%1$d बदलाव</item>
+    </plurals>
+  <string name="sync_pending_leave_title">अपने सिंक बदलाव लागू करें?</string>
+  <string name="sync_checking_cloud_title">क्लाउड की जाँच हो रही है…</string>
+  <string name="sync_checking_cloud_text">ऐसा डेटा खोजा जा रहा है जिसे अन्य डिवाइस पहले ही सिंक्रनाइज़ कर चुके हैं।</string>
   <string name="webdav_certificate_title">सर्वर प्रमाणपत्र</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">अविश्वसनीय सर्वर प्रमाणपत्र</string>
@@ -1311,7 +1399,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="synchronization_categories">सिंक्रनाइज़ेशन श्रेणियां</string>
   <string name="sync_general_settings">जानकारी और सामान्य सेटिंग्स</string>
   <string name="sync_introduction">परिचय</string>
-  <string name="are_you_sure_merge">इस डिवाइस का डेटा और क्लाउड में मौजूद %s, दोनों रखे जाएँगे। जहाँ एक ही आइटम दोनों जगह बदला गया हो, वहाँ नया बदलाव रखा जाएगा। इस डिवाइस का डेटा आपके अन्य डिवाइसों को भेजा जाएगा।</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">क्लाउड सिंक्रनाइज़ेशन अक्षम किया जा रहा है। पुनर्स्थापना के बाद आपको मैन्युअल रूप से पुनः सक्षम करना होगा।</string>
   <string name="report">रिपोर्ट</string>
@@ -2268,18 +2355,30 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="dialog_dont_apply">लागू न करें</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">क्लाउड में आपका %s पहले से है। क्या किया जाए?</string>
-  <string name="cloud_merge_consequence">दोनों पक्ष रखे जाते हैं; जहाँ कोई आइटम दोनों पर बदला हो, वहाँ नया बदलाव मान्य होता है।</string>
-  <string name="cloud_fetch_consequence">इस डिवाइस के डेटा को क्लाउड की प्रति से बदल देता है।</string>
-  <string name="cloud_create_consequence">क्लाउड की प्रति को इस डिवाइस के डेटा से बदल देता है।</string>
-  <string name="cloud_disable_consequence">इस डेटा के लिए सिंक बंद रहता है।</string>
-  <string name="cloud_merge_lead">अपने %s को क्लाउड के साथ मर्ज करें?</string>
-  <string name="cloud_merge_confirm">मर्ज करें</string>
   <string name="cloud_replace_confirm">बदलें</string>
-  <string name="cloud_replace_local_lead">इस डिवाइस के %s को क्लाउड की प्रति से बदलें?</string>
-  <string name="cloud_replace_local_detail">इस डिवाइस पर जो अभी है, वह अधिलेखित हो जाता है और पुनः प्राप्त नहीं किया जा सकता।</string>
-  <string name="cloud_replace_cloud_lead">%s की क्लाउड प्रति को इस डिवाइस के डेटा से बदलें?</string>
-  <string name="cloud_replace_cloud_detail">क्लाउड में जो अभी है, वह अधिलेखित हो जाता है, और आपके अन्य डिवाइस को इस डिवाइस का डेटा मिलेगा।</string>
+  <string name="cloud_join_plan_title">क्लाउड में पहले से डेटा है</string>
+  <string name="cloud_join_plan_lead">हर श्रेणी के लिए चुनें कि क्या करना है।</string>
+  <string name="cloud_join_merge">मर्ज करें</string>
+  <string name="cloud_join_merge_detail">इस डिवाइस और क्लाउड को मिलाएँ</string>
+  <string name="cloud_join_fetch">क्लाउड से कॉपी करें</string>
+  <string name="cloud_join_fetch_detail">इस डिवाइस का डेटा बदल दें</string>
+  <string name="cloud_join_create">क्लाउड में कॉपी करें</string>
+  <string name="cloud_join_create_detail">क्लाउड का डेटा बदल दें</string>
+  <string name="cloud_join_disable">सिंक न करें</string>
+  <string name="cloud_join_disable_detail">इस श्रेणी को बंद रहने दें</string>
+  <string name="cloud_join_upload_note">%s: क्लाउड में अभी कोई डेटा नहीं है, इसे इस डिवाइस से अपलोड किया जाएगा।</string>
+  <string name="cloud_join_confirm_title">सिंक्रनाइज़ेशन शुरू करें?</string>
+  <string name="cloud_join_confirm_lead">यह होगा:</string>
+  <string name="cloud_join_outcome_merge">%s: क्लाउड के साथ मर्ज किया गया। कुछ भी नहीं खोएगा।</string>
+  <string name="cloud_join_outcome_fetch">%s: इस डिवाइस का डेटा क्लाउड के डेटा से बदल दिया जाएगा।</string>
+  <string name="cloud_join_outcome_create">%s: क्लाउड का डेटा इस डिवाइस के डेटा से बदल दिया जाएगा।</string>
+  <string name="cloud_join_outcome_disable">%s: बंद रहेगा।</string>
+  <string name="cloud_join_outcome_upload">%s: इस डिवाइस से अपलोड किया गया।</string>
+  <string name="cloud_join_warning">बदला गया डेटा पुनः प्राप्त नहीं किया जा सकता। अनिश्चित हों तो पहले बैकअप बना लें।</string>
+  <string name="cloud_join_next">आगे</string>
+  <string name="cloud_join_back">वापस</string>
+  <string name="cloud_join_start">सिंक शुरू करें</string>
+  <string name="cloud_join_replace">बदलें और सिंक करें</string>
   <string name="sign_in_failed_lead">सिंक सेवा में साइन इन नहीं हो सका।</string>
   <string name="sync_too_old_lead">यह ऐप %s को सिंक करने के लिए बहुत पुराना है।</string>
   <string name="sync_too_old_detail">क्लाउड डेटा इस ऐप द्वारा समर्थित संस्करण से नए संस्करण का उपयोग करता है। उसका सिंक अभी के लिए बंद है; उसे फिर चालू करने के लिए ऐप अपडेट करें।</string>

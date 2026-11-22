@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import net.bible.service.installzip.DecisionRequest
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
 import net.bible.service.installzip.JobId
@@ -136,7 +137,8 @@ class InstallZipFlow(
         val isDatabaseBackup: suspend (DocumentRef) -> Boolean = { false },
         /** Runs the same database restore as Backup & Restore > Restore; true when it restored. */
         val restoreBackup: suspend (DocumentRef) -> Boolean = { false },
-        val resolveDecision: (JobId, Boolean) -> Unit,
+        /** Answers [DecisionRequest] of the job; the controller drops it if the job has moved on to another question. */
+        val resolveDecision: (JobId, DecisionRequest, Boolean) -> Unit,
         val mapPhase: (InstallJobState) -> InstallUiState,
         val requestNotificationPermission: () -> Unit,
         val noFileManager: () -> Unit,
@@ -148,6 +150,11 @@ class InstallZipFlow(
     private val _state = MutableStateFlow<InstallUiState?>(null)
     override val state: StateFlow<InstallUiState?> = _state
 
+    /**
+     * Job and ask-back request behind the dialog currently shown; null request when no question is shown.
+     * Main-only: written by the combine collector and read by the answer methods, both on the host's Main scope.
+     */
+    private var shownDecision: Pair<JobId, DecisionRequest?>? = null
     private var pendingConfirm: Pair<DocumentRef, String>? = null
     /** See [shouldFinishOnDrain]: only a job THIS entry enqueued may finish it with OK. */
     private var enqueuedHere = false
@@ -160,8 +167,12 @@ class InstallZipFlow(
         started = true
         seams.requestNotificationPermission()
         work += scope.launch {
-            combine(prelude, seams.jobs) { p, jobs -> p ?: pickActiveJob(jobs)?.let(seams.mapPhase) }
-                .collect { _state.value = it }
+            combine(prelude, seams.jobs) { p, jobs ->
+                val active = pickActiveJob(jobs)
+                // The question the dialog shows, recorded with it: an answer carries this request (#4192).
+                shownDecision = if (p == null) active?.let { it.jobId to (it.phase as? InstallPhase.AwaitingDecision)?.request } else null
+                p ?: active?.let(seams.mapPhase)
+            }.collect { _state.value = it }
         }
         // The drain watch reads ONLY the jobs flow: a prelude change must never be mistaken for "the queue drained".
         if (seams.enqueueAndAwait == null) {
@@ -200,9 +211,18 @@ class InstallZipFlow(
                 launchFilePicker()
             }
             // No prelude: the confirm belongs to the active job's decision dialog.
-            null -> pickActiveJob(seams.jobs.value)?.let { seams.resolveDecision(it.jobId, true) }
+            null -> answerShownDecision(true)
             else -> Unit
         }
+    }
+
+    /** The tap came from a dialog that rendered [shown]; a question replaced since then must not take it (#4192). */
+    override fun confirm(shown: InstallUiState) {
+        if (shown == _state.value) confirm()
+    }
+
+    override fun dismiss(shown: InstallUiState) {
+        if (shown == _state.value) dismiss()
     }
 
     override fun dismiss() {
@@ -211,8 +231,13 @@ class InstallZipFlow(
             pendingConfirm = null
             finish(InstallZipResult.CANCELED)
         } else {
-            pickActiveJob(seams.jobs.value)?.let { seams.resolveDecision(it.jobId, false) }
+            answerShownDecision(false)
         }
+    }
+
+    private fun answerShownDecision(proceed: Boolean) {
+        val (jobId, request) = shownDecision ?: return
+        if (request != null) seams.resolveDecision(jobId, request, proceed)
     }
 
     /** Back leaves the destination; a running install keeps running in the service, as before. */

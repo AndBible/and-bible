@@ -200,7 +200,7 @@ class DownloadHostTest {
                                 nav, net.bible.sharedui.nav.NavResultChannel { error("no repository result") },
                                 net.bible.sharedui.download.nav.CloudDocumentsDeps(
                                     controllerFor = { error("cloud route not entered") }, title = "Cloud",
-                                    topBarActions = {}, openOrGate = { false }, seedItems = { emptyList() },
+                                    topBarActions = {}, openOrGate = { false }, seedItems = { emptyList() }, liveRefresh = {},
                                     refreshFromNetwork = {}, transferRunningProvider = { kotlinx.coroutines.flow.MutableStateFlow(false) }, subscribeProgress = { {} },
                                     statusFilterLabels = { emptyList() }, categoryFilterLabels = { emptyList() },
                                     countLabel = { _, _ -> "" },

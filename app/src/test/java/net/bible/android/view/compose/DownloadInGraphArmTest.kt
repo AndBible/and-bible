@@ -173,6 +173,7 @@ class DownloadInGraphArmTest {
             topBarActions = {},
             openOrGate = { error("not exercised here") },
             seedItems = { error("not exercised here") },
+                liveRefresh = { error("not exercised here") },
             refreshFromNetwork = { error("not exercised here") },
             transferRunningProvider = { error("not exercised here") },
             subscribeProgress = { error("not exercised here") },

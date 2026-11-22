@@ -56,6 +56,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val hideBibleReferenceOverlayTitle: String get() = context.getString(R.string.hide_bible_reference_overlay_title)
     override val hideWindowButtonsSummary: String get() = context.getString(R.string.hide_window_buttons_summary)
     override val hideWindowButtonsTitle: String get() = context.getString(R.string.hide_window_buttons_title)
+    override val textUnderWindowButtonsSummary: String get() = context.getString(R.string.text_under_window_buttons_summary)
+    override val textUnderWindowButtonsTitle: String get() = context.getString(R.string.text_under_window_buttons_title)
     override val memorizeAutoMark: String get() = context.getString(R.string.memorize_auto_mark)
     override val memorizeAutoMarkSummary: String get() = context.getString(R.string.memorize_auto_mark_summary)
     override val memorizeErrorHeatmap: String get() = context.getString(R.string.memorize_error_heatmap)
@@ -179,6 +181,13 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentSyncWifiOnlyTitle: String get() = context.getString(R.string.document_sync_wifi_only_title)
     override val documentSyncAutoDeleteTitle: String get() = context.getString(R.string.document_sync_auto_delete_title)
     override val webdavHttpsRequired: String get() = context.getString(R.string.webdav_https_required)
+    override val syncPendingOn: String get() = context.getString(R.string.sync_pending_on)
+    override val syncPendingOff: String get() = context.getString(R.string.sync_pending_off)
+    override fun syncPendingChanges(count: Int): String =
+        context.resources.getQuantityString(R.plurals.sync_pending_changes, count, count)
+    override val syncPendingLeaveTitle: String get() = context.getString(R.string.sync_pending_leave_title)
+    override val syncCheckingCloudTitle: String get() = context.getString(R.string.sync_checking_cloud_title)
+    override val syncCheckingCloudText: String get() = context.getString(R.string.sync_checking_cloud_text)
     override fun multiSearchResults(verses: String, translations: String): String =
         context.getString(R.string.multi_search_count_summary, verses, translations)
     override fun multiSearchVerseCount(count: Int): String =
@@ -472,6 +481,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val docTypeAll: String get() = context.getString(R.string.doc_type_all)
     override val docTypeBible: String get() = context.getString(R.string.doc_type_bible)
     override val docTypeCommentary: String get() = context.getString(R.string.doc_type_commentary)
+    override val documentsSheetTitle: String get() = context.getString(R.string.documents_sheet_title)
     override val readingToolbarOptions: String get() = context.getString(R.string.reading_toolbar_options)
     override val prefsShowStrongsTitle: String get() = context.getString(R.string.prefs_show_strongs_title)
     override val switchToWorkspace: String get() = context.getString(R.string.switch_to_workspace)

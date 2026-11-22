@@ -124,6 +124,13 @@
   <string name="search_clear">Hapus teks pencarian</string>
   <string name="search_engine_changed_reindex">Mesin pencarian telah diperbarui. Indeks pencarian perlu dibuat ulang; ini mungkin memakan waktu.</string>
   <string name="search_unsupported_syntax">Pencarian ini memakai sintaks yang tidak didukung: %s</string>
+  <string name="search_regex">Ekspresi reguler (eksperimental)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Pencarian memakan waktu terlalu lama dan dihentikan. Hasil tidak lengkap; coba ekspresi yang lebih sederhana.</string>
+  <string name="search_invalid_regex">Ekspresi reguler tidak valid: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Ekspresi reguler ini memiliki terlalu banyak wildcard terbuka (seperti .* atau \\w+). Gunakan lebih sedikit, atau persempit, misalnya .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Ekspresi reguler ini mengulang grup yang di dalamnya juga berisi pengulangan, seperti (a+)+. Hal itu dapat memakan waktu hampir tak terbatas untuk dicocokkan. Tulis ulang tanpa pengulangan bersarang.</string>
+  <string name="search_regex_busy">Pencarian ekspresi reguler sebelumnya masih berjalan di latar belakang. Coba lagi sebentar lagi; jika tidak selesai, mulai ulang aplikasi.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -310,6 +317,8 @@
   <string name="hide_window_buttons_summary">Tombol jendela yang ditampilkan di sisi kanan tampilan Alkitab disembunyikan. Bilah navigasi jendela di bagian bawah tetap ditampilkan dan Anda dapat membuka menu popup jendela dengan menahan lama tombolnya.</string>
   <string name="hide_bible_reference_overlay_title">Sembunyikan overlay referensi alkitab</string>
   <string name="hide_bible_reference_overlay_summary">Jangan tampilkan overlay referensi Alkitab semi-transparan saat aplikasi dalam mode layar penuh</string>
+  <string name="text_under_window_buttons_title">Tampilkan teks di bawah tombol jendela</string>
+  <string name="text_under_window_buttons_summary">Teks Alkitab memanjang hingga dasar layar, di bawah bilah tombol jendela. Jika dimatikan, sebuah strip dikosongkan di bawah bilah pada jendela bawah yang dicakupnya.</string>
   <string name="full_screen_hide_buttons_pref_title">Sembunyikan bilah tombol jendela saat layar penuh</string>
   <string name="full_screen_hide_buttons_pref_summary">Saat beralih ke mode layar penuh, sembunyikan otomatis bilah tombol jendela yang ada di bagian bawah layar</string>
   <string name="prefs_hide_status_bar_title">Sembunyikan bilah status</string>
@@ -566,7 +575,50 @@
   <string name="sleep_timer_active_at">Waktu tidur: tinggal %s menit</string>
   <string name="speak_next">Berikut</string>
   <string name="speak_previous">Sebelum</string>
+  <string name="widget_play">Putar</string>
   <string name="widget_toggle_sleep_timer">Aktivasi waktu tidur</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Bacakan</string>
+  <string name="widget_speak_text_name">Bacakan dengan teks</string>
+  <string name="widget_listening_list_name">Daftar dengar</string>
+  <string name="widget_verse_name">Ayat</string>
+  <string name="widget_continue_from">Lanjutkan dari %1$s · %2$s</string>
+  <string name="widget_continue_listening">Lanjutkan mendengarkan</string>
+  <string name="widget_paused">Dijeda</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Belum ada markah bacaan suara</string>
+  <string name="widget_listening_list_empty_text">Markah dengan label Bacakan muncul di sini. Aktifkan markah otomatis di pengaturan bacaan suara, atau tambahkan label ke markah mana pun.</string>
+  <string name="widget_open_app">Buka AndBible</string>
+  <string name="widget_open_app_to_load">Buka AndBible untuk memuat ayat</string>
+  <string name="widget_verse_unavailable_no_bible">Pasang Alkitab untuk melihat ayat di sini</string>
+  <string name="widget_verse_unavailable_label_missing">Label widget ini sudah tidak ada. Ketuk untuk memilih ayat.</string>
+  <string name="widget_verse_unavailable_label_empty">Label ini belum memiliki markah Alkitab. Ketuk untuk memilih ayat lain.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Tidak ada rencana baca yang aktif. Ketuk untuk memilih ayat lain.</string>
+  <string name="widget_verse_source_random_whole_bible">Ayat acak</string>
+  <string name="widget_verse_source_random_new_testament">Ayat acak · Perjanjian Baru</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Ayat acak · Mazmur &amp; Amsal</string>
+  <string name="widget_shuffle">Acak ayat</string>
+  <string name="widget_speak_verse">Bacakan ayat</string>
+  <string name="widget_verse_config_title">Widget ayat</string>
+  <string name="widget_verse_config_source_label">Ayat dari</string>
+  <string name="widget_verse_config_source_label_option">Sebuah label</string>
+  <string name="widget_verse_config_source_random">Ayat acak</string>
+  <string name="widget_verse_config_random_whole">Seluruh Alkitab</string>
+  <string name="widget_verse_config_random_nt">Perjanjian Baru</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Mazmur &amp; Amsal</string>
+  <string name="widget_verse_config_source_plan">Rencana baca hari ini</string>
+  <string name="widget_verse_config_changes">Berganti</string>
+  <string name="widget_verse_config_daily">Setiap hari</string>
+  <string name="widget_verse_config_every_few_hours">Setiap beberapa jam</string>
+  <string name="widget_verse_config_on_shuffle">Hanya saat saya mengetuk acak</string>
+  <string name="widget_verse_config_bible">Alkitab</string>
+  <string name="widget_verse_config_bible_default">Default (%s)</string>
+  <string name="widget_verse_config_show_buttons">Tampilkan tombol acak dan bacakan</string>
+  <string name="widget_verse_config_show_source">Tampilkan sumber dan tanggal</string>
+  <string name="widget_verse_config_add">Tambah widget</string>
+  <string name="widget_verse_config_save">Simpan</string>
+  <string name="widget_verse_source_reading_plan">Bacaan hari ini</string>
   <string name="speak_status_stopped">Terhenti</string>
   <string name="speak_autobookmarking_disabled">Penanda buku otomatis dinonaktifkan!</string>
   <string name="system_speak_settings">Buka pengaturan sistem bicara</string>
@@ -699,6 +751,28 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="install_zip_canceled">Instalasi modul dibatalkan</string>
   <string name="restore">Pulihkan</string>
   <string name="import2">Impor</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (salinan)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Dari add-on %1$s</string>
+  <string name="addon_label_from_module_hint">Buka add-on di pengelola dokumen</string>
+  <string name="addon_label_read_only_note">Label ini, markahnya, dan StudyPad-nya milik add-on dan tidak dapat diedit. Anda dapat menandainya sebagai favorit, memilih cara ruang kerja ini menampilkannya, dan memarkahi ayat-ayatnya untuk diri Anda sendiri.</string>
+  <string name="addon_copy_to_my_labels">Salin ke label saya</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Disalin ke label Anda \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Konten ini berasal dari add-on %1$s dan tidak dapat diubah. Gunakan \"Salin ke label saya\" untuk mendapatkan salinan yang dapat diedit.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Konten ini berasal dari sebuah add-on dan tidak dapat diubah. Gunakan \"Salin ke label saya\" untuk mendapatkan salinan yang dapat diedit.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Tidak dapat menyalin label</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="other">%1$d item koleksi add-on dilewati. Gunakan \"Salin ke label saya\" pada label untuk mendapatkan salinan Anda sendiri.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" dan %2$s Label / Lembar Studi lainnya dan %3$s Penanda Buku</string>
   <!--About-->
@@ -733,6 +807,8 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="doc_type_all">Semua jenis</string>
   <string name="doc_type_bible">Alkitab</string>
   <string name="doc_type_commentary">Tafsiran</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumen</string>
   <string name="doc_type_dictionary">Kamus</string>
   <string name="doc_type_book">Buku</string>
   <string name="doc_type_map">Peta</string>
@@ -768,6 +844,10 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="crash_recovery_continue">Lanjutkan</string>
   <string name="report_error">Kirim laporan</string>
   <string name="error_occurred">Sebuah kesalahan telah terjadi</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Aplikasi berhenti saat dimulai</string>
+  <string name="startup_crash_detail">Mohon kirimkan laporan kesalahan kepada kami agar kami dapat memperbaiki masalahnya. Laporan berisi detail kesalahan serta informasi tentang perangkat dan versi aplikasi Anda.</string>
+  <string name="startup_crash_try_again">Coba lagi</string>
   <string name="error_occurred_crash_last_time">Terakhir kali Anda menggunakan aplikasi, aplikasi berhenti. Untuk membantu kami memperbaiki bug, kami akan sangat berterima kasih jika Anda mengirimkan laporan bug.</string>
   <string name="error_occurred_with_link">Terjadi kesalahan. %s</string>
   <string name="error_no_content">Tidak ada isi pada ayat yang dipilih</string>
@@ -1215,10 +1295,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="reading_progress_new_cycle">Siklus Baru</string>
   <string name="reading_progress_previous_cycle">Siklus sebelumnya</string>
   <string name="reading_progress_next_cycle">Siklus berikutnya</string>
-  <string name="cloud_merge_data">Gabungkan data</string>
-  <string name="cloud_fetch_and_restore_initial">Salin dari Cloud ke perangkat ini</string>
-  <string name="cloud_create_new">Salin dari perangkat ini ke Cloud</string>
-  <string name="cloud_disable_sync">Batalkan &amp; nonaktifkan sinkronisasi</string>
   <string name="cloud_sync_title">Sinkronisasi perangkat</string>
   <string name="reset_sync">Keluar</string>
   <string name="prefs_reset_sync_summary">Nonaktifkan sinkronisasi dan atur ulang pengaturan terkait.</string>
@@ -1234,8 +1310,18 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="google_drive_signin_interrupted">Proses masuk Google terhenti. Coba lagi.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Alamat server Anda, mis. https://cloud.example.com (https:// ditambahkan jika Anda tidak menyertakannya)</string>
   <string name="webdav_server_url_hint">Alamat folder WebDAV, mis. https://nas.local/dav/ atau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinkronisasi memerlukan alamat https:// yang aman.</string>
+  <string name="sync_waiting_for_pass">Menunggu sinkronisasi saat ini selesai…</string>
+  <string name="sync_pending_on">Akan diaktifkan</string>
+  <string name="sync_pending_off">Akan dinonaktifkan</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="other">%1$d perubahan</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Terapkan perubahan sinkronisasi Anda?</string>
+  <string name="sync_checking_cloud_title">Memeriksa cloud…</string>
+  <string name="sync_checking_cloud_text">Mencari data yang sudah disinkronkan oleh perangkat lain.</string>
   <string name="webdav_certificate_title">Sertifikat server</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Sertifikat server tidak tepercaya</string>
@@ -1253,7 +1339,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="synchronization_categories">Kategori sinkronisasi</string>
   <string name="sync_general_settings">Info &amp; pengaturan umum</string>
   <string name="sync_introduction">Pengantar</string>
-  <string name="are_you_sure_merge">Data di perangkat ini dan %s di cloud akan sama-sama dipertahankan. Jika item yang sama diubah di keduanya, perubahan yang lebih baru dipertahankan. Data perangkat ini akan dikirim ke perangkat Anda yang lain.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Menonaktifkan sinkronisasi cloud. Anda harus mengaktifkannya kembali secara manual setelah pemulihan.</string>
   <string name="report">Laporan</string>
@@ -2203,18 +2288,30 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="dialog_dont_apply">Jangan terapkan</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Cloud sudah memiliki %s Anda. Apa yang harus dilakukan?</string>
-  <string name="cloud_merge_consequence">Kedua sisi dipertahankan; jika sebuah item berubah di keduanya, perubahan yang lebih baru yang dipakai.</string>
-  <string name="cloud_fetch_consequence">Mengganti data di perangkat ini dengan salinan cloud.</string>
-  <string name="cloud_create_consequence">Mengganti salinan cloud dengan data di perangkat ini.</string>
-  <string name="cloud_disable_consequence">Sinkronisasi tetap mati untuk data ini.</string>
-  <string name="cloud_merge_lead">Gabungkan %s Anda dengan cloud?</string>
-  <string name="cloud_merge_confirm">Gabungkan</string>
   <string name="cloud_replace_confirm">Ganti</string>
-  <string name="cloud_replace_local_lead">Ganti %s perangkat ini dengan salinan cloud?</string>
-  <string name="cloud_replace_local_detail">Yang ada di perangkat ini sekarang akan ditimpa dan tidak dapat dipulihkan.</string>
-  <string name="cloud_replace_cloud_lead">Ganti salinan cloud %s dengan data perangkat ini?</string>
-  <string name="cloud_replace_cloud_detail">Yang ada di cloud sekarang akan ditimpa, dan perangkat Anda yang lain akan menerima data perangkat ini.</string>
+  <string name="cloud_join_plan_title">Cloud sudah memiliki data</string>
+  <string name="cloud_join_plan_lead">Pilih tindakan untuk setiap kategori.</string>
+  <string name="cloud_join_merge">Gabungkan</string>
+  <string name="cloud_join_merge_detail">Gabungkan perangkat ini dan cloud</string>
+  <string name="cloud_join_fetch">Salin dari cloud</string>
+  <string name="cloud_join_fetch_detail">Ganti data perangkat ini</string>
+  <string name="cloud_join_create">Salin ke cloud</string>
+  <string name="cloud_join_create_detail">Ganti data di cloud</string>
+  <string name="cloud_join_disable">Jangan sinkronkan</string>
+  <string name="cloud_join_disable_detail">Biarkan kategori ini nonaktif</string>
+  <string name="cloud_join_upload_note">%s: belum ada data di cloud, akan diunggah dari perangkat ini.</string>
+  <string name="cloud_join_confirm_title">Mulai sinkronisasi?</string>
+  <string name="cloud_join_confirm_lead">Inilah yang akan terjadi:</string>
+  <string name="cloud_join_outcome_merge">%s: digabungkan dengan cloud. Tidak ada yang hilang.</string>
+  <string name="cloud_join_outcome_fetch">%s: data di perangkat ini diganti dengan data cloud.</string>
+  <string name="cloud_join_outcome_create">%s: data di cloud diganti dengan data perangkat ini.</string>
+  <string name="cloud_join_outcome_disable">%s: tetap nonaktif.</string>
+  <string name="cloud_join_outcome_upload">%s: diunggah dari perangkat ini.</string>
+  <string name="cloud_join_warning">Data yang diganti tidak dapat dipulihkan. Buat cadangan terlebih dahulu jika ragu.</string>
+  <string name="cloud_join_next">Berikutnya</string>
+  <string name="cloud_join_back">Kembali</string>
+  <string name="cloud_join_start">Mulai sinkronisasi</string>
+  <string name="cloud_join_replace">Ganti dan sinkronkan</string>
   <string name="sign_in_failed_lead">Tidak dapat masuk ke layanan sinkronisasi.</string>
   <string name="sync_too_old_lead">Aplikasi ini terlalu lama untuk menyinkronkan %s.</string>
   <string name="sync_too_old_detail">Data cloud memakai versi yang lebih baru daripada yang didukung aplikasi ini. Sinkronisasinya dimatikan untuk sementara; perbarui aplikasi untuk menyalakannya kembali.</string>

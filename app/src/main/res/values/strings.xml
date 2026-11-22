@@ -372,6 +372,8 @@
     <string name="hide_bible_reference_overlay_title">Hide Bible reference overlay</string>
     <string name="hide_bible_reference_overlay_summary">Do not show the semi-transparent Bible reference overlay when app is in fullscreen mode</string>
 
+    <string name="text_under_window_buttons_title">Show text under window buttons</string>
+    <string name="text_under_window_buttons_summary">Bible text runs to the bottom of the screen, under the window button bar. When off, a strip is kept free under the bar in the bottom windows it spans.</string>
     <string name="full_screen_hide_buttons_pref_title">Hide window button bar in fullscreen</string>
     <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide automatically window button bar that is on the bottom of the screen</string>
 
@@ -931,6 +933,8 @@
     <string name="doc_type_all">All types</string>
     <string name="doc_type_bible">Bible</string>
     <string name="doc_type_commentary">Commentary</string>
+    <!-- Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps -->
+    <string name="documents_sheet_title">Documents</string>
     <string name="doc_type_dictionary">Dictionary</string>
     <string name="doc_type_book">Book</string>
     <string name="doc_type_map">Map</string>
@@ -1521,10 +1525,6 @@
     <string name="reading_progress_previous_cycle">Previous cycle</string>
     <string name="reading_progress_next_cycle">Next cycle</string>
 
-    <string name="cloud_merge_data">Merge data</string>
-    <string name="cloud_fetch_and_restore_initial">Copy from Cloud to this device</string>
-    <string name="cloud_create_new">Copy from this device to Cloud</string>
-    <string name="cloud_disable_sync">Cancel &amp; disable synchronization</string>
     <string name="cloud_sync_title">Device synchronization</string>
     <string name="reset_sync">Sign Out</string>
     <string name="prefs_reset_sync_summary">Disable synchronizing and reset related settings.</string>
@@ -1540,8 +1540,19 @@
     <string name="google_drive_signin_interrupted">Google sign-in was interrupted. Try again.</string>
     <string name="adapters_next_cloud">Nextcloud</string>
     <string name="adapters_webdav">WebDAV</string>
+    <string name="sync_server_url_hint">Address of your server, e.g. https://cloud.example.com (https:// is added if you leave it out)</string>
     <string name="webdav_server_url_hint">Address of the WebDAV folder, e.g. https://nas.local/dav/ or https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
     <string name="webdav_https_required">Sync requires a secure https:// address.</string>
+    <string name="sync_waiting_for_pass">Waiting for the current synchronization to finish…</string>
+    <string name="sync_pending_on">Will be turned on</string>
+    <string name="sync_pending_off">Will be turned off</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d change</item>
+        <item quantity="other">%1$d changes</item>
+    </plurals>
+    <string name="sync_pending_leave_title">Apply your sync changes?</string>
+    <string name="sync_checking_cloud_title">Checking the cloud…</string>
+    <string name="sync_checking_cloud_text">Looking for data that other devices have already synchronized.</string>
     <string name="webdav_certificate_title">Server certificate</string>
     <string name="adapters_icloud_drive">iCloud Drive</string>
     <string name="webdav_untrusted_certificate_title">Untrusted server certificate</string>
@@ -1559,7 +1570,6 @@
     <string name="synchronization_categories">Synchronization categories</string>
     <string name="sync_general_settings">Info &amp; general settings</string>
     <string name="sync_introduction">Introduction</string>
-    <string name="are_you_sure_merge">Both the data on this device and the %s in the cloud will be kept. Where the same item was changed on both, the newer change is kept. This device\'s data will be sent to your other devices.</string>
     <!--  ... after restoring from backup file -->
     <string name="disabling_sync">Disabling cloud synchronizing. You must re-enable manually after restore.</string>
     <string name="report">Report</string>
@@ -2549,18 +2559,30 @@
     <string name="dialog_dont_apply">Don’t apply</string>
     <!-- /dialog copy: B2b -->
     <!-- dialog copy: B3b -->
-    <string name="cloud_existing_data_lead">The cloud already has your %s. What should happen?</string>
-    <string name="cloud_merge_consequence">Both sides are kept; where an item changed on both, the newer change wins.</string>
-    <string name="cloud_fetch_consequence">Replaces the data on this device with the cloud copy.</string>
-    <string name="cloud_create_consequence">Replaces the cloud copy with the data on this device.</string>
-    <string name="cloud_disable_consequence">Sync stays off for this data.</string>
-    <string name="cloud_merge_lead">Merge your %s with the cloud?</string>
-    <string name="cloud_merge_confirm">Merge</string>
     <string name="cloud_replace_confirm">Replace</string>
-    <string name="cloud_replace_local_lead">Replace this device’s %s with the cloud copy?</string>
-    <string name="cloud_replace_local_detail">What is on this device now is overwritten and cannot be recovered.</string>
-    <string name="cloud_replace_cloud_lead">Replace the cloud copy of %s with this device’s data?</string>
-    <string name="cloud_replace_cloud_detail">What is in the cloud now is overwritten, and your other devices will receive this device’s data.</string>
+    <string name="cloud_join_plan_title">The cloud already has data</string>
+    <string name="cloud_join_plan_lead">Choose what to do for each category.</string>
+    <string name="cloud_join_merge">Merge</string>
+    <string name="cloud_join_merge_detail">Combine this device and the cloud</string>
+    <string name="cloud_join_fetch">Copy from cloud</string>
+    <string name="cloud_join_fetch_detail">Replace this device\'s data</string>
+    <string name="cloud_join_create">Copy to cloud</string>
+    <string name="cloud_join_create_detail">Replace the cloud\'s data</string>
+    <string name="cloud_join_disable">Don\'t sync</string>
+    <string name="cloud_join_disable_detail">Leave this category off</string>
+    <string name="cloud_join_upload_note">%s: no data in the cloud yet, it will be uploaded from this device.</string>
+    <string name="cloud_join_confirm_title">Start synchronization?</string>
+    <string name="cloud_join_confirm_lead">This is what will happen:</string>
+    <string name="cloud_join_outcome_merge">%s: merged with the cloud. Nothing is lost.</string>
+    <string name="cloud_join_outcome_fetch">%s: the data on this device is replaced with the cloud\'s.</string>
+    <string name="cloud_join_outcome_create">%s: the data in the cloud is replaced with this device\'s.</string>
+    <string name="cloud_join_outcome_disable">%s: stays off.</string>
+    <string name="cloud_join_outcome_upload">%s: uploaded from this device.</string>
+    <string name="cloud_join_warning">Replaced data cannot be recovered. Make a backup first if unsure.</string>
+    <string name="cloud_join_next">Next</string>
+    <string name="cloud_join_back">Back</string>
+    <string name="cloud_join_start">Start sync</string>
+    <string name="cloud_join_replace">Replace and sync</string>
     <string name="sign_in_failed_lead">Could not sign in to the sync service.</string>
     <string name="sync_too_old_lead">This app is too old to sync %s.</string>
     <string name="sync_too_old_detail">The cloud data uses a newer version than this app supports. Sync for it is turned off for now; update the app to turn it on again.</string>

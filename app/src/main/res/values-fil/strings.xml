@@ -124,6 +124,13 @@
   <string name="search_clear">I-clear ang teksto ng paghahanap</string>
   <string name="search_engine_changed_reindex">Na-update ang search engine. Kailangang gawing muli ang search index; maaaring magtagal ito.</string>
   <string name="search_unsupported_syntax">Gumagamit ang paghahanap na ito ng syntax na hindi suportado: %s</string>
+  <string name="search_regex">Regular expression (pang-eksperimento)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Masyadong natagalan ang paghahanap at itinigil ito. Hindi kumpleto ang mga resulta; subukan ang mas simpleng expression.</string>
+  <string name="search_invalid_regex">Di-wastong regular expression: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Masyadong maraming bukas na wildcard ang regular expression na ito (gaya ng .* o \\w+). Gumamit ng mas kaunti, o paliitin ang mga ito, halimbawa .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Inuulit ng regular expression na ito ang isang grupo na may sarili ring pag-uulit, gaya ng (a+)+. Maaari itong tumagal nang halos walang katapusan bago mag-match. Isulat itong muli nang walang magkakapatong na pag-uulit.</string>
+  <string name="search_regex_busy">May nauna pang paghahanap gamit ang regular expression na tumatakbo sa background. Subukang muli sa ilang sandali; kung hindi ito matapos, i-restart ang app.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -312,6 +319,8 @@
   <string name="hide_window_buttons_summary">Ang mga button ng window na ipinapakita sa kanang bahagi ng mga Bible view ay itinatago. Ang navigation bar ng window sa ibaba ay ipinapakita pa rin at maaari mong buksan ang popup menu ng window sa pamamagitan ng matagal na pag-tap dito.</string>
   <string name="hide_bible_reference_overlay_title">Itago ang Bible reference overlay</string>
   <string name="hide_bible_reference_overlay_summary">Huwag ipakita ang semi-transparent na Bible reference overlay kapag ang app ay nasa fullscreen mode</string>
+  <string name="text_under_window_buttons_title">Ipakita ang teksto sa ilalim ng mga button ng window</string>
+  <string name="text_under_window_buttons_summary">Umaabot ang teksto ng Bibliya hanggang sa ibaba ng screen, sa ilalim ng bar ng mga button ng window. Kapag naka-off, may nakalaang puwang sa ilalim ng bar sa mga window sa ibaba na sakop nito.</string>
   <string name="full_screen_hide_buttons_pref_title">Itago ang window button bar sa fullscreen</string>
   <string name="full_screen_hide_buttons_pref_summary">Kapag lumipat sa fullscreen mode, awtomatikong itago ang window button bar na nasa ibaba ng screen</string>
   <string name="prefs_hide_status_bar_title">Itago ang status bar</string>
@@ -554,7 +563,50 @@
   <string name="sleep_timer_active_at">Sleep timer: %s minuto na natitira.</string>
   <string name="speak_next">Susunod</string>
   <string name="speak_previous">Nakaraan</string>
+  <string name="widget_play">I-play</string>
   <string name="widget_toggle_sleep_timer">I-toggle ang sleep timer</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Bigkasin</string>
+  <string name="widget_speak_text_name">Bigkasin kasama ang teksto</string>
+  <string name="widget_listening_list_name">Listahan ng pakikinig</string>
+  <string name="widget_verse_name">Talata</string>
+  <string name="widget_continue_from">Magpatuloy mula sa %1$s · %2$s</string>
+  <string name="widget_continue_listening">Ipagpatuloy ang pakikinig</string>
+  <string name="widget_paused">Naka-pause</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Wala pang bookmark na pambigkas</string>
+  <string name="widget_listening_list_empty_text">Lalabas dito ang mga bookmark na may label na Speak. I-on ang awtomatikong mga bookmark sa mga setting ng pagbigkas, o idagdag ang label sa anumang bookmark.</string>
+  <string name="widget_open_app">Buksan ang AndBible</string>
+  <string name="widget_open_app_to_load">Buksan ang AndBible para i-load ang mga talata</string>
+  <string name="widget_verse_unavailable_no_bible">Mag-install ng Bibliya para makita ang mga talata rito</string>
+  <string name="widget_verse_unavailable_label_missing">Wala na ang label ng widget na ito. I-tap para pumili ng mga talata.</string>
+  <string name="widget_verse_unavailable_label_empty">Wala pang bookmark ng Bibliya ang label na ito. I-tap para pumili ng ibang mga talata.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Walang aktibong plano sa pagbabasa. I-tap para pumili ng ibang mga talata.</string>
+  <string name="widget_verse_source_random_whole_bible">Random na talata</string>
+  <string name="widget_verse_source_random_new_testament">Random na talata · Bagong Tipan</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Random na talata · Mga Awit at Kawikaan</string>
+  <string name="widget_shuffle">I-shuffle ang talata</string>
+  <string name="widget_speak_verse">Bigkasin ang talata</string>
+  <string name="widget_verse_config_title">Widget ng talata</string>
+  <string name="widget_verse_config_source_label">Mga talata mula sa</string>
+  <string name="widget_verse_config_source_label_option">Isang label</string>
+  <string name="widget_verse_config_source_random">Random na talata</string>
+  <string name="widget_verse_config_random_whole">Buong Bibliya</string>
+  <string name="widget_verse_config_random_nt">Bagong Tipan</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Mga Awit at Kawikaan</string>
+  <string name="widget_verse_config_source_plan">Plano sa pagbabasa ngayon</string>
+  <string name="widget_verse_config_changes">Pagbabago</string>
+  <string name="widget_verse_config_daily">Araw-araw</string>
+  <string name="widget_verse_config_every_few_hours">Bawat ilang oras</string>
+  <string name="widget_verse_config_on_shuffle">Kapag nag-tap lang ako ng shuffle</string>
+  <string name="widget_verse_config_bible">Bibliya</string>
+  <string name="widget_verse_config_bible_default">Default (%s)</string>
+  <string name="widget_verse_config_show_buttons">Ipakita ang mga button ng shuffle at pagbigkas</string>
+  <string name="widget_verse_config_show_source">Ipakita ang pinagmulan at petsa</string>
+  <string name="widget_verse_config_add">Idagdag ang widget</string>
+  <string name="widget_verse_config_save">I-save</string>
+  <string name="widget_verse_source_reading_plan">Pagbabasa ngayon</string>
   <string name="speak_status_stopped">natigil</string>
   <string name="speak_autobookmarking_disabled">Naka-disable ang autobookmarking!</string>
   <string name="system_speak_settings">Buksan ang mga setting ng TTS ng sistema</string>
@@ -599,11 +651,25 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Panginoon</item>
+    <item>Diyos</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Yahweh</item>
+    <item>Yahweh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">Nagbago ang aklat.</string>
   <string name="speak_chapter_changed">Kabanata</string>
   <string name="speak_first">Una</string>
@@ -658,6 +724,29 @@
   <string name="install_zip_canceled">Kinansela ang pag-install ng module</string>
   <string name="restore">I-restore</string>
   <string name="import2">Mag-import</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopya)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Mula sa add-on na %1$s</string>
+  <string name="addon_label_from_module_hint">Buksan ang add-on sa document manager</string>
+  <string name="addon_label_read_only_note">Ang label na ito, ang mga bookmark nito at ang StudyPad nito ay pag-aari ng add-on at hindi maaaring i-edit. Maaari mo itong markahan bilang paborito, piliin kung paano ito ipapakita ng workspace na ito, at i-bookmark ang mga talata nito para sa iyong sarili.</string>
+  <string name="addon_copy_to_my_labels">Kopyahin sa aking mga label</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Nakopya sa iyong label na \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Galing ang nilalamang ito sa add-on na %1$s at hindi maaaring baguhin. Gamitin ang \"Kopyahin sa aking mga label\" para makakuha ng kopyang maaaring i-edit.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Galing ang nilalamang ito sa isang add-on at hindi maaaring baguhin. Gamitin ang \"Kopyahin sa aking mga label\" para makakuha ng kopyang maaaring i-edit.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Hindi makopya ang label</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d item ng koleksyon ng add-on ang nilaktawan. Gamitin ang \"Kopyahin sa aking mga label\" sa label para makakuha ng sarili mong kopya.</item>
+        <item quantity="other">%1$d item ng koleksyon ng add-on ang nilaktawan. Gamitin ang \"Kopyahin sa aking mga label\" sa label para makakuha ng sarili mong kopya.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" at %2$s iba pang Label/StudyPad at %3$s Mga Bookmark</string>
   <!--About-->
@@ -692,6 +781,8 @@
   <string name="doc_type_all">Lahat ng uri</string>
   <string name="doc_type_bible">Bibliya</string>
   <string name="doc_type_commentary">Komentaryo</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Mga Dokumento</string>
   <string name="doc_type_dictionary">Diksyonaryo</string>
   <string name="doc_type_book">Aklat</string>
   <string name="doc_type_map">Mapa</string>
@@ -727,6 +818,10 @@
   <string name="crash_recovery_continue">Magpatuloy</string>
   <string name="report_error">Magpadala ng Ulat</string>
   <string name="error_occurred">May naganap na error</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Huminto ang app habang nagsisimula</string>
+  <string name="startup_crash_detail">Mangyaring padalhan kami ng ulat ng error para maayos namin ang problema. Naglalaman ito ng mga detalye ng error at impormasyon tungkol sa iyong device at bersyon ng app.</string>
+  <string name="startup_crash_try_again">Subukang muli</string>
   <string name="error_occurred_crash_last_time">Nang huling gamitin mo ang application, nag-crash ito. Para matulungan kami sa pag-aayos ng bug, magpapasalamat kami kung magpapadala ka ng ulat ng bug.</string>
   <string name="error_occurred_with_link">May naganap na error. %s</string>
   <string name="error_no_content">Walang nilalaman para sa napiling talata</string>
@@ -1167,10 +1262,6 @@
   <string name="reading_progress_new_cycle">Bagong Iklo</string>
   <string name="reading_progress_previous_cycle">Nakaraang iklo</string>
   <string name="reading_progress_next_cycle">Susunod na iklo</string>
-  <string name="cloud_merge_data">Pagsamahin ang data</string>
-  <string name="cloud_fetch_and_restore_initial">Kopyahin mula sa Cloud papunta sa device na ito</string>
-  <string name="cloud_create_new">Kopyahin mula sa device na ito papunta sa Cloud</string>
-  <string name="cloud_disable_sync">Kanselahin at huwag paganahin ang synchronization</string>
   <string name="cloud_sync_title">Synchronization ng device</string>
   <string name="reset_sync">Mag-sign Out</string>
   <string name="prefs_reset_sync_summary">Huwag paganahin ang synchronization at i-reset ang mga kaugnay na setting.</string>
@@ -1186,8 +1277,19 @@
   <string name="google_drive_signin_interrupted">Naantala ang pag-sign in sa Google. Subukan muli.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Address ng iyong server, hal. https://cloud.example.com (idinaragdag ang https:// kung hindi mo ito inilagay)</string>
   <string name="webdav_server_url_hint">Address ng WebDAV folder, hal. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Nangangailangan ang sync ng ligtas na https:// address.</string>
+  <string name="sync_waiting_for_pass">Hinihintay na matapos ang kasalukuyang pag-synchronize…</string>
+  <string name="sync_pending_on">I-o-on</string>
+  <string name="sync_pending_off">I-o-off</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d pagbabago</item>
+        <item quantity="other">%1$d pagbabago</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Ilapat ang mga pagbabago mo sa sync?</string>
+  <string name="sync_checking_cloud_title">Sinusuri ang cloud…</string>
+  <string name="sync_checking_cloud_text">Naghahanap ng data na na-synchronize na ng ibang mga device.</string>
   <string name="webdav_certificate_title">Sertipiko ng server</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Hindi pinagkakatiwalaang sertipiko ng server</string>
@@ -1205,7 +1307,6 @@
   <string name="synchronization_categories">Mga kategorya ng synchronization</string>
   <string name="sync_general_settings">Impormasyon at mga pangkalahatang setting</string>
   <string name="sync_introduction">Panimula</string>
-  <string name="are_you_sure_merge">Pareho ang data sa device na ito at ang %s sa cloud ay mananatili. Kung ang parehong aytem ay binago sa pareho, ang mas bagong pagbabago ang mananatili. Ipapadala ang data ng device na ito sa iyong iba pang mga device.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Dini-disable ang cloud synchronization. Kailangan mong i-enable muli nang manu-mano pagkatapos ng restore.</string>
   <string name="report">Ulat</string>
@@ -2162,18 +2263,30 @@
   <string name="dialog_dont_apply">Huwag ilapat</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Mayroon nang iyong %s sa cloud. Ano ang dapat mangyari?</string>
-  <string name="cloud_merge_consequence">Mananatili ang magkabilang panig; kung may item na nabago sa pareho, ang mas bagong pagbabago ang mananaig.</string>
-  <string name="cloud_fetch_consequence">Papalitan ang data sa device na ito ng kopya sa cloud.</string>
-  <string name="cloud_create_consequence">Papalitan ang kopya sa cloud ng data sa device na ito.</string>
-  <string name="cloud_disable_consequence">Mananatiling naka-off ang sync para sa data na ito.</string>
-  <string name="cloud_merge_lead">Pagsamahin ang iyong %s sa cloud?</string>
-  <string name="cloud_merge_confirm">Pagsamahin</string>
   <string name="cloud_replace_confirm">Palitan</string>
-  <string name="cloud_replace_local_lead">Palitan ang %s ng device na ito ng kopya sa cloud?</string>
-  <string name="cloud_replace_local_detail">Ang kasalukuyang nasa device na ito ay mapapalitan at hindi na mababawi.</string>
-  <string name="cloud_replace_cloud_lead">Palitan ang kopya sa cloud ng %s ng data ng device na ito?</string>
-  <string name="cloud_replace_cloud_detail">Ang kasalukuyang nasa cloud ay mapapalitan, at matatanggap ng iyong iba pang device ang data ng device na ito.</string>
+  <string name="cloud_join_plan_title">May data na ang cloud</string>
+  <string name="cloud_join_plan_lead">Piliin kung ano ang gagawin para sa bawat kategorya.</string>
+  <string name="cloud_join_merge">Pagsamahin</string>
+  <string name="cloud_join_merge_detail">Pagsamahin ang device na ito at ang cloud</string>
+  <string name="cloud_join_fetch">Kopyahin mula sa cloud</string>
+  <string name="cloud_join_fetch_detail">Palitan ang data ng device na ito</string>
+  <string name="cloud_join_create">Kopyahin sa cloud</string>
+  <string name="cloud_join_create_detail">Palitan ang data ng cloud</string>
+  <string name="cloud_join_disable">Huwag mag-sync</string>
+  <string name="cloud_join_disable_detail">Iwanang naka-off ang kategoryang ito</string>
+  <string name="cloud_join_upload_note">%s: wala pang data sa cloud, ia-upload ito mula sa device na ito.</string>
+  <string name="cloud_join_confirm_title">Simulan ang synchronization?</string>
+  <string name="cloud_join_confirm_lead">Ito ang mangyayari:</string>
+  <string name="cloud_join_outcome_merge">%s: pinagsama sa cloud. Walang mawawala.</string>
+  <string name="cloud_join_outcome_fetch">%s: papalitan ng data ng cloud ang data sa device na ito.</string>
+  <string name="cloud_join_outcome_create">%s: papalitan ng data ng device na ito ang data sa cloud.</string>
+  <string name="cloud_join_outcome_disable">%s: mananatiling naka-off.</string>
+  <string name="cloud_join_outcome_upload">%s: na-upload mula sa device na ito.</string>
+  <string name="cloud_join_warning">Hindi na maibabalik ang mga napalitang data. Gumawa muna ng backup kung hindi sigurado.</string>
+  <string name="cloud_join_next">Susunod</string>
+  <string name="cloud_join_back">Bumalik</string>
+  <string name="cloud_join_start">Simulan ang sync</string>
+  <string name="cloud_join_replace">Palitan at i-sync</string>
   <string name="sign_in_failed_lead">Hindi makapag-sign in sa serbisyo ng sync.</string>
   <string name="sync_too_old_lead">Masyadong luma ang app na ito para mag-sync ng %s.</string>
   <string name="sync_too_old_detail">Gumagamit ang data sa cloud ng mas bagong bersyon kaysa sa sinusuportahan ng app na ito. Naka-off muna ang sync para dito; i-update ang app para i-on itong muli.</string>

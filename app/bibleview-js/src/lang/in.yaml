@@ -46,6 +46,8 @@ emptyStudyPad: Lembar studi kosong. Mulai tambahkan ke lembar studi ini dengan m
 doYouWantToDeleteEntry: Hapus entri lembar studi ini?
 removeStudyPadConfirmationTitle: Hapus entri lembar studi?
 dragHelp: Seret untuk mengatur ulang urutan
+addonBookmarkThisVerse: Markahi ayat ini
+addonReadOnly: Konten ini berasal dari koleksi add-on dan bersifat hanya-baca. Gunakan “Salin ke label saya” untuk mendapatkan salinan yang dapat diedit.
 openAll: Buka semua referensi
 editBookmarkPlaceholder: Ketuk untuk mengedit Catatanku untuk penanda buku ini
 onlyLabel: Label saja

@@ -46,6 +46,8 @@ emptyStudyPad: Tomt studieblock. Börja bygga upp studieblocket genom att skapa 
 doYouWantToDeleteEntry: Radera detta objekt i studieblocket?
 removeStudyPadConfirmationTitle: Radera objekt i studieblocket?
 dragHelp: Dra för att ordna om
+addonBookmarkThisVerse: Bokmärk den här versen
+addonReadOnly: Det här innehållet kommer från en tilläggssamling och är skrivskyddat. Använd “Kopiera till mina etiketter” för att få en redigerbar kopia.
 openAll: Öppna alla hänvisningar
 editBookmarkPlaceholder: Tryck för att redigera egna anteckningar för detta bokmärke.
 onlyLabel: Endast etikett

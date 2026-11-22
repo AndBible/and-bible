@@ -66,6 +66,22 @@ class AppSettingsServiceImplTest {
         }
     }
 
+    /** #4184: desktop (this JVM) defaults to text under the window buttons; a stored choice wins and notifies the host. */
+    @Test fun textUnderWindowButtonsRowDefaultsOnOnDesktopButKeepsStoredChoices() = kotlinx.coroutines.test.runTest {
+        val s = service()
+        val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+        fun row() = controller.state.value.items.single { it.key == "text_under_window_buttons" } as SettingsItem.SwitchRow
+        assertTrue(s.snapshot.value.textUnderWindowButtons)
+        assertTrue(row().checked)
+        for (stored in listOf(false, true)) {
+            s.setBool("text_under_window_buttons", stored)
+            testScheduler.runCurrent()
+            assertEquals(stored, s.snapshot.value.textUnderWindowButtons)
+            assertEquals(stored, row().checked)
+            assertEquals(stored, db.getBoolean("text_under_window_buttons", !stored))
+        }
+    }
+
     @Test fun appSettingsShowsActivitySwitch() = kotlinx.coroutines.test.runTest {
         for (default in listOf(true, false)) {
             val pref = net.bible.android.control.activity.ActivityMenuPreference(db, net.bible.sharedcore.platform.ActivityMenuDefault { default })
@@ -286,7 +302,7 @@ class AppSettingsServiceImplTest {
             "strongs_greek_dictionary", "strongs_hebrew_dictionary", "robinson_greek_morphology",
             "disabled_word_lookup_dictionaries", "navigate_to_verse_pref", "open_links_in_special_window_pref",
             "screen_keep_on_pref", "auto_fullscreen_pref", "full_screen_hide_buttons_pref", "hide_window_buttons",
-            "hide_bible_reference_overlay", "show_active_window_indicator", "toolbar_button_actions",
+            "text_under_window_buttons", "hide_bible_reference_overlay", "show_active_window_indicator", "toolbar_button_actions",
             "disable_two_step_bookmarking", "double_tap_to_fullscreen", "night_mode_pref3",
             "request_sdcard_permission_pref", "show_errorbox", "show_calculator", "calculator_pin",
             "google_drive_sync", "disable_bible_bookmark_modal_buttons", "disable_gen_bookmark_modal_buttons",

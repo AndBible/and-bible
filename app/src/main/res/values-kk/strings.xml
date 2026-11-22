@@ -836,9 +836,6 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="bookmarks_contents">Бетбелгілер, белгілер және оқу тақталары</string>
   <string name="workspaces_contents">Жұмыс кеңістігі және Windows</string>
   <!--Reading Progress Activity-->
-  <string name="cloud_fetch_and_restore_initial">Бұлттан осы құрылғыға көшіріңіз</string>
-  <string name="cloud_create_new">Осы құрылғыдан бұлтқа көшіріңіз</string>
-  <string name="cloud_disable_sync">Бас тарту &amp; синхрондауды өшіру</string>
   <string name="cloud_sync_title">Құрылғыны синхрондау</string>
   <string name="reset_sync">Шығу</string>
   <string name="prefs_reset_sync_summary">Қадамдастыруды өшіріп, қатысты параметрлерді қалпына келтіріңіз.</string>

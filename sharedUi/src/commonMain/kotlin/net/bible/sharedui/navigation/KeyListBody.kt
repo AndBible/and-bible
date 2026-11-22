@@ -17,6 +17,7 @@
 package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,9 +31,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedui.components.volumeScrollTarget
+import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * A single-line key list with current-item highlight + initial scroll: the body of the map and
@@ -62,14 +67,23 @@ fun KeyListBody(
     }
     LazyColumn(state = listState, modifier = modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         items(rows, key = { it.keyId }) { row ->
-            val highlight = if (row.keyId == currentKeyId) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+            val isCurrent = row.keyId == currentKeyId
+            val highlight = if (isCurrent) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+            // Ink/paper modes have no tint to tell the current row apart (#4186): the same bold text
+            // and 2dp primary (= ink) outline the Bible grid sheet gives its current cell.
+            val inkBorder = if (isCurrent && isPureMonochrome()) {
+                Modifier.border(2.dp, MaterialTheme.colorScheme.primary)
+            } else Modifier
             Text(
                 text = row.name,
                 style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .semantics { selected = isCurrent }
                     .clickable { onSelect(row.keyId) }
                     .background(highlight)
+                    .then(inkBorder)
                     .padding(horizontal = 16.dp, vertical = 14.dp),
             )
         }

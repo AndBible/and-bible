@@ -46,6 +46,8 @@ emptyStudyPad: Pusty bloczek notatek. Aby rozpocząć zapełnianie go, utwórz t
 doYouWantToDeleteEntry: Czy usunąć ten wpis bloczka notatek?
 removeStudyPadConfirmationTitle: Czy usunąć wpis bloczka notatek?
 dragHelp: Przeciągnij, aby zmienić kolejność
+addonBookmarkThisVerse: Dodaj zakładkę do tego wersetu
+addonReadOnly: Ta zawartość pochodzi z kolekcji dodatku i jest tylko do odczytu. Użyj „Kopiuj do moich etykiet”, aby uzyskać edytowalną kopię.
 openAll: Otwórz wszystkie odsyłacze
 editBookmarkPlaceholder: Stuknij, aby edytować notkę dla tej zakładki
 onlyLabel: Tylko etykietę

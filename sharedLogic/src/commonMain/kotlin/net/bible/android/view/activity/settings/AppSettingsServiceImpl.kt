@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.settings
 
+import net.bible.sharedcore.settings.textUnderWindowButtons
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.android.control.activity.SystemNotificationsPreference
 import net.bible.sharedcore.platform.USE_SYSTEM_COLORS_KEY
@@ -252,6 +253,7 @@ class AppSettingsServiceImpl(
             // See kdoc: settings.xml's defaultValue="true" for this key is inert stray text.
             fullScreenHideButtons = readBool("full_screen_hide_buttons_pref", false),
             hideWindowButtons = readBool("hide_window_buttons", false),
+            textUnderWindowButtons = settings.textUnderWindowButtons(),
             hideBibleReferenceOverlay = readBool("hide_bible_reference_overlay", false),
             showActiveWindowIndicator = readBool("show_active_window_indicator", true),
             enabledBibleBookmarkModalButtons = readInverseSet(

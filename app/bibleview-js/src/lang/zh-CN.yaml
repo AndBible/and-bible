@@ -46,6 +46,8 @@ emptyStudyPad: 学习笔记为空。在此创建文字条目或创建带有对�
 doYouWantToDeleteEntry: 删除此学习笔记条目？
 removeStudyPadConfirmationTitle: 删除学习笔记条目？
 dragHelp: 拖动以重新排序
+addonBookmarkThisVerse: 为此节经文添加书签
+addonReadOnly: 此内容来自附加组件集合，为只读。请使用“复制到我的标签”获取可编辑的副本。
 openAll: 打开所有参考
 editBookmarkPlaceholder: 点击编辑此书签的我的笔记
 onlyLabel: 仅标签

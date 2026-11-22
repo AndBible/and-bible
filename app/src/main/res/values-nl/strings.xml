@@ -124,6 +124,13 @@
   <string name="search_clear">Zoektekst wissen</string>
   <string name="search_engine_changed_reindex">De zoekmachine is bijgewerkt. De zoekindex moet opnieuw worden aangemaakt; dit kan even duren.</string>
   <string name="search_unsupported_syntax">Deze zoekopdracht gebruikt syntaxis die niet wordt ondersteund: %s</string>
+  <string name="search_regex">Reguliere expressie (experimenteel)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Het zoeken duurde te lang en is gestopt. De resultaten zijn onvolledig; probeer een eenvoudigere expressie.</string>
+  <string name="search_invalid_regex">Ongeldige reguliere expressie: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Deze reguliere expressie heeft te veel open jokertekens (zoals .* of \\w+). Gebruik er minder, of beperk ze, bijvoorbeeld met .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Deze reguliere expressie herhaalt een groep die zelf een herhaling bevat, zoals (a+)+. Het vergelijken kan dan vrijwel eindeloos duren. Herschrijf de expressie zonder geneste herhalingen.</string>
+  <string name="search_regex_busy">Een eerdere zoekopdracht met een reguliere expressie draait nog op de achtergrond. Probeer het zo opnieuw; als die niet klaar komt, start je de app opnieuw.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -313,6 +320,8 @@
   <string name="hide_window_buttons_summary">Vensterknoppen aan de rechterzijde van het leesscherm zijn verborgen. Vensternavigatie aan de onderkant wordt weergegeven; u kunt het venster popup-menu openen door hier lang op te drukken.</string>
   <string name="hide_bible_reference_overlay_title">Laag met Schriftverwijzing verbergen</string>
   <string name="hide_bible_reference_overlay_summary">De semitransparante laag met Schriftverwijzing niet tonen als de app in volledig-scherm-weergave wordt gebruikt.</string>
+  <string name="text_under_window_buttons_title">Tekst onder vensterknoppen tonen</string>
+  <string name="text_under_window_buttons_summary">De bijbeltekst loopt door tot onderaan het scherm, onder de knoppenbalk van de vensters. Indien uit, blijft er onder de balk een strook vrij in de onderste vensters die de balk overspant.</string>
   <string name="full_screen_hide_buttons_pref_title">Verberg vensterknoppen-balk in volledig scherm</string>
   <string name="full_screen_hide_buttons_pref_summary">Bij het overschakelen naar volledig-scherm-weergave wordt de balk met vensterknoppen onderaan het scherm automatisch verborgen.</string>
   <string name="prefs_hide_status_bar_title">Statusbalk verbergen</string>
@@ -569,7 +578,50 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
   <string name="sleep_timer_active_at">Slaaptimer: nog %s minuten te gaan.</string>
   <string name="speak_next">Volgende</string>
   <string name="speak_previous">Vorige</string>
+  <string name="widget_play">Afspelen</string>
   <string name="widget_toggle_sleep_timer">Slaaptimer in-/uitschakelen</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Voorlezen</string>
+  <string name="widget_speak_text_name">Voorlezen met tekst</string>
+  <string name="widget_listening_list_name">Luisterlijst</string>
+  <string name="widget_verse_name">Vers</string>
+  <string name="widget_continue_from">Verder vanaf %1$s · %2$s</string>
+  <string name="widget_continue_listening">Verder luisteren</string>
+  <string name="widget_paused">Gepauzeerd</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Nog geen voorlees-bladwijzers</string>
+  <string name="widget_listening_list_empty_text">Bladwijzers met het label Voorlezen verschijnen hier. Schakel automatische bladwijzers in bij de voorleesinstellingen, of voeg het label toe aan een willekeurige bladwijzer.</string>
+  <string name="widget_open_app">AndBible openen</string>
+  <string name="widget_open_app_to_load">Open AndBible om verzen te laden</string>
+  <string name="widget_verse_unavailable_no_bible">Installeer een bijbel om hier verzen te zien</string>
+  <string name="widget_verse_unavailable_label_missing">Het label van deze widget bestaat niet meer. Tik om verzen te kiezen.</string>
+  <string name="widget_verse_unavailable_label_empty">Dit label heeft nog geen bijbelbladwijzers. Tik om andere verzen te kiezen.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Er is geen leesplan actief. Tik om andere verzen te kiezen.</string>
+  <string name="widget_verse_source_random_whole_bible">Willekeurig vers</string>
+  <string name="widget_verse_source_random_new_testament">Willekeurig vers · Nieuwe Testament</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Willekeurig vers · Psalmen &amp; Spreuken</string>
+  <string name="widget_shuffle">Vers verwisselen</string>
+  <string name="widget_speak_verse">Vers voorlezen</string>
+  <string name="widget_verse_config_title">Versen-widget</string>
+  <string name="widget_verse_config_source_label">Versen uit</string>
+  <string name="widget_verse_config_source_label_option">Een label</string>
+  <string name="widget_verse_config_source_random">Willekeurig vers</string>
+  <string name="widget_verse_config_random_whole">Hele bijbel</string>
+  <string name="widget_verse_config_random_nt">Nieuwe Testament</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psalmen &amp; Spreuken</string>
+  <string name="widget_verse_config_source_plan">Leesplan van vandaag</string>
+  <string name="widget_verse_config_changes">Wisselt</string>
+  <string name="widget_verse_config_daily">Dagelijks</string>
+  <string name="widget_verse_config_every_few_hours">Om de paar uur</string>
+  <string name="widget_verse_config_on_shuffle">Alleen als ik op verwisselen tik</string>
+  <string name="widget_verse_config_bible">Bijbel</string>
+  <string name="widget_verse_config_bible_default">Standaard (%s)</string>
+  <string name="widget_verse_config_show_buttons">Knoppen voor verwisselen en voorlezen tonen</string>
+  <string name="widget_verse_config_show_source">Bron en datum tonen</string>
+  <string name="widget_verse_config_add">Widget toevoegen</string>
+  <string name="widget_verse_config_save">Opslaan</string>
+  <string name="widget_verse_source_reading_plan">Lezing van vandaag</string>
   <string name="speak_status_stopped">gestopt</string>
   <string name="speak_autobookmarking_disabled">Automatisch toevoegen aan bladwijzers uitgeschakeld!</string>
   <string name="system_speak_settings">TTS-instellingen van systeem openen</string>
@@ -705,6 +757,29 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="install_zip_canceled">Module installatie afgebroken</string>
   <string name="restore">Herstellen</string>
   <string name="import2">Import</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopie)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Uit add-on %1$s</string>
+  <string name="addon_label_from_module_hint">Open de add-on in het documentenbeheer</string>
+  <string name="addon_label_read_only_note">Dit label, de bijbehorende bladwijzers en het StudiePad horen bij de add-on en kunnen niet worden bewerkt. Je kunt het als favoriet markeren, kiezen hoe deze werkruimte het toont en de verzen ervan zelf van een bladwijzer voorzien.</string>
+  <string name="addon_copy_to_my_labels">Kopiëren naar mijn labels</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Gekopieerd naar jouw label \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Deze inhoud komt uit de add-on %1$s en kan niet worden gewijzigd. Gebruik \"Kopiëren naar mijn labels\" voor een bewerkbare kopie.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Deze inhoud komt uit een add-on en kan niet worden gewijzigd. Gebruik \"Kopiëren naar mijn labels\" voor een bewerkbare kopie.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Het label kon niet worden gekopieerd</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d item uit de add-onverzameling is overgeslagen. Gebruik \"Kopiëren naar mijn labels\" op het label voor je eigen kopie.</item>
+        <item quantity="other">%1$d items uit de add-onverzameling zijn overgeslagen. Gebruik \"Kopiëren naar mijn labels\" op het label voor je eigen kopie.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" en %2$s andere Label(s) / Studiepad(en) en %3$s Bladwijzers</string>
   <!--About-->
@@ -739,6 +814,8 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="doc_type_all">Alle types</string>
   <string name="doc_type_bible">Bijbel</string>
   <string name="doc_type_commentary">Commentaar</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Documenten</string>
   <string name="doc_type_dictionary">Woordenboek</string>
   <string name="doc_type_book">Boek</string>
   <string name="doc_type_map">Kaart</string>
@@ -774,6 +851,10 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="crash_recovery_continue">Doorgaan</string>
   <string name="report_error">Rapportage versturen</string>
   <string name="error_occurred">Er is een fout opgetreden</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">De app is gestopt tijdens het opstarten</string>
+  <string name="startup_crash_detail">Stuur ons een foutrapport zodat we het probleem kunnen oplossen. Het bevat de foutdetails en informatie over je apparaat en appversie.</string>
+  <string name="startup_crash_try_again">Opnieuw proberen</string>
   <string name="error_occurred_crash_last_time">De laatste keer dat de applicatie werd gebruikt is het vastgelopen. Om ons te helpen om de fout op te lossen, zouden we het waarderen wanneer u ons een foutrapportage stuurt.</string>
   <string name="error_occurred_with_link">Er is een fout opgetreden. %s</string>
   <string name="error_no_content">Het geselecteerde vers bevat geen inhoud</string>
@@ -1268,10 +1349,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="reading_progress_new_cycle">Nieuwe cyclus</string>
   <string name="reading_progress_previous_cycle">Vorige cyclus</string>
   <string name="reading_progress_next_cycle">Volgende cyclus</string>
-  <string name="cloud_merge_data">Gegevens samenvoegen</string>
-  <string name="cloud_fetch_and_restore_initial">Kopieer van Cloud naar dit toestel</string>
-  <string name="cloud_create_new">Kopieer van dit toestel naar de Cloud</string>
-  <string name="cloud_disable_sync">Annuleren &amp; synchronisatie uitschakelen</string>
   <string name="cloud_sync_title">Apparaat synchronisatie</string>
   <string name="reset_sync">Uitloggen</string>
   <string name="prefs_reset_sync_summary">Schakel synchronisatie uit en reset de bijbehorende instellingen.</string>
@@ -1287,8 +1364,19 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="google_drive_signin_interrupted">Aanmelden bij Google is onderbroken. Probeer het opnieuw.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adres van je server, bijv. https://cloud.example.com (https:// wordt toegevoegd als je het weglaat)</string>
   <string name="webdav_server_url_hint">Adres van de WebDAV-map, bijv. https://nas.local/dav/ of https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synchronisatie vereist een beveiligd https://-adres.</string>
+  <string name="sync_waiting_for_pass">Wachten tot de huidige synchronisatie klaar is…</string>
+  <string name="sync_pending_on">Wordt ingeschakeld</string>
+  <string name="sync_pending_off">Wordt uitgeschakeld</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d wijziging</item>
+        <item quantity="other">%1$d wijzigingen</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Je synchronisatiewijzigingen toepassen?</string>
+  <string name="sync_checking_cloud_title">De cloud controleren…</string>
+  <string name="sync_checking_cloud_text">Zoeken naar gegevens die andere apparaten al hebben gesynchroniseerd.</string>
   <string name="webdav_certificate_title">Servercertificaat</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Niet-vertrouwd servercertificaat</string>
@@ -1306,7 +1394,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="synchronization_categories">Synchronisatie categorieën</string>
   <string name="sync_general_settings">Info &amp; algemene instellingen</string>
   <string name="sync_introduction">Introductie</string>
-  <string name="are_you_sure_merge">Zowel de gegevens op dit apparaat als de %s in de cloud blijven behouden. Als hetzelfde item op beide plaatsen is gewijzigd, blijft de nieuwste wijziging behouden. De gegevens van dit apparaat worden naar uw andere apparaten verzonden.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Cloud synchronisatie wordt uitgeschakeld. Schakel dit handmatig in na het terugzetten.</string>
   <string name="report">Rapport</string>
@@ -2265,18 +2352,30 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="dialog_dont_apply">Niet toepassen</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">De cloud bevat al je %s. Wat moet er gebeuren?</string>
-  <string name="cloud_merge_consequence">Beide kanten blijven behouden; als een item aan beide kanten is gewijzigd, wint de nieuwste wijziging.</string>
-  <string name="cloud_fetch_consequence">Vervangt de gegevens op dit apparaat door de kopie uit de cloud.</string>
-  <string name="cloud_create_consequence">Vervangt de kopie in de cloud door de gegevens op dit apparaat.</string>
-  <string name="cloud_disable_consequence">Synchronisatie blijft uit voor deze gegevens.</string>
-  <string name="cloud_merge_lead">Je %s samenvoegen met de cloud?</string>
-  <string name="cloud_merge_confirm">Samenvoegen</string>
   <string name="cloud_replace_confirm">Vervangen</string>
-  <string name="cloud_replace_local_lead">De %s van dit apparaat vervangen door de kopie uit de cloud?</string>
-  <string name="cloud_replace_local_detail">Wat nu op dit apparaat staat, wordt overschreven en kan niet worden hersteld.</string>
-  <string name="cloud_replace_cloud_lead">De kopie van %s in de cloud vervangen door de gegevens van dit apparaat?</string>
-  <string name="cloud_replace_cloud_detail">Wat nu in de cloud staat, wordt overschreven en je andere apparaten ontvangen de gegevens van dit apparaat.</string>
+  <string name="cloud_join_plan_title">De cloud bevat al gegevens</string>
+  <string name="cloud_join_plan_lead">Kies per categorie wat er moet gebeuren.</string>
+  <string name="cloud_join_merge">Samenvoegen</string>
+  <string name="cloud_join_merge_detail">Dit apparaat en de cloud combineren</string>
+  <string name="cloud_join_fetch">Kopiëren uit cloud</string>
+  <string name="cloud_join_fetch_detail">De gegevens van dit apparaat vervangen</string>
+  <string name="cloud_join_create">Kopiëren naar cloud</string>
+  <string name="cloud_join_create_detail">De gegevens in de cloud vervangen</string>
+  <string name="cloud_join_disable">Niet synchroniseren</string>
+  <string name="cloud_join_disable_detail">Deze categorie uit laten</string>
+  <string name="cloud_join_upload_note">%s: nog geen gegevens in de cloud, ze worden vanaf dit apparaat geüpload.</string>
+  <string name="cloud_join_confirm_title">Synchronisatie starten?</string>
+  <string name="cloud_join_confirm_lead">Dit gaat er gebeuren:</string>
+  <string name="cloud_join_outcome_merge">%s: samengevoegd met de cloud. Er gaat niets verloren.</string>
+  <string name="cloud_join_outcome_fetch">%s: de gegevens op dit apparaat worden vervangen door die uit de cloud.</string>
+  <string name="cloud_join_outcome_create">%s: de gegevens in de cloud worden vervangen door die van dit apparaat.</string>
+  <string name="cloud_join_outcome_disable">%s: blijft uit.</string>
+  <string name="cloud_join_outcome_upload">%s: geüpload vanaf dit apparaat.</string>
+  <string name="cloud_join_warning">Vervangen gegevens kunnen niet worden hersteld. Maak eerst een back-up als je het niet zeker weet.</string>
+  <string name="cloud_join_next">Volgende</string>
+  <string name="cloud_join_back">Terug</string>
+  <string name="cloud_join_start">Sync starten</string>
+  <string name="cloud_join_replace">Vervangen en synchroniseren</string>
   <string name="sign_in_failed_lead">Kan niet inloggen bij de synchronisatieservice.</string>
   <string name="sync_too_old_lead">Deze app is te oud om %s te synchroniseren.</string>
   <string name="sync_too_old_detail">De clouddata gebruiken een nieuwere versie dan deze app ondersteunt. Synchronisatie ervan is voorlopig uitgeschakeld; werk de app bij om het weer in te schakelen.</string>

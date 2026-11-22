@@ -124,6 +124,13 @@
   <string name="search_clear">Εκκαθάριση κειμένου αναζήτησης</string>
   <string name="search_engine_changed_reindex">Η μηχανή αναζήτησης ενημερώθηκε. Το ευρετήριο αναζήτησης πρέπει να δημιουργηθεί ξανά· αυτό μπορεί να διαρκέσει λίγο.</string>
   <string name="search_unsupported_syntax">Αυτή η αναζήτηση χρησιμοποιεί σύνταξη που δεν υποστηρίζεται: %s</string>
+  <string name="search_regex">Κανονική έκφραση (πειραματικό)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Η αναζήτηση χρειάστηκε πολύ χρόνο και διακόπηκε. Τα αποτελέσματα είναι ελλιπή· δοκιμάστε μια απλούστερη έκφραση.</string>
+  <string name="search_invalid_regex">Μη έγκυρη κανονική έκφραση: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Αυτή η κανονική έκφραση έχει πάρα πολλούς ανοιχτούς μπαλαντέρ (όπως .* ή \\w+). Χρησιμοποιήστε λιγότερους ή περιορίστε τους, για παράδειγμα .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Αυτή η κανονική έκφραση επαναλαμβάνει μια ομάδα που περιέχει η ίδια επανάληψη, όπως (a+)+. Αυτό μπορεί να απαιτήσει πρακτικά άπειρο χρόνο για την αντιστοίχιση. Ξαναγράψτε την χωρίς εμφωλευμένες επαναλήψεις.</string>
+  <string name="search_regex_busy">Μια προηγούμενη αναζήτηση με κανονική έκφραση εκτελείται ακόμη στο παρασκήνιο. Δοκιμάστε ξανά σε λίγο· αν δεν ολοκληρωθεί, κάντε επανεκκίνηση της εφαρμογής.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -312,6 +319,8 @@
   <string name="hide_window_buttons_summary">Απόκρυψη κουμπιών παραθύρου που εμφανίζονται στη δεξιά πλευρά στην εμφάνιση Βίβλου. Η μπάρα πλοήγησης του παραθύρου στο κάτω μέρος είναι ακόμα εμφανής και μπορείτε να ανοίξετε το αναδυόμενο παράθυρο μενού με παρατεταμένο πάτημα</string>
   <string name="hide_bible_reference_overlay_title">Απόκρυψη επικάλυψης βιβλικής παραπομπής</string>
   <string name="hide_bible_reference_overlay_summary">Απόκρυψη της ημι-διάφανης επικάλυψης βιβλικής παραπομπής κατά την λειτουργία πλήρους οθόνης</string>
+  <string name="text_under_window_buttons_title">Εμφάνιση κειμένου κάτω από τα κουμπιά παραθύρων</string>
+  <string name="text_under_window_buttons_summary">Το κείμενο της Βίβλου εκτείνεται μέχρι το κάτω μέρος της οθόνης, κάτω από τη γραμμή κουμπιών παραθύρων. Όταν είναι απενεργοποιημένο, διατηρείται ελεύθερη μια λωρίδα κάτω από τη γραμμή στα κάτω παράθυρα που καλύπτει.</string>
   <string name="full_screen_hide_buttons_pref_title">Απόκρυψη μπάρας κουμπιών παραθύρου στην πλήρη οθόνη</string>
   <string name="full_screen_hide_buttons_pref_summary">Στην εναλλαγή στην πλήρη οθόνη, αυτόματη απόκρυψη της μπάρας κουμπιών παραθύρου που βρίσκεται στο κάτω μέρος της οθόνης</string>
   <string name="prefs_hide_status_bar_title">Απόκρυψη γραμμής κατάστασης</string>
@@ -569,7 +578,50 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="sleep_timer_active_at">Διακόπτης ύπνου: Απομένουν %s λεπτά</string>
   <string name="speak_next">Επόμενος</string>
   <string name="speak_previous">Προηγούμενος</string>
+  <string name="widget_play">Αναπαραγωγή</string>
   <string name="widget_toggle_sleep_timer">Εναλλαγή χρονοδιακόπτη ύπνου</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Ακρόαση</string>
+  <string name="widget_speak_text_name">Ακρόαση με κείμενο</string>
+  <string name="widget_listening_list_name">Λίστα ακρόασης</string>
+  <string name="widget_verse_name">Στίχος</string>
+  <string name="widget_continue_from">Συνέχεια από %1$s · %2$s</string>
+  <string name="widget_continue_listening">Συνέχεια ακρόασης</string>
+  <string name="widget_paused">Σε παύση</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Δεν υπάρχουν ακόμη σελιδοδείκτες ακρόασης</string>
+  <string name="widget_listening_list_empty_text">Οι σελιδοδείκτες με την ετικέτα Ακρόαση εμφανίζονται εδώ. Ενεργοποιήστε τους αυτόματους σελιδοδείκτες στις ρυθμίσεις ομιλίας ή προσθέστε την ετικέτα σε οποιονδήποτε σελιδοδείκτη.</string>
+  <string name="widget_open_app">Άνοιγμα του AndBible</string>
+  <string name="widget_open_app_to_load">Ανοίξτε το AndBible για να φορτωθούν οι στίχοι</string>
+  <string name="widget_verse_unavailable_no_bible">Εγκαταστήστε μια Βίβλο για να δείτε στίχους εδώ</string>
+  <string name="widget_verse_unavailable_label_missing">Η ετικέτα αυτού του γραφικού στοιχείου δεν υπάρχει πια. Πατήστε για να επιλέξετε στίχους.</string>
+  <string name="widget_verse_unavailable_label_empty">Αυτή η ετικέτα δεν έχει ακόμη σελιδοδείκτες Βίβλου. Πατήστε για να επιλέξετε άλλους στίχους.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Δεν υπάρχει ενεργό σχέδιο ανάγνωσης. Πατήστε για να επιλέξετε άλλους στίχους.</string>
+  <string name="widget_verse_source_random_whole_bible">Τυχαίος στίχος</string>
+  <string name="widget_verse_source_random_new_testament">Τυχαίος στίχος · Καινή Διαθήκη</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Τυχαίος στίχος · Ψαλμοί &amp; Παροιμίες</string>
+  <string name="widget_shuffle">Ανακάτεμα στίχου</string>
+  <string name="widget_speak_verse">Ακρόαση στίχου</string>
+  <string name="widget_verse_config_title">Γραφικό στοιχείο στίχου</string>
+  <string name="widget_verse_config_source_label">Στίχοι από</string>
+  <string name="widget_verse_config_source_label_option">Μια ετικέτα</string>
+  <string name="widget_verse_config_source_random">Τυχαίος στίχος</string>
+  <string name="widget_verse_config_random_whole">Ολόκληρη η Βίβλος</string>
+  <string name="widget_verse_config_random_nt">Καινή Διαθήκη</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Ψαλμοί &amp; Παροιμίες</string>
+  <string name="widget_verse_config_source_plan">Σημερινό σχέδιο ανάγνωσης</string>
+  <string name="widget_verse_config_changes">Αλλαγές</string>
+  <string name="widget_verse_config_daily">Καθημερινά</string>
+  <string name="widget_verse_config_every_few_hours">Κάθε λίγες ώρες</string>
+  <string name="widget_verse_config_on_shuffle">Μόνο όταν πατάω το ανακάτεμα</string>
+  <string name="widget_verse_config_bible">Βίβλος</string>
+  <string name="widget_verse_config_bible_default">Προεπιλογή (%s)</string>
+  <string name="widget_verse_config_show_buttons">Εμφάνιση κουμπιών ανακατέματος και ακρόασης</string>
+  <string name="widget_verse_config_show_source">Εμφάνιση πηγής και ημερομηνίας</string>
+  <string name="widget_verse_config_add">Προσθήκη γραφικού στοιχείου</string>
+  <string name="widget_verse_config_save">Αποθήκευση</string>
+  <string name="widget_verse_source_reading_plan">Σημερινή ανάγνωση</string>
   <string name="speak_status_stopped">Διακοπή</string>
   <string name="speak_autobookmarking_disabled">Αυτόματοι σελιδοδείκτες απενεργοποιήθηκαν!</string>
   <string name="system_speak_settings">Άνοιγμα ρυθμίσεων TTS συστήματος</string>
@@ -693,6 +745,29 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="install_zip_canceled">Ακυρώθηκε η εγκατάσταση προσθέτου</string>
   <string name="restore">Επαναφορά</string>
   <string name="import2">Εισαγωγή</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (αντίγραφο)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Από το πρόσθετο %1$s</string>
+  <string name="addon_label_from_module_hint">Ανοίξτε το πρόσθετο στη διαχείριση εγγράφων</string>
+  <string name="addon_label_read_only_note">Αυτή η ετικέτα, οι σελιδοδείκτες της και το StudyPad της ανήκουν στο πρόσθετο και δεν μπορούν να επεξεργαστούν. Μπορείτε να την σημειώσετε ως αγαπημένη, να επιλέξετε πώς την εμφανίζει αυτός ο χώρος εργασίας και να προσθέσετε σελιδοδείκτες στους στίχους της για τον εαυτό σας.</string>
+  <string name="addon_copy_to_my_labels">Αντιγραφή στις ετικέτες μου</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Αντιγράφηκε στην ετικέτα σας \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Αυτό το περιεχόμενο προέρχεται από το πρόσθετο %1$s και δεν μπορεί να αλλάξει. Χρησιμοποιήστε \"Αντιγραφή στις ετικέτες μου\" για να αποκτήσετε ένα επεξεργάσιμο αντίγραφο.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Αυτό το περιεχόμενο προέρχεται από ένα πρόσθετο και δεν μπορεί να αλλάξει. Χρησιμοποιήστε \"Αντιγραφή στις ετικέτες μου\" για να αποκτήσετε ένα επεξεργάσιμο αντίγραφο.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Δεν ήταν δυνατή η αντιγραφή της ετικέτας</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d στοιχείο συλλογής προσθέτων παραλείφθηκε. Χρησιμοποιήστε \"Αντιγραφή στις ετικέτες μου\" στην ετικέτα για να αποκτήσετε δικό σας αντίγραφο.</item>
+    <item quantity="other">%1$d στοιχεία συλλογής προσθέτων παραλείφθηκαν. Χρησιμοποιήστε \"Αντιγραφή στις ετικέτες μου\" στην ετικέτα για να αποκτήσετε δικό σας αντίγραφο.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" και %2$s άλλη(ες) ετικέτα/(ες) / Μπλοκ Μελέτης και %3$s Σελιδοδείκτες</string>
   <!--About-->
@@ -727,6 +802,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="doc_type_all">Όλοι οι τύποι</string>
   <string name="doc_type_bible">Αγία Γραφή</string>
   <string name="doc_type_commentary">Σχόλια</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Έγγραφα</string>
   <string name="doc_type_dictionary">Λεξικό</string>
   <string name="doc_type_book">Βιβλίο</string>
   <string name="doc_type_map">Χάρτης</string>
@@ -762,6 +839,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="crash_recovery_continue">Συνέχεια</string>
   <string name="report_error">Αποστολή αναφοράς</string>
   <string name="error_occurred">Παρουσιάστηκε ένα σφάλμα</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Η εφαρμογή σταμάτησε κατά την εκκίνηση</string>
+  <string name="startup_crash_detail">Στείλτε μας μια αναφορά σφάλματος ώστε να διορθώσουμε το πρόβλημα. Περιέχει τις λεπτομέρειες του σφάλματος και πληροφορίες για τη συσκευή και την έκδοση της εφαρμογής σας.</string>
+  <string name="startup_crash_try_again">Δοκιμάστε ξανά</string>
   <string name="error_occurred_crash_last_time">Η εφαρμογή κατέρρευσε κατά την τελευταία χρήση της. Θα εκτιμούσαμε τη βοήθειά σας στην επίλυση του σφάλματος, αν μας στείλετε μια σχετική αναφορά.</string>
   <string name="error_occurred_with_link">Παρουσιάστηκε ένα σφάλμα. %s</string>
   <string name="error_no_content">Δεν υπάρχει περιεχόμενο για τον επιλεγμένο στίχο</string>
@@ -1252,10 +1333,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="reading_progress_new_cycle">Νέος Κύκλος</string>
   <string name="reading_progress_previous_cycle">Προηγούμενος κύκλος</string>
   <string name="reading_progress_next_cycle">Επόμενος κύκλος</string>
-  <string name="cloud_merge_data">Συγχώνευση δεδομένων</string>
-  <string name="cloud_fetch_and_restore_initial">Αντιγραφή από το cloud στη συσκευή</string>
-  <string name="cloud_create_new">Αντιγραφή από τη συσκευή στο Cloud</string>
-  <string name="cloud_disable_sync">Ακύρωση &amp; απενεργοποίηση συγχρονισμού</string>
   <string name="cloud_sync_title">Συγχρονισμός συσκευής</string>
   <string name="reset_sync">Αποσύνδεση</string>
   <string name="prefs_reset_sync_summary">Απενεργοποίηση συγχρονισμού και επαναφορά σχετικών ρυθμίσεων.</string>
@@ -1271,8 +1348,19 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="google_drive_signin_interrupted">Η σύνδεση στο Google διακόπηκε. Δοκιμάστε ξανά.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Διεύθυνση του διακομιστή σας, π.χ. https://cloud.example.com (το https:// προστίθεται αν το παραλείψετε)</string>
   <string name="webdav_server_url_hint">Διεύθυνση του φακέλου WebDAV, π.χ. https://nas.local/dav/ ή https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Ο συγχρονισμός απαιτεί ασφαλή διεύθυνση https://.</string>
+  <string name="sync_waiting_for_pass">Αναμονή για την ολοκλήρωση του τρέχοντος συγχρονισμού…</string>
+  <string name="sync_pending_on">Θα ενεργοποιηθεί</string>
+  <string name="sync_pending_off">Θα απενεργοποιηθεί</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d αλλαγή</item>
+    <item quantity="other">%1$d αλλαγές</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Να εφαρμοστούν οι αλλαγές συγχρονισμού;</string>
+  <string name="sync_checking_cloud_title">Έλεγχος του cloud…</string>
+  <string name="sync_checking_cloud_text">Αναζήτηση δεδομένων που έχουν ήδη συγχρονίσει άλλες συσκευές.</string>
   <string name="webdav_certificate_title">Πιστοποιητικό διακομιστή</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Μη αξιόπιστο πιστοποιητικό διακομιστή</string>
@@ -1290,7 +1378,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="synchronization_categories">Κατηγορίες συγχρονισμού</string>
   <string name="sync_general_settings">Πληροφορίες &amp; γενικές ρυθμίσεις</string>
   <string name="sync_introduction">Εισαγωγή</string>
-  <string name="are_you_sure_merge">Θα διατηρηθούν και τα δεδομένα σε αυτή τη συσκευή και το %s στο νέφος. Όπου το ίδιο στοιχείο άλλαξε και στα δύο, διατηρείται η νεότερη αλλαγή. Τα δεδομένα αυτής της συσκευής θα σταλούν στις άλλες συσκευές σας.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Απενεργοποίηση συγχρονισμού cloud. Ενεργοποιήστε το χειροκίνητα μετά την επαναφορά.</string>
   <string name="report">Αναφορά</string>
@@ -2248,18 +2335,30 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="dialog_dont_apply">Να μην εφαρμοστεί</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Το cloud έχει ήδη τα δεδομένα σας: %s. Τι πρέπει να γίνει;</string>
-  <string name="cloud_merge_consequence">Διατηρούνται και οι δύο πλευρές· όπου ένα στοιχείο άλλαξε και στις δύο, κερδίζει η νεότερη αλλαγή.</string>
-  <string name="cloud_fetch_consequence">Αντικαθιστά τα δεδομένα αυτής της συσκευής με το αντίγραφο του cloud.</string>
-  <string name="cloud_create_consequence">Αντικαθιστά το αντίγραφο του cloud με τα δεδομένα αυτής της συσκευής.</string>
-  <string name="cloud_disable_consequence">Ο συγχρονισμός παραμένει απενεργοποιημένος για αυτά τα δεδομένα.</string>
-  <string name="cloud_merge_lead">Συγχώνευση των δεδομένων σας (%s) με το cloud;</string>
-  <string name="cloud_merge_confirm">Συγχώνευση</string>
   <string name="cloud_replace_confirm">Αντικατάσταση</string>
-  <string name="cloud_replace_local_lead">Αντικατάσταση των δεδομένων αυτής της συσκευής (%s) με το αντίγραφο του cloud;</string>
-  <string name="cloud_replace_local_detail">Ό,τι υπάρχει τώρα σε αυτήν τη συσκευή αντικαθίσταται και δεν μπορεί να ανακτηθεί.</string>
-  <string name="cloud_replace_cloud_lead">Αντικατάσταση του αντιγράφου του cloud (%s) με τα δεδομένα αυτής της συσκευής;</string>
-  <string name="cloud_replace_cloud_detail">Ό,τι υπάρχει τώρα στο cloud αντικαθίσταται και οι άλλες συσκευές σας θα λάβουν τα δεδομένα αυτής της συσκευής.</string>
+  <string name="cloud_join_plan_title">Το cloud έχει ήδη δεδομένα</string>
+  <string name="cloud_join_plan_lead">Επιλέξτε τι θα γίνει για κάθε κατηγορία.</string>
+  <string name="cloud_join_merge">Συγχώνευση</string>
+  <string name="cloud_join_merge_detail">Συνδυασμός αυτής της συσκευής και του cloud</string>
+  <string name="cloud_join_fetch">Αντιγραφή από το cloud</string>
+  <string name="cloud_join_fetch_detail">Αντικατάσταση των δεδομένων αυτής της συσκευής</string>
+  <string name="cloud_join_create">Αντιγραφή στο cloud</string>
+  <string name="cloud_join_create_detail">Αντικατάσταση των δεδομένων του cloud</string>
+  <string name="cloud_join_disable">Χωρίς συγχρονισμό</string>
+  <string name="cloud_join_disable_detail">Αφήστε αυτή την κατηγορία απενεργοποιημένη</string>
+  <string name="cloud_join_upload_note">%s: δεν υπάρχουν ακόμη δεδομένα στο cloud, θα ανεβούν από αυτή τη συσκευή.</string>
+  <string name="cloud_join_confirm_title">Έναρξη συγχρονισμού;</string>
+  <string name="cloud_join_confirm_lead">Αυτό θα συμβεί:</string>
+  <string name="cloud_join_outcome_merge">%s: συγχωνεύεται με το cloud. Τίποτα δεν χάνεται.</string>
+  <string name="cloud_join_outcome_fetch">%s: τα δεδομένα σε αυτή τη συσκευή αντικαθίστανται με εκείνα του cloud.</string>
+  <string name="cloud_join_outcome_create">%s: τα δεδομένα στο cloud αντικαθίστανται με εκείνα αυτής της συσκευής.</string>
+  <string name="cloud_join_outcome_disable">%s: παραμένει απενεργοποιημένο.</string>
+  <string name="cloud_join_outcome_upload">%s: ανέβηκε από αυτή τη συσκευή.</string>
+  <string name="cloud_join_warning">Τα δεδομένα που αντικαθίστανται δεν μπορούν να ανακτηθούν. Αν έχετε αμφιβολίες, κάντε πρώτα αντίγραφο ασφαλείας.</string>
+  <string name="cloud_join_next">Επόμενο</string>
+  <string name="cloud_join_back">Πίσω</string>
+  <string name="cloud_join_start">Έναρξη συγχρονισμού</string>
+  <string name="cloud_join_replace">Αντικατάσταση και συγχρονισμός</string>
   <string name="sign_in_failed_lead">Δεν ήταν δυνατή η σύνδεση στην υπηρεσία συγχρονισμού.</string>
   <string name="sync_too_old_lead">Αυτή η εφαρμογή είναι πολύ παλιά για τον συγχρονισμό: %s.</string>
   <string name="sync_too_old_detail">Τα δεδομένα του cloud χρησιμοποιούν νεότερη έκδοση από αυτήν που υποστηρίζει η εφαρμογή. Ο συγχρονισμός τους είναι προσωρινά απενεργοποιημένος· ενημερώστε την εφαρμογή για να τον ενεργοποιήσετε ξανά.</string>

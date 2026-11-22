@@ -84,6 +84,7 @@ class CloudDocumentsInGraphArmTest {
 
     private var progressOnRunning: ((Boolean) -> Unit)? = null
     private var progressStops = 0
+    private val liveRefreshedFor = mutableListOf<CloudDocumentsController>()
     private val running = MutableStateFlow(false)
 
     private fun cloudDocumentsDeps() = CloudDocumentsDeps(
@@ -109,6 +110,7 @@ class CloudDocumentsInGraphArmTest {
         // trivial controllerFor above. A stray arm-side call would fail loudly here instead of
         // silently passing.
         seedItems = { error("seedItems is not exercised by the arm directly") },
+        liveRefresh = { liveRefreshedFor += it; kotlinx.coroutines.awaitCancellation() },
         refreshFromNetwork = { calls.add("refresh") },
         transferRunningProvider = { running },
         subscribeProgress = { onRunning ->
@@ -229,6 +231,31 @@ class CloudDocumentsInGraphArmTest {
         assertTrue("gate" in calls)
         assertEquals(0, exitHostCalls)
         assertNotNull(controller)
+    }
+
+    /** #4180: the arm runs the host's live refresh for ITS controller (removing the LaunchedEffect leaves the list stale). */
+    @Test
+    fun theArmRunsTheLiveRefreshForItsOwnController() {
+        setGraph(NavRoutes.cloudDocuments())
+        compose.waitForIdle()
+        assertEquals(listOf(assertNotNull(controller)), liveRefreshedFor.toList())
+    }
+
+    /** #4180: the end of a sync drops the pending optimistic removals before the network rescan lands. */
+    @Test
+    fun theSyncEndEdgeDropsPendingOptimisticRemovals() {
+        setGraph(NavRoutes.cloudDocuments())
+        val c = assertNotNull(controller)
+        val onRunning = assertNotNull(progressOnRunning)
+        compose.runOnIdle {
+            c.setItems(listOf(sampleItem("A")))
+            c.applyRemoval("A")
+            c.setItems(listOf(sampleItem("A")))
+        }
+        assertEquals(emptyList(), c.items.value.map { it.initials })
+        compose.runOnIdle { onRunning(false) }
+        compose.runOnIdle { c.setItems(listOf(sampleItem("A"))) }
+        assertEquals(listOf("A"), c.items.value.map { it.initials })
     }
 
     /**

@@ -124,6 +124,13 @@
   <string name="search_clear">مسح نص البحث</string>
   <string name="search_engine_changed_reindex">تم تحديث محرك البحث. يجب إنشاء فهرس البحث من جديد، وقد يستغرق ذلك بعض الوقت.</string>
   <string name="search_unsupported_syntax">يستخدم هذا البحث صيغة غير مدعومة: %s</string>
+  <string name="search_regex">تعبير نمطي (تجريبي)</string>
+  <string name="search_regex_summary">تعبير نمطي</string>
+  <string name="search_results_truncated">استغرق البحث وقتًا طويلًا وتم إيقافه. النتائج غير كاملة؛ جرّب تعبيرًا أبسط.</string>
+  <string name="search_invalid_regex">تعبير نمطي غير صالح: %1$s</string>
+  <string name="search_regex_too_many_wildcards">يحتوي هذا التعبير النمطي على عدد كبير جدًا من الرموز البديلة المفتوحة (مثل .* أو \\w+). استخدم عددًا أقل منها، أو ضيّقها، على سبيل المثال .{0,40}.</string>
+  <string name="search_regex_nested_repetition">يكرّر هذا التعبير النمطي مجموعة تحتوي هي نفسها على تكرار، مثل (a+)+. قد تستغرق مطابقته وقتًا طويلًا جدًا. أعد كتابته دون تداخل التكرارات.</string>
+  <string name="search_regex_busy">لا يزال بحث تعبير نمطي سابق قيد التشغيل في الخلفية. حاول مرة أخرى بعد قليل؛ وإن لم ينتهِ، فأعد تشغيل التطبيق.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -321,6 +328,8 @@
   <string name="hide_window_buttons_summary">أزرار النافذة التي يتم عرضها على الجانب الأيمن من عروض الكتاب المقدس مخفية. لا يزال شريط تنقل النافذة في الجزء السفلي معروضًا ويمكنك فتح قائمة منبثقة من خلال النقر عليها مطولاً.</string>
   <string name="hide_bible_reference_overlay_title">إخفاء تراكب مرجع الكتاب المقدس</string>
   <string name="hide_bible_reference_overlay_summary">لا تعرض تراكب مراجع الكتاب المقدس شبه الشفافة عندما يكون التطبيق في وضع ملء الشاشة</string>
+  <string name="text_under_window_buttons_title">إظهار النص تحت أزرار النوافذ</string>
+  <string name="text_under_window_buttons_summary">يمتد نص الكتاب المقدس إلى أسفل الشاشة، تحت شريط أزرار النوافذ. عند الإيقاف، يُترك شريط فارغ تحت الشريط في النوافذ السفلية التي يمتد عبرها.</string>
   <string name="full_screen_hide_buttons_pref_title">إخفاء شريط زر النافذة في وضع ملء الشاشة</string>
   <string name="full_screen_hide_buttons_pref_summary">عند التبديل إلى وضع ملء الشاشة، إخفاء شريط أزرار النافذة تلقائيًا الموجود أسفل الشاشة</string>
   <string name="prefs_hide_status_bar_title">إخفاء شريط الحالة</string>
@@ -575,7 +584,50 @@
   <string name="sleep_timer_active_at">مؤقت النوم: %s دقائق متبقية.</string>
   <string name="speak_next">التالي</string>
   <string name="speak_previous">السابق</string>
+  <string name="widget_play">تشغيل</string>
   <string name="widget_toggle_sleep_timer">تبديل مؤقت النوم</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">تكلم</string>
+  <string name="widget_speak_text_name">تكلم مع النص</string>
+  <string name="widget_listening_list_name">قائمة الاستماع</string>
+  <string name="widget_verse_name">آية</string>
+  <string name="widget_continue_from">متابعة من %1$s · %2$s</string>
+  <string name="widget_continue_listening">متابعة الاستماع</string>
+  <string name="widget_paused">متوقف مؤقتًا</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">لا توجد إشارات مرجعية للتحدث بعد</string>
+  <string name="widget_listening_list_empty_text">تظهر هنا الإشارات المرجعية ذات تسمية التحدث. شغّل الإشارات المرجعية التلقائية في إعدادات التحدث، أو أضف التسمية إلى أي إشارة مرجعية.</string>
+  <string name="widget_open_app">افتح AndBible</string>
+  <string name="widget_open_app_to_load">افتح AndBible لتحميل الآيات</string>
+  <string name="widget_verse_unavailable_no_bible">ثبّت كتابًا مقدسًا لعرض الآيات هنا</string>
+  <string name="widget_verse_unavailable_label_missing">لم تعد تسمية هذه الأداة موجودة. اضغط لاختيار الآيات.</string>
+  <string name="widget_verse_unavailable_label_empty">ليس لهذه التسمية إشارات مرجعية للكتاب المقدس بعد. اضغط لاختيار آيات أخرى.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">لا توجد خطة قراءة نشطة. اضغط لاختيار آيات أخرى.</string>
+  <string name="widget_verse_source_random_whole_bible">آية عشوائية</string>
+  <string name="widget_verse_source_random_new_testament">آية عشوائية · العهد الجديد</string>
+  <string name="widget_verse_source_random_psalms_proverbs">آية عشوائية · المزامير والأمثال</string>
+  <string name="widget_shuffle">خلط الآية</string>
+  <string name="widget_speak_verse">قراءة الآية بصوت عالٍ</string>
+  <string name="widget_verse_config_title">أداة الآية</string>
+  <string name="widget_verse_config_source_label">الآيات من</string>
+  <string name="widget_verse_config_source_label_option">تسمية</string>
+  <string name="widget_verse_config_source_random">آية عشوائية</string>
+  <string name="widget_verse_config_random_whole">الكتاب المقدس كاملًا</string>
+  <string name="widget_verse_config_random_nt">العهد الجديد</string>
+  <string name="widget_verse_config_random_psalms_proverbs">المزامير والأمثال</string>
+  <string name="widget_verse_config_source_plan">خطة القراءة لهذا اليوم</string>
+  <string name="widget_verse_config_changes">التغيير</string>
+  <string name="widget_verse_config_daily">يوميًا</string>
+  <string name="widget_verse_config_every_few_hours">كل بضع ساعات</string>
+  <string name="widget_verse_config_on_shuffle">فقط عند الضغط على خلط</string>
+  <string name="widget_verse_config_bible">الكتاب المقدس</string>
+  <string name="widget_verse_config_bible_default">الافتراضي (%s)</string>
+  <string name="widget_verse_config_show_buttons">إظهار زري الخلط والتحدث</string>
+  <string name="widget_verse_config_show_source">إظهار المصدر والتاريخ</string>
+  <string name="widget_verse_config_add">إضافة الأداة</string>
+  <string name="widget_verse_config_save">حفظ</string>
+  <string name="widget_verse_source_reading_plan">قراءة اليوم</string>
   <string name="speak_status_stopped">متوقف</string>
   <string name="speak_autobookmarking_disabled">تم تعطيل الإشارة المرجعية التلقائية!</string>
   <string name="system_speak_settings">فتح إعدادات نظام تحويل النص إلى كلام</string>
@@ -707,6 +759,24 @@
   <string name="install_zip_canceled">تثبيت الوحدة تم إلغائه.</string>
   <string name="restore">إستعادة</string>
   <string name="import2">استيراد</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (نسخة)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">من الإضافة %1$s</string>
+  <string name="addon_label_from_module_hint">افتح الإضافة في مدير المستندات</string>
+  <string name="addon_label_read_only_note">تنتمي هذه التسمية وإشاراتها المرجعية وStudyPad الخاص بها إلى الإضافة ولا يمكن تعديلها. يمكنك تعيينها كمفضلة، واختيار كيفية عرض مساحة العمل هذه لها، ووضع إشارات مرجعية لآياتها لنفسك.</string>
+  <string name="addon_copy_to_my_labels">نسخ إلى تسمياتي</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">تم النسخ إلى تسميتك \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">يأتي هذا المحتوى من الإضافة %1$s ولا يمكن تغييره. استخدم \"نسخ إلى تسمياتي\" للحصول على نسخة قابلة للتعديل.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">يأتي هذا المحتوى من إضافة ولا يمكن تغييره. استخدم \"نسخ إلى تسمياتي\" للحصول على نسخة قابلة للتعديل.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">تعذّر نسخ التسمية</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" و%2$s تسمية/لوحة دراسة أخرى و%3$s إشارة مرجعية</string>
   <!--About-->
@@ -742,6 +812,8 @@
   <string name="doc_type_all">كل الأنواع</string>
   <string name="doc_type_bible">إنجيل</string>
   <string name="doc_type_commentary">تعليق</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">المستندات</string>
   <string name="doc_type_dictionary">قاموس</string>
   <string name="doc_type_book">سفر</string>
   <string name="doc_type_map">خريطة</string>
@@ -777,6 +849,10 @@
   <string name="crash_recovery_continue">متابعة</string>
   <string name="report_error">إرسال تقرير</string>
   <string name="error_occurred">حدث خطأ ما</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">توقف التطبيق أثناء البدء</string>
+  <string name="startup_crash_detail">يرجى إرسال تقرير خطأ إلينا حتى نتمكن من إصلاح المشكلة. يحتوي على تفاصيل الخطأ ومعلومات عن جهازك وإصدار التطبيق.</string>
+  <string name="startup_crash_try_again">حاول مرة أخرى</string>
   <string name="error_occurred_crash_last_time">آخر مرة عندما استخدمت التطبيق، حدث خلل. لمساعدتنا في حل الخطأ، سنكون ممتنين إذا ارسلت لنا تقرير اخطاء.</string>
   <string name="error_occurred_with_link">حدث خطأ. %s</string>
   <string name="error_no_content">لا يوجد محتوى للآية المختارة</string>
@@ -1242,10 +1318,6 @@
   <string name="reading_progress_new_cycle">دورة جديدة</string>
   <string name="reading_progress_previous_cycle">الدورة السابقة</string>
   <string name="reading_progress_next_cycle">الدورة التالية</string>
-  <string name="cloud_merge_data">دمج البيانات</string>
-  <string name="cloud_fetch_and_restore_initial">نسخ من السحابة إلى هذا الجهاز</string>
-  <string name="cloud_create_new">نسخ من هذا الجهاز إلى السحابة</string>
-  <string name="cloud_disable_sync">إلغاء و إيقاف المزامنة</string>
   <string name="cloud_sync_title">مزامنة الأجهزة </string>
   <string name="reset_sync">تسجيل الخروج</string>
   <string name="prefs_reset_sync_summary">إيقاف المزامنة و إعادة تعيين الإعدادات المتعلقة بها.</string>
@@ -1261,8 +1333,15 @@
   <string name="google_drive_signin_interrupted">انقطع تسجيل الدخول إلى Google. حاول مرة أخرى.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">عنوان الخادم، مثل https://cloud.example.com (تتم إضافة https:// إذا تركتها)</string>
   <string name="webdav_server_url_hint">عنوان مجلد WebDAV، مثل https://nas.local/dav/ أو https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">تتطلب المزامنة عنوان https:// آمنًا.</string>
+  <string name="sync_waiting_for_pass">في انتظار انتهاء المزامنة الحالية…</string>
+  <string name="sync_pending_on">سيتم تشغيله</string>
+  <string name="sync_pending_off">سيتم إيقافه</string>
+  <string name="sync_pending_leave_title">تطبيق تغييرات المزامنة؟</string>
+  <string name="sync_checking_cloud_title">جارٍ فحص السحابة…</string>
+  <string name="sync_checking_cloud_text">جارٍ البحث عن بيانات زامنتها أجهزة أخرى بالفعل.</string>
   <string name="webdav_certificate_title">شهادة الخادم</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">شهادة خادم غير موثوقة</string>
@@ -1280,7 +1359,6 @@
   <string name="synchronization_categories">فئات المزامنة</string>
   <string name="sync_general_settings">المعلومات والإعدادات العامة</string>
   <string name="sync_introduction">مقدمة</string>
-  <string name="are_you_sure_merge">سيتم الاحتفاظ بكل من البيانات على هذا الجهاز و%s في السحابة. وإذا تغيّر العنصر نفسه في الاثنين، يُحتفظ بالتغيير الأحدث. وستُرسل بيانات هذا الجهاز إلى أجهزتك الأخرى.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">إيقاف تشغيل المزامنة السحابية. يجب عليك إعادة تشغيلها يدوياً بعد الاستعادة.</string>
   <string name="report">تقرير</string>
@@ -2265,18 +2343,30 @@
   <string name="dialog_dont_apply">عدم التطبيق</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">توجد في السحابة بالفعل بيانات %s الخاصة بك. ماذا يجب أن يحدث؟</string>
-  <string name="cloud_merge_consequence">يُحتفظ بالجانبين؛ وحيث تغيّر عنصر في كليهما، يفوز التغيير الأحدث.</string>
-  <string name="cloud_fetch_consequence">يستبدل البيانات الموجودة على هذا الجهاز بنسخة السحابة.</string>
-  <string name="cloud_create_consequence">يستبدل نسخة السحابة بالبيانات الموجودة على هذا الجهاز.</string>
-  <string name="cloud_disable_consequence">تبقى المزامنة متوقفة لهذه البيانات.</string>
-  <string name="cloud_merge_lead">دمج %s الخاصة بك مع السحابة؟</string>
-  <string name="cloud_merge_confirm">دمج</string>
   <string name="cloud_replace_confirm">استبدال</string>
-  <string name="cloud_replace_local_lead">استبدال %s الخاصة بهذا الجهاز بنسخة السحابة؟</string>
-  <string name="cloud_replace_local_detail">ما هو موجود على هذا الجهاز الآن سيُستبدل ولا يمكن استرجاعه.</string>
-  <string name="cloud_replace_cloud_lead">استبدال نسخة السحابة من %s ببيانات هذا الجهاز؟</string>
-  <string name="cloud_replace_cloud_detail">ما هو موجود في السحابة الآن سيُستبدل، وستتلقى أجهزتك الأخرى بيانات هذا الجهاز.</string>
+  <string name="cloud_join_plan_title">تحتوي السحابة على بيانات بالفعل</string>
+  <string name="cloud_join_plan_lead">اختر ما تريد فعله لكل فئة.</string>
+  <string name="cloud_join_merge">دمج</string>
+  <string name="cloud_join_merge_detail">دمج هذا الجهاز والسحابة</string>
+  <string name="cloud_join_fetch">نسخ من السحابة</string>
+  <string name="cloud_join_fetch_detail">استبدال بيانات هذا الجهاز</string>
+  <string name="cloud_join_create">نسخ إلى السحابة</string>
+  <string name="cloud_join_create_detail">استبدال بيانات السحابة</string>
+  <string name="cloud_join_disable">عدم المزامنة</string>
+  <string name="cloud_join_disable_detail">إبقاء هذه الفئة متوقفة</string>
+  <string name="cloud_join_upload_note">%s: لا توجد بيانات في السحابة بعد، وسيتم رفعها من هذا الجهاز.</string>
+  <string name="cloud_join_confirm_title">بدء المزامنة؟</string>
+  <string name="cloud_join_confirm_lead">هذا ما سيحدث:</string>
+  <string name="cloud_join_outcome_merge">%s: تم دمجها مع السحابة. لن يُفقد شيء.</string>
+  <string name="cloud_join_outcome_fetch">%s: يتم استبدال البيانات على هذا الجهاز ببيانات السحابة.</string>
+  <string name="cloud_join_outcome_create">%s: يتم استبدال البيانات في السحابة ببيانات هذا الجهاز.</string>
+  <string name="cloud_join_outcome_disable">%s: تبقى متوقفة.</string>
+  <string name="cloud_join_outcome_upload">%s: تم رفعها من هذا الجهاز.</string>
+  <string name="cloud_join_warning">لا يمكن استرداد البيانات المستبدلة. أنشئ نسخة احتياطية أولًا إن لم تكن متأكدًا.</string>
+  <string name="cloud_join_next">التالي</string>
+  <string name="cloud_join_back">رجوع</string>
+  <string name="cloud_join_start">بدء المزامنة</string>
+  <string name="cloud_join_replace">استبدال ومزامنة</string>
   <string name="sign_in_failed_lead">تعذّر تسجيل الدخول إلى خدمة المزامنة.</string>
   <string name="sync_too_old_lead">هذا التطبيق قديم جدًا لمزامنة %s.</string>
   <string name="sync_too_old_detail">تستخدم بيانات السحابة إصدارًا أحدث مما يدعمه هذا التطبيق. أُوقفت مزامنتها مؤقتًا؛ حدّث التطبيق لتشغيلها مرة أخرى.</string>
@@ -2337,4 +2427,21 @@
   <string name="new_sync_targets_lead">يمكن الآن مزامنة المزيد من بياناتك</string>
   <string name="new_sync_targets_detail">يمكن مزامنة مستنداتي وإعدادات الذكاء الاصطناعي وتقدم القراءة أيضًا. فعّلها في إعدادات مزامنة الأجهزة.</string>
   <!--end dialog copy: B3b-->
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="zero">تم تخطي %1$d عنصر من مجموعة الإضافة. استخدم \"نسخ إلى تسمياتي\" على التسمية للحصول على نسختك الخاصة.</item>
+    <item quantity="one">تم تخطي عنصر واحد من مجموعة الإضافة. استخدم \"نسخ إلى تسمياتي\" على التسمية للحصول على نسختك الخاصة.</item>
+    <item quantity="two">تم تخطي عنصرين من مجموعة الإضافة. استخدم \"نسخ إلى تسمياتي\" على التسمية للحصول على نسختك الخاصة.</item>
+    <item quantity="few">تم تخطي %1$d عناصر من مجموعة الإضافة. استخدم \"نسخ إلى تسمياتي\" على التسمية للحصول على نسختك الخاصة.</item>
+    <item quantity="many">تم تخطي %1$d عنصرًا من مجموعة الإضافة. استخدم \"نسخ إلى تسمياتي\" على التسمية للحصول على نسختك الخاصة.</item>
+    <item quantity="other">تم تخطي %1$d عنصر من مجموعة الإضافة. استخدم \"نسخ إلى تسمياتي\" على التسمية للحصول على نسختك الخاصة.</item>
+  </plurals>
+  <plurals name="sync_pending_changes">
+    <item quantity="zero">%1$d تغيير</item>
+    <item quantity="one">تغيير واحد</item>
+    <item quantity="two">تغييران</item>
+    <item quantity="few">%1$d تغييرات</item>
+    <item quantity="many">%1$d تغييرًا</item>
+    <item quantity="other">%1$d تغيير</item>
+  </plurals>
 </resources>

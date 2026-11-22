@@ -235,7 +235,7 @@ class AbDialogShellTest {
         compose.setContent {
             AbTheme {
                 AbMessageDialog(
-                    title = null, html = "Html body text", confirmText = "OK", onConfirm = {},
+                    title = "Lead", html = "Html body text", confirmText = "OK", onConfirm = {},
                     onDismissRequest = {}, detail = "Detail text",
                 )
             }
@@ -245,6 +245,22 @@ class AbDialogShellTest {
         val detail = compose.onNodeWithTag("dialog-detail").rootBounds()
         val body = compose.onNodeWithText("Html body text").rootBounds()
         assertEquals("gap between detail and body", 10 * d, body.top - detail.bottom, 2f * d)
+    }
+
+    @Test fun untitledMessageDialogPutsTenDpBetweenQuestionAndDetailBelowIt() {
+        compose.setContent {
+            AbTheme {
+                AbMessageDialog(
+                    title = null, html = "Html body text", confirmText = "OK", onConfirm = {},
+                    onDismissRequest = {}, detail = "Detail text",
+                )
+            }
+        }
+        compose.waitForIdle()
+        val d = compose.density.density
+        val detail = compose.onNodeWithTag("dialog-detail").rootBounds()
+        val body = compose.onNodeWithText("Html body text").rootBounds()
+        assertEquals("gap between body and detail", 10 * d, detail.top - body.bottom, 2f * d)
     }
 
     @Test fun leadTopDividerAppearsAfterScrollingTheLead() {

@@ -141,6 +141,48 @@ AndBibleProvidesFont=Desktop Study;css/extra.woff2
         assertNotNull(h.resolve("$BUNDLE_ORIGIN/module/KJV/pic.png"))
     }
 
+    /**
+     * #4185: ThML modules such as EpiphanyMaps (AndBible Extra) write module-absolute image sources
+     * (`<img src="/images/modern.jpg"/>`), so Figure.vue asks for `/module/EpiphanyMaps//images/modern.jpg`.
+     * Android's `File(location, "/images/modern.jpg")` resolves that under the book; the desktop must too.
+     */
+    @Test fun moduleAbsoluteImageSourceServedThroughTheRequestHandler() {
+        val maps = tmp.resolve("modules/lexdict/rawld4/epiphany-maps").createDirectories()
+        maps.resolve("images").createDirectories().resolve("modern.jpg").writeText("jpg")
+        val r = DesktopPageAssetRoutes(
+            backgrounds = { emptyMap() },
+            bookLocation = { if (it == "EpiphanyMaps") maps else null },
+            bookStyleFile = { null },
+            verify = { _, _ -> false },
+        )
+        val h = BundleRequestHandler(tmp.resolve("bundle").createDirectories(), pageAssets = r)
+        val served = assertNotNull(h.resolve("$BUNDLE_ORIGIN/module/EpiphanyMaps//images/modern.jpg"))
+        assertEquals(maps.resolve("images/modern.jpg"), served.file)
+        assertEquals("image/jpeg", served.mimeType)
+        for (u in listOf(
+            "/module/EpiphanyMaps//../KJV/pic.png", "/module/EpiphanyMaps//%2e%2e/KJV/pic.png",
+            "/module/EpiphanyMaps//images/../../KJV/pic.png", "/module/EpiphanyMaps//C:/Windows/win.ini",
+            "/module/EpiphanyMaps/C:%5cWindows%5cwin.ini",
+        )) assertNull(h.resolve("$BUNDLE_ORIGIN$u"), u)
+        // A host-absolute path names a file under the book, never the host file itself.
+        assertNull(h.resolve("$BUNDLE_ORIGIN/module/EpiphanyMaps/$secret"))
+        val decoy = maps.resolve(secret.toString().trimStart('/')).also { it.parent.createDirectories(); it.writeText("decoy") }
+        assertEquals(decoy, assertNotNull(h.resolve("$BUNDLE_ORIGIN/module/EpiphanyMaps/$secret")).file)
+    }
+
+    /**
+     * #4185: on Windows `URI.getPath()` is `/C:/...`, which `Paths.get` refuses; the book directory comes from the URI.
+     * The Windows parser cannot run on Linux, so this pins the URI-based conversion and the non-file cases only.
+     */
+    @Test fun bookDirectoryComesFromTheLocationUri() {
+        val dir = tmp.resolve("Jane Doe/modules/maps").createDirectories()
+        assertEquals(dir, DesktopPageAssetRoutes.bookDirectory(dir.toUri()))
+        assertEquals(dir, DesktopPageAssetRoutes.bookDirectory(java.net.URI(dir.toUri().toString())))
+        assertNull(DesktopPageAssetRoutes.bookDirectory(java.net.URI("https://example.org/modules/maps/")))
+        assertNull(DesktopPageAssetRoutes.bookDirectory(java.net.URI("maps/")))
+        assertNull(DesktopPageAssetRoutes.bookDirectory(null))
+    }
+
     @Test fun unknownModule404() {
         val r = routes()
         assertNull(r.resolve("/module/NOPE/pic.png"))

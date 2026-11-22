@@ -15,6 +15,7 @@ import net.bible.sharedui.components.AbSheetContentMaxHeight
 import net.bible.sharedui.navigation.DocumentQuickContent
 import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
+import net.bible.sharedcore.navigation.allTabGroupRank
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -116,6 +117,13 @@ class DocumentQuickGoldenTest {
         ),
     )
 
+    private fun mapRow() = DocRow(
+        docId = "Maps", osisId = "Maps", abbreviation = "Maps", name = "Bible Atlas",
+        language = english, repository = "CrossWire", category = DocCategory.MAPS,
+        installStatus = DocInstallStatus.INSTALLED, percentDone = 0, recommended = false,
+        badWarn = false, locked = false, enciphered = false, canDelete = true, installSizeMb = 8.0,
+    )
+
     @Test fun documentQuick_recent() = captureMatrix("DocumentQuick", "recent") {
         Box(Modifier.heightIn(max = AbSheetContentMaxHeight)) {
             DocumentQuickContent(rows = sampleRows(), currentDocId = "KJV", onSelect = {})
@@ -186,11 +194,11 @@ class DocumentQuickGoldenTest {
         }
     }
 
-    /** The Commentary toolbar button's scoped sheet: Recent / This verse / All, commentaries, books and dictionaries. */
+    /** The Documents sheet (second toolbar button): All tab grouped by type, maps included. */
     @Test fun documentQuick_inSheet_commentaryScope() = captureMatrix("DocumentQuick", "inSheet_commentaryScope", heightDp = 650) {
         SheetSurface {
             AbQuickSheetContent(
-                title = "Commentary",
+                title = LocalStrings.current.documentsSheetTitle,
                 onClose = {},
                 tabs = listOf(
                     AbQuickSheetTab("RECENT", LocalStrings.current.documentTabRecent),
@@ -201,11 +209,20 @@ class DocumentQuickGoldenTest {
                 canScrollForward = { false },
                 footer = { AbQuickSheetFooterRow(text = LocalStrings.current.allDocuments, onClick = {}) },
             ) {
+                val strings = LocalStrings.current
                 DocumentQuickContent(
-                    rows = sampleRows().filter { it.category in setOf(DocCategory.COMMENTARY, DocCategory.GENERAL_BOOK, DocCategory.DICTIONARY) }
-                        .sortedWith(compareBy({ it.language.code }, { it.abbreviation })),
+                    rows = (sampleRows() + mapRow()).filter { it.category != DocCategory.BIBLE }
+                        .sortedWith(compareBy<DocRow>({ allTabGroupRank(it.category) }, { it.language.code }, { it.abbreviation })),
                     currentDocId = "MHC",
                     onSelect = {},
+                    groupHeader = { category ->
+                        when (category) {
+                            DocCategory.COMMENTARY -> strings.docTypeCommentary
+                            DocCategory.DICTIONARY -> strings.docTypeDictionary
+                            DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
+                            else -> strings.docTypeMaps
+                        }
+                    },
                 )
             }
         }

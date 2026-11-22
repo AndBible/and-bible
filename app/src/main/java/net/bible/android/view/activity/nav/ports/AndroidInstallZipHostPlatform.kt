@@ -20,6 +20,7 @@ import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.fromUri
 import net.bible.service.installzip.DocumentInstallService
+import net.bible.service.installzip.DecisionRequest
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.JobId
 import net.bible.sharedui.app.installzip.InstallZipHostPlatform
@@ -61,7 +62,8 @@ class AndroidInstallZipHostPlatform(private val activity: NavHostComposeActivity
 
     override fun formatsText(): String = installZipFormatsText(context)
 
-    override fun resolveDecision(jobId: JobId, proceed: Boolean) = DocumentInstallService.resolveDecision(jobId, proceed)
+    override fun resolveDecision(jobId: JobId, request: DecisionRequest, proceed: Boolean) =
+        DocumentInstallService.resolveDecision(jobId, request, proceed)
 
     override fun mapPhase(job: InstallJobState): InstallUiState = mapPhaseToUiState(context, job.phase, job.displayName)
 
