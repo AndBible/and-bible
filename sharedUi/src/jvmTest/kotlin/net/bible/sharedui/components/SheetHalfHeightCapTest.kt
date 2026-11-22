@@ -272,12 +272,8 @@ class SheetHalfHeightCapTest {
         waitForIdle()
         assertCapped(h, "label assign $window")
         assertOnScreen(strings.assignLabelsLabel, h, "label assign $window")
-        // The label header (search field, chips) is ~150dp and sits inside the body, so in a 360dp-high landscape
-        // window (cap 180dp, minus the title) no room is left for the list: Tasks 2-3 of #4207
-        // compact that header, and the list is asserted reachable there. Portrait has the room today.
-        if (window.height > window.width) {
-            assertListReachesLastRow("Label 40", "label assign $window")
-        }
+        // The compact header (one chip row, #4207) leaves the list room even in a 360dp-high landscape window.
+        assertListReachesLastRow("Label 40", "label assign $window")
         } finally {
             scope.cancel()
         }

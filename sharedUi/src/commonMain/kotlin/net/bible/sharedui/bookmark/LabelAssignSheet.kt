@@ -43,6 +43,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.ManageLabelsMode
@@ -51,7 +76,6 @@ import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.components.AbIcons
 import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetContent
-import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.LocalAbSheetAnimatedClose
 import net.bible.sharedui.components.abFilterChipBorder
 import net.bible.sharedui.components.abFilterChipColors
@@ -59,6 +83,8 @@ import net.bible.sharedui.strings.LocalStrings
 
 /** Test tags of the assign sheet's own controls. */
 const val LABEL_ASSIGN_SEARCH_TAG = "label-assign-search"
+/** The collapsed search: a chip in the chip row that opens the field. */
+const val LABEL_ASSIGN_SEARCH_CHIP_TAG = "label-assign-search-chip"
 const val LABEL_ASSIGN_FILTER_FAVOURITE_TAG = "label-assign-filter-favourite"
 const val LABEL_ASSIGN_FILTER_AUTO_ASSIGN_TAG = "label-assign-filter-auto-assign"
 const val LABEL_ASSIGN_SEARCH_CONTAINS_TAG = "label-assign-search-contains"
@@ -191,42 +217,58 @@ fun LabelAssignSheetContent(
 ) {
     val strings = LocalStrings.current
     Column(Modifier.fillMaxWidth()) {
-        AbSearchField(
-            value = state.searchText,
-            onValueChange = actions.onSearch,
-            placeholder = strings.labelsSearchHint,
-            modifier = Modifier.testTag(LABEL_ASSIGN_SEARCH_TAG),
-            verticalPadding = 4.dp,
-        )
-        // One line that scrolls sideways, not a wrapping FlowRow: three wrapped chips took a third of the sheet.
+        // Open = the user tapped the chip (saveable) or a search text is already there (restored, or set by the host).
+        var tapped by rememberSaveable { mutableStateOf(false) }
+        val open = tapped || state.searchText.isNotEmpty()
+        val collapse = {
+            tapped = false
+            actions.onSearch("")
+        }
+        // Closed: one line that scrolls sideways, not a wrapping FlowRow. Open: the field takes the remaining width
+        // (a weight cannot sit inside a scroll), with Favourites and Auto-assign reduced to their icons.
+        val rowModifier = Modifier.fillMaxWidth().then(if (open) Modifier else Modifier.horizontalScroll(rememberScrollState()))
+            .padding(horizontal = 16.dp)
         Row(
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+            modifier = rowModifier,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (open) {
+                SearchField(state, actions, focusOnOpen = tapped, onCollapse = collapse, modifier = Modifier.weight(1f))
+            } else {
+                AssignChip(
+                    selected = false,
+                    text = strings.labelsSearchHint,
+                    tag = LABEL_ASSIGN_SEARCH_CHIP_TAG,
+                    icon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    onClick = { tapped = true },
+                )
+            }
             val favourite = LabelFilter.FAVOURITE in state.filters
             AssignChip(
                 selected = favourite,
-                text = strings.labelAssignFilterFavourites,
+                text = if (open) null else strings.labelAssignFilterFavourites,
                 tag = LABEL_ASSIGN_FILTER_FAVOURITE_TAG,
-                icon = { Icon(if (favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, contentDescription = null) },
+                icon = {
+                    Icon(
+                        if (favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = if (open) strings.labelAssignFilterFavourites else null,
+                    )
+                },
                 onClick = { actions.onToggleFilter(LabelFilter.FAVOURITE) },
             )
             val autoAssign = LabelFilter.AUTO_ADD in state.filters
             AssignChip(
                 selected = autoAssign,
-                text = strings.labelAssignFilterAutoAssign,
+                text = if (open) null else strings.labelAssignFilterAutoAssign,
                 tag = LABEL_ASSIGN_FILTER_AUTO_ASSIGN_TAG,
-                icon = { Icon(if (autoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline, contentDescription = null) },
+                icon = {
+                    Icon(
+                        if (autoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline,
+                        contentDescription = if (open) strings.labelAssignFilterAutoAssign else null,
+                    )
+                },
                 onClick = { actions.onToggleFilter(LabelFilter.AUTO_ADD) },
-            )
-            // Icon only, named for screen readers: with three labelled chips the third was cut off on a phone.
-            val contains = state.searchMode == SearchMode.NAME_CONTAINS
-            AssignChip(
-                selected = contains,
-                text = null,
-                tag = LABEL_ASSIGN_SEARCH_CONTAINS_TAG,
-                icon = { Icon(Icons.Filled.Abc, contentDescription = strings.labelAssignSearchContains) },
-                onClick = { actions.onSetSearchMode(if (contains) SearchMode.NAME_START else SearchMode.NAME_CONTAINS) },
             )
         }
         ManageLabelsList(
@@ -243,6 +285,71 @@ fun LabelAssignSheetContent(
             iconSlot = actions.iconSlot,
             listState = listState,
         )
+    }
+}
+
+/**
+ * The open search: a chip-shaped text field (same 32dp height as the chips, in the same 48dp touch row, so the sheet
+ * does not grow when it opens) with the Abc contains toggle and a clear icon at its end. Clear and Escape both empty
+ * the text and collapse back to the chip; Escape is consumed only here, so with the search closed it falls through to
+ * the sheet's own dismissal. Nothing animates.
+ */
+@Composable
+private fun SearchField(
+    state: LabelAssignSheetState,
+    actions: LabelAssignSheetActions,
+    focusOnOpen: Boolean,
+    onCollapse: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val strings = LocalStrings.current
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(focusOnOpen) {
+        if (focusOnOpen) runCatching { focusRequester.requestFocus() }
+    }
+    val ink = MaterialTheme.colorScheme.onSurface
+    val contains = state.searchMode == SearchMode.NAME_CONTAINS
+    Row(
+        modifier = modifier.height(32.dp)
+            .border(abFilterChipBorder(true, false), FilterChipDefaults.shape)
+            .padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp), tint = ink)
+        Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.CenterStart) {
+            if (state.searchText.isEmpty()) {
+                Text(
+                    strings.labelsSearchHint, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelLarge, color = ink.copy(alpha = 0.6f),
+                )
+            }
+            BasicTextField(
+                value = state.searchText,
+                onValueChange = actions.onSearch,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.labelLarge.copy(color = ink),
+                cursorBrush = SolidColor(ink),
+                modifier = Modifier.fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .onPreviewKeyEvent { event ->
+                        if (event.key == Key.Escape) {
+                            if (event.type == KeyEventType.KeyDown) onCollapse()
+                            true
+                        } else false
+                    }
+                    .testTag(LABEL_ASSIGN_SEARCH_TAG),
+            )
+        }
+        AssignChip(
+            selected = contains,
+            text = null,
+            tag = LABEL_ASSIGN_SEARCH_CONTAINS_TAG,
+            icon = { Icon(Icons.Filled.Abc, contentDescription = strings.labelAssignSearchContains) },
+            onClick = { actions.onSetSearchMode(if (contains) SearchMode.NAME_START else SearchMode.NAME_CONTAINS) },
+        )
+        IconButton(onClick = onCollapse, modifier = Modifier.size(32.dp)) {
+            Icon(Icons.Filled.Clear, contentDescription = strings.searchClear, modifier = Modifier.size(18.dp))
+        }
     }
 }
 

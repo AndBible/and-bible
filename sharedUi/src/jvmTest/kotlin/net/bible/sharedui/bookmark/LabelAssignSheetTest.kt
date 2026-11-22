@@ -27,7 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.isToggleable
@@ -107,6 +111,7 @@ class LabelAssignSheetTest {
 
     private var editLabels = 0
     private var newLabel = 0
+    private var closed = 0
     private val editedLabels = mutableListOf<String>()
 
     private fun ComposeUiTest.show(controller: ManageLabelsController) {
@@ -137,7 +142,7 @@ class LabelAssignSheetTest {
                                 newLabelIcon = { onClick -> IconButton(onClick = onClick) { Text("+") } },
                                 iconSlot = { _, _ -> },
                             ),
-                            onClose = {},
+                            onClose = { closed++ },
                         )
                     }
                 }
@@ -152,6 +157,7 @@ class LabelAssignSheetTest {
     @Test fun searchNarrowsTheListByNameStartAndTheContainsChipWidensIt() = runComposeUiTest {
         val controller = controller()
         show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
         onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextInput("ser")
         waitForIdle()
         assertEquals(setOf("Sermon notes", "Sermon ideas"), names(controller))
@@ -231,5 +237,77 @@ class LabelAssignSheetTest {
         waitForIdle()
         assertEquals(listOf("3"), editedLabels)
         assertTrue("3" !in controller.resultSelected(), "a long press does not tick")
+    }
+
+    @Test fun atRestThereIsASearchChipAndNeitherTheFieldNorTheContainsToggle() = runComposeUiTest {
+        show(controller())
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertExists()
+        onNodeWithText(strings.labelsSearchHint).assertExists()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertDoesNotExist()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).assertDoesNotExist()
+        onNodeWithTag(LABEL_ASSIGN_FILTER_FAVOURITE_TAG).assertExists()
+        onNodeWithText(strings.labelAssignFilterFavourites).assertExists()
+    }
+
+    @Test fun tappingTheChipOpensAFocusedFieldAndTheFiltersBecomeIconOnly() = runComposeUiTest {
+        val controller = controller()
+        show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        waitForIdle()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertIsFocused()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertDoesNotExist()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).assertExists()
+        onNodeWithText(strings.labelAssignFilterFavourites).assertDoesNotExist()
+        onNodeWithContentDescription(strings.labelAssignFilterFavourites).assertExists()
+        onNodeWithContentDescription(strings.labelAssignFilterAutoAssign).assertExists()
+        onNodeWithTag(LABEL_ASSIGN_FILTER_FAVOURITE_TAG).performClick()
+        waitForIdle()
+        assertEquals(setOf("Sermon notes", "Promises"), names(controller), "filters still work while the search is open")
+    }
+
+    @Test fun theClearIconEmptiesTheTextAndCollapsesBackToTheChip() = runComposeUiTest {
+        val controller = controller()
+        show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextInput("ser")
+        waitForIdle()
+        assertEquals(setOf("Sermon notes", "Sermon ideas"), names(controller))
+        onNodeWithContentDescription(strings.searchClear).performClick()
+        waitForIdle()
+        assertEquals("", controller.searchText.value)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertDoesNotExist()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertExists()
+        assertEquals(4, names(controller).size, "the list is unfiltered again")
+    }
+
+    @Test fun escapeOnTheFieldClearsAndCollapsesWithoutLeavingTheSheet() = runComposeUiTest {
+        val controller = controller()
+        show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextInput("ser")
+        waitForIdle()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performKeyInput { pressKey(Key.Escape) }
+        waitForIdle()
+        assertEquals("", controller.searchText.value)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertDoesNotExist()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertExists()
+        assertEquals(0, closed, "the first Escape only closes the search")
+    }
+
+    @Test fun aNonEmptySearchTextRendersTheFieldOpen() = runComposeUiTest {
+        val controller = controller()
+        controller.setSearch("ser")
+        show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertExists()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertDoesNotExist()
+    }
+
+    @Test fun theContainsToggleSitsInTheOpenFieldRow() = runComposeUiTest {
+        val controller = controller()
+        show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).performClick()
+        waitForIdle()
+        assertEquals(SearchMode.NAME_CONTAINS, controller.searchMode.value)
     }
 }
