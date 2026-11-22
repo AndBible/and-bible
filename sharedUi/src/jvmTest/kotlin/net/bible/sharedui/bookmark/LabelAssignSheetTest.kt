@@ -31,6 +31,7 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -207,12 +208,19 @@ class LabelAssignSheetTest {
         assertTrue("3" !in controller.resultSelected())
     }
 
-    @Test fun theFooterAndTheHeaderActionReachTheHost() = runComposeUiTest {
+    @Test fun theEditLabelsIconAndTheNewActionReachTheHost() = runComposeUiTest {
         show(controller())
-        onNodeWithText(strings.labelAssignEditLabels).performClick()
+        onNodeWithContentDescription(strings.labelAssignEditLabels).assertExists()
+        onNodeWithTag(LABEL_ASSIGN_EDIT_LABELS_TAG).performClick()
         onNodeWithText("+").performClick()
         assertEquals(1, editLabels)
         assertEquals(1, newLabel)
+    }
+
+    @Test fun editLabelsIsAHeaderIconAndThereIsNoFooterRow() = runComposeUiTest {
+        show(controller())
+        onNodeWithText(strings.labelAssignEditLabels).assertDoesNotExist()
+        onNodeWithTag(LABEL_ASSIGN_EDIT_LABELS_TAG).assertExists()
     }
 
     /** Below 480dp the rows have no toggles; the long press opens the label's editor, where they are. */

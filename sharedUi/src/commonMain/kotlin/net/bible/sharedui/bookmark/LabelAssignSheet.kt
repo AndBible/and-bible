@@ -34,8 +34,10 @@ import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -49,7 +51,6 @@ import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.components.AbIcons
 import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetContent
-import net.bible.sharedui.components.AbQuickSheetFooterRow
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.LocalAbSheetAnimatedClose
 import net.bible.sharedui.components.abFilterChipBorder
@@ -99,16 +100,16 @@ class LabelAssignSheetActions(
 
 /**
  * "Assign labels" as a bottom sheet (issue #4201), on the reading view's quick-sheet shell like the
- * workspace switcher: a header with the New (+) action, the search field and filter chips, the SAME
- * label list the full-screen [ManageLabelsScreen] draws ([ManageLabelsList] in [ManageLabelsMode.ASSIGN]),
- * and an "Edit labels" footer that opens the full-screen list.
+ * workspace switcher: a header with the New (+) and Edit labels (pencil) actions, the search field and filter chips, the SAME
+ * label list the full-screen [ManageLabelsScreen] draws ([ManageLabelsList] in [ManageLabelsMode.ASSIGN]).
+ * The pencil opens that full-screen list; there is no footer (#4207: the sheet is capped at half the window).
  *
  * A row tap ticks the label (in the full screen it opens the editor). A long press, and New (+), open the
  * full-screen label editor: on a phone the rows have no toggles ([manageLabelsRowTogglesShown]), so the editor is
  * where the main label, favourite and auto-assign are set. [onDismiss] is every close (swipe, scrim, back, ✕); the
  * host saves on it when something changed, as the full screen's Back does.
  *
- * The footer, New (+) and the long press slide the sheet away before they act, like ✕ does
+ * The pencil, New (+) and the long press slide the sheet away before they act, like ✕ does
  * ([LocalAbSheetAnimatedClose]; at once with "Disable animations").
  *
  * ROBORAZZI: never capture this composable; capture [LabelAssignSheetFrame].
@@ -120,20 +121,23 @@ fun LabelAssignSheet(state: LabelAssignSheetState, actions: LabelAssignSheetActi
     AbQuickSheet(
         open = true,
         title = state.title,
-        actions = { NewLabelAction(actions) },
+        actions = { HeaderActions(actions) },
         onDismiss = onDismiss,
         canScrollForward = { listState.canScrollForward },
-        footer = { EditLabelsFooter(actions.onEditLabels) },
         bodyFillsSheetCap = true,
     ) {
         LabelAssignSheetContent(state, actions, listState)
     }
 }
 
+/** The header's actions: New (+), then Edit labels (the pencil, which [LabelAssignSheet] shows instead of a footer). */
 @Composable
-private fun RowScope.NewLabelAction(actions: LabelAssignSheetActions) {
+private fun RowScope.HeaderActions(actions: LabelAssignSheetActions) {
     val onClick = hideSheetThen(actions.onNewLabel)
     actions.newLabelIcon(this, onClick)
+    IconButton(onClick = hideSheetThen(actions.onEditLabels), modifier = Modifier.testTag(LABEL_ASSIGN_EDIT_LABELS_TAG)) {
+        Icon(Icons.Outlined.Edit, contentDescription = LocalStrings.current.labelAssignEditLabels)
+    }
 }
 
 /**
@@ -152,7 +156,7 @@ private fun hideSheetThen(action: (String) -> Unit): (String) -> Unit {
     return { id -> if (animatedClose != null) animatedClose { action(id) } else action(id) }
 }
 
-/** [LabelAssignSheet] without the modal window: the same header, body and footer, for goldens and UI tests. */
+/** [LabelAssignSheet] without the modal window: the same header and body, for goldens and UI tests. */
 @kotlin.native.HiddenFromObjC
 @Composable
 fun LabelAssignSheetFrame(
@@ -164,19 +168,11 @@ fun LabelAssignSheetFrame(
     AbQuickSheetContent(
         title = state.title,
         onClose = onClose,
-        actions = { NewLabelAction(actions) },
+        actions = { HeaderActions(actions) },
         canScrollForward = { listState.canScrollForward },
-        footer = { EditLabelsFooter(actions.onEditLabels) },
         bodyFillsSheetCap = true,
     ) {
         LabelAssignSheetContent(state, actions, listState)
-    }
-}
-
-@Composable
-private fun EditLabelsFooter(onEditLabels: () -> Unit) {
-    Column(Modifier.testTag(LABEL_ASSIGN_EDIT_LABELS_TAG)) {
-        AbQuickSheetFooterRow(text = LocalStrings.current.labelAssignEditLabels, onClick = hideSheetThen(onEditLabels))
     }
 }
 
