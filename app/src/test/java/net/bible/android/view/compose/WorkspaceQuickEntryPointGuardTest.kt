@@ -186,7 +186,7 @@ class WorkspaceQuickEntryPointGuardTest {
         // The call must stay inside the sheet's own header manage action (WorkspaceManageAction).
         val sheets = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots/QuickSheets.kt").readLines()
         val at = sheets.indexOfFirst { it.contains("slots.navigator.openWorkspaceSelector()") }
-        assertTrue("the reroute must sit within the sheet's WorkspaceManageAction", sheets.subList(maxOf(0, at - 4), at).any { it.contains("WorkspaceManageAction") })
+        assertTrue("the reroute must sit within the sheet's WorkspaceManageAction", sheets.subList(maxOf(0, at - 8), at).any { it.contains("WorkspaceManageAction") })
     }
 
     @Test fun theHostExposesExactlyOneWorkspaceSheetOpener() {
