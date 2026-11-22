@@ -1016,6 +1016,8 @@ class ManageLabelsControllerTest {
         assertFalse(several.bookmarkLabelsChanged())
         several.toggleFavourite("A"); several.toggleAutoAssign("B")
         assertFalse(several.bookmarkLabelsChanged(), "favourites and auto-assign are not the bookmarks' labels")
+        several.applyLabelDeleted("B", orphaned = false)
+        assertFalse(several.bookmarkLabelsChanged(), "a deleted label leaves its bookmarks through the delete itself")
         several.toggleChecked("C")
         assertTrue(several.bookmarkLabelsChanged())
 

@@ -510,10 +510,12 @@ class ManageLabelsController(
      * label does and there was one to begin with. With no seeded main label (several bookmarks selected, whose payload
      * carries none) a main label appears as a side effect of ticking (`ensureNotContextPrimary`), even when the ticks
      * end where they started, so it does not count there (issue #4201, review round 3). Label edits, favourites and
-     * auto-assign do not count: they are saved without touching the bookmarks.
+     * auto-assign do not count: they are saved without touching the bookmarks. Nor does a deleted label leaving the
+     * ticks: the label's delete removes it from its bookmarks (foreign-key cascade).
      */
     fun bookmarkLabelsChanged(): Boolean =
-        selected != seedSelected || (seedBookmarkPrimary != null && bookmarkPrimary != seedBookmarkPrimary)
+        selected != seedSelected - deleted - deletedWithOrphaned ||
+            (seedBookmarkPrimary != null && bookmarkPrimary != seedBookmarkPrimary)
 
     // ---- result snapshot for the host to build ManageLabelsData ----
     fun resultSelected(): Set<String> = selected

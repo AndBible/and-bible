@@ -17,6 +17,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
+import androidx.savedstate.read
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -1547,8 +1548,15 @@ class BookmarkHost(
                 Log.e(TAG_MANAGE_LABELS, "Could not close the assign sheet's label editor", e)
             }
             labelEditResults?.consume()
+            dropLabelEditSession(entry)
         }
         binding.session?.pendingEdit = null
+    }
+
+    /** Forgets the editor draft of [entry], popped without its controller's answer, so no later save offers it again. */
+    private fun dropLabelEditSession(entry: NavBackStackEntry) {
+        val payload = entry.arguments?.read { getStringOrNull(NavRoutes.ARG_LABEL_DATA) }
+        if (payload != null && labelEditSession?.first == payload) labelEditSession = null
     }
 
     /**
@@ -1557,7 +1565,8 @@ class BookmarkHost(
      * nobody to take its Save. Pops it once the restored stack is in place, and drops its restored draft.
      */
     private fun popOrphanedSheetEditorOnRestore(nav: NavHostController) {
-        shell.hostScope.launch {
+        // Dispatched, not immediate: the restored stack is published from inside the controller's own graph set-up.
+        shell.hostScope.launch(Dispatchers.Main) {
             val stack = nav.currentBackStack.first { it.isNotEmpty() }
             val top = stack.last()
             if (top.destination.route != NavRoutes.LABEL_EDIT_PATTERN) return@launch
@@ -1567,6 +1576,7 @@ class BookmarkHost(
             if (nav.currentBackStackEntry?.id != top.id) return@launch
             nav.popBackStack()
             labelEditResults?.consume()
+            dropLabelEditSession(top)
             updateRestored { it?.copy(editorKey = null, editorDraft = null, pendingLabel = null, pendingLabelIsNew = false) }
         }
     }
