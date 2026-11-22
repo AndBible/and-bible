@@ -75,6 +75,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -215,10 +216,11 @@ fun LabelAssignSheetFrame(
 }
 
 /**
- * The sheet's body: search field, filter chips, then the shared list. The chips are always shown
- * (unlike the full screen's options sheet, which offers the filters only beside visible ⚡/♥
- * columns): their icons are the columns' own, so they explain themselves, and in a short sheet they
- * are the quickest way to the user's favourite labels.
+ * The sheet's body: one chip row, then the shared list. At rest the row is a Search chip plus the Favourites and
+ * Auto-assign filter chips (always shown, unlike the full screen's options sheet: their icons are the columns' own,
+ * and in a short sheet they are the quickest way to the user's favourite labels). The Search chip opens an inline
+ * field in the same row (Favourites and Auto-assign shrink to icons, the Abc toggle sits in the field); clear or
+ * Escape closes it.
  */
 @kotlin.native.HiddenFromObjC
 @Composable
@@ -230,12 +232,15 @@ fun LabelAssignSheetContent(
     val strings = LocalStrings.current
     Column(Modifier.fillMaxWidth()) {
         // Open = the user tapped the chip (saveable) or a search text is already there (restored, or set by the host).
+        // `tapped`: the user tapped the chip, so the field takes focus. `keepOpen`: latched once the field is shown,
+        // so backspacing host-set text to empty does not close it; it never focuses (a restored search stays unfocused).
         var tapped by rememberSaveable { mutableStateOf(false) }
-        val open = tapped || state.searchText.isNotEmpty()
-        // Latch: a field shown only because of host-set text must not close when the user backspaces to empty.
-        LaunchedEffect(open) { if (open) tapped = true }
+        var keepOpen by rememberSaveable { mutableStateOf(false) }
+        val open = tapped || keepOpen || state.searchText.isNotEmpty()
+        LaunchedEffect(open) { if (open) keepOpen = true }
         val collapse = {
             tapped = false
+            keepOpen = false
             actions.onSearch("")
         }
         // Closed: one line that scrolls sideways, not a wrapping FlowRow. Open: the field takes the remaining width
@@ -334,9 +339,11 @@ private fun SearchField(
         Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp), tint = ink)
         Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.CenterStart) {
             if (state.searchText.isEmpty()) {
+                // Visual only: the field itself is named by its contentDescription below (no double announcement).
                 Text(
                     strings.labelsSearchHint, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.labelLarge, color = ink.copy(alpha = 0.6f),
+                    modifier = Modifier.clearAndSetSemantics {},
                 )
             }
             BasicTextField(

@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.performKeyInput
@@ -112,7 +113,6 @@ class LabelAssignSheetTest {
 
     private var editLabels = 0
     private var newLabel = 0
-    private var closed = 0
     private val editedLabels = mutableListOf<String>()
 
     private fun ComposeUiTest.show(controller: ManageLabelsController) {
@@ -143,7 +143,7 @@ class LabelAssignSheetTest {
                                 newLabelIcon = { onClick -> IconButton(onClick = onClick) { Text("+") } },
                                 iconSlot = { _, _ -> },
                             ),
-                            onClose = { closed++ },
+                            onClose = {},
                         )
                     }
                 }
@@ -300,6 +300,8 @@ class LabelAssignSheetTest {
         show(controller)
         onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertExists()
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertDoesNotExist()
+        waitForIdle()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertIsNotFocused()
     }
 
     @Test fun backspacingHostSetTextToEmptyKeepsTheFieldOpen() = runComposeUiTest {
