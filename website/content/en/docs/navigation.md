@@ -311,7 +311,7 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Ctrl+,** (**Cmd+,** on iOS, from the reading screen only) | Open *Application preferences* | Desktop, iOS |
 | **Ctrl+S** (**Cmd+S** on macOS and iOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop, iOS |
 | **F11** | Toggle the reading fullscreen of the app (on iOS and Mac it does not toggle the Mac window's full screen; a Mac keyboard may need **Fn**+**F11**) | Desktop, iOS |
-| **Esc** | Go back, see [below](#esc-key-as-back) | iOS, desktop |
+| **Esc** | Go back, see [below](#esc-key-as-back) | All |
 | **Up / Down** | Scroll the text | All |
 | **Space** | Pause or resume speaking, while speech is not stopped | All |
 
@@ -335,11 +335,15 @@ such as Ctrl+B and Ctrl+F for caret navigation, and Option+arrow navigation.
 
 ### Esc Key as Back {#esc-key-as-back}
 
-With a hardware keyboard on iPhone, iPad, the iOS app on a Mac and the desktop app, **Esc** works
+With a hardware keyboard on Android, iPhone, iPad, the iOS app on a Mac and the desktop app, **Esc** works
 like the Back button: each press closes the topmost open thing (a dialog, popup or sheet, then the
 main menu, the search results and **Find**), and on a screen opened over the Bible text, such as the
 settings or the Bible chooser, it returns to the previous screen.
-On the desktop reading screen, Esc also exits fullscreen; with nothing open it does nothing.
+On the Android and desktop reading screens, Esc also exits fullscreen; with nothing open it does
+nothing (unlike Back, it never steps back through your reading history or closes the app).
+On Android, Esc does not yet close sheets and dialogs that open in their own window, such as
+*Workspaces*, and after you tap the Bible text it closes only popups in the text, not **Find**;
+use Back for those.
 
 On iPhone, iPad and the iOS app on a Mac, while you type in a text field, the
 first Esc only leaves the field (and hides the on-screen keyboard); press Esc
