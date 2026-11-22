@@ -117,14 +117,21 @@ class BookmarkRecreationStateTest {
         )
     }
 
-    private fun openNewAssignedLabel(activity: NavHostComposeActivity, bookmarkId: String) {
-        bookmarks(activity).enterSelection(bookmarkId)
+    /**
+     * Issue #4201: "Assign labels" opens the sheet; its "Edit labels" leads to the full-screen list these tests
+     * recreate. The sheet is expanded with its own payload, as its footer does when nothing was ticked.
+     */
+    private fun assignThroughTheFullScreen(activity: NavHostComposeActivity) {
         bookmarks(activity).assignSelected()
-        // Issue #4201: assigning opens the sheet; its "Edit labels" leads to the full-screen list this test recreates.
         val sheets = activity.appHosts.bookmark.labelAssignSheets
         awaitHostCondition("the assign sheet opens", ::advance) { sheets.current != null }
         sheets.current!!.let { it.finish(net.bible.sharedui.app.bookmark.LabelAssignOutcome.Expand(it.data)) }
         awaitHostRoute(activity, NavRoutes.MANAGE_LABELS_PATTERN, ::advance)
+    }
+
+    private fun openNewAssignedLabel(activity: NavHostComposeActivity, bookmarkId: String) {
+        bookmarks(activity).enterSelection(bookmarkId)
+        assignThroughTheFullScreen(activity)
         awaitHostCondition("manager finishes its DAO label load", ::advance) { manager(activity).rows.value.isNotEmpty() }
         manager(activity).newLabel()
         awaitHostRoute(activity, NavRoutes.LABEL_EDIT_PATTERN, ::advance)
@@ -355,8 +362,7 @@ class BookmarkRecreationStateTest {
         val bookmark = seedBookmark()
         val activity = host()
         bookmarks(activity).enterSelection(bookmark.id.toString())
-        bookmarks(activity).assignSelected()
-        awaitHostRoute(activity, NavRoutes.MANAGE_LABELS_PATTERN, ::advance)
+        assignThroughTheFullScreen(activity)
         awaitHostCondition("manager loaded the first 50 labels", ::advance) { manager(activity).currentLabelItems().size >= 50 }
         val small = savedPayload().length
 
