@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.components.dialog
 
+import net.bible.sharedui.components.OutsideSheetCap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -129,7 +130,7 @@ fun AbDialogShell(
         dismissOnBackPress = properties.dismissOnBackPress,
         dismissOnClickOutside = properties.dismissOnClickOutside,
         usePlatformDefaultWidth = false,
-    )) {
+    )) { OutsideSheetCap {
         if (mono) NoDialogDim()
         val currentOnDismiss by rememberUpdatedState(onDismissRequest)
         // The box fills the dialog window and keeps clear of the on-screen keyboard (`WindowInsets.ime`, not
@@ -251,7 +252,7 @@ fun AbDialogShell(
                 }
             }
         }
-    }
+    }}
 }
 
 /** A 1dp rule shown at an edge of the middle area while more content can be scrolled to in that direction. */

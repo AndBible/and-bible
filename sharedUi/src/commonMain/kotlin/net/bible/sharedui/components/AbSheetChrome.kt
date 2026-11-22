@@ -35,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -251,4 +252,15 @@ fun ColumnScope.AbSheetScrollBound(
     ) {
         content()
     }
+}
+
+/**
+ * Content of a dialog window opened from inside a sheet: a dialog is not under the sheet's half-window cap, so it
+ * resets [LocalAbSheetHeightCapped] (inherited through the composition) to false. Otherwise its [sheetFlexible] and
+ * [sheetVerticalScroll] children would act as if in a capped sheet column (#4207 review). Every dialog root wraps
+ * its window content in this.
+ */
+@Composable
+fun OutsideSheetCap(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalAbSheetHeightCapped provides false, content = content)
 }

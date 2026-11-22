@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.components.dialog
 
+import net.bible.sharedui.components.OutsideSheetCap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -95,7 +96,7 @@ fun AbTextPage(
     Dialog(
         onDismissRequest = { if (cancellable) onClose() else onBack?.invoke() },
         properties = textPageDialogProperties(dismissOnBackPress = cancellable || onBack != null),
-    ) {
+    ) { OutsideSheetCap {
         // The page is opaque and full-screen, so the platform dim would only tint the bars' areas.
         NoDialogDim()
         DialogEdgeToEdge(darkIcons = MaterialTheme.colorScheme.surface.luminance() > 0.5f)
@@ -152,5 +153,5 @@ fun AbTextPage(
                 }
             }
         }
-    }
+    }}
 }

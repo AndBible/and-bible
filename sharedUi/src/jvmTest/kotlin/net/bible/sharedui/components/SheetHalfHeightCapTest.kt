@@ -39,6 +39,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -224,6 +225,117 @@ class SheetHalfHeightCapTest {
             assertOnScreen(strings.settingsEditorApply, h, "text input page $window")
             assertOnScreen(strings.cancel, h, "text input page $window")
         }
+    }
+
+    private val textLabels = net.bible.sharedui.settings.TextDisplaySettingsScreenLabels(
+        resetContentDescription = "Reset all", resetConfirmMessage = "Reset?", revertMessage = "Revert?",
+        revertLabel = "Revert", fontSizeDialogTitle = "Font size", topMarginDialogTitle = "Top margin",
+        lineSpacingDialogTitle = "Line spacing", marginSizeDialogTitle = "Margins",
+        marginLeftLabelFormat = "Left %d", marginRightLabelFormat = "Right %d", marginMaxWidthLabelFormat = "Max width %d",
+        resetToInheritedLabel = "Inherit", badgeWorkspace = "W", badgeGlobal = "G", okLabel = "OK",
+        resetLabel = "Reset", cancelLabel = "Cancel",
+    )
+
+    /**
+     * #4207 review finding 1: the slider pages of the text settings editor keep their Inherit/Cancel/OK row on
+     * screen under the half-window cap (the margins page even in portrait, font size and line spacing in landscape).
+     */
+    private fun textSettingPage(window: Size, type: net.bible.sharedcore.settings.TextSettingType) = run(window) { h ->
+        val value = if (type == net.bible.sharedcore.settings.TextSettingType.MARGINSIZE) {
+            net.bible.sharedcore.settings.TextSettingRowValue.Margins(2, 2, 170, 30, 30, 500, "2 / 2 / 170")
+        } else net.bible.sharedcore.settings.TextSettingRowValue.Numeric(16, 6, 60, "16")
+        val rows = mapOf(type to net.bible.sharedcore.settings.TextSettingRow(
+            type, value, net.bible.sharedcore.settings.InheritedFrom.NONE, enabled = true, visible = true,
+        ))
+        mount {
+            net.bible.sharedui.settings.TextSettingRowEditorSheet(
+                pages = listOf(SettingsEditorPage.Row(type.name)), rows = rows, dialogLabels = textLabels,
+                onNumericChange = { _, _ -> }, onMarginsChange = { _, _, _, _ -> }, onRevert = {}, onPop = {}, onClose = {},
+            )
+        }
+        waitForIdle()
+        val what = "$type page $window"
+        assertCapped(h, what)
+        for (button in listOf("Inherit", "Cancel", "OK")) assertOnScreen(button, h, what)
+    }
+
+    @Test fun marginsPagePortrait() = textSettingPage(portrait, net.bible.sharedcore.settings.TextSettingType.MARGINSIZE)
+    @Test fun marginsPageLandscape() = textSettingPage(landscape, net.bible.sharedcore.settings.TextSettingType.MARGINSIZE)
+    @Test fun fontSizePagePortrait() = textSettingPage(portrait, net.bible.sharedcore.settings.TextSettingType.FONTSIZE)
+    @Test fun fontSizePageLandscape() = textSettingPage(landscape, net.bible.sharedcore.settings.TextSettingType.FONTSIZE)
+    @Test fun lineSpacingPageLandscape() = textSettingPage(landscape, net.bible.sharedcore.settings.TextSettingType.LINE_SPACING)
+
+    /** Re-audit after review finding 1: the Speak sheet's repeat-range page keeps its Cancel/OK row at the cap. */
+    private fun speakRangePage(window: Size) = run(window) { h ->
+        mount {
+            net.bible.sharedui.speak.SpeakSettingsSheet(
+                page = net.bible.sharedcore.speak.SpeakSheetPage.RepeatRange, depth = 2, onDismiss = {}, onClose = {},
+            ) { _, _ ->
+                net.bible.sharedui.speak.SpeakRangeContent(
+                    start = net.bible.sharedcore.speak.PickedVerse("Gen.1.1", "Genesis 1:1", 0),
+                    end = net.bible.sharedcore.speak.PickedVerse("Gen.1.2", "Genesis 1:2", 1),
+                    showOrderError = true, canCommit = true,
+                    onPickStart = {}, onPickEnd = {}, onClear = {}, onConfirm = {}, onCancel = {},
+                )
+            }
+        }
+        waitForIdle()
+        assertCapped(h, "speak range $window")
+        assertOnScreen(strings.cancel, h, "speak range $window")
+        assertOnScreen(strings.okay, h, "speak range $window")
+    }
+
+    @Test fun speakRangePagePortrait() = speakRangePage(portrait)
+    @Test fun speakRangePageLandscape() = speakRangePage(landscape)
+
+    /** Re-audit: the sleep-timer page has no pinned row, but its custom slider must stay reachable by scrolling. */
+    @Test fun sleepTimerPageScrollsToItsSliderInLandscape() = run(landscape) { h ->
+        mount {
+            net.bible.sharedui.speak.SpeakSettingsSheet(
+                page = net.bible.sharedcore.speak.SpeakSheetPage.SleepTimer, depth = 2, onDismiss = {}, onClose = {},
+            ) { _, _ ->
+                net.bible.sharedui.speak.SleepTimerContent(
+                    selection = net.bible.sharedcore.speak.SleepTimerSelection.Custom(17), customMinutes = 17,
+                    onPick = { _, _ -> },
+                )
+            }
+        }
+        waitForIdle()
+        assertCapped(h, "sleep timer $landscape")
+        val value = strings.speakSleepTimerMinutes(17)
+        onNode(hasScrollAction() and SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange))
+            .performScrollToNode(hasText(value))
+        assertOnScreen(value, h, "sleep timer slider")
+    }
+
+    /** #4207 review minor 6: a dialog opened from a sheet is not under the sheet's cap. */
+    @Test fun aDialogOpenedFromASheetIsNotCapped() = run(portrait) { _ ->
+        var capped: Boolean? = null
+        mount {
+            CompositionLocalProvider(LocalAbSheetHeightCapped provides true) {
+                net.bible.sharedui.components.dialog.AbDialogShell(onDismissRequest = {}, buttons = {}, content = {
+                    capped = LocalAbSheetHeightCapped.current
+                    Text("Dialog body")
+                })
+            }
+        }
+        waitForIdle()
+        assertEquals(false, capped)
+    }
+
+    /** #4207 review minor 7: the default drag handle (no description provided) still has a name and a dismiss action. */
+    @Test fun theDefaultDragHandleHasANameAndADismissAction() = run(portrait) { _ ->
+        var dismissed = false
+        mount {
+            AbModalBottomSheet(onDismissRequest = { dismissed = true }) { Text("Body") }
+        }
+        waitForIdle()
+        val handle = onNode(SemanticsMatcher.keyIsDefined(androidx.compose.ui.semantics.SemanticsActions.Dismiss))
+        val description = handle.fetchSemanticsNode().config.getOrElse(SemanticsProperties.ContentDescription) { emptyList() }
+        assertTrue(description.any { it.isNotBlank() }, "drag handle has no name: $description")
+        handle.performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.Dismiss)
+        waitForIdle()
+        assertTrue(dismissed)
     }
 
     private val scope = CoroutineScope(Job() + Dispatchers.Unconfined)

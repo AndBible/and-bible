@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -85,6 +86,7 @@ import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
+import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.components.AbIcons
 import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetContent
@@ -230,19 +232,37 @@ fun LabelAssignSheetContent(
     listState: LazyListState = rememberLazyListState(),
 ) {
     val strings = LocalStrings.current
-    Column(Modifier.fillMaxWidth()) {
-        // Open = the user tapped the chip (saveable) or a search text is already there (restored, or set by the host).
-        // `tapped`: the user tapped the chip, so the field takes focus. `keepOpen`: latched once the field is shown,
-        // so backspacing host-set text to empty does not close it; it never focuses (a restored search stays unfocused).
-        var tapped by rememberSaveable { mutableStateOf(false) }
-        var keepOpen by rememberSaveable { mutableStateOf(false) }
-        val open = tapped || keepOpen || state.searchText.isNotEmpty()
-        LaunchedEffect(open) { if (open) keepOpen = true }
-        val collapse = {
-            tapped = false
-            keepOpen = false
-            actions.onSearch("")
-        }
+    // Open = the user tapped the chip (saveable) or a search text is already there (restored, or set by the host).
+    // `tapped`: the user tapped the chip. `keepOpen`: latched once the field is shown, so backspacing host-set text to
+    // empty does not close it. `focusRequest`: the chip tap itself, NOT saveable, so only that tap focuses the field;
+    // a recreation (rotation) or a restored search reopens it unfocused, without popping the keyboard up again.
+    var tapped by rememberSaveable { mutableStateOf(false) }
+    var keepOpen by rememberSaveable { mutableStateOf(false) }
+    var focusRequest by remember { mutableStateOf(false) }
+    val open = tapped || keepOpen || state.searchText.isNotEmpty()
+    LaunchedEffect(open) { if (open) keepOpen = true }
+    val collapse = {
+        tapped = false
+        keepOpen = false
+        focusRequest = false
+        actions.onSearch("")
+    }
+    // An open search closes before the sheet does, wherever the focus is (the field, a row, a filter, or nowhere after
+    // a restore): Back through the platform back handler (Android Back, desktop Escape-to-back), Escape through the
+    // preview handler on the whole body. With the search closed both fall through to the sheet's own dismissal.
+    PlatformBackHandler(enabled = open) { collapse() }
+    var escapeDown by remember { mutableStateOf(false) }
+    Column(
+        Modifier.fillMaxWidth().onPreviewKeyEvent { event ->
+            if (event.key != Key.Escape) return@onPreviewKeyEvent false
+            when (event.type) {
+                KeyEventType.KeyDown -> if (open) { escapeDown = true; collapse(); true } else false
+                // Swallow the release of the press that collapsed, so it does not reach the sheet as a second Escape.
+                KeyEventType.KeyUp -> if (escapeDown) { escapeDown = false; true } else false
+                else -> open
+            }
+        },
+    ) {
         // Closed: one line that scrolls sideways, not a wrapping FlowRow. Open: the field takes the remaining width
         // (a weight cannot sit inside a scroll), with Favourites and Auto-assign reduced to their icons.
         val rowModifier = Modifier.fillMaxWidth().then(if (open) Modifier else Modifier.horizontalScroll(rememberScrollState()))
@@ -253,14 +273,17 @@ fun LabelAssignSheetContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (open) {
-                SearchField(state, actions, focusOnOpen = tapped, onCollapse = collapse, modifier = Modifier.weight(1f))
+                SearchField(
+                    state, actions, focusOnOpen = focusRequest, onFocusRequested = { focusRequest = false },
+                    onCollapse = collapse, modifier = Modifier.weight(1f),
+                )
             } else {
                 AssignChip(
                     selected = false,
                     text = strings.labelsSearchHint,
                     tag = LABEL_ASSIGN_SEARCH_CHIP_TAG,
                     icon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    onClick = { tapped = true },
+                    onClick = { tapped = true; focusRequest = true },
                 )
             }
             val favourite = LabelFilter.FAVOURITE in state.filters
@@ -310,71 +333,73 @@ fun LabelAssignSheetContent(
 }
 
 /**
- * The open search: a chip-shaped text field (same 32dp height as the chips, in the same 48dp touch row, so the sheet
- * does not grow when it opens) with the Abc contains toggle and a clear icon at its end. Clear and Escape both empty
- * the text and collapse back to the chip; Escape is consumed only here, so with the search closed it falls through to
- * the sheet's own dismissal. Nothing animates.
+ * The open search: a chip-shaped text field (drawn at least 32dp tall like the chips, in the same 48dp touch row, so
+ * the sheet does not grow when it opens; it grows with the text at a large font scale) with the Abc contains toggle
+ * (48dp touch box, drawn 32dp) and a clear icon at its end. Clear empties the text and collapses back to the chip;
+ * Escape and Back do the same through [LabelAssignSheetContent]'s handlers. Nothing animates.
  */
 @Composable
 private fun SearchField(
     state: LabelAssignSheetState,
     actions: LabelAssignSheetActions,
     focusOnOpen: Boolean,
+    onFocusRequested: () -> Unit,
     onCollapse: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(focusOnOpen) {
-        if (focusOnOpen) runCatching { focusRequester.requestFocus() }
+        if (focusOnOpen) {
+            runCatching { focusRequester.requestFocus() }
+            onFocusRequested()
+        }
     }
     val ink = MaterialTheme.colorScheme.onSurface
     val contains = state.searchMode == SearchMode.NAME_CONTAINS
-    Row(
-        modifier = modifier.height(32.dp)
-            .border(abFilterChipBorder(true, false), FilterChipDefaults.shape)
-            .padding(start = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp), tint = ink)
-        Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.CenterStart) {
-            if (state.searchText.isEmpty()) {
-                // Visual only: the field itself is named by its contentDescription below (no double announcement).
-                Text(
-                    strings.labelsSearchHint, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.labelLarge, color = ink.copy(alpha = 0.6f),
-                    modifier = Modifier.clearAndSetSemantics {},
+    // The row is the 48dp touch height; the border is drawn 8dp inside it top and bottom (32dp at the default font),
+    // and the text keeps the same 8dp, so a taller text (large font scale) grows the row and the border with it.
+    Box(modifier.heightIn(min = 48.dp)) {
+        Box(Modifier.matchParentSize().padding(vertical = 8.dp).border(abFilterChipBorder(true, false), FilterChipDefaults.shape))
+        Row(
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(start = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp), tint = ink)
+            Box(Modifier.weight(1f).padding(horizontal = 6.dp, vertical = 8.dp), contentAlignment = Alignment.CenterStart) {
+                if (state.searchText.isEmpty()) {
+                    // Visual only: the field itself is named by its contentDescription below (no double announcement).
+                    Text(
+                        strings.labelsSearchHint, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.labelLarge, color = ink.copy(alpha = 0.6f),
+                        modifier = Modifier.clearAndSetSemantics {},
+                    )
+                }
+                BasicTextField(
+                    value = state.searchText,
+                    onValueChange = actions.onSearch,
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.labelLarge.copy(color = ink),
+                    cursorBrush = SolidColor(ink),
+                    modifier = Modifier.fillMaxWidth()
+                        .semantics { contentDescription = strings.labelsSearchHint }
+                        .focusRequester(focusRequester)
+                        .testTag(LABEL_ASSIGN_SEARCH_TAG),
                 )
             }
-            BasicTextField(
-                value = state.searchText,
-                onValueChange = actions.onSearch,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.labelLarge.copy(color = ink),
-                cursorBrush = SolidColor(ink),
-                modifier = Modifier.fillMaxWidth()
-                    .semantics { contentDescription = strings.labelsSearchHint }
-                    .focusRequester(focusRequester)
-                    .onPreviewKeyEvent { event ->
-                        if (event.key == Key.Escape) {
-                            if (event.type == KeyEventType.KeyDown) onCollapse()
-                            true
-                        } else false
-                    }
-                    .testTag(LABEL_ASSIGN_SEARCH_TAG),
-            )
-        }
-        // Borderless and compact: a bordered chip inside the field's own border read as a chip in a chip.
-        CompactToggle(
-            selected = contains,
-            tag = LABEL_ASSIGN_SEARCH_CONTAINS_TAG,
-            width = 32.dp,
-            height = 32.dp,
-            bordered = false,
-            onClick = { actions.onSetSearchMode(if (contains) SearchMode.NAME_START else SearchMode.NAME_CONTAINS) },
-        ) { Icon(Icons.Filled.Abc, contentDescription = strings.labelAssignSearchContains) }
-        IconButton(onClick = onCollapse, modifier = Modifier.size(32.dp)) {
-            Icon(Icons.Filled.Clear, contentDescription = strings.searchClear, modifier = Modifier.size(18.dp))
+            // Borderless and compact: a bordered chip inside the field's own border read as a chip in a chip.
+            CompactToggle(
+                selected = contains,
+                tag = LABEL_ASSIGN_SEARCH_CONTAINS_TAG,
+                width = 48.dp,
+                height = 48.dp,
+                drawnWidth = 32.dp,
+                bordered = false,
+                onClick = { actions.onSetSearchMode(if (contains) SearchMode.NAME_START else SearchMode.NAME_CONTAINS) },
+            ) { Icon(Icons.Filled.Abc, contentDescription = strings.labelAssignSearchContains) }
+            IconButton(onClick = onCollapse, modifier = Modifier.size(32.dp)) {
+                Icon(Icons.Filled.Clear, contentDescription = strings.searchClear, modifier = Modifier.size(18.dp))
+            }
         }
     }
 }
@@ -410,7 +435,8 @@ private fun AssignChip(
 
 /**
  * A small toggle with the chip's colours (selected: secondaryContainer, or inverted ink in monochrome, no hue). The
- * outer box is [height] tall for touch; the drawn shape is at most 32dp tall, centred. Toggleable semantics like a chip.
+ * outer box is [width] x [height] for touch; the drawn shape is [drawnWidth] wide and at most 32dp tall, centred.
+ * Toggleable semantics like a chip.
  */
 @Composable
 private fun CompactToggle(
@@ -420,6 +446,7 @@ private fun CompactToggle(
     height: Dp,
     bordered: Boolean,
     onClick: () -> Unit,
+    drawnWidth: Dp = width,
     content: @Composable () -> Unit,
 ) {
     val mono = isPureMonochrome()
@@ -435,7 +462,7 @@ private fun CompactToggle(
         else -> scheme.onSecondaryContainer
     }
     val shape = FilterChipDefaults.shape
-    val drawn = Modifier.height(minOf(height, 32.dp)).width(width)
+    val drawn = Modifier.height(minOf(height, 32.dp)).width(drawnWidth)
         .clip(shape)
         .background(container)
         .let { if (bordered) it.border(abFilterChipBorder(true, selected) ?: BorderStroke(0.dp, Color.Transparent), shape) else it }

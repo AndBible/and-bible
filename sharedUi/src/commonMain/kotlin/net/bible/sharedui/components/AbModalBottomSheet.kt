@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -143,8 +144,8 @@ fun AbModalBottomSheet(
                 AbSheetDragHandle(
                     description = handleDescription,
                     mono = mono,
-                    onDismiss = if (handleDescription == null) null else {
-                        { scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() } }
+                    onDismiss = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
@@ -338,7 +339,7 @@ private fun ResettleStrandedSheet(sheetState: SheetState, instantMotion: Boolean
 /**
  * The sheet's drag handle. With a [description] the stock M3 handle is wrapped in ONE node that replaces its
  * semantics (`clearAndSetSemantics`): the screen-reader name plus the dismiss action M3's own wrapper offers
- * ([onDismiss]). The stock 32x4dp bar and localized semantics are retained, with 8dp vertical padding
+ * ([onDismiss]). Without one, the wrapper merges the stock handle's own localized name with that dismiss action. The stock 32x4dp bar and localized semantics are retained, with 8dp vertical padding
  * instead of M3's 22dp. See the call site for why the semantics wrapper is ours.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -363,8 +364,13 @@ fun AbSheetDragHandle(
         if (mono) BottomSheetDefaults.DragHandle(modifier = compact, color = monoInk(LocalIsDarkTheme.current))
         else BottomSheetDefaults.DragHandle(modifier = compact)
     }
-    if (description == null) handle()
-    else Box(modifier.clearAndSetSemantics {
+    if (description == null) {
+        // No caller-given name: keep M3's own localized handle name and merge the dismiss action into that one node,
+        // so a screen reader still hears a name and can close the sheet (M3's slot wrapper, which we bypass, did this).
+        Box(modifier.semantics(mergeDescendants = true) {
+            if (onDismiss != null) dismiss { onDismiss(); true }
+        }) { handle() }
+    } else Box(modifier.clearAndSetSemantics {
         contentDescription = description
         if (onDismiss != null) dismiss { onDismiss(); true }
     }) { handle() }
