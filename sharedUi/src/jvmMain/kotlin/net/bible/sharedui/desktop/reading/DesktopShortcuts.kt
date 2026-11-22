@@ -66,7 +66,7 @@ interface DesktopShortcutActions {
     fun syncNow()
 
     /** Opens the navigation history sheet of the reading screen (the menu's History item). */
-    fun showHistory() {}
+    fun showHistory()
 
     /** Whether an Esc from [windowId]'s page may be taken: false while the page edits text (its editors handle Escape). */
     fun escapeAllowed(windowId: String): Boolean

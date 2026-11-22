@@ -56,8 +56,9 @@ import java.awt.event.MouseEvent
  * Page scripts: [scriptParts] (default [DesktopInputScript.DEFAULT_PARTS]) composed into one document-start script; add parts
  * and [extensions] together.
  *
- * Swing thread only. Compose keys: Ctrl combos in the preview handler (except h/y/s/b), Alt+arrows, F11 and Ctrl+H/Y/S/B in the normal one (after a
- * focused field had its chance); Esc is left to Compose, which feeds it to its back handlers itself.
+ * Swing thread only. Compose keys: Ctrl combos in the preview handler (except h/y/s/b), Alt+arrows, F11 and
+ * Ctrl+H/Y/S/B in the normal one (after a focused field had its chance); Esc is left to Compose, which feeds it
+ * to its back handlers itself.
  */
 class DesktopReadingInputImpl(
     private val shortcuts: DesktopShortcuts = DesktopShortcuts(DesktopShortcutActionsImpl()),

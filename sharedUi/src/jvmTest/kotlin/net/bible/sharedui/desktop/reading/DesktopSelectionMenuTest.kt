@@ -198,6 +198,7 @@ class DesktopSelectionMenuTest {
         override fun changeFontSize(change: FontSizeChange, steps: Int) {}
         override fun focusNextWindow() {}
         override fun focusPreviousWindow() {}
+        override fun showHistory() {}
         override fun toggleFullScreen() {}
         override fun openSettings() {}
         override fun syncNow() {}
