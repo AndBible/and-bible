@@ -35,6 +35,22 @@ class ReadingSearchControllerTest {
         onReferenceOpened = { r.referenceOpened++ },
     )
 
+    // #4197: Enter in the query field while the results of that very query are shown opens a result, not a re-run.
+    @Test
+    fun resultsShownForQueryOnlyWhileTheSheetShowsTheUnchangedQuery() {
+        val (_, c) = controller()
+        assertFalse(c.resultsShownForQuery(), "closed")
+        c.open("light")
+        assertTrue(c.resultsShownForQuery(), "results of the seeded query are shown")
+        c.queries.setQuery("  light ")
+        assertTrue(c.resultsShownForQuery(), "surrounding blanks do not change the query")
+        c.queries.setQuery("dark")
+        assertFalse(c.resultsShownForQuery(), "an edited query needs a new search")
+        c.queries.setQuery("light")
+        c.closeSheet()
+        assertFalse(c.resultsShownForQuery(), "hidden results are not shown")
+    }
+
     @Test
     fun editQueryFocusesWithoutSubmittingAndPreservesOrReplacesText() {
         val (r, c) = controller()

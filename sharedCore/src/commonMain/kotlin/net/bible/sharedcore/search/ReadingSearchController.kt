@@ -276,6 +276,17 @@ class ReadingSearchController(
     }
 
     /**
+     * Whether the results sheet is up and shows the results of the query now in the field (trimmed), for the document
+     * the phase belongs to. Enter in the field then opens a result instead of searching again (#4197).
+     */
+    fun resultsShownForQuery(): Boolean {
+        val phase = _phase.value as? ReadingSearchPhase.Results ?: return false
+        if (!_sheetVisible.value) return false
+        val q = queries.query.value.trim()
+        return q.isNotEmpty() && lastResults == ResultsKey(q, phase.docId, phase.forEpub)
+    }
+
+    /**
      * Submit from the toolbar field (IME action or the submit button). Blank queries are ignored.
      *
      * The target is resolved HERE, not read back out of the phase: search mode outlives a window

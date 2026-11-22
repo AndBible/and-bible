@@ -20,3 +20,5 @@ internal actual fun isHardwareKeyEvent(event: KeyEvent): Boolean {
     return native.flags and android.view.KeyEvent.FLAG_SOFT_KEYBOARD == 0 &&
         native.deviceId != android.view.KeyCharacterMap.VIRTUAL_KEYBOARD
 }
+
+internal actual val searchResultsAlwaysTakeFocus: Boolean = false

@@ -308,14 +308,14 @@ reading view, not in text fields or in the note editor (see the notes under
 | Mouse back button | Go back | Desktop |
 | **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop, iOS |
 | **Ctrl+Plus** (also **Ctrl+=**), **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** (**Cmd+Plus**, **Cmd+=**, **Cmd+Minus**, **Cmd+0** on iOS, no wheel) | Larger text, smaller text, default text size | Desktop, iOS |
-| **Ctrl+H** or **Ctrl+Y** (**Cmd+Y** on macOS; **Cmd+H** is taken by macOS) | Open the *History* list | Desktop |
+| **Ctrl+H** or **Ctrl+Y** (**Cmd+Y** on macOS; **Cmd+H** is taken by macOS) | Open the *History* list; a focused text field keeps these keys (**Ctrl+Y** is redo there) | Desktop |
 | **Ctrl+,** (**Cmd+,** on iOS, from the reading screen only) | Open *Application preferences* | Desktop, iOS |
 | **Ctrl+S** (**Cmd+S** on macOS and iOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop, iOS |
 | **F11** | Toggle the reading fullscreen of the app (on iOS and Mac it does not toggle the Mac window's full screen; a Mac keyboard may need **Fn**+**F11**) | Desktop, iOS |
 | **Esc** | Go back, see [below](#esc-key-as-back) | iOS, desktop |
-| **Up / Down** | Scroll the text | All |
-| **Enter** in the search results | Open the selected result (the first one if none is selected), also when the list does not have focus | All |
-| **Up / Down**, **Up** on the first result in the search results | Move the selection; **Up** on the first result returns to the search field | All |
+| **Up / Down** | Scroll the text; while the search results list has focus they move its selection instead, and **Up** on the first result returns to the search field | All |
+| **Enter** in the search results | Open the highlighted result, or the first one when nothing is highlighted. On desktop the list takes the focus when results appear; elsewhere it does so when you used the keyboard | All |
+| **Enter** in the search field, with the results of the same query shown | Open the first result instead of searching again; after you change the query it searches | All |
 | **Space** | Pause or resume speaking, while speech is not stopped | All |
 
 When you tap a verse and its action menu is open, **B** adds a bookmark, **N** adds a note and

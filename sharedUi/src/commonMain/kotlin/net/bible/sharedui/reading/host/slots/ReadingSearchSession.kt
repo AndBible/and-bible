@@ -391,7 +391,7 @@ internal class ReadingSearchSession(
      */
     val searchBarCallbacks = ReadingSearchBarCallbacks(
         onQueryChange = { queries.setQuery(it) },
-        onSubmit = { controller.submit() },
+        onSubmit = { submitFromField() },
         onRecentTermsOpen = { searchRecentMenuOpen.value = true },
         onRecentTermsDismiss = { searchRecentMenuOpen.value = false },
         // Picking a recent term fills the field, it does not search by itself.
@@ -523,6 +523,28 @@ internal class ReadingSearchSession(
             return true
         }
         return false
+    }
+
+    /**
+     * Enter in the toolbar query field (#4197). While the sheet shows the results of the unchanged query it opens
+     * result 0 (the field has focus, so the list highlights nothing) instead of searching again; otherwise a normal
+     * [ReadingSearchController.submit].
+     */
+    fun submitFromField() {
+        if (controller.resultsShownForQuery() && openFirstResult()) return
+        controller.submit()
+    }
+
+    private fun openFirstResult(): Boolean {
+        val forEpub = (controller.phase.value as? ReadingSearchPhase.Results)?.forEpub == true
+        if (forEpub) {
+            val row = epubSearchResults.results.value.firstOrNull() ?: return false
+            epubSearchResults.select(row.keyId, row.ordinal)
+        } else {
+            val row = searchResults.displayed.value.firstOrNull() ?: return false
+            onSearchResultSelected(row.referenceName, row.matches.firstOrNull()?.translationId)
+        }
+        return true
     }
 
     /** Leaves search entirely (the toolbar's close affordance, and the index prompt's Cancel). */

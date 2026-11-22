@@ -64,6 +64,7 @@ class ReadingFindResultsKeyboardTest {
     private class Results {
         var opened: Int? = null
         var selected = -1
+        var buttonClicks = 0
         val edits = mutableListOf<String?>()
         lateinit var listState: LazyListState
     }
@@ -73,10 +74,16 @@ class ReadingFindResultsKeyboardTest {
         dark: Boolean = false,
         colorMode: DisplayColorMode = DisplayColorMode.NORMAL,
         extraFocusable: Boolean = false,
+        actionButton: Boolean = false,
+        claimFocus: Boolean? = null,
+        touch: Boolean = false,
     ): Results {
         val result = Results()
         setContent {
             CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
+              CompositionLocalProvider(
+                  *(if (touch) arrayOf(androidx.compose.ui.platform.LocalInputModeManager provides TouchMode()) else emptyArray())
+              ) {
                 AbTheme(darkTheme = dark, colorMode = colorMode, disableAnimations = true) {
                     val listState = rememberLazyListState()
                     result.listState = listState
@@ -90,9 +97,11 @@ class ReadingFindResultsKeyboardTest {
                             onDismissError = {},
                             onClose = {},
                             resultCount = count,
+                            focusResultsWithoutKeyboard = claimFocus ?: false,
                             onOpenResult = { result.opened = it },
                             onEditQuery = { result.edits.add(it) },
                             actions = {
+                                if (actionButton) Box(Modifier.testTag("sheetButton").clickable { result.buttonClicks++ }.padding(8.dp)) { Text("btn") }
                                 if (extraFocusable) Box(Modifier.testTag("sheetAction").focusable().padding(8.dp)) { Text("act") }
                             },
                         ) { selected ->
@@ -103,6 +112,7 @@ class ReadingFindResultsKeyboardTest {
                         }
                     }
                 }
+              }
             }
         }
         return result
@@ -126,9 +136,45 @@ class ReadingFindResultsKeyboardTest {
     @Test fun enterOpensSelectedResultWhenListIsNotFocused() = runComposeUiTest {
         val result = showResults(extraFocusable = true)
         runOnIdle { net.bible.sharedui.search.FindKeyboardInput.lastWasHardwareKey = false }
-        runOnIdle { net.bible.sharedui.search.FindKeyboardInput.lastWasHardwareKey = false }
         onNodeWithTag("sheetAction").requestFocus()
         onNodeWithTag("sheetAction").assertIsFocused()
+        onRoot().performKeyInput { pressKey(Key.Enter) }
+        runOnIdle { assertEquals(0, result.opened) }
+    }
+
+    // Review of #4197: an unfocused list highlights nothing, so Enter must not open a stale selection.
+    @Test fun enterOutsideTheListOpensResultZeroNotAStaleSelection() = runComposeUiTest {
+        val result = showResults(count = 3, extraFocusable = true)
+        onRoot().performKeyInput { pressKey(Key.DirectionDown); pressKey(Key.DirectionDown) }
+        runOnIdle { assertEquals(2, result.selected, "sanity: keyboard selection moved") }
+        runOnIdle { net.bible.sharedui.search.FindKeyboardInput.lastWasHardwareKey = false }
+        onNodeWithTag("sheetAction").requestFocus()
+        onRoot().performKeyInput { pressKey(Key.Enter) }
+        runOnIdle { assertEquals(0, result.opened) }
+    }
+
+    @Test fun aFocusedButtonKeepsItsOwnEnter() = runComposeUiTest {
+        val result = showResults(actionButton = true)
+        onNodeWithTag("sheetButton").requestFocus()
+        onRoot().performKeyInput { pressKey(Key.Enter) }
+        runOnIdle {
+            assertEquals(1, result.buttonClicks, "Enter activates the focused button")
+            assertEquals(null, result.opened, "the sheet must not also open a result")
+        }
+    }
+
+    @Test fun enterWithAnEmptyListDoesNothing() = runComposeUiTest {
+        val result = showResults(count = 0, extraFocusable = true)
+        onNodeWithTag("sheetAction").requestFocus()
+        onRoot().performKeyInput { pressKey(Key.Enter); pressKey(Key.DirectionDown) }
+        runOnIdle { assertEquals(null, result.opened) }
+    }
+
+    /** Desktop: a pointer user's Compose is in Touch mode, yet Enter must open the first result (nothing else has focus). */
+    @Test fun desktopResultsClaimFocusSoEnterWorksAfterAMouseStartedSearch() = runComposeUiTest {
+        val result = showResults(claimFocus = true, touch = true)
+        waitForIdle()
+        runOnIdle { assertEquals(0, result.selected, "the list is focused and highlights its selection") }
         onRoot().performKeyInput { pressKey(Key.Enter) }
         runOnIdle { assertEquals(0, result.opened) }
     }
@@ -256,6 +302,7 @@ class ReadingFindResultsKeyboardTest {
                     SearchSheetContent(
                         countLabel = "2 results", loading = false, error = null, empty = false,
                         listState = rememberLazyListState(), onDismissError = {}, onClose = {}, resultCount = 2,
+                        focusResultsWithoutKeyboard = false,
                     ) { selected -> selectedShown = selected; items(listOf(0, 1)) { Text("result $it") } }
                 }
             }
@@ -380,6 +427,7 @@ class ReadingFindResultsKeyboardTest {
                         if (showResults.value) SearchSheetContent(
                             countLabel = "2 results", loading = false, error = null, empty = false,
                             listState = rememberLazyListState(), onDismissError = {}, onClose = {}, resultCount = 2,
+                            focusResultsWithoutKeyboard = false,
                         ) { selected -> selectedShown = selected; items(listOf(0, 1)) { Text("result $it") } }
                     }
                 }
