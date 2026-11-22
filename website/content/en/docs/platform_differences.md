@@ -72,7 +72,7 @@ The speak button speaks the verse the same way the verse menu's Speak does, and 
 place several Verse widgets with different settings, for example one for each label. If the label of a widget has been
 deleted or has no Bible bookmarks, or no Bible is installed, the widget says so, and tapping it opens its settings.
 
-**iPhone and iPad.** The same four widgets are available in the widget gallery, in small, medium and large sizes where they
+**iPhone and iPad.** The Speak, Listening list and Verse widgets (not Speak with text) are available in the widget gallery, in small, medium and large sizes where they
 fit. On the iPhone Lock Screen you can add a round play/pause widget with a progress ring, a rectangular widget with the
 reference and progress (or a verse), and a one-line widget with the reference. The Verse widget is set up with
 **Edit Widget**. Buttons start speaking without opening the app on iOS 17 and newer; on iOS 16 they open the app.
