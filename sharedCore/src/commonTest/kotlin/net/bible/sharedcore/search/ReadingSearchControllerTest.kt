@@ -1078,4 +1078,77 @@ class ReadingSearchControllerTest {
         c.onIndexingFinished(indexDone = true)
         assertEquals(ReadingSearchPhase.Form("TestEpub", forEpub = true), c.phase.value)
     }
+
+    // ---- #4197 review round 3: Enter in the query field ----
+
+    private val epubDoc = SearchDocumentInfo("EP", SearchDocumentCategory.GENERAL_BOOK, isEpub = true, indexDone = true)
+
+    @Test
+    fun enterInFieldSearchesTheNewDocumentAfterAWindowSwitch() {
+        var current = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true)
+        val (r, c) = controller(liveDoc = { current })
+        c.open("light")
+        var opened = 0
+        current = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, true)
+        c.submitFromField(true, { false }, { opened++; true })
+        assertEquals(0, opened, "the KJV result must not open for an ESV window")
+        assertEquals(listOf(Triple("KJV", "light", false), Triple("ESV", "light", false)), r.searchesRun)
+        // An EPUB window too (different kind and docId).
+        current = epubDoc
+        c.submitFromField(true, { false }, { opened++; true })
+        assertEquals(0, opened)
+        assertEquals(Triple("EP", "light", true), r.searchesRun.last())
+    }
+
+    @Test
+    fun enterInFieldOpensFirstResultOfTheSameDocument() {
+        val (r, c) = controller()
+        c.open("light")
+        val forEpubSeen = mutableListOf<Boolean>()
+        c.submitFromField(true, { false }, { forEpubSeen.add(it); true })
+        assertEquals(listOf(false), forEpubSeen)
+        assertEquals(1, r.searchesRun.size, "no re-run")
+    }
+
+    @Test
+    fun enterInFieldOpensTheEpubFirstResultThroughTheEpubBranch() {
+        val (r, c) = controller(doc = epubDoc)
+        c.open("light")
+        val seen = mutableListOf<Boolean>()
+        c.submitFromField(true, { false }, { seen.add(it); true })
+        assertEquals(listOf(true), seen)
+        assertEquals(1, r.searchesRun.size)
+    }
+
+    @Test
+    fun enterInFieldWithEmptyResultsSearchesAgain() {
+        val (r, c) = controller()
+        c.open("light")
+        c.submitFromField(true, { false }, { false })
+        assertEquals(2, r.searchesRun.size)
+    }
+
+    @Test
+    fun enterInFieldWhileResultsAreLoadingDoesNothing() {
+        val (r, c) = controller()
+        c.open("light")
+        var opened = 0
+        c.submitFromField(true, { true }, { opened++; true })
+        assertEquals(0, opened)
+        assertEquals(1, r.searchesRun.size, "no restart")
+        // A changed query is a new search even while the old one loads.
+        c.queries.setQuery("dark")
+        c.submitFromField(true, { true }, { opened++; true })
+        assertEquals(2, r.searchesRun.size)
+    }
+
+    @Test
+    fun searchActionWithoutHardwareKeyShowsResultsAgainInsteadOfOpeningOne() {
+        val (r, c) = controller()
+        c.open("light")
+        var opened = 0
+        c.submitFromField(false, { false }, { opened++; true })
+        assertEquals(0, opened, "a touch user tapping Search must not be sent to a verse")
+        assertEquals(2, r.searchesRun.size, "re-run as before")
+    }
 }

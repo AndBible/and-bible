@@ -18,6 +18,8 @@
 
 package net.bible.sharedui.reading.host.slots
 
+import net.bible.sharedui.search.FindKeyboardInput
+import net.bible.sharedui.reading.searchResultsAlwaysTakeFocus
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateMapOf
@@ -526,17 +528,19 @@ internal class ReadingSearchSession(
     }
 
     /**
-     * Enter in the toolbar query field (#4197). While the sheet shows the results of the unchanged query it opens
-     * result 0 (the field has focus, so the list highlights nothing) instead of searching again; otherwise a normal
-     * [ReadingSearchController.submit].
+     * Enter in the toolbar query field (#4197), see [ReadingSearchController.submitFromField]. Opening result 0 is
+     * limited to hardware-keyboard input: always on desktop, on mobile only when the last key came from a hardware
+     * keyboard (a touch user's IME "Search" action re-runs the search as before).
      */
     fun submitFromField() {
-        if (controller.resultsShownForQuery() && openFirstResult()) return
-        controller.submit()
+        controller.submitFromField(
+            keyboardInput = searchResultsAlwaysTakeFocus || FindKeyboardInput.lastWasHardwareKey,
+            resultsLoading = { forEpub -> if (forEpub) epubSearchResults.loading.value else searchResults.loading.value },
+            openFirstResult = ::openFirstResult,
+        )
     }
 
-    private fun openFirstResult(): Boolean {
-        val forEpub = (controller.phase.value as? ReadingSearchPhase.Results)?.forEpub == true
+    private fun openFirstResult(forEpub: Boolean): Boolean {
         if (forEpub) {
             val row = epubSearchResults.results.value.firstOrNull() ?: return false
             epubSearchResults.select(row.keyId, row.ordinal)

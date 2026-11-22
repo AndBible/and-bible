@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
@@ -177,6 +178,49 @@ class ReadingFindResultsKeyboardTest {
         runOnIdle { assertEquals(0, result.selected, "the list is focused and highlights its selection") }
         onRoot().performKeyInput { pressKey(Key.Enter) }
         runOnIdle { assertEquals(0, result.opened) }
+    }
+
+    /**
+     * Review of #4197: slow results arrive while the user types a refinement in the toolbar field. The desktop list
+     * must not pull focus away (the next typed character would replace the half-typed query).
+     */
+    private fun ComposeUiTest.lateResultsWithFieldFocused(fieldHasFocus: Boolean): Boolean {
+        val loading = mutableStateOf(true)
+        var fieldFocused = false
+        setContent {
+            CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
+                CompositionLocalProvider(androidx.compose.ui.platform.LocalInputModeManager provides TouchMode()) {
+                    AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                        Column(Modifier.height(300.dp)) {
+                            Box(Modifier.testTag("toolbarField").onFocusChanged { fieldFocused = it.isFocused }.focusable().padding(8.dp)) { Text("field") }
+                            Box(Modifier.height(200.dp)) {
+                                SearchSheetContent(
+                                    countLabel = "2 results", loading = loading.value, error = null, empty = false,
+                                    listState = rememberLazyListState(), onDismissError = {}, onClose = {},
+                                    resultCount = 2, focusResultsWithoutKeyboard = true,
+                                    claimFocusAllowed = { !fieldFocused },
+                                ) {
+                                    items(listOf(0, 1)) { Text("result $it", Modifier.padding(12.dp)) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (fieldHasFocus) onNodeWithTag("toolbarField").requestFocus()
+        waitForIdle()
+        loading.value = false
+        waitForIdle()
+        return fieldFocused
+    }
+
+    @Test fun lateDesktopResultsDoNotStealFocusFromTheQueryField() = runComposeUiTest {
+        assertTrue(lateResultsWithFieldFocused(fieldHasFocus = true), "the toolbar field keeps focus")
+    }
+
+    @Test fun lateDesktopResultsStillClaimFocusWhenTheFieldIsNotFocused() = runComposeUiTest {
+        assertEquals(false, lateResultsWithFieldFocused(fieldHasFocus = false), "the list took focus")
     }
 
     @Test fun downThenEnterOpensSecondResult() = runComposeUiTest {

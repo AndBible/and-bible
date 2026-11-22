@@ -154,6 +154,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchSession, strings: String
             onClose = { controller.closeSheet() },
             resultCount = rows.size,
             requestResultsFocus = sheetVisible,
+            claimFocusAllowed = { !state.searchFieldFocused.value },
             selection = state.resultKeyboardSelection,
             onOpenResult = { index -> rows.getOrNull(index)?.let { state.epubSearchResults.select(it.keyId, it.ordinal) } },
             onEditQuery = controller::editQuery,
@@ -200,6 +201,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchSession, strings: String
         onClose = { controller.closeSheet() },
         resultCount = rows.size,
         requestResultsFocus = sheetVisible,
+        claimFocusAllowed = { !state.searchFieldFocused.value },
         selection = state.resultKeyboardSelection,
         onOpenResult = { index ->
             rows.getOrNull(index)?.let { state.onSearchResultSelected(it.referenceName, it.matches.firstOrNull()?.translationId) }

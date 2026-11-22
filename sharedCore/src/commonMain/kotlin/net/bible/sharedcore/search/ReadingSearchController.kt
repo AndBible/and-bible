@@ -277,13 +277,42 @@ class ReadingSearchController(
 
     /**
      * Whether the results sheet is up and shows the results of the query now in the field (trimmed), for the document
-     * the phase belongs to. Enter in the field then opens a result instead of searching again (#4197).
+     * the active window would be searched in right now. Enter in the field then opens a result instead of searching
+     * again (#4197). The target is resolved like [submit] does: after a window switch the shown results belong to the
+     * old document, so Enter must search the new one.
      */
     fun resultsShownForQuery(): Boolean {
         val phase = _phase.value as? ReadingSearchPhase.Results ?: return false
         if (!_sheetVisible.value) return false
         val q = queries.query.value.trim()
-        return q.isNotEmpty() && lastResults == ResultsKey(q, phase.docId, phase.forEpub)
+        if (q.isEmpty() || lastResults != ResultsKey(q, phase.docId, phase.forEpub)) return false
+        return when (val kind = searchKindFor(resolveDoc())) {
+            is SearchKind.Bible -> !phase.forEpub && kind.docId == phase.docId
+            is SearchKind.Epub -> phase.forEpub && kind.docId == phase.docId
+            else -> false
+        }
+    }
+
+    /**
+     * Enter in the toolbar query field (#4197). While the sheet shows the results of the unchanged query for the
+     * current document: a no-op while they still load, and with [keyboardInput] (a hardware key; a touch user's IME
+     * "Search" action must not jump to a verse) it opens result 0 through [openFirstResult] (false when there is
+     * none). Otherwise a normal [submit].
+     *
+     * @param resultsLoading whether the results of the given kind are still loading.
+     * @param openFirstResult opens result 0 of the given kind; false when the list is empty.
+     */
+    fun submitFromField(
+        keyboardInput: Boolean,
+        resultsLoading: (forEpub: Boolean) -> Boolean,
+        openFirstResult: (forEpub: Boolean) -> Boolean,
+    ) {
+        if (resultsShownForQuery()) {
+            val forEpub = (_phase.value as ReadingSearchPhase.Results).forEpub
+            if (resultsLoading(forEpub)) return
+            if (keyboardInput && openFirstResult(forEpub)) return
+        }
+        submit()
     }
 
     /**
