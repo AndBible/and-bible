@@ -29,4 +29,13 @@ class DrawerPaneFocusTest {
     @Test fun doesNotRestorePaneFocusWhileTheSearchBarIsOpen() {
         assertFalse(shouldRestorePaneFocusOnDrawerClose(searchBarOpen = true))
     }
+
+    @Test fun theResumeClaimsPaneFocusWhenTheSearchBarIsClosed() {
+        assertTrue(shouldClaimPaneFocusOnResume(searchBarOpen = false))
+    }
+
+    /** #4196: the resume must leave the keys with an open find field, or Esc stops closing find. */
+    @Test fun theResumeLeavesTheFocusWithAnOpenSearchBar() {
+        assertFalse(shouldClaimPaneFocusOnResume(searchBarOpen = true))
+    }
 }

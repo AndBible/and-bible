@@ -172,6 +172,7 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewKey
+import net.bible.sharedcore.reading.shouldClaimPaneFocusOnResume
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.HostSystemBars
@@ -2591,6 +2592,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * off the reading route rather than falling back to another host's repository, and ~45 of this
      * host's routes are not reading routes.
      */
+    /**
+     * Step 3 of [reconcileReadingStateOnResume]: the active pane takes the key focus. A seam so a test can see the
+     * request (Robolectric's WebView never takes focus itself).
+     */
+    @VisibleForTesting
+    internal var requestPaneFocusOnResume: () -> Unit = { documentViewManager.documentView.asView().requestFocus() }
+
     private suspend fun reconcileReadingStateOnResume(needRefresh: Boolean) {
         if (needRefresh) {
             readingCommands.switchWorkspace(readingCommands.currentWorkspaceId) // reload from db
@@ -2598,7 +2606,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             updateDocuments()
         }
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
-        if (composeReadingViewHost != null) documentViewManager.documentView.asView().requestFocus()
+        // #4196: not while find is open, or the pane (a WebView) takes the keys from the field and swallows Esc.
+        if (composeReadingViewHost != null && shouldClaimPaneFocusOnResume(searchBarOpen = readingCommands.composeSearchModeActive)) {
+            requestPaneFocusOnResume()
+        }
 
         // Check for pending AI agent results that completed while app was backgrounded
         handlePendingAgentResult()

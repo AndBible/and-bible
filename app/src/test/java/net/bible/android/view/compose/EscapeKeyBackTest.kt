@@ -24,6 +24,7 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.activity.page.androidBibleView
 import net.bible.service.common.CommonUtils
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.NavRoutes
@@ -193,5 +194,45 @@ class EscapeKeyBackTest {
 
         assertEquals(depth, historyDepth(), "Esc must not step back in the reading history")
         assertFalse(activity.isFinishing)
+    }
+
+    /**
+     * Issue #4196, the reported case: find is open with its field focused, the user goes to another app and comes back,
+     * presses Esc. The host's resume handed the key focus to the active window's BibleView unconditionally (classic's
+     * tilt-scroll resume), so the WebView swallowed the Esc (seen on the API 36 emulator: after the round trip the
+     * BibleView, not the Compose view, held view focus). Robolectric's WebView never takes focus, so the test records
+     * the host's resume focus request instead of the focus move itself.
+     */
+    @Test
+    fun theResumeDoesNotTakeTheKeysFromAnOpenFindField() {
+        val controller = run { host(); hostControllers.last() }
+        val activity = controller.get()
+        activity.openFind()
+        val requests = mutableListOf<Unit>()
+        activity.requestPaneFocusOnResume = { requests += Unit }
+
+        controller.pause().stop()
+        controller.restart().start().resume()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        compose.waitForIdle()
+
+        assertTrue(requests.isEmpty(), "the resume must not hand the keys to the Bible pane while find is open")
+        assertTrue(activity.searchModeActive(), "sanity: find is still open")
+    }
+
+    /** Without find open, the resume still gives the pane the focus (the tilt-to-scroll resume needs it). */
+    @Test
+    fun theResumeStillFocusesThePaneWhenFindIsClosed() {
+        val controller = run { host(); hostControllers.last() }
+        val activity = controller.get()
+        val requests = mutableListOf<Unit>()
+        activity.requestPaneFocusOnResume = { requests += Unit }
+
+        controller.pause().stop()
+        controller.restart().start().resume()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        compose.waitForIdle()
+
+        assertEquals(1, requests.size, "the resume focuses the pane once")
     }
 }
