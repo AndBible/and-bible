@@ -21,7 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import kotlin.test.Test
