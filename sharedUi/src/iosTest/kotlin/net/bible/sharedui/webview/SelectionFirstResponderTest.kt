@@ -79,4 +79,27 @@ class SelectionFirstResponderTest {
         val root = UIView(CGRectMake(0.0, 0.0, 100.0, 100.0)).apply { addSubview(webView) }
         assertEquals(null, firstResponderIn(root))
     }
+
+    /**
+     * Issue #4196: on a Mac, after the window lost and regained focus with Find open, the resume claim saw no text-input
+     * first responder (none, or Compose's container view) and gave the keys to the web view, which swallows Esc.
+     */
+    @Test
+    fun theResumeClaimLeavesTheKeysToAnOpenFindBar() {
+        for (current in listOf(null, UIView(CGRectMake(0.0, 0.0, 10.0, 10.0)))) {
+            var calls = 0
+            val claimed = claimPaneFirstResponderOnResume(webView, current, searchBarOpen = true) { calls++; true }
+            assertFalse(claimed, "an open Find bar keeps the keys (first responder: $current)")
+            assertEquals(0, calls)
+        }
+    }
+
+    @Test
+    fun theResumeClaimStillRunsWithFindClosed() {
+        var calls = 0
+        assertTrue(claimPaneFirstResponderOnResume(webView, null, searchBarOpen = false) { calls++; true })
+        assertEquals(1, calls)
+        assertFalse(claimPaneFirstResponderOnResume(webView, UITextField(CGRectMake(0.0, 0.0, 100.0, 30.0)), searchBarOpen = false) { calls++; true })
+        assertEquals(1, calls)
+    }
 }

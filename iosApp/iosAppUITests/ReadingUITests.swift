@@ -1766,6 +1766,34 @@ final class ReadingUITests: RealAppUITestCase {
         return field
     }
 
+    /// #4196 regression guard: leaving the app with the Find field focused and coming back leaves the keyboard focus in
+    /// the field (the pane's resume claim, #3968, must not take it). The defect itself (Find open, field not focused, e.g.
+    /// with the results sheet up: the claim handed first responder to the WKWebView, which swallows a hardware Esc) is
+    /// not visible to XCTest, which neither sees a WKContentView first responder nor can press Esc on the simulator
+    /// (#4003 below); `SelectionFirstResponderTest` covers that gate.
+    func testFindFieldKeepsKeyboardFocusAfterAppRoundTrip() throws {
+        let app = try launchReading()
+        guard let field = openFind(app, "round-trip") else { return }
+        field.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { field.debugDescription.contains("Keyboard Focused") }, "the Find field has no keyboard focus")
+        field.typeText("love")
+        XCTAssertTrue(waitUntil(timeout: 5) { (field.value as? String) == "love" })
+        XCUIDevice.shared.press(.home)
+        XCTAssertTrue(app.wait(for: .runningBackgroundSuspended, timeout: 10) || app.wait(for: .runningBackground, timeout: 5))
+        app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        // The pane's claim runs two frames after RESUMED; give it time before reading the focus.
+        usleep(2_000_000)
+        shot(app, "round-trip-after-activate")
+        XCTAssertTrue(field.exists, "Find must still be open after the round trip")
+        let focused = field.debugDescription.contains("Keyboard Focused")
+        if !focused { attachTree(app, "round-trip-field-not-focused") }
+        XCTAssertTrue(focused, "after the app round trip the Find field must keep the keyboard focus (#4196)")
+        // The field still takes typed text.
+        field.typeText("x")
+        XCTAssertTrue(waitUntil(timeout: 5) { (field.value as? String) == "lovex" }, "typing after the round trip: \(field.value ?? "nil")")
+    }
+
     /// Back from the reading view's chain: with Find open (and the index prompt or results sheet over it, when a search
     /// ran), a left-edge back swipe closes the topmost layer only, then Find, and stays on reading. Before #4003 the
     /// iOS reading destination registered no back handler, so the swipe did nothing in Find.

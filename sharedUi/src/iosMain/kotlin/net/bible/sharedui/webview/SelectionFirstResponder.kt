@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.webview
 
+import net.bible.sharedcore.reading.shouldClaimPaneFocusOnResume
 import platform.UIKit.UIKeyInputProtocol
 import platform.UIKit.UIView
 
@@ -49,3 +50,15 @@ internal fun claimFirstResponderForSelection(
     if (current != null && (current.isDescendantOfView(webView) || current is UIKeyInputProtocol)) return false
     return become()
 }
+
+/**
+ * The reading pane's claim when its route resumes, including after the app's re-activation (issue #4196): nothing while
+ * the reading search bar is open ([searchBarOpen]), whatever holds first responder at that moment
+ * (`shouldClaimPaneFocusOnResume`, the rule Android's resume follows). Otherwise [claimFirstResponderForSelection].
+ */
+internal fun claimPaneFirstResponderOnResume(
+    webView: UIView,
+    current: UIView?,
+    searchBarOpen: Boolean,
+    become: () -> Boolean = { webView.becomeFirstResponder() },
+): Boolean = shouldClaimPaneFocusOnResume(searchBarOpen) && claimFirstResponderForSelection(webView, current, become)
