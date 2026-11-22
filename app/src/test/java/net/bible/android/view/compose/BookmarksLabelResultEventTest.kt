@@ -166,12 +166,12 @@ class BookmarksLabelResultEventTest {
         field.set(session, bookmarks)
     }
 
-    /** `private fun applyBookmarksManageLabelsResult(result: ManageLabelsResult)`. */
+    /** `private fun applyBookmarksManageLabelsResult(result: ManageLabelsResult, writeBookmarkLabels: Boolean = true)`. */
     private fun applyManageLabelsResult(activity: NavHostComposeActivity, result: ManageLabelsResult) {
         val method = BookmarkHost::class.java.declaredMethods
-            .single { it.name == "applyBookmarksManageLabelsResult" }
+            .single { it.name == "applyBookmarksManageLabelsResult" && it.parameterCount == 2 }
         method.isAccessible = true
-        method.invoke(activity.appHosts.bookmark, result)
+        method.invoke(activity.appHosts.bookmark, result, true)
     }
 
     /**
