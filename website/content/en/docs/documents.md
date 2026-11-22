@@ -110,8 +110,9 @@ Each press of this icon switches the active window between `Hidden Links`, `Link
 (underlines) and `Text and Links` (Strong’s numbers shown in the text). Long-press the icon to
 open the *Strong’s numbers* setting for the window.
 
-The dictionary definitions open in a special window rather than a pop-up dialog
-when the *Links window* option is on, which it is by default:
+The dictionary definitions open in a special window, the links window, when the
+*Links window* option is on, which it is by default. With the option off, a link opens in the
+same window you tapped it in, replacing what that window shows. To change it:
 
 > - From the top left main menu (☰) click on *Application preferences* and
 >     check the *Links window* option.

@@ -49,9 +49,12 @@ description: Use for AndBible issue and project-board work — creating, comment
 
 The tracker rules apply on both routes: labels from `docs/superpowers/triage/taxonomy.yaml`, one `Type:` and
 one `Area:` label, short specific English text, no hour estimates, close an issue as soon as its fix is merged
-(Flow 4 below), and the osTicket reply rules. On the outbox route, end comments with a
-short marker line naming the context (for example `_— bug-fix round, Nov 2026_`) instead of the
-triage-run marker.
+(Flow 4 below), and the osTicket reply rules. On the outbox route, end comments **and the body of every issue
+you create** with a short marker line naming the process that wrote it (for example `_— bug-fix round, Nov 2026_`,
+`_— video round 4, Nov 2026_`, `_— orchestrator videot-2, Nov 2026_`) instead of the triage-run marker, so the
+maintainer can tell session-written issues and comments from their own (maintainer, 2026-11-21). This holds for
+every route that files issues: bug rounds, video and docs rounds (app bugs a child reports), orchestrators relaying
+a child's report, and your own session.
 
 ## osTicket replies
 

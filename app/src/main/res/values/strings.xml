@@ -1018,7 +1018,7 @@
     <string name="new_copied_workspace">Copy as new</string>
     <string name="workspace_number">Workspace %d</string>
     <string name="rename">Rename</string>
-    <string name="workspace_selector_title">Select workspace</string>
+    <string name="workspace_selector_title">Manage workspaces</string>
     <string name="workspace_settings">Settings…</string>
     <string name="give_name_workspace">Give name for new workspace</string>
     <string name="save_and_exit">Save</string>

@@ -28,10 +28,10 @@ class WorkspaceSelectorGoldenTest {
         filtering: Boolean = false, query: String = "", searchModeActive: Boolean = false,
         copy: CopySettingsState? = null, pending: String? = null,
     ) = WorkspaceSelectorScreen(
-        // "Select workspace" = R.string.workspace_selector_title (production's actual title). A
+        // "Manage workspaces" = R.string.workspace_selector_title (production's actual title). A
         // shorter single-word stand-in ("Workspaces") previously made the title appear to wrap
         // mid-word in these goldens in a way the real two-word title never does.
-        title = "Select workspace", workspaces = items, dirty = dirty, canDelete = canDelete,
+        title = "Manage workspaces", workspaces = items, dirty = dirty, canDelete = canDelete,
         filtering = filtering, query = query, searchModeActive = searchModeActive,
         copySettingsState = copy, pendingSelectId = pending,
         onQueryChange = {}, onOpenSearch = {}, onCloseSearch = {},

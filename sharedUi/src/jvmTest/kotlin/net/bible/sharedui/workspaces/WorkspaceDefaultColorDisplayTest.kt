@@ -129,7 +129,7 @@ class WorkspaceDefaultColorDisplayTest {
     @Composable
     private fun selector() {
         WorkspaceSelectorScreen(
-            title = "Select workspace", workspaces = rows, dirty = false, canDelete = true,
+            title = "Manage workspaces", workspaces = rows, dirty = false, canDelete = true,
             filtering = false, query = "", searchModeActive = false,
             copySettingsState = null, pendingSelectId = null,
             onQueryChange = {}, onOpenSearch = {}, onCloseSearch = {},

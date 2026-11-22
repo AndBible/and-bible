@@ -27,6 +27,12 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
   Why: 2026-11-18, the orchestrator reviewed and fixed #4146 inline and spent its context, so reviews moved to
   subagents (opus for every child). 2026-11-19 the maintainer made the model a judgement call: video round 3 ran
   ~35 opus reviews of mostly narration edits.
+- **Video children: review before the final render.** A video child asks for review after TTS and preview frames
+  ("ready for review" with the diff range and preview still paths); dispatch the reviewer then, on the diff, narration,
+  claims and previews. Answer with the findings or "render". The child's `done` after the render only needs the
+  mechanical checks (guard, `flashes`, review page, a sonnet look at clip cuts and outro); a clean one is merged
+  without a second full review (`making-videos`, "Review before the final render"). Brief new video children this
+  way. Why: 2026-11-21 (maintainer): reviewing rendered videos cost a second multi-hour render per finding.
 - **Review fixes never run in your tree**, not even ones found while resolving a conflicted merge: resolve
   only the conflict in the merge commit, then fix with a fork / worktree subagent (`isolation: "worktree"`,
   no runs needed) or a `fork` child (tests or builds needed). Only tiny one-line edits stay inline.

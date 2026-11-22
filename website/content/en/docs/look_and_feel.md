@@ -117,8 +117,8 @@ keep their own meaning.
 **Use system colors (Material You).** On Android 12 and newer, turn this on
 to use the colors your phone derives from your wallpaper instead of the
 built-in *Ink on paper* theme, in both light and dark mode. Change the wallpaper and
-AndBible follows it. It is off by default. A workspace color still takes
-precedence: the system colors apply only to workspaces without one. The
+AndBible follows it. It is off by default. A workspace color you chose wins over the
+built-in colors and Material You inside that workspace. The
 *Black & white*, *Color e-ink* and *Monochrome* color modes also ignore it.
 Default workspace dots in the workspace selector and quick-switch sheet, and
 the workspace color swatch in Color settings, follow the same system palette.
