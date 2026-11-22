@@ -39,7 +39,6 @@ import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportVd
 import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.components.AbActionIcon
-import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.strings.LocalStrings
 
@@ -119,19 +118,29 @@ fun SpeakTransportBar(
                 // changes with playback state. Gating this Text would make the bar's height jump whenever
                 // speech starts/stops (A/B batch 2 F4 fix wave). An empty string still reserves its line
                 // height, so the bar stays a constant height either way.
-                // The X sits in the status row's end corner (not a ninth weighted slot, to keep the 320dp
-                // touch targets). It is always present, so playback state never changes the bar height or the text width (the 48dp touch target makes the row taller than the bare text line).
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                // The X is overlaid on the status line's end (a Box, so the bar keeps its pre-#4199 height in
+                // every state): matchParentSize does not contribute to the Box's size, and the button's
+                // requiredSize may overflow the line a little. The text reserves the X's width at its end so it
+                // never runs under it; Start/End padding mirrors in RTL. Always present, so playback state
+                // never changes the layout.
+                Box(Modifier.fillMaxWidth()) {
                     Text(
                         state.statusText,
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.fillMaxWidth().padding(
+                            start = 12.dp, end = SpeakCloseTarget + 4.dp, top = 4.dp, bottom = 4.dp,
+                        ),
                     )
-                    // Always shown, so the layout never changes; disabled (dimmed, inert) while speech plays.
-                    IconButton(onClick = onClose, enabled = speakCloseEnabled(state)) {
-                        Icon(Icons.Filled.Close, contentDescription = strings.speakCloseBar,
-                            modifier = Modifier.size(AbActionIconSize))
+                    Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterEnd) {
+                        // Disabled (dimmed, inert) while speech plays.
+                        IconButton(
+                            onClick = onClose, enabled = speakCloseEnabled(state),
+                            modifier = Modifier.requiredSize(SpeakCloseTarget),
+                        ) {
+                            Icon(Icons.Filled.Close, contentDescription = strings.speakCloseBar,
+                                modifier = Modifier.size(20.dp))
+                        }
                     }
                 }
                 Row(
@@ -190,3 +199,6 @@ fun ChooseSpeakBookmarkDialog(
 
 /** The close "X" can be used whenever speech is not playing (stopped or paused); while playing it is disabled. */
 internal fun speakCloseEnabled(state: SpeakTransportVd): Boolean = !state.playing
+
+/** Touch target of the speak bar's close X: a little taller than the status line it overlays. */
+private val SpeakCloseTarget = 40.dp

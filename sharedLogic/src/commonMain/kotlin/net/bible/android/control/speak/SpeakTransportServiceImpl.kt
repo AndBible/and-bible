@@ -215,7 +215,8 @@ class SpeakTransportServiceImpl(
 
     override fun dismiss() {
         // Unconditional: stop() is idempotent and also cancels a speech start still pending (Play tapped just before).
-        speakControl.stop()
+        // Quiet: dismissing a paused session must not toast "Stop".
+        speakControl.stop(toast = false)
         _state.value = _state.value.copy(visible = false)
     }
 

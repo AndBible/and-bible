@@ -57,4 +57,22 @@ class SpeakBarStepToastTest : SpeakIntegrationTestBase() {
         transport.rewind()
         assertEquals(listOf(strings.forward, strings.rewind), infos)
     }
+
+    @Test fun dismissWhilePausedShowsNoStopToast() {
+        startSpeaking()
+        val transport = GlobalContext.get().get<SpeakTransportServiceImpl>()
+        transport.pause()
+        assertTrue(speakControl.isPaused)
+        infos.clear()
+        transport.dismiss()
+        assertEquals(emptyList<String>(), infos)
+        assertTrue(speakControl.isStopped)
+    }
+
+    @Test fun stopButtonStillShowsStopToast() {
+        val strings = GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()
+        startSpeaking()
+        GlobalContext.get().get<SpeakTransportServiceImpl>().stop()
+        assertEquals(listOf(strings.stop), infos)
+    }
 }
