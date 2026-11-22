@@ -1,0 +1,22 @@
+- Cloud sync: connecting existing synced data shows one join plan dialog, and category switches are collected and applied together from an Apply bar ([#4183](https://github.com/AndBible/and-bible/issues/4183))
+- New "Show text under window buttons" setting; on by default on desktop and on iOS on Mac, off on Android and iPhone/iPad ([#4184](https://github.com/AndBible/and-bible/issues/4184))
+- The Documents sheet now covers all non-Bible documents, including maps, grouped by type ([#3436](https://github.com/AndBible/and-bible/issues/3436))
+- Sync server URL defaults to https:// when no scheme is typed; Nextcloud shows a server URL hint; the sync provider summary starts with the backend name when signed in ([#4179](https://github.com/AndBible/and-bible/issues/4179))
+- Open and minimised window buttons are now visually distinct: open ones get a tinted fill, minimised ones fade with a dashed border ([#4181](https://github.com/AndBible/and-bible/issues/4181))
+- Confirm dialogs without a title show the detail above the question ([#4182](https://github.com/AndBible/and-bible/issues/4182))
+- The current row in the key list sheet is bold and outlined in ink/paper (e-ink) modes ([#4186](https://github.com/AndBible/and-bible/issues/4186))
+- Translation updates for 48 languages (2e05c2d)
+- Desktop: module images, such as in the EpiphanyMaps module, now display, including on Windows ([#4185](https://github.com/AndBible/and-bible/issues/4185))
+- Synced documents list updates during a sync and when filters change ([#4180](https://github.com/AndBible/and-bible/issues/4180))
+- The grid picker for book, chapter and verse no longer closes when scrolled to the top ([#4178](https://github.com/AndBible/and-bible/issues/4178))
+- Verse widget configuration no longer cuts off the Bible list when there are many labels; the selection scrolls into view ([#4190](https://github.com/AndBible/and-bible/issues/4190))
+- Listening list widget shows all speak bookmarks instead of only one ([#4191](https://github.com/AndBible/and-bible/issues/4191))
+- A bookmark added to a StudyPad at the cursor now lands at the cursor, not last, and study pad ordering ties are sorted consistently ([#4193](https://github.com/AndBible/and-bible/issues/4193))
+- A double tap or stale answer no longer answers the next install question, and the Overwrite question is no longer auto-confirmed on document restore ([#4192](https://github.com/AndBible/and-bible/issues/4192))
+- Vietnamese divine name replacement no longer garbles "Đức Chúa Trời" (57dc3fd)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
