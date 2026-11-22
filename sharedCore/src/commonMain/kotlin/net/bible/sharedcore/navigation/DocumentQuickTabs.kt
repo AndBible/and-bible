@@ -21,8 +21,8 @@ enum class DocumentQuickTab { RECENT, FOR_VERSE, LAST_FILTER, ALL }
 
 /**
  * Which documents a document quick sheet offers. [ALL] is the title row's long-press sheet;
- * [BIBLE] and [COMMENTARY] are the toolbar buttons' sheets. The Commentary button has always also
- * listed general books and dictionaries (classic `menuForDocs` parity), so its scope does too.
+ * [BIBLE] and [COMMENTARY] are the toolbar buttons' sheets. The Commentary button opens the "Documents"
+ * sheet: besides commentaries it lists every other non-Bible type (general books, dictionaries, maps).
  *
  * @property categories the categories admitted, `null` = no restriction
  * @property chooserType the `ChooseDocument` type argument the sheet's footer and its empty-scope
@@ -38,7 +38,7 @@ enum class DocumentSheetScope(
     ALL(null, null, "document_quick_tab"),
     BIBLE(setOf(DocCategory.BIBLE), "BIBLE", "document_quick_tab_bible"),
     COMMENTARY(
-        setOf(DocCategory.COMMENTARY, DocCategory.GENERAL_BOOK, DocCategory.DICTIONARY),
+        setOf(DocCategory.COMMENTARY, DocCategory.GENERAL_BOOK, DocCategory.DICTIONARY, DocCategory.MAPS),
         "COMMENTARY",
         "document_quick_tab_commentary",
     );
@@ -102,8 +102,9 @@ fun buildDocumentQuickTabs(
     val scoped = scope != DocumentSheetScope.ALL
     val lastFilter = if (scoped) emptyList()
         else computeDisplayedDocuments(offerable, lastLanguage, lastTypeFilter, query = "")
-    val all = if (scoped) offerable.sortedWith(compareBy({ it.language.code }, { it.abbreviation }))
-        else emptyList()
+    val all = if (scoped) offerable.sortedWith(
+        compareBy<DocRow>({ allTabGroupRank(it.category) }, { it.language.code }, { it.abbreviation }),
+    ) else emptyList()
     val rows = mapOf(
         DocumentQuickTab.RECENT to recent,
         DocumentQuickTab.FOR_VERSE to forVerse,
@@ -114,4 +115,17 @@ fun buildDocumentQuickTabs(
         visible = DocumentQuickTab.entries.filter { rows.getValue(it).isNotEmpty() },
         rowsByTab = rows,
     )
+}
+
+/**
+ * Section order of a scoped sheet's All tab: commentaries, dictionaries, general books, maps, the rest.
+ * Bibles come first so the Bible scope (one section) is unaffected.
+ */
+fun allTabGroupRank(category: DocCategory): Int = when (category) {
+    DocCategory.BIBLE -> 0
+    DocCategory.COMMENTARY -> 1
+    DocCategory.DICTIONARY -> 2
+    DocCategory.GENERAL_BOOK -> 3
+    DocCategory.MAPS -> 4
+    DocCategory.AND_BIBLE, DocCategory.OTHER -> 5
 }

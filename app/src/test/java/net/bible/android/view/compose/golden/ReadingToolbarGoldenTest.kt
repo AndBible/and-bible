@@ -92,6 +92,12 @@ class ReadingToolbarGoldenTest {
     // must therefore render exactly as before.
     private val workspaceColorState = fullState.copy(workspaceColorArgb = 0xFF1B5E20.toInt())
 
+    // #4200: Finnish title that overflows the default portrait width, so the toolbar shows the short
+    // book name; `shortTitle_fits` renders the same state wide, where the full title is kept.
+    private val shortTitleState = fullState.copy(
+        pageTitle = "2. Mooseksen kirja 1:2", pageTitleShort = "2Moos 1:2",
+    )
+
     private fun screen(state: ToolbarState): @Composable () -> Unit = {
         ReadingToolbar(state = state, icons = goldenToolbarIcons(), callbacks = goldenToolbarCallbacks())
     }
@@ -151,5 +157,22 @@ class ReadingToolbarGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun workspace_color_mono() {
         MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "workspace_color", mode, content = screen(workspaceColorState)) }
+    }
+
+    @Test
+    fun shortTitle() = captureGolden("ReadingToolbar", "shortTitle", EDGE_MODE, content = screen(shortTitleState))
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun shortTitle_fits() = captureGolden("ReadingToolbar", "shortTitle_fits", EDGE_MODE, content = screen(shortTitleState))
+
+    // The feature working: at 360dp the full title overflows but the short one fits whole.
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h640dp")
+    fun shortTitle_fallback360() = captureGolden("ReadingToolbar", "shortTitle_fallback360", EDGE_MODE, content = screen(shortTitleState))
+
+    @Test
+    fun shortTitle_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "shortTitle", mode, content = screen(shortTitleState)) }
     }
 }

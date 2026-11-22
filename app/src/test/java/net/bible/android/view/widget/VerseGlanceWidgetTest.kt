@@ -162,4 +162,46 @@ class VerseGlanceWidgetTest {
         VerseWidgetConfigStore.save(context, 32, chosen)
         assertEquals(chosen, VerseWidgetConfigStore.loadOrSaveDefault(context, 32) { error("not needed") })
     }
+
+    @Test fun anAppThatDidNotOpenGivesNoLoadsAndNeverTouchesKoin() = kotlinx.coroutines.runBlocking {
+        // The crash safe mode (#4176) and damaged data (#4112): Koin was never started, so resolving it threw and the
+        // widget showed Glance's error layout instead of the attention card.
+        val loads = verseWidgetLoadsFor(context, 7, WidgetEntry(appOpens = false, mono = false)) {
+            throw AssertionError("Koin must not be touched when the app did not open")
+        }
+        assertNull(loads)
+    }
+
+    @Test fun candidatesAreResolvedOnTheMainLooperNotOnAWorker() {
+        // VerseCandidates pulls in main-bound singletons (ReadingPlanControl, windows, bookmarks); first-building them on
+        // a worker thread broke widgets after an update (#4175). The provideGlance caller is a worker thread.
+        val main = android.os.Looper.getMainLooper()
+        var resolvedOnMain: Boolean? = null
+        val koin = org.koin.core.KoinApplication.init().apply {
+            modules(org.koin.dsl.module {
+                single<net.bible.android.control.widget.LocalZone> { net.bible.android.control.widget.LocalZone { 0L } }
+                single {
+                    resolvedOnMain = android.os.Looper.myLooper() == main
+                    net.bible.android.control.widget.VerseCandidates(org.mockito.Mockito.mock(net.bible.android.control.widget.VerseWidgetSources::class.java))
+                }
+            })
+        }.koin
+        var failure: Throwable? = null
+        val worker = Thread {
+            try {
+                kotlinx.coroutines.runBlocking {
+                    verseWidgetLoadsFor(context, 8, WidgetEntry(appOpens = true, mono = false)) { koin }
+                }
+            } catch (t: Throwable) { failure = t }
+        }
+        worker.start()
+        val deadline = System.currentTimeMillis() + 20_000
+        while (worker.isAlive && System.currentTimeMillis() < deadline) {
+            shadowOf(main).idle()
+            worker.join(20)
+        }
+        assertFalse("worker did not finish", worker.isAlive)
+        failure?.let { throw AssertionError("loads failed", it) }
+        assertEquals(true, resolvedOnMain)
+    }
 }

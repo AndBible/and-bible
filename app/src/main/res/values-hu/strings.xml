@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Ha az indexelés befejeződött, megjelenik a kereső képernyő.</string>
   <string name="index_create">Létrehozás</string>
   <string name="rebuild_index">Újraindexelés</string>
-  <string name="search_in">Keresés %s-ben</string>
   <string name="do_in_background">Folytassa a háttérben</string>
   <string name="rebuild_index_button">Adatbázis újraépítése</string>
   <string name="creating_index_for">Index létrehozása: %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s találat a %2$s-ból</string>
   <!--Tasks-->
   <string name="progress_status">Folyamatjelző</string>
-  <string name="task_kill_warning">Ez az időigényes feladat megszakadhat, ha a befejezés előtt másik alkalmazásra váltasz.</string>
   <string name="no_tasks_running">Jelenleg nincsenek futó feladatok.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Versek keresése</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Keresett szöveg törlése</string>
   <string name="search_engine_changed_reindex">A keresőmotor frissült. A keresési indexet újra létre kell hozni; ez eltarthat egy ideig.</string>
   <string name="search_unsupported_syntax">Ez a keresés nem támogatott szintaxist használ: %s</string>
+  <string name="search_regex">Reguláris kifejezés (kísérleti)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">A keresés túl sokáig tartott, ezért leállítottuk. Az eredmények hiányosak; próbáljon egyszerűbb kifejezést.</string>
+  <string name="search_invalid_regex">Érvénytelen reguláris kifejezés: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Ez a reguláris kifejezés túl sok nyílt végű helyettesítő karaktert tartalmaz (például .* vagy \\w+). Használjon belőlük kevesebbet, vagy szűkítse őket, például így: .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Ez a reguláris kifejezés olyan csoportot ismétel, amely maga is ismétlést tartalmaz, például (a+)+. Ennek illesztése gyakorlatilag végtelen ideig tarthat. Írja át ismétlések egymásba ágyazása nélkül.</string>
+  <string name="search_regex_busy">Egy korábbi reguláris kifejezéses keresés még fut a háttérben. Próbálja újra egy pillanat múlva; ha nem fejeződik be, indítsa újra az alkalmazást.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +319,8 @@
   <string name="hide_window_buttons_summary">A Biblia nézeteinek jobb oldalán megjelenő ablakgombok el vannak rejtve. Az alsó ablak navigációs sávja továbbra is megjelenik, és hosszú kattintással megnyithatja az ablak felbukkanó menüjét.</string>
   <string name="hide_bible_reference_overlay_title">Biblia referenciák elrejtése</string>
   <string name="hide_bible_reference_overlay_summary">A félig átlátszó Biblia referenciák elrejtése teljes képernyős módban</string>
+  <string name="text_under_window_buttons_title">Szöveg megjelenítése az ablakgombok alatt</string>
+  <string name="text_under_window_buttons_summary">A Biblia szövege a képernyő aljáig tart, az ablakgombok sávja alatt is. Kikapcsolva egy sáv szabadon marad a sáv alatt az általa érintett alsó ablakokban.</string>
   <string name="full_screen_hide_buttons_pref_title">Ablakvezérlő gombok sávjának elrejtése teljes képernyős módban</string>
   <string name="full_screen_hide_buttons_pref_summary">Ablakvezérlőgombok elrejtése teljesképernyős módban</string>
   <string name="prefs_hide_status_bar_title">Állapotsor elrejtése</string>
@@ -566,7 +573,50 @@ Ha a dokumentum struktúrája változik, akkor az ilyen könyvjelzők/jegyzetek 
   <string name="sleep_timer_active_at">Felolvasás befejezése %s perc múlva</string>
   <string name="speak_next">Következő</string>
   <string name="speak_previous">Előző</string>
+  <string name="widget_play">Lejátszás</string>
   <string name="widget_toggle_sleep_timer">Alvási időzítő ki-/bekapcsolása</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Felolvasás</string>
+  <string name="widget_speak_text_name">Felolvasás szöveggel</string>
+  <string name="widget_listening_list_name">Hallgatási lista</string>
+  <string name="widget_verse_name">Vers</string>
+  <string name="widget_continue_from">Folytatás innen: %1$s · %2$s</string>
+  <string name="widget_continue_listening">Hallgatás folytatása</string>
+  <string name="widget_paused">Szüneteltetve</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Még nincs felolvasási könyvjelző</string>
+  <string name="widget_listening_list_empty_text">A Felolvasás címkével ellátott könyvjelzők itt jelennek meg. Kapcsolja be az automatikus könyvjelzőket a felolvasási beállításokban, vagy adja hozzá a címkét bármely könyvjelzőhöz.</string>
+  <string name="widget_open_app">AndBible megnyitása</string>
+  <string name="widget_open_app_to_load">Nyissa meg az AndBible-t a versek betöltéséhez</string>
+  <string name="widget_verse_unavailable_no_bible">Telepítsen egy Bibliát, hogy itt verseket lásson</string>
+  <string name="widget_verse_unavailable_label_missing">A widget címkéje már nem létezik. Koppintson a versek kiválasztásához.</string>
+  <string name="widget_verse_unavailable_label_empty">Ennek a címkének még nincsenek bibliai könyvjelzői. Koppintson más versek kiválasztásához.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Nincs aktív olvasási terv. Koppintson más versek kiválasztásához.</string>
+  <string name="widget_verse_source_random_whole_bible">Véletlen vers</string>
+  <string name="widget_verse_source_random_new_testament">Véletlen vers · Újszövetség</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Véletlen vers · Zsoltárok és Példabeszédek</string>
+  <string name="widget_shuffle">Vers keverése</string>
+  <string name="widget_speak_verse">Vers felolvasása</string>
+  <string name="widget_verse_config_title">Vers widget</string>
+  <string name="widget_verse_config_source_label">Versek forrása</string>
+  <string name="widget_verse_config_source_label_option">Egy címke</string>
+  <string name="widget_verse_config_source_random">Véletlen vers</string>
+  <string name="widget_verse_config_random_whole">Teljes Biblia</string>
+  <string name="widget_verse_config_random_nt">Újszövetség</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Zsoltárok és Példabeszédek</string>
+  <string name="widget_verse_config_source_plan">A mai olvasási terv</string>
+  <string name="widget_verse_config_changes">Váltás</string>
+  <string name="widget_verse_config_daily">Naponta</string>
+  <string name="widget_verse_config_every_few_hours">Néhány óránként</string>
+  <string name="widget_verse_config_on_shuffle">Csak ha a keverésre koppintok</string>
+  <string name="widget_verse_config_bible">Biblia</string>
+  <string name="widget_verse_config_bible_default">Alapértelmezett (%s)</string>
+  <string name="widget_verse_config_show_buttons">Keverés és felolvasás gombok megjelenítése</string>
+  <string name="widget_verse_config_show_source">Forrás és dátum megjelenítése</string>
+  <string name="widget_verse_config_add">Widget hozzáadása</string>
+  <string name="widget_verse_config_save">Mentés</string>
+  <string name="widget_verse_source_reading_plan">A mai olvasmány</string>
   <string name="speak_status_stopped">leállítva</string>
   <string name="speak_autobookmarking_disabled">A könyvjelzők automatikus mentése ki van kapcsolva!</string>
   <string name="system_speak_settings">TTS (Text-To-Speech) rendszerbeállítások megnyitása</string>
@@ -697,6 +747,29 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="install_zip_canceled">Modulok telepítése megszakadt</string>
   <string name="restore">Visszaállítás</string>
   <string name="import2">Importálás</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (másolat)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">A(z) %1$s kiegészítőből</string>
+  <string name="addon_label_from_module_hint">A kiegészítő megnyitása a dokumentumkezelőben</string>
+  <string name="addon_label_read_only_note">Ez a címke, könyvjelzői és StudyPadje a kiegészítőhöz tartoznak, és nem szerkeszthetők. Megjelölheti kedvencként, kiválaszthatja, hogyan jelenjen meg ebben a munkaterületen, és saját magának könyvjelzőt tehet a verseire.</string>
+  <string name="addon_copy_to_my_labels">Másolás a saját címkéimbe</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Átmásolva a(z) \"%1$s\" címkéjébe</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Ez a tartalom a(z) %1$s kiegészítőből származik, és nem módosítható. A szerkeszthető másolathoz használja a \"Másolás a saját címkéimbe\" lehetőséget.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Ez a tartalom egy kiegészítőből származik, és nem módosítható. A szerkeszthető másolathoz használja a \"Másolás a saját címkéimbe\" lehetőséget.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">A címke másolása nem sikerült</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d kiegészítő gyűjtemény-elem kimaradt. A saját másolathoz használja a címkén a \"Másolás a saját címkéimbe\" lehetőséget.</item>
+    <item quantity="other">%1$d kiegészítő gyűjtemény-elem kimaradt. A saját másolathoz használja a címkén a \"Másolás a saját címkéimbe\" lehetőséget.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">„%1$s\" és még %2$s Címke(k) / Jegyzetlap(ok), valamint %3$s Könyvjelző</string>
   <!--About-->
@@ -731,6 +804,8 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="doc_type_all">Minden típus</string>
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Kommentár</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumentumok</string>
   <string name="doc_type_dictionary">Szótár</string>
   <string name="doc_type_book">Könyv</string>
   <string name="doc_type_map">Térkép</string>
@@ -766,6 +841,10 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="crash_recovery_continue">Folytatás</string>
   <string name="report_error">Jelentés küldése</string>
   <string name="error_occurred">Hiba történt</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Az alkalmazás leállt indítás közben</string>
+  <string name="startup_crash_detail">Kérjük, küldjön nekünk hibajelentést, hogy kijavíthassuk a problémát. Ez tartalmazza a hiba részleteit, valamint az eszköze és az alkalmazás verziójának adatait.</string>
+  <string name="startup_crash_try_again">Újrapróbálás</string>
   <string name="error_occurred_crash_last_time">Az alkalmazás legutóbbi használatakor összeomlott. Köszönjük, ha bejelenti a hibát, hogy javíthassuk.</string>
   <string name="error_occurred_with_link">Hiba történt. %s</string>
   <string name="error_no_content">A kiválasztott vershez nem tartozik tartalom.</string>
@@ -1266,10 +1345,6 @@ jelentse be az észlelt problémát</string>
   <string name="reading_progress_new_cycle">Új ciklus</string>
   <string name="reading_progress_previous_cycle">Előző ciklus</string>
   <string name="reading_progress_next_cycle">Következő ciklus</string>
-  <string name="cloud_merge_data">Adatok egyesítése</string>
-  <string name="cloud_fetch_and_restore_initial">Másolás a tárhelyről erre az eszközre</string>
-  <string name="cloud_create_new">Másolás erről az eszközről a tárhelyre</string>
-  <string name="cloud_disable_sync">A szinkronizáció befejezése és kikapcsolása</string>
   <string name="cloud_sync_title">Eszköz összehangolás</string>
   <string name="reset_sync">Kijelentkezés</string>
   <string name="prefs_reset_sync_summary">Összehangolás kikapcsolása és hasonló beállítások visszaállítása</string>
@@ -1285,8 +1360,19 @@ jelentse be az észlelt problémát</string>
   <string name="google_drive_signin_interrupted">A Google-bejelentkezés megszakadt. Próbáld újra.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">A kiszolgáló címe, pl. https://cloud.example.com (a https:// automatikusan hozzáadódik, ha kihagyja)</string>
   <string name="webdav_server_url_hint">A WebDAV-mappa címe, pl. https://nas.local/dav/ vagy https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">A szinkronizáláshoz biztonságos https:// cím szükséges.</string>
+  <string name="sync_waiting_for_pass">Várakozás az aktuális szinkronizálás befejezésére…</string>
+  <string name="sync_pending_on">Be lesz kapcsolva</string>
+  <string name="sync_pending_off">Ki lesz kapcsolva</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d módosítás</item>
+    <item quantity="other">%1$d módosítás</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Alkalmazza a szinkronizálási módosításokat?</string>
+  <string name="sync_checking_cloud_title">A felhő ellenőrzése…</string>
+  <string name="sync_checking_cloud_text">Olyan adatok keresése, amelyeket más eszközök már szinkronizáltak.</string>
   <string name="webdav_certificate_title">Kiszolgálótanúsítvány</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nem megbízható kiszolgálótanúsítvány</string>
@@ -1304,7 +1390,6 @@ jelentse be az észlelt problémát</string>
   <string name="synchronization_categories">Összehangolási kategóriák</string>
   <string name="sync_general_settings">Információ és általános beállítások</string>
   <string name="sync_introduction">Bevezetés</string>
-  <string name="are_you_sure_merge">Az eszközön lévő adatok és a felhőben lévő %s egyaránt megmaradnak. Ahol ugyanazt az elemet mindkét helyen módosították, az újabb módosítás marad meg. Az eszköz adatai el lesznek küldve a többi eszközére.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Szinkronizáció kikapcsolása. Engedélyezze újra a visszaállítás után.</string>
   <string name="report">Visszajelzés</string>
@@ -1318,8 +1403,6 @@ jelentse be az észlelt problémát</string>
   <string name="install_failed_reason">A modul telepítése nem sikerült: %s</string>
   <string name="no_file_manager">Nem található alkalmazás a fájl kiválasztásához. Telepítsen egy fájlkezelőt, és próbálja újra.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Az alkalmazás meg van nyitva máshol.</string>
-  <string name="open_here">Megnyitás itt</string>
   <string name="external_link_dont_ask_again">Ne kérdezzen újra ehhez: %s</string>
   <string name="nameless">A cím nincs megadva</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Bibliákhoz kapcsolódó egy-koppintásos műveletek</string>
@@ -2265,18 +2348,30 @@ jelentse be az észlelt problémát</string>
   <string name="dialog_dont_apply">Ne alkalmazza</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">A felhőben már megvannak a(z) %s. Mi történjen?</string>
-  <string name="cloud_merge_consequence">Mindkét oldal megmarad; ahol egy elem mindkét oldalon módosult, az újabb módosítás érvényesül.</string>
-  <string name="cloud_fetch_consequence">Az eszközön lévő adatokat lecseréli a felhőbeli másolatra.</string>
-  <string name="cloud_create_consequence">A felhőbeli másolatot lecseréli az eszközön lévő adatokra.</string>
-  <string name="cloud_disable_consequence">A szinkronizálás ki marad kapcsolva ennél az adatnál.</string>
-  <string name="cloud_merge_lead">Egyesíti a(z) %s a felhővel?</string>
-  <string name="cloud_merge_confirm">Egyesítés</string>
   <string name="cloud_replace_confirm">Csere</string>
-  <string name="cloud_replace_local_lead">Lecseréli az eszköz(ön lévő) %s adatait a felhőbeli másolatra?</string>
-  <string name="cloud_replace_local_detail">Ami most az eszközön van, felülíródik, és nem állítható helyre.</string>
-  <string name="cloud_replace_cloud_lead">Lecseréli a(z) %s felhőbeli másolatát az eszköz adataival?</string>
-  <string name="cloud_replace_cloud_detail">Ami most a felhőben van, felülíródik, és a többi eszköze megkapja ennek az eszköznek az adatait.</string>
+  <string name="cloud_join_plan_title">A felhőben már vannak adatok</string>
+  <string name="cloud_join_plan_lead">Válassza ki, mi legyen az egyes kategóriákkal.</string>
+  <string name="cloud_join_merge">Egyesítés</string>
+  <string name="cloud_join_merge_detail">Ennek az eszköznek és a felhőnek az összefésülése</string>
+  <string name="cloud_join_fetch">Másolás a felhőből</string>
+  <string name="cloud_join_fetch_detail">Az eszköz adatainak felülírása</string>
+  <string name="cloud_join_create">Másolás a felhőbe</string>
+  <string name="cloud_join_create_detail">A felhő adatainak felülírása</string>
+  <string name="cloud_join_disable">Ne szinkronizáljon</string>
+  <string name="cloud_join_disable_detail">A kategória maradjon kikapcsolva</string>
+  <string name="cloud_join_upload_note">%s: még nincs adat a felhőben, ezért az eszközről lesz feltöltve.</string>
+  <string name="cloud_join_confirm_title">Elindítja a szinkronizálást?</string>
+  <string name="cloud_join_confirm_lead">Ez fog történni:</string>
+  <string name="cloud_join_outcome_merge">%s: egyesítve a felhővel. Semmi sem vész el.</string>
+  <string name="cloud_join_outcome_fetch">%s: az eszközön lévő adatok felülíródnak a felhő adataival.</string>
+  <string name="cloud_join_outcome_create">%s: a felhőben lévő adatok felülíródnak az eszköz adataival.</string>
+  <string name="cloud_join_outcome_disable">%s: kikapcsolva marad.</string>
+  <string name="cloud_join_outcome_upload">%s: feltöltve az eszközről.</string>
+  <string name="cloud_join_warning">A felülírt adatok nem állíthatók vissza. Ha bizonytalan, előbb készítsen biztonsági mentést.</string>
+  <string name="cloud_join_next">Tovább</string>
+  <string name="cloud_join_back">Vissza</string>
+  <string name="cloud_join_start">Szinkronizálás indítása</string>
+  <string name="cloud_join_replace">Felülírás és szinkronizálás</string>
   <string name="sign_in_failed_lead">Nem sikerült bejelentkezni a szinkronizálási szolgáltatásba.</string>
   <string name="sync_too_old_lead">Ez az alkalmazás túl régi a(z) %s szinkronizálásához.</string>
   <string name="sync_too_old_detail">A felhőbeli adatok újabb verziót használnak, mint amelyet ez az alkalmazás támogat. A szinkronizálás egyelőre ki van kapcsolva; frissítse az alkalmazást a visszakapcsoláshoz.</string>

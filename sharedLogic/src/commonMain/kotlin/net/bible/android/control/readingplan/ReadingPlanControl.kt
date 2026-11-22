@@ -41,16 +41,20 @@ import kotlin.math.roundToLong
 
 /** Control status of reading plans
  *
+ * [speakControlLazy] is resolved on first speak only: building SpeakControl registers listeners and an active media
+ * session, which rendering a Verse widget (it only reads the plan's passage) must never do (#4175).
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ReadingPlanControl constructor(
-		private val speakControl: SpeakControl,
+		private val speakControlLazy: Lazy<SpeakControl>,
 		private val windowControl: WindowControl,
         private val readingPlanRepo: ReadingPlanRepository,
         private val readingPlanTextDao: ReadingPlanTextFileDao,
         private val settings: AppSettings,
         internal val calendar: LocalCalendar)
 {
+    private val speakControl: SpeakControl get() = speakControlLazy.value
 
     private var readingStatus: ReadingStatus? = null
     private val currentPlan = CurrentReadingPlan(settings)

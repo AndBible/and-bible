@@ -58,10 +58,11 @@ class InstallZipFlowTest {
     private var databaseBackup = false
     private var restoreResult = true
     private val restored = mutableListOf<DocumentRef>()
+    private val requests = mutableListOf<net.bible.service.installzip.DecisionRequest>()
     private val uri = DocumentRef("content://x/module.zip")
     private val uri2 = DocumentRef("content://x/other.epub")
 
-    private fun flow(scope: CoroutineScope, action: String?, uris: List<DocumentRef>) = InstallZipFlow(
+    private fun flow(scope: CoroutineScope, action: String?, uris: List<DocumentRef>, decisionStates: Boolean = false) = InstallZipFlow(
         scope = scope,
         action = action,
         uris = uris,
@@ -74,8 +75,15 @@ class InstallZipFlowTest {
             enqueue = { list, act -> enqueued += list to act },
             isDatabaseBackup = { databaseBackup },
             restoreBackup = { restored += it; restoreResult },
-            resolveDecision = { id, ok -> decisions += id to ok },
-            mapPhase = { InstallUiState.Progress(it.displayName, "status", percent = null, indeterminate = true) },
+            resolveDecision = { id, req, ok -> decisions += id to ok; requests += req },
+            mapPhase = {
+                val ask = (it.phase as? InstallPhase.AwaitingDecision)?.request
+                when {
+                    decisionStates && ask is DecisionRequest.ModuleBackupRestore -> InstallUiState.ModuleBackupRestore
+                    decisionStates && ask is DecisionRequest.Overwrite -> InstallUiState.Overwrite(ask.files)
+                    else -> InstallUiState.Progress(it.displayName, "status", percent = null, indeterminate = true)
+                }
+            },
             requestNotificationPermission = {},
             noFileManager = {},
         ),
@@ -98,7 +106,43 @@ class InstallZipFlowTest {
         assertEquals(listOf(InstallZipResult.OK), results)
     }
 
-    /** #4095: an `.abdb.zip` opened from a file manager is a database backup: restore it, never ask to install it as a module. */
+    /** #4192: an answer carries the question its dialog showed, so a late tap cannot answer the next one. */
+    @Test
+    fun anAnswerCarriesTheRequestOfTheDialogThatWasShown() = runTest(UnconfinedTestDispatcher()) {
+        val first = net.bible.service.installzip.DecisionRequest.ModuleBackupRestore
+        val second = net.bible.service.installzip.DecisionRequest.Overwrite(listOf("a.conf"))
+        val f = flow(backgroundScope, null, listOf(uri))
+        f.start()
+        jobs.value = listOf(InstallJobState("job-1", "module.zip", InstallPhase.AwaitingDecision(first)))
+        f.confirm()
+        jobs.value = listOf(InstallJobState("job-1", "module.zip", InstallPhase.AwaitingDecision(second)))
+        f.dismiss()
+        assertEquals(listOf(first, second), requests)
+    }
+
+    /**
+     * #4192: a double tap on "Restore the documents in this backup?" lands on "Overwrite files?" once the job has
+     * published it. The second tap carries the Restore dialog's state and is dropped; the Overwrite stays pending.
+     */
+    @Test
+    fun aSecondTapOnTheReplacedQuestionDoesNotAnswerTheNextOne() = runTest(UnconfinedTestDispatcher()) {
+        val restore = DecisionRequest.ModuleBackupRestore
+        val overwrite = DecisionRequest.Overwrite(listOf("a.conf"))
+        val f = flow(backgroundScope, null, listOf(uri), decisionStates = true)
+        f.start()
+        jobs.value = listOf(InstallJobState("job-1", "module.zip", InstallPhase.AwaitingDecision(restore)))
+        val restoreShown = f.state.value!!
+        assertEquals(InstallUiState.ModuleBackupRestore, restoreShown)
+
+        f.confirm(restoreShown) // first tap answers Restore
+        jobs.value = listOf(InstallJobState("job-1", "module.zip", InstallPhase.AwaitingDecision(overwrite)))
+        f.confirm(restoreShown) // second tap, one frame later, still on the Restore dialog
+
+        assertEquals(listOf<DecisionRequest>(restore), requests)
+        f.confirm(f.state.value!!) // a tap on the dialog that IS shown is accepted
+        assertEquals(listOf(restore, overwrite), requests)
+    }
+
     @Test
     fun anExternalViewOfADatabaseBackupIsRestoredNotInstalled() = runTest(UnconfinedTestDispatcher()) {
         databaseBackup = true

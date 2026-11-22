@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.host.ports
 
+import net.bible.sharedcore.settings.TEXT_UNDER_WINDOW_BUTTONS_KEY
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.android.view.activity.settings.SettingsReset
 import net.bible.sharedcore.platform.AppSettings
@@ -47,6 +48,8 @@ class HostSettingsPlatform(
         if (key in HostDocumentLoaderPlatform.CONFIG_SETTING_KEYS) {
             HostReadingWindows.readingConfigChanged()
         }
+        // #4184: the rail strip is part of the document offsets, not the reading config.
+        if (key == TEXT_UNDER_WINDOW_BUTTONS_KEY) HostReadingWindows.offsetsChanged()
     }
     override fun onSystemBarSettingChanged() = Unit
     override val isDiscreteBuild: Boolean = false

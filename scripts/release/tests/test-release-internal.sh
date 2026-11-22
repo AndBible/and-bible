@@ -328,6 +328,34 @@ test_summary_fields() {
         && grep -q 'build 2026.1110.120000 ' <<<"$s" && grep -q 'testflight/2026.1110.120000/$' <<<"$s" && grep -q 'jailbee unmount release-secrets pub' <<<"$s" \
         || return "$(fail "summary: $s")"
 }
+test_upload_tags_commit_and_prints_github_line() {
+    mk_repo; run
+    local full; full=$(git rev-parse HEAD)
+    [ "$(git rev-parse 'internal-1261^{commit}' 2>/dev/null)" = "$full" ] || return "$(fail "no internal-1261 at HEAD")"
+    grep -q "^github: after testing, on the host: make github-release-beta COMMIT=$full$" "$(SUMF)" \
+        || return "$(fail "summary: $(cat "$(SUMF)")")"
+}
+test_upload_of_same_version_from_new_commit_moves_internal_tag() {
+    mk_repo; git tag internal-1261 HEAD; echo x > f; git add f; git commit -q -m next
+    run --platform ios
+    [ "$(git rev-parse 'internal-1261^{commit}')" = "$(git rev-parse HEAD)" ] || return "$(fail "tag not moved")"
+}
+test_production_suffix_prints_production_target() {
+    mk_repo; sed -i 's/^versionNameSuffix=.*/versionNameSuffix=/' version.properties; git commit -qam prod
+    run
+    grep -q '^github: .*make github-release COMMIT=' "$(SUMF)" || return "$(fail "summary: $(cat "$(SUMF)")")"
+}
+test_no_github_line_without_upload() {
+    local mode
+    for mode in --export-only --dry-run; do
+        mk_repo; run "$mode"
+        grep -q '^github:' "$(SUMF)" && return "$(fail "$mode printed: $(cat "$(SUMF)")")"
+        [ -z "$(git tag)" ] || return "$(fail "$mode tagged")"
+    done
+    mk_repo; STUB_A_RC_upload=1 STUB_I_RC=1 run
+    grep -q '^github:' "$(SUMF)" && return "$(fail "both failed but printed")"
+    [ -z "$(git tag)" ] || return "$(fail "failed run tagged")"
+}
 test_make_testflight_maps_to_ios() {
     local o
     o=$(make -s -n -C "$REAL_REPO" testflight DEST=export 2>&1)

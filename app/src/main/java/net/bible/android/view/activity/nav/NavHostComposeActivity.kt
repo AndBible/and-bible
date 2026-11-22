@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.nav
 
+import net.bible.sharedcore.settings.textUnderWindowButtons
 import net.bible.service.db.corruptDatabasesOrNull
 import net.bible.service.db.DamagedDataHandedOver
 import net.bible.android.view.activity.search.searchIntent
@@ -104,6 +105,7 @@ import net.bible.android.view.activity.nav.ports.AndroidAiHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidBugReportPlatform
 import net.bible.android.view.activity.nav.ports.AndroidPromptFiles
 import net.bible.sharedui.app.AppHosts
+import net.bible.sharedui.app.bookmark.LabelAssignSheetOpener
 import net.bible.sharedui.app.AppHostsState
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.HostPorts
@@ -136,7 +138,9 @@ import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.device.EXTRA_OPEN_ACTIVITY_LIST
 import net.bible.service.device.ScreenSettings
+import net.bible.service.device.consumeActivityListRequest
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.sharedcore.event.Subscriptions
@@ -169,6 +173,7 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewKey
+import net.bible.sharedcore.reading.shouldClaimPaneFocusOnResume
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.HostSystemBars
@@ -179,11 +184,9 @@ import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.nav.readingNavGraph
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
-import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
-import net.bible.sharedcore.nav.PassageResult
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.getKoin
 
@@ -227,6 +230,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
     internal lateinit var appHosts: AppHosts
         private set
+
+    /** The label-assign sheet of this host's overlays (issue #4201), or null before [appHosts] exists. */
+    internal fun labelAssignSheetOpener(): LabelAssignSheetOpener? =
+        if (::appHosts.isInitialized) appHosts.bookmark::requestLabelAssign else null
 
     override val hostScope: CoroutineScope get() = lifecycleScope
     override fun exitHost() = finish()
@@ -287,11 +294,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** The Download destination's two JSword controls, classic `DownloadComposeActivity.kt:135-136`. */
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
-
-    /** The passage grid's versification/book-list source, classic
-     *  `GridChoosePassageComposeActivity.kt:43`. `documentControl`/`downloadControl` above are the
-     *  document chooser's own two, shared with Download. */
-    private val navigationControl: NavigationControl by inject()
 
     /** The workspace cluster's two Koin services, classic `WorkspaceSelectorComposeActivity.kt:56`
      *  and `TextDisplaySettingsComposeActivity.kt:102`. The text-display one is the CONCRETE impl,
@@ -396,6 +398,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var intentArrival = 0L
 
     private fun applyNewIntent(intent: Intent) {
+        // #4174: the progress notification asks for the background-activity list on top of reading.
+        intent.consumeActivityListRequest(getKoin().getOrNull())
         // The route check comes FIRST: a route-less new intent must not become this Activity's
         // intent. It no longer THROWS on the next onCreate -- T8b turned that requireNotNull into a
         // loud default (see navHostStartRoute) -- but letting one through would still replace a
@@ -579,17 +583,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     internal val readingBackChain: List<BackStep> by lazy {
         listOf(
             // Classic :778. The Compose drawer is modal -- it must win.
-            BackStep("drawer") { readingCommands.composeCloseDrawerIfOpen() },
+            BackStep("drawer", closesLayer = true) { readingCommands.composeCloseDrawerIfOpen() },
             // Classic :797. Three stages: the results list after a result tap (F83), then the sheet, then search mode.
-            BackStep("search") { readingCommands.composeCloseSearchIfOpen() },
+            BackStep("search", closesLayer = true) { readingCommands.composeCloseSearchIfOpen() },
             // Classic :798-801.
-            BackStep("fullscreen") {
+            BackStep("fullscreen", closesLayer = true) {
                 if (!fullScreen) false else { toggleFullScreen(); true }
             },
             // Classic :806, `documentViewManager.documentView.backButtonPressed()` -- closes an open
             // BibleView modal. Guarded on the reading view existing, because `documentView` CREATES a
             // BibleView when absent (see the note at :1004-1013) and a back press must never do that.
-            BackStep("webViewModal", clearsExitWarning = true) {
+            BackStep("webViewModal", clearsExitWarning = true, closesLayer = true) {
                 composeReadingViewHost != null && documentViewManager.documentView.backButtonPressed()
             },
             // #4141: the links pane beside a maximised window closes once Back has walked what was opened in it since it
@@ -733,12 +737,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     internal fun readingBack(passThrough: () -> Unit) {
         for (step in readingBackChain) {
+            if (escapeBackInProgress && !step.closesLayer) continue
             if (step.run()) {
                 Log.i(TAG_BACK, "BACK consumed by ${step.name}")
                 if (step.clearsExitWarning) lastBackPressed = null
                 return
             }
         }
+        // Esc (#4196) closes layers only; the exit warning and the exit stay Back's.
+        if (escapeBackInProgress) return
         val last = lastBackPressed
         val now = System.currentTimeMillis()
         if (last == null || last < now - BACK_EXIT_WINDOW_MS) {
@@ -806,6 +813,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Activity; every other destination reaches `super` unchanged.
      */
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (isPlainEscape(event)) {
+            if (event.isTracking && !event.isCanceled) escapeBack()
+            return true
+        }
         if (keyCode == KeyEvent.KEYCODE_SEARCH && !event.isCanceled && readingDestinationIsCurrent() &&
             windowControl.activeWindowPageManager.currentPage.isSearchable
         ) {
@@ -821,6 +832,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (isPlainEscape(event)) {
+            event.startTracking()
+            return true
+        }
         // Fix batch 5 F105: every non-reading destination's Compose list, under ActivityBase's gates.
         if (volumeKeyPagesComposeList(keyCode)) {
             lifecycleScope.launch { volumeScrollRegistry.scrollPage(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) }
@@ -835,6 +850,48 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (key != null && handlers.onKey(key)) return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    /**
+     * Issue #4196: a hardware Esc that no view consumed is Back, as on desktop and iOS. Android 16's `Generic.kcm` maps
+     * ESCAPE to nothing (earlier releases sent a fallback BACK for an unhandled Esc; system Back is now Meta+Esc), so the
+     * host answers it itself. Only the unconsumed key gets here: a note editor or a Compose field that uses Esc keeps it,
+     * and answering the key-down also stops an older release from sending its fallback BACK as a second press. Alt+Esc
+     * and Ctrl+Esc stay the platform's HOME/MENU fallbacks.
+     */
+    private fun isPlainEscape(event: KeyEvent): Boolean =
+        event.keyCode == KeyEvent.KEYCODE_ESCAPE && event.hasNoModifiers()
+
+    /** True while [escapeBack] dispatches: such a press closes what is open but never exits or warns about exiting. */
+    private var escapeBackInProgress = false
+
+    /**
+     * The lowest back callback (registered before [hostBack]), enabled only while [escapeBack] dispatches. Esc must
+     * never fall through to the platform's default, which finishes the Activity: whatever pass-through reaches the end
+     * of the chain (the host's [passThroughHostBack], or a Compose `PassThroughBackHandler` that disabled itself and
+     * re-dispatched, e.g. on a non-reading start destination with nothing below it) ends here instead.
+     */
+    private val escapeSink = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            Log.i(TAG_BACK, "Esc: nothing to close")
+        }
+    }
+
+    /**
+     * Runs Esc through the same back dispatcher as Back (sheets, dialogs, the drawer, find mode, a pop to the previous
+     * screen), except that it never leaves the app or the page: on reading it runs only the steps that close a layer
+     * ([BackStep.closesLayer], no history step, no exit warning; [readingBack]), and a press that would fall through to
+     * the platform's finish ends in [escapeSink].
+     */
+    private fun escapeBack() {
+        escapeBackInProgress = true
+        escapeSink.isEnabled = true
+        try {
+            onBackPressedDispatcher.onBackPressed()
+        } finally {
+            escapeSink.isEnabled = false
+            escapeBackInProgress = false
+        }
     }
 
     /**
@@ -1321,6 +1378,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // NOT `Modifier.imePadding()` at the consumer: that would double the lift on top of
                 // this padding and consume `ime`, hiding it from the bars' `navigationBars.exclude(ime)`.
                 applyImeBottomPadding = { px -> imeBottomPaddingPxState.intValue = px },
+                textUnderWindowButtons = { CommonUtils.settings.textUnderWindowButtons() },
             )
         )
     }
@@ -1714,9 +1772,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * separate Activity rather than a nav-graph destination: `ChooseDocument` (the document sheet's
      * full-screen footer row, `AndroidReadingNavigator.openChooseDocument`,
      * `ReadingCommands.startDocumentChooser`, `MenuCommandHandler`'s `chooseDocumentButton`),
-     * `ChooseDictionaryWord` and `ChooseMapKey` (`KeyChooserRoute.sheetFor` deliberately returns
-     * null for the dictionary, so that chooser is ALWAYS the full screen), `ChooseGeneralBookKey`
-     * and `GridChoosePassage`. With this host as the launcher and nothing overriding
+     * `ChooseDictionaryWord` (`KeyChooserRoute.sheetFor` deliberately returns null for the
+     * dictionary, so that chooser is ALWAYS the full screen), and, until #4172 and #4169 removed
+     * them, `ChooseMapKey`, `ChooseGeneralBookKey` and the full-screen passage grid. With this host as the launcher and nothing overriding
      * `onActivityResult`, every one of those results fell through `ActivityBase`'s
      * `resultByCode[requestCode - ASYNC_REQUEST_CODE_START]` miss to `super` and was discarded in
      * silence -- the batch's Ruling D failure, and the same defect step 0 fixed one level up.
@@ -2029,9 +2087,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             collectorFor(keyChooserResults, ReadingResultKind.KeyChooser) { result, code ->
                 deliverReadingResult(code, RESULT_OK, NavResultIntents.forKeyChooser(result))
             },
-            collectorFor(passageResults, ReadingResultKind.PassageGrid) { result, code ->
-                deliverReadingResult(code, RESULT_OK, NavResultIntents.forPassage(result))
-            },
             collectorFor(documentResults, ReadingResultKind.ChooseDocument) { result, code ->
                 deliverReadingResult(code, RESULT_OK, NavResultIntents.forDocument(result))
             },
@@ -2110,8 +2165,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 readingCommands.applyChosenGenBookKey(book, key)
             }
             ActivityResultKind.Bookmarks,
-            ActivityResultKind.ReadingProgress,
-            ActivityResultKind.PassageGrid -> {
+            ActivityResultKind.ReadingProgress -> {
                 if (!readingCommands.applyChosenPassageResult(kind, extras)) {
                     Log.w(TAG_READING_RESULTS, "A $kind answer named nothing to open; not applied.")
                 }
@@ -2138,7 +2192,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * its next resume, a selection the user made minutes earlier on an unrelated screen.
      *
      * The kinds a SEPARATE Activity can still produce are the only ones handled: `ChooseDocument`,
-     * `GenBookKey` (general book, dictionary and map all share that shape) and `PassageGrid`.
+     * `GenBookKey` (general book, dictionary and map all share that shape).
      * `MyDocumentPages`, `MyDocuments`, `Bookmarks` and `ReadingProgress` are destinations of THIS
      * host's own graph, so their results are delivered in-graph by `NavResultChannel` and cannot
      * arrive here; one that does means a second host instance was created, and it is logged rather
@@ -2176,9 +2230,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             ActivityResultKind.GenBookKey -> {
                 val (book, key) = KeyChooserResults.genBookKeyFrom(extras)
                 readingCommands.applyChosenGenBookKey(book, key)
-            }
-            ActivityResultKind.PassageGrid -> {
-                extras.getString("verse")?.let { readingCommands.applyChosenVerse(it) }
             }
             else -> Log.w(
                 TAG_START_ROUTE,
@@ -2410,7 +2461,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         ReadingResultKind.Bookmarks -> bookmarkResults
         ReadingResultKind.MyDocuments -> myDocumentsResults
         ReadingResultKind.KeyChooser -> keyChooserResults
-        ReadingResultKind.PassageGrid -> passageResults
         ReadingResultKind.ChooseDocument -> documentResults
         ReadingResultKind.Workspace -> workspaceResults
     }
@@ -2530,6 +2580,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
+     * Step 3 of [reconcileReadingStateOnResume]: the active pane takes the key focus. A seam so a test can see the
+     * request (Robolectric's WebView never takes focus itself).
+     */
+    @VisibleForTesting
+    internal var requestPaneFocusOnResume: () -> Unit = { documentViewManager.documentView.asView().requestFocus() }
+
+    /**
      * **T8a item 2: the rest of classic's `onResume` reconciliation block (`:1979-1988`), ported as
      * a block rather than as a line.**
      *
@@ -2567,7 +2624,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             updateDocuments()
         }
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
-        if (composeReadingViewHost != null) documentViewManager.documentView.asView().requestFocus()
+        // #4196: not while find is open, or the pane (a WebView) takes the keys from the field and swallows Esc.
+        if (composeReadingViewHost != null && shouldClaimPaneFocusOnResume(searchBarOpen = readingCommands.composeSearchModeActive)) {
+            requestPaneFocusOnResume()
+        }
 
         // Check for pending AI agent results that completed while app was backgrounded
         handlePendingAgentResult()
@@ -3016,9 +3076,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // #4176: crash safe mode; ActivityBase hands over before anything below reads the (uninitialised) app.
+        if (net.bible.android.control.report.StartupCrashGuard.safeMode) {
+            super.onCreate(savedInstanceState)
+            return
+        }
         // A state loss is recoverable; a launch crash loop is not.
         // After process death the system re-delivers the ORIGINAL launch intent; its link was already applied.
         if (savedInstanceState != null) intent.removeExtra("openLink")
+        if (savedInstanceState == null) intent.consumeActivityListRequest(getKoin().getOrNull())
+        else intent.removeExtra(EXTRA_OPEN_ACTIVITY_LIST)
         val launchRoute = intent.getStringExtra(EXTRA_ROUTE)
         pendingReadingSearchRoute = if (savedInstanceState != null) savedInstanceState.getString("pending_reading_search")
             else launchRoute?.takeIf { it.substringBefore('?') == "reading/search" }
@@ -3031,7 +3098,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
         // #4112: damaged user data; the startup's recovery question has taken over and this host is finishing.
-        if (routedToDamagedDataRecovery) return
+        if (routedAwayAtStart) return
         applyComposeHostWindowSetup()
         // F59 (T9 walk, spec §3.1.1): the manifest keeps `adjustResize` on this Activity's block
         // (a manifest attribute cannot be per-API). F59 fix round 2 (extra adversarial
@@ -3137,6 +3204,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         startStageForTest = "content set, start settings not loaded"
+        // Below hostBack and every Compose handler: catches an Esc that nothing above consumed (see escapeSink).
+        onBackPressedDispatcher.addCallback(this, escapeSink)
         onBackPressedDispatcher.addCallback(this, hostBack)
         setContent {
             // Direct settings/download entry points can precede the startup coroutine.
@@ -3219,7 +3288,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             myDocumentPages = myDocumentPagesResults,
                             myDocuments = myDocumentsResults,
                             keyChooser = keyChooserResults,
-                            passage = passageResults,
                             document = documentResults,
                             installZip = installZipResults,
                             workspace = workspaceResults,
@@ -3462,20 +3530,21 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     // --- Download cluster (DownloadHost, CloudDocumentsHost) --------------------------------------
-    // The download, custom repository, progress status and cloud documents destinations' deps, sessions, controllers
+    // The download, custom repository and cloud documents destinations' deps, sessions, controllers
     // and menus live in `appHosts.download` and `appHosts.cloudDocuments` (`:sharedUi`,
     // `net.bible.sharedui.app.download`). `repositoryEditorResults` stays declared above: the channel guards read it.
 
     // --- Chooser cluster (ChooserHost) -----------------------------------------------------------
-    // The five chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
-    // `net.bible.sharedui.app.chooser`). The three result channels stay declared here: `KeyChooserResults` is a
+    // The four chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
+    // `net.bible.sharedui.app.chooser`). The two result channels stay declared here: `KeyChooserResults` is a
     // frozen `page` contract and the reading destination's collectors read them.
 
-    // ——— The chooser cluster's three result channels ————————————————————————————————————————————
-    // THREE channels for FIVE destinations (design §6.2) -- see `ChooserNavDeps`' own kdoc: the three
-    // key choosers already produce an identical payload consumed by a single arm.
+    // ——— The chooser cluster's two result channels ——————————————————————————————————————————————
+    // TWO channels for FOUR destinations (design §6.2; the passage grid's own went with it, #4169) -- see
+    // `ChooserNavDeps`' own kdoc: the three key choosers already produce an identical payload consumed by
+    // a single arm.
     //
-    // Every result on these three channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
+    // Every result on these channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
     // the reading destination (`readingResultCollectors`), which packs it back into the classic
     // chooser's Intent and applies it through `deliverReadingResult`. An abandoned chooser is answered
     // as a cancel by `answerAbandonedReadingRequests`.
@@ -3488,10 +3557,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // defined.
 
     private val keyChooserResults = NavResultChannel<KeyChooserResult> {
-        error("slice 7 destinations are only entered in-graph")
-    }
-
-    private val passageResults = NavResultChannel<PassageResult> {
         error("slice 7 destinations are only entered in-graph")
     }
 
@@ -3556,7 +3621,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * result (see `WorkspaceHost.onHostDestroy`, which discards the workspaces it cloned).
      */
     override fun onDestroy() {
-        if (routedToDamagedDataRecovery) {
+        if (routedAwayAtStart) {
             super.onDestroy()
             return
         }

@@ -37,6 +37,11 @@ data class ToolbarState(
      * `MainBibleActivity.updateStrongsButton` swap, issue #4041).
      */
     val isNewTestament: Boolean = false,
+    /**
+     * [pageTitle] with short book names (Finnish `2Moos 1:2` for `2. Mooseksen kirja 1:2`), shown instead of it when
+     * the full title does not fit the toolbar, like the classic app (#4200); null when no shorter title exists.
+     */
+    val pageTitleShort: String? = null,
 ) {
     companion object {
         val EMPTY = ToolbarState("", "", false, false, false, false, 0, false, false, true, null, false)

@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy välittömästi etsi-toimintoon.</string>
   <string name="index_create">Luo uusi</string>
   <string name="rebuild_index">Tee hakuindeksi uudelleen</string>
-  <string name="search_in">Etsi dokumentissa %s</string>
   <string name="do_in_background">Jatka taustalla</string>
   <string name="rebuild_index_button">Luo indeksi</string>
   <string name="creating_index_for">Luodaan indeksiä: %s...</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2"> %2$s:  %1$s tulosta</string>
   <!--Tasks-->
   <string name="progress_status">Edistyminen</string>
-  <string name="task_kill_warning">Pitkäkestoiset tehtävät voivat keskeytyä, jos siirryt toiseen sovellukseen ennen kuin ne on suoritettu loppuun.</string>
   <string name="no_tasks_running">Tehtäviä ei ole tällä hetkellä suoritettavana.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Etsi jakeista</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Tyhjennä hakuteksti</string>
   <string name="search_engine_changed_reindex">Hakumoottori on päivitetty. Hakuhakemisto on luotava uudelleen; se voi kestää hetken.</string>
   <string name="search_unsupported_syntax">Tämä haku käyttää syntaksia, jota ei tueta: %s</string>
+  <string name="search_regex">Säännöllinen lauseke (kokeellinen)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Haku kesti liian kauan ja keskeytettiin. Tulokset ovat vajaat; kokeile yksinkertaisempaa lauseketta.</string>
+  <string name="search_invalid_regex">Virheellinen säännöllinen lauseke: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Tässä säännöllisessä lausekkeessa on liian monta avointa jokerimerkkiä (kuten .* tai \\w+). Käytä niitä vähemmän tai rajaa niitä, esimerkiksi .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Tämä säännöllinen lauseke toistaa ryhmän, joka itsekin sisältää toiston, kuten (a+)+. Sen täsmäys voi kestää käytännössä ikuisuuden. Kirjoita se uudelleen ilman sisäkkäisiä toistoja.</string>
+  <string name="search_regex_busy">Aiempi säännöllisen lausekkeen haku on yhä käynnissä taustalla. Yritä hetken kuluttua uudelleen; jos se ei valmistu, käynnistä sovellus uudelleen.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +319,8 @@
   <string name="hide_window_buttons_summary">Piilota ikkunoiden painikkeet, jotka näytetään tavallisesti kunkin raamattunäkymän oikealla puolella. Ikkunan navigointipaneeli ruudun alakulmassa näytetään edelleen, ja voit avata ikkunan ponnahdusvalikon napsauttamalla pitkään näitä painikkeita.</string>
   <string name="hide_bible_reference_overlay_title">Piilota Raamattuviitteen näyttö</string>
   <string name="hide_bible_reference_overlay_summary">Älä näytä puoliksi läpinäkyvää raamattuviitteen näyttöä kun sovellus on kokoruudun tilassa</string>
+  <string name="text_under_window_buttons_title">Näytä teksti ikkunapainikkeiden alla</string>
+  <string name="text_under_window_buttons_summary">Raamatun teksti ulottuu näytön alareunaan ikkunapainikepalkin alle. Kun asetus on pois päältä, palkin alle jätetään vapaa kaista niissä alaikkunoissa, joihin palkki ulottuu.</string>
   <string name="full_screen_hide_buttons_pref_title">Piilota ikkunoiden painikepaneeli kokoruututilassa</string>
   <string name="full_screen_hide_buttons_pref_summary">Kun vaihdat kokoruututilaan, piilota automaattisesti ikkunoiden painikepaneeli, joka sijaitsee ruudun alalaidassa.</string>
   <string name="prefs_hide_status_bar_title">Piilota tilarivi</string>
@@ -569,7 +576,50 @@ Jos dokumentin rakenne on muuttunut, dokumentin päivittäminen voi saada aikaan
   <string name="sleep_timer_active_at">Uniajastin: %s minuuttia jäljellä.</string>
   <string name="speak_next">Seuraava</string>
   <string name="speak_previous">Edellinen</string>
+  <string name="widget_play">Toista</string>
   <string name="widget_toggle_sleep_timer">Kytke uniajastin päälle</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Puhe</string>
+  <string name="widget_speak_text_name">Puhe tekstillä</string>
+  <string name="widget_listening_list_name">Kuuntelulista</string>
+  <string name="widget_verse_name">Jae</string>
+  <string name="widget_continue_from">Jatka kohdasta %1$s · %2$s</string>
+  <string name="widget_continue_listening">Jatka kuuntelua</string>
+  <string name="widget_paused">Tauolla</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Ei vielä puhekirjanmerkkejä</string>
+  <string name="widget_listening_list_empty_text">Kirjanmerkit, joilla on Puhe-kirjanmerkkiryhmä, näkyvät tässä. Ota automaattiset kirjanmerkit käyttöön puheen asetuksissa tai lisää kirjanmerkkiryhmä mihin tahansa kirjanmerkkiin.</string>
+  <string name="widget_open_app">Avaa AndBible</string>
+  <string name="widget_open_app_to_load">Avaa AndBible ladataksesi jakeet</string>
+  <string name="widget_verse_unavailable_no_bible">Asenna Raamattu nähdäksesi jakeet tässä</string>
+  <string name="widget_verse_unavailable_label_missing">Tämän widgetin kirjanmerkkiryhmää ei enää ole. Valitse jakeet napauttamalla.</string>
+  <string name="widget_verse_unavailable_label_empty">Tässä kirjanmerkkiryhmässä ei ole vielä Raamattu-kirjanmerkkejä. Valitse muut jakeet napauttamalla.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Mikään lukusuunnitelma ei ole käytössä. Valitse muut jakeet napauttamalla.</string>
+  <string name="widget_verse_source_random_whole_bible">Satunnainen jae</string>
+  <string name="widget_verse_source_random_new_testament">Satunnainen jae · Uusi testamentti</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Satunnainen jae · Psalmit &amp; Sananlaskut</string>
+  <string name="widget_shuffle">Vaihda jae</string>
+  <string name="widget_speak_verse">Puhu jae</string>
+  <string name="widget_verse_config_title">Jae-widget</string>
+  <string name="widget_verse_config_source_label">Jakeet lähteestä</string>
+  <string name="widget_verse_config_source_label_option">Kirjanmerkkiryhmä</string>
+  <string name="widget_verse_config_source_random">Satunnainen jae</string>
+  <string name="widget_verse_config_random_whole">Koko Raamattu</string>
+  <string name="widget_verse_config_random_nt">Uusi testamentti</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psalmit &amp; Sananlaskut</string>
+  <string name="widget_verse_config_source_plan">Tämän päivän lukusuunnitelma</string>
+  <string name="widget_verse_config_changes">Vaihtuu</string>
+  <string name="widget_verse_config_daily">Päivittäin</string>
+  <string name="widget_verse_config_every_few_hours">Muutaman tunnin välein</string>
+  <string name="widget_verse_config_on_shuffle">Vain kun napautan vaihtopainiketta</string>
+  <string name="widget_verse_config_bible">Raamattu</string>
+  <string name="widget_verse_config_bible_default">Oletus (%s)</string>
+  <string name="widget_verse_config_show_buttons">Näytä vaihto- ja puhepainikkeet</string>
+  <string name="widget_verse_config_show_source">Näytä lähde ja päivämäärä</string>
+  <string name="widget_verse_config_add">Lisää widget</string>
+  <string name="widget_verse_config_save">Tallenna</string>
+  <string name="widget_verse_source_reading_plan">Tämän päivän lukema</string>
   <string name="speak_status_stopped">pysäytetty</string>
   <string name="speak_autobookmarking_disabled">Automaattiset kirjanmerkit poissa päältä!</string>
   <string name="system_speak_settings">Avaa järjestelmän puheasetukset</string>
@@ -701,6 +751,29 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="install_zip_canceled">Moduulin asennus peruuntui</string>
   <string name="restore">Palauta</string>
   <string name="import2">Tuo</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopio)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Lisäosasta %1$s</string>
+  <string name="addon_label_from_module_hint">Avaa lisäosa dokumenttienhallinnassa</string>
+  <string name="addon_label_read_only_note">Tämä kirjanmerkkiryhmä, sen kirjanmerkit ja sen opintoalusta kuuluvat lisäosalle, eikä niitä voi muokata. Voit merkitä sen suosikiksi, valita miten tämä työtila näyttää sen ja lisätä sen jakeille omia kirjanmerkkejä.</string>
+  <string name="addon_copy_to_my_labels">Kopioi omiin kirjanmerkkiryhmiini</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Kopioitu kirjanmerkkiryhmääsi \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Tämä sisältö tulee lisäosasta %1$s, eikä sitä voi muuttaa. Käytä toimintoa \"Kopioi omiin kirjanmerkkiryhmiini\" saadaksesi muokattavan kopion.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Tämä sisältö tulee lisäosasta, eikä sitä voi muuttaa. Käytä toimintoa \"Kopioi omiin kirjanmerkkiryhmiini\" saadaksesi muokattavan kopion.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Kirjanmerkkiryhmän kopiointi epäonnistui</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d lisäosakokoelman kohde ohitettiin. Käytä kirjanmerkkiryhmällä toimintoa \"Kopioi omiin kirjanmerkkiryhmiini\" saadaksesi oman kopion.</item>
+    <item quantity="other">%1$d lisäosakokoelman kohdetta ohitettiin. Käytä kirjanmerkkiryhmällä toimintoa \"Kopioi omiin kirjanmerkkiryhmiini\" saadaksesi oman kopion.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" ja %2$s muuta kirjanmerkkiryhmää / opintoalustaa ja %3$s kirjanmerkkiä</string>
   <!--About-->
@@ -735,6 +808,8 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="doc_type_all">Kaikki</string>
   <string name="doc_type_bible">Raamattu</string>
   <string name="doc_type_commentary">Kommentaari</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumentit</string>
   <string name="doc_type_dictionary">Sanakirja</string>
   <string name="doc_type_book">Kirja</string>
   <string name="doc_type_map">Kartta</string>
@@ -770,6 +845,10 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="crash_recovery_continue">Jatka</string>
   <string name="report_error">Raportoi virheestä</string>
   <string name="error_occurred">Tapahtui virhe</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Sovellus pysähtyi käynnistyessään</string>
+  <string name="startup_crash_detail">Lähetä meille virheraportti, jotta voimme korjata ongelman. Se sisältää virheen tiedot sekä tietoja laitteestasi ja sovellusversiostasi.</string>
+  <string name="startup_crash_try_again">Yritä uudelleen</string>
   <string name="error_occurred_crash_last_time">Sovellus kaatui viimeksi kun käytit sitä. Auttaaksesi meitä bugin korjaamisessa, arvostaisimme jos kirjoittaisit meille bugiraportin.</string>
   <string name="error_occurred_with_link">Virhe on tapahtunut. %s</string>
   <string name="error_no_content">Ei sisältöä valitulle jakeelle</string>
@@ -1217,10 +1296,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="reading_progress_new_cycle">Uusi kierros</string>
   <string name="reading_progress_previous_cycle">Edellinen kierros</string>
   <string name="reading_progress_next_cycle">Seuraava kierros</string>
-  <string name="cloud_merge_data">Yhdistä tiedot</string>
-  <string name="cloud_fetch_and_restore_initial">Kopioi pilvestä tähän laitteeseen</string>
-  <string name="cloud_create_new">Kopioi tästä laitteesta pilveen</string>
-  <string name="cloud_disable_sync">Peruuta &amp; kytke synkronointi pois</string>
   <string name="cloud_sync_title">Laitteiden synkronointi</string>
   <string name="reset_sync">Kirjaudu ulos</string>
   <string name="prefs_reset_sync_summary">Kytke synkronointi pois ja alusta siihen liittyvät asetukset.</string>
@@ -1236,8 +1311,19 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="google_drive_signin_interrupted">Google-kirjautuminen keskeytyi. Yritä uudelleen.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Palvelimesi osoite, esim. https://cloud.example.com (https:// lisätään, jos jätät sen pois)</string>
   <string name="webdav_server_url_hint">WebDAV-kansion osoite, esim. https://nas.local/dav/ tai https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronointi vaatii suojatun https://-osoitteen.</string>
+  <string name="sync_waiting_for_pass">Odotetaan nykyisen synkronoinnin valmistumista…</string>
+  <string name="sync_pending_on">Otetaan käyttöön</string>
+  <string name="sync_pending_off">Poistetaan käytöstä</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d muutos</item>
+    <item quantity="other">%1$d muutosta</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Otetaanko synkronoinnin muutokset käyttöön?</string>
+  <string name="sync_checking_cloud_title">Tarkistetaan pilveä…</string>
+  <string name="sync_checking_cloud_text">Etsitään tietoja, jotka muut laitteet ovat jo synkronoineet.</string>
   <string name="webdav_certificate_title">Palvelimen varmenne</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Ei-luotettu palvelinvarmenne</string>
@@ -1255,7 +1341,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="synchronization_categories">Synkronoinnin kategoriat</string>
   <string name="sync_general_settings">Tietoa &amp; yleisiä asetuksia</string>
   <string name="sync_introduction">Johdanto</string>
-  <string name="are_you_sure_merge">Sekä tämän laitteen tiedot että pilvessä olevat %s säilytetään. Jos sama kohde on muuttunut molemmissa, uudempi muutos säilytetään. Tämän laitteen tiedot lähetetään muille laitteillesi.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Kytketään pois synkronointi. Sinun pitää laittaa se itse päälle varmuuskopion palautuksen jälkeen.</string>
   <string name="report">Raportoi</string>
@@ -1269,8 +1354,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="install_failed_reason">Moduulin asentaminen epäonnistui seuraavasta syystä: %s.</string>
   <string name="no_file_manager">Tiedoston valintaan ei löytynyt sovellusta. Asenna tiedostonhallinta ja yritä uudelleen.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Sovellus avattu muualla</string>
-  <string name="open_here">Avaa täällä</string>
   <string name="external_link_dont_ask_again">Älä kysy uudelleen: %s</string>
   <string name="nameless">Otsikkoa ei määritelty</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Yhden napsautuksen toiminnot (Raamatut)</string>
@@ -2214,18 +2297,30 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="dialog_dont_apply">Älä ota käyttöön</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Pilvessä on jo tiedot: %s. Mitä tehdään?</string>
-  <string name="cloud_merge_consequence">Molemmat puolet säilytetään; jos kohde on muuttunut molemmilla, uudempi muutos voittaa.</string>
-  <string name="cloud_fetch_consequence">Korvaa tämän laitteen tiedot pilvikopiolla.</string>
-  <string name="cloud_create_consequence">Korvaa pilvikopion tämän laitteen tiedoilla.</string>
-  <string name="cloud_disable_consequence">Synkronointi pysyy pois päältä tämän tiedon osalta.</string>
-  <string name="cloud_merge_lead">Yhdistetäänkö tiedot (%s) pilven kanssa?</string>
-  <string name="cloud_merge_confirm">Yhdistä</string>
   <string name="cloud_replace_confirm">Korvaa</string>
-  <string name="cloud_replace_local_lead">Korvataanko tämän laitteen tiedot (%s) pilvikopiolla?</string>
-  <string name="cloud_replace_local_detail">Se, mitä tällä laitteella nyt on, korvataan eikä sitä voi palauttaa.</string>
-  <string name="cloud_replace_cloud_lead">Korvataanko pilvikopio (%s) tämän laitteen tiedoilla?</string>
-  <string name="cloud_replace_cloud_detail">Se, mitä pilvessä nyt on, korvataan, ja muut laitteesi saavat tämän laitteen tiedot.</string>
+  <string name="cloud_join_plan_title">Pilvessä on jo tietoja</string>
+  <string name="cloud_join_plan_lead">Valitse, mitä tehdään kullekin luokalle.</string>
+  <string name="cloud_join_merge">Yhdistä</string>
+  <string name="cloud_join_merge_detail">Yhdistä tämä laite ja pilvi</string>
+  <string name="cloud_join_fetch">Kopioi pilvestä</string>
+  <string name="cloud_join_fetch_detail">Korvaa tämän laitteen tiedot</string>
+  <string name="cloud_join_create">Kopioi pilveen</string>
+  <string name="cloud_join_create_detail">Korvaa pilven tiedot</string>
+  <string name="cloud_join_disable">Älä synkronoi</string>
+  <string name="cloud_join_disable_detail">Jätä tämä luokka pois käytöstä</string>
+  <string name="cloud_join_upload_note">%s: pilvessä ei ole vielä tietoja, ne ladataan tältä laitteelta.</string>
+  <string name="cloud_join_confirm_title">Aloitetaanko synkronointi?</string>
+  <string name="cloud_join_confirm_lead">Näin tulee tapahtumaan:</string>
+  <string name="cloud_join_outcome_merge">%s: yhdistetään pilven kanssa. Mitään ei menetetä.</string>
+  <string name="cloud_join_outcome_fetch">%s: tämän laitteen tiedot korvataan pilven tiedoilla.</string>
+  <string name="cloud_join_outcome_create">%s: pilven tiedot korvataan tämän laitteen tiedoilla.</string>
+  <string name="cloud_join_outcome_disable">%s: pysyy pois käytöstä.</string>
+  <string name="cloud_join_outcome_upload">%s: ladataan tältä laitteelta.</string>
+  <string name="cloud_join_warning">Korvattuja tietoja ei voi palauttaa. Tee ensin varmuuskopio, jos olet epävarma.</string>
+  <string name="cloud_join_next">Seuraava</string>
+  <string name="cloud_join_back">Takaisin</string>
+  <string name="cloud_join_start">Aloita synkronointi</string>
+  <string name="cloud_join_replace">Korvaa ja synkronoi</string>
   <string name="sign_in_failed_lead">Kirjautuminen synkronointipalveluun epäonnistui.</string>
   <string name="sync_too_old_lead">Tämä sovellus on liian vanha synkronoimaan tiedot (%s).</string>
   <string name="sync_too_old_detail">Pilvitiedot käyttävät uudempaa versiota kuin tämä sovellus tukee. Niiden synkronointi on toistaiseksi pois päältä; päivitä sovellus ottaaksesi sen uudelleen käyttöön.</string>

@@ -279,6 +279,14 @@ object HostReadingWindows {
         binding?.host?.let { it.setFullScreen(!it.fullScreen.state.value) }
     }
 
+    /** Whether the bound reading host's search bar (Find) is open; false while no host is bound. */
+    val isSearchBarOpen: Boolean get() = binding?.host?.isSearchBarOpen ?: false
+
+    /** Opens the navigation history sheet of the bound reading host. */
+    fun showHistorySheet() {
+        binding?.host?.hostState?.showHistorySheet()
+    }
+
     /** Leaves fullscreen if it is active. */
     fun leaveFullScreen(): Boolean {
         val host = binding?.host ?: return false

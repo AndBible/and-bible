@@ -56,8 +56,9 @@ import java.awt.event.MouseEvent
  * Page scripts: [scriptParts] (default [DesktopInputScript.DEFAULT_PARTS]) composed into one document-start script; add parts
  * and [extensions] together.
  *
- * Swing thread only. Compose keys: Ctrl combos in the preview handler, Alt+arrows and F11 in the normal one (after a
- * focused field had its chance); Esc is left to Compose, which feeds it to its back handlers itself.
+ * Swing thread only. Compose keys: Ctrl combos in the preview handler (except h/y/s/b), Alt+arrows, F11 and
+ * Ctrl+H/Y/S/B in the normal one (after a focused field had its chance); Esc is left to Compose, which feeds it
+ * to its back handlers itself.
  */
 class DesktopReadingInputImpl(
     private val shortcuts: DesktopShortcuts = DesktopShortcuts(DesktopShortcutActionsImpl()),
@@ -153,6 +154,8 @@ class DesktopReadingInputImpl(
                 swallowTyped = false
                 if (!event.isCtrlPressed && !event.isMetaPressed) return false
                 val chord = composeChord(event) ?: return false
+                // Ctrl+H/Y/S/B are left to a focused text field first (see [onKeyEvent]).
+                if (chord.key in FIELD_FIRST_KEYS) return false
                 swallowTyped = shortcuts.onChord(chord, null)
                 return swallowTyped
             }
@@ -167,6 +170,10 @@ class DesktopReadingInputImpl(
         if (event.type != KeyEventType.KeyDown) return false
         val chord = composeChord(event) ?: return false
         if (chord.key == "Escape" && net.bible.sharedui.components.OverlayPresence.count > 0) return false
+        if (chord.ctrl && !chord.alt && chord.key in FIELD_FIRST_KEYS) {
+            swallowTyped = shortcuts.onChord(chord, null)
+            return swallowTyped
+        }
         if (!(chord.alt || chord.key == "F11" || chord.key == "Escape") || chord.ctrl) return false
         return shortcuts.onChord(chord, null)
     }
@@ -193,13 +200,20 @@ class DesktopReadingInputImpl(
     }
 
     companion object {
+        /**
+         * Ctrl chords whose key a Compose text field uses itself (Ctrl+Y redo, macOS Ctrl+H delete-backward) or that
+         * make no sense while typing (Ctrl+S, Ctrl+B). A Compose chord carries no `editable` flag, so they are taken
+         * in the non-preview handler: a focused field consumes what it knows first.
+         */
+        private val FIELD_FIRST_KEYS = setOf("h", "y", "s", "b")
+
         private fun installAwtListener(l: AWTEventListener) =
             Toolkit.getDefaultToolkit().addAWTEventListener(l, AWTEvent.MOUSE_EVENT_MASK)
 
         /** The shortcut chord of a Compose key event; null for keys the table does not use. */
         internal fun composeChord(event: KeyEvent): Chord? {
             val key = when (event.key) {
-                Key.F -> "f"; Key.L -> "l"; Key.B -> "b"; Key.S -> "s"
+                Key.F -> "f"; Key.L -> "l"; Key.B -> "b"; Key.S -> "s"; Key.H -> "h"; Key.Y -> "y"
                 Key.C -> "c"; Key.V -> "v"; Key.X -> "x"; Key.A -> "a"; Key.Z -> "z"
                 Key.Plus, Key.NumPadAdd -> "+"
                 Key.Equals -> "="

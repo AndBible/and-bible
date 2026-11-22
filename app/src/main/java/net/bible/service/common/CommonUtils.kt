@@ -998,6 +998,8 @@ object CommonUtils : CommonUtilsBase() {
      * question. Any other failure propagates as before.
      */
     fun initializeAppForHeadlessEntry(): Boolean = try {
+        // #4176: a process in crash safe mode initialises nothing; the user is offered the report when the app is opened.
+        if (net.bible.android.control.report.StartupCrashGuard.safeMode) return false
         initializeApp()
         true
     } catch (e: Exception) {

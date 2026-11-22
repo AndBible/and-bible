@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import kotlinx.coroutines.launch
@@ -66,6 +67,7 @@ import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.reading.readingShortcut
 import net.bible.sharedui.reading.searchFieldUsesCommandKeys
 import net.bible.sharedui.reading.isHardwareKeyEvent
+import net.bible.sharedui.reading.searchResultsAlwaysTakeFocus
 import net.bible.sharedui.reading.searchResultKeyCharacter
 
 /**
@@ -91,9 +93,14 @@ import net.bible.sharedui.reading.searchResultKeyCharacter
  *   while [loading]: a count next to the spinner reads as a finished result (F91).
  * @param empty passed in rather than derived from the list, because "no rows" and "nothing searched
  *   yet" are different states to the caller.
+ * @param focusResultsWithoutKeyboard the list takes the focus when results appear even for a pointer user: on desktop
+ *   Compose is in Touch mode after any click, and without a focused list Enter reaches nothing (#4197). Default: the
+ *   platform's [searchResultsAlwaysTakeFocus].
  * @param listState hoisted so the host can restore the scroll position across a search (F25).
  * @param notice a one-line note above the results (a regex search stopped at its time budget); not shown
  *   while [loading].
+ * @param claimFocusAllowed asked just before the list claims focus for a new result set; false while the toolbar
+ *   search field has focus (the user is typing a refinement), so late results do not replace the half-typed query.
  * @param onClose hides only the result sheet; it must not leave the toolbar's search mode.
  * @param error non-null shows a dialog **over a sheet that stays open**: unlike the old
  *   `SearchResultsComposeActivity`, which toasted and then `finish()`ed, there is nothing to finish.
@@ -110,6 +117,8 @@ fun SearchSheetContent(
     resultCount: Int = 0,
     notice: String? = null,
     requestResultsFocus: Boolean = true,
+    focusResultsWithoutKeyboard: Boolean = searchResultsAlwaysTakeFocus,
+    claimFocusAllowed: () -> Boolean = { true },
     selection: MutableState<Int>? = null,
     onOpenResult: (Int) -> Unit = {},
     onEditQuery: (String?) -> Unit = {},
@@ -124,20 +133,34 @@ fun SearchSheetContent(
     var listFocused by remember { mutableStateOf(false) }
     val inputModeManager = LocalInputModeManager.current
     fun keyboardUser() = inputModeManager.inputMode == InputMode.Keyboard || FindKeyboardInput.lastWasHardwareKey
-    val keyboardMode = keyboardUser()
+    val keyboardMode = keyboardUser() || focusResultsWithoutKeyboard
     val hasResults = requestResultsFocus && !loading && !empty && resultCount > 0
     // Once per shown result set (a new search passes through loading; reopening recomposes this),
     // not on every count change, which would pull focus back from the query while the user types.
     // Touch users keep their focus: only keyboard mode moves it into the list.
     LaunchedEffect(hasResults, listState) {
-        if (hasResults && keyboardUser()) {
+        if (hasResults && (keyboardUser() || focusResultsWithoutKeyboard)) {
             selected = selected.coerceIn(0, resultCount - 1)
             // The toolbar may release its field in the same composition as cached results appear.
             withFrameNanos { }
-            focusRequester.requestFocus()
+            // Late results must not pull focus out of a refinement the user is typing in the toolbar field.
+            if (claimFocusAllowed()) focusRequester.requestFocus()
         }
     }
-    Column(Modifier.fillMaxWidth()) {
+    Column(
+        Modifier.fillMaxWidth().onKeyEvent { event ->
+            // #4197: focus elsewhere in the sheet (it never moved to the list after a mouse-started search) must not
+            // leave Enter dead. Bubble phase: a focused button or row consumed its own Enter first, and the list's
+            // own handler has already taken it when the list is focused.
+            if (event.type == KeyEventType.KeyDown && (event.key == Key.Enter || event.key == Key.NumPadEnter) &&
+                !listFocused && hasResults
+            ) {
+                // Not `selected`: with the list unfocused nothing is highlighted, and a stale keyboard selection is invisible.
+                onOpenResult(0)
+                true
+            } else false
+        },
+    ) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,

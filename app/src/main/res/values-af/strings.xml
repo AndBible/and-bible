@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Wanneer die indekseer voltooi het, sal u geneem word na die soek skerm.</string>
   <string name="index_create">Skep</string>
   <string name="rebuild_index">Herbou indeks</string>
-  <string name="search_in">Vind in %s</string>
   <string name="do_in_background">Gaan voort in die agtergrond</string>
   <string name="rebuild_index_button">Herbou</string>
   <string name="creating_index_for">Skep indeks vir %s....</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s resultate in %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Vordering</string>
-  <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
   <string name="no_tasks_running">Daar is geen take wat tans uitgevoer word nie.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Vind verse</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Maak soekteks skoon</string>
   <string name="search_engine_changed_reindex">Die soekenjin is opgedateer. Die soekindeks moet weer geskep word; dit kan \'n rukkie neem.</string>
   <string name="search_unsupported_syntax">Hierdie soektog gebruik sintaksis wat nie ondersteun word nie: %s</string>
+  <string name="search_regex">Gewone uitdrukking (eksperimenteel)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Die soektog het te lank geneem en is gestop. Resultate is onvolledig; probeer \'n eenvoudiger uitdrukking.</string>
+  <string name="search_invalid_regex">Ongeldige gewone uitdrukking: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Hierdie gewone uitdrukking het te veel oop jokertekens (soos .* of \\w+). Gebruik minder daarvan, of beperk hulle, byvoorbeeld .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Hierdie gewone uitdrukking herhaal \'n groep wat self \'n herhaling bevat, soos (a+)+. Dit kan feitlik eindeloos neem om te pas. Herskryf dit sonder geneste herhalings.</string>
+  <string name="search_regex_busy">\'n Vorige soektog met \'n gewone uitdrukking loop nog in die agtergrond. Probeer weer oor \'n oomblik; as dit nie klaarmaak nie, herbegin die toepassing.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -316,6 +321,8 @@ Woordafbreking</string>
   <string name="hide_window_buttons_summary">Venster knoppies wat aan die regterkant van die Bybel aansigte vertoon word, word weggesteek. Venster navigasiebalk aan die onderkant word steeds vertoon en jy kan venste ropspring kieslys oopmaak deur hulle lank te klik</string>
   <string name="hide_bible_reference_overlay_title">Versteek Bybel verwysing oorleg</string>
   <string name="hide_bible_reference_overlay_summary">Moenie die semi-deursigtige Bybel verwysings oorleg wys wanneer toep in volskerm modus is nie</string>
+  <string name="text_under_window_buttons_title">Wys teks onder venster-knoppies</string>
+  <string name="text_under_window_buttons_summary">Bybelteks loop tot onderaan die skerm, onder die venster-knoppiebalk. Wanneer af, word \'n strook onder die balk vrygehou in die onderste vensters wat dit oorspan.</string>
   <string name="full_screen_hide_buttons_pref_title">Versteek venster knoppiebalk in volskerm</string>
   <string name="full_screen_hide_buttons_pref_summary">Wanneer na volskerm modus oorskakel, verberg outomaties die venster knoppiebalk wat aan die onderkant van die skerm is</string>
   <string name="prefs_hide_status_bar_title">Verberg statusbalk</string>
@@ -579,7 +586,50 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="sleep_timer_active_at">Slaap tydhouer %s minute oor</string>
   <string name="speak_next">Volgende</string>
   <string name="speak_previous">Vorige</string>
+  <string name="widget_play">Speel</string>
   <string name="widget_toggle_sleep_timer">Verander slaap tydhour</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Praat</string>
+  <string name="widget_speak_text_name">Praat met teks</string>
+  <string name="widget_listening_list_name">Luisterlys</string>
+  <string name="widget_verse_name">Vers</string>
+  <string name="widget_continue_from">Gaan voort vanaf %1$s · %2$s</string>
+  <string name="widget_continue_listening">Gaan voort met luister</string>
+  <string name="widget_paused">Gepouseer</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Nog geen praat-boekmerke nie</string>
+  <string name="widget_listening_list_empty_text">Boekmerke met die Praat-etiket verskyn hier. Skakel outomatiese boekmerke in die praatinstellings aan, of voeg die etiket by enige boekmerk.</string>
+  <string name="widget_open_app">Maak AndBible oop</string>
+  <string name="widget_open_app_to_load">Maak AndBible oop om verse te laai</string>
+  <string name="widget_verse_unavailable_no_bible">Installeer \'n Bybel om verse hier te sien</string>
+  <string name="widget_verse_unavailable_label_missing">Die etiket van hierdie legstuk bestaan nie meer nie. Tik om verse te kies.</string>
+  <string name="widget_verse_unavailable_label_empty">Hierdie etiket het nog geen Bybel-boekmerke nie. Tik om ander verse te kies.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Geen leesplan is aktief nie. Tik om ander verse te kies.</string>
+  <string name="widget_verse_source_random_whole_bible">Lukrake vers</string>
+  <string name="widget_verse_source_random_new_testament">Lukrake vers · Nuwe Testament</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Lukrake vers · Psalms &amp; Spreuke</string>
+  <string name="widget_shuffle">Skommel vers</string>
+  <string name="widget_speak_verse">Praat vers</string>
+  <string name="widget_verse_config_title">Vers-legstuk</string>
+  <string name="widget_verse_config_source_label">Verse van</string>
+  <string name="widget_verse_config_source_label_option">\'n Etiket</string>
+  <string name="widget_verse_config_source_random">Lukrake vers</string>
+  <string name="widget_verse_config_random_whole">Hele Bybel</string>
+  <string name="widget_verse_config_random_nt">Nuwe Testament</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psalms &amp; Spreuke</string>
+  <string name="widget_verse_config_source_plan">Vandag se leesplan</string>
+  <string name="widget_verse_config_changes">Verander</string>
+  <string name="widget_verse_config_daily">Daagliks</string>
+  <string name="widget_verse_config_every_few_hours">Elke paar uur</string>
+  <string name="widget_verse_config_on_shuffle">Net wanneer ek skommel tik</string>
+  <string name="widget_verse_config_bible">Bybel</string>
+  <string name="widget_verse_config_bible_default">Verstek (%s)</string>
+  <string name="widget_verse_config_show_buttons">Wys skommel- en praatknoppies</string>
+  <string name="widget_verse_config_show_source">Wys bron en datum</string>
+  <string name="widget_verse_config_add">Voeg legstuk by</string>
+  <string name="widget_verse_config_save">Stoor</string>
+  <string name="widget_verse_source_reading_plan">Vandag se lees</string>
   <string name="speak_status_stopped">Gestop.</string>
   <string name="speak_autobookmarking_disabled">Outo-boekmerke gedeaktiveer!</string>
   <string name="system_speak_settings">Maak oop stelsel TTS instellings</string>
@@ -635,14 +685,21 @@ van die boekmerk af gelaai word.</string>
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Here</item>
+    <item>God</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
   <string-array name="speak_divinename_replace">
-    <item>Yahweh</item>
-    <item>Yahweh</item>
+    <item>Jahwe</item>
+    <item>Jahwe</item>
     <item></item>
     <item></item>
     <item></item>
@@ -704,6 +761,29 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="install_zip_canceled">Module installasie gekanselleer</string>
   <string name="restore">Herstel</string>
   <string name="import2">Invoer</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopie)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Van byvoegsel %1$s</string>
+  <string name="addon_label_from_module_hint">Maak die byvoegsel in die dokumentbestuurder oop</string>
+  <string name="addon_label_read_only_note">Hierdie etiket, sy boekmerke en sy StudiePad behoort aan die byvoegsel en kan nie gewysig word nie. Jy kan dit as gunsteling merk, kies hoe hierdie werkspasie dit wys, en sy verse vir jouself boekmerk.</string>
+  <string name="addon_copy_to_my_labels">Kopieer na my etikette</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Gekopieer na jou etiket \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Hierdie inhoud kom van die byvoegsel %1$s en kan nie verander word nie. Gebruik \"Kopieer na my etikette\" om \'n wysigbare kopie te kry.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Hierdie inhoud kom van \'n byvoegsel en kan nie verander word nie. Gebruik \"Kopieer na my etikette\" om \'n wysigbare kopie te kry.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Kon nie die etiket kopieer nie</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d byvoegsel-versamelingitem is oorgeslaan. Gebruik \"Kopieer na my etikette\" op die etiket om jou eie kopie te kry.</item>
+    <item quantity="other">%1$d byvoegsel-versamelingitems is oorgeslaan. Gebruik \"Kopieer na my etikette\" op die etiket om jou eie kopie te kry.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" and %2$s ander etiket(te) / studieblad(e) en %3$s Boekmerke</string>
   <!--About-->
@@ -738,6 +818,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="doc_type_all">Alle tipes</string>
   <string name="doc_type_bible">Bybel</string>
   <string name="doc_type_commentary">Kommentaar</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumente</string>
   <string name="doc_type_dictionary">Woordeboek</string>
   <string name="doc_type_book">Boek</string>
   <string name="doc_type_map">Kaart</string>
@@ -773,6 +855,10 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="crash_recovery_continue">Gaan voort</string>
   <string name="report_error">Stuur verslag</string>
   <string name="error_occurred">\'n Fout het ontstaan</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Die toepassing het gestop tydens begin</string>
+  <string name="startup_crash_detail">Stuur asseblief vir ons \'n foutverslag sodat ons die probleem kan regmaak. Dit bevat die foutbesonderhede en inligting oor jou toestel en toepassingweergawe.</string>
+  <string name="startup_crash_try_again">Probeer weer</string>
   <string name="error_occurred_crash_last_time">Die vorige keer toe u die toepassing gebruik het, het dit ineengestort. Om ons te help om die fout reg te stel, sal ons dit waardeer as u \'n foutverslag vir ons stuur.</string>
   <string name="error_occurred_with_link">\'n Fout het voorgekom. %s</string>
   <string name="error_no_content">Geen inhoud vir geselekteerde vers</string>
@@ -1267,10 +1353,6 @@ Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, ni
   <string name="reading_progress_new_cycle">Nuwe Siklus</string>
   <string name="reading_progress_previous_cycle">Vorige siklus</string>
   <string name="reading_progress_next_cycle">Volgende siklus</string>
-  <string name="cloud_merge_data">Voeg data saam</string>
-  <string name="cloud_fetch_and_restore_initial">Kopieer vanaf Cloud na hierdie toestel</string>
-  <string name="cloud_create_new">Kopieer vanaf hierdie toestel na Cloud</string>
-  <string name="cloud_disable_sync">Kanselleer &amp;amp deaktiveer sinchronisasie</string>
   <string name="cloud_sync_title">Toestel sinchronisasie</string>
   <string name="reset_sync">Teken uit</string>
   <string name="prefs_reset_sync_summary">Deaktiveer sinchronisasie en stel verwante instellings terug.</string>
@@ -1286,8 +1368,19 @@ Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, ni
   <string name="google_drive_signin_interrupted">Google-aanmelding is onderbreek. Probeer weer.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adres van jou bediener, bv. https://cloud.example.com (https:// word bygevoeg as jy dit weglaat)</string>
   <string name="webdav_server_url_hint">Adres van die WebDAV-gids, bv. https://nas.local/dav/ of https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinchronisasie vereis \'n veilige https://-adres.</string>
+  <string name="sync_waiting_for_pass">Wag vir die huidige sinchronisasie om klaar te maak…</string>
+  <string name="sync_pending_on">Sal aangeskakel word</string>
+  <string name="sync_pending_off">Sal afgeskakel word</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d verandering</item>
+    <item quantity="other">%1$d veranderinge</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Pas jou sinchronisasie-veranderinge toe?</string>
+  <string name="sync_checking_cloud_title">Kontroleer die wolk…</string>
+  <string name="sync_checking_cloud_text">Soek na data wat ander toestelle reeds gesinchroniseer het.</string>
   <string name="webdav_certificate_title">Bedienersertifikaat</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Onvertroude bedienersertifikaat</string>
@@ -1305,7 +1398,6 @@ Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, ni
   <string name="synchronization_categories">Sinchronisasie kategorieë</string>
   <string name="sync_general_settings">Inligting &amp; algemene instellings</string>
   <string name="sync_introduction">Inleiding</string>
-  <string name="are_you_sure_merge">Beide die data op hierdie toestel en die %s in die wolk sal behou word. Waar dieselfde item op albei verander is, word die nuwer verandering behou. Hierdie toestel se data sal na jou ander toestelle gestuur word.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Deaktiveer wolk sinchronisasie. U moet handmatig inskakel na herstel.</string>
   <string name="report">Verslag</string>
@@ -1319,8 +1411,6 @@ Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, ni
   <string name="install_failed_reason">Die installeringsmodule het om die volgende rede misluk: %s.</string>
   <string name="no_file_manager">Geen toepassing is gevind om \'n lêer te kies nie. Installeer asseblief \'n lêerbestuurder en probeer weer.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Toep is elders oopgemaak</string>
-  <string name="open_here">Maak hier oop </string>
   <string name="external_link_dont_ask_again">Moenie weer vra vir %s nie</string>
   <string name="nameless">Titel nie gedefinieer nie </string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Een-tik aksies (Bybels)</string>
@@ -2265,18 +2355,30 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="dialog_dont_apply">Moenie toepas nie</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Die wolk het reeds jou %s. Wat moet gebeur?</string>
-  <string name="cloud_merge_consequence">Albei kante word behou; waar \'n item aan albei kante verander het, wen die nuwer verandering.</string>
-  <string name="cloud_fetch_consequence">Vervang die data op hierdie toestel met die wolkkopie.</string>
-  <string name="cloud_create_consequence">Vervang die wolkkopie met die data op hierdie toestel.</string>
-  <string name="cloud_disable_consequence">Sinchronisasie bly af vir hierdie data.</string>
-  <string name="cloud_merge_lead">Voeg jou %s saam met die wolk?</string>
-  <string name="cloud_merge_confirm">Voeg saam</string>
   <string name="cloud_replace_confirm">Vervang</string>
-  <string name="cloud_replace_local_lead">Vervang hierdie toestel se %s met die wolkkopie?</string>
-  <string name="cloud_replace_local_detail">Wat nou op hierdie toestel is, word oorskryf en kan nie herwin word nie.</string>
-  <string name="cloud_replace_cloud_lead">Vervang die wolkkopie van %s met hierdie toestel se data?</string>
-  <string name="cloud_replace_cloud_detail">Wat nou in die wolk is, word oorskryf, en jou ander toestelle sal hierdie toestel se data ontvang.</string>
+  <string name="cloud_join_plan_title">Die wolk het reeds data</string>
+  <string name="cloud_join_plan_lead">Kies wat om vir elke kategorie te doen.</string>
+  <string name="cloud_join_merge">Voeg saam</string>
+  <string name="cloud_join_merge_detail">Kombineer hierdie toestel en die wolk</string>
+  <string name="cloud_join_fetch">Kopieer vanaf wolk</string>
+  <string name="cloud_join_fetch_detail">Vervang hierdie toestel se data</string>
+  <string name="cloud_join_create">Kopieer na wolk</string>
+  <string name="cloud_join_create_detail">Vervang die wolk se data</string>
+  <string name="cloud_join_disable">Moenie sinchroniseer nie</string>
+  <string name="cloud_join_disable_detail">Laat hierdie kategorie af</string>
+  <string name="cloud_join_upload_note">%s: nog geen data in die wolk nie, dit sal vanaf hierdie toestel opgelaai word.</string>
+  <string name="cloud_join_confirm_title">Begin sinchronisasie?</string>
+  <string name="cloud_join_confirm_lead">Dit is wat sal gebeur:</string>
+  <string name="cloud_join_outcome_merge">%s: saamgevoeg met die wolk. Niks gaan verlore nie.</string>
+  <string name="cloud_join_outcome_fetch">%s: die data op hierdie toestel word met die wolk s\'n vervang.</string>
+  <string name="cloud_join_outcome_create">%s: die data in die wolk word met hierdie toestel s\'n vervang.</string>
+  <string name="cloud_join_outcome_disable">%s: bly af.</string>
+  <string name="cloud_join_outcome_upload">%s: vanaf hierdie toestel opgelaai.</string>
+  <string name="cloud_join_warning">Vervangde data kan nie herstel word nie. Maak eers \'n rugsteun as jy onseker is.</string>
+  <string name="cloud_join_next">Volgende</string>
+  <string name="cloud_join_back">Terug</string>
+  <string name="cloud_join_start">Begin sinchronisasie</string>
+  <string name="cloud_join_replace">Vervang en sinchroniseer</string>
   <string name="sign_in_failed_lead">Kon nie by die sinchronisasiediens aanmeld nie.</string>
   <string name="sync_too_old_lead">Hierdie toep is te oud om %s te sinchroniseer.</string>
   <string name="sync_too_old_detail">Die wolkdata gebruik \'n nuwer weergawe as wat hierdie toep ondersteun. Sinchronisasie daarvoor is vir eers afgeskakel; opdateer die toep om dit weer aan te skakel.</string>

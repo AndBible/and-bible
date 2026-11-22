@@ -46,6 +46,8 @@ emptyStudyPad: A área de estudo está vazia. Comece a adicionar a esta área de
 doYouWantToDeleteEntry: Apagar esta entrada na área de estudo?
 removeStudyPadConfirmationTitle: Remover esta entrada na área de estudo?
 dragHelp: Arraste para reorganizar
+addonBookmarkThisVerse: Marcar este versículo
+addonReadOnly: Este conteúdo provém de uma coleção de suplementos e é só de leitura. Use “Copiar para as minhas etiquetas” para obter uma cópia editável.
 openAll: Abrir todas as referências
 editBookmarkPlaceholder: Toque para editar As Minhas Notas para este marcador
 onlyLabel: Só etiqueta

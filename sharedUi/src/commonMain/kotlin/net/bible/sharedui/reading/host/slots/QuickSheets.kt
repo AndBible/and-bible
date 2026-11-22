@@ -36,6 +36,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -44,6 +49,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.page.screen.chapterReadHistoryRow
 import net.bible.android.view.activity.page.screen.readHistoryApplyDeletes
 import net.bible.sharedcore.history.HistoryController
+import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
 import net.bible.sharedcore.navigation.DocumentSheetScope
@@ -118,7 +124,7 @@ private fun GridKeyChooserSheet(slots: ReadingHostSlots, sheet: ReadingQuickShee
     val controller = remember(sheet) {
         slots.gridPassages.create(
             scope = gridScope,
-            // The full-screen twin's own default title -- NOT `chooseBook`, which is the DOCUMENT
+            // The passage grid's default title -- NOT `chooseBook`, which is the DOCUMENT
             // chooser's caption.
             baseTitle = strings.choosePassageBookName,
             // The Bible/commentary key choosers that route here both pass isScripture = true.
@@ -185,6 +191,19 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
 }
 
 /**
+ * Consumes the downward scroll and fling the grid has left over at its top (#4178), so the enclosing modal
+ * sheet's nested-scroll drag never sees it: scrolling up to Genesis must not hide the sheet. Dragging the
+ * header, the scrim, the close button and back still dismiss. Upward leftovers are left alone.
+ */
+private object SwallowOverscrollConnection : NestedScrollConnection {
+    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset =
+        if (available.y > 0f) Offset(0f, available.y) else Offset.Zero
+
+    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity =
+        if (available.y > 0f) Velocity(0f, available.y) else Velocity.Zero
+}
+
+/**
  * A sheet's passage-grid body (the Choose Book sheet, the Speak sheet's verse picker, #4133/#4143):
  * the grid is content-fitted under the sheet's own body bound, so the sheet grows and shrinks with
  * the step. While the next step builds ([rendered] is null) the gap keeps the last grid's height,
@@ -204,7 +223,7 @@ internal fun FittedGridSheetBody(
     } else {
         GridChoosePassageContent(
             rendered, { id -> controller.pick(id, rendered) },
-            Modifier.fillMaxWidth().onSizeChanged { lastGridHeight = with(density) { it.height.toDp() } },
+            Modifier.fillMaxWidth().nestedScroll(remember { SwallowOverscrollConnection }).onSizeChanged { lastGridHeight = with(density) { it.height.toDp() } },
             state = state,
             fitContentHeight = true,
         )
@@ -374,7 +393,7 @@ private fun DocumentsSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet.Doc
             title = when (scope) {
                 DocumentSheetScope.ALL -> strings.chooseDocumentTitle
                 DocumentSheetScope.BIBLE -> strings.docTypeBible
-                DocumentSheetScope.COMMENTARY -> strings.docTypeCommentary
+                DocumentSheetScope.COMMENTARY -> strings.documentsSheetTitle
             },
             onDismiss = { hostState.closeQuickSheet() },
             // Identity-keyed tabs: the enum's own `name` is the stable id, which lets a hidden tab
@@ -402,10 +421,24 @@ private fun DocumentsSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet.Doc
                         slots.quickActions.applyChosenDocument(docId)
                     },
                     listState = listState,
+                    // The Documents sheet's All tab spans several types: section it by type.
+                    groupHeader = if (scope == DocumentSheetScope.COMMENTARY && selectedTabId == DocumentQuickTab.ALL.name) {
+                        { category -> quickDocGroupLabel(strings, category) }
+                    } else null,
                 )
             }
         }
     }
+}
+
+private fun quickDocGroupLabel(strings: Strings, category: DocCategory): String = when (category) {
+    DocCategory.BIBLE -> strings.docTypeBible
+    DocCategory.COMMENTARY -> strings.docTypeCommentary
+    DocCategory.DICTIONARY -> strings.docTypeDictionary
+    DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
+    DocCategory.MAPS -> strings.docTypeMaps
+    DocCategory.AND_BIBLE -> strings.docTypeAddon
+    DocCategory.OTHER -> strings.docTypeOther
 }
 
 private fun quickDocTabLabel(strings: Strings, tab: DocumentQuickTab): String = when (tab) {

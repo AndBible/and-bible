@@ -29,6 +29,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onLast
@@ -60,6 +61,7 @@ import net.bible.sharedui.components.NoticeIcons
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -179,6 +181,20 @@ class AppDialogHostTest {
         compose.waitForIdle()
         assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
         compose.onNodeWithText("Something failed").assertExists()
+    }
+
+    @Test fun untitledConfirmShowsDetailBelowTheQuestion() {
+        show(ShownDialog(23, AppDialogRequest.Confirm(null, "Replace everything?", "Replace", "Cancel", detail = "Your data is overwritten.")))
+        val question = compose.onNodeWithText("Replace everything?").getBoundsInRoot()
+        val detail = compose.onNodeWithTag("dialog-detail").getBoundsInRoot()
+        assertTrue("detail ${detail.top} must be below the question ${question.top}", detail.top >= question.bottom)
+    }
+
+    @Test fun titledConfirmKeepsDetailBetweenLeadAndBody() {
+        show(ShownDialog(24, AppDialogRequest.Confirm("Replace?", "Body text here", "Replace", "Cancel", detail = "Your data is overwritten.")))
+        val detail = compose.onNodeWithTag("dialog-detail").getBoundsInRoot()
+        val body = compose.onNodeWithText("Body text here").getBoundsInRoot()
+        assertTrue("titled detail ${detail.top} stays above the body ${body.top}", detail.bottom <= body.top)
     }
 
     @Test fun destructiveConfirmRequestHasDestructiveButton() {

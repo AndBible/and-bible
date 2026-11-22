@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavBackStackEntry
@@ -47,7 +46,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -63,8 +61,6 @@ import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.anySelectedDeletable
-import net.bible.sharedcore.search.ProgressJob
-import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.cloud.CloudDocumentsScreen
 import net.bible.sharedui.components.AbConfirmDialog
@@ -73,7 +69,6 @@ import net.bible.sharedui.download.CustomRepositoryEditorScreen
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.navigation.DocumentSelectionScreen
-import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -145,36 +140,6 @@ class CustomRepositoryEditorDeps(
 )
 
 /**
- * `PROGRESS_STATUS_PATTERN`'s platform-supplied slots, ported from classic
- * `ProgressStatusComposeActivity`. Modelled on [net.bible.sharedui.search.nav.SearchIndexProgressDeps]
- * (`SearchNavGraph.kt:301-306`), minus the search-specific members -- this destination is a plain
- * multi-job viewer with an OK button, not tied to a single document's index status.
- *
- * - [requestNotificationPermission] is classic `onResume`'s
- *   `CommonUtils.requestNotificationPermission(this)` (`ProgressStatusComposeActivity.kt:84`), which
- *   needs a real `Activity`. It is a plain `() -> Unit` here; the host launches the suspend call in
- *   its own scope.
- * - [observeJobs] is the `onResume`/`onPause` PAIR (`:82-98`) as one call: it runs classic's initial
- *   `refreshJobs()`, registers the `WorkListener`, and returns the un-registration. The pair is
- *   mandatory -- a leaked listener holds `onJobs`, which closes over this destination's controller,
- *   so leaking it leaks the destination. The destination drives it from `LifecycleResumeEffect`,
- *   whose `onPauseOrDispose` is exactly classic's `onPause`, plus the disposal case an Activity never
- *   had to think about.
- *
- *   **Takes ONE callback, unlike [net.bible.sharedui.search.nav.SearchIndexProgressDeps.observeJobs]'s
- *   two** (`SearchNavGraph.kt:303`): its second callback drives the search graph's "indexing
- *   finished" routing, and `ProgressStatus` has no such routing -- it only ever refreshes its job
- *   list. The narrowing is deliberate, not an oversight.
- * - [title] is `R.string.progress_status`, screen and window. `Strings.kt` has no entry for it, so
- *   it stays an `R.string` feed for now.
- */
-class ProgressStatusDeps(
-    val title: String,
-    val requestNotificationPermission: () -> Unit,
-    val observeJobs: (onJobs: (List<ProgressJob>) -> Unit) -> () -> Unit,
-)
-
-/**
  * [NavRoutes.DOWNLOAD_PATTERN]'s platform-supplied slots, ported from classic
  * `DownloadComposeActivity` -- the cluster's largest host, and the only one whose destination is
  * BOTH a document list and a live download manager.
@@ -188,7 +153,7 @@ class ProgressStatusDeps(
  *   [net.bible.sharedui.mydocuments.nav.MyDocumentsDeps.controllerFor].
  *
  * - [title] is BOTH the window title and the title [DocumentSelectionScreen] draws, the way
- *   [ProgressStatusDeps.title] is: classic fed the screen `strings.downloadDocuments` (`:280`) and
+ *   the removed progress screen's title is: classic fed the screen `strings.downloadDocuments` (`:280`) and
  *   the window the manifest's `android:label`, which are the same string.
  *
  * - [topBarActions] is the overflow menu, host-composed because every row of it is host work
@@ -234,7 +199,7 @@ class ProgressStatusDeps(
  *   status needs `booksById` and the `currentRows` mirror, which are host state -- classic's
  *   `applyProgress` (`:565`) is host code, and [DocumentSelectionController] has no `applyProgress`
  *   of its own to hand the map to. So the arm owns the SUBSCRIPTION WINDOW and the host owns the
- *   payload. The narrowing is deliberate, the same kind [ProgressStatusDeps.observeJobs] documents.
+ *   payload. The narrowing is deliberate, the same kind the removed progress screen's observeJobs documents.
  *
  * - [subscribeMonitoring] is the whole `onStart`/`onStop` pair (`:376-394`) as one call: register
  *   the progress bridge, start `downloadControl`'s monitoring, and -- only when `firstDownload` --
@@ -398,6 +363,8 @@ class CloudDocumentsDeps(
     val topBarActions: @Composable RowScope.() -> Unit,
     val openOrGate: suspend () -> Boolean,
     val seedItems: suspend () -> List<CloudDocItem>,
+    /** #4180: keeps [controller]'s list following the listing cache while a document sync runs; never returns. */
+    val liveRefresh: suspend (CloudDocumentsController) -> Unit,
     val refreshFromNetwork: suspend () -> Unit,
     private val transferRunningProvider: () -> kotlinx.coroutines.flow.StateFlow<Boolean>,
     val subscribeProgress: (onRunning: (Boolean) -> Unit) -> () -> Unit,
@@ -417,7 +384,7 @@ class CloudDocumentsDeps(
  * cluster's destinations across four tasks, each adding its own nested deps field here and its own
  * arm to [downloadNavGraph], the same way [net.bible.sharedui.bookmark.nav.BookmarkNavDeps] grew its
  * three nested holders. Task 3 built [customRepositories] and [customRepositoryEditor], Task 4
- * [progressStatus], Task 7a [download], Task 8 [cloudDocuments] -- the cluster's seventh and final
+ * Task 7a [download], Task 8 [cloudDocuments] -- the cluster's seventh and final
  * destination. Nothing further grows this class. Only [repositoryEditorResults] was declared up
  * front, for [net.bible.sharedui.bookmark.nav.BookmarkNavDeps]'s own reason: this is the file that
  * owns it, and creating it later would widen this class's constructor for every caller that already
@@ -455,8 +422,6 @@ class DownloadNavDeps(
     val customRepositories: CustomRepositoriesDeps,
     // — CUSTOM REPOSITORY EDITOR —
     val customRepositoryEditor: CustomRepositoryEditorDeps,
-    // — PROGRESS STATUS —
-    val progressStatus: ProgressStatusDeps,
     // — DOWNLOAD —
     val download: DownloadDeps,
     // — CLOUD DOCUMENTS —
@@ -515,7 +480,7 @@ private fun downloadGateKey(
  * The Documents/downloads cluster's destinations. Registered into the app's single `NavHost` by the
  * host Activity. This task builds the batch's simplest shape -- a parent and a child, one channel
  * between them, no external entry to the child -- and the arm below is the template the later
- * `ProgressStatus`/`Download`/`CloudDocuments` arms (Tasks 4, 7a, 8) follow.
+ * `Download`/`CloudDocuments` arms (Tasks 4, 7a, 8) follow.
  *
  * [NavRoutes.CUSTOM_REPOSITORIES_PATTERN] is reachable through `ScreenLauncher.MIGRATED`;
  * [NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN] deliberately is not, because its `repositoryId`
@@ -649,53 +614,6 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         }
     }
 
-    // ——— PROGRESS STATUS ———
-    composable(route = NavRoutes.PROGRESS_STATUS_PATTERN) { entry ->
-        val d = deps.progressStatus
-        val strings = LocalStrings.current
-        // onHide used to be `setResult(RESULT_OK) + finish()` (ProgressStatusComposeActivity:123-126).
-        // The result was dead — the only inbound edge is a getActivity PendingIntent, which cannot
-        // receive one (design §7.3) — so hiding is now an ordinary exit.
-        val controller = remember { SearchIndexProgressController(onHide = { navController.popOrExit(entry, deps.exitHost) }) }
-        val jobs by controller.jobs.collectAsState()
-        val noTasks by controller.noTasks.collectAsState()
-        val error by controller.error.collectAsState()
-
-        LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
-
-        // Classic's onResume/onPause pair (:82-94): request the permission, subscribe to JobManager
-        // while resumed, and reveal "no tasks" only after ~4s in case a just-launched job has not
-        // registered yet. LifecycleResumeEffect is the shape SearchNavGraph:747-755 already uses,
-        // and it is already imported in commonMain (SearchNavGraph.kt:30).
-        //
-        // The reveal is keyed on the RESUME, not on Unit. Classic posts it INSIDE onResume (:93),
-        // so it re-arms every time the screen comes back; a LaunchedEffect(Unit) would fire once
-        // per composition and lose that parity. SearchNavGraph:756-762 keeps the same parity with
-        // the same explicit resumeTicks counter.
-        var resumeTicks by remember { mutableStateOf(0) }
-        LifecycleResumeEffect(Unit) {
-            resumeTicks += 1
-            d.requestNotificationPermission()
-            val unsubscribe = d.observeJobs { controller.setJobs(it) }
-            onPauseOrDispose { unsubscribe() }
-        }
-        LaunchedEffect(resumeTicks) {
-            delay(4000)
-            controller.revealNoTasksIfIdle()
-        }
-
-        SearchIndexProgressScreen(
-            title = d.title,
-            jobs = jobs,
-            noTasks = noTasks,
-            error = error,
-            onHide = controller::hide,
-            onDismissError = controller::dismissError,
-            message = strings.taskKillWarning,
-            buttonLabel = strings.okay,
-        )
-    }
-
     // ——— DOWNLOAD ———
     composable(
         route = NavRoutes.DOWNLOAD_PATTERN,
@@ -722,8 +640,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val scope = rememberCoroutineScope()
 
         // Five arguments, all OPTIONAL, all read plainly -- never through NavRoutes.decodeArg, which
-        // would double-decode a value the library already decoded (SearchNavGraph's searchArgs()
-        // kdoc documents that trap). A flag is emitted only when true (plan D2), so "true" is the
+        // would double-decode a value the library already decoded (the double-decode trap). A flag is emitted only when true (plan D2), so "true" is the
         // whole truth test and an ABSENT argument is false.
         val args = backStackEntry.arguments
         val firstDownload = args?.read { getStringOrNull(NavRoutes.ARG_FIRST_DOWNLOAD) } == "true"
@@ -1029,9 +946,18 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         DisposableEffect(Unit) {
             var active = true
             val stop = d.subscribeProgress { running ->
-                if (active && !running) scope.launch { d.refreshFromNetwork() }
+                if (active && !running) {
+                    controller.onSyncEnded()
+                    scope.launch { d.refreshFromNetwork() }
+                }
             }
             onDispose { active = false; stop() }
+        }
+
+        // #4180: while a document sync runs the list follows the listing cache (cache-only re-read), instead of
+        // staying as seeded until the end-of-sync network rescan.
+        LaunchedEffect(Unit) {
+            d.liveRefresh(controller)
         }
 
         val grouped by controller.grouped.collectAsState()

@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">當索引創建完成時，程式會回到查詢頁面。</string>
   <string name="index_create">建立</string>
   <string name="rebuild_index">重建索引</string>
-  <string name="search_in">在 %s 中尋找</string>
   <string name="do_in_background">背景中繼續</string>
   <string name="rebuild_index_button">重建</string>
   <string name="creating_index_for">正在為 %s 建立索引…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">在 %2$s 中找到 %1$s 個結果</string>
   <!--Tasks-->
   <string name="progress_status">進度</string>
-  <string name="task_kill_warning">請稍等！切換至其他程式會中止當前任務。</string>
   <string name="no_tasks_running">當前沒有任務</string>
   <!--Search-->
   <string name="search_words_group_prompt">尋找經文</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">清除搜尋文字</string>
   <string name="search_engine_changed_reindex">搜尋引擎已更新。需要重新建立搜尋索引，這可能需要一些時間。</string>
   <string name="search_unsupported_syntax">此搜尋使用了不支援的語法：%s</string>
+  <string name="search_regex">正規表示式（實驗性）</string>
+  <string name="search_regex_summary">正規表示式</string>
+  <string name="search_results_truncated">搜尋耗時過長而被中止。結果不完整，請嘗試較簡單的表示式。</string>
+  <string name="search_invalid_regex">無效的正規表示式：%1$s</string>
+  <string name="search_regex_too_many_wildcards">此正規表示式含有過多開放式萬用字元（例如 .* 或 \\w+）。請減少使用，或加以限縮，例如 .{0,40}。</string>
+  <string name="search_regex_nested_repetition">此正規表示式重複了本身已含重複的群組，例如 (a+)+。這可能需要極長的時間才能比對完成。請改寫以避免巢狀重複。</string>
+  <string name="search_regex_busy">先前的正規表示式搜尋仍在背景執行。請稍後再試；若仍未完成，請重新啟動應用程式。</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -312,6 +317,8 @@
   <string name="hide_window_buttons_summary">隱藏在聖經視窗右下方的視窗按鍵。你可以長按底部的導覽列，以開啟彈出選單</string>
   <string name="hide_bible_reference_overlay_title">隱藏聖經參考浮動視窗</string>
   <string name="hide_bible_reference_overlay_summary">在全螢幕模式下，不顯示半透明的聖經參考浮動視窗</string>
+  <string name="text_under_window_buttons_title">在視窗按鈕下方顯示經文</string>
+  <string name="text_under_window_buttons_summary">聖經經文延伸至螢幕底部，位於視窗按鈕列下方。關閉時，底部各視窗在按鈕列下方會保留一段空白。</string>
   <string name="full_screen_hide_buttons_pref_title">在全螢幕中隱藏導覽列</string>
   <string name="full_screen_hide_buttons_pref_summary">當切換至全螢幕模式時，自動隱藏底部的導覽列</string>
   <string name="prefs_hide_status_bar_title">隱藏狀態列</string>
@@ -576,7 +583,50 @@ http://www.heartlight.org 准予使用
   <string name="sleep_timer_active_at">睡眠計時器尚餘%s分鐘。</string>
   <string name="speak_next">下一個</string>
   <string name="speak_previous">上一個</string>
+  <string name="widget_play">播放</string>
   <string name="widget_toggle_sleep_timer">切換睡眠計時器</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">朗讀</string>
+  <string name="widget_speak_text_name">朗讀並顯示文字</string>
+  <string name="widget_listening_list_name">聆聽清單</string>
+  <string name="widget_verse_name">經文</string>
+  <string name="widget_continue_from">從 %1$s · %2$s 繼續</string>
+  <string name="widget_continue_listening">繼續聆聽</string>
+  <string name="widget_paused">已暫停</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">尚無朗讀書籤</string>
+  <string name="widget_listening_list_empty_text">帶有「朗讀」標籤的書籤會顯示在這裡。請在朗讀設定中開啟自動書籤，或將該標籤加到任一書籤。</string>
+  <string name="widget_open_app">開啟 AndBible</string>
+  <string name="widget_open_app_to_load">開啟 AndBible 以載入經文</string>
+  <string name="widget_verse_unavailable_no_bible">請安裝聖經以在此顯示經文</string>
+  <string name="widget_verse_unavailable_label_missing">此小工具的標籤已不存在。點選以選擇經文。</string>
+  <string name="widget_verse_unavailable_label_empty">此標籤尚無聖經書籤。點選以選擇其他經文。</string>
+  <string name="widget_verse_unavailable_no_reading_plan">目前沒有啟用的讀經計畫。點選以選擇其他經文。</string>
+  <string name="widget_verse_source_random_whole_bible">隨機經文</string>
+  <string name="widget_verse_source_random_new_testament">隨機經文 · 新約</string>
+  <string name="widget_verse_source_random_psalms_proverbs">隨機經文 · 詩篇與箴言</string>
+  <string name="widget_shuffle">更換經文</string>
+  <string name="widget_speak_verse">朗讀經文</string>
+  <string name="widget_verse_config_title">經文小工具</string>
+  <string name="widget_verse_config_source_label">經文來源</string>
+  <string name="widget_verse_config_source_label_option">標籤</string>
+  <string name="widget_verse_config_source_random">隨機經文</string>
+  <string name="widget_verse_config_random_whole">整本聖經</string>
+  <string name="widget_verse_config_random_nt">新約</string>
+  <string name="widget_verse_config_random_psalms_proverbs">詩篇與箴言</string>
+  <string name="widget_verse_config_source_plan">今日讀經計畫</string>
+  <string name="widget_verse_config_changes">更換頻率</string>
+  <string name="widget_verse_config_daily">每天</string>
+  <string name="widget_verse_config_every_few_hours">每隔數小時</string>
+  <string name="widget_verse_config_on_shuffle">僅在我點選更換時</string>
+  <string name="widget_verse_config_bible">聖經</string>
+  <string name="widget_verse_config_bible_default">預設（%s）</string>
+  <string name="widget_verse_config_show_buttons">顯示更換與朗讀按鈕</string>
+  <string name="widget_verse_config_show_source">顯示來源與日期</string>
+  <string name="widget_verse_config_add">新增小工具</string>
+  <string name="widget_verse_config_save">儲存</string>
+  <string name="widget_verse_source_reading_plan">今日讀經</string>
   <string name="speak_status_stopped">已停止</string>
   <string name="speak_autobookmarking_disabled">自動書籤已停用！</string>
   <string name="system_speak_settings">開啟系統文字轉語音(TTS)設定</string>
@@ -709,6 +759,24 @@ http://www.heartlight.org 准予使用
   <string name="install_zip_canceled">模組安裝已取消</string>
   <string name="restore">回復</string>
   <string name="import2">匯入</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s（副本）</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">來自附加元件 %1$s</string>
+  <string name="addon_label_from_module_hint">在文件管理員中開啟此附加元件</string>
+  <string name="addon_label_read_only_note">此標籤、其書籤及其研經筆記屬於附加元件，無法編輯。您可以將它標為最愛、選擇此工作區如何顯示它，並為其經文加上自己的書籤。</string>
+  <string name="addon_copy_to_my_labels">複製到我的標籤</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">已複製到您的標籤「%1$s」</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">此內容來自附加元件 %1$s，無法更改。請使用「複製到我的標籤」以取得可編輯的副本。</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">此內容來自附加元件，無法更改。請使用「複製到我的標籤」以取得可編輯的副本。</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">無法複製標籤</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" 及其他 %2$s 個標籤／學習筆記和 %3$s 個書籤</string>
   <!--About-->
@@ -743,6 +811,8 @@ http://www.heartlight.org 准予使用
   <string name="doc_type_all">所有類型</string>
   <string name="doc_type_bible">聖經</string>
   <string name="doc_type_commentary">註釋</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">文件</string>
   <string name="doc_type_dictionary">字典</string>
   <string name="doc_type_book">書卷</string>
   <string name="doc_type_map">地圖</string>
@@ -778,6 +848,10 @@ http://www.heartlight.org 准予使用
   <string name="crash_recovery_continue">繼續</string>
   <string name="report_error">發送報告</string>
   <string name="error_occurred">發生錯誤</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">應用程式在啟動時停止運作</string>
+  <string name="startup_crash_detail">請傳送錯誤報告給我們，以便修正問題。報告包含錯誤詳細資訊，以及您的裝置與應用程式版本資訊。</string>
+  <string name="startup_crash_try_again">再試一次</string>
   <string name="error_occurred_crash_last_time">你上一次使用程式時不幸意外地結束了。請回報錯誤以協助我們修正。謝謝。</string>
   <string name="error_occurred_with_link">發生錯誤。%s</string>
   <string name="error_no_content">選定經節沒有內容</string>
@@ -1280,10 +1354,6 @@ http://www.heartlight.org 准予使用
   <string name="reading_progress_new_cycle">新一輪</string>
   <string name="reading_progress_previous_cycle">上一輪</string>
   <string name="reading_progress_next_cycle">下一輪</string>
-  <string name="cloud_merge_data">合併資料</string>
-  <string name="cloud_fetch_and_restore_initial">從雲端複製至此裝置</string>
-  <string name="cloud_create_new">從此裝置複製至雲端</string>
-  <string name="cloud_disable_sync">取消或停用同步功能</string>
   <string name="cloud_sync_title">裝置同步功能</string>
   <string name="reset_sync">登出</string>
   <string name="prefs_reset_sync_summary">停用同步及重設相關設定。</string>
@@ -1299,8 +1369,15 @@ http://www.heartlight.org 准予使用
   <string name="google_drive_signin_interrupted">Google 登入已中斷。請再試一次。</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">您的伺服器位址，例如 https://cloud.example.com（若省略 https:// 會自動加上）</string>
   <string name="webdav_server_url_hint">WebDAV 資料夾的位址，例如 https://nas.local/dav/ 或 https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">同步需要安全的 https:// 位址。</string>
+  <string name="sync_waiting_for_pass">正在等待目前的同步完成…</string>
+  <string name="sync_pending_on">將會開啟</string>
+  <string name="sync_pending_off">將會關閉</string>
+  <string name="sync_pending_leave_title">要套用您的同步變更嗎？</string>
+  <string name="sync_checking_cloud_title">正在檢查雲端…</string>
+  <string name="sync_checking_cloud_text">正在尋找其他裝置已同步的資料。</string>
   <string name="webdav_certificate_title">伺服器憑證</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">不受信任的伺服器憑證</string>
@@ -1318,7 +1395,6 @@ http://www.heartlight.org 准予使用
   <string name="synchronization_categories">同步類別</string>
   <string name="sync_general_settings">資訊及一般設定</string>
   <string name="sync_introduction">簡介</string>
-  <string name="are_you_sure_merge">此裝置上的資料與雲端的 %s 都會保留。若同一項目在兩邊都有變更，則保留較新的變更。此裝置的資料會傳送到您的其他裝置。</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">正在停用同步功能。回復後需手動重新啟用同步功能。</string>
   <string name="report">回報</string>
@@ -1332,8 +1408,6 @@ http://www.heartlight.org 准予使用
   <string name="install_failed_reason">無法安裝模組。原因：%s</string>
   <string name="no_file_manager">找不到可用於選擇檔案的應用程式。請安裝檔案管理員後再試一次。</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">程式已於別處開啟</string>
-  <string name="open_here">此處開啟</string>
   <string name="external_link_dont_ask_again">不再詢問 %s</string>
   <string name="nameless">標題尚未定義</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">一鍵功能 (聖經)</string>
@@ -2272,18 +2346,30 @@ http://www.heartlight.org 准予使用
   <string name="dialog_dont_apply">不套用</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">雲端已有您的%s。要如何處理？</string>
-  <string name="cloud_merge_consequence">兩邊都會保留；若某個項目在兩邊都有更改，則以較新的更改為準。</string>
-  <string name="cloud_fetch_consequence">以雲端副本取代此裝置上的資料。</string>
-  <string name="cloud_create_consequence">以此裝置上的資料取代雲端副本。</string>
-  <string name="cloud_disable_consequence">此資料的同步功能會保持關閉。</string>
-  <string name="cloud_merge_lead">將您的%s與雲端合併？</string>
-  <string name="cloud_merge_confirm">合併</string>
   <string name="cloud_replace_confirm">取代</string>
-  <string name="cloud_replace_local_lead">以雲端副本取代此裝置的%s？</string>
-  <string name="cloud_replace_local_detail">此裝置上現有的內容會被覆寫，且無法回復。</string>
-  <string name="cloud_replace_cloud_lead">以此裝置的資料取代%s的雲端副本？</string>
-  <string name="cloud_replace_cloud_detail">雲端現有的內容會被覆寫，而您的其他裝置會收到此裝置的資料。</string>
+  <string name="cloud_join_plan_title">雲端已有資料</string>
+  <string name="cloud_join_plan_lead">請為每個類別選擇處理方式。</string>
+  <string name="cloud_join_merge">合併</string>
+  <string name="cloud_join_merge_detail">結合此裝置與雲端的資料</string>
+  <string name="cloud_join_fetch">從雲端複製</string>
+  <string name="cloud_join_fetch_detail">取代此裝置的資料</string>
+  <string name="cloud_join_create">複製到雲端</string>
+  <string name="cloud_join_create_detail">取代雲端的資料</string>
+  <string name="cloud_join_disable">不同步</string>
+  <string name="cloud_join_disable_detail">保持此類別關閉</string>
+  <string name="cloud_join_upload_note">%s：雲端尚無資料，將從此裝置上傳。</string>
+  <string name="cloud_join_confirm_title">要開始同步嗎？</string>
+  <string name="cloud_join_confirm_lead">將會發生以下情況：</string>
+  <string name="cloud_join_outcome_merge">%s：與雲端合併。不會遺失任何資料。</string>
+  <string name="cloud_join_outcome_fetch">%s：此裝置上的資料將被雲端的資料取代。</string>
+  <string name="cloud_join_outcome_create">%s：雲端的資料將被此裝置的資料取代。</string>
+  <string name="cloud_join_outcome_disable">%s：保持關閉。</string>
+  <string name="cloud_join_outcome_upload">%s：已從此裝置上傳。</string>
+  <string name="cloud_join_warning">被取代的資料無法復原。若不確定，請先備份。</string>
+  <string name="cloud_join_next">下一步</string>
+  <string name="cloud_join_back">返回</string>
+  <string name="cloud_join_start">開始同步</string>
+  <string name="cloud_join_replace">取代並同步</string>
   <string name="sign_in_failed_lead">無法登入同步服務。</string>
   <string name="sync_too_old_lead">此應用程式版本過舊，無法同步%s。</string>
   <string name="sync_too_old_detail">雲端資料使用的版本比此應用程式支援的更新。其同步功能暫時已關閉；請更新應用程式以重新開啟。</string>
@@ -2324,4 +2410,11 @@ http://www.heartlight.org 准予使用
   <string name="new_sync_targets_lead">更多資料現在可以同步</string>
   <string name="new_sync_targets_detail">我的文件、AI 設定和讀經進度也可以同步。請在「裝置同步功能」設定中開啟。</string>
   <!--end dialog copy: B3b-->
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="other">已略過 %1$d 個附加元件集合項目。請在標籤上使用「複製到我的標籤」以取得您自己的副本。</item>
+  </plurals>
+  <plurals name="sync_pending_changes">
+    <item quantity="other">%1$d 項變更</item>
+  </plurals>
 </resources>

@@ -113,4 +113,44 @@ class SpeakTransportBookmarkVisibilityTest : SpeakIntegrationTestBase() {
         runBlocking { launcher.join(SPEAK_KEY) }
         assertTrue("speakFromBookmark must read the bookmark from the database on a cache miss", speakControl.isSpeaking)
     }
+
+    /** The bar's close "X" (#4199): one tap stops live speech AND hides the bar; a second Stop is not needed. */
+    @Test
+    fun dismissStopsPausedSpeechAndHidesTheBarInOnePress() {
+        val koin = GlobalContext.get()
+        val advanced = koin.get<AdvancedSpeakSettings>()
+        val transport = SpeakTransportServiceImpl(transportScope, fakePlatform, advanced, speakControl, bookmarkControl)
+        this.transport = transport
+        val launcher = koin.get<OrderedLauncher>()
+        awaitTransport()
+        val verse = (book.getKey("Gen.1.1") as RangedPassage).getVerseAt(0)
+        speakControl.speakBible(book, verse)
+        runBlocking { launcher.join(SPEAK_KEY) }
+        transport.pause()
+        runBlocking { launcher.join(SPEAK_KEY) }
+        awaitTransport()
+        assertTrue("paused speech keeps the bar visible", transport.state.value.visible)
+        assertFalse(speakControl.isStopped)
+
+        transport.dismiss()
+        runBlocking { launcher.join(SPEAK_KEY) }
+        awaitTransport()
+
+        assertTrue("dismiss must stop the speech", speakControl.isStopped)
+        assertFalse("dismiss must hide the bar even though speech was live", transport.state.value.visible)
+    }
+
+    @Test
+    fun dismissOnAnAlreadyStoppedBarJustHidesIt() {
+        val koin = GlobalContext.get()
+        val transport = SpeakTransportServiceImpl(transportScope, fakePlatform, koin.get<AdvancedSpeakSettings>(), speakControl, bookmarkControl)
+        this.transport = transport
+        awaitTransport()
+        transport.setTransportVisible(true)
+        assertTrue(speakControl.isStopped)
+
+        transport.dismiss()
+
+        assertFalse(transport.state.value.visible)
+    }
 }

@@ -28,15 +28,15 @@ package net.bible.android.view.activity.page
  * itself `ChooseGeneralBookKey` because the two share a result shape. This enum names the result
  * shape directly, which is what the dispatch actually branches on.
  *
- * One entry per branch of [MainBibleActivity]'s `STD_REQUEST_CODE` dispatch. [PassageGrid],
- * [Bookmarks] and [ReadingProgress] share a branch but must stay distinguishable inside it: the
- * memorize path is selected by [ReadingProgress] and `isFromBookmark` by [Bookmarks].
+ * One entry per branch of [MainBibleActivity]'s `STD_REQUEST_CODE` dispatch. [Bookmarks] and
+ * [ReadingProgress] share a branch but must stay distinguishable inside it: the memorize path is
+ * selected by [ReadingProgress] and `isFromBookmark` by [Bookmarks]. (The full-screen passage grid's
+ * own kind went with the grid, #4169.)
  */
 enum class ActivityResultKind {
     ChooseDocument,
     MyDocuments,
     MyDocumentPages,
-    PassageGrid,
     Bookmarks,
     ReadingProgress,
     GenBookKey,

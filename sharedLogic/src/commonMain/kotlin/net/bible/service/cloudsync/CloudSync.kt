@@ -34,7 +34,10 @@ import net.bible.sharedcore.platform.sync.SyncScheduler
 import androidx.annotation.VisibleForTesting
 import net.bible.service.db.useWriterConnectionMarked
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
@@ -80,7 +83,7 @@ class CancelStartedSync: Exception()
 
 /**
  * The category's sync folder ids are not stored although a sync step needs them (a reset or an interrupted join
- * removed them). Not an error to show: the next [CloudSync.initializeSync] sees no folder and joins afresh.
+ * removed them). Not an error to show: the next pass's probe (see [probeJoin]) sees no folder and joins afresh.
  */
 class MissingSyncFolderIds(category: String): Exception("Sync folder ids missing for $category")
 
@@ -134,12 +137,6 @@ class CloudSync(
     fun resetSubscribersForTest() { runningSource = EventSource(); refreshSource = EventSource() }
 
 
-    // AppDialogRequest.Options ids for initializeSync's "which way?" question (Task 24 Step 3).
-    private val MERGE_VALUE = "merge"
-    private val FETCH_VALUE = "fetch"
-    private val CREATE_VALUE = "create"
-    private val DISABLE_VALUE = "disable"
-
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
@@ -180,15 +177,23 @@ class CloudSync(
     private val signInMutex = Mutex()
     /** Completed when the sign-in holding [signInMutex] ends; [signedInAdapter] waits on it without taking the lock. */
     @kotlin.concurrent.Volatile private var signInDone: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+    /** Whether the last sign-in that failed already told the user (a foreground dialog, or a cancel); false only for a genuine background failure. */
+    @kotlin.concurrent.Volatile private var lastSignInFailureReported = true
     suspend fun signIn(background: Boolean = false, onForegroundFailure: (String) -> Unit = {}, waitForExisting: Boolean = false): Boolean? {
         if (!adapterAvailable) return false
         if (!signInMutex.tryLock()) {
             Log.i(TAG, "Already signing in!")
-            return if (waitForExisting) signInMutex.withLock { _adapter?.signedIn == true } else null
+            if (!waitForExisting) return null
+            val ok = signInMutex.withLock { _adapter?.signedIn == true }
+            // The sign-in waited for may have been a background one, which reports nothing: tell the waiting caller.
+            // A foreground one showed its own dialog and a user cancel is no failure: nothing more to say then.
+            if (!ok && !background && !lastSignInFailureReported) UserMessages.errorNotification(strings.signInFailedLead, showReportButton = false, background = false, kind = ActivityKind.SYNC)
+            return ok
         }
         val done = kotlinx.coroutines.CompletableDeferred<Unit>().also { signInDone = it }
         var errorMessage: String? = null
         var cancelledByUser = false
+        var aborted = false
         val success = try {
             // #4102 one-time pin. Here and not in the constructor: Koin builds CloudSync on Main during startup
             // (BackupControl), where reading settings cold-opens the database (CoreModuleResolveTest). Every sync
@@ -200,6 +205,7 @@ class CloudSync(
                 adapter.signIn()
             } catch (e: kotlinx.coroutines.CancellationException) {
                 _adapter = null
+                aborted = true
                 throw e
             } catch (e: CloudSyncUserCancelledException) {
                 cancelledByUser = true
@@ -211,6 +217,7 @@ class CloudSync(
                 false
             }.also { if (!it) _adapter = null }
         } finally {
+            lastSignInFailureReported = !background || cancelledByUser || aborted
             signInMutex.unlock()
             done.complete(Unit)
         }
@@ -232,6 +239,7 @@ class CloudSync(
             // Stop any in-flight document transfers before wiping their state: they belong to the
             // account just disconnected. store() already returns null now (_adapter == null), so a
             // running drain would no-op anyway, but cancelling it promptly avoids a needless drain.
+            clearStoredJoins()
             documentSyncStarter.stop()
             documents.get().onSignOut()
             DatabaseContainer.databaseAccessorFactories.asyncMap {
@@ -264,58 +272,203 @@ class CloudSync(
     }
 
     enum class InitialOperation {MERGE, FETCH_INITIAL, CREATE_NEW}
-    private val uiMutex = Mutex()
+    private val planMutex = Mutex()
 
     /**
-     * `initializeSync`'s "merge, fetch from cloud, create new, or disable?" question (Task 24 Step 3): an
-     * owner-less `AppDialogController` dialog in place of the old `android.app.AlertDialog`,
-     * followed by its existing confirmation through the same dialog controller. Declining
-     * that confirmation reverts to null, same as choosing "Cancel & disable synchronization"
-     * outright. Visible for tests, not private, so a test can pin the mapping directly against just a
-     * [SyncableDatabaseDefinition] -- without building a whole [SyncableDatabaseAccessor].
+     * The join questions of one sync start as one collected dialog: a decision per [JoinState.NeedsDecision] probe
+     * and a note per [JoinState.NeedsCreate] one, confirmed once. Returns the operation per category (null for a
+     * category the user left off), or null when the user cancelled: nothing may then be executed. With no
+     * [JoinState.NeedsDecision] probe nothing is asked and every [JoinState.NeedsCreate] one gets
+     * [InitialOperation.CREATE_NEW]. One plan dialog at a time ([planMutex]).
      */
-    @VisibleForTesting suspend fun askInitialSyncOperation(category: SyncableDatabaseDefinition): InitialOperation? {
-        val containsStr = strings.syncCategoryContents(category.name)
-        val dialogResult = dialogs.await(
-            AppDialogRequest.Options(
-                title = strings.cloudExistingDataLead(containsStr),
-                message = null,
-                options = listOf(
-                    DialogAnswer(MERGE_VALUE, strings.cloudMergeData, strings.cloudMergeConsequence),
-                    DialogAnswer(FETCH_VALUE, strings.cloudFetchAndRestoreInitial, strings.cloudFetchConsequence, destructive = true),
-                    DialogAnswer(CREATE_VALUE, strings.cloudCreateNew, strings.cloudCreateConsequence, destructive = true),
-                    DialogAnswer(DISABLE_VALUE, strings.cloudDisableSync, strings.cloudDisableConsequence),
-                ),
-                dismissText = null,
-                asActionSheet = false,
-                cancellable = false,
+    @VisibleForTesting suspend fun askJoinPlan(probes: List<JoinProbe>): Map<SyncableDatabaseDefinition, InitialOperation?>? {
+        val decisions = probes.filter { it.state is JoinState.NeedsDecision }
+        val creates = probes.filter { it.state is JoinState.NeedsCreate }
+        val createOps: Map<SyncableDatabaseDefinition, InitialOperation?> = creates.associate { it.category to InitialOperation.CREATE_NEW }
+        if (decisions.isEmpty()) return createOps
+        val name = { c: SyncableDatabaseDefinition -> strings.syncCategoryContents(c.name) }
+        val request = AppDialogRequest.SyncJoinPlan(
+            title = strings.cloudJoinPlanTitle,
+            lead = strings.cloudJoinPlanLead,
+            rows = decisions.map { AppDialogRequest.SyncJoinPlan.Row(it.category.name, name(it.category)) },
+            uploadNotes = creates.map { strings.cloudJoinUploadNote(name(it.category)) },
+            choices = listOf(
+                DialogAnswer(JoinChoice.MERGE.value, strings.cloudJoinMerge, strings.cloudJoinMergeDetail),
+                DialogAnswer(JoinChoice.FETCH.value, strings.cloudJoinFetch, strings.cloudJoinFetchDetail, destructive = true),
+                DialogAnswer(JoinChoice.CREATE.value, strings.cloudJoinCreate, strings.cloudJoinCreateDetail, destructive = true),
+                DialogAnswer(JoinChoice.DISABLE.value, strings.cloudJoinDisable, strings.cloudJoinDisableDetail),
             ),
+            defaultChoice = JoinChoice.MERGE.value,
+            confirmTitle = strings.cloudJoinConfirmTitle,
+            confirmLead = strings.cloudJoinConfirmLead,
+            outcomeLine = { key, choice ->
+                val label = strings.syncCategoryContents(key)
+                when (JoinChoice.fromValue(choice)) {
+                    JoinChoice.MERGE -> strings.cloudJoinOutcomeMerge(label)
+                    JoinChoice.FETCH -> strings.cloudJoinOutcomeFetch(label)
+                    JoinChoice.CREATE -> strings.cloudJoinOutcomeCreate(label)
+                    JoinChoice.DISABLE, null -> strings.cloudJoinOutcomeDisable(label)
+                }
+            },
+            createOutcomes = creates.map { strings.cloudJoinOutcomeUpload(name(it.category)) },
+            warning = strings.cloudJoinWarning,
+            nextText = strings.cloudJoinNext,
+            backText = strings.cloudJoinBack,
+            cancelText = strings.cancel,
+            startText = strings.cloudJoinStart,
+            replaceText = strings.cloudJoinReplace,
         )
-        val q1 = when ((dialogResult as? AppDialogResult.Selected)?.value) {
-            MERGE_VALUE -> InitialOperation.MERGE
-            FETCH_VALUE -> InitialOperation.FETCH_INITIAL
-            CREATE_VALUE -> InitialOperation.CREATE_NEW
-            else -> null // "Cancel & disable synchronization", or (uncancellable) Cancel/back/scrim.
+        Log.i(TAG, "planMutex ahead ${decisions.map { it.category }}...")
+        val result = planMutex.withLock {
+            Log.i(TAG, "... got through planMutex!")
+            withContext(Dispatchers.Main) { dialogs.await(request) }
         }
-        if (q1 != null) {
-            val request = when (q1) {
-                InitialOperation.MERGE -> AppDialogRequest.Confirm(
-                    title = null, message = strings.cloudMergeLead(containsStr), confirmText = strings.cloudMergeConfirm,
-                    dismissText = strings.cancel, detail = strings.areYouSureMerge(containsStr),
-                )
-                InitialOperation.FETCH_INITIAL -> AppDialogRequest.Confirm(
-                    title = null, message = strings.cloudReplaceLocalLead(containsStr), confirmText = strings.cloudReplaceConfirm,
-                    dismissText = strings.cancel, detail = strings.cloudReplaceLocalDetail, destructive = true,
-                )
-                InitialOperation.CREATE_NEW -> AppDialogRequest.Confirm(
-                    title = null, message = strings.cloudReplaceCloudLead(containsStr), confirmText = strings.cloudReplaceConfirm,
-                    dismissText = strings.cancel, detail = strings.cloudReplaceCloudDetail, destructive = true,
-                )
+        val chosen = (result as? AppDialogResult.SyncJoinChoices)?.choices ?: return null // Cancel, back or scrim.
+        return decisions.associate {
+            val choice = JoinChoice.fromValue(chosen[it.category.name])
+            if (choice == null) Log.w(TAG, "No valid join choice for ${it.category}: '${chosen[it.category.name]}', not syncing it")
+            it.category to choice?.toOperation()
+        } + createOps
+    }
+
+    /**
+     * A join decision the user already confirmed ([planJoins]); [fromDecision] false for a `NeedsCreate` category.
+     * [folderId] is the cloud folder a decision was made against (null for a create): a decision is only usable while
+     * the cloud still shows that folder. A class, not a data class: instances are compared by identity (see [storedJoinToken]).
+     */
+    private class StoredJoin(val operation: InitialOperation, val fromDecision: Boolean, val folderId: String? = null)
+
+    private val joinStateLock = SynchronizedObject()
+    /** Categories whose plan dialog is open (a count per category, so overlapping [planJoins] calls do not clear each other). */
+    private val awaitingJoins = HashMap<SyncableDatabaseDefinition, Int>()
+    private val storedJoins = LinkedHashMap<SyncableDatabaseDefinition, StoredJoin>()
+    private val queuedJoinsMutable = MutableStateFlow<Set<SyncableDatabaseDefinition>>(emptySet())
+
+    /** Categories with a stored, not yet executed join decision: they wait for the next pass (and its [syncMutex]). */
+    val queuedJoins: StateFlow<Set<SyncableDatabaseDefinition>> get() = queuedJoinsMutable
+
+    private fun isAwaitingJoin(category: SyncableDatabaseDefinition) = synchronized(joinStateLock) { category in awaitingJoins } // L1-common-ok: atomicfu lock
+
+    /** Removes and returns the stored decision of [category]; the caller is about to act on it (or drop it). */
+    private fun takeStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+        storedJoins.remove(category).also { queuedJoinsMutable.value = storedJoins.keys.toSet() }
+    }
+
+    /** Removes the decision of [category] only if it is still [expected]; returns it, or null when another decision (or none) is stored. */
+    private fun takeStoredJoinIfSame(category: SyncableDatabaseDefinition, expected: Any): StoredJoin? = synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+        if (storedJoins[category] !== expected) null
+        else storedJoins.remove(category).also { queuedJoinsMutable.value = storedJoins.keys.toSet() }
+    }
+
+    private fun peekStoredJoin(category: SyncableDatabaseDefinition): StoredJoin? = synchronized(joinStateLock) { storedJoins[category] } // L1-common-ok: atomicfu lock
+
+    /** An opaque identity of the decision stored for [category] right now (null: none), for [dropStoredJoinIfSame]. */
+    fun storedJoinToken(category: SyncableDatabaseDefinition): Any? = peekStoredJoin(category)
+
+    /** Drops the decision of [category] only if it is still the one [token] names: a later decision of another caller survives. */
+    fun dropStoredJoinIfSame(category: SyncableDatabaseDefinition, token: Any?) {
+        if (token == null) return
+        synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+            if (storedJoins[category] === token) { storedJoins.remove(category); queuedJoinsMutable.value = storedJoins.keys.toSet() }
+        }
+    }
+
+    /** Drops the stored decision of [category], if any: a decision must not outlive the switch (or pass) that made it moot. */
+    fun dropStoredJoin(category: SyncableDatabaseDefinition) {
+        synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+            if (storedJoins.remove(category) != null) queuedJoinsMutable.value = storedJoins.keys.toSet()
+        }
+    }
+
+    private fun clearStoredJoins() = synchronized(joinStateLock) { storedJoins.clear(); queuedJoinsMutable.value = emptySet() } // L1-common-ok: atomicfu lock
+
+    /** Turns [categories] off and drops their stored decisions: a decision must not outlive the choice that disabled the category. */
+    private fun disableJoining(categories: Collection<SyncableDatabaseDefinition>) {
+        synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+            categories.forEach { storedJoins.remove(it); it.setSyncEnabled(settings, false) }
+            queuedJoinsMutable.value = storedJoins.keys.toSet()
+        }
+    }
+
+    /** Reports a failed [planJoins] probe directly (no pass runs it): the same three-way split as the pass's init step. */
+    private fun reportPlanProbeFailure(dbDef: SyncableDatabaseAccessor<*>, e: Exception) {
+        logSyncFailure(dbDef, "probe", e, if (e is IOException) "probably network down" else null)
+        val text = when (e) {
+            is CloudSyncUserFacingException -> e.message?.takeIf { it.isNotBlank() } ?: strings.syncError
+            else -> strings.syncError
+        }
+        UserMessages.errorNotification(text, showReportButton = e !is CloudSyncUserFacingException, background = false, kind = ActivityKind.SYNC, cause = e)
+    }
+
+    /**
+     * Plans the join of [categories] outside [syncMutex], so it completes while a pass is running: the categories are
+     * marked awaiting (a concurrent pass skips them), earlier stored decisions for them are dropped, they are probed in
+     * parallel (the probe is read-only), [onProbed] is called, then one [askJoinPlan] is asked. The confirmed decisions are
+     * stored for the next pass ([queuedJoins]), which runs them under [syncMutex]; "Don't sync" disables its category at once.
+     * A stored decision is consumed when its pass starts executing the category: if that execute fails the decision is
+     * gone and the next pass asks again.
+     *
+     * With [enable] the categories are turned on after the awaiting mark is set, so no pass can see them enabled but not
+     * awaiting; every failure path reverts that together with the cancel handling.
+     *
+     * Returns false when the user cancelled: exactly [categories] are then turned off. Any cancellation of the caller
+     * (also during the probe or [onProbed]) turns them off too and is rethrown. The awaiting marks are always cleared.
+     * A category whose probe fails is reported as a sync error and left as it is (the next pass joins it). The caller
+     * signs in first. A [CloudSyncUserFacingException.requiresReconnect] is not acted on here (dropping the adapter
+     * would break a running pass); the next pass's own handling does.
+     */
+    suspend fun planJoins(categories: Set<SyncableDatabaseDefinition>, onProbed: () -> Unit = {}, enable: Boolean = false): Boolean {
+        synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+            categories.forEach { awaitingJoins[it] = (awaitingJoins[it] ?: 0) + 1; storedJoins.remove(it) }
+            queuedJoinsMutable.value = storedJoins.keys.toSet()
+        }
+        try {
+            if (enable) categories.forEach { it.setSyncEnabled(settings, true) }
+            // A category disabled for this database version is skipped by every pass: no probe, no question.
+            val accessors = categories.mapNotNull { DatabaseContainer.databaseAccessorsByCategory[it] }
+                .filter { it.dao.getLong("disabledForVersion") != it.version().toLong() }
+            val probes = accessors.asyncMap { dbDef ->
+                try {
+                    probeJoin(dbDef)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    reportPlanProbeFailure(dbDef, e)
+                    null
+                }
+            }.filterNotNull()
+            onProbed()
+            val asked = probes.filter { it.state is JoinState.NeedsDecision || it.state is JoinState.NeedsCreate }
+            if (asked.isEmpty()) return true
+            val plan = askJoinPlan(asked)
+            if (plan == null) {
+                disableJoining(categories)
+                return false
             }
-            val confirmed = dialogs.await(request) == AppDialogResult.Ok
-            if (!confirmed) return null
+            synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+                for (probe in asked) {
+                    val operation = plan[probe.category]
+                    val fromDecision = probe.state is JoinState.NeedsDecision
+                    if (operation == null) { storedJoins.remove(probe.category); probe.category.setSyncEnabled(settings, false) }
+                    else storedJoins[probe.category] = StoredJoin(operation, fromDecision, (probe.state as? JoinState.NeedsDecision)?.preliminaryFolderId)
+                }
+                queuedJoinsMutable.value = storedJoins.keys.toSet()
+            }
+            return true
+        } catch (e: CancellationException) {
+            disableJoining(categories)
+            throw e
+        } catch (e: Exception) {
+            if (enable) disableJoining(categories)
+            throw e
+        } finally {
+            synchronized(joinStateLock) { // L1-common-ok: atomicfu lock
+                categories.forEach {
+                    val left = (awaitingJoins[it] ?: 1) - 1
+                    if (left <= 0) awaitingJoins.remove(it) else awaitingJoins[it] = left
+                }
+            }
         }
-        return q1
     }
 
     /** The folder-name prefix: the debug override, or the app id mapped through [SyncNamespace] so release distributions share folders. */
@@ -343,78 +496,115 @@ class CloudSync(
     @VisibleForTesting fun syncFolderName(category: String): String = "$namespace-sync-$category"
 
     /**
-     * Makes the category's stored sync state agree with the current [namespace].
-     *
-     * The namespace of the stored state is the [SYNC_NAMESPACE_KEY] config, or, for state that predates the key,
-     * the name the old code derived from the raw app id. If it differs from the current namespace the stored
-     * folder ids, the sync position and the adapter's "folder known" marker belong to a folder this build no
-     * longer uses, so they are dropped and the category joins the current folder afresh (first-join question
-     * included). A standard build's old name equals its namespace, so an upgrade keeps all state.
-     *
-     * The key itself is stored by [initializeSync] once the folder is settled, every time: a first-join fetch
-     * swaps the whole database file, config table included, and the uploader's file may lack the key.
+     * Whether the category's stored sync state belongs to another [namespace] and must be dropped (see
+     * [applyNamespaceReset]). The namespace of the stored state is the [SYNC_NAMESPACE_KEY] config, or, for state that
+     * predates the key, the name the old code derived from the raw app id. A standard build's old name equals its
+     * namespace, so an upgrade keeps all state. Read-only.
      */
-    private suspend fun resetIfNamespaceChanged(dbDef: SyncableDatabaseAccessor<*>) {
+    private suspend fun namespaceChanged(dbDef: SyncableDatabaseAccessor<*>): Boolean {
         val stored = dbDef.dao.getString(SYNC_NAMESPACE_KEY)
-        if (stored == namespace) return
+        if (stored == namespace) return false
         val previous = stored ?: (syncNamespace ?: env.packageName)
         if (previous != namespace) {
             Log.i(TAG, "Sync namespace of ${dbDef.categoryName} changed $previous -> $namespace, starting a fresh join")
-            // The adapter knows which configs prove a folder known (its secret marker); removing them via
-            // getConfigs keeps adapter-specific keys out of this common code.
-            adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
-            dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
-            dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
-            dbDef.dao.removeConfig(LAST_SYNCHRONIZED_KEY)
-            dbDef.dao.removeConfig(LAST_PATCH_WRITTEN_KEY)
+            return true
         }
+        return false
     }
 
-    @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true, backgroundErrors: Boolean = !allowInteraction) {
-        var initialOperation: InitialOperation?= null
-        val syncFolderName = syncFolderName(dbDef.categoryName)
-        resetIfNamespaceChanged(dbDef)
+    /**
+     * Drops the stored folder ids, the sync position and the adapter's "folder known" marker, which belong to a folder
+     * this build no longer uses; the category joins the current folder afresh (first-join question included).
+     *
+     * The namespace key itself is stored by [executeJoin] once the folder is settled, every time: a first-join fetch
+     * swaps the whole database file, config table included, and the uploader's file may lack the key.
+     */
+    private suspend fun applyNamespaceReset(dbDef: SyncableDatabaseAccessor<*>) {
+        // The adapter knows which configs prove a folder known (its secret marker); removing them via
+        // getConfigs keeps adapter-specific keys out of this common code.
+        adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
+        dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+        dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+        dbDef.dao.removeConfig(LAST_SYNCHRONIZED_KEY)
+        dbDef.dao.removeConfig(LAST_PATCH_WRITTEN_KEY)
+    }
 
-        recoverInterruptedMerge(dbDef, background = backgroundErrors)
-        var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
+    /**
+     * Read-only look at what joining [dbDef] would take: no writes to the database, the adapter or the file system
+     * (only `getString`, `isSyncFolderKnown`, `listFiles` and `exists` are used). [executeJoin] acts on the result.
+     *
+     * With [listCloud] false (a pass that may not ask the user) the cloud folder is not listed: an unjoined category
+     * then reports [JoinState.NeedsCreate] as a placeholder, because the caller only cancels it.
+     */
+    internal suspend fun probeJoin(dbDef: SyncableDatabaseAccessor<*>, listCloud: Boolean = true): JoinProbe {
+        val resetNamespace = namespaceChanged(dbDef)
+        fun probe(state: JoinState, dropStaleState: Boolean = false, cloudListed: Boolean = true) =
+            JoinProbe(dbDef.category, state, resetNamespace, dropStaleState, cloudListed)
+        if (hasInterruptedMerge(dbDef)) return probe(JoinState.NeedsRecovery)
+        var dropStaleState = false
+        // After a namespace reset the folder id is gone, so the category is joined afresh.
+        val syncFolderId = if (resetNamespace) null else dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
-            val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
+            val known = adapter.isSyncFolderKnown(dbDef, name = syncFolderName(dbDef.categoryName), id = syncFolderId)
             // A folder id without this device's folder id is a half-finished join: join afresh.
-            if (!syncFolderKnown || dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) == null) {
-                syncFolderId = null
-                // Watermarks too: a stale LAST_SYNCHRONIZED_KEY would make the fresh join skip older patches.
-                removeSyncState(dbDef)
+            if (known && dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) != null) return probe(JoinState.Ready)
+            dropStaleState = true
+        }
+        if (!listCloud) return probe(JoinState.NeedsCreate, dropStaleState, cloudListed = false)
+        val cloudFolder = adapter.listFiles(name = syncFolderName(dbDef.categoryName)).firstOrNull()
+        return probe(if (cloudFolder != null) JoinState.NeedsDecision(cloudFolder.id) else JoinState.NeedsCreate, dropStaleState)
+    }
+
+    /** Applies the probe's clean-ups (namespace reset, stale-state removal), the only writes before the join acts. */
+    private suspend fun applyProbeCleanups(dbDef: SyncableDatabaseAccessor<*>, probe: JoinProbe) {
+        if (probe.resetNamespace) applyNamespaceReset(dbDef)
+        // Watermarks too: a stale LAST_SYNCHRONIZED_KEY would make the fresh join skip older patches.
+        if (probe.dropStaleState) removeSyncState(dbDef)
+    }
+
+    /** Test-only: production passes and [planJoins] go through [probeJoin] and [executeJoin]; this runs both for one category. */
+    @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true, backgroundErrors: Boolean = !allowInteraction) {
+        val probe = probeJoin(dbDef, listCloud = allowInteraction)
+        var operation: InitialOperation? = null
+        when (probe.state) {
+            JoinState.Ready, JoinState.NeedsRecovery -> {}
+            JoinState.NeedsCreate, is JoinState.NeedsDecision -> {
+                // An OS refresh must not decide whether to fetch, create, or disable a category.
+                if (!allowInteraction) {
+                    applyProbeCleanups(dbDef, probe)
+                    throw CancelStartedSync()
+                }
+                operation = askJoinPlan(listOf(probe))?.get(dbDef.category)
             }
         }
+        executeJoin(dbDef, probe, operation, backgroundErrors)
+    }
 
+    /**
+     * Carries out the join [probe] described: the clean-ups, then recovery, the chosen [operation] and the folder
+     * bookkeeping. [operation] is only read for [JoinState.NeedsDecision]; null there means the user disabled the
+     * category.
+     */
+    internal suspend fun executeJoin(dbDef: SyncableDatabaseAccessor<*>, probe: JoinProbe, operation: InitialOperation?, backgroundErrors: Boolean) {
+        val syncFolderName = syncFolderName(dbDef.categoryName)
+        applyProbeCleanups(dbDef, probe)
+        var initialOperation: InitialOperation? = null
+        var syncFolderId: String? = null
         var preliminarySyncFolderId: String? = null
-        if(syncFolderId == null) {
-            // An OS refresh must not decide whether to fetch, create, or disable a category.
-            if (!allowInteraction) throw CancelStartedSync()
-            adapter.listFiles(name = syncFolderName)
-                .firstOrNull()?.id?.also {
-                    preliminarySyncFolderId = it
-                    initialOperation = InitialOperation.FETCH_INITIAL
-                }?:let {
-                initialOperation = InitialOperation.CREATE_NEW
-            }
-
-            if (initialOperation == InitialOperation.FETCH_INITIAL) {
-                Log.i(TAG, "uiMutex ahead ${dbDef.categoryName}...")
-                initialOperation = uiMutex.withLock {
-                    Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
-                    withContext(Dispatchers.Main) {
-                        askInitialSyncOperation(dbDef.category)
-                    }
-                }
-                if (initialOperation == null) {
+        when (val state = probe.state) {
+            JoinState.Ready -> {}
+            JoinState.NeedsRecovery -> recoverInterruptedMerge(dbDef, background = backgroundErrors)
+            JoinState.NeedsCreate -> initialOperation = InitialOperation.CREATE_NEW
+            is JoinState.NeedsDecision -> {
+                if (operation == null) {
                     dbDef.category.setSyncEnabled(settings, false)
                     throw CancelStartedSync()
-                } else {
-                    dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
-                    syncFolderId = preliminarySyncFolderId
-                    adapter.makeSyncFolderKnown(dbDef, syncFolderName, syncFolderId)
                 }
+                preliminarySyncFolderId = state.preliminaryFolderId
+                initialOperation = operation
+                dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, state.preliminaryFolderId)
+                syncFolderId = state.preliminaryFolderId
+                adapter.makeSyncFolderKnown(dbDef, syncFolderName, state.preliminaryFolderId)
             }
         }
 
@@ -687,7 +877,7 @@ class CloudSync(
                     try {
                         withContext(NonCancellable) {
                             if (pristineReady) swapInInitialDb(dbDef, original, token) { removeSyncState(dbDef) }
-                            else removeSyncState(dbDef) // the live database was never touched: only forget the keys initializeSync wrote
+                            else removeSyncState(dbDef) // the live database was never touched: only forget the keys the join wrote
                         }
                     } catch (restoreFailure: Throwable) {
                         restoreFailed = true // keep the durable copy: the next start's recovery retries
@@ -723,13 +913,18 @@ class CloudSync(
         adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
     }
 
+    private fun hasInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>): Boolean {
+        val original = mergeOriginalPath(dbDef)
+        return FileSystem.SYSTEM.exists(original) || FileSystem.SYSTEM.exists("$original.partial".toPath())
+    }
+
     /**
      * Finishes a merge that a process death (or a failed restore) interrupted, before anything else touches the
      * category. `<db>.merge-original` exists only once the pristine copy is whole: the live database may then be the
      * cloud's data with stored folder ids, so the copy is swapped back in, the sync state removed, category sync
      * switched off and the sync error shown; the device has exactly its earlier data. A lone `.partial` means the
      * live database was never touched: it is deleted and only the stale sync state removed. Both end in
-     * [CancelStartedSync]; the user can enable sync again. Runs inside [initializeSync], so a signed-in adapter is
+     * [CancelStartedSync]; the user can enable sync again. Runs inside [executeJoin], so a signed-in adapter is
      * needed first: until then the database stays as the interrupted merge left it.
      */
     private suspend fun recoverInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>, background: Boolean) {
@@ -837,28 +1032,116 @@ class CloudSync(
             passRun = run
             var completed = false
             try {
-                DatabaseContainer.databaseAccessorFactories.asyncMap {
-                    val dbDef = it.invoke()
-                    if(!dbDef.category.isSyncEnabled(settings)) return@asyncMap
-                    if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) return@asyncMap
+                /** Runs an init-phase step of [dbDef] with the per-category error handling; false when the category must be skipped. */
+                suspend fun guardInit(dbDef: SyncableDatabaseAccessor<*>, step: String, block: suspend () -> Unit): Boolean {
                     try {
-                        initializeSync(dbDef, allowInteraction, backgroundErrors)
+                        block()
+                        return true
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: CancelStartedSync) {
                         Log.e(TAG, "Sync cancelled ${dbDef.categoryName}")
-                        return@asyncMap
                     } catch (e: IOException) {
-                        logSyncFailure(dbDef, "initialize", e, "probably network down")
+                        logSyncFailure(dbDef, step, e, "probably network down")
                         reportTransportFailure(e)
-                        return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
-                        logSyncFailure(dbDef, "initialize", e)
+                        logSyncFailure(dbDef, step, e)
                         reportUserFacing(e)
-                        return@asyncMap
                     } catch (e: Exception) {
-                        logSyncFailure(dbDef, "initialize", e)
+                        logSyncFailure(dbDef, step, e)
                         run.report(strings.syncError, background = background, cause = e)
-                        return@asyncMap
                     }
+                    return false
+                }
+
+                // Init phase: probe every enabled category (those whose plan dialog is open are left to planJoins), take the
+                // decisions already stored by planJoins, and ask the rest once.
+                val probed = DatabaseContainer.databaseAccessorFactories.asyncMap {
+                    val dbDef = it.invoke()
+                    if(!dbDef.category.isSyncEnabled(settings)) { takeStoredJoin(dbDef.category); return@asyncMap null }
+                    if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) { takeStoredJoin(dbDef.category); return@asyncMap null }
+                    if (isAwaitingJoin(dbDef.category)) return@asyncMap null
+                    var probe: JoinProbe? = null
+                    // A confirmed decision needs the cloud folder id, so its category is listed even in a background pass.
+                    val listCloud = allowInteraction || peekStoredJoin(dbDef.category) != null
+                    if (!guardInit(dbDef, "initialize") { probe = probeJoin(dbDef, listCloud) }) {
+                        // A failed probe cannot confirm what the decision was made against: it must not linger and run later.
+                        takeStoredJoin(dbDef.category)
+                        return@asyncMap null
+                    }
+                    dbDef to probe!!
+                }.filterNotNull()
+
+                // category -> the operation to run (null: the user left it off)
+                val operations = HashMap<SyncableDatabaseDefinition, InitialOperation?>()
+                val skipped = HashSet<SyncableDatabaseDefinition>()
+                val usedStored = HashMap<SyncableDatabaseDefinition, Any>() // the stored decisions the operations came from
+                val toAsk = ArrayList<JoinProbe>()
+                for ((dbDef, probe) in probed) {
+                    val category = dbDef.category
+                    when (probe.state) {
+                        JoinState.Ready, JoinState.NeedsRecovery -> takeStoredJoin(category)
+                        is JoinState.NeedsDecision, JoinState.NeedsCreate -> {
+                            val stored = peekStoredJoin(category)
+                            if (stored != null && !probe.cloudListed) {
+                                // A placeholder says nothing about the cloud: the confirmed decision waits for a pass that lists it.
+                                skipped += category
+                                continue
+                            }
+                            // A decision only holds for the cloud it was made against: a create never replaces a folder another
+                            // device made since, and a fetch/merge/create answer is bound to the folder the user was shown.
+                            val state = probe.state
+                            val usable0 = stored != null && (state is JoinState.NeedsCreate ||
+                                (stored.fromDecision && state is JoinState.NeedsDecision && stored.folderId == state.preliminaryFolderId))
+                            // A create answer holds when the folder is missing; a fetch/merge bound to folder X does not.
+                            val createOk = state !is JoinState.NeedsCreate || stored == null || !stored.fromDecision || stored.folderId == null
+                            val usable = usable0 && createOk
+                            if (usable) { operations[category] = stored!!.operation; usedStored[category] = stored }
+                            else if (allowInteraction) toAsk += probe
+                            else {
+                                // An OS refresh must not decide whether to fetch, create, or disable a category.
+                                guardInit(dbDef, "initialize") { applyProbeCleanups(dbDef, probe); throw CancelStartedSync() }
+                                skipped += category
+                            }
+                            if (stored != null && !usable) takeStoredJoin(category)
+                        }
+                    }
+                }
+                // A plan dialog opened meanwhile (planJoins) owns its categories: never ask twice.
+                toAsk.removeAll { isAwaitingJoin(it.category) }
+                if (toAsk.isNotEmpty()) {
+                    val plan = try {
+                        askJoinPlan(toAsk)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Join plan failed", e)
+                        run.report(strings.syncError, background = background, cause = e)
+                        toAsk.forEach { skipped += it.category }
+                        null
+                    }
+                    if (plan == null) {
+                        // Cancel: the categories being joined go off, the Ready ones keep syncing.
+                        toAsk.forEach { if (it.category !in skipped) { disableJoining(listOf(it.category)); skipped += it.category } }
+                    } else operations.putAll(plan)
+                }
+
+                probed.asyncMap { (dbDef, probe) ->
+                    val category = dbDef.category
+                    if (category in skipped || isAwaitingJoin(category)) return@asyncMap
+                    val operation = operations[category]
+                    if (probe.state is JoinState.NeedsDecision || probe.state is JoinState.NeedsCreate) {
+                        // Non-ready and not decided (nothing in `operations`): the category was left out of the plan.
+                        if (!operations.containsKey(category)) return@asyncMap
+                    }
+                    // Re-check what the init phase decided: the dialog above may have taken a while, and an Apply meanwhile may
+                    // have turned the category off or replaced/dropped its decision.
+                    val fromStored = usedStored[category]
+                    // Compare-and-remove: a newer decision stored meanwhile by another Apply is not ours to take.
+                    val taken = if (fromStored != null) takeStoredJoinIfSame(category, fromStored) else takeStoredJoin(category)
+                    if (!category.isSyncEnabled(settings)) return@asyncMap
+                    if (fromStored != null && taken !== fromStored) return@asyncMap
+                    if (!guardInit(dbDef, "initialize") { executeJoin(dbDef, probe, operation, backgroundErrors) }) return@asyncMap
                     try {
                         createAndUploadNewPatch(dbDef)
                     } catch (e: IOException) {
@@ -1023,9 +1306,14 @@ class CloudSync(
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.size, it.file.createdTime)
         }
 
-        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray())
+        // Reported once for all patches, also those committed before a failing one: the retry re-applies them as no-ops
+        // and would never report them (#4151). For the same reason a listener's failure must not fail the sync.
+        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray(), onApplied = {
+            try { dbDef.reactToUpdates(it) }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { Log.e(TAG, "Reacting to synced ${dbDef.categoryName} changes failed", e) }
+        })
         downloadedFiles.forEach { runCatching { FileSystem.SYSTEM.delete(it) } }
-        dbDef.reactToUpdates(lastSynchronized)
         dbDef.dao.addStatuses(syncStatuses)
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, synchronizedAt)
     }

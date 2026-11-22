@@ -198,19 +198,27 @@ object ErrorReportControl {
         }
     }
 
+    /**
+     * Offers a crash report when the app crashed more than once within an hour, or (#4176) when the early startup
+     * handler has records the crash safe mode did not show (the discrete flavour and the calculator disguise never use
+     * the safe mode). The counters are reset only after the user has answered: a crash while the question is open
+     * must bring it back.
+     */
     suspend fun checkCrash(activity: ActivityBase) {
         val crashedCount = CommonUtils.realSharedPreferences.getInt("app-crashed-count", 0)
         val crashedTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+        val startupCrash = StartupCrashGuard.needsReport()
 
-        // If crash happened more than one hour ago, forget about it
-        if (crashedTime != 0L && System.currentTimeMillis() - crashedTime > ONE_HOUR) {
-            resetCrashCounts()
-        }
         // If more than 1 crash happened within 1 hour, then let user report it (and do db backup)
-        else if (crashedCount > 1 && crashedTime != 0L && System.currentTimeMillis() - crashedTime < ONE_HOUR) {
-            resetCrashCounts()
+        if (startupCrash || (crashedCount > 1 && crashedTime != 0L && System.currentTimeMillis() - crashedTime < ONE_HOUR)) {
             val msg = activity.getString(R.string.error_occurred_crash_last_time)
             showErrorDialog(activity, msg)
+            resetCrashCounts()
+            if (startupCrash) StartupCrashGuard.resolve(activity)
+        }
+        // If crash happened more than one hour ago, forget about it
+        else if (crashedTime != 0L && System.currentTimeMillis() - crashedTime > ONE_HOUR) {
+            resetCrashCounts()
         }
     }
 }
@@ -261,6 +269,14 @@ object BugReport {
                 }
             }
             
+            // #4176: crashes of the early start that no report has carried yet.
+            StartupCrashGuard.store?.pendingFile?.takeIf { it.exists() }?.let { pending ->
+                append("=== STARTUP CRASH RECORDS ===\n")
+                append(StartupCrashGuard.reportDetails(BibleApplication.application)).append("\n")
+                append(pending.readText()).append("\n")
+                append("=== END STARTUP CRASH RECORDS ===\n\n")
+            }
+
             if (exception != null) {
                 val errors = StringWriter()
                 exception.printStackTrace(PrintWriter(errors))

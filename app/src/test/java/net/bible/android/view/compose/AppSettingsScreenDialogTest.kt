@@ -127,9 +127,7 @@ class AppSettingsScreenDialogTest {
         // The body is JUST the link (rather than a link inside a longer sentence, as
         // `discreteHelp_bodyCarriesTheLinkAnnotation` used to build it): `performClick()` clicks the
         // CENTER of the whole Text node, which only lands on the link's own glyphs when the link is
-        // the only content -- a real click on a link mid-sentence needs its own bounding box (see
-        // `EpubSearchScreenHelpDialogTest`'s equivalent test, whose HTML is fixed production content
-        // and so can't be simplified this way).
+        // the only content -- a real click on a link mid-sentence needs its own bounding box.
         show(AppSettingsDialog.DiscreteHelp("Settings for the persecuted", """<a href="https://example.org/wiki">here</a>"""))
         compose.onNodeWithText("here").performClick()
         assertEquals(listOf("https://example.org/wiki"), opened)

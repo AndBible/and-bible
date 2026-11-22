@@ -177,17 +177,11 @@ class HostActivityNotificationRoutingTest {
         assertLists(0)
     }
 
-    @Test fun disabledRootDropsTapAndDisablingClosesList() = onSettingsRoot(enabled = false) { requests, preference, _ ->
-        runOnIdle { requests.request() }
-        waitForIdle()
-        assertLists(0)
-        runOnIdle { preference.set(true) }
-        waitForIdle()
-        assertLists(0)
+    @Test fun disabledRootStillOpensListOnTap() = onSettingsRoot(enabled = false) { requests, _, _ ->
         runOnIdle { requests.request() }
         waitForIdle()
         assertLists(1)
-        runOnIdle { preference.set(false) }
+        onNodeWithText("Close").performClick()
         waitForIdle()
         assertLists(0)
     }

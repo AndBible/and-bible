@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kada se indeksiranje završi bićete prebačeni na ekran za pretragu.</string>
   <string name="index_create">Napravi</string>
   <string name="rebuild_index">Ponovo izgradi indeks</string>
-  <string name="search_in">Pronađi u %s</string>
   <string name="do_in_background">Nastavi u pozadini</string>
   <string name="rebuild_index_button">Ponovo izgradi</string>
   <string name="creating_index_for">Kreiranje indeksa za %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s rezultata u %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Napredak</string>
-  <string name="task_kill_warning">Ovi dugotrajni zadaci mogu biti prekinuti ako se prebaciti na drugu aplikaciju pre no što završe.</string>
   <string name="no_tasks_running">Nema zadataka koji se trenutno izvršavaju.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Pronađi stihove</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Obriši tekst pretrage</string>
   <string name="search_engine_changed_reindex">Pretraživač je ažuriran. Indeks pretrage mora ponovo da se napravi; to može potrajati.</string>
   <string name="search_unsupported_syntax">Ova pretraga koristi sintaksu koja nije podržana: %s</string>
+  <string name="search_regex">Regularni izraz (eksperimentalno)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Pretraga je trajala predugo i zaustavljena je. Rezultati su nepotpuni; pokušajte sa jednostavnijim izrazom.</string>
+  <string name="search_invalid_regex">Neispravan regularni izraz: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Ovaj regularni izraz ima previše otvorenih džokera (kao što su .* ili \\w+). Koristite ih manje ili ih suzite, na primer .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Ovaj regularni izraz ponavlja grupu koja i sama sadrži ponavljanje, kao što je (a+)+. Poklapanje može trajati praktično beskonačno. Napišite ga bez ugnežđenih ponavljanja.</string>
+  <string name="search_regex_busy">Ranija pretraga regularnim izrazom još uvek traje u pozadini. Pokušajte ponovo za trenutak; ako se ne završi, ponovo pokrenite aplikaciju.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -318,6 +323,8 @@
   <string name="hide_window_buttons_summary">Sakriveni su dugmići prozora koji se prikazuju sa desne strane pregleda Biblije. Linija za navigaciju prozora u dnu je i dalje prikazana i možete otvoriti iskačući meni dugim pritiskom na nju.</string>
   <string name="hide_bible_reference_overlay_title">Sakrij prikrivajući prikaz za reference Biblije</string>
   <string name="hide_bible_reference_overlay_summary">Ne prikazuj polu-providni prekrivajući prikaz za reference Biblije kada je aplikacija u režimu celog ekrana</string>
+  <string name="text_under_window_buttons_title">Prikaži tekst ispod dugmadi prozora</string>
+  <string name="text_under_window_buttons_summary">Tekst Biblije se prostire do dna ekrana, ispod trake sa dugmadima prozora. Kada je isključeno, ispod trake se u donjim prozorima koje obuhvata ostavlja slobodan prostor.</string>
   <string name="full_screen_hide_buttons_pref_title">Sakrij liniju dugmića prozora u režimu celog ekrana</string>
   <string name="full_screen_hide_buttons_pref_summary">Automatski sakrij liniju dugmića prozora sa dna ekrana, kada se prebacuje u režim rada celog ekrana.</string>
   <string name="prefs_hide_status_bar_title">Sakrij statusnu traku</string>
@@ -582,7 +589,50 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="sleep_timer_active_at">Tajmer spavanja: %s minuta preostalo.</string>
   <string name="speak_next">Sledeći</string>
   <string name="speak_previous">Prethodni</string>
+  <string name="widget_play">Pusti</string>
   <string name="widget_toggle_sleep_timer">Uklj/Isklj tajmer spavanja</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Izgovori</string>
+  <string name="widget_speak_text_name">Izgovori sa tekstom</string>
+  <string name="widget_listening_list_name">Lista slušanja</string>
+  <string name="widget_verse_name">Stih</string>
+  <string name="widget_continue_from">Nastavi od %1$s · %2$s</string>
+  <string name="widget_continue_listening">Nastavi slušanje</string>
+  <string name="widget_paused">Pauzirano</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Još nema obeleživača za izgovor</string>
+  <string name="widget_listening_list_empty_text">Ovde se pojavljuju obeleživači sa oznakom Izgovori. Uključite automatske obeleživače u postavkama izgovaranja ili dodajte oznaku bilo kom obeleživaču.</string>
+  <string name="widget_open_app">Otvori AndBible</string>
+  <string name="widget_open_app_to_load">Otvorite AndBible da učitate stihove</string>
+  <string name="widget_verse_unavailable_no_bible">Instalirajte Bibliju da biste ovde videli stihove</string>
+  <string name="widget_verse_unavailable_label_missing">Oznaka ovog vidžeta više ne postoji. Dodirnite da izaberete stihove.</string>
+  <string name="widget_verse_unavailable_label_empty">Ova oznaka još nema obeleživače Biblije. Dodirnite da izaberete druge stihove.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Nijedan plan čitanja nije aktivan. Dodirnite da izaberete druge stihove.</string>
+  <string name="widget_verse_source_random_whole_bible">Nasumični stih</string>
+  <string name="widget_verse_source_random_new_testament">Nasumični stih · Novi zavet</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Nasumični stih · Psalmi i Priče</string>
+  <string name="widget_shuffle">Pomešaj stih</string>
+  <string name="widget_speak_verse">Izgovori stih</string>
+  <string name="widget_verse_config_title">Vidžet stiha</string>
+  <string name="widget_verse_config_source_label">Stihovi iz</string>
+  <string name="widget_verse_config_source_label_option">Oznaka</string>
+  <string name="widget_verse_config_source_random">Nasumični stih</string>
+  <string name="widget_verse_config_random_whole">Cela Biblija</string>
+  <string name="widget_verse_config_random_nt">Novi zavet</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psalmi i Priče</string>
+  <string name="widget_verse_config_source_plan">Današnji plan čitanja</string>
+  <string name="widget_verse_config_changes">Promene</string>
+  <string name="widget_verse_config_daily">Dnevno</string>
+  <string name="widget_verse_config_every_few_hours">Na nekoliko sati</string>
+  <string name="widget_verse_config_on_shuffle">Samo kad dodirnem mešanje</string>
+  <string name="widget_verse_config_bible">Biblija</string>
+  <string name="widget_verse_config_bible_default">Podrazumevano (%s)</string>
+  <string name="widget_verse_config_show_buttons">Prikaži dugmad za mešanje i izgovor</string>
+  <string name="widget_verse_config_show_source">Prikaži izvor i datum</string>
+  <string name="widget_verse_config_add">Dodaj vidžet</string>
+  <string name="widget_verse_config_save">Sačuvaj</string>
+  <string name="widget_verse_source_reading_plan">Današnje čitanje</string>
   <string name="speak_status_stopped">zaustavljeno</string>
   <string name="speak_autobookmarking_disabled">Automatsko obeležavanje onemogućeno!</string>
   <string name="system_speak_settings">Otvori sistemske TTS postavke</string>
@@ -720,6 +770,30 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="install_zip_canceled">Ugradnja modula otkazana</string>
   <string name="restore">Povratiti</string>
   <string name="import2">Uvezi</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopija)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Iz dodatka %1$s</string>
+  <string name="addon_label_from_module_hint">Otvorite dodatak u upravljaču dokumenata</string>
+  <string name="addon_label_read_only_note">Ova oznaka, njeni obeleživači i njen StudyPad pripadaju dodatku i ne mogu se menjati. Možete je označiti kao omiljenu, izabrati kako je ovaj radni prostor prikazuje i obeležiti njene stihove za sebe.</string>
+  <string name="addon_copy_to_my_labels">Kopiraj u moje oznake</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Kopirano u vašu oznaku \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Ovaj sadržaj potiče iz dodatka %1$s i ne može se menjati. Koristite \"Kopiraj u moje oznake\" da dobijete kopiju koja se može uređivati.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Ovaj sadržaj potiče iz dodatka i ne može se menjati. Koristite \"Kopiraj u moje oznake\" da dobijete kopiju koja se može uređivati.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Oznaka nije mogla biti kopirana</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">Preskočena je %1$d stavka kolekcije dodataka. Koristite \"Kopiraj u moje oznake\" na oznaci da dobijete sopstvenu kopiju.</item>
+        <item quantity="few">Preskočene su %1$d stavke kolekcije dodataka. Koristite \"Kopiraj u moje oznake\" na oznaci da dobijete sopstvenu kopiju.</item>
+        <item quantity="other">Preskočeno je %1$d stavki kolekcije dodataka. Koristite \"Kopiraj u moje oznake\" na oznaci da dobijete sopstvenu kopiju.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" i %2$s ostalih Oznaka / Radnih sveski i %3$s Obeleživača</string>
   <!--About-->
@@ -754,6 +828,8 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="doc_type_all">Sve vrste</string>
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentar</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumenti</string>
   <string name="doc_type_dictionary">Rečnik</string>
   <string name="doc_type_book">Knjiga</string>
   <string name="doc_type_map">Karta</string>
@@ -789,6 +865,10 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="crash_recovery_continue">Nastavi</string>
   <string name="report_error">Prijavi grešku</string>
   <string name="error_occurred">Dogodila se greška</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Aplikacija se zaustavila pri pokretanju</string>
+  <string name="startup_crash_detail">Pošaljite nam izveštaj o grešci kako bismo mogli da rešimo problem. Sadrži detalje greške i informacije o vašem uređaju i verziji aplikacije.</string>
+  <string name="startup_crash_try_again">Pokušaj ponovo</string>
   <string name="error_occurred_crash_last_time">Poslednji put kada ste koristili ovu aplikaciju, došlo je do pada. Kako bi nam pomogli pri otklanjanju greške, bili bismo zahvalni ukoliko nam pošaljete izveštaj o grešci.</string>
   <string name="error_occurred_with_link">Dogodila se greška. %s</string>
   <string name="error_no_content">Nema sadržaja u označenom stihu</string>
@@ -1284,10 +1364,6 @@ Kada koristite Google Drive, %s dat je pristup samo fajlovima aplikacije, ne li�
   <string name="reading_progress_new_cycle">Novi ciklus</string>
   <string name="reading_progress_previous_cycle">Prethodni ciklus</string>
   <string name="reading_progress_next_cycle">Sledeći ciklus</string>
-  <string name="cloud_merge_data">Spoji podatke</string>
-  <string name="cloud_fetch_and_restore_initial">Kopiraj iz Oblaka na ovaj uređaj</string>
-  <string name="cloud_create_new">Kopiraj sa ovog uređaja na Oblak</string>
-  <string name="cloud_disable_sync">Otkaži &amp; onemogući usklađivanje</string>
   <string name="cloud_sync_title">Usklađivanje uređaja</string>
   <string name="reset_sync">Odjavite se</string>
   <string name="prefs_reset_sync_summary">Onemogući usklađivanje i resetuj srodna podeđavanja.</string>
@@ -1303,8 +1379,20 @@ Kada koristite Google Drive, %s dat je pristup samo fajlovima aplikacije, ne li�
   <string name="google_drive_signin_interrupted">Google prijava je prekinuta. Pokušajte ponovo.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adresa vašeg servera, npr. https://cloud.example.com (https:// se dodaje ako ga izostavite)</string>
   <string name="webdav_server_url_hint">Adresa WebDAV fascikle, npr. https://nas.local/dav/ ili https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinhronizacija zahteva bezbednu https:// adresu.</string>
+  <string name="sync_waiting_for_pass">Čeka se završetak trenutne sinhronizacije…</string>
+  <string name="sync_pending_on">Biće uključeno</string>
+  <string name="sync_pending_off">Biće isključeno</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d promena</item>
+        <item quantity="few">%1$d promene</item>
+        <item quantity="other">%1$d promena</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Primeniti promene sinhronizacije?</string>
+  <string name="sync_checking_cloud_title">Proverava se oblak…</string>
+  <string name="sync_checking_cloud_text">Traže se podaci koje su drugi uređaji već sinhronizovali.</string>
   <string name="webdav_certificate_title">Sertifikat servera</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nepouzdan sertifikat servera</string>
@@ -1322,7 +1410,6 @@ Kada koristite Google Drive, %s dat je pristup samo fajlovima aplikacije, ne li�
   <string name="synchronization_categories">Kategorije usklađivanja</string>
   <string name="sync_general_settings">Informacije &amp; opšte postavke</string>
   <string name="sync_introduction">Uvod</string>
-  <string name="are_you_sure_merge">I podaci na ovom uređaju i %s u oblaku biće zadržani. Gde je ista stavka promenjena na oba mesta, zadržava se novija promena. Podaci ovog uređaja biće poslati na vaše druge uređaje.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Onemogućavanje usklađivanja na Oblaku. Morate omogućiti ručno nakon vraćanja.</string>
   <string name="report">Prijava</string>
@@ -1336,8 +1423,6 @@ Kada koristite Google Drive, %s dat je pristup samo fajlovima aplikacije, ne li�
   <string name="install_failed_reason">Instalacija modula bezuspeđna usled sledećih razloga: %s.</string>
   <string name="no_file_manager">Nije pronađena nijedna aplikacija za izbor datoteke. Instalirajte upravljač datotekama i pokušajte ponovo.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikacija je negde drugde otvorena</string>
-  <string name="open_here">Otvorite ovde</string>
   <string name="external_link_dont_ask_again">Ne pitaj ponovo za %s</string>
   <string name="nameless">Naslov nije određen</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Radnje jednim dodirom (Biblije)</string>
@@ -2289,18 +2374,30 @@ Nemojte više prikazivati ovu poruku ponovo</string>
   <string name="dialog_dont_apply">Ne primenjuj</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Oblak već ima vaše: %s. Šta treba da se desi?</string>
-  <string name="cloud_merge_consequence">Obe strane se čuvaju; tamo gde je stavka promenjena na obe, pobeđuje novija izmena.</string>
-  <string name="cloud_fetch_consequence">Zamenjuje podatke na ovom uređaju kopijom iz oblaka.</string>
-  <string name="cloud_create_consequence">Zamenjuje kopiju u oblaku podacima sa ovog uređaja.</string>
-  <string name="cloud_disable_consequence">Sinhronizacija ostaje isključena za ove podatke.</string>
-  <string name="cloud_merge_lead">Spojiti vaše: %s sa oblakom?</string>
-  <string name="cloud_merge_confirm">Spoji</string>
   <string name="cloud_replace_confirm">Zameni</string>
-  <string name="cloud_replace_local_lead">Zameniti: %s na ovom uređaju kopijom iz oblaka?</string>
-  <string name="cloud_replace_local_detail">Ono što je sada na ovom uređaju se prepisuje i ne može se povratiti.</string>
-  <string name="cloud_replace_cloud_lead">Zameniti kopiju u oblaku za: %s podacima sa ovog uređaja?</string>
-  <string name="cloud_replace_cloud_detail">Ono što je sada u oblaku se prepisuje, a vaši drugi uređaji će primiti podatke sa ovog uređaja.</string>
+  <string name="cloud_join_plan_title">Oblak već ima podatke</string>
+  <string name="cloud_join_plan_lead">Izaberite šta da se uradi za svaku kategoriju.</string>
+  <string name="cloud_join_merge">Spoji</string>
+  <string name="cloud_join_merge_detail">Kombinuje ovaj uređaj i oblak</string>
+  <string name="cloud_join_fetch">Kopiraj iz oblaka</string>
+  <string name="cloud_join_fetch_detail">Zamenjuje podatke ovog uređaja</string>
+  <string name="cloud_join_create">Kopiraj u oblak</string>
+  <string name="cloud_join_create_detail">Zamenjuje podatke u oblaku</string>
+  <string name="cloud_join_disable">Ne sinhronizuj</string>
+  <string name="cloud_join_disable_detail">Ostavi ovu kategoriju isključenom</string>
+  <string name="cloud_join_upload_note">%s: u oblaku još nema podataka, biće otpremljeni sa ovog uređaja.</string>
+  <string name="cloud_join_confirm_title">Pokrenuti sinhronizaciju?</string>
+  <string name="cloud_join_confirm_lead">Ovo će se dogoditi:</string>
+  <string name="cloud_join_outcome_merge">%s: spojeno sa oblakom. Ništa se ne gubi.</string>
+  <string name="cloud_join_outcome_fetch">%s: podaci na ovom uređaju zamenjuju se podacima iz oblaka.</string>
+  <string name="cloud_join_outcome_create">%s: podaci u oblaku zamenjuju se podacima sa ovog uređaja.</string>
+  <string name="cloud_join_outcome_disable">%s: ostaje isključeno.</string>
+  <string name="cloud_join_outcome_upload">%s: otpremljeno sa ovog uređaja.</string>
+  <string name="cloud_join_warning">Zamenjeni podaci ne mogu se povratiti. Ako niste sigurni, prvo napravite rezervnu kopiju.</string>
+  <string name="cloud_join_next">Dalje</string>
+  <string name="cloud_join_back">Nazad</string>
+  <string name="cloud_join_start">Pokreni sinhronizaciju</string>
+  <string name="cloud_join_replace">Zameni i sinhronizuj</string>
   <string name="sign_in_failed_lead">Prijava na uslugu sinhronizacije nije uspela.</string>
   <string name="sync_too_old_lead">Ova aplikacija je prestara za sinhronizaciju: %s.</string>
   <string name="sync_too_old_detail">Podaci u oblaku koriste noviju verziju od one koju ova aplikacija podržava. Sinhronizacija za njih je za sada isključena; ažurirajte aplikaciju da biste je ponovo uključili.</string>

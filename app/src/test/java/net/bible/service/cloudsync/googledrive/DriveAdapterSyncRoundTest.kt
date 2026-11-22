@@ -32,6 +32,7 @@ import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.sync.SyncScheduler
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.service.cloudsync.answerJoinPlan
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.test.DatabaseResetter
 import net.bible.test.testAppSettings
@@ -141,7 +142,7 @@ class DriveAdapterSyncRoundTest {
                     dialogs.pending.value?.let { p ->
                         val r = p.request
                         dialogs.respond(p.id, when (r) {
-                            is AppDialogRequest.Options -> AppDialogResult.Selected(r.options.single { it.value == "fetch" }.value)
+                            is AppDialogRequest.SyncJoinPlan -> answerJoinPlan(r, "fetch")
                             else -> AppDialogResult.Ok
                         })
                     }

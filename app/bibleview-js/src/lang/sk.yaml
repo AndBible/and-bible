@@ -46,6 +46,8 @@ emptyStudyPad: Prázdna študijná zložka. Tu môžete pridávať textové polo
 doYouWantToDeleteEntry: Zmazať túto položku študijnej zložky?
 removeStudyPadConfirmationTitle: Odstrániť túto položku študijnej zložky?
 dragHelp: Ťahaním zoradiť
+addonBookmarkThisVerse: Pridať záložku k tomuto veršu
+addonReadOnly: Tento obsah pochádza zo zbierky doplnku a je len na čítanie. Použite „Kopírovať do mojich štítkov“ a získate upraviteľnú kópiu.
 openAll: Otvoriť všetky odkazy
 editBookmarkPlaceholder: Klepnutím upraviť Moje poznámky pre túto záložku
 onlyLabel: Iba štítky

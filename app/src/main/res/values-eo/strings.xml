@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi revenos al la ekrano de serĉo.</string>
   <string name="index_create">Krei</string>
   <string name="rebuild_index">Rekrei indekson</string>
-  <string name="search_in">Serĉi en %s</string>
   <string name="do_in_background">Pluigi fone</string>
   <string name="rebuild_index_button">Rekrei</string>
   <string name="creating_index_for">Kreado de indekso por %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s rezultoj en %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
-  <string name="task_kill_warning">Tiuj ĉi tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ol ili finiĝos.</string>
   <string name="no_tasks_running">Nune neniu tasko estas lanĉata.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Serĉi versojn enhavantajn:</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Forigi serĉtekston</string>
   <string name="search_engine_changed_reindex">La serĉilo estis ĝisdatigita. La serĉindekso devas esti kreita denove; tio povas daŭri iom.</string>
   <string name="search_unsupported_syntax">Ĉi tiu serĉo uzas sintakson, kiu ne estas subtenata: %s</string>
+  <string name="search_regex">Regula esprimo (eksperimenta)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">La serĉo daŭris tro longe kaj estis ĉesigita. La rezultoj estas nekompletaj; provu pli simplan esprimon.</string>
+  <string name="search_invalid_regex">Malvalida regula esprimo: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Ĉi tiu regula esprimo havas tro multajn senlimajn ĵokerojn (kiel .* aŭ \\w+). Uzu malpli da ili, aŭ limigu ilin, ekzemple .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Ĉi tiu regula esprimo ripetas grupon, kiu mem enhavas ripeton, ekzemple (a+)+. Tio povas postuli preskaŭ senfinan tempon por kongrui. Reskribu ĝin sen nestitaj ripetoj.</string>
+  <string name="search_regex_busy">Pli frua serĉo per regula esprimo ankoraŭ funkcias en la fono. Provu denove post momento; se ĝi ne finiĝas, restartigu la apon.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +319,8 @@
   <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de la biblia vido estas nun kaŝitaj. Fenestra navigadstrio ĉe sube estas plue montrata kaj vi povas malfermi la menuon de fenestro per frapetadi ĝin.</string>
   <string name="hide_bible_reference_overlay_title">Kaŝi surtavolon de bibliaj referencoj</string>
   <string name="hide_bible_reference_overlay_summary">Ne montri travideblan tavolon de bibliaj referencoj kiam la aplikaĵo laboras en plenekrana reĝimo</string>
+  <string name="text_under_window_buttons_title">Montri tekston sub fenestraj butonoj</string>
+  <string name="text_under_window_buttons_summary">La biblia teksto etendiĝas ĝis la malsupro de la ekrano, sub la butonbreto de fenestroj. Kiam malŝaltita, strio restas libera sub la breto en la malsupraj fenestroj, kiujn ĝi kovras.</string>
   <string name="full_screen_hide_buttons_pref_title">Kaŝi strion de fenestraj butonoj en plenekrano</string>
   <string name="full_screen_hide_buttons_pref_summary">Kiam baskuligi al plenekrana reĝimo, aŭtomate kaŝi breton de fenestraj butonoj, kiu aperas ĉe subo de la ekrano</string>
   <string name="prefs_hide_status_bar_title">Kaŝi stat-strion</string>
@@ -571,7 +578,50 @@ laŭ ilia permeso.</string>
   <string name="sleep_timer_active_at">Aŭtomata fermo: post %s minutoj.</string>
   <string name="speak_next">Sekva</string>
   <string name="speak_previous">Antaŭa</string>
+  <string name="widget_play">Ludi</string>
   <string name="widget_toggle_sleep_timer">(Mal)ŝalti aŭtomatan dormon</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Voĉlegi</string>
+  <string name="widget_speak_text_name">Voĉlegi kun teksto</string>
+  <string name="widget_listening_list_name">Aŭskultolisto</string>
+  <string name="widget_verse_name">Verso</string>
+  <string name="widget_continue_from">Daŭrigi de %1$s · %2$s</string>
+  <string name="widget_continue_listening">Daŭrigi aŭskultadon</string>
+  <string name="widget_paused">Paŭzigita</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Ankoraŭ neniuj voĉlegaj legosignoj</string>
+  <string name="widget_listening_list_empty_text">Legosignoj kun la etikedo Voĉlegi aperas ĉi tie. Ŝaltu aŭtomatajn legosignojn en la voĉlegaj agordoj, aŭ aldonu la etikedon al iu ajn legosigno.</string>
+  <string name="widget_open_app">Malfermi AndBible</string>
+  <string name="widget_open_app_to_load">Malfermu AndBible por ŝargi versojn</string>
+  <string name="widget_verse_unavailable_no_bible">Instalu Biblion por vidi versojn ĉi tie</string>
+  <string name="widget_verse_unavailable_label_missing">La etikedo de ĉi tiu fenestraĵo ne plu ekzistas. Tuŝetu por elekti versojn.</string>
+  <string name="widget_verse_unavailable_label_empty">Ĉi tiu etikedo ankoraŭ ne havas biblian legosignon. Tuŝetu por elekti aliajn versojn.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Neniu legoplano estas aktiva. Tuŝetu por elekti aliajn versojn.</string>
+  <string name="widget_verse_source_random_whole_bible">Hazarda verso</string>
+  <string name="widget_verse_source_random_new_testament">Hazarda verso · Nova Testamento</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Hazarda verso · Psalmoj &amp; Sentencoj</string>
+  <string name="widget_shuffle">Miksi verson</string>
+  <string name="widget_speak_verse">Voĉlegi verson</string>
+  <string name="widget_verse_config_title">Verso-fenestraĵo</string>
+  <string name="widget_verse_config_source_label">Versoj el</string>
+  <string name="widget_verse_config_source_label_option">Etikedo</string>
+  <string name="widget_verse_config_source_random">Hazarda verso</string>
+  <string name="widget_verse_config_random_whole">Tuta Biblio</string>
+  <string name="widget_verse_config_random_nt">Nova Testamento</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psalmoj &amp; Sentencoj</string>
+  <string name="widget_verse_config_source_plan">Hodiaŭa legoplano</string>
+  <string name="widget_verse_config_changes">Ŝanĝiĝas</string>
+  <string name="widget_verse_config_daily">Ĉiutage</string>
+  <string name="widget_verse_config_every_few_hours">Ĉiujn kelkajn horojn</string>
+  <string name="widget_verse_config_on_shuffle">Nur kiam mi tuŝetas miksi</string>
+  <string name="widget_verse_config_bible">Biblio</string>
+  <string name="widget_verse_config_bible_default">Implicita (%s)</string>
+  <string name="widget_verse_config_show_buttons">Montri butonojn por miksi kaj voĉlegi</string>
+  <string name="widget_verse_config_show_source">Montri fonton kaj daton</string>
+  <string name="widget_verse_config_add">Aldoni fenestraĵon</string>
+  <string name="widget_verse_config_save">Konservi</string>
+  <string name="widget_verse_source_reading_plan">Hodiaŭa legaĵo</string>
   <string name="speak_status_stopped">haltigita</string>
   <string name="speak_autobookmarking_disabled">Aŭtomata legosignado malaktiva!</string>
   <string name="system_speak_settings">Operaciumaj agordoj pri parolsintezo</string>
@@ -693,6 +743,29 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="install_zip_canceled">Rezignis instali modulon</string>
   <string name="restore">Restarigi</string>
   <string name="import2">Enporti</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopio)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">El aldonaĵo %1$s</string>
+  <string name="addon_label_from_module_hint">Malfermi la aldonaĵon en la dokumentadministrilo</string>
+  <string name="addon_label_read_only_note">Ĉi tiu etikedo, ĝiaj legosignoj kaj ĝia StudyPad apartenas al la aldonaĵo kaj ne povas esti redaktitaj. Vi povas marki ĝin kiel favoraton, elekti kiel ĉi tiu laborspaco montras ĝin, kaj legosigni ĝiajn versojn por vi mem.</string>
+  <string name="addon_copy_to_my_labels">Kopii al miaj etikedoj</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Kopiita al via etikedo \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Ĉi tiu enhavo venas de la aldonaĵo %1$s kaj ne povas esti ŝanĝita. Uzu \"Kopii al miaj etikedoj\" por ricevi redakteblan kopion.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Ĉi tiu enhavo venas de aldonaĵo kaj ne povas esti ŝanĝita. Uzu \"Kopii al miaj etikedoj\" por ricevi redakteblan kopion.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Ne eblis kopii la etikedon</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d elemento de aldonaĵa kolekto estis preterlasita. Uzu \"Kopii al miaj etikedoj\" ĉe la etikedo por ricevi vian propran kopion.</item>
+        <item quantity="other">%1$d elementoj de aldonaĵa kolekto estis preterlasitaj. Uzu \"Kopii al miaj etikedoj\" ĉe la etikedo por ricevi vian propran kopion.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">“%1$s” kaj %2$s alia(j) etikedo(j) / notbloko(j), kaj %3$s legosignoj</string>
   <!--About-->
@@ -727,6 +800,8 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="doc_type_all">Ĉiu speco</string>
   <string name="doc_type_bible">Biblio</string>
   <string name="doc_type_commentary">Komentaro</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumentoj</string>
   <string name="doc_type_dictionary">Vortaro</string>
   <string name="doc_type_book">Libro</string>
   <string name="doc_type_map">Mapo</string>
@@ -762,6 +837,10 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="crash_recovery_continue">Daŭrigi</string>
   <string name="report_error">Sendi raporton</string>
   <string name="error_occurred">Eraro okazis</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">La apo haltis dum ekfunkciado</string>
+  <string name="startup_crash_detail">Bonvolu sendi al ni erarraporton, por ke ni povu ripari la problemon. Ĝi enhavas la detalojn de la eraro kaj informojn pri via aparato kaj la versio de la apo.</string>
+  <string name="startup_crash_try_again">Provi denove</string>
   <string name="error_occurred_crash_last_time">Lastfoje kiam vi uzis la aplikaĵon, ĝi paneis. Por helpi al ni ripari la eraron, ni petas vin pri sendi erar-raporton.</string>
   <string name="error_occurred_with_link">Eraro okazis. %s</string>
   <string name="error_no_content">Neniu enhavo por elektita verso</string>
@@ -1235,10 +1314,6 @@ Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu priva
   <string name="reading_progress_new_cycle">Nova ciklo</string>
   <string name="reading_progress_previous_cycle">Antaŭa ciklo</string>
   <string name="reading_progress_next_cycle">Sekva ciklo</string>
-  <string name="cloud_merge_data">Kunfandi datumojn</string>
-  <string name="cloud_fetch_and_restore_initial">Kopii el nubo al tiu ĉi aparato</string>
-  <string name="cloud_create_new">Kopii el tiu ĉi aparato al nubo</string>
-  <string name="cloud_disable_sync">Nuligi kaj malaktivigi samtempigon</string>
   <string name="cloud_sync_title">Samtempigo</string>
   <string name="reset_sync">Elsaluti</string>
   <string name="prefs_reset_sync_summary">Malaktivigi samtempigon kaj nuligi rilatajn agordojn</string>
@@ -1254,8 +1329,19 @@ Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu priva
   <string name="google_drive_signin_interrupted">Ensaluto al Google estis interrompita. Provu denove.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adreso de via servilo, ekz. https://cloud.example.com (https:// estas aldonita, se vi ne skribas ĝin)</string>
   <string name="webdav_server_url_hint">Adreso de la WebDAV-dosierujo, ekz. https://nas.local/dav/ aŭ https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinkronigo postulas sekuran https:// adreson.</string>
+  <string name="sync_waiting_for_pass">Atendas, ke la nuna sinkronigo finiĝu…</string>
+  <string name="sync_pending_on">Estos ŝaltita</string>
+  <string name="sync_pending_off">Estos malŝaltita</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d ŝanĝo</item>
+        <item quantity="other">%1$d ŝanĝoj</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Ĉu apliki viajn sinkronigajn ŝanĝojn?</string>
+  <string name="sync_checking_cloud_title">Kontrolas la nubon…</string>
+  <string name="sync_checking_cloud_text">Serĉas datumojn, kiujn aliaj aparatoj jam sinkronigis.</string>
   <string name="webdav_certificate_title">Servila atestilo</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nefidata servila atestilo</string>
@@ -1273,7 +1359,6 @@ Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu priva
   <string name="synchronization_categories">Kategorioj de samtempigo</string>
   <string name="sync_general_settings">Informoj kaj agordoj</string>
   <string name="sync_introduction">Enkonduko</string>
-  <string name="are_you_sure_merge">Kaj la datumoj en ĉi tiu aparato kaj la %s en la nubo estos konservitaj. Kie la sama ero ŝanĝiĝis ambaŭflanke, la pli nova ŝanĝo estas konservata. La datumoj de ĉi tiu aparato estos senditaj al viaj aliaj aparatoj.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Malaktivigas nuban samtempigon. Vi devas permane reaktivigi ĝin post restarigo.</string>
   <string name="report">Raporti</string>
@@ -1287,8 +1372,6 @@ Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu priva
   <string name="install_failed_reason">Instalado de modulo malsukcesis pro la jena kialo: %s.</string>
   <string name="no_file_manager">Neniu aplikaĵo troviĝis por elekti dosieron. Instalu dosieradministrilon kaj reprovu.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikaĵo malfermita ie alie</string>
-  <string name="open_here">Malfermi tie ĉi</string>
   <string name="external_link_dont_ask_again">Ne demandu denove por %s</string>
   <string name="nameless">Neniu titolo</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Agoj je unufoja frapeto (Biblioj)</string>
@@ -2233,18 +2316,30 @@ Ne montri tion ĉi denove</string>
   <string name="dialog_dont_apply">Ne apliki</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">La nubo jam havas viajn %s. Kio devus okazi?</string>
-  <string name="cloud_merge_consequence">Ambaŭ flankoj estas konservitaj; kie ero ŝanĝiĝis ambaŭflanke, la pli nova ŝanĝo venkas.</string>
-  <string name="cloud_fetch_consequence">Anstataŭigas la datumojn en ĉi tiu aparato per la nuba kopio.</string>
-  <string name="cloud_create_consequence">Anstataŭigas la nuban kopion per la datumoj en ĉi tiu aparato.</string>
-  <string name="cloud_disable_consequence">Sinkronigo restas malŝaltita por ĉi tiuj datumoj.</string>
-  <string name="cloud_merge_lead">Ĉu kunfandi viajn %s kun la nubo?</string>
-  <string name="cloud_merge_confirm">Kunfandi</string>
   <string name="cloud_replace_confirm">Anstataŭigi</string>
-  <string name="cloud_replace_local_lead">Ĉu anstataŭigi la %s de ĉi tiu aparato per la nuba kopio?</string>
-  <string name="cloud_replace_local_detail">Kio nun estas en ĉi tiu aparato, estas surskribita kaj ne povas esti reakirita.</string>
-  <string name="cloud_replace_cloud_lead">Ĉu anstataŭigi la nuban kopion de %s per la datumoj de ĉi tiu aparato?</string>
-  <string name="cloud_replace_cloud_detail">Kio nun estas en la nubo, estas surskribita, kaj viaj aliaj aparatoj ricevos la datumojn de ĉi tiu aparato.</string>
+  <string name="cloud_join_plan_title">La nubo jam havas datumojn</string>
+  <string name="cloud_join_plan_lead">Elektu, kion fari por ĉiu kategorio.</string>
+  <string name="cloud_join_merge">Kunfandi</string>
+  <string name="cloud_join_merge_detail">Kombini ĉi tiun aparaton kaj la nubon</string>
+  <string name="cloud_join_fetch">Kopii el la nubo</string>
+  <string name="cloud_join_fetch_detail">Anstataŭigi la datumojn de ĉi tiu aparato</string>
+  <string name="cloud_join_create">Kopii al la nubo</string>
+  <string name="cloud_join_create_detail">Anstataŭigi la datumojn de la nubo</string>
+  <string name="cloud_join_disable">Ne sinkronigi</string>
+  <string name="cloud_join_disable_detail">Lasi ĉi tiun kategorion malŝaltita</string>
+  <string name="cloud_join_upload_note">%s: ankoraŭ neniuj datumoj en la nubo, ili estos alŝutitaj de ĉi tiu aparato.</string>
+  <string name="cloud_join_confirm_title">Ĉu komenci sinkronigon?</string>
+  <string name="cloud_join_confirm_lead">Jen kio okazos:</string>
+  <string name="cloud_join_outcome_merge">%s: kunfandita kun la nubo. Nenio perdiĝas.</string>
+  <string name="cloud_join_outcome_fetch">%s: la datumoj sur ĉi tiu aparato estas anstataŭigitaj per tiuj de la nubo.</string>
+  <string name="cloud_join_outcome_create">%s: la datumoj en la nubo estas anstataŭigitaj per tiuj de ĉi tiu aparato.</string>
+  <string name="cloud_join_outcome_disable">%s: restas malŝaltita.</string>
+  <string name="cloud_join_outcome_upload">%s: alŝutita de ĉi tiu aparato.</string>
+  <string name="cloud_join_warning">Anstataŭigitaj datumoj ne povas esti reakiritaj. Se vi dubas, faru sekurkopion antaŭe.</string>
+  <string name="cloud_join_next">Sekva</string>
+  <string name="cloud_join_back">Reen</string>
+  <string name="cloud_join_start">Komenci sinkronigon</string>
+  <string name="cloud_join_replace">Anstataŭigi kaj sinkronigi</string>
   <string name="sign_in_failed_lead">Ne eblis ensaluti al la sinkroniga servo.</string>
   <string name="sync_too_old_lead">Ĉi tiu aplikaĵo estas tro malnova por sinkronigi %s.</string>
   <string name="sync_too_old_detail">La nubaj datumoj uzas pli novan version ol ĉi tiu aplikaĵo subtenas. Sinkronigo por ili estas malŝaltita nuntempe; ĝisdatigu la aplikaĵon por ŝalti ĝin denove.</string>

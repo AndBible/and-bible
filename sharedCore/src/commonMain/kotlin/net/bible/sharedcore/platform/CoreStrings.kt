@@ -27,6 +27,7 @@ interface CoreStrings {
     fun syncDriveIntroduction(discrete: Boolean): String
     fun syncAdapterSummary(adapter: String): String
     fun syncLastUpdated(time: String): String
+    val syncWaitingForPass: String
     fun syncCloudInfo(megabytes: String): String
     val documentSyncNothing: String
     fun documentSyncUpload(count: Int): String
@@ -89,14 +90,9 @@ interface CoreStrings {
     fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
     /** H2: device-neutral wording of [webDavUntrustedCertificateMessage] for iOS ("this device" instead of "Android"). */
     fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
-    val cloudMergeData: String
-    val cloudFetchAndRestoreInitial: String
-    val cloudCreateNew: String
-    val cloudDisableSync: String
     val syncError: String
     val okay: String
     val cancel: String
-    fun areYouSureMerge(contents: String): String
 
     fun databaseTitle(dbFileName: String): String
     val share: String
@@ -194,18 +190,30 @@ interface CoreStrings {
     val prefsDisplayColorModeValues: List<String> // R.array.prefs_display_color_mode_values
 
     // dialog copy: B3b
-    fun cloudExistingDataLead(contents: String): String
-    val cloudMergeConsequence: String
-    val cloudFetchConsequence: String
-    val cloudCreateConsequence: String
-    val cloudDisableConsequence: String
-    fun cloudMergeLead(contents: String): String
-    val cloudMergeConfirm: String
     val cloudReplaceConfirm: String
-    fun cloudReplaceLocalLead(contents: String): String
-    val cloudReplaceLocalDetail: String
-    fun cloudReplaceCloudLead(contents: String): String
-    val cloudReplaceCloudDetail: String
+    val cloudJoinPlanTitle: String
+    val cloudJoinPlanLead: String
+    val cloudJoinMerge: String
+    val cloudJoinMergeDetail: String
+    val cloudJoinFetch: String
+    val cloudJoinFetchDetail: String
+    val cloudJoinCreate: String
+    val cloudJoinCreateDetail: String
+    val cloudJoinDisable: String
+    val cloudJoinDisableDetail: String
+    fun cloudJoinUploadNote(contents: String): String
+    val cloudJoinConfirmTitle: String
+    val cloudJoinConfirmLead: String
+    fun cloudJoinOutcomeMerge(contents: String): String
+    fun cloudJoinOutcomeFetch(contents: String): String
+    fun cloudJoinOutcomeCreate(contents: String): String
+    fun cloudJoinOutcomeDisable(contents: String): String
+    fun cloudJoinOutcomeUpload(contents: String): String
+    val cloudJoinWarning: String
+    val cloudJoinNext: String
+    val cloudJoinBack: String
+    val cloudJoinStart: String
+    val cloudJoinReplace: String
     val signInFailedLead: String
     fun syncTooOldLead(contents: String): String
     val syncTooOldDetail: String

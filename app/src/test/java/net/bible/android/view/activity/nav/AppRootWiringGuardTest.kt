@@ -36,7 +36,7 @@ class AppRootWiringGuardTest {
     fun activityConstructsNoNonReadingNavDeps() {
         // ReadingNavDeps( is allowed: the reading graph is Stream B's slot and stays wired from the activity.
         val deps = listOf(
-            "AiNavDeps(", "BookmarkNavDeps(", "ReadingPlanNavDeps(", "SearchNavDeps(", "SettingsNavDeps(",
+            "AiNavDeps(", "BookmarkNavDeps(", "ReadingPlanNavDeps(", "SettingsNavDeps(",
             "DownloadNavDeps(", "MyDocumentsNavDeps(", "ChooserNavDeps(", "WorkspaceNavDeps(", "BackupNavDeps(",
             "InstallZipNavDeps(", "WelcomeNavDeps(", "HelpNavDeps(",
         )

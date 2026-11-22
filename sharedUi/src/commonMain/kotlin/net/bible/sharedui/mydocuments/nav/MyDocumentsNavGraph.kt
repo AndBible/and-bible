@@ -168,8 +168,8 @@ class MyDocumentsDeps(
  * Nav-graph slice 4 Task 5 built [myDocumentPages] and [myDocumentPagesResults] alone, provable in
  * both of [MyDocumentPagesDeps]'s entry modes without the parent existing. Task 6 adds
  * [myDocumentsResults] and [myDocuments] -- the parent destination and the channel it produces on --
- * a pure addition: nothing above changes, the same way `DownloadNavDeps` grew a `progressStatus`
- * field in nav-graph slice 4 Task 4 without touching what Task 3 had already built.
+ * a pure addition: nothing above changes, the same way `DownloadNavDeps` once grew a field
+ * in nav-graph slice 4 Task 4 without touching what Task 3 had already built.
  */
 class MyDocumentsNavDeps(
     val exitHost: () -> Unit,

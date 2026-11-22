@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kui indekseerimine lõpetatakse, siis viiakse sind tagasi avaekraanile.</string>
   <string name="index_create">Loo</string>
   <string name="rebuild_index">Loo indeks uuesti</string>
-  <string name="search_in">Otsi %s seest</string>
   <string name="do_in_background">Jätka taustal</string>
   <string name="rebuild_index_button">Loo uuesti</string>
   <string name="creating_index_for"> %s registri loomine …</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2"> %2$s sisaldab %1$s tulemust</string>
   <!--Tasks-->
   <string name="progress_status">Edenemine</string>
-  <string name="task_kill_warning">Need kaua töötavad toimingud võivad katkeda, kui sa lülitud enne nende lõpetamist mõnele teisele rakendusele.</string>
   <string name="no_tasks_running">Ühtegi ülesannet pole momendil täitmisel.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Leia salmid</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Tühjenda otsingutekst</string>
   <string name="search_engine_changed_reindex">Otsingumootorit on uuendatud. Otsinguindeks tuleb uuesti luua; see võib võtta aega.</string>
   <string name="search_unsupported_syntax">See otsing kasutab süntaksit, mida ei toetata: %s</string>
+  <string name="search_regex">Regulaaravaldis (katseline)</string>
+  <string name="search_regex_summary">Regulaaravaldis</string>
+  <string name="search_results_truncated">Otsing kestis liiga kaua ja peatati. Tulemused on puudulikud; proovi lihtsamat avaldist.</string>
+  <string name="search_invalid_regex">Vigane regulaaravaldis: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Selles regulaaravaldises on liiga palju piiramata metamärke (nt .* või \\w+). Kasuta neid vähem või piira neid, näiteks .{0,40}.</string>
+  <string name="search_regex_nested_repetition">See regulaaravaldis kordab rühma, mis ise sisaldab kordust, näiteks (a+)+. Selle võrdlemine võib kesta praktiliselt lõputult. Kirjuta see ümber ilma pesastatud kordusteta.</string>
+  <string name="search_regex_busy">Eelmine regulaaravaldise otsing töötab taustal veel. Proovi hetke pärast uuesti; kui see ei lõpe, taaskäivita rakendus.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +319,8 @@
   <string name="hide_window_buttons_summary">Piiblvaadete paremal küljel kuvatavad akna nupud on peidetud. Alumine akna navigeerimisriba on endiselt nähtav ja akna hüpikmenüü avamiseks võid neile pikalt vajutada.</string>
   <string name="hide_bible_reference_overlay_title">Peida piibli viite ülekate</string>
   <string name="hide_bible_reference_overlay_summary">Ära näita poolläbipaistvat piibli viite ülekattet, kui rakendus on täisekraanil</string>
+  <string name="text_under_window_buttons_title">Näita teksti akna nuppude all</string>
+  <string name="text_under_window_buttons_summary">Piibli tekst ulatub ekraani põhjani, akna nuppude riba alla. Kui see on välja lülitatud, jäetakse riba all olevates alumistes akendes, mida see katab, vaba riba.</string>
   <string name="full_screen_hide_buttons_pref_title">Peida täisekraani akna nupud</string>
   <string name="full_screen_hide_buttons_pref_summary">Lülitudes täisekraanile, peida automaatselt ekraani allosas olev akna ikooni riba.</string>
   <string name="prefs_hide_status_bar_title">Peida olekurida</string>
@@ -568,7 +575,50 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="sleep_timer_active_at">Unetaimer: %s minutit järgi.</string>
   <string name="speak_next">Järgmine</string>
   <string name="speak_previous">Eelmine</string>
+  <string name="widget_play">Esita</string>
   <string name="widget_toggle_sleep_timer">Unetaimeri lülitamine</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Loe ette</string>
+  <string name="widget_speak_text_name">Loe ette tekstiga</string>
+  <string name="widget_listening_list_name">Kuulamisloend</string>
+  <string name="widget_verse_name">Salm</string>
+  <string name="widget_continue_from">Jätka kohast %1$s · %2$s</string>
+  <string name="widget_continue_listening">Jätka kuulamist</string>
+  <string name="widget_paused">Peatatud</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Ettelugemise järjehoidjaid pole veel</string>
+  <string name="widget_listening_list_empty_text">Siia ilmuvad järjehoidjad sildiga Ettelugemine. Lülita ettelugemise seadetes sisse automaatsed järjehoidjad või lisa silt mis tahes järjehoidjale.</string>
+  <string name="widget_open_app">Ava AndBible</string>
+  <string name="widget_open_app_to_load">Salmide laadimiseks ava AndBible</string>
+  <string name="widget_verse_unavailable_no_bible">Salmide nägemiseks installi Piibel</string>
+  <string name="widget_verse_unavailable_label_missing">Selle vidina silti enam pole. Puuduta salmide valimiseks.</string>
+  <string name="widget_verse_unavailable_label_empty">Sellel sildil pole veel Piibli järjehoidjaid. Puuduta teiste salmide valimiseks.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Ükski lugemiskava pole aktiivne. Puuduta teiste salmide valimiseks.</string>
+  <string name="widget_verse_source_random_whole_bible">Juhuslik salm</string>
+  <string name="widget_verse_source_random_new_testament">Juhuslik salm · Uus Testament</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Juhuslik salm · Laulud ja Õpetussõnad</string>
+  <string name="widget_shuffle">Sega salmi</string>
+  <string name="widget_speak_verse">Loe salm ette</string>
+  <string name="widget_verse_config_title">Salmi vidin</string>
+  <string name="widget_verse_config_source_label">Salmid allikast</string>
+  <string name="widget_verse_config_source_label_option">Silt</string>
+  <string name="widget_verse_config_source_random">Juhuslik salm</string>
+  <string name="widget_verse_config_random_whole">Kogu Piibel</string>
+  <string name="widget_verse_config_random_nt">Uus Testament</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Laulud ja Õpetussõnad</string>
+  <string name="widget_verse_config_source_plan">Tänane lugemiskava</string>
+  <string name="widget_verse_config_changes">Muutub</string>
+  <string name="widget_verse_config_daily">Iga päev</string>
+  <string name="widget_verse_config_every_few_hours">Iga mõne tunni järel</string>
+  <string name="widget_verse_config_on_shuffle">Ainult siis, kui puudutan segamist</string>
+  <string name="widget_verse_config_bible">Piibel</string>
+  <string name="widget_verse_config_bible_default">Vaikimisi (%s)</string>
+  <string name="widget_verse_config_show_buttons">Näita segamise ja ettelugemise nuppe</string>
+  <string name="widget_verse_config_show_source">Näita allikat ja kuupäeva</string>
+  <string name="widget_verse_config_add">Lisa vidin</string>
+  <string name="widget_verse_config_save">Salvesta</string>
+  <string name="widget_verse_source_reading_plan">Tänane lugemine</string>
   <string name="speak_status_stopped">peatatud</string>
   <string name="speak_autobookmarking_disabled">Automaatne järjehoidjate lidamine on keelatud!</string>
   <string name="system_speak_settings">Ava süsteemi TTS seaded</string>
@@ -706,6 +756,29 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="install_zip_canceled">Mooduli paigaldus katkestatud</string>
   <string name="restore">Taasta</string>
   <string name="import2">Impordi</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (koopia)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Lisamoodulist %1$s</string>
+  <string name="addon_label_from_module_hint">Ava lisamoodul dokumendihalduris</string>
+  <string name="addon_label_read_only_note">See silt, selle järjehoidjad ja selle StudyPad kuuluvad lisamoodulile ning neid ei saa muuta. Saad selle märkida lemmikuks, valida, kuidas see töölaud seda näitab, ja lisada selle salmidele enda järjehoidjaid.</string>
+  <string name="addon_copy_to_my_labels">Kopeeri minu siltidesse</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Kopeeritud sinu silti \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">See sisu pärineb lisamoodulist %1$s ja seda ei saa muuta. Redigeeritava koopia saamiseks kasuta valikut \"Kopeeri minu siltidesse\".</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">See sisu pärineb lisamoodulist ja seda ei saa muuta. Redigeeritava koopia saamiseks kasuta valikut \"Kopeeri minu siltidesse\".</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Sildi kopeerimine ebaõnnestus</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d lisamoodulite kogu element jäeti vahele. Oma koopia saamiseks kasuta sildil valikut \"Kopeeri minu siltidesse\".</item>
+    <item quantity="other">%1$d lisamoodulite kogu elementi jäeti vahele. Oma koopia saamiseks kasuta sildil valikut \"Kopeeri minu siltidesse\".</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" ja %2$s muud Silti/Uurimismärkmikku ning %3$s Järjehoidjat</string>
   <!--About-->
@@ -740,6 +813,8 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="doc_type_all">Kõik liigid</string>
   <string name="doc_type_bible">Piibel</string>
   <string name="doc_type_commentary">Kommentaar</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumendid</string>
   <string name="doc_type_dictionary">Sõnaraamat</string>
   <string name="doc_type_book">Raamat</string>
   <string name="doc_type_map">Kaart</string>
@@ -775,6 +850,10 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="crash_recovery_continue">Jätka</string>
   <string name="report_error">Saada veaaruanne</string>
   <string name="error_occurred">Tekkis viga</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Rakendus peatus käivitumisel</string>
+  <string name="startup_crash_detail">Palun saada meile veateade, et saaksime probleemi parandada. See sisaldab vea üksikasju ning teavet sinu seadme ja rakenduse versiooni kohta.</string>
+  <string name="startup_crash_try_again">Proovi uuesti</string>
   <string name="error_occurred_crash_last_time">See rakendus sulges eelmine kord ootamatult. Et aidata meil see viga parandada, oleksime väga tänulikud, kui sa saadaksid meile veateate.</string>
   <string name="error_occurred_with_link">Tekkis viga. %s</string>
   <string name="error_no_content">Valitud salmi jaoks sisu pole</string>
@@ -1235,10 +1314,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="reading_progress_new_cycle">Uus tsükkel</string>
   <string name="reading_progress_previous_cycle">Eelmine tsükkel</string>
   <string name="reading_progress_next_cycle">Järgmine tsükkel</string>
-  <string name="cloud_merge_data">Ühenda andmed</string>
-  <string name="cloud_fetch_and_restore_initial">Kopeeri pilvest siia seadmesse</string>
-  <string name="cloud_create_new">Kopeeri siit seadmest pilve</string>
-  <string name="cloud_disable_sync">Tühista ja keela sünkroonimine</string>
   <string name="cloud_sync_title">Andmete sünkroniseerimine</string>
   <string name="reset_sync">Logi välja</string>
   <string name="prefs_reset_sync_summary">Keela sünkroonimine ja lähtesta sellega seotud seaded.</string>
@@ -1254,8 +1329,19 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="google_drive_signin_interrupted">Google\'i sisselogimine katkes. Proovi uuesti.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Sinu serveri aadress, nt https://cloud.example.com (https:// lisatakse, kui jätad selle ära)</string>
   <string name="webdav_server_url_hint">WebDAV-kausta aadress, nt https://nas.local/dav/ või https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sünkroonimine nõuab turvalist https:// aadressi.</string>
+  <string name="sync_waiting_for_pass">Ootan praeguse sünkroonimise lõppu…</string>
+  <string name="sync_pending_on">Lülitatakse sisse</string>
+  <string name="sync_pending_off">Lülitatakse välja</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d muudatus</item>
+    <item quantity="other">%1$d muudatust</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Kas rakendada sünkroonimise muudatused?</string>
+  <string name="sync_checking_cloud_title">Kontrollin pilve…</string>
+  <string name="sync_checking_cloud_text">Otsin andmeid, mida teised seadmed on juba sünkroonistanud.</string>
   <string name="webdav_certificate_title">Serveri sertifikaat</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Mitteusaldatud serveri sertifikaat</string>
@@ -1273,7 +1359,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="synchronization_categories">Sünkroonimise kategooriad</string>
   <string name="sync_general_settings">Info &amp; üldised seaded</string>
   <string name="sync_introduction">Tutvustus</string>
-  <string name="are_you_sure_merge">Säilitatakse nii selle seadme andmed kui ka pilves olev %s. Kui sama üksust on muudetud mõlemas, säilitatakse uuem muudatus. Selle seadme andmed saadetakse sinu teistele seadmetele.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Keelatud pilve sünkroonimine. Pärast taastamist pead selle käsitsi uuesti lubama.</string>
   <string name="report">Teavita</string>
@@ -1287,8 +1372,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="install_failed_reason">Mooduli paigaldus ebaõnnestus: %s.</string>
   <string name="no_file_manager">Faili valimiseks ei leitud ühtegi rakendust. Palun paigaldage failihaldur ja proovige uuesti.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Rakendus avatud mujal</string>
-  <string name="open_here">Ava siin</string>
   <string name="external_link_dont_ask_again">Ära küsi uuesti: %s</string>
   <string name="nameless">Pealkiri on määramata</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Ühe puudutuse toimingud (piibel)</string>
@@ -2234,18 +2317,30 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="dialog_dont_apply">Ära rakenda</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Pilves on juba sinu %s. Mis peaks juhtuma?</string>
-  <string name="cloud_merge_consequence">Mõlemad pooled säilivad; kui üksust muudeti mõlemal pool, jääb peale uuem muudatus.</string>
-  <string name="cloud_fetch_consequence">Asendab selle seadme andmed pilvekoopiaga.</string>
-  <string name="cloud_create_consequence">Asendab pilvekoopia selle seadme andmetega.</string>
-  <string name="cloud_disable_consequence">Sünkroonimine jääb nende andmete jaoks välja lülitatuks.</string>
-  <string name="cloud_merge_lead">Liita sinu %s pilvega?</string>
-  <string name="cloud_merge_confirm">Liida</string>
   <string name="cloud_replace_confirm">Asenda</string>
-  <string name="cloud_replace_local_lead">Asendada selle seadme %s pilvekoopiaga?</string>
-  <string name="cloud_replace_local_detail">Praegu selles seadmes olev kirjutatakse üle ja seda ei saa taastada.</string>
-  <string name="cloud_replace_cloud_lead">Asendada %s pilvekoopia selle seadme andmetega?</string>
-  <string name="cloud_replace_cloud_detail">Praegu pilves olev kirjutatakse üle ja sinu teised seadmed saavad selle seadme andmed.</string>
+  <string name="cloud_join_plan_title">Pilves on juba andmeid</string>
+  <string name="cloud_join_plan_lead">Vali iga kategooria jaoks, mida teha.</string>
+  <string name="cloud_join_merge">Liida</string>
+  <string name="cloud_join_merge_detail">Ühenda see seade ja pilv</string>
+  <string name="cloud_join_fetch">Kopeeri pilvest</string>
+  <string name="cloud_join_fetch_detail">Asenda selle seadme andmed</string>
+  <string name="cloud_join_create">Kopeeri pilve</string>
+  <string name="cloud_join_create_detail">Asenda pilve andmed</string>
+  <string name="cloud_join_disable">Ära sünkroonista</string>
+  <string name="cloud_join_disable_detail">Jäta see kategooria välja lülitatuks</string>
+  <string name="cloud_join_upload_note">%s: pilves pole veel andmeid, need laaditakse üles sellest seadmest.</string>
+  <string name="cloud_join_confirm_title">Kas alustada sünkroonimist?</string>
+  <string name="cloud_join_confirm_lead">Juhtub järgmine:</string>
+  <string name="cloud_join_outcome_merge">%s: liidetakse pilvega. Midagi ei lähe kaotsi.</string>
+  <string name="cloud_join_outcome_fetch">%s: selle seadme andmed asendatakse pilve andmetega.</string>
+  <string name="cloud_join_outcome_create">%s: pilve andmed asendatakse selle seadme andmetega.</string>
+  <string name="cloud_join_outcome_disable">%s: jääb välja lülitatuks.</string>
+  <string name="cloud_join_outcome_upload">%s: laaditud üles sellest seadmest.</string>
+  <string name="cloud_join_warning">Asendatud andmeid ei saa taastada. Kui sa pole kindel, tee esmalt varukoopia.</string>
+  <string name="cloud_join_next">Edasi</string>
+  <string name="cloud_join_back">Tagasi</string>
+  <string name="cloud_join_start">Alusta sünkroonimist</string>
+  <string name="cloud_join_replace">Asenda ja sünkroonista</string>
   <string name="sign_in_failed_lead">Sünkroonimisteenusesse sisselogimine ebaõnnestus.</string>
   <string name="sync_too_old_lead">See rakendus on liiga vana, et sünkroonida: %s.</string>
   <string name="sync_too_old_detail">Pilveandmed kasutavad uuemat versiooni, kui see rakendus toetab. Nende sünkroonimine on praegu välja lülitatud; uuenda rakendust, et see uuesti sisse lülitada.</string>

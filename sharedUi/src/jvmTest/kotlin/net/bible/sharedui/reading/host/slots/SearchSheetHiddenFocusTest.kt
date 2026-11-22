@@ -92,6 +92,60 @@ class SearchSheetHiddenFocusTest {
         }
     }
 
+    // #4197: Enter in the toolbar query field, results of the unchanged query shown: open a result instead of re-running.
+    @Test fun submitFromTheQueryFieldOpensTheFirstResultWhileTheQueryIsUnchanged() {
+        val fixture = SearchFixture()
+        val cache = SearchResultsCache()
+        val state = ReadingSearchState(
+            fixture.settings, fixture.scope, fixture.platform, fixture.jobs,
+            ReadingSearchServices(fixture.bible, FakeEpubSearch(), cache, fixture.index),
+            onLeaveFullScreen = {},
+        )
+        val session = state.session
+        try {
+            fixture.platform.documents["KJV"] = fixture.platform.current!!
+            state.openSearch("light")
+            cache.put(assertNotNull(session.lastSearchRequestForTest), MultiSearchResults(
+                listOf("Gen.1.1", "Gen.1.2").map { SwordResultRow(it, emptyList(), StyledText.plain("light")) }, emptyList(), 2))
+            session.runSearch("KJV", "light")
+            session.resultKeyboardSelection.value = 1
+
+            session.searchBarCallbacks.onSubmit()
+            assertEquals(listOf("Gen.1.1"), fixture.platform.shown.map { it.second.getName() }, "the unfocused list highlights nothing: result 0")
+        } finally {
+            state.dispose()
+            fixture.state.dispose()
+            fixture.scope.cancel()
+        }
+    }
+
+    @Test fun submitFromTheQueryFieldSearchesAgainWhenTheQueryChanged() {
+        val fixture = SearchFixture()
+        val cache = SearchResultsCache()
+        val state = ReadingSearchState(
+            fixture.settings, fixture.scope, fixture.platform, fixture.jobs,
+            ReadingSearchServices(fixture.bible, FakeEpubSearch(), cache, fixture.index),
+            onLeaveFullScreen = {},
+        )
+        val session = state.session
+        try {
+            fixture.platform.documents["KJV"] = fixture.platform.current!!
+            state.openSearch("light")
+            cache.put(assertNotNull(session.lastSearchRequestForTest), MultiSearchResults(
+                listOf(SwordResultRow("Gen.1.1", emptyList(), StyledText.plain("light"))), emptyList(), 1))
+            session.runSearch("KJV", "light")
+            state.controller.queries.setQuery("dark")
+
+            session.searchBarCallbacks.onSubmit()
+            assertEquals(emptyList(), fixture.platform.shown, "an edited query is searched, not opened")
+            assertEquals("dark", session.lastSearchRequestForTest?.query)
+        } finally {
+            state.dispose()
+            fixture.state.dispose()
+            fixture.scope.cancel()
+        }
+    }
+
     /** Closing results keeps them on the sliding-out sheet, but they let go of the keyboard at once. */
     @Test fun closingResultsStayComposedUntilTheSheetIsHiddenWithoutKeyboardFocus() = runComposeUiTest {
         val fixture = SearchFixture()

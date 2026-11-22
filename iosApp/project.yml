@@ -122,11 +122,11 @@ targets:
           cd "$SRCROOT/.."
           # Release links run out of the shared daemon's 4g heap (OutOfMemoryError in
           # linkReleaseFrameworkIosSimulatorArm64). Run the K/N compiler in its own process with a larger heap
-          # for Release only (6g stopped being enough in Nov 2026: OOM in DevirtualizationAnalysis);
+          # for Release only (6g, then 8g, stopped being enough in Nov 2026: OOM in DevirtualizationAnalysis; 12g since the 1281 release);
           # the daemon's jvmargs stay unchanged.
           EXTRA=""
           if [ "$CONFIGURATION" = "Release" ]; then
-            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx8g"
+            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx12g"
           fi
           ./gradlew -Dorg.gradle.native=false $EXTRA :sharedUi:embedAndSignAppleFrameworkForXcode
       - name: "Copy app resources"
@@ -178,13 +178,14 @@ targets:
       configs:
         Debug:
           PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev.widgets
-          PRODUCT_NAME: AndBibleWidgetsDev
           APP_GROUP: group.org.andbible.ios.dev
         Release:
           PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.widgets
-          PRODUCT_NAME: AndBibleWidgets
           APP_GROUP: group.org.andbible.ios
       base:
+        # One name for every configuration: xcodegen derives the embed phase's product reference from the first
+        # configuration (Debug), so a per-config name made the Release archive look for AndBibleWidgetsDev.appex.
+        PRODUCT_NAME: AndBibleWidgets
         INFOPLIST_FILE: AndBibleWidgets/Info.plist
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"

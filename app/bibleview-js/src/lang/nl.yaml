@@ -46,6 +46,8 @@ emptyStudyPad: Lege studiemap. Maak tekst items in deze studiemap en voeg bladwi
 doYouWantToDeleteEntry: Wis dit item uit de studiemap?
 removeStudyPadConfirmationTitle: Verwijder dit item uit de studiemap?
 dragHelp: Wijzig volgorde door te slepen
+addonBookmarkThisVerse: Dit vers van een bladwijzer voorzien
+addonReadOnly: Deze inhoud komt uit een add-onverzameling en is alleen-lezen. Gebruik “Kopiëren naar mijn labels” voor een bewerkbare kopie.
 openAll: Open alle referenties
 editBookmarkPlaceholder: Tik om Mijn Notities te wijzigen voor deze bladwijzer.
 onlyLabel: Alleen label

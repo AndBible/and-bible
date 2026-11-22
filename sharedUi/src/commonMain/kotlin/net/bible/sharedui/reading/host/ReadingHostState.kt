@@ -233,7 +233,7 @@ class ReadingHostState(
         showQuickSheet(
             ReadingQuickSheet.KeyChooser(
                 kind,
-                // The same source the full-screen twin falls back to; read HERE so the other opening
+                // The navigate-to-verse preference, read HERE so the other opening
                 // ([openVerseChooserSheetForResult]) can differ. Meaningless for the flat list kinds.
                 navigateToVerse = kind == KeyChooserKind.Grid &&
                     settings.getBoolean("navigate_to_verse_pref", false),

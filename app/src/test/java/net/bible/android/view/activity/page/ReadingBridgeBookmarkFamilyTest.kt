@@ -57,6 +57,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import net.bible.android.database.bookmarks.isAddonId
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -252,6 +253,18 @@ class ReadingBridgeBookmarkFamilyTest {
         assertFalse(own.wholeVerse)
         assertEquals(listOf(l1.id), runBlocking { control.labelsForBookmark(own) }.map { it.id })
         assertEquals("the add-on bookmark is untouched", addon, runBlocking { dao.bibleBookmarkById(addon.id) })
+    }
+
+    /** Wiring: the window's Bible (pageManager.currentBible) reaches the new bookmark of an add-on row that has no book. */
+    @Test fun bookmarkAddonVerseUsesTheWindowsBibleWhenTheAddonRowHasNoBook() {
+        val windowBible = session.window.pageManager.currentBible.currentDocument
+        assertNotNull("the test window needs a Bible (test Sword modules)", windowBible)
+        val addon = addonBookmark("Ps 119:3")
+        assertNull(addon.book)
+        bridge.bookmarkAddonVerse(addon.id.toString())
+        drain()
+        val own = runBlocking { control.allBibleBookmarks() }.single { it.id != addon.id }
+        assertEquals(windowBible!!.initials, own.book?.initials)
     }
 
     @Test fun bookmarkAddonVerseOnAnOwnBookmarkDoesNothing() {

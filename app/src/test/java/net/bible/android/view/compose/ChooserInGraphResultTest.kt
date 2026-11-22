@@ -19,8 +19,6 @@ package net.bible.android.view.compose
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,30 +28,16 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.navigation.ChooseDictionaryWordController
-import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
-import net.bible.sharedcore.navigation.ChooseMapKeyController
-import net.bible.sharedcore.navigation.BookPick
-import net.bible.sharedcore.navigation.ChapterPick
 import net.bible.sharedcore.navigation.ChooserError
-import net.bible.sharedcore.navigation.GridButton
-import net.bible.sharedcore.navigation.GridChoosePassageController
-import net.bible.sharedcore.navigation.GridOptions
-import net.bible.sharedcore.navigation.GridStep
-import net.bible.sharedcore.navigation.GridUi
 import net.bible.sharedcore.navigation.DictRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
-import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.navigation.nav.ChooseDictionaryWordDeps
 import net.bible.sharedui.navigation.nav.ChooseDocumentDeps
-import net.bible.sharedui.navigation.nav.ChooseGeneralBookKeyDeps
-import net.bible.sharedui.navigation.nav.ChooseMapKeyDeps
 import net.bible.sharedui.navigation.nav.ChooserNavDeps
-import net.bible.sharedui.navigation.nav.GridChoosePassageDeps
 import net.bible.sharedui.navigation.nav.chooserNavGraph
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Rule
@@ -108,30 +92,20 @@ class ChooserInGraphResultTest {
     private lateinit var navController: NavHostController
 
     private lateinit var keyChooserResults: NavResultChannel<KeyChooserResult>
-    private lateinit var passageResults: NavResultChannel<PassageResult>
     private lateinit var documentResults: NavResultChannel<DocumentResult>
 
     /** How often ANY channel took its `exitWithResult` branch. Design §1.1: must stay 0. */
     private var channelExits = 0
     private var exitHostCalls = 0
 
-    /** Every HOST WINDOW title the graph set, in order. The empty-key-list paths must record
-     *  nothing -- see [anEmptyGeneralBookKeyListLeavesNoTitleOnTheWindow]. */
+    /** Every HOST WINDOW title the graph set, in order. */
     private val windowTitles = mutableListOf<String>()
 
     // — what the arms handed the host-side factories, captured for the argument assertions —
-    private var generalBookController: ChooseGeneralBookKeyController? = null
-    private var mapController: ChooseMapKeyController? = null
     private var dictionaryController: ChooseDictionaryWordController? = null
-    private var gridController: GridChoosePassageController? = null
-    private var gridGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
-    private var gridCanceled = false
-    private var gridIsScripture: Boolean? = null
     private var documentController: DocumentSelectionController? = null
     private var documentTypeFilter: DocTypeFilter? = null
     private var documentsLoaded = 0
-    private var generalBookEmptyResults = 0
-    private var mapEmptyResults = 0
 
     /**
      * What the host's `chooseDocumentInitialTypeFilter` reads out of `selected_document_filter_no`
@@ -141,77 +115,17 @@ class ChooserInGraphResultTest {
      */
     private var storedFilter = DocTypeFilter.DICTIONARY
 
-    /**
-     * Classic's `doc!!.globalKeyList`, which is where `ChooseGeneralBookKeyComposeActivity`'s
-     * `buildResult(null)` fallback takes its `osisRef` from -- a DIFFERENT list from the chooser's
-     * own `keyChooserKeys()`, which is why the empty-list test can tell the fallback apart from a
-     * key the chooser could have offered.
-     */
-    private val generalBookGlobalKeys = listOf("Job.1", "Job.2")
-    private val generalBookDocument = "KJV"
-    private val mapDocument = "Maps"
-
     private fun deps(
-        generalBookKeys: List<String> = listOf("Chapter 1", "Chapter 2"),
-        mapKeys: List<String> = listOf("Map 1"),
-        generalBookGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null,
         dictionaryDocument: Boolean = true,
         dictionaryRows: List<DictRow>? = listOf(DictRow("0", "aaron")),
     ): ChooserNavDeps {
         keyChooserResults = NavResultChannel { channelExits++ }
-        passageResults = NavResultChannel { channelExits++ }
         documentResults = NavResultChannel { channelExits++ }
         return ChooserNavDeps(
             exitHost = { exitHostCalls++ },
             setWindowTitle = { windowTitles += it },
             keyChooserResults = keyChooserResults,
-            passageResults = passageResults,
             documentResults = documentResults,
-            chooseGeneralBookKey = ChooseGeneralBookKeyDeps(
-                title = "General book",
-                controllerFor = { onResult ->
-                    generalBookGate?.await()
-                    if (generalBookKeys.isEmpty()) {
-                        null
-                    } else {
-                        ChooseGeneralBookKeyController(
-                            loadRows = { generalBookKeys.mapIndexed { i, k -> KeyRow(i.toString(), k) } },
-                            currentRow = { "0" },
-                            onSelect = { keyId ->
-                                onResult(KeyChooserResult(bookAndKeyJson = """{"key":"$keyId"}"""))
-                            },
-                        ).also { generalBookController = it }
-                    }
-                },
-                // Classic's `buildResult(null)`: the fallback comes off the DOCUMENT's global key
-                // list, not off the (empty) chooser list -- derived here rather than written as a
-                // literal so the test asserts the shape and not a constant it supplied itself.
-                emptyResult = {
-                    generalBookEmptyResults++
-                    KeyChooserResult(key = generalBookGlobalKeys.first(), book = generalBookDocument)
-                },
-            ),
-            chooseMapKey = ChooseMapKeyDeps(
-                title = "Maps",
-                controllerFor = { onResult ->
-                    if (mapKeys.isEmpty()) {
-                        null
-                    } else {
-                        ChooseMapKeyController(
-                            loadRows = { mapKeys.mapIndexed { i, k -> KeyRow(i.toString(), k) } },
-                            currentRow = { null },
-                            onSelect = { keyId -> onResult(KeyChooserResult(key = keyId, book = "Maps")) },
-                        ).also { mapController = it }
-                    }
-                },
-                // Classic `ChooseMapKeyComposeActivity.buildResult(null)`: `key?.osisRef` is null and
-                // the book is the page's document. A null KEY inside a delivered result is NOT the
-                // same thing as nothing delivered -- see [anEmptyMapKeyListDeliversTheFallbackResult].
-                emptyResult = {
-                    mapEmptyResults++
-                    KeyChooserResult(key = null, book = mapDocument)
-                },
-            ),
             chooseDictionaryWord = ChooseDictionaryWordDeps(
                 title = "Dictionary",
                 hint = "Search",
@@ -228,13 +142,6 @@ class ChooserInGraphResultTest {
                 // return type is nullable (`ChooseDictionaryWordDeps.loadRows`).
                 loadRows = { dictionaryRows },
                 loadSnippet = { "" },
-            ),
-            gridChoosePassage = GridChoosePassageDeps(
-                windowTitle = "AndBible",
-                controllerFor = { scope, isScripture, onResult ->
-                    gridIsScripture = isScripture
-                    gridPassageController(scope, onResult).also { gridController = it }
-                },
             ),
             chooseDocument = ChooseDocumentDeps(
                 title = "Choose document",
@@ -264,51 +171,6 @@ class ChooserInGraphResultTest {
         )
     }
 
-    /**
-     * A minimal but REAL [GridChoosePassageController]: the arm drives its `ui`/`options` flows, its
-     * `pick()` and its `back()`, so a stub would not compose. Each step offers ONE button with a step-
-     * specific label, which is what lets [gridChoosePassageReadsIsScriptureFromTheRouteAndDeliversTheVerse]
-     * walk Book -> Chapter -> Verse by clicking the screen rather than by calling the arm's own
-     * `onResult` back to it.
-     */
-    private fun gridPassageController(scope: kotlinx.coroutines.CoroutineScope, onResult: (PassageResult) -> Unit) = GridChoosePassageController(
-        scope = scope,
-        initialOptions = GridOptions(
-            showScripture = true,
-            alphabetical = false,
-            ltr = true,
-            groupByCategory = false,
-            longNames = false,
-            showProgress = false,
-        ),
-        buildStep = { step, opts ->
-            try { gridGate?.await() } catch (e: kotlinx.coroutines.CancellationException) {
-                gridCanceled = true
-                throw e
-            }
-            GridUi(
-                step = step,
-                title = "Step ${step.name}",
-                columns = 1,
-                showLongNames = opts.longNames,
-                showProgress = opts.showProgress,
-                showDeutToggle = false,
-                buttons = listOf(GridButton(id = 0, label = gridCellLabel(step))),
-            )
-        },
-        onPersistOptions = {},
-        onPickBook = { BookPick.GoChapter },
-        onPickChapter = { ChapterPick.GoVerse },
-        onPickVerse = { "Gen.1.1" },
-        onFinish = { osisId -> onResult(PassageResult(verse = osisId)) },
-    )
-
-    private fun gridCellLabel(step: GridStep) = when (step) {
-        GridStep.BOOK -> "BookCell"
-        GridStep.CHAPTER -> "ChapterCell"
-        GridStep.VERSE -> "VerseCell"
-    }
-
     private fun setGraph(d: ChooserNavDeps, startDestination: String = NavRoutes.READING) {
         compose.setContent {
             navController = rememberNavController()
@@ -336,108 +198,14 @@ class ChooserInGraphResultTest {
         compose.waitForIdle()
     }
 
-    @Test fun pending_grid_read_is_cancelled_when_destination_leaves() {
-        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
-        gridGate = gate
-        try {
-            setGraph(deps())
-            navigateTo(NavRoutes.gridChoosePassage(isScripture = true))
-            assertNotNull(gridController)
-            compose.runOnIdle { navController.popBackStack() }
-            compose.waitForIdle()
-            assertEquals(true, gridCanceled, "destination disposal must cancel the held grid read")
-        } finally { gate.cancel(); gridGate = null }
-    }
-
     /** A real system back press, so the arm's `PlatformBackHandler` is what decides. */
     private fun pressBack() {
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.waitForIdle()
     }
 
-    private fun clickCell(label: String) {
-        compose.onNodeWithText(label).performClick()
-        compose.waitForIdle()
-    }
-
-    /**
-     * Catches: an arm that hands the screen a controller other than the one it built with the
-     * channel-delivering `onResult`, and any regression in deliver-then-pop. Also pins that the
-     * window title is set EXACTLY once, on the value the deps carried.
-     */
     @Test
-    fun aPendingGeneralBookChooserDoesNotDeliverAnEmptyFallback() {
-        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
-        try {
-            setGraph(deps(generalBookGate = gate))
-            navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
-            assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, currentRoute)
-            assertEquals(0, generalBookEmptyResults)
-            compose.runOnIdle { gate.complete(Unit) }
-            compose.waitForIdle()
-            assertNotNull(generalBookController)
-            assertEquals(0, generalBookEmptyResults)
-        } finally {
-            gate.cancel()
-        }
-    }
-
-    @Test
-    fun aPoppedPendingGeneralBookChooserCannotPublishRowsOrFallback() {
-        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
-        try {
-            setGraph(deps(generalBookGate = gate))
-            navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
-            compose.runOnIdle { navController.popBackStack() }
-            compose.waitForIdle()
-            compose.runOnIdle { gate.complete(Unit) }
-            compose.waitForIdle()
-            assertEquals(NavRoutes.READING, currentRoute)
-            assertEquals(null, generalBookController)
-            assertEquals(0, generalBookEmptyResults)
-            assertEquals(null, keyChooserResults.consume())
-        } finally {
-            gate.cancel()
-        }
-    }
-
-    @Test
-    fun aGeneralBookKeyChosenInTheGraphReachesTheParentAndPops() {
-        setGraph(deps())
-        navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
-        assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, currentRoute)
-        assertEquals(listOf("General book"), windowTitles, "the destination's own android:label")
-
-        val controller = assertNotNull(generalBookController, "the arm never built a controller")
-        compose.runOnIdle { controller.select("1") }
-        compose.waitForIdle()
-
-        assertEquals(0, channelExits, "deliver() took its EXIT branch; design §1.1 forbids it for this slice")
-        assertEquals(0, exitHostCalls)
-        assertEquals(NavRoutes.READING, currentRoute, "the chooser must pop back to its parent")
-        assertEquals("""{"key":"1"}""", keyChooserResults.consume()?.bookAndKeyJson)
-    }
-
-    @Test
-    fun theMapChooserDeliversOnTheSameChannelAsTheGeneralBookChooser() {
-        setGraph(deps())
-        navigateTo(NavRoutes.CHOOSE_MAP_KEY)
-
-        assertEquals(listOf("Maps"), windowTitles, "the destination's own android:label")
-
-        val controller = assertNotNull(mapController, "the arm never built a controller")
-        compose.runOnIdle { controller.select("0") }
-        compose.waitForIdle()
-
-        assertEquals(0, channelExits)
-        assertEquals(NavRoutes.READING, currentRoute)
-        val result = assertNotNull(keyChooserResults.consume(), "the map chooser used a different channel")
-        assertEquals("0", result.key)
-        assertEquals("Maps", result.book)
-    }
-
-    @Test
-    fun theDictionaryChooserDeliversOnTheSameChannelAsTheGeneralBookChooser() {
+    fun aDictionaryWordChosenInTheGraphReachesTheParentAndPops() {
         setGraph(deps())
         navigateTo(NavRoutes.CHOOSE_DICTIONARY_WORD)
 
@@ -452,101 +220,26 @@ class ChooserInGraphResultTest {
     }
 
     /**
-     * Spec §6.2. Three destinations, ONE channel -- if a later change splits them into five, this
-     * fails loudly rather than growing a second mechanism silently.
+     * Spec §6.2: one key channel (the dictionary's; the general-book and map key choosers it once shared
+     * were removed by #4172) and one document channel.
      */
     @Test
-    fun theDepsCarryThreeResultChannelsNotFive() {
+    fun theDepsCarryTwoResultChannelsNotFour() {
         val channelFields = ChooserNavDeps::class.java.declaredFields
             .filter { NavResultChannel::class.java.isAssignableFrom(it.type) }
             .map { it.name }
             .sorted()
         assertEquals(
-            listOf("documentResults", "keyChooserResults", "passageResults"),
+            listOf("documentResults", "keyChooserResults"),
             channelFields,
-            "the three key choosers share ONE channel (spec §6.2); five channels would be five ways " +
-                "to say the same thing",
+            "one key channel and one document channel (spec §6.2)",
         )
-    }
-
-    /**
-     * Classic `ChooseGeneralBookKeyComposeActivity.onCreate`'s `keys.isEmpty()` early exit
-     * (`:79-83`): it `setResult`s the FALLBACK selection and finishes without ever showing a list.
-     * In-graph that is a deliver-and-pop, not a silent pop -- a caller waiting for a key must not be
-     * left hanging.
-     *
-     * Catches: an arm that publishes a result of its own making instead of asking the deps for
-     * `emptyResult()` (the delivered key is the DOCUMENT's first global key, which no arm can
-     * synthesise), and an arm whose empty-list effect runs more than once.
-     */
-    @Test
-    fun anEmptyGeneralBookKeyListDeliversTheFallbackResultAndPops() {
-        setGraph(deps(generalBookKeys = emptyList()))
-        navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
-
-        assertEquals(0, channelExits)
-        assertEquals(NavRoutes.READING, currentRoute, "an empty key list must pop straight back")
-        assertNull(generalBookController, "the empty arm must not build a controller at all")
-        assertEquals(1, generalBookEmptyResults, "the fallback must be asked for exactly once")
-        val result = assertNotNull(keyChooserResults.consume(), "nothing was published")
-        assertEquals(generalBookGlobalKeys.first(), result.key)
-        assertEquals(generalBookDocument, result.book)
-    }
-
-    /**
-     * The [ChooserNavDeps.setWindowTitle] kdoc argues that the empty path must NOT leave its title on
-     * the host window: the destination pops in the frame it composed, and the parent's own
-     * `LaunchedEffect(title)` will not re-run to put the parent's title back. Nothing tested that
-     * until fix round 1.
-     *
-     * Catches: hoisting `LaunchedEffect(d.title) { setWindowTitle(d.title) }` above the
-     * `if (controller == null)` early return -- a change that compiles, delivers the same result,
-     * pops the same way, and leaves "General book" on the window of the screen behind.
-     */
-    @Test
-    fun anEmptyGeneralBookKeyListLeavesNoTitleOnTheWindow() {
-        setGraph(deps(generalBookKeys = emptyList()))
-        navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
-
-        assertEquals(NavRoutes.READING, currentRoute)
-        assertEquals(
-            emptyList(),
-            windowTitles,
-            "a destination that pops in the frame it composed must leave no title behind it",
-        )
-    }
-
-    /**
-     * `ChooseMapKeyComposeActivity:70-74`, the map chooser's own empty-list exit. Its result is the
-     * one shape that can be mistaken for silence: `buildResult(null)` yields a KEY-LESS result, which
-     * is still a delivery.
-     *
-     * Catches: the map arm's null branch being written as the DICTIONARY arm's (a plain
-     * `popOrExit` with nothing published) -- until fix round 1 the `mapKeys` fixture knob was never
-     * passed a value by any test, so that whole branch was unexercised and the swap was free.
-     */
-    @Test
-    fun anEmptyMapKeyListDeliversTheFallbackResult() {
-        setGraph(deps(mapKeys = emptyList()))
-        navigateTo(NavRoutes.CHOOSE_MAP_KEY)
-
-        assertEquals(0, channelExits)
-        assertEquals(NavRoutes.READING, currentRoute)
-        assertNull(mapController, "the empty arm must not build a controller at all")
-        assertEquals(1, mapEmptyResults)
-        val result = assertNotNull(
-            keyChooserResults.consume(),
-            "a key-less fallback is still a DELIVERY; the map chooser must not pop in silence",
-        )
-        assertNull(result.key)
-        assertEquals(mapDocument, result.book)
     }
 
     /**
      * Classic `ChooseDictionaryWordComposeActivity.onCreate`'s `page.currentDocument == null`
      * branch (`:72`): a bare `finish()` with NO `setResult` at all. The in-graph equivalent is a pop
-     * with nothing published -- unlike the general-book chooser above, which has a fallback key to
-     * hand back.
+     * with nothing published.
      */
     @Test
     fun aDictionaryWithNoDocumentPopsWithoutDeliveringAResult() {
@@ -580,74 +273,6 @@ class ChooserInGraphResultTest {
         assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, currentRoute, "a failed load stays put; classic did")
         assertEquals(0, channelExits)
         assertNull(keyChooserResults.consume(), "a failed load publishes nothing")
-    }
-
-    /**
-     * Spec §6.1: `isScripture` is the route's ONLY argument, and the arm must read it off the route
-     * rather than from host state. §6.1.1: `navigateToVerse` is NOT an argument -- the destination
-     * keeps its own pref fallback, host-side, which is why nothing about it appears here.
-     *
-     * The verse is reached by CLICKING through the three grid steps, not by calling the arm's own
-     * `onResult` back to it: until fix round 1 this test invoked the captured `onResult` by hand,
-     * which re-tested `NavResultChannel` (which has its own test) and nothing else.
-     *
-     * Catches: `onPick` wired to anything but `controller::pick`; the arm handing the screen a
-     * controller other than the one it gave the channel-delivering `onResult` to; and a step machine
-     * that never reaches `onFinish`.
-     */
-    @Test
-    fun gridChoosePassageReadsIsScriptureFromTheRouteAndDeliversTheVerse() {
-        setGraph(deps())
-        navigateTo(NavRoutes.gridChoosePassage(isScripture = true))
-
-        assertEquals(true, gridIsScripture, "the arm did not pass the route's isScripture to the host factory")
-        val controller = assertNotNull(gridController, "the arm never built a controller")
-
-        clickCell("BookCell")
-        assertEquals(GridStep.CHAPTER, controller.step.value, "the book pick did not reach the controller")
-        clickCell("ChapterCell")
-        assertEquals(GridStep.VERSE, controller.step.value)
-        clickCell("VerseCell")
-
-        assertEquals(0, channelExits)
-        assertEquals(NavRoutes.READING, currentRoute)
-        assertEquals("Gen.1.1", passageResults.consume()?.verse)
-    }
-
-    /**
-     * Classic `GridChoosePassageComposeActivity:84`: the grid's INTERNAL step back-stack is walked
-     * first, and only an exhausted one leaves the screen. The second of the two back handlers this
-     * graph declares, and it had no coverage either.
-     *
-     * Catches: a back handler that pops the destination straight away (the step stack then becomes
-     * unreachable by back, and a user three steps in loses the whole screen on one press), and one
-     * gated on an `enabled` flag instead of on `controller.back()`'s own answer -- at the root step
-     * the handler must still run and hand the press on by popping.
-     */
-    @Test
-    fun gridChoosePassageBackWalksTheStepStackBeforeLeaving() {
-        setGraph(deps())
-        navigateTo(NavRoutes.gridChoosePassage(isScripture = true))
-        val controller = assertNotNull(gridController, "the arm never built a controller")
-
-        clickCell("BookCell")
-        assertEquals(GridStep.CHAPTER, controller.step.value)
-
-        pressBack()
-        assertEquals(GridStep.BOOK, controller.step.value, "back must pop the grid's own step first")
-        assertEquals(NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN, currentRoute, "a step back is not a destination pop")
-
-        pressBack()
-        assertEquals(NavRoutes.READING, currentRoute, "an exhausted step stack lets back leave")
-        assertEquals(0, exitHostCalls)
-        assertNull(passageResults.consume(), "backing out publishes nothing (classic set no result)")
-    }
-
-    @Test
-    fun gridChoosePassageDefaultsIsScriptureToFalse() {
-        setGraph(deps())
-        navigateTo(NavRoutes.gridChoosePassage())
-        assertEquals(false, gridIsScripture)
     }
 
     /**

@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.reading
 
+import net.bible.sharedui.host.reading.FontSizeChange
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -46,6 +47,7 @@ class DesktopShortcutsTest {
         }
         override fun openSettings() { log += "settings" }
         override fun syncNow() { log += "sync" }
+        override fun showHistory() { log += "history" }
         override fun escapeAllowed(windowId: String) = escapeAllowed
         var modalOpen = false
         override fun closePageModals(windowId: String?): Boolean { if (modalOpen) log += "closeModals:${windowId ?: "active"}"; return modalOpen }
@@ -63,6 +65,25 @@ class DesktopShortcutsTest {
         assertFalse(shortcuts.onChord(Chord("s", ctrl = true, composing = true), null))
         assertFalse(shortcuts.onChord(Chord("s", ctrl = true, alt = true), null))
         assertFalse(shortcuts.onChord(Chord("s", ctrl = true, shift = true), null))
+        assertEquals(emptyList(), actions.log)
+    }
+
+    // #4198: Ctrl+H (Windows/Linux browsers' History) and Ctrl+Y (the Mac browsers' Cmd+Y, where Cmd+H is the OS "Hide").
+    @Test fun ctrlHAndCtrlYOpenTheHistorySheet() {
+        assertTrue(shortcuts.onChord(ctrl("h"), null))
+        assertTrue(shortcuts.onChord(ctrl("y", fromPane = true), "w1"))
+        assertTrue(shortcuts.onChord(Chord("H", ctrl = true), null))
+        assertEquals(listOf("history", "history", "history"), actions.log)
+    }
+
+    @Test fun historyChordIsLeftToTextFieldsImeShiftAndOtherScreens() {
+        assertFalse(shortcuts.onChord(Chord("h", ctrl = true, fromPane = true, editable = true), "w1"))
+        assertFalse(shortcuts.onChord(Chord("y", ctrl = true, editable = true), null))
+        assertFalse(shortcuts.onChord(Chord("h", ctrl = true, composing = true), null))
+        assertFalse(shortcuts.onChord(Chord("h", ctrl = true, alt = true), null))
+        assertFalse(shortcuts.onChord(Chord("h"), null))
+        actions.reading = false
+        assertFalse(shortcuts.onChord(ctrl("h"), null))
         assertEquals(emptyList(), actions.log)
     }
 

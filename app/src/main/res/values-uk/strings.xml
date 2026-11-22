@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Коли індексування завершиться ви потрапите на екран пошуку.</string>
   <string name="index_create">Створити</string>
   <string name="rebuild_index">Перебудувати індекс</string>
-  <string name="search_in">Знайти в %s</string>
   <string name="do_in_background">Продовжити у фоновому режимі</string>
   <string name="rebuild_index_button">Відновити</string>
   <string name="creating_index_for">Створення індексу для %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s результати у %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Перебіг виконання</string>
-  <string name="task_kill_warning">Ці тривалі завдання можуть припинитися, якщо ви перейдете до іншого застосунку/програми, перш ніж вони закінчаться.</string>
   <string name="no_tasks_running">В даний час нема завдань які виконуються.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Знайти вірші</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Очистити текст пошуку</string>
   <string name="search_engine_changed_reindex">Пошуковий рушій оновлено. Потрібно знову створити пошуковий індекс; це може тривати певний час.</string>
   <string name="search_unsupported_syntax">Цей пошук використовує непідтримуваний синтаксис: %s</string>
+  <string name="search_regex">Регулярний вираз (експериментально)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Пошук тривав занадто довго і був зупинений. Результати неповні; спробуйте простіший вираз.</string>
+  <string name="search_invalid_regex">Недійсний регулярний вираз: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Цей регулярний вираз містить забагато необмежених шаблонів (таких як .* або \\w+). Використовуйте їх менше або обмежте їх, наприклад .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Цей регулярний вираз повторює групу, яка сама містить повторення, наприклад (a+)+. Пошук може тривати практично нескінченно. Перепишіть його без вкладених повторень.</string>
+  <string name="search_regex_busy">Попередній пошук за регулярним виразом ще виконується у фоновому режимі. Спробуйте за мить; якщо він не завершиться, перезапустіть застосунок.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -319,6 +324,8 @@
   <string name="hide_window_buttons_summary">Кнопки вікна, які відображаються на правій стороні під час перегляду Біблії, приховані. Навігаційна панель вікна внизу все ще відображається, і ви можете відкрити спливаюче меню вікна, довго натискаючи її.</string>
   <string name="hide_bible_reference_overlay_title">Сховати накладене посилання</string>
   <string name="hide_bible_reference_overlay_summary">Не показувати напівпрозоре накладання посилань, коли програма перебуває в повноекранному режимі</string>
+  <string name="text_under_window_buttons_title">Показувати текст під кнопками вікон</string>
+  <string name="text_under_window_buttons_summary">Текст Біблії тягнеться до нижнього краю екрана, під панеллю кнопок вікон. Якщо вимкнено, під панеллю в нижніх вікнах, які вона охоплює, залишається вільна смуга.</string>
   <string name="full_screen_hide_buttons_pref_title">Сховати панель кнопок вікна y повноекранному режимі</string>
   <string name="full_screen_hide_buttons_pref_summary">При переході в повноекранний режим, автоматично сховати панель кнопок вікна, що знаходиться внизу екрана</string>
   <string name="prefs_hide_status_bar_title">Приховати рядок стану</string>
@@ -583,7 +590,50 @@
   <string name="sleep_timer_active_at">Таймер сну: залишилось %s хвилин.</string>
   <string name="speak_next">Наступний</string>
   <string name="speak_previous">Попередній</string>
+  <string name="widget_play">Відтворити</string>
   <string name="widget_toggle_sleep_timer">Переключити таймер сну</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Озвучити</string>
+  <string name="widget_speak_text_name">Озвучити з текстом</string>
+  <string name="widget_listening_list_name">Список прослуховування</string>
+  <string name="widget_verse_name">Вірш</string>
+  <string name="widget_continue_from">Продовжити з %1$s · %2$s</string>
+  <string name="widget_continue_listening">Продовжити прослуховування</string>
+  <string name="widget_paused">Призупинено</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Закладок для озвучення ще немає</string>
+  <string name="widget_listening_list_empty_text">Тут з\'являються закладки з позначкою «Озвучення». Увімкніть автоматичні закладки в налаштуваннях озвучення або додайте позначку до будь-якої закладки.</string>
+  <string name="widget_open_app">Відкрити AndBible</string>
+  <string name="widget_open_app_to_load">Відкрийте AndBible, щоб завантажити вірші</string>
+  <string name="widget_verse_unavailable_no_bible">Встановіть Біблію, щоб бачити тут вірші</string>
+  <string name="widget_verse_unavailable_label_missing">Позначки цього віджета більше не існує. Торкніться, щоб вибрати вірші.</string>
+  <string name="widget_verse_unavailable_label_empty">Ця позначка ще не має закладок із Біблії. Торкніться, щоб вибрати інші вірші.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Жоден план читання не активний. Торкніться, щоб вибрати інші вірші.</string>
+  <string name="widget_verse_source_random_whole_bible">Випадковий вірш</string>
+  <string name="widget_verse_source_random_new_testament">Випадковий вірш · Новий Заповіт</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Випадковий вірш · Псалми та Приповісті</string>
+  <string name="widget_shuffle">Інший випадковий вірш</string>
+  <string name="widget_speak_verse">Озвучити вірш</string>
+  <string name="widget_verse_config_title">Віджет вірша</string>
+  <string name="widget_verse_config_source_label">Вірші з</string>
+  <string name="widget_verse_config_source_label_option">Позначки</string>
+  <string name="widget_verse_config_source_random">Випадковий вірш</string>
+  <string name="widget_verse_config_random_whole">Уся Біблія</string>
+  <string name="widget_verse_config_random_nt">Новий Заповіт</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Псалми та Приповісті</string>
+  <string name="widget_verse_config_source_plan">Сьогоднішній план читання</string>
+  <string name="widget_verse_config_changes">Зміна</string>
+  <string name="widget_verse_config_daily">Щодня</string>
+  <string name="widget_verse_config_every_few_hours">Кожні кілька годин</string>
+  <string name="widget_verse_config_on_shuffle">Лише коли я торкаюся «Інший вірш»</string>
+  <string name="widget_verse_config_bible">Біблія</string>
+  <string name="widget_verse_config_bible_default">Типова (%s)</string>
+  <string name="widget_verse_config_show_buttons">Показувати кнопки зміни вірша та озвучення</string>
+  <string name="widget_verse_config_show_source">Показувати джерело і дату</string>
+  <string name="widget_verse_config_add">Додати віджет</string>
+  <string name="widget_verse_config_save">Зберегти</string>
+  <string name="widget_verse_source_reading_plan">Сьогоднішнє читання</string>
   <string name="speak_status_stopped">зупинено</string>
   <string name="speak_autobookmarking_disabled">Автоматичне створення закладок вимкнуто!</string>
   <string name="system_speak_settings">Відкрити системні налаштування TTS</string>
@@ -715,6 +765,31 @@
   <string name="install_zip_canceled">Встановлення модуля скасовано</string>
   <string name="restore">Відновлення</string>
   <string name="import2">Імпортувати</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (копія)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Із додатка %1$s</string>
+  <string name="addon_label_from_module_hint">Відкрити додаток у менеджері документів</string>
+  <string name="addon_label_read_only_note">Ця позначка, її закладки та її StudyPad належать додатку і не можуть бути змінені. Ви можете додати її до улюблених, вибрати, як її показує цей робочий простір, і додавати закладки до її віршів для себе.</string>
+  <string name="addon_copy_to_my_labels">Копіювати до моїх позначок</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Скопійовано до вашої позначки \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Цей вміст походить із додатка %1$s і не може бути змінений. Скористайтеся «Копіювати до моїх позначок», щоб отримати копію для редагування.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Цей вміст походить із додатка і не може бути змінений. Скористайтеся «Копіювати до моїх позначок», щоб отримати копію для редагування.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Не вдалося скопіювати позначку</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d елемент колекції додатка пропущено. Скористайтеся «Копіювати до моїх позначок» на позначці, щоб отримати власну копію.</item>
+    <item quantity="few">%1$d елементи колекції додатка пропущено. Скористайтеся «Копіювати до моїх позначок» на позначці, щоб отримати власну копію.</item>
+    <item quantity="many">%1$d елементів колекції додатка пропущено. Скористайтеся «Копіювати до моїх позначок» на позначці, щоб отримати власну копію.</item>
+    <item quantity="other">%1$d елемента колекції додатка пропущено. Скористайтеся «Копіювати до моїх позначок» на позначці, щоб отримати власну копію.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">«%1$s» та %2$s інша(-их) мітка(-ок) / блокнот(-ів) та %3$s закладок</string>
   <!--About-->
@@ -750,6 +825,8 @@
   <string name="doc_type_all">Усі види</string>
   <string name="doc_type_bible">Біблія</string>
   <string name="doc_type_commentary">Коментар</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Документи</string>
   <string name="doc_type_dictionary">Словник</string>
   <string name="doc_type_book">Книга</string>
   <string name="doc_type_map">Карта</string>
@@ -785,6 +862,10 @@
   <string name="crash_recovery_continue">Продовжити</string>
   <string name="report_error">Надіслати звіт</string>
   <string name="error_occurred">Сталася помилка</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Застосунок зупинився під час запуску</string>
+  <string name="startup_crash_detail">Будь ласка, надішліть нам звіт про помилку, щоб ми могли її виправити. Він містить подробиці помилки та відомості про ваш пристрій і версію застосунку.</string>
+  <string name="startup_crash_try_again">Спробувати знову</string>
   <string name="error_occurred_crash_last_time">Востаннє, коли ви користувались програмою, вона аварійно завершила роботу. Щоб допомогти нам у виправленні помилки, ми будемо вдячні, якщо ви надішлете нам звіт про помилку.</string>
   <string name="error_occurred_with_link">Сталася помилка. %s</string>
   <string name="error_no_content">Немає вмісту для вибраного вірша</string>
@@ -1294,10 +1375,6 @@
   <string name="reading_progress_new_cycle">Новий цикл</string>
   <string name="reading_progress_previous_cycle">Попередній цикл</string>
   <string name="reading_progress_next_cycle">Наступний цикл</string>
-  <string name="cloud_merge_data">Об\'єднати дані</string>
-  <string name="cloud_fetch_and_restore_initial">Копіювати з хмари на цей пристрій</string>
-  <string name="cloud_create_new">Копіювати з цього пристрою в хмару</string>
-  <string name="cloud_disable_sync">Скасувати та відключити синхронізацію</string>
   <string name="cloud_sync_title">Синхронізація пристрою</string>
   <string name="reset_sync">Вийти</string>
   <string name="prefs_reset_sync_summary">Вимкніть синхронізацію та скиньте відповідні налаштування.</string>
@@ -1313,8 +1390,21 @@
   <string name="google_drive_signin_interrupted">Вхід у Google було перервано. Спробуйте ще раз.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Адреса вашого сервера, напр. https://cloud.example.com (https:// буде додано, якщо ви його пропустите)</string>
   <string name="webdav_server_url_hint">Адреса теки WebDAV, наприклад https://nas.local/dav/ або https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Для синхронізації потрібна захищена адреса https://.</string>
+  <string name="sync_waiting_for_pass">Очікування завершення поточної синхронізації…</string>
+  <string name="sync_pending_on">Буде ввімкнено</string>
+  <string name="sync_pending_off">Буде вимкнено</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d зміна</item>
+    <item quantity="few">%1$d зміни</item>
+    <item quantity="many">%1$d змін</item>
+    <item quantity="other">%1$d зміни</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Застосувати зміни синхронізації?</string>
+  <string name="sync_checking_cloud_title">Перевірка хмари…</string>
+  <string name="sync_checking_cloud_text">Пошук даних, які інші пристрої вже синхронізували.</string>
   <string name="webdav_certificate_title">Сертифікат сервера</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Недовірений сертифікат сервера</string>
@@ -1332,7 +1422,6 @@
   <string name="synchronization_categories">Категорії синхронізації</string>
   <string name="sync_general_settings">Інформація та загальні налаштування</string>
   <string name="sync_introduction">Вступ</string>
-  <string name="are_you_sure_merge">Буде збережено і дані на цьому пристрої, і %s у хмарі. Якщо один і той самий елемент змінено в обох місцях, зберігається новіша зміна. Дані цього пристрою буде надіслано на ваші інші пристрої.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Вимкнення хмарної синхронізації. Ви повинні повторно ввімкнути синхронізацію вручну після відновлення.</string>
   <string name="report">Звіт</string>
@@ -1346,8 +1435,6 @@
   <string name="install_failed_reason">Не вдалося встановити модуль з наступної причини: %s.</string>
   <string name="no_file_manager">Не знайдено застосунку для вибору файлу. Будь ласка, встановіть файловий менеджер і спробуйте ще раз.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Додаток відкрито в іншому місці</string>
-  <string name="open_here">Відкрити тут</string>
   <string name="external_link_dont_ask_again">Більше не питати про %s</string>
   <string name="nameless">Назва не визначена</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Дії одним дотиком (Біблії)</string>
@@ -2307,18 +2394,30 @@
   <string name="dialog_dont_apply">Не застосовувати</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">У хмарі вже є ваші %s. Що слід зробити?</string>
-  <string name="cloud_merge_consequence">Обидві сторони зберігаються; якщо елемент змінено на обох, перемагає новіша зміна.</string>
-  <string name="cloud_fetch_consequence">Замінює дані на цьому пристрої копією з хмари.</string>
-  <string name="cloud_create_consequence">Замінює копію в хмарі даними з цього пристрою.</string>
-  <string name="cloud_disable_consequence">Синхронізація для цих даних залишається вимкненою.</string>
-  <string name="cloud_merge_lead">Об’єднати ваші %s із хмарою?</string>
-  <string name="cloud_merge_confirm">Об’єднати</string>
   <string name="cloud_replace_confirm">Замінити</string>
-  <string name="cloud_replace_local_lead">Замінити %s на цьому пристрої копією з хмари?</string>
-  <string name="cloud_replace_local_detail">Те, що зараз на цьому пристрої, буде перезаписано й не підлягатиме відновленню.</string>
-  <string name="cloud_replace_cloud_lead">Замінити копію %s у хмарі даними з цього пристрою?</string>
-  <string name="cloud_replace_cloud_detail">Те, що зараз у хмарі, буде перезаписано, а інші ваші пристрої отримають дані з цього пристрою.</string>
+  <string name="cloud_join_plan_title">У хмарі вже є дані</string>
+  <string name="cloud_join_plan_lead">Виберіть, що робити для кожної категорії.</string>
+  <string name="cloud_join_merge">Об\'єднати</string>
+  <string name="cloud_join_merge_detail">Поєднати цей пристрій і хмару</string>
+  <string name="cloud_join_fetch">Скопіювати з хмари</string>
+  <string name="cloud_join_fetch_detail">Замінити дані цього пристрою</string>
+  <string name="cloud_join_create">Скопіювати до хмари</string>
+  <string name="cloud_join_create_detail">Замінити дані хмари</string>
+  <string name="cloud_join_disable">Не синхронізувати</string>
+  <string name="cloud_join_disable_detail">Залишити цю категорію вимкненою</string>
+  <string name="cloud_join_upload_note">%s: у хмарі ще немає даних, їх буде завантажено з цього пристрою.</string>
+  <string name="cloud_join_confirm_title">Почати синхронізацію?</string>
+  <string name="cloud_join_confirm_lead">Ось що станеться:</string>
+  <string name="cloud_join_outcome_merge">%s: об\'єднано з хмарою. Нічого не втрачається.</string>
+  <string name="cloud_join_outcome_fetch">%s: дані на цьому пристрої замінено даними з хмари.</string>
+  <string name="cloud_join_outcome_create">%s: дані в хмарі замінено даними з цього пристрою.</string>
+  <string name="cloud_join_outcome_disable">%s: залишається вимкненою.</string>
+  <string name="cloud_join_outcome_upload">%s: завантажено з цього пристрою.</string>
+  <string name="cloud_join_warning">Замінені дані не можна відновити. Якщо не впевнені, спершу зробіть резервну копію.</string>
+  <string name="cloud_join_next">Далі</string>
+  <string name="cloud_join_back">Назад</string>
+  <string name="cloud_join_start">Почати синхронізацію</string>
+  <string name="cloud_join_replace">Замінити і синхронізувати</string>
   <string name="sign_in_failed_lead">Не вдалося увійти до служби синхронізації.</string>
   <string name="sync_too_old_lead">Цей додаток надто старий для синхронізації %s.</string>
   <string name="sync_too_old_detail">Дані в хмарі використовують новішу версію, ніж підтримує цей додаток. Синхронізацію для них поки що вимкнено; оновіть додаток, щоб увімкнути її знову.</string>

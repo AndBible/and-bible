@@ -46,6 +46,8 @@ emptyStudyPad: זהו פנקס לימוד ריק. לשם התחלה, יש להו
 doYouWantToDeleteEntry: למחוק מפנקס הלימוד את הרשימה הזו?
 removeStudyPadConfirmationTitle: מחיקת רשומה מפנקס הלימוד
 dragHelp: גרור כדי לסדר מחדש
+addonBookmarkThisVerse: הוספת הפסוק לסימניות
+addonReadOnly: התוכן הזה מגיע מאוסף תוספים והוא לקריאה בלבד. השתמשו ב”העתקה לתוויות שלי” כדי לקבל עותק הניתן לעריכה.
 openAll: פתח את כל מראי המקומות
 editBookmarkPlaceholder: "לחץ על \"הערות שלי\" כדי לערוך"
 onlyLabel: תווית בלבד

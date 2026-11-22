@@ -85,7 +85,6 @@
   <string name="indexing_wait_msg">כשיצירת האינדקס תסתיים, תועבר למסך החיפוש.</string>
   <string name="index_create">יצירה</string>
   <string name="rebuild_index">בנייה מחדש של האינדקס</string>
-  <string name="search_in">חפש ב %s</string>
   <string name="do_in_background">המשך ברקע</string>
   <string name="rebuild_index_button">בנייה-מחדש</string>
   <string name="creating_index_for">יוצר אינדקס עבור %s…</string>
@@ -93,7 +92,6 @@
   <string name="search_with_results2">%1$s תוצאות ב %2$s</string>
   <!--Tasks-->
   <string name="progress_status">בתהליך</string>
-  <string name="task_kill_warning">יותר מדי משימות רצות כעת, ולכן אם תצא מהתוכנה הן עלולות להסגר לפני שיסתיימו.</string>
   <string name="no_tasks_running">אין משימות שפועלות כעת.</string>
   <!--Search-->
   <string name="search_words_group_prompt">חיפוש פסוקים</string>
@@ -128,6 +126,13 @@
   <string name="search_clear">ניקוי טקסט החיפוש</string>
   <string name="search_engine_changed_reindex">מנוע החיפוש עודכן. יש ליצור מחדש את אינדקס החיפוש; פעולה זו עשויה להימשך זמן מה.</string>
   <string name="search_unsupported_syntax">החיפוש משתמש בתחביר שאינו נתמך: %s</string>
+  <string name="search_regex">ביטוי רגולרי (ניסיוני)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">החיפוש נמשך זמן רב מדי ונעצר. התוצאות חלקיות; נסו ביטוי פשוט יותר.</string>
+  <string name="search_invalid_regex">ביטוי רגולרי לא תקין: %1$s</string>
+  <string name="search_regex_too_many_wildcards">בביטוי הרגולרי הזה יש יותר מדי תווים כלליים פתוחים (כגון .* או \\w+). השתמשו בפחות מהם, או צמצמו אותם, למשל .{0,40}.</string>
+  <string name="search_regex_nested_repetition">הביטוי הרגולרי הזה חוזר על קבוצה שבעצמה מכילה חזרה, כגון (a+)+. התאמה כזו עלולה להימשך כמעט ללא סוף. כתבו אותו מחדש ללא חזרות מקוננות.</string>
+  <string name="search_regex_busy">חיפוש ביטוי רגולרי קודם עדיין רץ ברקע. נסו שוב בעוד רגע; אם הוא לא מסתיים, הפעילו מחדש את האפליקציה.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -322,6 +327,8 @@
   <string name="hide_window_buttons_summary">כפתורי החלון שבצד שמאל מוסתרים. סרגל הניווט בתחתית המסך עדיין מוצג, ואפשר לפתוח את תפריט אפשרויות החלון בלחיצה ארוכה עליו.</string>
   <string name="hide_bible_reference_overlay_title">הסתר שכבת מראה מקום</string>
   <string name="hide_bible_reference_overlay_summary">אל תציג את את מראה המקום בשכבה השקופה-למחצה כשהיישום במצב מסך מלא</string>
+  <string name="text_under_window_buttons_title">הצגת טקסט מתחת לכפתורי החלון</string>
+  <string name="text_under_window_buttons_summary">טקסט המקרא נמשך עד תחתית המסך, מתחת לסרגל כפתורי החלון. כשהאפשרות כבויה, נשמר פס פנוי מתחת לסרגל בחלונות התחתונים שהוא משתרע עליהם.</string>
   <string name="full_screen_hide_buttons_pref_title">להסתיר תפריט במסך מלא</string>
   <string name="full_screen_hide_buttons_pref_summary">כשעוברים לתצוגה במסך מלא, הסתר אוטומטית את שורת הכפתורים בתחתית המסך</string>
   <string name="prefs_hide_status_bar_title">הסתר את שורת המצב</string>
@@ -580,7 +587,50 @@
   <string name="sleep_timer_active_at">טיימר שינה: %s דקות נותרו.</string>
   <string name="speak_next">הבא</string>
   <string name="speak_previous">הקודם</string>
+  <string name="widget_play">נגן</string>
   <string name="widget_toggle_sleep_timer">הפעלה/כיבוי טיימר שינה</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">הקראה</string>
+  <string name="widget_speak_text_name">הקראה עם טקסט</string>
+  <string name="widget_listening_list_name">רשימת האזנה</string>
+  <string name="widget_verse_name">פסוק</string>
+  <string name="widget_continue_from">המשך מ-%1$s · %2$s</string>
+  <string name="widget_continue_listening">המשך האזנה</string>
+  <string name="widget_paused">מושהה</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">אין עדיין סימניות הקראה</string>
+  <string name="widget_listening_list_empty_text">סימניות עם התווית \"הקראה\" מופיעות כאן. הפעילו סימניות אוטומטיות בהגדרות ההקראה, או הוסיפו את התווית לכל סימנייה.</string>
+  <string name="widget_open_app">פתיחת AndBible</string>
+  <string name="widget_open_app_to_load">פתחו את AndBible כדי לטעון פסוקים</string>
+  <string name="widget_verse_unavailable_no_bible">התקינו תנ\"ך כדי לראות כאן פסוקים</string>
+  <string name="widget_verse_unavailable_label_missing">התווית של הווידג\'ט הזה כבר לא קיימת. הקישו כדי לבחור פסוקים.</string>
+  <string name="widget_verse_unavailable_label_empty">לתווית הזו אין עדיין סימניות מקרא. הקישו כדי לבחור פסוקים אחרים.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">אין תוכנית קריאה פעילה. הקישו כדי לבחור פסוקים אחרים.</string>
+  <string name="widget_verse_source_random_whole_bible">פסוק אקראי</string>
+  <string name="widget_verse_source_random_new_testament">פסוק אקראי · הברית החדשה</string>
+  <string name="widget_verse_source_random_psalms_proverbs">פסוק אקראי · תהילים ומשלי</string>
+  <string name="widget_shuffle">ערבוב פסוק</string>
+  <string name="widget_speak_verse">הקראת הפסוק</string>
+  <string name="widget_verse_config_title">ווידג\'ט פסוק</string>
+  <string name="widget_verse_config_source_label">פסוקים מתוך</string>
+  <string name="widget_verse_config_source_label_option">תווית</string>
+  <string name="widget_verse_config_source_random">פסוק אקראי</string>
+  <string name="widget_verse_config_random_whole">כל התנ\"ך</string>
+  <string name="widget_verse_config_random_nt">הברית החדשה</string>
+  <string name="widget_verse_config_random_psalms_proverbs">תהילים ומשלי</string>
+  <string name="widget_verse_config_source_plan">תוכנית הקריאה של היום</string>
+  <string name="widget_verse_config_changes">מתחלף</string>
+  <string name="widget_verse_config_daily">מדי יום</string>
+  <string name="widget_verse_config_every_few_hours">כל כמה שעות</string>
+  <string name="widget_verse_config_on_shuffle">רק כשאני מקיש על ערבוב</string>
+  <string name="widget_verse_config_bible">תנ\"ך</string>
+  <string name="widget_verse_config_bible_default">ברירת מחדל (%s)</string>
+  <string name="widget_verse_config_show_buttons">הצגת כפתורי ערבוב והקראה</string>
+  <string name="widget_verse_config_show_source">הצגת מקור ותאריך</string>
+  <string name="widget_verse_config_add">הוספת ווידג\'ט</string>
+  <string name="widget_verse_config_save">שמירה</string>
+  <string name="widget_verse_source_reading_plan">הקריאה של היום</string>
   <string name="speak_status_stopped">נעצר</string>
   <string name="speak_autobookmarking_disabled">סימניות אוטומטיות לא פעיל!</string>
   <string name="system_speak_settings">פתח הגדרות מערכת TTS</string>
@@ -704,6 +754,31 @@
   <string name="install_zip_canceled">התקנת המודול בוטלה</string>
   <string name="restore">שחזור</string>
   <string name="import2">ייבוא</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (עותק)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">מהתוסף %1$s</string>
+  <string name="addon_label_from_module_hint">פתיחת התוסף במנהל המסמכים</string>
+  <string name="addon_label_read_only_note">התווית הזו, הסימניות שלה וה-StudyPad שלה שייכים לתוסף ולא ניתן לערוך אותם. אפשר לסמן אותה כמועדפת, לבחור כיצד סביבת העבודה הזו מציגה אותה, ולסמן בסימניות את הפסוקים שלה לעצמכם.</string>
+  <string name="addon_copy_to_my_labels">העתקה לתוויות שלי</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">הועתק לתווית שלך \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">התוכן הזה מגיע מהתוסף %1$s ולא ניתן לשנותו. השתמשו ב\"העתקה לתוויות שלי\" כדי לקבל עותק הניתן לעריכה.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">התוכן הזה מגיע מתוסף ולא ניתן לשנותו. השתמשו ב\"העתקה לתוויות שלי\" כדי לקבל עותק הניתן לעריכה.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">לא ניתן היה להעתיק את התווית</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">פריט אחד מאוסף התוספים דולג. השתמשו ב\"העתקה לתוויות שלי\" בתווית כדי לקבל עותק משלכם.</item>
+    <item quantity="two">%1$d פריטים מאוסף התוספים דולגו. השתמשו ב\"העתקה לתוויות שלי\" בתווית כדי לקבל עותק משלכם.</item>
+    <item quantity="many">%1$d פריטים מאוסף התוספים דולגו. השתמשו ב\"העתקה לתוויות שלי\" בתווית כדי לקבל עותק משלכם.</item>
+    <item quantity="other">%1$d פריטים מאוסף התוספים דולגו. השתמשו ב\"העתקה לתוויות שלי\" בתווית כדי לקבל עותק משלכם.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" ו-%2$s תוויות/פנקסי לימוד נוספים ו-%3$s סימניות</string>
   <!--About-->
@@ -738,6 +813,8 @@
   <string name="doc_type_all">כל הסוגים</string>
   <string name="doc_type_bible">תנ\"ך</string>
   <string name="doc_type_commentary">פרשנות</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">מסמכים</string>
   <string name="doc_type_dictionary">מילון</string>
   <string name="doc_type_book">ספר</string>
   <string name="doc_type_map">מפה</string>
@@ -773,6 +850,10 @@
   <string name="crash_recovery_continue">המשך</string>
   <string name="report_error">שלח דוון</string>
   <string name="error_occurred">אירעה שגיאה</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">האפליקציה נעצרה בזמן ההפעלה</string>
+  <string name="startup_crash_detail">אנא שלחו לנו דוח שגיאה כדי שנוכל לתקן את הבעיה. הוא כולל את פרטי השגיאה ומידע על המכשיר ועל גרסת האפליקציה.</string>
+  <string name="startup_crash_try_again">נסו שוב</string>
   <string name="error_occurred_crash_last_time">בפעם האחרונה שהשתמשת ביישום, הוא קרס. על מנת לעזור בפתרון התקלה, נעריך את זה אם תשלחו אלינו דוח תקלה.</string>
   <string name="error_occurred_with_link">אירעה תקלה %s</string>
   <string name="error_no_content">אין תוכן עבור הפסוק הנבחר</string>
@@ -1235,10 +1316,6 @@
   <string name="reading_progress_new_cycle">מחזור חדש</string>
   <string name="reading_progress_previous_cycle">מחזור קודם</string>
   <string name="reading_progress_next_cycle">מחזור הבא</string>
-  <string name="cloud_merge_data">מיזוג נתונים</string>
-  <string name="cloud_fetch_and_restore_initial">העתקה מהענן אל המכשיר</string>
-  <string name="cloud_create_new">העתקה מהמכשיר אל הענן</string>
-  <string name="cloud_disable_sync">בטל ומנע סנכרון</string>
   <string name="cloud_sync_title">סנכרון מכשיר</string>
   <string name="reset_sync">התנתקות</string>
   <string name="prefs_reset_sync_summary">השבת סנכרון ואפס הגדרות קשורות.</string>
@@ -1254,8 +1331,21 @@
   <string name="google_drive_signin_interrupted">ההתחברות ל-Google הופסקה. נסה שוב.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">כתובת השרת שלכם, למשל https://cloud.example.com (‏https:// יתווסף אם תשמיטו אותו)</string>
   <string name="webdav_server_url_hint">כתובת תיקיית ה-WebDAV, למשל https://nas.local/dav/ או https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">הסנכרון דורש כתובת מאובטחת מסוג https://.</string>
+  <string name="sync_waiting_for_pass">ממתין לסיום הסנכרון הנוכחי…</string>
+  <string name="sync_pending_on">יופעל</string>
+  <string name="sync_pending_off">יכובה</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">שינוי %1$d</item>
+    <item quantity="two">%1$d שינויים</item>
+    <item quantity="many">%1$d שינויים</item>
+    <item quantity="other">%1$d שינויים</item>
+  </plurals>
+  <string name="sync_pending_leave_title">להחיל את שינויי הסנכרון?</string>
+  <string name="sync_checking_cloud_title">בודק את הענן…</string>
+  <string name="sync_checking_cloud_text">מחפש נתונים שמכשירים אחרים כבר סנכרנו.</string>
   <string name="webdav_certificate_title">אישור שרת</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">אישור שרת לא מהימן</string>
@@ -1273,7 +1363,6 @@
   <string name="synchronization_categories">קטגוריות לסנכרון</string>
   <string name="sync_general_settings">מידע והגדרות כלליות</string>
   <string name="sync_introduction">הקדמה</string>
-  <string name="are_you_sure_merge">הנתונים במכשיר זה וה%s בענן יישמרו שניהם. כאשר אותו פריט שונה בשניהם, השינוי החדש יותר יישמר. נתוני מכשיר זה יישלחו להתקנים האחרים שלכם.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">מכבה סנכרון ענן. יש להפעיל מחדש ידנית לאחר שחזור.</string>
   <string name="report">דוח</string>
@@ -1287,8 +1376,6 @@
   <string name="install_failed_reason">התקנת המודול נכשלה מהסיבה הבאה: %s.</string>
   <string name="no_file_manager">לא נמצא יישום לבחירת קובץ. נא להתקין מנהל קבצים ולנסות שוב.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">היישום נפתח במקום אחר</string>
-  <string name="open_here">פתח כאן</string>
   <string name="external_link_dont_ask_again">אל תשאל שוב עבור %s</string>
   <string name="nameless">הכותרת אינה מוגדרת</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">פעולות בהקשה אחת (תנ\"כים)</string>
@@ -2248,18 +2335,30 @@
   <string name="dialog_dont_apply">אל תחיל</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">בענן כבר נמצא %s שלך. מה לעשות?</string>
-  <string name="cloud_merge_consequence">שני הצדדים נשמרים; היכן שפריט השתנה בשניהם, השינוי החדש יותר גובר.</string>
-  <string name="cloud_fetch_consequence">מחליף את הנתונים במכשיר זה בעותק מהענן.</string>
-  <string name="cloud_create_consequence">מחליף את העותק בענן בנתונים שבמכשיר זה.</string>
-  <string name="cloud_disable_consequence">הסנכרון נשאר כבוי עבור נתונים אלה.</string>
-  <string name="cloud_merge_lead">למזג את %s שלך עם הענן?</string>
-  <string name="cloud_merge_confirm">מזג</string>
   <string name="cloud_replace_confirm">החלף</string>
-  <string name="cloud_replace_local_lead">להחליף את %s של מכשיר זה בעותק מהענן?</string>
-  <string name="cloud_replace_local_detail">מה שנמצא כעת במכשיר זה יידרס ולא ניתן יהיה לשחזר אותו.</string>
-  <string name="cloud_replace_cloud_lead">להחליף את העותק בענן של %s בנתוני מכשיר זה?</string>
-  <string name="cloud_replace_cloud_detail">מה שנמצא כעת בענן יידרס, והמכשירים האחרים שלך יקבלו את נתוני מכשיר זה.</string>
+  <string name="cloud_join_plan_title">בענן כבר יש נתונים</string>
+  <string name="cloud_join_plan_lead">בחרו מה לעשות בכל קטגוריה.</string>
+  <string name="cloud_join_merge">מיזוג</string>
+  <string name="cloud_join_merge_detail">שילוב של המכשיר הזה והענן</string>
+  <string name="cloud_join_fetch">העתקה מהענן</string>
+  <string name="cloud_join_fetch_detail">החלפת הנתונים במכשיר הזה</string>
+  <string name="cloud_join_create">העתקה לענן</string>
+  <string name="cloud_join_create_detail">החלפת הנתונים בענן</string>
+  <string name="cloud_join_disable">ללא סנכרון</string>
+  <string name="cloud_join_disable_detail">להשאיר את הקטגוריה הזו כבויה</string>
+  <string name="cloud_join_upload_note">%s: אין עדיין נתונים בענן, הם יועלו מהמכשיר הזה.</string>
+  <string name="cloud_join_confirm_title">להתחיל בסנכרון?</string>
+  <string name="cloud_join_confirm_lead">כך זה יתבצע:</string>
+  <string name="cloud_join_outcome_merge">%s: מוזג עם הענן. שום דבר לא אובד.</string>
+  <string name="cloud_join_outcome_fetch">%s: הנתונים במכשיר הזה יוחלפו בנתוני הענן.</string>
+  <string name="cloud_join_outcome_create">%s: הנתונים בענן יוחלפו בנתוני המכשיר הזה.</string>
+  <string name="cloud_join_outcome_disable">%s: נשאר כבוי.</string>
+  <string name="cloud_join_outcome_upload">%s: הועלה מהמכשיר הזה.</string>
+  <string name="cloud_join_warning">לא ניתן לשחזר נתונים שהוחלפו. אם אתם לא בטוחים, גבו אותם קודם.</string>
+  <string name="cloud_join_next">הבא</string>
+  <string name="cloud_join_back">הקודם</string>
+  <string name="cloud_join_start">התחלת סנכרון</string>
+  <string name="cloud_join_replace">החלפה וסנכרון</string>
   <string name="sign_in_failed_lead">לא ניתן היה להתחבר לשירות הסנכרון.</string>
   <string name="sync_too_old_lead">היישום ישן מדי לסנכרון %s.</string>
   <string name="sync_too_old_detail">נתוני הענן משתמשים בגרסה חדשה יותר ממה שהיישום תומך בו. הסנכרון שלהם כבוי לעת עתה; עדכן את היישום כדי להפעיל אותו שוב.</string>

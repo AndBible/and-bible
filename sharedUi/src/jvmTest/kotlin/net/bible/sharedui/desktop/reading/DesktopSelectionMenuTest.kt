@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.reading
 
+import net.bible.sharedui.host.reading.FontSizeChange
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -197,6 +198,7 @@ class DesktopSelectionMenuTest {
         override fun changeFontSize(change: FontSizeChange, steps: Int) {}
         override fun focusNextWindow() {}
         override fun focusPreviousWindow() {}
+        override fun showHistory() {}
         override fun toggleFullScreen() {}
         override fun openSettings() {}
         override fun syncNow() {}

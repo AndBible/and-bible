@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
@@ -32,7 +31,6 @@ import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.UserNotifier
-import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.android.control.backup.BackupControl
@@ -70,7 +68,6 @@ import net.bible.sharedui.app.mydocuments.MyDocumentsRecreationState
 import net.bible.sharedui.app.settings.LegacyDataImport
 import net.bible.sharedui.app.readingplan.ReadingPlanHost
 import net.bible.sharedui.app.readingplan.ReadingPlanRecreationState
-import net.bible.sharedui.app.search.SearchHost
 import net.bible.sharedui.app.settings.SettingsHost
 import net.bible.sharedui.app.welcome.WelcomeHost
 import net.bible.sharedui.app.workspace.WorkspaceHost
@@ -133,22 +130,6 @@ class AppHosts(
             readingProgressSettingsServiceProvider = { koin.get() },
             readingProgressServiceProvider = { koin.get<ReadingProgressServiceImpl>() },
             legacyDataImport = { koin.getOrNull<LegacyDataImport>() },
-        )
-    }
-
-    /**
-     * The search cluster's deps builder. Built on first use; every controller and service resolves lazily from
-     * Koin, so this touches no database.
-     */
-    val search: SearchHost by lazy {
-        SearchHost(
-            shell = shell,
-            strings = strings,
-            appSettingsProvider = { koin.get<AppSettings>() },
-            notificationPermission = ports.notificationPermission,
-            links = koin.get<ExternalLinks>(),
-            searchIndexServiceProvider = { koin.get<SearchIndexService>() },
-            pageControlProvider = { koin.get<PageControl>() },
         )
     }
 
@@ -319,8 +300,6 @@ class AppHosts(
             backgroundNotificationPermission = koin.getOrNull<net.bible.sharedcore.platform.NotificationPermission>(),
             clipboard = koin.get<ClipboardText>(),
             openInstallZip = installZipOpener,
-            // The search host owns the index jobs Progress status lists.
-            observeProgressJobs = { onJobs -> search.observeProgressStatusJobs(onJobs) },
             appSettingsProvider = { koin.get<AppSettings>() },
             userNotifierProvider = { koin.get<UserNotifier>() },
             directoriesProvider = { koin.get<AppDirectories>() },
@@ -404,7 +383,6 @@ class AppHosts(
         // Built in the order the activity always built them (a few hosts' navDeps record state the later ones read).
         val ai = ai.navDeps(navController)
         val readingPlan = readingPlan.navDeps(navController)
-        val search = search.navDeps(navController)
         val settings = settings.navDeps(navController, channels.readingProgress)
         val bookmark = bookmark.navDeps(navController, channels.bookmark, channels.manageLabels, channels.labelEdit)
         val download = download.navDeps(navController, channels.repositoryEditor, cloudDocuments.deps())
@@ -412,14 +390,14 @@ class AppHosts(
             navController, channels.myDocumentPages, channels.myDocuments,
             beforeSwitchDocument = channels.beforeSwitchMyDocument,
         )
-        val chooser = chooser.navDeps(navController, channels.keyChooser, channels.passage, channels.document)
+        val chooser = chooser.navDeps(navController, channels.keyChooser, channels.document)
         val backup = backup.navDeps(navController)
         val installZip = installZip.navDeps(navController, channels.installZip)
         val welcome = welcome.navDeps(navController)
         val help = help.navDeps(navController)
         val workspace = workspace.navDeps(navController, channels.workspace, channels.textSettings, channels.manageLabels)
         return AppGraphs(
-            ai = ai, bookmark = bookmark, readingPlan = readingPlan, search = search, settings = settings,
+            ai = ai, bookmark = bookmark, readingPlan = readingPlan, settings = settings,
             download = download, myDocuments = myDocuments, chooser = chooser, workspace = workspace,
             backup = backup, installZip = installZip, welcome = welcome, help = help,
         )

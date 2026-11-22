@@ -41,21 +41,11 @@ class ScreenLauncherTest {
 
     private val context get() = ApplicationProvider.getApplicationContext<android.content.Context>()
 
-    // The thirteen tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
+    // The tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
     // by nav-graph 3/5/6 Task 9, which deleted all thirteen reading-plan/search/settings host
     // Activities outright (targetFor throws for these Screens now -- see
     // ScreenLauncher.targetForMigratedScreen). Ten assert the MIGRATED route; the three whose
     // Screen is deliberately absent from MIGRATED assert that absence plus a throwing intentFor.
-
-    @Test
-    fun searchIndexProgress_isNotMigrated_argumentLessRouteHasNoSafeMeaning() {
-        // An argument-free index-progress route watches nothing and can route nowhere when
-        // indexing ends, so Screen.SearchIndexProgress is deliberately absent from MIGRATED; with
-        // the classic Activity gone, intentFor falls through to targetFor and throws.
-        // See NavHostRoutingGuardTest.searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt.
-        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.SearchIndexProgress))
-        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchIndexProgress) }
-    }
 
     @Test
     fun readingPlanSelector_routes_to_the_nav_graph() {
@@ -85,18 +75,13 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun searchIndex_routes_to_the_nav_graph() {
-        assertEquals(NavRoutes.searchIndex(), ScreenLauncher.MIGRATED[Screen.SearchIndex])
-    }
-
-    @Test
     fun standaloneResultsAreNoLongerLauncherScreens() {
         assertFalse(Screen.entries.any { it.name == "SearchResults" || it.name == "EpubSearchResults" })
     }
 
     @Test
-    fun epubSearch_routes_to_the_nav_graph() {
-        assertEquals(NavRoutes.EPUB_SEARCH, ScreenLauncher.MIGRATED[Screen.EpubSearch])
+    fun theRemovedFullScreenSearchScreensAreNoLongerLauncherScreens() {
+        assertFalse(Screen.entries.any { it.name in setOf("SearchIndex", "SearchIndexProgress", "EpubSearch") })
     }
 
     // Converted from `targetFor(Screen.MyDocuments) == MyDocumentsComposeActivity::class.java` to
@@ -266,20 +251,12 @@ class ScreenLauncherTest {
         assertEquals(NavRoutes.installZip(), ScreenLauncher.MIGRATED[Screen.InstallZip])
     }
 
-    @Test
-    fun progressStatus_routes_to_the_nav_graph() {
-        assertEquals(NavRoutes.progressStatus(), ScreenLauncher.MIGRATED[Screen.ProgressStatus])
-    }
-
-    // ——— slice 8 B7: the seven slice-7 screens route to the nav graph ———————————————————————————
-    // Task F6 deleted their Activities; targetFor throws for all seven now, and MIGRATED is what intentFor reads.
+    // ——— slice 8 B7: the slice-7 screens route to the nav graph (general-book and map key choosers removed, #4172) ———
+    // Task F6 deleted their Activities; targetFor throws for each of them now, and MIGRATED is what intentFor reads.
 
     @Test
     fun theSevenSliceSevenScreensRouteToTheNavGraph() {
-        assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, ScreenLauncher.MIGRATED[Screen.ChooseGeneralBookKey])
-        assertEquals(NavRoutes.CHOOSE_MAP_KEY, ScreenLauncher.MIGRATED[Screen.ChooseMapKey])
         assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, ScreenLauncher.MIGRATED[Screen.ChooseDictionaryWord])
-        assertEquals(NavRoutes.gridChoosePassage(), ScreenLauncher.MIGRATED[Screen.GridChoosePassageBook])
         assertEquals(NavRoutes.chooseDocument(), ScreenLauncher.MIGRATED[Screen.ChooseDocument])
         assertEquals(NavRoutes.WORKSPACE_SELECTOR, ScreenLauncher.MIGRATED[Screen.WorkspaceSelector])
         assertEquals(NavRoutes.textDisplaySettings(), ScreenLauncher.MIGRATED[Screen.TextDisplaySettings])
@@ -288,7 +265,7 @@ class ScreenLauncherTest {
     @Test
     fun theTenSliceEightScreensHaveNoActivityOfTheirOwn() {
         listOf(
-            Screen.ChooseGeneralBookKey, Screen.ChooseMapKey, Screen.ChooseDictionaryWord, Screen.GridChoosePassageBook,
+            Screen.ChooseDictionaryWord,
             Screen.ChooseDocument, Screen.WorkspaceSelector, Screen.Startup, Screen.InstallZip,
             Screen.TextDisplaySettings, Screen.Backup,
         ).forEach { screen -> assertFailsWith<IllegalStateException> { ScreenLauncher.targetFor(screen) } }

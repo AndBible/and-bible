@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">索引完成时，您将会回到搜索界面。</string>
   <string name="index_create">创建</string>
   <string name="rebuild_index">重建索引</string>
-  <string name="search_in">在 %s 中查找</string>
   <string name="do_in_background">在后台运行</string>
   <string name="rebuild_index_button">重建</string>
   <string name="creating_index_for">为%s建立索引</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">在 %2$s 中找到 %1$s 个结果</string>
   <!--Tasks-->
   <string name="progress_status">进度</string>
-  <string name="task_kill_warning">当前任务可能运行很久，若你在完成前切换到其它应用，可能会导致任务终止。</string>
   <string name="no_tasks_running">当前没有正在执行的任务</string>
   <!--Search-->
   <string name="search_words_group_prompt">查找经文</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">清除搜索文字</string>
   <string name="search_engine_changed_reindex">搜索引擎已更新。需要重新创建搜索索引，这可能需要一些时间。</string>
   <string name="search_unsupported_syntax">此搜索使用了不受支持的语法：%s</string>
+  <string name="search_regex">正则表达式（实验性）</string>
+  <string name="search_regex_summary">正则</string>
+  <string name="search_results_truncated">搜索耗时过长，已被中止。结果不完整；请尝试更简单的表达式。</string>
+  <string name="search_invalid_regex">无效的正则表达式：%1$s</string>
+  <string name="search_regex_too_many_wildcards">此正则表达式包含过多不限长度的通配符（例如 .* 或 \\w+）。请减少使用，或缩小范围，例如 .{0,40}。</string>
+  <string name="search_regex_nested_repetition">此正则表达式重复了本身含有重复的分组，例如 (a+)+。这样可能需要极长的时间才能匹配。请改写，避免嵌套重复。</string>
+  <string name="search_regex_busy">之前的正则表达式搜索仍在后台运行。请稍后再试；如果仍未完成，请重启应用。</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +319,8 @@
   <string name="hide_window_buttons_summary">隐藏在圣经窗口右边的视窗按钮。底部的窗口导航栏仍会显示，你可以长按以开启窗口弹出菜单。</string>
   <string name="hide_bible_reference_overlay_title">隐藏圣经参考浮动窗口</string>
   <string name="hide_bible_reference_overlay_summary">在全屏幕模式下，不显示半透明的圣经参考浮动窗口</string>
+  <string name="text_under_window_buttons_title">在窗口按钮下方显示文字</string>
+  <string name="text_under_window_buttons_summary">圣经文字延伸到屏幕底部，位于窗口按钮栏下方。关闭后，底部窗口中按钮栏所跨区域下方会保留一条空白区域。</string>
   <string name="full_screen_hide_buttons_pref_title">在全屏幕中隐藏窗口按键</string>
   <string name="full_screen_hide_buttons_pref_summary">当切换至全屏幕模式时，自动隐藏下方的窗口按键栏</string>
   <string name="prefs_hide_status_bar_title">隐藏状态栏</string>
@@ -579,7 +586,50 @@ http://www.heartlight.org 准予使用
   <string name="sleep_timer_active_at">睡眠计时器尚余%s分钟。</string>
   <string name="speak_next">下一个</string>
   <string name="speak_previous">上一个</string>
+  <string name="widget_play">播放</string>
   <string name="widget_toggle_sleep_timer">切换睡眠计时器</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">朗读</string>
+  <string name="widget_speak_text_name">带文字朗读</string>
+  <string name="widget_listening_list_name">收听列表</string>
+  <string name="widget_verse_name">经文</string>
+  <string name="widget_continue_from">从 %1$s · %2$s 继续</string>
+  <string name="widget_continue_listening">继续收听</string>
+  <string name="widget_paused">已暂停</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">还没有朗读书签</string>
+  <string name="widget_listening_list_empty_text">带有“朗读”标签的书签会显示在这里。请在朗读设置中开启自动书签，或为任意书签添加该标签。</string>
+  <string name="widget_open_app">打开 AndBible</string>
+  <string name="widget_open_app_to_load">打开 AndBible 以加载经文</string>
+  <string name="widget_verse_unavailable_no_bible">安装一本圣经后即可在此查看经文</string>
+  <string name="widget_verse_unavailable_label_missing">此小组件的标签已不存在。点按以选择经文。</string>
+  <string name="widget_verse_unavailable_label_empty">此标签下还没有圣经书签。点按以选择其他经文。</string>
+  <string name="widget_verse_unavailable_no_reading_plan">没有启用的读经计划。点按以选择其他经文。</string>
+  <string name="widget_verse_source_random_whole_bible">随机经文</string>
+  <string name="widget_verse_source_random_new_testament">随机经文 · 新约</string>
+  <string name="widget_verse_source_random_psalms_proverbs">随机经文 · 诗篇和箴言</string>
+  <string name="widget_shuffle">随机换一节经文</string>
+  <string name="widget_speak_verse">朗读经文</string>
+  <string name="widget_verse_config_title">经文小组件</string>
+  <string name="widget_verse_config_source_label">经文来源</string>
+  <string name="widget_verse_config_source_label_option">标签</string>
+  <string name="widget_verse_config_source_random">随机经文</string>
+  <string name="widget_verse_config_random_whole">整本圣经</string>
+  <string name="widget_verse_config_random_nt">新约</string>
+  <string name="widget_verse_config_random_psalms_proverbs">诗篇和箴言</string>
+  <string name="widget_verse_config_source_plan">今日读经计划</string>
+  <string name="widget_verse_config_changes">更换方式</string>
+  <string name="widget_verse_config_daily">每天</string>
+  <string name="widget_verse_config_every_few_hours">每隔几小时</string>
+  <string name="widget_verse_config_on_shuffle">仅在我点按随机按钮时</string>
+  <string name="widget_verse_config_bible">圣经</string>
+  <string name="widget_verse_config_bible_default">默认（%s）</string>
+  <string name="widget_verse_config_show_buttons">显示随机和朗读按钮</string>
+  <string name="widget_verse_config_show_source">显示来源和日期</string>
+  <string name="widget_verse_config_add">添加小组件</string>
+  <string name="widget_verse_config_save">保存</string>
+  <string name="widget_verse_source_reading_plan">今日读经</string>
   <string name="speak_status_stopped">已停止</string>
   <string name="speak_autobookmarking_disabled">自动书签已停止！</string>
   <string name="system_speak_settings">开启系统文字转语音(TTS)设定</string>
@@ -712,6 +762,28 @@ http://www.heartlight.org 准予使用
   <string name="install_zip_canceled">模组安装已取消</string>
   <string name="restore">恢复</string>
   <string name="import2">导入</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s（副本）</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">来自附加组件 %1$s</string>
+  <string name="addon_label_from_module_hint">在文档管理器中打开该附加组件</string>
+  <string name="addon_label_read_only_note">此标签、其书签及其学习笔记属于该附加组件，无法编辑。您可以将其标为收藏、选择此工作区如何显示它，并为其中的经文添加自己的书签。</string>
+  <string name="addon_copy_to_my_labels">复制到我的标签</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">已复制到您的标签“%1$s”</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">此内容来自附加组件 %1$s，无法更改。请使用“复制到我的标签”获取可编辑的副本。</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">此内容来自某个附加组件，无法更改。请使用“复制到我的标签”获取可编辑的副本。</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="other">已跳过 %1$d 个附加组件集合项目。请在标签上使用“复制到我的标签”获取您自己的副本。</item>
+  </plurals>
+  <string name="addon_label_copy_failed">无法复制该标签</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" 及其他 %2$s 个标签/学习笔记和 %3$s 个书签</string>
   <!--About-->
@@ -746,6 +818,8 @@ http://www.heartlight.org 准予使用
   <string name="doc_type_all">所有类型</string>
   <string name="doc_type_bible">圣经</string>
   <string name="doc_type_commentary">注释</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">文档</string>
   <string name="doc_type_dictionary">字典</string>
   <string name="doc_type_book">书卷</string>
   <string name="doc_type_map">地图</string>
@@ -781,6 +855,10 @@ http://www.heartlight.org 准予使用
   <string name="crash_recovery_continue">继续</string>
   <string name="report_error">发送报告</string>
   <string name="error_occurred">发生错误</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">应用在启动时停止运行</string>
+  <string name="startup_crash_detail">请向我们发送错误报告，以便我们修复此问题。报告包含错误详情以及您的设备和应用版本信息。</string>
+  <string name="startup_crash_try_again">重试</string>
   <string name="error_occurred_crash_last_time">你上一次使用程式时不幸意外地结束了。请回报错误以协助我们修正。谢谢。</string>
   <string name="error_occurred_with_link">发生错误。%s</string>
   <string name="error_no_content">选定经节没有内容</string>
@@ -1276,10 +1354,6 @@ http://www.heartlight.org 准予使用
   <string name="reading_progress_new_cycle">新一轮</string>
   <string name="reading_progress_previous_cycle">上一轮</string>
   <string name="reading_progress_next_cycle">下一轮</string>
-  <string name="cloud_merge_data">合并数据</string>
-  <string name="cloud_fetch_and_restore_initial">从云端复制至此设备</string>
-  <string name="cloud_create_new">从这台设备复制至云端</string>
-  <string name="cloud_disable_sync">取消&amp; 关闭同步功能</string>
   <string name="cloud_sync_title">设备同步</string>
   <string name="reset_sync">注销登陆</string>
   <string name="prefs_reset_sync_summary">关闭同步功能，并重置相关设置。</string>
@@ -1295,8 +1369,18 @@ http://www.heartlight.org 准予使用
   <string name="google_drive_signin_interrupted">Google 登录被中断。请重试。</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">您的服务器地址，例如 https://cloud.example.com（如果省略 https://，将自动添加）</string>
   <string name="webdav_server_url_hint">WebDAV 文件夹的地址，例如 https://nas.local/dav/ 或 https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">同步需要安全的 https:// 地址。</string>
+  <string name="sync_waiting_for_pass">正在等待当前同步完成…</string>
+  <string name="sync_pending_on">将被开启</string>
+  <string name="sync_pending_off">将被关闭</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="other">%1$d 项更改</item>
+  </plurals>
+  <string name="sync_pending_leave_title">应用您的同步更改？</string>
+  <string name="sync_checking_cloud_title">正在检查云端…</string>
+  <string name="sync_checking_cloud_text">正在查找其他设备已同步的数据。</string>
   <string name="webdav_certificate_title">服务器证书</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">不受信任的服务器证书</string>
@@ -1314,7 +1398,6 @@ http://www.heartlight.org 准予使用
   <string name="synchronization_categories">同步类别</string>
   <string name="sync_general_settings">信息 &amp; 常规设置</string>
   <string name="sync_introduction">介绍</string>
-  <string name="are_you_sure_merge">此设备上的数据和云端的 %s 都将保留。如果同一项目在两边都被更改，则保留较新的更改。此设备的数据将发送到您的其他设备。</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">正在关闭云同步功能。重置完成后需要重新手动开启云同步功能。</string>
   <string name="report">报告</string>
@@ -1328,8 +1411,6 @@ http://www.heartlight.org 准予使用
   <string name="install_failed_reason">无法安装模块，因为%s。</string>
   <string name="no_file_manager">未找到可用于选择文件的应用。请安装一个文件管理器后重试。</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">软件已在别处打开</string>
-  <string name="open_here">在这里打开</string>
   <string name="external_link_dont_ask_again">不再询问 %s</string>
   <string name="nameless">尚未定义标题</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">一键功能（圣经）</string>
@@ -2267,18 +2348,30 @@ http://www.heartlight.org 准予使用
   <string name="dialog_dont_apply">不应用</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">云端已有您的%s。应如何处理？</string>
-  <string name="cloud_merge_consequence">双方都会保留；若某项在两边都有更改，则以较新的更改为准。</string>
-  <string name="cloud_fetch_consequence">用云端副本替换此设备上的数据。</string>
-  <string name="cloud_create_consequence">用此设备上的数据替换云端副本。</string>
-  <string name="cloud_disable_consequence">此数据的同步保持关闭。</string>
-  <string name="cloud_merge_lead">将您的%s与云端合并？</string>
-  <string name="cloud_merge_confirm">合并</string>
   <string name="cloud_replace_confirm">替换</string>
-  <string name="cloud_replace_local_lead">用云端副本替换此设备的%s？</string>
-  <string name="cloud_replace_local_detail">此设备上现有的内容将被覆盖且无法恢复。</string>
-  <string name="cloud_replace_cloud_lead">用此设备的数据替换云端的%s副本？</string>
-  <string name="cloud_replace_cloud_detail">云端现有的内容将被覆盖，您的其他设备将收到此设备的数据。</string>
+  <string name="cloud_join_plan_title">云端已有数据</string>
+  <string name="cloud_join_plan_lead">请为每个类别选择处理方式。</string>
+  <string name="cloud_join_merge">合并</string>
+  <string name="cloud_join_merge_detail">合并本设备和云端的数据</string>
+  <string name="cloud_join_fetch">从云端复制</string>
+  <string name="cloud_join_fetch_detail">替换本设备的数据</string>
+  <string name="cloud_join_create">复制到云端</string>
+  <string name="cloud_join_create_detail">替换云端的数据</string>
+  <string name="cloud_join_disable">不同步</string>
+  <string name="cloud_join_disable_detail">保持此类别关闭</string>
+  <string name="cloud_join_upload_note">%s：云端尚无数据，将从本设备上传。</string>
+  <string name="cloud_join_confirm_title">开始同步？</string>
+  <string name="cloud_join_confirm_lead">将发生以下操作：</string>
+  <string name="cloud_join_outcome_merge">%s：与云端合并。不会丢失任何内容。</string>
+  <string name="cloud_join_outcome_fetch">%s：本设备上的数据将被云端的数据替换。</string>
+  <string name="cloud_join_outcome_create">%s：云端的数据将被本设备的数据替换。</string>
+  <string name="cloud_join_outcome_disable">%s：保持关闭。</string>
+  <string name="cloud_join_outcome_upload">%s：已从本设备上传。</string>
+  <string name="cloud_join_warning">被替换的数据无法恢复。如不确定，请先备份。</string>
+  <string name="cloud_join_next">下一步</string>
+  <string name="cloud_join_back">返回</string>
+  <string name="cloud_join_start">开始同步</string>
+  <string name="cloud_join_replace">替换并同步</string>
   <string name="sign_in_failed_lead">无法登录同步服务。</string>
   <string name="sync_too_old_lead">此应用版本过旧，无法同步%s。</string>
   <string name="sync_too_old_detail">云端数据使用的版本高于此应用所支持的版本。其同步已暂时关闭；请更新应用以重新开启。</string>

@@ -125,6 +125,37 @@ sealed interface AppDialogRequest {
     ) : AppDialogRequest
 
     /**
+     * The collected "the cloud already has data" plan of a sync start: one decision per [rows] category, then one
+     * confirmation of everything that will happen. The host owns both steps and the navigation between them; only
+     * the final answer travels back, as [AppDialogResult.SyncJoinChoices] (or [AppDialogResult.Cancel]).
+     * [uploadNotes] and [createOutcomes] describe the categories that have no data in the cloud yet and are
+     * uploaded without a question. [outcomeLine] builds a decided row's confirmation line from its [Row.key] and
+     * chosen [DialogAnswer.value]. [replaceText] replaces [startText] on the confirmation when a choice overwrites
+     * data, and [warning] is then shown as well.
+     */
+    data class SyncJoinPlan(
+        override val title: String?,
+        val lead: String,
+        val rows: List<Row>,
+        val uploadNotes: List<String>,
+        val choices: List<DialogAnswer>,
+        val defaultChoice: String,
+        val confirmTitle: String,
+        val confirmLead: String,
+        val outcomeLine: (rowKey: String, choice: String) -> String,
+        val createOutcomes: List<String>,
+        val warning: String,
+        val nextText: String,
+        val backText: String,
+        val cancelText: String,
+        val startText: String,
+        val replaceText: String,
+    ) : AppDialogRequest {
+        /** One category to decide: [key] is what the answer maps back, [label] the text shown. */
+        data class Row(val key: String, val label: String)
+    }
+
+    /**
      * `Hourglass`. Never answered — removed by [AppDialogController.dismiss]. Never cancellable.
      * Drawn underneath; never blocks answerable requests (see [AppDialogController.progress]).
      */
@@ -209,6 +240,8 @@ sealed interface AppDialogResult {
     data class Selected(val value: String) : AppDialogResult
     data class SelectedWithCheckbox(val value: String, val checked: Boolean) : AppDialogResult
     data class SelectedMany(val ids: List<String>) : AppDialogResult
+    /** The [AppDialogRequest.SyncJoinPlan] answer: each row key mapped to its chosen [DialogAnswer.value]. */
+    data class SyncJoinChoices(val choices: Map<String, String>) : AppDialogResult
     /**
      * The [AppDialogRequest.ReleaseNotice] answer: the chosen [action] (null = Close, back or scrim) and the checkbox
      * state. An action does not end the notice: `ReleaseNotice` runs it and asks again.

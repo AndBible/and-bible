@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,6 +58,8 @@ fun SpeakTransportBar(
     state: SpeakTransportVd,
     onPlayPause: () -> Unit, onStop: () -> Unit, onRewind: () -> Unit, onForward: () -> Unit,
     onPrev: () -> Unit, onNext: () -> Unit, onBookmark: () -> Unit, onConfig: () -> Unit,
+    /** The close "X" (always shown, disabled while speech plays): stops speech if needed and hides the bar. */
+    onClose: () -> Unit = {},
     /**
      * Round 12b §3: consume the bottom navigation-bar inset. `true` only when this bar is the
      * bottom-most one in the reading view (`agentLogOwnsNavBarInset`'s complement).
@@ -114,12 +118,31 @@ fun SpeakTransportBar(
                 // changes with playback state. Gating this Text would make the bar's height jump whenever
                 // speech starts/stops (A/B batch 2 F4 fix wave). An empty string still reserves its line
                 // height, so the bar stays a constant height either way.
-                Text(
-                    state.statusText,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
-                )
+                // The X is overlaid on the status line's end (a Box, so the bar keeps its pre-#4199 height in
+                // every state): matchParentSize does not contribute to the Box's size, and the button's
+                // requiredSize may overflow the line a little. The text reserves the X's width at its end so it
+                // never runs under it; Start/End padding mirrors in RTL. Always present, so playback state
+                // never changes the layout.
+                Box(Modifier.fillMaxWidth()) {
+                    Text(
+                        state.statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth().padding(
+                            start = 12.dp, end = SpeakCloseTarget + 4.dp, top = 4.dp, bottom = 4.dp,
+                        ),
+                    )
+                    Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterEnd) {
+                        // Disabled (dimmed, inert) while speech plays.
+                        IconButton(
+                            onClick = onClose, enabled = speakCloseEnabled(state),
+                            modifier = Modifier.requiredSize(SpeakCloseTarget),
+                        ) {
+                            Icon(Icons.Filled.Close, contentDescription = strings.speakCloseBar,
+                                modifier = Modifier.size(20.dp))
+                        }
+                    }
+                }
                 Row(
                     Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -173,3 +196,9 @@ fun ChooseSpeakBookmarkDialog(
         onDismiss = onDismiss,
     )
 }
+
+/** The close "X" can be used whenever speech is not playing (stopped or paused); while playing it is disabled. */
+internal fun speakCloseEnabled(state: SpeakTransportVd): Boolean = !state.playing
+
+/** Touch target of the speak bar's close X: a little taller than the status line it overlays. */
+private val SpeakCloseTarget = 40.dp

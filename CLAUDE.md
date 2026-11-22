@@ -45,6 +45,7 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 
 Release builds are R8-obfuscated (all flavours but `fdroid`): keep rules for reflective code, where each release's
 `mapping.txt` goes and how to retrace a crash (`scripts/retrace-crash.sh`) are in [docs/r8-obfuscation.md](docs/r8-obfuscation.md).
+To read a crash, ANR or logcat from a release build, use the `android-crash-retrace` skill.
 
 ### Common Build Commands
 
@@ -72,7 +73,7 @@ npm run build-production # Production build
 
 **Makefile Commands**
 ```bash
-make increment-version      # Bump version number
+make bump-version           # Bump version + changelog commit (then make release-internal; GitHub: make github-release-beta COMMIT=<sha> on the host)
 make instrumented-tests     # Run Android instrumented tests
 make accrescent            # Build Accrescent release APK
 ```

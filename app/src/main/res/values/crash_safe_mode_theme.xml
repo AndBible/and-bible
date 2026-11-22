@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- #4176: the crash safe mode is a plain platform Activity (no AppCompat, no Compose). -->
+    <style name="Theme.AbCrashSafeMode" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

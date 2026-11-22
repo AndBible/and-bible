@@ -78,10 +78,7 @@ class SelfLaunchRouteKindGuardTest {
         NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?'),
         NavRoutes.BOOKMARKS_PATTERN.substringBefore('?'),
         NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?'),
-        NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?'),
         NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?'),
-        NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
-        NavRoutes.CHOOSE_MAP_KEY,
         NavRoutes.CHOOSE_DICTIONARY_WORD,
         NavRoutes.WORKSPACE_SELECTOR,
     )
@@ -93,14 +90,11 @@ class SelfLaunchRouteKindGuardTest {
         "readingProgress" to NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?'),
         "bookmarks" to NavRoutes.BOOKMARKS_PATTERN.substringBefore('?'),
         "myDocuments" to NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?'),
-        "gridChoosePassage" to NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?'),
         "chooseDocument" to NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?'),
     )
 
-    /** Slice 8 B4: argument-free routes spelled as constants -- `NavRoutes.CHOOSE_GENERAL_BOOK_KEY` has no `(`. */
+    /** Slice 8 B4: argument-free routes spelled as constants -- `NavRoutes.CHOOSE_DICTIONARY_WORD` has no `(`. */
     private val constToBase = mapOf(
-        "CHOOSE_GENERAL_BOOK_KEY" to NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
-        "CHOOSE_MAP_KEY" to NavRoutes.CHOOSE_MAP_KEY,
         "CHOOSE_DICTIONARY_WORD" to NavRoutes.CHOOSE_DICTIONARY_WORD,
         "WORKSPACE_SELECTOR" to NavRoutes.WORKSPACE_SELECTOR,
     )

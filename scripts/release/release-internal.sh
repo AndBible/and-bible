@@ -243,12 +243,27 @@ status_of() {   # status_of <name> <wanted>: PASS|FAIL|SKIPPED and seconds
 read -r A_ST A_S <<<"$(status_of android "$WANT_A")"
 read -r I_ST I_S <<<"$(status_of ios "$WANT_I")"
 I_BUILD=$(sed -n 's/^build \([0-9][0-9.]*\)$/\1/p' "$RUN_DIR/ios/branch.log" 2>/dev/null | tail -n 1)
+# The GitHub release comes after the maintainer has tested this internal build, and it tags exactly this commit
+# (scripts/github-release.sh). A local tag internal-<versionCode> marks it (moved by a later upload of the same
+# version from another commit); the summary prints the full command, which works even where the tag does not travel.
+GH_LINE=""
+if [ "$DRY" = 0 ] && [ "$DEST" = upload ] && { [ "$A_ST" = PASS ] || [ "$I_ST" = PASS ]; }; then
+    FULL_COMMIT=$(git -C "$REPO" rev-parse HEAD)
+    git -C "$REPO" tag -f "internal-$VC" "$FULL_COMMIT" >/dev/null 2>&1 || echo "release: could not set the local tag internal-$VC" >&2
+    case "$(_version_get versionNameSuffix)" in
+    -beta) GH_TARGET=github-release-beta ;;
+    "") GH_TARGET=github-release ;;
+    *) GH_TARGET=github-release-test ;;
+    esac
+    GH_LINE="github: after testing, on the host: make $GH_TARGET COMMIT=$FULL_COMMIT"
+fi
 {
     echo "release-internal $(date -u +%Y-%m-%dT%H:%M:%SZ) commit $COMMIT versionCode $VC destination $DEST$([ "$DRY" = 1 ] && echo ' (dry run)') total $(( $(date +%s) - T0 ))s"
     echo "android: $A_ST $VN_A ${A_S}s$([ "$A_REUSE" = 1 ] && echo ' reused')  $RUN_DIR/android/ (andbible-$VN_A.aab, branch.log)"
     echo "ios: $I_ST $VN_I build ${I_BUILD:--} ${I_S}s$([ -n "$I_REUSE" ] && echo ' reused')  $RUN_DIR/ios/branch.log${I_BUILD:+ .local/release/testflight/$I_BUILD/}"
     [ "$A_ST" != FAIL ] || echo "retry: make release-internal PLATFORM=android$([ "$DEST" = export ] && echo ' DEST=export')"
     [ "$I_ST" != FAIL ] || echo "retry: make release-internal PLATFORM=ios$([ "$DEST" = export ] && echo ' DEST=export')"
+    [ -z "$GH_LINE" ] || echo "$GH_LINE"
     echo "host: jailbee unmount release-secrets $CONTAINER"
     if [ "$WANT_A" = 1 ] && [ "$DEST" = upload ]; then for h in "${PLAY_HOSTS[@]}"; do echo "host: jailbee net egress rm $h $CONTAINER"; done; fi
 } > "$SUMMARY"

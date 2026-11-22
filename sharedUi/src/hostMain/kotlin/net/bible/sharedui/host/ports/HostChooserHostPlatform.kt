@@ -21,93 +21,33 @@ package net.bible.sharedui.host.ports
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.BackupHost
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.CurrentGeneralBookPage
-import net.bible.android.control.page.CurrentMapPage
-import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.navigation.DocRowMapper
-import net.bible.android.view.activity.navigation.buildGridStep
-import net.bible.android.view.activity.navigation.initialGridOptions
-import net.bible.android.view.activity.navigation.persistGridOptions
-import net.bible.android.view.activity.navigation.pickGridBook
-import net.bible.android.view.activity.navigation.pickGridChapter
-import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.navigation.DocRow
-import net.bible.sharedcore.navigation.GridChoosePassageController
-import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedui.app.chooser.ChooserHostPlatform
-import net.bible.sharedui.assembly.HostWindowMetrics
 import net.bible.sharedui.app.chooser.ChooserOverflowItem
 import net.bible.sharedui.icons.AbIcons
 import net.bible.sharedui.strings.keyed.StringTable
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
 import org.jetbrains.compose.resources.painterResource
 import org.koin.core.Koin
 
-/** Chooser adapters over the shared mapping, key and passage-grid contracts. */
+/** Chooser adapters over the shared mapping and key contracts. */
 @kotlin.native.HiddenFromObjC
 class HostChooserHostPlatform(
     private val koin: Koin,
     private val hostScope: CoroutineScope,
     private val table: () -> StringTable,
-    private val metrics: HostWindowMetrics,
 ) : ChooserHostPlatform {
     override fun backupModules() {
         hostScope.launch { koin.get<BackupControl>().backupModulesViaIntent(koin.get<BackupHost>()) }
     }
 
-    override suspend fun generalBookKeys(page: CurrentGeneralBookPage): List<Key> =
-        withContext(Dispatchers.IO) { page.keyChooserKeys() }
-
-    override fun mapKeys(page: CurrentMapPage): List<Key> = page.keyChooserKeys()
-
-    override fun gridChoosePassageController(
-        scope: CoroutineScope,
-        isScripture: Boolean,
-        onResult: (PassageResult) -> Unit,
-    ): GridChoosePassageController {
-        val navigation = koin.get<NavigationControl>()
-        val windows = koin.get<WindowControl>()
-        val settings = koin.get<AppSettings>()
-        val navigateToVerse = settings.getBoolean("navigate_to_verse_pref", false)
-        var selectedBookNo = 0
-        var selectedChapter = 1
-        return GridChoosePassageController(
-            scope = scope,
-            initialOptions = initialGridOptions(navigation, isScripture, settings),
-            buildStep = { step, options ->
-                // Read the current table on each build, not when the platform/controller was created.
-                buildGridStep(step, options, table().text("choosePassageBookName"), windows.windowRepository.name,
-                    selectedBookNo, selectedChapter, navigation, windows,
-                    metrics.isPortrait)
-            },
-            onPersistOptions = { persistGridOptions(it, navigation, settings) },
-            onPickBook = { bookNo ->
-                selectedBookNo = bookNo
-                pickGridBook(bookNo, navigateToVerse, navigation) { selectedChapter = it }
-            },
-            onPickChapter = { chapter ->
-                selectedChapter = chapter
-                pickGridChapter(chapter, selectedBookNo, navigateToVerse, navigation, windows)
-            },
-            onPickVerse = { verse ->
-                Verse(navigation.versification, BibleBook.values()[selectedBookNo], selectedChapter, verse).getOsisID()
-            },
-            onFinish = { onResult(PassageResult(verse = it)) },
-        )
-    }
 
     override fun docRows(books: List<Book>): List<DocRow> {
         val mapper = DocRowMapper(koin.get<DownloadControl>(), books)

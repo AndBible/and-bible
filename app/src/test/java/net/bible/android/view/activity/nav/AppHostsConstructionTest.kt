@@ -96,7 +96,7 @@ class AppHostsConstructionTest {
             val nav = NavHostController(activity)
             val graphs = standalone.graphs(nav, channels())
             listOf(
-                graphs.ai, graphs.bookmark, graphs.readingPlan, graphs.search, graphs.settings, graphs.download,
+                graphs.ai, graphs.bookmark, graphs.readingPlan, graphs.settings, graphs.download,
                 graphs.myDocuments, graphs.chooser, graphs.workspace, graphs.backup, graphs.installZip, graphs.welcome,
             ).forEach { assertNotNull(it) }
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
@@ -125,7 +125,6 @@ class AppHostsConstructionTest {
         myDocumentPages = NavResultChannel { },
         myDocuments = NavResultChannel { },
         keyChooser = NavResultChannel { },
-        passage = NavResultChannel { },
         document = NavResultChannel { },
         installZip = NavResultChannel { },
         workspace = NavResultChannel { },

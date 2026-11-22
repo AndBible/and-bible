@@ -81,6 +81,10 @@ class CloudDocumentsController(
     // moveSortCriterion commit synchronously, same as before this fix — a host that cares about the
     // debounced behavior (i.e. the real cloud-documents screen) supplies its lifecycleScope.
     private val scope: CoroutineScope? = null,
+    // #4180: a status/category filter change asks the host to re-read the listing cache (the
+    // in-memory `_items` may be stale, e.g. seeded before a sync filled the cache). The host
+    // answers with [setItems]; the filter itself already applied to the current items.
+    private val onFilterChange: () -> Unit = {},
 ) {
     // No LANGUAGE or REPOSITORY: a cloud listing has neither. No RECOMMENDED: nothing marks a
     // synced document as recommended.
@@ -201,10 +205,35 @@ class CloudDocumentsController(
         refilter(resetSelection = false)
     }
 
+    /** Bumped by every [setItems]; lets a slow cache read detect that a newer list landed meanwhile ([setItemsIfUnchanged]). */
+    var itemsGeneration: Int = 0
+        private set
+
+    /**
+     * Optimistic Remove/Purge confirmed by the user whose queued operation may not have touched the listing cache
+     * yet (#4180): a document sync that is already running runs them only when their turn comes, so a cache
+     * re-read in the meantime would bring the row back. They are re-applied over every [setItems] until the sync
+     * ends ([onSyncEnded]).
+     */
+    private val pendingOperations = mutableListOf<Pair<Boolean, String>>() // (isPurge, initials)
+
+    /** The running sync finished, so the listing cache and the network scan are authoritative again. */
+    fun onSyncEnded() { pendingOperations.clear() }
+
+    /** [setItems], unless another [setItems] landed since [generation] was read; true when applied. */
+    fun setItemsIfUnchanged(generation: Int, items: List<CloudDocItem>): Boolean {
+        if (generation != itemsGeneration) return false
+        setItems(items)
+        return true
+    }
+
     fun setItems(items: List<CloudDocItem>) {
-        _items.value = items
+        itemsGeneration++
+        _items.value = pendingOperations.fold(items) { acc, (purge, initials) ->
+            if (purge) applyOptimisticPurge(acc, initials) else applyOptimisticRemoval(acc, initials, syncEnabled())
+        }
         if (_selectionMode.value) {
-            val present = items.mapTo(mutableSetOf()) { it.initials }
+            val present = _items.value.mapTo(mutableSetOf()) { it.initials }
             _selectedIds.value = _selectedIds.value.intersect(present)
         }
         refilter(resetSelection = false)
@@ -219,8 +248,8 @@ class CloudDocumentsController(
         refilter(resetSelection = false)
     }
 
-    fun setStatusFilter(f: CloudDocFilter) { _statusFilter.value = f; refilter(resetSelection = true) }
-    fun setCategoryFilter(c: DocCategory?) { _categoryFilter.value = c; refilter(resetSelection = true) }
+    fun setStatusFilter(f: CloudDocFilter) { _statusFilter.value = f; refilter(resetSelection = true); onFilterChange() }
+    fun setCategoryFilter(c: DocCategory?) { _categoryFilter.value = c; refilter(resetSelection = true); onFilterChange() }
     fun setQuery(q: String) { _query.value = q; refilter(resetSelection = true) }
     fun openSearch() = searchMode.open()
     fun closeSearch() = searchMode.close()
@@ -306,8 +335,14 @@ class CloudDocumentsController(
 
     fun dismissDialog() { _dialog.value = CloudDocumentsDialog.None }
 
-    fun applyRemoval(initials: String) { _items.value = applyOptimisticRemoval(_items.value, initials, syncEnabled()); refilter(false) }
-    fun applyPurge(initials: String) { _items.value = applyOptimisticPurge(_items.value, initials); refilter(false) }
+    fun applyRemoval(initials: String) {
+        pendingOperations += false to initials
+        _items.value = applyOptimisticRemoval(_items.value, initials, syncEnabled()); refilter(false)
+    }
+    fun applyPurge(initials: String) {
+        pendingOperations += true to initials
+        _items.value = applyOptimisticPurge(_items.value, initials); refilter(false)
+    }
     fun setBlocked(initials: String, blocked: Boolean) {
         _items.value = _items.value.map { if (it.initials == initials) it.copy(blocked = blocked) else it }
         refilter(false)

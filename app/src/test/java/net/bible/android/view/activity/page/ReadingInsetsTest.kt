@@ -15,12 +15,14 @@ import org.robolectric.annotation.Config
 class ReadingInsetsTest {
     private var transport = false
     private var rail = false
+    private var underButtons = false
 
     private fun insets() = ReadingInsets(ReadingInsetsHostCallbacks(
         transportBarVisible = { transport }, transportBarHeight = { 100 },
         agentLogVisible = { false }, agentLogHeight = { 0 },
         restoreButtonsVisible = { rail }, windowButtonHeight = { 53 },
         composeSearchFieldFocused = { false }, applyImeBottomPadding = {},
+        textUnderWindowButtons = { underButtons },
     )).apply { onWindowInsetsApplied(Insets.of(0, 0, 0, 39), Insets.NONE) }
 
     @Test fun withTheSpeakBarUpTheWebViewNeedsNoBottomOffset() { transport = true; assertEquals(0, insets().bottomOffsetForWebView) }
@@ -44,6 +46,20 @@ class ReadingInsetsTest {
         assertEquals(0, i.bottomOffsetForWindow("left", true))
     }
 
+    /** #4184: text under the window buttons keeps the nav bar reserved but drops the rail strip, read live. */
+    @Test fun textUnderWindowButtonsReservesOnlyTheNavBarUnderTheRail() {
+        rail = true
+        val i = insets()
+        i.setRailCoveredWindows(setOf("left", "right"))
+        assertEquals(92, i.bottomOffsetForWindow("left", true))
+        underButtons = true
+        assertEquals(39, i.bottomOffsetForWindow("left", true))
+        assertEquals(39, i.bottomOffsetForWindow("right", true))
+        assertEquals(0, i.bottomOffsetForWindow("left", false))
+        assertEquals(39, i.bottomOffsetForWebView)
+        transport = true // the speak bar pads the nav bar: nothing left to reserve
+        assertEquals(0, i.bottomOffsetForWindow("left", true))
+    }
     @Test fun reportedBottomWindowsReplaceTheHostPortraitRule() {
         rail = true
         val i = insets()

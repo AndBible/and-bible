@@ -34,6 +34,7 @@ import java.util.Locale
 class DesktopSyncSettingsPlatform(
     private val prefs: DeviceLocalPrefs,
     private val secrets: SecretStore,
+    private val nextcloudUrlHint: () -> String = { "" },
     private val serverUrlHint: () -> String,
 ) : SyncSettingsPlatform {
     override fun credential(key: String): String =
@@ -70,4 +71,5 @@ class DesktopSyncSettingsPlatform(
 
     override val webDavState: WebDavStateStore get() = DesktopWebDavStateStore(prefs)
     override val webDavServerUrlHint: String get() = serverUrlHint()
+    override val nextcloudServerUrlHint: String get() = nextcloudUrlHint()
 }

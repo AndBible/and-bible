@@ -82,6 +82,9 @@ not repeated.
 - Evidence that matters (screenshots, logs a reviewer needs): a committed status note under
   `docs/superpowers/status/<topic>/` with its images. Scratch goes in the `.local/<topic>/` folder the brief names,
   never in `/tmp` or the scratchpad when the orchestrator needs to see it.
+- A visible change (UI, theme, dialog, widget, layout): name its screenshots in `done`, before/after pairs when
+  you can (golden paths before and after, emulator or desktop shots), so the orchestrator can post them on the
+  issue (`issue-management` Flow 4).
 - Before `done` (`docs/superpowers/CLAUDE.md`, "Disk hygiene in `.local/`"): delete your own `.local` scratch,
   run `scripts/mac-remote.sh cleanup` if you used the Mac, stop your emulator, Windows VM, Linux desktop session
   and Gradle daemons (`./gradlew --stop`), release held tokens. Name what you kept and why.
@@ -90,7 +93,9 @@ not repeated.
 
 ## `done` report
 
-Send with `--wait` (base skill). Use these headings; write "none" rather than dropping one.
+Send with `--wait` (base skill) as the `done` kind (`jailbee inbox send done ...`), never as a `note` or
+`message`: only `done` imports your branch (2026-11-21: three children sent the report as a note and sat idle).
+Use these headings; write "none" rather than dropping one.
 
 ```text
 Branch / HEAD: <branch> <sha>

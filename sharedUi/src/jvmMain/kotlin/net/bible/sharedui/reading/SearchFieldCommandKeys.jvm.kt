@@ -19,3 +19,5 @@ internal actual fun searchResultKeyCharacter(event: KeyEvent): String? {
 }
 
 internal actual fun isHardwareKeyEvent(event: KeyEvent): Boolean = true
+
+internal actual val searchResultsAlwaysTakeFocus: Boolean = true

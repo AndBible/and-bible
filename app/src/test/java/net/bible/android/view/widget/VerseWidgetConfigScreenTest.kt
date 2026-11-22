@@ -1,11 +1,14 @@
 package net.bible.android.view.widget
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import net.bible.android.TEST_SDK
 import net.bible.android.control.widget.VerseBible
 import net.bible.android.control.widget.VerseChangeFrequency
@@ -84,5 +87,45 @@ class VerseWidgetConfigScreenTest {
         show(options(plan = false), VerseWidgetConfig(VerseSource.ReadingPlan, seed = 7L)) { saved = it }
         compose.onNodeWithTag("verse-config-save").performClick()
         assertEquals(VerseSource.Random(VerseSource.RandomPart.WHOLE_BIBLE), saved!!.source)
+    }
+
+    /** #4190: with hundreds of labels the plain content exceeded AbAlertDialog's 10000dp bound and cut off the Bible list. */
+    @Test fun lastBibleIsReachableWithHundredsOfLabels() {
+        var saved: VerseWidgetConfig? = null
+        val labels = (1..300).map { IdType() to "Label %03d".format(it) }
+        val o = VerseConfigOptions(
+            labels = labels,
+            bibles = (1..5).map { VerseBible("B$it", "B$it", "English") },
+            defaultBible = VerseBible("KJV", "KJV", "KJV"),
+            hasReadingPlan = true,
+        )
+        show(o, VerseWidgetConfig(VerseSource.Label(labels.first().first), seed = 1L)) { saved = it }
+        compose.onNodeWithTag("bible-B5").performScrollTo().performClick()
+        compose.onNodeWithTag("verse-config-save").performClick()
+        assertEquals("B5", saved!!.bibleInitials)
+    }
+
+    private fun manyLabels() = (1..300).map { IdType() to "Label %03d".format(it) }
+    private fun manyLabelOptions(labels: List<Pair<IdType, String>>) = VerseConfigOptions(
+        labels = labels, bibles = listOf(VerseBible("KJV", "KJV", "KJV")),
+        defaultBible = VerseBible("KJV", "KJV", "KJV"), hasReadingPlan = false,
+    )
+
+    /** #4190 follow-up: a label far down the lazy list can be scrolled to and selected. */
+    @Test fun farDownLabelCanBeScrolledToAndSelected() {
+        var saved: VerseWidgetConfig? = null
+        val labels = manyLabels()
+        show(manyLabelOptions(labels), VerseWidgetConfig(VerseSource.Label(labels.first().first), seed = 1L)) { saved = it }
+        compose.onNodeWithTag("label-list").performScrollToNode(hasTestTag("label-Label 250"))
+        compose.onNodeWithTag("label-Label 250").performClick()
+        compose.onNodeWithTag("verse-config-save").performClick()
+        assertEquals(VerseSource.Label(labels[249].first), saved!!.source)
+    }
+
+    /** #4190 follow-up: a preselected far-down label is visible when the dialog opens. */
+    @Test fun preselectedFarDownLabelIsVisibleOnOpen() {
+        val labels = manyLabels()
+        show(manyLabelOptions(labels), VerseWidgetConfig(VerseSource.Label(labels[199].first), seed = 1L))
+        compose.onNodeWithTag("label-Label 200").assertIsDisplayed()
     }
 }

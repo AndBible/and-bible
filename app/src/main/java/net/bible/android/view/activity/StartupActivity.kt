@@ -35,6 +35,9 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpinnerBinding
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.control.report.StartupCrashGuard
+import net.bible.android.view.activity.backup.BackupNavigation
+import net.bible.android.view.activity.base.CrashSafeModeActivity
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.mountAppDialogOverlay
@@ -120,6 +123,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
+        // #4176: crash safe mode; the report screen has taken over.
+        if (routedAwayAtStart) return
         // A recreate() re-runs onCreate with the same intent: route Google's redirect only on the first creation.
         if (savedInstanceState == null) {
             when (routeOAuthRedirect(intent)) {
@@ -146,7 +151,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         lifecycleScope.launch {
             if (!checkForExternalStorage()) return@launch
-            if(!BuildVariant.Appearance.isDiscrete) {
+            // With the calculator on, nothing of the app may show before the PIN: the check follows the calculator.
+            if(!CommonUtils.showCalculator) {
                 ErrorReportControl.checkCrash(this@StartupActivity)
             }
             // fixNightMode() for StartupActivity needs to be here
@@ -155,6 +161,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 delay(250)
                 recreate()
                 return@launch
+            }
+
+            // #4176: "Backup & Restore" from the crash safe mode: before the databases are opened, as in checkCrash.
+            if (intent.getBooleanExtra(CrashSafeModeActivity.EXTRA_OPEN_BACKUP, false)) {
+                intent.removeExtra(CrashSafeModeActivity.EXTRA_OPEN_BACKUP)
+                if (!BuildVariant.Appearance.isDiscrete) BackupNavigation.backupPopup(this@StartupActivity)
             }
 
             // switch back to ui thread to continue
@@ -194,7 +206,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
      */
     private suspend fun initializeDatabase(): Boolean {
         val opened = openAskingOnCorruption(
-            open = { withContext(Dispatchers.IO) { DatabaseContainer.openForUse() } },
+            // #4176: a crash or a native death in the open is a startup crash: the next start offers the report.
+            open = { withContext(Dispatchers.IO) { StartupCrashGuard.phase(StartupCrashGuard.PHASE_DATABASES) { DatabaseContainer.openForUse() } } },
             ask = { ErrorReportControl.showCorruptDatabaseDialog(this, it) },
             reset = { withContext(Dispatchers.IO) { DatabaseContainer.resetCorruptDatabases(it) } },
             resetFailed = { ErrorReportControl.showCorruptDatabaseResetFailed(this, it) },
@@ -209,7 +222,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             calculator = { checkCalculator() },
             databases = { initializeDatabase() },
             discreteCrashCheck = {
-                if (BuildVariant.Appearance.isDiscrete) ErrorReportControl.checkCrash(this@StartupActivity)
+                if (CommonUtils.showCalculator) ErrorReportControl.checkCrash(this@StartupActivity)
             },
         )
         if (!passed) return@withContext
@@ -235,7 +248,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         lifecycleScope.launch(Dispatchers.Main) {
             unlockLockedBiblesIfNoneUsable(net.bible.service.sword.BookUnlocker { CommonUtils.unlockDocument(this@StartupActivity, it) })
             val route = startRouteForBoot(hasUsableBible())
-            if (route == NavRoutes.READING) CommonUtils.initializeAppCoroutine()
+            if (route == NavRoutes.READING) {
+                StartupCrashGuard.phase(StartupCrashGuard.PHASE_INITIALIZE_APP) { CommonUtils.initializeAppCoroutine() }
+            }
             comingFromStartupActivity = true
             startActivity(bootHandoffIntent(this@StartupActivity, intent, route))
             finish()

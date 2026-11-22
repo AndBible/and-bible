@@ -45,7 +45,6 @@ import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.nav.ReadingResultCollector
@@ -58,7 +57,7 @@ import org.crosswire.jsword.passage.VerseFactory
 /** The chooser screens whose answers the reading view applies. */
 @kotlin.native.HiddenFromObjC
 enum class ChooserKind {
-    KeyChooser, Passage, Document, MyDocumentPages, MyDocuments,
+    KeyChooser, Document, MyDocumentPages, MyDocuments,
 
     /** The bookmark list's picked row (Android's `ReadingResultKind.Bookmarks`). */
     Bookmarks,
@@ -98,7 +97,7 @@ interface ChooserTarget {
     /** Android's `KeyChooserResults.applyChosenDocument`. */
     fun applyDocument(bookInitials: String?)
 
-    /** Android's `applyChosenVerse` for a passage-grid answer (a malformed OSIS id only toasts). */
+    /** Android's `applyChosenVerse` for the passage sheet's answer (a malformed OSIS id only toasts). */
     fun applyVerse(osisId: String)
 
     /** Android's `KeyChooserResults.apply` for a general-book, map or dictionary key. */
@@ -118,7 +117,7 @@ interface ChooserTarget {
 }
 
 /**
- * Applies the answers of the document, key, passage and My Documents choosers to the window that asked, as Android's
+ * Applies the answers of the document, key and My Documents choosers to the window that asked, as Android's
  * `ReadingNavDeps.results` collectors do through `ReadingCommands`/`KeyChooserResults`. The navigator records each
  * request with the asking window ([asked]); the collectors ([collectors], composed by the reading destination) claim an
  * answer only for a recorded request and drop an unasked one (logged). The answer goes to the window that ASKED, also
@@ -131,7 +130,6 @@ interface ChooserTarget {
 @kotlin.native.HiddenFromObjC
 class HostReadingResults(
     private val keyChooser: NavResultChannel<KeyChooserResult>,
-    private val passage: NavResultChannel<PassageResult>,
     private val document: NavResultChannel<DocumentResult>,
     private val myDocumentPages: NavResultChannel<MyDocumentPagesResult>,
     private val myDocuments: NavResultChannel<MyDocumentsResult>,
@@ -178,8 +176,6 @@ class HostReadingResults(
 
     internal fun onKeyChooser(result: KeyChooserResult) = deliver(ChooserKind.KeyChooser, result) { t, r -> t.applyKey(r) }
 
-    internal fun onPassage(result: PassageResult) = deliver(ChooserKind.Passage, result) { t, r -> t.applyVerse(r.verse) }
-
     internal fun onBookmark(result: BookmarkResult) = deliver(ChooserKind.Bookmarks, result) { t, r -> t.applyBookmark(r) }
 
     internal fun onReadingProgress(result: ReadingProgressResult) =
@@ -222,7 +218,6 @@ class HostReadingResults(
     fun readingReached() {
         val pending = mapOf(
             ChooserKind.KeyChooser to (keyChooser.pending.value != null),
-            ChooserKind.Passage to (passage.pending.value != null),
             ChooserKind.Document to (document.pending.value != null),
             ChooserKind.MyDocumentPages to (myDocumentPages.pending.value != null || myDocuments.pending.value != null),
             ChooserKind.MyDocuments to (myDocuments.pending.value != null),
@@ -244,7 +239,6 @@ class HostReadingResults(
     /** The collectors the reading destination composes (`ReadingNavDeps.results`). */
     fun collectors(): List<ReadingResultCollector<*>> = listOf(
         ReadingResultCollector(keyChooser, { isAwaiting(ChooserKind.KeyChooser) }, ::onKeyChooser) { dropped(ChooserKind.KeyChooser) },
-        ReadingResultCollector(passage, { isAwaiting(ChooserKind.Passage) }, ::onPassage) { dropped(ChooserKind.Passage) },
         ReadingResultCollector(document, { isAwaiting(ChooserKind.Document) }, ::onDocument) { dropped(ChooserKind.Document) },
         ReadingResultCollector(myDocumentPages, { isAwaiting(ChooserKind.MyDocumentPages) }, ::onMyDocumentPages) { dropped(ChooserKind.MyDocumentPages) },
         ReadingResultCollector(bookmark, { isAwaiting(ChooserKind.Bookmarks) }, ::onBookmark) { dropped(ChooserKind.Bookmarks) },

@@ -46,6 +46,8 @@ emptyStudyPad: Prázdná studijní složka. Sem můžete přidávat textové poz
 doYouWantToDeleteEntry: Smazat tento obsah ze složky?
 removeStudyPadConfirmationTitle: Odstranit studijní složku?
 dragHelp: Přetažením setřídit
+addonBookmarkThisVerse: Přidat záložku k tomuto verši
+addonReadOnly: Tento obsah pochází ze sbírky doplňku a je pouze pro čtení. Použijte „Kopírovat do mých štítků“ pro získání upravitelné kopie.
 openAll: Otevřít všechny odkazy
 editBookmarkPlaceholder: Klepnutím upravíte poznámky této záložky
 onlyLabel: Pouze štítek

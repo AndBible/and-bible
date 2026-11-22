@@ -8,6 +8,7 @@ import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.utf16CodePoint
 
 /** Maps native/Compose chords to BibleView's supported commands; keep keyboard.ts in sync. */
 internal fun readingShortcut(
@@ -15,12 +16,16 @@ internal fun readingShortcut(
     iosCommandKeys: Boolean = false,
 ): String? {
     if (meta) {
-        if (!iosCommandKeys || ctrl || alt || code !in setOf("KeyF", "KeyB")) return null
+        if (!iosCommandKeys || ctrl || alt || code !in setOf("KeyF", "KeyB", "KeyL")) return null
         if (editing && code == "KeyB") return null
+        // Cmd+L = "go to reference" (desktop Ctrl+L): the page's Ctrl+B, the key chooser (#4168).
+        if (code == "KeyL") return "CtrlKeyB"
         return "Ctrl$code"
     }
     if (ctrl && alt) return null
     if (ctrl) {
+        // Physical Ctrl+L on an iPad keyboard = Cmd+L (#4177).
+        if (iosCommandKeys && code == "KeyL") return if (editing) null else "CtrlKeyB"
         if (editing && code in setOf("KeyB", "KeyC")) return null
         return if (code in setOf("KeyF", "KeyB", "KeyC", "KeyW")) "Ctrl$code" else null
     }
@@ -36,9 +41,15 @@ internal fun readingShortcutScript(code: String, ctrl: Boolean, alt: Boolean): S
 
 internal fun readingShortcut(event: KeyEvent, editing: Boolean = false, iosCommandKeys: Boolean = false): String? {
     if (event.type != KeyEventType.KeyDown) return null
+    val cp = event.utf16CodePoint
+    if (cp in 'a'.code..'z'.code || cp in 'A'.code..'Z'.code) {
+        val printed = "Key" + cp.toChar().uppercaseChar()
+        return readingShortcut(printed, event.isCtrlPressed, event.isAltPressed, event.isMetaPressed, editing, iosCommandKeys)
+    }
     val code = when (event.key) {
         Key.F -> "KeyF"
         Key.B -> "KeyB"
+        Key.L -> "KeyL"
         Key.C -> "KeyC"
         Key.W -> "KeyW"
         Key.M -> "KeyM"

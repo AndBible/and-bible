@@ -59,6 +59,8 @@ class SpeakTransportController(
     }
 
     fun stop() = transport.stop()
+    /** The bar's close "X": stops speech if needed and hides the bar. */
+    fun dismiss() = transport.dismiss()
     fun rewind() = transport.rewind()
     fun forward() = transport.forward()
     fun prevVerse() = transport.prevVerse()

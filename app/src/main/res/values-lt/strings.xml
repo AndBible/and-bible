@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
   <string name="index_create">Sukurti</string>
   <string name="rebuild_index">Perkurti indeksą</string>
-  <string name="search_in">Ieškoti čia: %s</string>
   <string name="do_in_background">Tęsti fone</string>
   <string name="rebuild_index_button">Perkurti</string>
   <string name="creating_index_for">Kuriamas %s indeksas…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">Rezultatų (%1$s): %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Pažanga</string>
-  <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
   <string name="no_tasks_running">Šiuo metu nevykdomi jokie darbai.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Ieškoti eilučių</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Išvalyti paieškos tekstą</string>
   <string name="search_engine_changed_reindex">Paieškos variklis atnaujintas. Paieškos indeksą reikia sukurti iš naujo; tai gali užtrukti.</string>
   <string name="search_unsupported_syntax">Šioje paieškoje naudojama nepalaikoma sintaksė: %s</string>
+  <string name="search_regex">Reguliarioji išraiška (eksperimentinė)</string>
+  <string name="search_regex_summary">Reguliarioji išraiška</string>
+  <string name="search_results_truncated">Paieška užtruko per ilgai ir buvo sustabdyta. Rezultatai neišsamūs; pabandykite paprastesnę išraišką.</string>
+  <string name="search_invalid_regex">Netinkama reguliarioji išraiška: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Šioje reguliariojoje išraiškoje per daug neapribotų pakaitos simbolių (pvz., .* arba \\w+). Naudokite jų mažiau arba apribokite, pavyzdžiui, .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Ši reguliarioji išraiška kartoja grupę, kurioje pačioje yra pasikartojimas, pavyzdžiui, (a+)+. Tokios išraiškos tikrinimas gali trukti begalę laiko. Perrašykite ją be įdėtų pasikartojimų.</string>
+  <string name="search_regex_busy">Ankstesnė paieška reguliariąja išraiška vis dar vykdoma fone. Pabandykite dar kartą po akimirkos; jei ji nesibaigia, paleiskite programą iš naujo.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -318,6 +323,8 @@
   <string name="hide_window_buttons_summary">Biblijos rodinio dešinėje pusėje esantys mygtukai yra paslėpti. Apačioje esanti naršymo juosta yra vis dar rodoma ir jūs galite atverti iškylantįjį langą ant jos paspaudę ir palaikę.</string>
   <string name="hide_bible_reference_overlay_title">Paslėpti Biblijos nuorodų sluoksnį</string>
   <string name="hide_bible_reference_overlay_summary">Nerodyti pusiau permatomo Biblijos nuorodų sluoksnio, kai programėlė yra atidaryta visame ekrane</string>
+  <string name="text_under_window_buttons_title">Rodyti tekstą po langų mygtukais</string>
+  <string name="text_under_window_buttons_summary">Biblijos tekstas tęsiasi iki ekrano apačios, po langų mygtukų juosta. Kai išjungta, apatiniuose languose, kuriuos juosta apima, po ja paliekama laisva juosta.</string>
   <string name="full_screen_hide_buttons_pref_title">Viso ekrano režime slėpti lango mygtukų juostą</string>
   <string name="full_screen_hide_buttons_pref_summary">Perjungiant į viso ekrano režimą, automatiškai paslėpti ekrano apačioje esančią lango mygtukų juostą</string>
   <string name="prefs_hide_status_bar_title">Slėpti būsenos juostą</string>
@@ -585,7 +592,50 @@
   <string name="sleep_timer_active_at">Miego laikas: liko %s minučių</string>
   <string name="speak_next">Kitas</string>
   <string name="speak_previous">Anstesnis</string>
+  <string name="widget_play">Groti</string>
   <string name="widget_toggle_sleep_timer">Perjungti miego laikrodį</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Garsinis skaitymas</string>
+  <string name="widget_speak_text_name">Garsinis skaitymas su tekstu</string>
+  <string name="widget_listening_list_name">Klausymo sąrašas</string>
+  <string name="widget_verse_name">Eilutė</string>
+  <string name="widget_continue_from">Tęsti nuo %1$s · %2$s</string>
+  <string name="widget_continue_listening">Tęsti klausymą</string>
+  <string name="widget_paused">Pristabdyta</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Garsinio skaitymo žymių dar nėra</string>
+  <string name="widget_listening_list_empty_text">Čia rodomos žymės su etikete „Garsinis skaitymas“. Įjunkite automatines žymes garsinio skaitymo nustatymuose arba pridėkite etiketę prie bet kurios žymės.</string>
+  <string name="widget_open_app">Atidaryti AndBible</string>
+  <string name="widget_open_app_to_load">Atidarykite AndBible, kad įkeltumėte eilutes</string>
+  <string name="widget_verse_unavailable_no_bible">Įdiekite Bibliją, kad čia matytumėte eilutes</string>
+  <string name="widget_verse_unavailable_label_missing">Šio valdiklio etiketės nebėra. Palieskite, kad pasirinktumėte eilutes.</string>
+  <string name="widget_verse_unavailable_label_empty">Ši etiketė dar neturi Biblijos žymių. Palieskite, kad pasirinktumėte kitas eilutes.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Nėra aktyvaus skaitymo plano. Palieskite, kad pasirinktumėte kitas eilutes.</string>
+  <string name="widget_verse_source_random_whole_bible">Atsitiktinė eilutė</string>
+  <string name="widget_verse_source_random_new_testament">Atsitiktinė eilutė · Naujasis Testamentas</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Atsitiktinė eilutė · Psalmės ir Patarlės</string>
+  <string name="widget_shuffle">Maišyti eilutę</string>
+  <string name="widget_speak_verse">Skaityti eilutę garsiai</string>
+  <string name="widget_verse_config_title">Eilutės valdiklis</string>
+  <string name="widget_verse_config_source_label">Eilutės iš</string>
+  <string name="widget_verse_config_source_label_option">Etiketės</string>
+  <string name="widget_verse_config_source_random">Atsitiktinė eilutė</string>
+  <string name="widget_verse_config_random_whole">Visa Biblija</string>
+  <string name="widget_verse_config_random_nt">Naujasis Testamentas</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Psalmės ir Patarlės</string>
+  <string name="widget_verse_config_source_plan">Šiandienos skaitymo planas</string>
+  <string name="widget_verse_config_changes">Keitimas</string>
+  <string name="widget_verse_config_daily">Kasdien</string>
+  <string name="widget_verse_config_every_few_hours">Kas kelias valandas</string>
+  <string name="widget_verse_config_on_shuffle">Tik kai paliečiu maišymo mygtuką</string>
+  <string name="widget_verse_config_bible">Biblija</string>
+  <string name="widget_verse_config_bible_default">Numatytoji (%s)</string>
+  <string name="widget_verse_config_show_buttons">Rodyti maišymo ir garsinio skaitymo mygtukus</string>
+  <string name="widget_verse_config_show_source">Rodyti šaltinį ir datą</string>
+  <string name="widget_verse_config_add">Pridėti valdiklį</string>
+  <string name="widget_verse_config_save">Išsaugoti</string>
+  <string name="widget_verse_source_reading_plan">Šiandienos skaitymas</string>
   <string name="speak_status_stopped">sustabdyta</string>
   <string name="speak_autobookmarking_disabled">Automatinis žymių dėjimas išjungtas!</string>
   <string name="system_speak_settings">Atverti sistemos TTS nustatymus</string>
@@ -716,6 +766,31 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="install_zip_canceled">Modulio diegimo atsisakyta</string>
   <string name="restore">Atkurti</string>
   <string name="import2">Importuoti</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kopija)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Iš priedo %1$s</string>
+  <string name="addon_label_from_module_hint">Atidaryti priedą dokumentų tvarkyklėje</string>
+  <string name="addon_label_read_only_note">Ši etiketė, jos žymės ir jos StudyPad priklauso priedui ir negali būti redaguojami. Galite pažymėti ją kaip mėgstamą, pasirinkti, kaip ją rodo ši darbo sritis, ir pasižymėti jos eilutes sau.</string>
+  <string name="addon_copy_to_my_labels">Kopijuoti į mano etiketes</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Nukopijuota į jūsų etiketę „%1$s“</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Šis turinys yra iš priedo %1$s ir negali būti keičiamas. Naudokite „Kopijuoti į mano etiketes“, kad gautumėte redaguojamą kopiją.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Šis turinys yra iš priedo ir negali būti keičiamas. Naudokite „Kopijuoti į mano etiketes“, kad gautumėte redaguojamą kopiją.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Nepavyko nukopijuoti etiketės</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">Praleistas %1$d priedų rinkinio elementas. Naudokite etiketėje „Kopijuoti į mano etiketes“, kad gautumėte savo kopiją.</item>
+    <item quantity="few">Praleisti %1$d priedų rinkinio elementai. Naudokite etiketėje „Kopijuoti į mano etiketes“, kad gautumėte savo kopiją.</item>
+    <item quantity="many">Praleisto %1$d priedų rinkinio elemento. Naudokite etiketėje „Kopijuoti į mano etiketes“, kad gautumėte savo kopiją.</item>
+    <item quantity="other">Praleista %1$d priedų rinkinio elementų. Naudokite etiketėje „Kopijuoti į mano etiketes“, kad gautumėte savo kopiją.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">„%1$s“ ir %2$s kitos etiketės / bloknotai ir %3$s žymės</string>
   <!--About-->
@@ -751,6 +826,8 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="doc_type_all">Visi tipai</string>
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentarai</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumentai</string>
   <string name="doc_type_dictionary">Žodynas</string>
   <string name="doc_type_book">Knyga</string>
   <string name="doc_type_map">Žemėlapis</string>
@@ -786,6 +863,10 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="crash_recovery_continue">Tęsti</string>
   <string name="report_error">Siųsti ataskaitą</string>
   <string name="error_occurred">Įvyko klaida</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Programa sustojo paleidimo metu</string>
+  <string name="startup_crash_detail">Atsiųskite mums pranešimą apie klaidą, kad galėtume ištaisyti problemą. Jame yra klaidos informacija ir duomenys apie jūsų įrenginį bei programos versiją.</string>
+  <string name="startup_crash_try_again">Bandyti dar kartą</string>
   <string name="error_occurred_crash_last_time">Kai paskutinį kartą naudojote programėlę, ji užstrigo. Jūs mums pagelbėtumėte ištaisyti šią klaidą, jei išsiųstumėte pranešimą apie klaidą.</string>
   <string name="error_occurred_with_link">Įvyko klaida. %s</string>
   <string name="error_no_content">Šiai eilutei nėra teksto</string>
@@ -1300,10 +1381,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="reading_progress_new_cycle">Naujas ciklas</string>
   <string name="reading_progress_previous_cycle">Ankstesnis ciklas</string>
   <string name="reading_progress_next_cycle">Kitas ciklas</string>
-  <string name="cloud_merge_data">Sujungti duomenis</string>
-  <string name="cloud_fetch_and_restore_initial">Kopijuoti iš debesijos į šį įrenginį</string>
-  <string name="cloud_create_new">Kopijuoti iš šio įrenginio į debesiją</string>
-  <string name="cloud_disable_sync">Atsisakyti ir išjungti sinchronizavimą</string>
   <string name="cloud_sync_title">Įrenginio sinchronizavimas</string>
   <string name="reset_sync">Atsijungti</string>
   <string name="prefs_reset_sync_summary">Išjungti sinchronizavimą ir atstatyti susijusius nustatymus.</string>
@@ -1319,8 +1396,21 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="google_drive_signin_interrupted">Prisijungimas prie „Google“ buvo nutrauktas. Bandykite dar kartą.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Jūsų serverio adresas, pvz., https://cloud.example.com (https:// pridedama, jei jo neįvesite)</string>
   <string name="webdav_server_url_hint">WebDAV aplanko adresas, pvz., https://nas.local/dav/ arba https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinchronizavimui reikalingas saugus https:// adresas.</string>
+  <string name="sync_waiting_for_pass">Laukiama, kol baigsis dabartinė sinchronizacija…</string>
+  <string name="sync_pending_on">Bus įjungta</string>
+  <string name="sync_pending_off">Bus išjungta</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d pakeitimas</item>
+    <item quantity="few">%1$d pakeitimai</item>
+    <item quantity="many">%1$d pakeitimo</item>
+    <item quantity="other">%1$d pakeitimų</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Taikyti sinchronizacijos pakeitimus?</string>
+  <string name="sync_checking_cloud_title">Tikrinamas debesis…</string>
+  <string name="sync_checking_cloud_text">Ieškoma duomenų, kuriuos kiti įrenginiai jau sinchronizavo.</string>
   <string name="webdav_certificate_title">Serverio sertifikatas</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nepatikimas serverio sertifikatas</string>
@@ -1338,7 +1428,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="synchronization_categories">Sinchronizavimo kategorijos</string>
   <string name="sync_general_settings">Informacija ir bendri nustatymai</string>
   <string name="sync_introduction">Įžanga</string>
-  <string name="are_you_sure_merge">Bus išsaugoti ir šiame įrenginyje esantys duomenys, ir %s debesyje. Jei tas pats elementas pakeistas abiejose vietose, išsaugomas naujesnis pakeitimas. Šio įrenginio duomenys bus išsiųsti į kitus jūsų įrenginius.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Išjungiamas debesijos sinchronizavimas. Atkūrus, privalėsite rankiniu būdu įjungti iš naujo.</string>
   <string name="report">Siųsti pranešimą</string>
@@ -1352,8 +1441,6 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="install_failed_reason">Nepavyko įdiegti modulio dėl šios priežasties: %s.</string>
   <string name="no_file_manager">Nerasta programėlė failui pasirinkti. Įdiekite failų tvarkyklę ir bandykite dar kartą.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Programėlė atverta kitur</string>
-  <string name="open_here">Atverti čia</string>
   <string name="external_link_dont_ask_again">Daugiau neklausti dėl %s</string>
   <string name="nameless">Nėra pavadinimo</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Vieno bakstelėjimo veiksmai (Biblijos)</string>
@@ -2313,18 +2400,30 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="dialog_dont_apply">Netaikyti</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Debesyje jau yra jūsų %s. Ką daryti?</string>
-  <string name="cloud_merge_consequence">Išsaugomos abi pusės; kur elementas pasikeitė abiejose, laimi naujesnis pakeitimas.</string>
-  <string name="cloud_fetch_consequence">Šio įrenginio duomenys pakeičiami debesies kopija.</string>
-  <string name="cloud_create_consequence">Debesies kopija pakeičiama šio įrenginio duomenimis.</string>
-  <string name="cloud_disable_consequence">Šių duomenų sinchronizavimas lieka išjungtas.</string>
-  <string name="cloud_merge_lead">Sujungti jūsų %s su debesimi?</string>
-  <string name="cloud_merge_confirm">Sujungti</string>
   <string name="cloud_replace_confirm">Pakeisti</string>
-  <string name="cloud_replace_local_lead">Pakeisti šio įrenginio %s debesies kopija?</string>
-  <string name="cloud_replace_local_detail">Tai, kas dabar yra šiame įrenginyje, bus perrašyta ir jos atkurti nebus galima.</string>
-  <string name="cloud_replace_cloud_lead">Pakeisti %s debesies kopiją šio įrenginio duomenimis?</string>
-  <string name="cloud_replace_cloud_detail">Tai, kas dabar yra debesyje, bus perrašyta, o kiti jūsų įrenginiai gaus šio įrenginio duomenis.</string>
+  <string name="cloud_join_plan_title">Debesyje jau yra duomenų</string>
+  <string name="cloud_join_plan_lead">Pasirinkite, ką daryti su kiekviena kategorija.</string>
+  <string name="cloud_join_merge">Sujungti</string>
+  <string name="cloud_join_merge_detail">Sujungti šį įrenginį ir debesį</string>
+  <string name="cloud_join_fetch">Kopijuoti iš debesies</string>
+  <string name="cloud_join_fetch_detail">Pakeisti šio įrenginio duomenis</string>
+  <string name="cloud_join_create">Kopijuoti į debesį</string>
+  <string name="cloud_join_create_detail">Pakeisti debesies duomenis</string>
+  <string name="cloud_join_disable">Nesinchronizuoti</string>
+  <string name="cloud_join_disable_detail">Palikti šią kategoriją išjungtą</string>
+  <string name="cloud_join_upload_note">%s: debesyje dar nėra duomenų, jie bus įkelti iš šio įrenginio.</string>
+  <string name="cloud_join_confirm_title">Pradėti sinchronizaciją?</string>
+  <string name="cloud_join_confirm_lead">Taip nutiks:</string>
+  <string name="cloud_join_outcome_merge">%s: sujungta su debesimi. Nieko neprarandama.</string>
+  <string name="cloud_join_outcome_fetch">%s: šio įrenginio duomenys pakeičiami debesies duomenimis.</string>
+  <string name="cloud_join_outcome_create">%s: debesies duomenys pakeičiami šio įrenginio duomenimis.</string>
+  <string name="cloud_join_outcome_disable">%s: lieka išjungta.</string>
+  <string name="cloud_join_outcome_upload">%s: įkelta iš šio įrenginio.</string>
+  <string name="cloud_join_warning">Pakeistų duomenų atkurti neįmanoma. Jei abejojate, pirmiausia sukurkite atsarginę kopiją.</string>
+  <string name="cloud_join_next">Toliau</string>
+  <string name="cloud_join_back">Atgal</string>
+  <string name="cloud_join_start">Pradėti sinchronizaciją</string>
+  <string name="cloud_join_replace">Pakeisti ir sinchronizuoti</string>
   <string name="sign_in_failed_lead">Nepavyko prisijungti prie sinchronizavimo paslaugos.</string>
   <string name="sync_too_old_lead">Ši programa per sena, kad sinchronizuotų %s.</string>
   <string name="sync_too_old_detail">Debesies duomenys naudoja naujesnę versiją, nei palaiko ši programa. Jų sinchronizavimas kol kas išjungtas; atnaujinkite programą, kad vėl jį įjungtumėte.</string>

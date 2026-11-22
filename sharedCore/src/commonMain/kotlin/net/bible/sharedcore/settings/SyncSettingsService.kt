@@ -70,6 +70,16 @@ object SyncCategoryKeys {
     )
 }
 
+/** Outcome of [SyncSettingsService.applyCategoryChanges]. */
+enum class ApplyResult {
+    /** Every change was made (the ons are enabled and their join is planned and arranged). */
+    Applied,
+    /** Sign-in failed or the backend is unavailable: nothing was persisted, the changes may be retried. */
+    SignInFailed,
+    /** The user cancelled the join plan, or planning failed (the user was told): offs are persisted, the ons were turned off again. Nothing is left to retry. */
+    Cancelled,
+}
+
 /**
  * Seam over the four backing stores + the interactive cloud flows. Interactive methods are `suspend`
  * so the Android impl can run the activity-bound `CloudSync.signIn`; `:sharedCore` never sees an
@@ -86,7 +96,16 @@ interface SyncSettingsService {
     suspend fun scanDocuments(): DocSyncSummaryData
 
     // Per-key writers routed to the correct backing store (impl encapsulates routing).
-    fun setCategoryEnabled(key: String, enabled: Boolean)   // sync_enable_* (non-documents)
+    /**
+     * Applies the pending category switches ([changes]: `sync_enable_*` key to the wanted value) as one batch.
+     * Signs in first when any value is true ([ApplyResult.SignInFailed], nothing persisted, when that fails). Offs are persisted at once;
+     * the ons are enabled and their join planned together (one cloud probe, one decision dialog) via the cloud-sync
+     * layer, then a synchronization pass is arranged to execute the stored decisions. [onProbed] is called once the
+     * cloud has been probed (the point from which the interactive dialog is the cloud layer's). Returns [ApplyResult.Applied], [ApplyResult.SignInFailed]
+     * or [ApplyResult.Cancelled] (the plan was cancelled; the ons are turned off again); a cancellation of the
+     * caller also turns the ons off and is rethrown.
+     */
+    suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit = {}): ApplyResult
     fun setDocumentsEnabled(summary: DocSyncSummaryData)     // sync_enable_documents ON
     fun disableDocuments()                                   // sync_enable_documents OFF
     fun setDocumentSyncToggle(key: String, value: Boolean)  // sync_documents_auto_* / wifi_only
@@ -153,6 +172,16 @@ data class SyncSettingsLabels(
     val certificateTitle: String,
     val forgetCertificateMessage: String,
     val httpsRequiredMessage: String,
+    // pending category switches (Apply bar, leave and checking dialogs)
+    val pendingOn: String,
+    val pendingOff: String,
+    val pendingChanges: (Int) -> String,
+    val applyLabel: String,
+    val discardLabel: String,
+    val cancelLabel: String,
+    val leavePendingTitle: String,
+    val checkingCloudTitle: String,
+    val checkingCloudText: String,
 ) {
     companion object {
         fun forTest() = SyncSettingsLabels(
@@ -175,6 +204,12 @@ data class SyncSettingsLabels(
             documentsEnableDialogTitle = "Enable document sync",
             certificateTitle = "Server certificate", forgetCertificateMessage = "Forget certificate?",
             httpsRequiredMessage = "HTTPS required",
+            pendingOn = "Will be turned on", pendingOff = "Will be turned off",
+            pendingChanges = { n -> if (n == 1) "1 change" else "$n changes" },
+            applyLabel = "Apply", discardLabel = "Discard", cancelLabel = "Cancel",
+            leavePendingTitle = "Apply your sync changes?",
+            checkingCloudTitle = "Checking the cloud…",
+            checkingCloudText = "Looking for data that other devices have already synchronized.",
         )
     }
 }
@@ -186,6 +221,10 @@ sealed interface SyncDialog {
     data class ResetConfirm(val message: String) : SyncDialog
     data class UrlError(val message: String, val httpsRequired: Boolean = false) : SyncDialog
     data class ForgetCertificate(val message: String) : SyncDialog
+    /** Blocking progress while Apply probes the cloud; Cancel reverts the just-enabled categories. */
+    data object CheckingCloud : SyncDialog
+    /** Back was pressed with pending category switches: Apply / Discard / Cancel (stay). */
+    data object LeaveWithPending : SyncDialog
 }
 
 /** Full UI state: the declarative settings list plus transient blocking/dialog state. */
@@ -193,4 +232,8 @@ data class SyncSettingsUiState(
     val screen: SettingsScreenState,
     val loading: Boolean = false,
     val dialog: SyncDialog = SyncDialog.None,
+    /** Category switches not applied yet: `sync_enable_*` key to the wanted value. */
+    val pending: Map<String, Boolean> = emptyMap(),
+    /** An Apply is running (checking dialog, blocking overlay or the host's plan dialog): the Apply bar stays hidden. */
+    val applying: Boolean = false,
 )

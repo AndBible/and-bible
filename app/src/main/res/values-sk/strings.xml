@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Po skončení indexovania sa zobrazí sa obrazovka hľadania.</string>
   <string name="index_create">Vytvoriť</string>
   <string name="rebuild_index">Znova vytvor index</string>
-  <string name="search_in">Hľadať v %s</string>
   <string name="do_in_background">Pokračovať na pozadí</string>
   <string name="rebuild_index_button">Znova vytvoriť</string>
   <string name="creating_index_for">Vytváranie indexu pre %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s výsledkov v %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Priebeh</string>
-  <string name="task_kill_warning">Tieto dlho trvajúce úlohy môžu byť zrušené, ak sa prepnete na inú aplikáciu pre ich dokončením.</string>
   <string name="no_tasks_running">Nie sú spustené žiadne úlohy.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Hľadať verše</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Vymazať text vyhľadávania</string>
   <string name="search_engine_changed_reindex">Vyhľadávací nástroj bol aktualizovaný. Vyhľadávací index je potrebné vytvoriť znova; môže to chvíľu trvať.</string>
   <string name="search_unsupported_syntax">Toto vyhľadávanie používa nepodporovanú syntax: %s</string>
+  <string name="search_regex">Regulárny výraz (experimentálne)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Vyhľadávanie trvalo príliš dlho a bolo zastavené. Výsledky sú neúplné; skúste jednoduchší výraz.</string>
+  <string name="search_invalid_regex">Neplatný regulárny výraz: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Tento regulárny výraz má príliš veľa neohraničených zástupných znakov (napríklad .* alebo \\w+). Použite ich menej alebo ich zúžte, napríklad .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Tento regulárny výraz opakuje skupinu, ktorá sama obsahuje opakovanie, napríklad (a+)+. Vyhodnotenie môže trvať prakticky nekonečne dlho. Prepíšte ho bez vnorených opakovaní.</string>
+  <string name="search_regex_busy">Predchádzajúce vyhľadávanie regulárnym výrazom stále beží na pozadí. Skúste to o chvíľu znova; ak sa nedokončí, reštartujte aplikáciu.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -320,6 +325,8 @@
   <string name="hide_window_buttons_summary">Tlačidlá okien, ktoré sa zobrazujú na pravej strane zobrazení Biblie, sú skryté. Navigačný panel v spodnej časti okna je stále zobrazený a vyskakovacie okno je možné otvoriť dlhým kliknutím. </string>
   <string name="hide_bible_reference_overlay_title">Skryť prekrytie referencií na Bibliu </string>
   <string name="hide_bible_reference_overlay_summary">Nezobrazovať polo-transparentné okno s Biblickými referencia pri celo-obrazovkovom režime aplikácie</string>
+  <string name="text_under_window_buttons_title">Zobraziť text pod tlačidlami okien</string>
+  <string name="text_under_window_buttons_summary">Text Biblie siaha až na spodok obrazovky, pod lištu tlačidiel okien. Keď je vypnuté, pod lištou zostáva voľný pruh v spodných oknách, ktoré lišta zasahuje.</string>
   <string name="full_screen_hide_buttons_pref_title">Skryť panel tlačidiel pri celoobrázkovom režime</string>
   <string name="full_screen_hide_buttons_pref_summary">Pri prepínaní do režimu celej obrazovky automaticky skryť panel s tlačidlami v spodnej časti obrazovky </string>
   <string name="prefs_hide_status_bar_title">Skryť stavový riadok</string>
@@ -585,7 +592,50 @@
   <string name="sleep_timer_active_at">Režim uspávania: Zostáva %s minút.</string>
   <string name="speak_next">Ďalší</string>
   <string name="speak_previous">Predošlý</string>
+  <string name="widget_play">Prehrať</string>
   <string name="widget_toggle_sleep_timer">Prepni režim uspania</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Predčítanie</string>
+  <string name="widget_speak_text_name">Predčítanie s textom</string>
+  <string name="widget_listening_list_name">Zoznam počúvania</string>
+  <string name="widget_verse_name">Verš</string>
+  <string name="widget_continue_from">Pokračovať od %1$s · %2$s</string>
+  <string name="widget_continue_listening">Pokračovať v počúvaní</string>
+  <string name="widget_paused">Pozastavené</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Zatiaľ žiadne záložky predčítania</string>
+  <string name="widget_listening_list_empty_text">Záložky so štítkom Predčítanie sa zobrazia tu. Zapnite automatické záložky v nastaveniach predčítania alebo pridajte štítok k ľubovoľnej záložke.</string>
+  <string name="widget_open_app">Otvoriť AndBible</string>
+  <string name="widget_open_app_to_load">Otvorte AndBible a načítajte verše</string>
+  <string name="widget_verse_unavailable_no_bible">Nainštalujte Bibliu, aby sa tu zobrazili verše</string>
+  <string name="widget_verse_unavailable_label_missing">Štítok tohto widgetu už neexistuje. Ťuknutím vyberte verše.</string>
+  <string name="widget_verse_unavailable_label_empty">Tento štítok zatiaľ nemá žiadne záložky v Biblii. Ťuknutím vyberte iné verše.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Nie je aktívny žiadny plán čítania. Ťuknutím vyberte iné verše.</string>
+  <string name="widget_verse_source_random_whole_bible">Náhodný verš</string>
+  <string name="widget_verse_source_random_new_testament">Náhodný verš · Nový zákon</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Náhodný verš · Žalmy a Príslovia</string>
+  <string name="widget_shuffle">Zamiešať verš</string>
+  <string name="widget_speak_verse">Prečítať verš</string>
+  <string name="widget_verse_config_title">Widget verša</string>
+  <string name="widget_verse_config_source_label">Verše z</string>
+  <string name="widget_verse_config_source_label_option">Štítku</string>
+  <string name="widget_verse_config_source_random">Náhodný verš</string>
+  <string name="widget_verse_config_random_whole">Celá Biblia</string>
+  <string name="widget_verse_config_random_nt">Nový zákon</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Žalmy a Príslovia</string>
+  <string name="widget_verse_config_source_plan">Dnešný plán čítania</string>
+  <string name="widget_verse_config_changes">Zmena</string>
+  <string name="widget_verse_config_daily">Denne</string>
+  <string name="widget_verse_config_every_few_hours">Každých pár hodín</string>
+  <string name="widget_verse_config_on_shuffle">Iba keď ťuknem na zamiešanie</string>
+  <string name="widget_verse_config_bible">Biblia</string>
+  <string name="widget_verse_config_bible_default">Predvolená (%s)</string>
+  <string name="widget_verse_config_show_buttons">Zobraziť tlačidlá zamiešania a predčítania</string>
+  <string name="widget_verse_config_show_source">Zobraziť zdroj a dátum</string>
+  <string name="widget_verse_config_add">Pridať widget</string>
+  <string name="widget_verse_config_save">Uložiť</string>
+  <string name="widget_verse_source_reading_plan">Dnešné čítanie</string>
   <string name="speak_status_stopped">zastavené</string>
   <string name="speak_autobookmarking_disabled">Automatická tvorba záložiek je vypnutá!</string>
   <string name="system_speak_settings">Otvoriť systémové nastavenie TTS</string>
@@ -719,6 +769,31 @@ Režim opakovania bol vypnutý, pretože
   <string name="install_zip_canceled">Inštalovanie modulov prerušené</string>
   <string name="restore">Obnoviť</string>
   <string name="import2">Import</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (kópia)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Z doplnku %1$s</string>
+  <string name="addon_label_from_module_hint">Otvoriť doplnok v správcovi dokumentov</string>
+  <string name="addon_label_read_only_note">Tento štítok, jeho záložky a jeho študijný blok patria doplnku a nemožno ich upravovať. Môžete ho označiť ako obľúbený, vybrať, ako ho zobrazuje táto pracovná plocha, a pridať si záložky k jeho veršom.</string>
+  <string name="addon_copy_to_my_labels">Kopírovať do mojich štítkov</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Skopírované do vášho štítku \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Tento obsah pochádza z doplnku %1$s a nemožno ho zmeniť. Použite \"Kopírovať do mojich štítkov\" a získate upraviteľnú kópiu.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Tento obsah pochádza z doplnku a nemožno ho zmeniť. Použite \"Kopírovať do mojich štítkov\" a získate upraviteľnú kópiu.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Štítok sa nepodarilo skopírovať</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d položka zbierky doplnku bola preskočená. Použite \"Kopírovať do mojich štítkov\" pri štítku a získate vlastnú kópiu.</item>
+    <item quantity="few">%1$d položky zbierky doplnku boli preskočené. Použite \"Kopírovať do mojich štítkov\" pri štítku a získate vlastnú kópiu.</item>
+    <item quantity="many">%1$d položky zbierky doplnku bolo preskočených. Použite \"Kopírovať do mojich štítkov\" pri štítku a získate vlastnú kópiu.</item>
+    <item quantity="other">%1$d položiek zbierky doplnku bolo preskočených. Použite \"Kopírovať do mojich štítkov\" pri štítku a získate vlastnú kópiu.</item>
+  </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" a %2$s ďalší štítok/štítky/študijná zložka a %3$s záložiek</string>
   <!--About-->
@@ -754,6 +829,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="doc_type_all">Všetky typy</string>
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Komentáre</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Dokumenty</string>
   <string name="doc_type_dictionary">Slovníky</string>
   <string name="doc_type_book">Kniha</string>
   <string name="doc_type_map">Mapa</string>
@@ -789,6 +866,10 @@ Režim opakovania bol vypnutý, pretože
   <string name="crash_recovery_continue">Pokračovať</string>
   <string name="report_error">Poslať hlásenie</string>
   <string name="error_occurred">Vyskytla sa chyba</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Aplikácia sa pri spustení zastavila</string>
+  <string name="startup_crash_detail">Pošlite nám prosím hlásenie o chybe, aby sme problém mohli opraviť. Obsahuje podrobnosti o chybe a informácie o vašom zariadení a verzii aplikácie.</string>
+  <string name="startup_crash_try_again">Skúsiť znova</string>
   <string name="error_occurred_crash_last_time">Keď ste aplikáciu naposledy použili, zlyhala. Ocenili by sme, ak nám pošlete hlásenie chyby, aby nám pomohlo s opravou chyby. </string>
   <string name="error_occurred_with_link">Vyskytla sa chyba. %s</string>
   <string name="error_no_content">Pre vybraný verš nie je žiadny obsah</string>
@@ -1306,10 +1387,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="reading_progress_new_cycle">Nový cyklus</string>
   <string name="reading_progress_previous_cycle">Predchádzajúci cyklus</string>
   <string name="reading_progress_next_cycle">Nasledujúci cyklus</string>
-  <string name="cloud_merge_data">Zlúčiť údaje</string>
-  <string name="cloud_fetch_and_restore_initial">Skopírovať z claudu na toto zariadenie</string>
-  <string name="cloud_create_new">Skopírovať z tohoto zariadenia do cloudu</string>
-  <string name="cloud_disable_sync">Zrušiť &amp; zakázať synchronizáciu</string>
   <string name="cloud_sync_title">Synchronizácia zariadenia</string>
   <string name="reset_sync">Odhlásiť sa</string>
   <string name="prefs_reset_sync_summary">Zakázať synchronizáciu a obnoviť súvisiace nastavenia.</string>
@@ -1325,8 +1402,21 @@ Režim opakovania bol vypnutý, pretože
   <string name="google_drive_signin_interrupted">Prihlásenie do Google bolo prerušené. Skúste to znova.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Adresa vášho servera, napr. https://cloud.example.com (https:// sa doplní, ak ho vynecháte)</string>
   <string name="webdav_server_url_hint">Adresa priečinka WebDAV, napr. https://nas.local/dav/ alebo https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synchronizácia vyžaduje zabezpečenú adresu https://.</string>
+  <string name="sync_waiting_for_pass">Čaká sa na dokončenie prebiehajúcej synchronizácie…</string>
+  <string name="sync_pending_on">Zapne sa</string>
+  <string name="sync_pending_off">Vypne sa</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d zmena</item>
+    <item quantity="few">%1$d zmeny</item>
+    <item quantity="many">%1$d zmeny</item>
+    <item quantity="other">%1$d zmien</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Použiť zmeny synchronizácie?</string>
+  <string name="sync_checking_cloud_title">Kontroluje sa cloud…</string>
+  <string name="sync_checking_cloud_text">Hľadajú sa údaje, ktoré už synchronizovali iné zariadenia.</string>
   <string name="webdav_certificate_title">Certifikát servera</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Nedôveryhodný certifikát servera</string>
@@ -1344,7 +1434,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="synchronization_categories">Synchronizačné kategórie</string>
   <string name="sync_general_settings">Info &amp; všeobecné nastavenia</string>
   <string name="sync_introduction">Úvod</string>
-  <string name="are_you_sure_merge">Údaje na tomto zariadení aj údaje %s v cloude budú zachované. Ak bola tá istá položka zmenená na oboch miestach, zachová sa novšia zmena. Údaje tohto zariadenia budú odoslané do vašich ostatných zariadení.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Vypínam synchronizácie s cloudom. Po obnovení ho musíte znova povoliť manuálne.</string>
   <string name="report">Hlásenie</string>
@@ -1358,8 +1447,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="install_failed_reason">Inštalácia modulu zlyhala z nasledujúceho dôvodu: %s.</string>
   <string name="no_file_manager">Nenašla sa žiadna aplikácia na výber súboru. Nainštalujte správcu súborov a skúste to znova.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Aplikácia bola otvorená inde</string>
-  <string name="open_here">Otvoriť tu</string>
   <string name="external_link_dont_ask_again">Znova sa nepýtať pre %s</string>
   <string name="nameless">Titulok nie je definovaný</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcie jedným klepnutím (Biblie)</string>
@@ -2319,18 +2406,30 @@ Režim opakovania bol vypnutý, pretože
   <string name="dialog_dont_apply">Nepoužiť</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Cloud už obsahuje vaše %s. Čo sa má stať?</string>
-  <string name="cloud_merge_consequence">Zachovajú sa obe strany; ak sa položka zmenila na oboch, vyhrá novšia zmena.</string>
-  <string name="cloud_fetch_consequence">Nahradí údaje v tomto zariadení kópiou z cloudu.</string>
-  <string name="cloud_create_consequence">Nahradí kópiu v cloude údajmi z tohto zariadenia.</string>
-  <string name="cloud_disable_consequence">Synchronizácia pre tieto údaje zostane vypnutá.</string>
-  <string name="cloud_merge_lead">Zlúčiť vaše %s s cloudom?</string>
-  <string name="cloud_merge_confirm">Zlúčiť</string>
   <string name="cloud_replace_confirm">Nahradiť</string>
-  <string name="cloud_replace_local_lead">Nahradiť %s v tomto zariadení kópiou z cloudu?</string>
-  <string name="cloud_replace_local_detail">To, čo je teraz v tomto zariadení, sa prepíše a nedá sa obnoviť.</string>
-  <string name="cloud_replace_cloud_lead">Nahradiť kópiu %s v cloude údajmi z tohto zariadenia?</string>
-  <string name="cloud_replace_cloud_detail">To, čo je teraz v cloude, sa prepíše a vaše ostatné zariadenia dostanú údaje z tohto zariadenia.</string>
+  <string name="cloud_join_plan_title">Cloud už obsahuje údaje</string>
+  <string name="cloud_join_plan_lead">Vyberte, čo urobiť pre každú kategóriu.</string>
+  <string name="cloud_join_merge">Zlúčiť</string>
+  <string name="cloud_join_merge_detail">Skombinovať toto zariadenie a cloud</string>
+  <string name="cloud_join_fetch">Skopírovať z cloudu</string>
+  <string name="cloud_join_fetch_detail">Nahradiť údaje tohto zariadenia</string>
+  <string name="cloud_join_create">Skopírovať do cloudu</string>
+  <string name="cloud_join_create_detail">Nahradiť údaje v cloude</string>
+  <string name="cloud_join_disable">Nesynchronizovať</string>
+  <string name="cloud_join_disable_detail">Nechať túto kategóriu vypnutú</string>
+  <string name="cloud_join_upload_note">%s: v cloude zatiaľ nie sú žiadne údaje, nahrajú sa z tohto zariadenia.</string>
+  <string name="cloud_join_confirm_title">Spustiť synchronizáciu?</string>
+  <string name="cloud_join_confirm_lead">Stane sa nasledovné:</string>
+  <string name="cloud_join_outcome_merge">%s: zlúčené s cloudom. Nič sa nestratí.</string>
+  <string name="cloud_join_outcome_fetch">%s: údaje v tomto zariadení sa nahradia údajmi z cloudu.</string>
+  <string name="cloud_join_outcome_create">%s: údaje v cloude sa nahradia údajmi z tohto zariadenia.</string>
+  <string name="cloud_join_outcome_disable">%s: zostane vypnuté.</string>
+  <string name="cloud_join_outcome_upload">%s: nahrané z tohto zariadenia.</string>
+  <string name="cloud_join_warning">Nahradené údaje nemožno obnoviť. Ak si nie ste istí, najprv vytvorte zálohu.</string>
+  <string name="cloud_join_next">Ďalej</string>
+  <string name="cloud_join_back">Späť</string>
+  <string name="cloud_join_start">Spustiť synchronizáciu</string>
+  <string name="cloud_join_replace">Nahradiť a synchronizovať</string>
   <string name="sign_in_failed_lead">Nepodarilo sa prihlásiť do synchronizačnej služby.</string>
   <string name="sync_too_old_lead">Táto aplikácia je príliš stará na synchronizáciu %s.</string>
   <string name="sync_too_old_detail">Údaje v cloude používajú novšiu verziu, než aplikácia podporuje. Synchronizácia pre ne je zatiaľ vypnutá; aktualizujte aplikáciu, aby ste ju znova zapli.</string>

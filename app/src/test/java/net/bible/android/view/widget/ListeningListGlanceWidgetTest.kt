@@ -43,7 +43,7 @@ class ListeningListGlanceWidgetTest {
         val v = list(334, 278, listOf(row("Psalm 23:1", "WEB", 34, repeats = true), row("John 3:16", "KJV", 80)))
         assertTrue(v.texts().containsAll(listOf("Psalm 23:1", "WEB", "John 3:16", "KJV")))
         assertEquals(2, bars(v).size)
-        assertTrue(v.texts().contains("2"))
+        assertFalse("no count badge when every row is shown", v.texts().contains("2"))
     }
 
     /** Review Focus 3: long names never move or resize the bar. */
@@ -85,5 +85,19 @@ class ListeningListGlanceWidgetTest {
         val rows = (1..9).map { row("Psalm $it:1", "WEB", id = "r$it") }
         val shown = list(334, 182, rows).texts().count { it.startsWith("Psalm ") }
         assertTrue("fewer than all nine rows fit 182 dp (shown $shown)", shown in 1..4)
+    }
+
+    /** #4191: the row count must follow the real widget height, so the widget is measured exactly. */
+    @Test fun widgetIsMeasuredAtItsRealSize() {
+        assertEquals(androidx.glance.appwidget.SizeMode.Exact, ListeningListGlanceWidget().sizeMode)
+    }
+
+    @Test fun tallWidgetShowsSeveralRowsAndCountOnlyWhenTruncated() {
+        val rows = (1..9).map { row("Psalm $it:1", "WEB", id = "r$it") }
+        assertEquals(9, list(334, 460, rows).texts().count { it.startsWith("Psalm ") })
+        val v = list(334, 278, rows)
+        val shown = v.texts().count { it.startsWith("Psalm ") }
+        assertTrue("several rows at 278 dp (shown $shown)", shown >= 4)
+        assertTrue(v.texts().contains("$shown/9"))
     }
 }

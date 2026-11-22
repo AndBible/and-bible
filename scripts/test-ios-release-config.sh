@@ -73,7 +73,7 @@ class ReleaseConfigTest(unittest.TestCase):
         self.assertIn('iosApp/Config/Version.xcconfig', text)
 
     def test_release_native_link_gets_larger_heap(self):
-        self.assertIn('if [ "$CONFIGURATION" = "Release" ]; then\n            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx8g"', project)
+        self.assertIn('if [ "$CONFIGURATION" = "Release" ]; then\n            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx12g"', project)
         self.assertIn('$EXTRA :sharedUi:embedAndSignAppleFrameworkForXcode', project)
 
     def test_release_requires_generated_version(self):

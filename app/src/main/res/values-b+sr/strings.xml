@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Када се индексирање заврши бићете пребачени на екран за претрагу.</string>
   <string name="index_create">Направи</string>
   <string name="rebuild_index">Поново изгради индекс</string>
-  <string name="search_in">Пронађи у %s</string>
   <string name="do_in_background">Настави у позадини</string>
   <string name="rebuild_index_button">Поново изгради</string>
   <string name="creating_index_for">Креирање индекса за %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s резултата у %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Напредак</string>
-  <string name="task_kill_warning">Ови дуготрајни задаци могу бити прекинути ако се пребацитe на другу апликацију пре но што заврше.</string>
   <string name="no_tasks_running">Нема задатака који се тренутно извршавају.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Пронађи стихове</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Обриши текст претраге</string>
   <string name="search_engine_changed_reindex">Претраживач је ажуриран. Индекс претраге мора поново да се направи; ово може потрајати.</string>
   <string name="search_unsupported_syntax">Ова претрага користи синтаксу која није подржана: %s</string>
+  <string name="search_regex">Регуларни израз (експериментално)</string>
+  <string name="search_regex_summary">Regex</string>
+  <string name="search_results_truncated">Претрага је трајала предуго и заустављена је. Резултати су непотпуни; покушајте са једноставнијим изразом.</string>
+  <string name="search_invalid_regex">Неважећи регуларни израз: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Овај регуларни израз има превише отворених џокера (као што су .* или \\w+). Користите их мање или их сузите, на пример .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Овај регуларни израз понавља групу која и сама садржи понављање, као што је (a+)+. Подударање би могло трајати практично заувек. Препишите га без угнежђених понављања.</string>
+  <string name="search_regex_busy">Претходна претрага регуларним изразом још увек ради у позадини. Покушајте поново за тренутак; ако се не заврши, поново покрените апликацију.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -318,6 +323,8 @@
   <string name="hide_window_buttons_summary">Сакривени су дугмићи прозора који се приказују са десне стране прегледа Библије. Линија за навигацију прозора у дну је и даље приказана и можете отворити искачући мени дугим притиском на њу.</string>
   <string name="hide_bible_reference_overlay_title">Сакриј прекривајући приказ за рефернце Библије</string>
   <string name="hide_bible_reference_overlay_summary">Не приказуј полу-провидни прекривајући приказ за референце Библије када је апликација у режиму целог екрана</string>
+  <string name="text_under_window_buttons_title">Прикажи текст испод дугмади прозора</string>
+  <string name="text_under_window_buttons_summary">Библијски текст иде до дна екрана, испод траке са дугмадима прозора. Када је искључено, испод траке се оставља слободан простор у доњим прозорима које она обухвата.</string>
   <string name="full_screen_hide_buttons_pref_title">Сакриј линију дугмића прозора у режиму целог екрана</string>
   <string name="full_screen_hide_buttons_pref_summary">Аутоматски сакриј линију дугмића прозора са дна екрана, када се пребацује у режим рада целог екрана.</string>
   <string name="prefs_hide_status_bar_title">Сакриј статусну траку</string>
@@ -582,7 +589,50 @@
   <string name="sleep_timer_active_at">Тајмер спавања: %s минута преостало.</string>
   <string name="speak_next">Следећи</string>
   <string name="speak_previous">Претходни</string>
+  <string name="widget_play">Пусти</string>
   <string name="widget_toggle_sleep_timer">Укљ/Искљ тајмер спавања</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Читај наглас</string>
+  <string name="widget_speak_text_name">Читај наглас са текстом</string>
+  <string name="widget_listening_list_name">Листа слушања</string>
+  <string name="widget_verse_name">Стих</string>
+  <string name="widget_continue_from">Настави од %1$s · %2$s</string>
+  <string name="widget_continue_listening">Настави слушање</string>
+  <string name="widget_paused">Паузирано</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Још нема обележивача за читање наглас</string>
+  <string name="widget_listening_list_empty_text">Овде се појављују обележивачи са ознаком „Читај наглас“. Укључите аутоматске обележиваче у подешавањима читања наглас или додајте ознаку било ком обележивачу.</string>
+  <string name="widget_open_app">Отвори AndBible</string>
+  <string name="widget_open_app_to_load">Отворите AndBible да бисте учитали стихове</string>
+  <string name="widget_verse_unavailable_no_bible">Инсталирајте Библију да бисте овде видели стихове</string>
+  <string name="widget_verse_unavailable_label_missing">Ознака овог виџета више не постоји. Додирните да изаберете стихове.</string>
+  <string name="widget_verse_unavailable_label_empty">Ова ознака још нема библијских обележивача. Додирните да изаберете друге стихове.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Ниједан план читања није активан. Додирните да изаберете друге стихове.</string>
+  <string name="widget_verse_source_random_whole_bible">Насумичан стих</string>
+  <string name="widget_verse_source_random_new_testament">Насумичан стих · Нови завет</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Насумичан стих · Псалми и Приче</string>
+  <string name="widget_shuffle">Промешај стих</string>
+  <string name="widget_speak_verse">Читај стих наглас</string>
+  <string name="widget_verse_config_title">Виџет стиха</string>
+  <string name="widget_verse_config_source_label">Стихови из</string>
+  <string name="widget_verse_config_source_label_option">Ознаке</string>
+  <string name="widget_verse_config_source_random">Насумичан стих</string>
+  <string name="widget_verse_config_random_whole">Цела Библија</string>
+  <string name="widget_verse_config_random_nt">Нови завет</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Псалми и Приче</string>
+  <string name="widget_verse_config_source_plan">Данашњи план читања</string>
+  <string name="widget_verse_config_changes">Промена</string>
+  <string name="widget_verse_config_daily">Дневно</string>
+  <string name="widget_verse_config_every_few_hours">На неколико сати</string>
+  <string name="widget_verse_config_on_shuffle">Само када додирнем мешање</string>
+  <string name="widget_verse_config_bible">Библија</string>
+  <string name="widget_verse_config_bible_default">Подразумевано (%s)</string>
+  <string name="widget_verse_config_show_buttons">Прикажи дугмад за мешање и читање наглас</string>
+  <string name="widget_verse_config_show_source">Прикажи извор и датум</string>
+  <string name="widget_verse_config_add">Додај виџет</string>
+  <string name="widget_verse_config_save">Сачувај</string>
+  <string name="widget_verse_source_reading_plan">Данашње читање</string>
   <string name="speak_status_stopped">заустављено</string>
   <string name="speak_autobookmarking_disabled">Аутоматско обележавање онемогућено!</string>
   <string name="system_speak_settings">Отвори системске ТТС поставке</string>
@@ -720,6 +770,30 @@
   <string name="install_zip_canceled">Уградња модула отказана</string>
   <string name="restore">Повратити</string>
   <string name="import2">Увези</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (копија)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">Из додатка %1$s</string>
+  <string name="addon_label_from_module_hint">Отвори додатак у менаџеру докумената</string>
+  <string name="addon_label_read_only_note">Ова ознака, њени обележивачи и њен StudyPad припадају додатку и не могу се мењати. Можете је означити као омиљену, изабрати како је овај радни простор приказује и обележити њене стихове за себе.</string>
+  <string name="addon_copy_to_my_labels">Копирај у моје ознаке</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Копирано у вашу ознаку „%1$s“</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Овај садржај потиче из додатка %1$s и не може се мењати. Користите „Копирај у моје ознаке“ да добијете копију за уређивање.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Овај садржај потиче из додатка и не може се мењати. Користите „Копирај у моје ознаке“ да добијете копију за уређивање.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <string name="addon_label_copy_failed">Ознаку није могуће копирати</string>
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+    <plurals name="addon_items_skipped">
+        <item quantity="one">%1$d ставка колекције додатака је прескочена. Користите „Копирај у моје ознаке“ на ознаци да добијете сопствену копију.</item>
+        <item quantity="few">%1$d ставке колекције додатака су прескочене. Користите „Копирај у моје ознаке“ на ознаци да добијете сопствену копију.</item>
+        <item quantity="other">%1$d ставки колекције додатака је прескочено. Користите „Копирај у моје ознаке“ на ознаци да добијете сопствену копију.</item>
+    </plurals>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" и %2$s друге ознаке / радне свеске и %3$s обележивача</string>
   <!--About-->
@@ -754,6 +828,8 @@
   <string name="doc_type_all">Све врсте</string>
   <string name="doc_type_bible">Библија</string>
   <string name="doc_type_commentary">Коментар</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Документи</string>
   <string name="doc_type_dictionary">Речник</string>
   <string name="doc_type_book">Књига</string>
   <string name="doc_type_map">Карта</string>
@@ -789,6 +865,10 @@
   <string name="crash_recovery_continue">Настави</string>
   <string name="report_error">Пријави грешку</string>
   <string name="error_occurred">Догодила се грешка</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Апликација је стала током покретања</string>
+  <string name="startup_crash_detail">Пошаљите нам извештај о грешци како бисмо могли да решимо проблем. Садржи детаље грешке и информације о вашем уређају и верзији апликације.</string>
+  <string name="startup_crash_try_again">Покушај поново</string>
   <string name="error_occurred_crash_last_time">Последњи пут када сте користили ову апликацију, дошло је до пада. Како би нам помогли при отклањању грешке, били бисмо Вам захвални уколико нам пошаљете извештај о грешци.</string>
   <string name="error_occurred_with_link">Догодила се грешка. %s</string>
   <string name="error_no_content">Нема садржаја у означеном стиху</string>
@@ -1285,10 +1365,6 @@
   <string name="reading_progress_new_cycle">Нови циклус</string>
   <string name="reading_progress_previous_cycle">Претходни циклус</string>
   <string name="reading_progress_next_cycle">Следећи циклус</string>
-  <string name="cloud_merge_data">Споји податке</string>
-  <string name="cloud_fetch_and_restore_initial">Копирај из Облака на овај уређај</string>
-  <string name="cloud_create_new">Копирај из овог уређаја на Облак</string>
-  <string name="cloud_disable_sync">Откажи &amp; онемогући усклађивање</string>
   <string name="cloud_sync_title">Усклађивање уређаја</string>
   <string name="reset_sync">Одјавите се</string>
   <string name="prefs_reset_sync_summary">Онемогући усклађивање и ресетуј сродна подешавања.</string>
@@ -1304,8 +1380,20 @@
   <string name="google_drive_signin_interrupted">Google пријава је прекинута. Покушајте поново.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Адреса вашег сервера, нпр. https://cloud.example.com (https:// се додаје ако га изоставите)</string>
   <string name="webdav_server_url_hint">Адреса WebDAV фасцикле, нпр. https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Синхронизација захтева безбедну https:// адресу.</string>
+  <string name="sync_waiting_for_pass">Чека се да се текућа синхронизација заврши…</string>
+  <string name="sync_pending_on">Биће укључено</string>
+  <string name="sync_pending_off">Биће искључено</string>
+    <plurals name="sync_pending_changes">
+        <item quantity="one">%1$d промена</item>
+        <item quantity="few">%1$d промене</item>
+        <item quantity="other">%1$d промена</item>
+    </plurals>
+  <string name="sync_pending_leave_title">Применити промене синхронизације?</string>
+  <string name="sync_checking_cloud_title">Провера облака…</string>
+  <string name="sync_checking_cloud_text">Тражење података које су други уређаји већ синхронизовали.</string>
   <string name="webdav_certificate_title">Сертификат сервера</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Непоуздан сертификат сервера</string>
@@ -1323,7 +1411,6 @@
   <string name="synchronization_categories">Категорије усклађивања</string>
   <string name="sync_general_settings">Информације &amp; опште поставке</string>
   <string name="sync_introduction">Увод</string>
-  <string name="are_you_sure_merge">И подаци на овом уређају и %s у облаку биће задржани. Где је иста ставка измењена на оба места, задржава се новија измена. Подаци овог уређаја биће послати на ваше остале уређаје.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Онемогућавање усклађивања на Облаку. Морате омогућити ручно након враћања.</string>
   <string name="report">Пријава</string>
@@ -1337,8 +1424,6 @@
   <string name="install_failed_reason">Инсталација модула безуспешна услед следећих разлога: %s.</string>
   <string name="no_file_manager">Није пронађена ниједна апликација за избор датотеке. Инсталирајте менаџер датотека и покушајте поново.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Апликација је негде друге отворена</string>
-  <string name="open_here">Отворите овде</string>
   <string name="external_link_dont_ask_again">Не питај поново за %s</string>
   <string name="nameless">Наслов није одређен</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Радње једним додиром (Библије)</string>
@@ -2290,18 +2375,30 @@
   <string name="dialog_dont_apply">Не примењуј</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Облак већ има ваше: %s. Шта треба да се деси?</string>
-  <string name="cloud_merge_consequence">Обе стране се чувају; где је ставка промењена на обе, побеђује новија измена.</string>
-  <string name="cloud_fetch_consequence">Замењује податке на овом уређају копијом из облака.</string>
-  <string name="cloud_create_consequence">Замењује копију у облаку подацима са овог уређаја.</string>
-  <string name="cloud_disable_consequence">Синхронизација остаје искључена за ове податке.</string>
-  <string name="cloud_merge_lead">Спојити ваше: %s са облаком?</string>
-  <string name="cloud_merge_confirm">Споји</string>
   <string name="cloud_replace_confirm">Замени</string>
-  <string name="cloud_replace_local_lead">Заменити: %s на овом уређају копијом из облака?</string>
-  <string name="cloud_replace_local_detail">Оно што је сада на овом уређају биће преписано и не може се повратити.</string>
-  <string name="cloud_replace_cloud_lead">Заменити копију у облаку за: %s подацима са овог уређаја?</string>
-  <string name="cloud_replace_cloud_detail">Оно што је сада у облаку биће преписано, а ваши други уређаји ће примити податке са овог уређаја.</string>
+  <string name="cloud_join_plan_title">Облак већ садржи податке</string>
+  <string name="cloud_join_plan_lead">Изаберите шта да се ради за сваку категорију.</string>
+  <string name="cloud_join_merge">Споји</string>
+  <string name="cloud_join_merge_detail">Комбинуј овај уређај и облак</string>
+  <string name="cloud_join_fetch">Копирај из облака</string>
+  <string name="cloud_join_fetch_detail">Замени податке овог уређаја</string>
+  <string name="cloud_join_create">Копирај у облак</string>
+  <string name="cloud_join_create_detail">Замени податке у облаку</string>
+  <string name="cloud_join_disable">Не синхронизуј</string>
+  <string name="cloud_join_disable_detail">Остави ову категорију искљученом</string>
+  <string name="cloud_join_upload_note">%s: у облаку још нема података, биће отпремљени са овог уређаја.</string>
+  <string name="cloud_join_confirm_title">Започети синхронизацију?</string>
+  <string name="cloud_join_confirm_lead">Ово ће се догодити:</string>
+  <string name="cloud_join_outcome_merge">%s: спојено са облаком. Ништа се не губи.</string>
+  <string name="cloud_join_outcome_fetch">%s: подаци на овом уређају замењени су подацима из облака.</string>
+  <string name="cloud_join_outcome_create">%s: подаци у облаку замењени су подацима са овог уређаја.</string>
+  <string name="cloud_join_outcome_disable">%s: остаје искључено.</string>
+  <string name="cloud_join_outcome_upload">%s: отпремљено са овог уређаја.</string>
+  <string name="cloud_join_warning">Замењени подаци се не могу повратити. Ако нисте сигурни, прво направите резервну копију.</string>
+  <string name="cloud_join_next">Даље</string>
+  <string name="cloud_join_back">Назад</string>
+  <string name="cloud_join_start">Покрени синхронизацију</string>
+  <string name="cloud_join_replace">Замени и синхронизуј</string>
   <string name="sign_in_failed_lead">Пријава на сервис за синхронизацију није успела.</string>
   <string name="sync_too_old_lead">Ова апликација је превише стара за синхронизацију: %s.</string>
   <string name="sync_too_old_detail">Подаци у облаку користе новију верзију него што ова апликација подржава. Синхронизација за њих је засад искључена; ажурирајте апликацију да бисте је поново укључили.</string>

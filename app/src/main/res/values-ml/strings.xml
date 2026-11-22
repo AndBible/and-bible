@@ -29,7 +29,6 @@
   <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">പുരോഗതി</string>
-  <string name="task_kill_warning">ഈ പ്രവർത്തനം തീരുന്നതിനു മുമ്പായി മറ്റൊരു പ്രവർത്തനം തുടങ്ങിയാൽ ദീർഘസമയം വേണ്ടിവരുന്ന ഇതു നിലച്ചുപോകാൻ സാധ്യത ഉണ്ട്</string>
   <string name="no_tasks_running">ഇപ്പോൾ ഒരു പ്രവർത്തനവും തുടങ്ങിയിട്ടില്ല</string>
   <!--Search-->
   <string name="search_words_group_prompt">വാക്യങ്ങൾ കണ്ടുപിടിക്കുക</string>

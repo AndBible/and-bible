@@ -99,6 +99,27 @@ class ReadingSessionSupportTest {
         assertEquals(74f, offsets.bottom, "without either bar the pane must clear the safe area")
     }
 
+    /** #4184: with text under the window buttons a rail-covered bottom pane keeps only its system inset. */
+    @Test
+    fun textUnderWindowButtonsDropsOnlyTheRailStrip() {
+        var underButtons = false
+        val offsets = ReadingOffsets(restoreButtonsVisible = { true }, textUnderWindowButtons = { underButtons })
+        offsets.setSystemBottomInset(34f)
+        offsets.setRailLayout(covered = setOf("a"), bottom = setOf("a", "b"))
+        assertEquals(74f, offsets.bottomForWindow("a", isBottomWindow = true), "setting off: the covered pane reserves the strip")
+        assertEquals(34f, offsets.bottomForWindow("b", isBottomWindow = true))
+        assertEquals(74f, offsets.bottom)
+
+        underButtons = true // read live
+        assertEquals(34f, offsets.bottomForWindow("a", isBottomWindow = true), "the home indicator stays reserved")
+        assertEquals(34f, offsets.bottomForWindow("b", isBottomWindow = true))
+        assertEquals(0f, offsets.bottomForWindow("c", isBottomWindow = false), "a pane above stays at 0")
+        assertEquals(34f, offsets.bottom)
+
+        offsets.setSystemBottomInset(0f) // desktop: no system inset at all, the text reaches the window edge
+        assertEquals(0f, offsets.bottomForWindow("a", isBottomWindow = true))
+    }
+
     @Test
     fun agentVisibilityChangesRefreshOffsetsWithoutSpuriousRecompositionUpdates() {
         var changes = 0

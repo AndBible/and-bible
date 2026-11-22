@@ -73,7 +73,9 @@ private val epubLineHeightRe = Regex("""\bline-height:[^;]*;""")
  * - `/module-style/epub/<initials>/<key>/style.css` and `/module-style/epub/<initials>/<path>`, `/epub/<path>`: EPUB
  *   stylesheets and resources through [epub]; with no [epub] source these are a 404 logged once per route.
  *
- * [resolve] takes the decoded path. Every relative part must stay inside its base: segments `..` or `.`,
+ * [resolve] takes the decoded path. In `/module/`, `/fonts/` and `/features/` a leading `/` of the book-relative part
+ * (a module-absolute source such as `/images/x.jpg`) is dropped, so it names the book's root. Every relative part must
+ * stay inside its base: segments `..` or `.`,
  * backslashes, colons, NULs and absolute paths are refused, and a file reached through a symlink must still be inside
  * the book. Unknown module, missing file or unknown route: null (404).
  */
@@ -139,7 +141,10 @@ class PageAssetRoutes(
         return file.takeIf { isRegularFile(it) }?.let { PageAsset.File(it, mimeType(it.name)) }
     }
 
-    private fun inBook(module: String, relative: String?, signed: Boolean): PageAsset? {
+    private fun inBook(module: String, path: String?, signed: Boolean): PageAsset? {
+        // A module-absolute source (ThML `<img src="/images/x.jpg"/>`, #4185) means the book's root, as Android's
+        // `File(location, "/images/x.jpg")` does; the rest is checked like any other relative path.
+        val relative = path?.trimStart('/')
         if (module.isEmpty() || relative.isNullOrEmpty()) return null
         val base = bookLocation(module) ?: return null
         val file = within(base, relative) ?: return null

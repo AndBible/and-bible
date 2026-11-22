@@ -60,7 +60,8 @@ The same screen contains other memorization options described under
 
 ## Progress Indicators
 
-The book and chapter selection grids show visual progress indicators:
+The book and chapter buttons in the *Book Chooser* sheet show visual progress indicators
+(the *Show progress bars* item in the sheet's ⋮ menu turns them on or off):
 
 - **Book grid:** Each book button shows a thin progress bar at the bottom. The bar
     fills based on how many chapters you have read. Green indicates reading progress;

@@ -2,13 +2,37 @@
 name: release
 description: >
   Use when the maintainer wants an internal release of the current HEAD: Google Play internal track and/or a TestFlight
-  (internal) build of the iOS app, or a dry rehearsal of it. One command, one YubiKey touch, both stores in parallel.
-  Triggers: "tee release", "julkaise internal", "play internal", "internal release", "release both stores",
+  (internal) build of the iOS app, or a dry rehearsal of it, and the release order around it (version bump first,
+  GitHub release only after the maintainer tested the internal build). One command, one YubiKey touch, both stores in
+  parallel. Triggers: "tee release", "julkaise internal", "play internal", "internal release", "release both stores",
   "julkaise molempiin kauppoihin", "tee testflight-build", "testflight", "uusi testflight", "tee uusi testflight",
-  "upload to TestFlight", "make testflight", "make release-internal".
+  "upload to TestFlight", "make testflight", "make release-internal", "nosta versio", "bump version", "make bump-version",
+  "github release", "make github-release".
 ---
 
 # Internal release (`make release-internal`)
+
+## Release order
+
+Every release goes through the internal tracks first; GitHub comes only after the maintainer has tested that build:
+
+1. **Bump** (container): `make bump-version [STEP=N]` (`scripts/bump-version.sh`): versionCode +1 (or +N), desktop
+   AppStream release, the changelog `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` (summary of the
+   commits since the previous bump above the carried footer) and one commit `Increment version to <versionName>`. No
+   tag, no push. Without a terminal it accepts the generated changelog (`YES=1` does the same): read it, fix it in a
+   new commit if needed, before step 2. The changelog is what Play, F-Droid and the GitHub release show.
+2. **Internal release** (container): this skill, `make release-internal`. On an upload that passed it sets the local
+   tag `internal-<versionCode>` at the built commit and the summary prints
+   `github: after testing, on the host: make github-release-beta COMMIT=<sha>` (target from `versionNameSuffix`).
+3. **GitHub release** (host, maintainer, after testing): that printed line (`scripts/github-release.sh`; `make
+   github-release` for production, `github-release-test` for a developer test build, `DRY_RUN=1` checks only). It tags
+   exactly the tested commit (`beta-N` / `production-N` / `test-N`, version and changelog read at that commit, so later
+   commits change nothing), pushes the branch and the tag, approves the CI deployments and waits for the SignPath
+   signing. It refuses a commit that is not an ancestor of HEAD, a suffix that does not fit the kind, a missing
+   changelog and a tag that already exists. Never run it from a container (it pushes).
+
+The old `make increment-version` / `increment-beta-version` / `increment-test-version` (bump + tag + push in one) are
+gone. Give the maintainer step 3's line in the final report; the status entry (section 6) names it too.
 
 `make release-internal` takes the clean HEAD and ships the same version (`version.properties`) to **Google Play
 `internal`** (signed `standardGoogleplayRelease` AAB, release status completed, no store texts) and to **TestFlight
@@ -45,8 +69,8 @@ never print or cat anything from the bundle or the RAM dir.
   other container holds the Mac lock (the run never waits for it; `scripts/mac-remote.sh queue` shows who waits).
 - Clean tree: everything committed (tracked and untracked, incl. `jsword`/`kdom` gitlinks; `docs/superpowers` and
   `app/src/test/roborazzi` are ignored). No override; commit first.
-- `version.properties` already holds the version to ship (bumping is the maintainer's, not this skill's). Play refuses
-  a versionCode it already has.
+- `version.properties` already holds the version to ship: a new version is `make bump-version` (step 1 above) when
+  the maintainer asks for a new release. Play refuses a versionCode it already has; a retry of the same version needs no bump.
 
 ## 2. Approval
 
@@ -103,7 +127,7 @@ build number; Play would refuse the versionCode).
 | `result=FAIL upload` (iOS) | Read `upload.log`; ask the maintainer whether the build arrived in App Store Connect. A retry reuses the archive. |
 | Mac lock held by another container | The iOS branch fails fast; wait, then `PLATFORM=ios`. Do not `unlock` another container's lock. |
 | Version/commit mismatch with `Version.xcconfig` | Stale sync; rerun (the sync regenerates it). |
-| K/N link `OutOfMemoryError` (`DevirtualizationAnalysis`, Java heap space) | The Release link runs out of process (`iosApp/project.yml`, Release only: `-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx8g`); raise `jvmArgs` there, not the daemon heap. Check the Mac's free memory with `scripts/mac-remote.sh check`; shut booted simulators down first (`scripts/mac-remote.sh cleanup`). |
+| K/N link `OutOfMemoryError` (`DevirtualizationAnalysis`, Java heap space) | The Release link runs out of process (`iosApp/project.yml`, Release only: `-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx12g`); raise `jvmArgs` there, not the daemon heap. Check the Mac's free memory with `scripts/mac-remote.sh check`; shut booted simulators down first (`scripts/mac-remote.sh cleanup`). |
 | `--reuse` exits 3 naming `AndBibleWidgets.appex` | The reused archive predates the widget extension; run without `--reuse` to archive afresh. |
 | `IPA check failed: extension-*` / `app-group` | `archive.sh` ad-hoc re-signs the extension with `widgets.entitlements` and the app with `release.entitlements`; the IPA must show the exact App Group `group.org.andbible.ios` on both (`app-group`, `extension-group`), an Apple Distribution authority and no `get-task-allow` on the extension. Read `ipa-entitlements.txt` and `ipa-widgets-entitlements.txt` in the evidence, fix `iosApp/AndBibleWidgets/AndBibleWidgets.entitlements` / the profile, new commit, rerun. |
 | Missing iCloud entitlements | `archive.sh` ad-hoc re-signs the unsigned archive with the Release-expanded `iosApp.entitlements`; check `ipa-entitlements.txt`. |
@@ -130,5 +154,6 @@ Commit in the `docs/superpowers` submodule, then the gitlink bump in and-bible. 
 - `.local/release/<versionCode>/`: keep the last two versions' AABs (retries need the latest); delete older ones, but
   keep each version's `android/mapping-<versionName>.txt` (`gzip` it): crash traces of that release need it
   (`docs/r8-obfuscation.md`).
+- Give the maintainer the summary's `github:` line (step 3 of the release order) for after testing.
 - Remind the maintainer of the host lines the summary prints: `jailbee unmount release-secrets <container>` and, after an
   Android run, `jailbee net egress rm <host> <container>` for the three Play hosts.

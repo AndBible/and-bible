@@ -56,6 +56,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val hideBibleReferenceOverlayTitle: String get() = context.getString(R.string.hide_bible_reference_overlay_title)
     override val hideWindowButtonsSummary: String get() = context.getString(R.string.hide_window_buttons_summary)
     override val hideWindowButtonsTitle: String get() = context.getString(R.string.hide_window_buttons_title)
+    override val textUnderWindowButtonsSummary: String get() = context.getString(R.string.text_under_window_buttons_summary)
+    override val textUnderWindowButtonsTitle: String get() = context.getString(R.string.text_under_window_buttons_title)
     override val memorizeAutoMark: String get() = context.getString(R.string.memorize_auto_mark)
     override val memorizeAutoMarkSummary: String get() = context.getString(R.string.memorize_auto_mark_summary)
     override val memorizeErrorHeatmap: String get() = context.getString(R.string.memorize_error_heatmap)
@@ -179,6 +181,13 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentSyncWifiOnlyTitle: String get() = context.getString(R.string.document_sync_wifi_only_title)
     override val documentSyncAutoDeleteTitle: String get() = context.getString(R.string.document_sync_auto_delete_title)
     override val webdavHttpsRequired: String get() = context.getString(R.string.webdav_https_required)
+    override val syncPendingOn: String get() = context.getString(R.string.sync_pending_on)
+    override val syncPendingOff: String get() = context.getString(R.string.sync_pending_off)
+    override fun syncPendingChanges(count: Int): String =
+        context.resources.getQuantityString(R.plurals.sync_pending_changes, count, count)
+    override val syncPendingLeaveTitle: String get() = context.getString(R.string.sync_pending_leave_title)
+    override val syncCheckingCloudTitle: String get() = context.getString(R.string.sync_checking_cloud_title)
+    override val syncCheckingCloudText: String get() = context.getString(R.string.sync_checking_cloud_text)
     override fun multiSearchResults(verses: String, translations: String): String =
         context.getString(R.string.multi_search_count_summary, verses, translations)
     override fun multiSearchVerseCount(count: Int): String =
@@ -317,7 +326,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val installZipModule: String get() = context.getString(R.string.install_zip_module)
     override val installZipModuleDiscrete: String get() = context.getString(R.string.install_zip_module_discrete)
     override val downloadTitle: String get() = context.getString(R.string.download)
-    override val progressStatus: String get() = context.getString(R.string.progress_status)
     override val errorDownloading: String get() = context.getString(R.string.error_downloading)
     override val downloadDialogMessage: String get() = context.getString(R.string.download_dialog_message)
     override val downloadErrors: String get() = context.getString(R.string.download_errors)
@@ -441,6 +449,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val rewind: String get() = context.getString(R.string.rewind)
     override val forward: String get() = context.getString(R.string.forward)
     override val speakNext: String get() = context.getString(R.string.speak_next)
+    override val speakCloseBar: String get() = context.getString(R.string.speak_close_bar)
     override val speakPrevious: String get() = context.getString(R.string.speak_previous)
     override val speakBookmarksMenuTitle: String get() = context.getString(R.string.speak_bookmarks_menu_title)
 
@@ -473,6 +482,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val docTypeAll: String get() = context.getString(R.string.doc_type_all)
     override val docTypeBible: String get() = context.getString(R.string.doc_type_bible)
     override val docTypeCommentary: String get() = context.getString(R.string.doc_type_commentary)
+    override val documentsSheetTitle: String get() = context.getString(R.string.documents_sheet_title)
     override val readingToolbarOptions: String get() = context.getString(R.string.reading_toolbar_options)
     override val prefsShowStrongsTitle: String get() = context.getString(R.string.prefs_show_strongs_title)
     override val switchToWorkspace: String get() = context.getString(R.string.switch_to_workspace)
@@ -504,7 +514,6 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 5 — search
     override val search: String get() = context.getString(R.string.search)
     override val emptyList: String get() = context.getString(R.string.empty_list)
-    override val searchIndex: String get() = context.getString(R.string.search_index)
     override val desktopUpdateSettingTitle: String get() = context.getString(R.string.desktop_update_setting_title)
     override val desktopUpdateSettingSummary: String get() = context.getString(R.string.desktop_update_setting_summary)
     override val desktopUpdateIntervalDaily: String get() = context.getString(R.string.desktop_update_interval_daily)
@@ -562,7 +571,6 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 5 (Plan B) — EPUB search
     override val ftsQuery: String get() = context.getString(R.string.search_fts_query)
     override val helpFts5: String get() = context.getString(R.string.help_fts5)
-    override fun searchIn(docAbbrev: String): String = context.getString(R.string.search_in, docAbbrev)
     override fun searchWithResults2(count: String, docAbbrev: String): String =
         context.getString(R.string.search_with_results2, count, docAbbrev)
 
@@ -905,6 +913,10 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Batch 7b-1 — ManageLabelsScreen
     override val labelsSearchHint: String get() = context.getString(R.string.labels_search_hint)
+    override val labelAssignEditLabels: String get() = context.getString(R.string.label_assign_edit_labels)
+    override val labelAssignFilterFavourites: String get() = context.getString(R.string.label_assign_filter_favourites)
+    override val labelAssignFilterAutoAssign: String get() = context.getString(R.string.label_assign_filter_auto_assign)
+    override val labelAssignSearchContains: String get() = context.getString(R.string.label_assign_search_contains)
     override val activeLabelsHeader: String get() = context.getString(R.string.active_labels)
     override val recentLabelsHeader: String get() = context.getString(R.string.recent_labels)
     override val otherLabelsHeader: String get() = context.getString(R.string.other_labels)
@@ -1041,8 +1053,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun resetSomething(name: String): String = context.getString(R.string.reset_something, name)
     override val lastCrashInfoTitle: String get() = context.getString(R.string.last_crash_info_title)
 
-    // Batch 13 T7 — ProgressStatusComposeActivity
-    override val taskKillWarning: String get() = context.getString(R.string.task_kill_warning)
 
     // --- Agent permissions (Batch Z-early) ---
     override val agentPermissionTitle: String get() = context.getString(R.string.agent_permission_title)

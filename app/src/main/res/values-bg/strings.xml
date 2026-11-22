@@ -83,7 +83,6 @@
   <string name="indexing_wait_msg">Екранът за търсене ще се покаже, след като индексирането приключи.</string>
   <string name="index_create">Създай</string>
   <string name="rebuild_index">Поднови индексирането</string>
-  <string name="search_in">Намери в %s</string>
   <string name="do_in_background">Продължи на заден план</string>
   <string name="rebuild_index_button">Преизгради</string>
   <string name="creating_index_for">Създаване на индекс за %s…</string>
@@ -91,7 +90,6 @@
   <string name="search_with_results2">%1$s резултата в %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Прогрес</string>
-  <string name="task_kill_warning">Тези дълги задачи могат да бъдат прекъснати, ако затворите And Bible преди те да са приключили.</string>
   <string name="no_tasks_running">Няма други задачи.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Намери стиховете.</string>
@@ -126,6 +124,13 @@
   <string name="search_clear">Изчисти текста за търсене</string>
   <string name="search_engine_changed_reindex">Търсачката е актуализирана. Индексът за търсене трябва да бъде създаден отново; това може да отнеме време.</string>
   <string name="search_unsupported_syntax">Това търсене използва синтаксис, който не се поддържа: %s</string>
+  <string name="search_regex">Регулярен израз (експериментално)</string>
+  <string name="search_regex_summary">Регулярен израз</string>
+  <string name="search_results_truncated">Търсенето отне твърде дълго и беше спряно. Резултатите са непълни; опитайте с по-прост израз.</string>
+  <string name="search_invalid_regex">Невалиден регулярен израз: %1$s</string>
+  <string name="search_regex_too_many_wildcards">Този регулярен израз съдържа твърде много неограничени заместващи символи (като .* или \\w+). Използвайте по-малко от тях или ги ограничете, например .{0,40}.</string>
+  <string name="search_regex_nested_repetition">Този регулярен израз повтаря група, която сама съдържа повторение, например (a+)+. Съпоставянето може да отнеме практически безкрайно време. Пренапишете го без вложени повторения.</string>
+  <string name="search_regex_busy">Предишно търсене с регулярен израз все още се изпълнява на заден план. Опитайте отново след малко; ако не приключи, рестартирайте приложението.</string>
   <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place.-->
@@ -314,6 +319,8 @@
   <string name="hide_window_buttons_summary">Бутоните на прозореца, показвани вдясно на изгледите на Библията, са скрити. Лентата за навигация между прозорците в долната част продължава да се показва и можете да отворите изскачащото меню на прозореца с продължително натискане.</string>
   <string name="hide_bible_reference_overlay_title">Скриване на наслагването с библейска препратка</string>
   <string name="hide_bible_reference_overlay_summary">Да не се показва полупрозрачното наслагване с библейска препратка, когато приложението е в режим на цял екран</string>
+  <string name="text_under_window_buttons_title">Показване на текста под бутоните на прозорците</string>
+  <string name="text_under_window_buttons_summary">Библейският текст стига до долния край на екрана, под лентата с бутони на прозорците. Когато е изключено, под лентата се оставя свободна ивица в долните прозорци, които тя обхваща.</string>
   <string name="full_screen_hide_buttons_pref_title">Скриване на лентата с бутони при цял екран</string>
   <string name="full_screen_hide_buttons_pref_summary">При превключване в режим на цял екран автоматично се скрива лентата с бутони на прозореца в долната част на екрана</string>
   <string name="prefs_hide_status_bar_title">Скрий лентата на състоянието</string>
@@ -556,7 +563,50 @@
   <string name="sleep_timer_active_at">Таймер: Остават %s минути.</string>
   <string name="speak_next">Следващ</string>
   <string name="speak_previous">Предишен</string>
+  <string name="widget_play">Пускане</string>
   <string name="widget_toggle_sleep_timer">Покажи/скрий таймера</string>
+  <!--Home-screen widgets (#184)-->
+  <string name="widget_speak_name">Изговаряне</string>
+  <string name="widget_speak_text_name">Изговаряне с текст</string>
+  <string name="widget_listening_list_name">Списък за слушане</string>
+  <string name="widget_verse_name">Стих</string>
+  <string name="widget_continue_from">Продължаване от %1$s · %2$s</string>
+  <string name="widget_continue_listening">Продължаване на слушането</string>
+  <string name="widget_paused">На пауза</string>
+  <string name="widget_percent">%d %%</string>
+  <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+  <string name="widget_listening_list_empty_title">Още няма отметки за изговаряне</string>
+  <string name="widget_listening_list_empty_text">Отметките с етикет „Изговаряне“ се показват тук. Включете автоматичните отметки в настройките за изговаряне или добавете етикета към коя да е отметка.</string>
+  <string name="widget_open_app">Отваряне на AndBible</string>
+  <string name="widget_open_app_to_load">Отворете AndBible, за да се заредят стиховете</string>
+  <string name="widget_verse_unavailable_no_bible">Инсталирайте Библия, за да виждате стихове тук</string>
+  <string name="widget_verse_unavailable_label_missing">Етикетът на този уиджет вече не съществува. Докоснете, за да изберете стихове.</string>
+  <string name="widget_verse_unavailable_label_empty">Този етикет още няма отметки в Библията. Докоснете, за да изберете други стихове.</string>
+  <string name="widget_verse_unavailable_no_reading_plan">Няма активен план за четене. Докоснете, за да изберете други стихове.</string>
+  <string name="widget_verse_source_random_whole_bible">Случаен стих</string>
+  <string name="widget_verse_source_random_new_testament">Случаен стих · Нов завет</string>
+  <string name="widget_verse_source_random_psalms_proverbs">Случаен стих · Псалми и Притчи</string>
+  <string name="widget_shuffle">Размесване на стиха</string>
+  <string name="widget_speak_verse">Изговаряне на стиха</string>
+  <string name="widget_verse_config_title">Уиджет за стих</string>
+  <string name="widget_verse_config_source_label">Стихове от</string>
+  <string name="widget_verse_config_source_label_option">Етикет</string>
+  <string name="widget_verse_config_source_random">Случаен стих</string>
+  <string name="widget_verse_config_random_whole">Цялата Библия</string>
+  <string name="widget_verse_config_random_nt">Нов завет</string>
+  <string name="widget_verse_config_random_psalms_proverbs">Псалми и Притчи</string>
+  <string name="widget_verse_config_source_plan">Днешният план за четене</string>
+  <string name="widget_verse_config_changes">Смяна</string>
+  <string name="widget_verse_config_daily">Всеки ден</string>
+  <string name="widget_verse_config_every_few_hours">На всеки няколко часа</string>
+  <string name="widget_verse_config_on_shuffle">Само когато докосна размесване</string>
+  <string name="widget_verse_config_bible">Библия</string>
+  <string name="widget_verse_config_bible_default">По подразбиране (%s)</string>
+  <string name="widget_verse_config_show_buttons">Показване на бутоните за размесване и изговаряне</string>
+  <string name="widget_verse_config_show_source">Показване на източника и датата</string>
+  <string name="widget_verse_config_add">Добавяне на уиджет</string>
+  <string name="widget_verse_config_save">Запазване</string>
+  <string name="widget_verse_source_reading_plan">Днешното четене</string>
   <string name="speak_status_stopped">спрян</string>
   <string name="speak_autobookmarking_disabled">Автоматичното поставяне на отметки е деактивирано!</string>
   <string name="system_speak_settings">Отвори системните настройки за TTS</string>
@@ -601,11 +651,25 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Господ</item>
+    <item>Бог</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Яхве</item>
+    <item>Яхве</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">Книгата е сменена.</string>
   <string name="speak_chapter_changed">Глава</string>
   <string name="speak_first">Първа</string>
@@ -660,6 +724,29 @@
   <string name="install_zip_canceled">Инсталирането на модула е отменено</string>
   <string name="restore">Възстанови</string>
   <string name="import2">Импортирай</string>
+  <!--Name of the user's own copy of an add-on collection label when its name is taken. %1$s: the original name.-->
+  <string name="addon_label_copy_name">%1$s (копие)</string>
+  <!--Add-on bookmark collections (read-only labels installed as add-on modules)-->
+  <!--Label name followed by the add-on module it comes from, e.g. "Comfort · Memory verses". %1$s: label, %2$s: module name.-->
+  <string name="addon_label_with_module">%1$s · %2$s</string>
+  <!--Info line in the label editor of a read-only add-on label. %1$s: the module name.-->
+  <string name="addon_label_from_module">От добавката %1$s</string>
+  <string name="addon_label_from_module_hint">Отворете добавката в диспечера на документи</string>
+  <string name="addon_label_read_only_note">Този етикет, неговите отметки и неговият StudyPad принадлежат на добавката и не могат да се редактират. Можете да го маркирате като любим, да изберете как този работен плот го показва и да добавяте отметки към неговите стихове за себе си.</string>
+  <string name="addon_copy_to_my_labels">Копиране в моите етикети</string>
+  <!--%1$s: name of the new, editable label.-->
+  <string name="addon_label_copied">Копирано във вашия етикет \"%1$s\"</string>
+  <!--Toast when a change to add-on collection content is refused. %1$s: the module name or initials.-->
+  <string name="addon_read_only">Това съдържание е от добавката %1$s и не може да се променя. Използвайте \"Копиране в моите етикети\", за да получите редактируемо копие.</string>
+  <!--Same as addon_read_only when the add-on that owns the content is unknown.-->
+  <string name="addon_read_only_unknown">Това съдържание е от добавка и не може да се променя. Използвайте \"Копиране в моите етикети\", за да получите редактируемо копие.</string>
+  <!--Toast when "Copy to my labels" fails.-->
+  <!--After a backup restore or StudyPad import. %1$d: the number of skipped items.-->
+  <plurals name="addon_items_skipped">
+    <item quantity="one">%1$d елемент от колекция с добавки беше пропуснат. Използвайте \"Копиране в моите етикети\" върху етикета, за да получите собствено копие.</item>
+    <item quantity="other">%1$d елемента от колекция с добавки бяха пропуснати. Използвайте \"Копиране в моите етикети\" върху етикета, за да получите собствено копие.</item>
+  </plurals>
+  <string name="addon_label_copy_failed">Етикетът не можа да бъде копиран</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" и %2$s други етикет(а) / бележник(а) и %3$s отметки</string>
   <!--About-->
@@ -694,6 +781,8 @@
   <string name="doc_type_all">Всички видове</string>
   <string name="doc_type_bible">Библия</string>
   <string name="doc_type_commentary">Коментар</string>
+  <!--Title of the second reading-toolbar button's quick sheet: commentaries, dictionaries, books and maps-->
+  <string name="documents_sheet_title">Документи</string>
   <string name="doc_type_dictionary">Речник</string>
   <string name="doc_type_book">Книга</string>
   <string name="doc_type_map">Карта</string>
@@ -729,6 +818,10 @@
   <string name="crash_recovery_continue">Продължи</string>
   <string name="report_error">Изпрати отчет</string>
   <string name="error_occurred">Грешка</string>
+  <!--#4176: the crash safe mode, shown after the app crashed while starting-->
+  <string name="startup_crash_lead">Приложението спря при стартиране</string>
+  <string name="startup_crash_detail">Моля, изпратете ни доклад за грешка, за да можем да отстраним проблема. Той съдържа подробности за грешката и информация за вашето устройство и версията на приложението.</string>
+  <string name="startup_crash_try_again">Опитайте отново</string>
   <string name="error_occurred_crash_last_time">При последното използване на приложението то спря неочаквано. За да ни помогнете с отстраняването на грешката, ще се радваме да ни изпратите доклад за грешка.</string>
   <string name="error_occurred_with_link">Възникна грешка. %s</string>
   <string name="error_no_content">Избранният стих няма съдържание</string>
@@ -1169,10 +1262,6 @@
   <string name="reading_progress_new_cycle">Нов цикъл</string>
   <string name="reading_progress_previous_cycle">Предишен цикъл</string>
   <string name="reading_progress_next_cycle">Следващ цикъл</string>
-  <string name="cloud_merge_data">Обедини данните</string>
-  <string name="cloud_fetch_and_restore_initial">Копирай от облака към това устройство</string>
-  <string name="cloud_create_new">Копирай от това устройство в облака</string>
-  <string name="cloud_disable_sync">Отмяна и забрана на синхронизирането</string>
   <string name="cloud_sync_title">Синхронизиране на устройства</string>
   <string name="reset_sync">Изход от акаунта</string>
   <string name="prefs_reset_sync_summary">Забрани синхронизирането и изчисти свързаните настройки.</string>
@@ -1188,8 +1277,19 @@
   <string name="google_drive_signin_interrupted">Влизането в Google беше прекъснато. Опитайте отново.</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
+  <string name="sync_server_url_hint">Адрес на вашия сървър, напр. https://cloud.example.com (https:// се добавя, ако го пропуснете)</string>
   <string name="webdav_server_url_hint">Адрес на папката WebDAV, напр. https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Синхронизирането изисква защитен адрес https://.</string>
+  <string name="sync_waiting_for_pass">Изчакване на приключването на текущата синхронизация…</string>
+  <string name="sync_pending_on">Ще бъде включено</string>
+  <string name="sync_pending_off">Ще бъде изключено</string>
+  <plurals name="sync_pending_changes">
+    <item quantity="one">%1$d промяна</item>
+    <item quantity="other">%1$d промени</item>
+  </plurals>
+  <string name="sync_pending_leave_title">Да се приложат ли промените в синхронизацията?</string>
+  <string name="sync_checking_cloud_title">Проверка на облака…</string>
+  <string name="sync_checking_cloud_text">Търсене на данни, които други устройства вече са синхронизирали.</string>
   <string name="webdav_certificate_title">Сертификат на сървъра</string>
   <string name="adapters_icloud_drive">iCloud Drive</string>
   <string name="webdav_untrusted_certificate_title">Недоверен сертификат на сървъра</string>
@@ -1207,7 +1307,6 @@
   <string name="synchronization_categories">Категории за синхронизиране</string>
   <string name="sync_general_settings">Информация и общи настройки</string>
   <string name="sync_introduction">Въведение</string>
-  <string name="are_you_sure_merge">Ще бъдат запазени както данните на това устройство, така и %s в облака. Когато един и същ елемент е променен и на двете места, се запазва по-новата промяна. Данните на това устройство ще бъдат изпратени към другите ви устройства.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Деактивиране на облачното синхронизиране. Трябва ръчно да го активирате отново след възстановяване.</string>
   <string name="report">Доклад</string>
@@ -1221,8 +1320,6 @@
   <string name="install_failed_reason">Инсталирането на модула не бе успешно поради следната причина: %s.</string>
   <string name="no_file_manager">Не е намерено приложение за избор на файл. Моля, инсталирайте файлов мениджър и опитайте отново.</string>
   <!--Other / uncategorized-->
-  <string name="app_opened_elsewhere">Приложението е отворено другаде</string>
-  <string name="open_here">Отвори тук</string>
   <string name="external_link_dont_ask_again">Не питай отново за %s</string>
   <string name="nameless">Заглавието не е зададено</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия с едно докосване (Библии)</string>
@@ -2166,18 +2263,30 @@
   <string name="dialog_dont_apply">Не прилагай</string>
   <!--/dialog copy: B2b-->
   <!--dialog copy: B3b-->
-  <string name="cloud_existing_data_lead">Облакът вече съдържа вашите %s. Какво да се направи?</string>
-  <string name="cloud_merge_consequence">И двете страни се запазват; където елемент е променен и на двете места, печели по-новата промяна.</string>
-  <string name="cloud_fetch_consequence">Заменя данните на това устройство с копието от облака.</string>
-  <string name="cloud_create_consequence">Заменя копието в облака с данните на това устройство.</string>
-  <string name="cloud_disable_consequence">Синхронизирането остава изключено за тези данни.</string>
-  <string name="cloud_merge_lead">Да се слеят ли вашите %s с облака?</string>
-  <string name="cloud_merge_confirm">Слей</string>
   <string name="cloud_replace_confirm">Замени</string>
-  <string name="cloud_replace_local_lead">Да се заменят ли %s на това устройство с копието от облака?</string>
-  <string name="cloud_replace_local_detail">Това, което е сега на това устройство, се презаписва и не може да бъде възстановено.</string>
-  <string name="cloud_replace_cloud_lead">Да се замени ли копието в облака на %s с данните на това устройство?</string>
-  <string name="cloud_replace_cloud_detail">Това, което е сега в облака, се презаписва, а другите ви устройства ще получат данните на това устройство.</string>
+  <string name="cloud_join_plan_title">В облака вече има данни</string>
+  <string name="cloud_join_plan_lead">Изберете какво да се направи за всяка категория.</string>
+  <string name="cloud_join_merge">Обединяване</string>
+  <string name="cloud_join_merge_detail">Съчетава това устройство и облака</string>
+  <string name="cloud_join_fetch">Копиране от облака</string>
+  <string name="cloud_join_fetch_detail">Заменя данните на това устройство</string>
+  <string name="cloud_join_create">Копиране в облака</string>
+  <string name="cloud_join_create_detail">Заменя данните в облака</string>
+  <string name="cloud_join_disable">Без синхронизиране</string>
+  <string name="cloud_join_disable_detail">Оставя тази категория изключена</string>
+  <string name="cloud_join_upload_note">%s: още няма данни в облака, те ще бъдат качени от това устройство.</string>
+  <string name="cloud_join_confirm_title">Да започне ли синхронизацията?</string>
+  <string name="cloud_join_confirm_lead">Ето какво ще се случи:</string>
+  <string name="cloud_join_outcome_merge">%s: обединено с облака. Нищо не се губи.</string>
+  <string name="cloud_join_outcome_fetch">%s: данните на това устройство се заменят с тези от облака.</string>
+  <string name="cloud_join_outcome_create">%s: данните в облака се заменят с тези от това устройство.</string>
+  <string name="cloud_join_outcome_disable">%s: остава изключено.</string>
+  <string name="cloud_join_outcome_upload">%s: качено от това устройство.</string>
+  <string name="cloud_join_warning">Заменените данни не могат да бъдат възстановени. Ако не сте сигурни, първо направете резервно копие.</string>
+  <string name="cloud_join_next">Напред</string>
+  <string name="cloud_join_back">Назад</string>
+  <string name="cloud_join_start">Начало на синхронизацията</string>
+  <string name="cloud_join_replace">Замяна и синхронизиране</string>
   <string name="sign_in_failed_lead">Не можа да се влезе в услугата за синхронизиране.</string>
   <string name="sync_too_old_lead">Това приложение е твърде старо, за да синхронизира %s.</string>
   <string name="sync_too_old_detail">Данните в облака използват по-нова версия от поддържаната от това приложение. Синхронизирането им е изключено засега; обновете приложението, за да го включите отново.</string>

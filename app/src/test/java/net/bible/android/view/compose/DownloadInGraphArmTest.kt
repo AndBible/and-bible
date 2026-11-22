@@ -24,6 +24,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +41,6 @@ import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
-import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.theme.AbTheme
@@ -124,13 +124,6 @@ class DownloadInGraphArmTest {
             initialFor = { RepositoryResult() },
             readClipboard = { null },
         ),
-        // The neighbouring destination this test navigates to in order to dispose the Download
-        // arm's composition; its own behaviour is Task 4's test's subject, not this one's.
-        progressStatus = ProgressStatusDeps(
-            title = "Progress",
-            requestNotificationPermission = {},
-            observeJobs = { { } },
-        ),
         download = DownloadDeps(
             controllerFor = { initialTypeFilter ->
                 controller ?: DocumentSelectionController(
@@ -180,6 +173,7 @@ class DownloadInGraphArmTest {
             topBarActions = {},
             openOrGate = { error("not exercised here") },
             seedItems = { error("not exercised here") },
+                liveRefresh = { error("not exercised here") },
             refreshFromNetwork = { error("not exercised here") },
             transferRunningProvider = { error("not exercised here") },
             subscribeProgress = { error("not exercised here") },
@@ -221,6 +215,8 @@ class DownloadInGraphArmTest {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 NavHost(navController = navController, startDestination = startDestination) {
                     downloadNavGraph(navController, d)
+                    // A sibling destination to navigate to, to dispose the arm under test (the removed progress screen's role).
+                    composable(OTHER_DESTINATION) { androidx.compose.material3.Text("other") }
                 }
             }
         }
@@ -374,7 +370,7 @@ class DownloadInGraphArmTest {
 
         // The user moves off what the route seeded; coming back must not undo either.
         compose.runOnIdle { c.setQuery("mine") }
-        compose.runOnIdle { navController.navigate(NavRoutes.progressStatus()) }
+        compose.runOnIdle { navController.navigate(OTHER_DESTINATION) }
         compose.waitForIdle()
         compose.runOnIdle { navController.popBackStack() }
         compose.waitForIdle()
@@ -526,11 +522,13 @@ class DownloadInGraphArmTest {
         assertEquals(0, progressStops)
         assertEquals(0, monitoringStops)
 
-        compose.runOnIdle { navController.navigate(NavRoutes.progressStatus()) }
+        compose.runOnIdle { navController.navigate(OTHER_DESTINATION) }
         compose.waitForIdle()
 
         assertEquals(1, progressStops, "the progress collector was not released")
         assertEquals(1, monitoringStops, "the monitoring pair was not released")
         assertFalse(exitHostCalls > 0, "navigating to a child must not leave the host")
     }
+
+    private companion object { const val OTHER_DESTINATION = "test/other" }
 }

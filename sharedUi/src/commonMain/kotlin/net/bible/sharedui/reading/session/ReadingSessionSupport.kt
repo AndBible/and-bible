@@ -35,7 +35,7 @@ import net.bible.sharedui.reading.host.ReadingHostState
  * notch / Dynamic Island safe area stays, so [setSystemTopInset] makes it the top offset then. [bottom] is what overlays the panes' lower edge: the
  * system bottom inset (home indicator) unless the speak bar or agent panel is visible (both reserve space below
  * the panes, and the bottom-most bar pads that inset itself), the minimised-window restore row (40dp, Android's theme
- * `windowButtonHeight`, when the workspace setting [restoreButtonsVisible] is on; read live).
+ * `windowButtonHeight`, when the workspace setting [restoreButtonsVisible] is on and [textUnderWindowButtons] is off; read live).
  * Sheets overlay the panes without reserving document space. The agent panel's collapsed height is already
  * reserved in-flow by `ReadingViewScreen`.
  *
@@ -44,6 +44,8 @@ import net.bible.sharedui.reading.host.ReadingHostState
 @kotlin.native.HiddenFromObjC
 class ReadingOffsets(
     private val restoreButtonsVisible: () -> Boolean = { false },
+    /** #4184 `text_under_window_buttons` (read live): text runs under the rail, so no pane reserves its strip. */
+    private val textUnderWindowButtons: () -> Boolean = { false },
     private val onChanged: () -> Unit = {},
 ) {
     private var systemBottomInset = 0f
@@ -62,7 +64,8 @@ class ReadingOffsets(
     val bottom: Float get() = systemBottom + railHeight
 
     private val systemBottom: Float get() = if (speakBarVisible || agentLogVisible) 0f else systemBottomInset
-    private val railHeight: Float get() = if (restoreButtonsVisible()) WINDOW_BUTTON_HEIGHT_DP else 0f
+    private val railHeight: Float get() =
+        if (restoreButtonsVisible() && !textUnderWindowButtons()) WINDOW_BUTTON_HEIGHT_DP else 0f
     private val railCoverage = net.bible.sharedui.reading.ReadingRailCoverage(onChanged)
 
     fun setRailCoveredWindows(windowIds: Set<String>) = railCoverage.update(windowIds)
@@ -91,7 +94,7 @@ class ReadingOffsets(
         if (previous != null && previous != containerSize) onChanged()
     }
 
-    /** Re-sends the offsets without a value change (the live [restoreButtonsVisible] answer may have changed). */
+    /** Re-sends the offsets without a value change (a live [restoreButtonsVisible] / [textUnderWindowButtons] answer may have changed). */
     fun refresh() = onChanged()
 
     private inline fun change(apply: () -> Boolean) {

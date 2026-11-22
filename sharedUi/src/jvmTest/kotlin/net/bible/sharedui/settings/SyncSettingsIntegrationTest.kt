@@ -190,6 +190,8 @@ class SyncSettingsIntegrationTest {
             enterUrl("https://127.0.0.1:8080/nc")
             onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-sync_enable_bookmarks"))
             onNodeWithTag("settings-row-sync_enable_bookmarks").assertIsOn().performClick().assertIsOff()
+            // A category switch is only pending until Apply (the Apply bar is driven through the controller here).
+            runOnIdle { controller.applyPending() }
             val recreated = service()
             assertEquals("NEXT_CLOUD", recreated.snapshot.value.adapter)
             assertEquals("https://127.0.0.1:8080/nc", recreated.snapshot.value.serverUrl)

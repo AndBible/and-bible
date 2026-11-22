@@ -126,7 +126,7 @@ class UnavailableSyncAdapterTest {
             f.cloud.start().await()
             assertEquals(0, f.scheduled)
             val service = f.service()
-            service.setCategoryEnabled("sync_enable_bookmarks", true)
+            assertEquals(net.bible.sharedcore.settings.ApplyResult.SignInFailed, service.applyCategoryChanges(mapOf("sync_enable_bookmarks" to true)))
             service.setDocumentsEnabled(DocSyncSummaryData(emptyList(), emptyList(), 0, 0))
             assertEquals(0, f.scheduled)
             assertEquals(0, f.transfers)

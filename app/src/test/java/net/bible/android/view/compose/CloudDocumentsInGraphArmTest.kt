@@ -20,6 +20,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.bible.android.TEST_SDK
@@ -36,7 +37,6 @@ import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
-import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.theme.AbTheme
@@ -84,6 +84,7 @@ class CloudDocumentsInGraphArmTest {
 
     private var progressOnRunning: ((Boolean) -> Unit)? = null
     private var progressStops = 0
+    private val liveRefreshedFor = mutableListOf<CloudDocumentsController>()
     private val running = MutableStateFlow(false)
 
     private fun cloudDocumentsDeps() = CloudDocumentsDeps(
@@ -109,6 +110,7 @@ class CloudDocumentsInGraphArmTest {
         // trivial controllerFor above. A stray arm-side call would fail loudly here instead of
         // silently passing.
         seedItems = { error("seedItems is not exercised by the arm directly") },
+        liveRefresh = { liveRefreshedFor += it; kotlinx.coroutines.awaitCancellation() },
         refreshFromNetwork = { calls.add("refresh") },
         transferRunningProvider = { running },
         subscribeProgress = { onRunning ->
@@ -136,13 +138,6 @@ class CloudDocumentsInGraphArmTest {
             title = "Custom repositories",
             initialFor = { RepositoryResult() },
             readClipboard = { null },
-        ),
-        // Only used as the round-trip's other destination (a sibling to navigate to and back from);
-        // its own behaviour is Task 4's test's subject, not this one's.
-        progressStatus = ProgressStatusDeps(
-            title = "Progress",
-            requestNotificationPermission = {},
-            observeJobs = { { } },
         ),
         download = DownloadDeps(
             controllerFor = { error("not exercised here") },
@@ -172,6 +167,8 @@ class CloudDocumentsInGraphArmTest {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                     NavHost(navController = navController, startDestination = startDestination) {
                         downloadNavGraph(navController, d)
+                        // A sibling destination to navigate to, to dispose the arm under test (the removed progress screen's role).
+                        composable(OTHER_DESTINATION) { androidx.compose.material3.Text("other") }
                     }
                 }
             }
@@ -215,7 +212,7 @@ class CloudDocumentsInGraphArmTest {
         setGraph(NavRoutes.cloudDocuments())
         val old = assertNotNull(progressOnRunning)
         compose.runOnIdle {
-            navController.navigate(NavRoutes.progressStatus()) { popUpTo(NavRoutes.cloudDocuments()) { inclusive = true } }
+            navController.navigate(OTHER_DESTINATION) { popUpTo(NavRoutes.cloudDocuments()) { inclusive = true } }
         }
         compose.waitForIdle()
         compose.runOnIdle { navController.navigate(NavRoutes.cloudDocuments()) }
@@ -234,6 +231,31 @@ class CloudDocumentsInGraphArmTest {
         assertTrue("gate" in calls)
         assertEquals(0, exitHostCalls)
         assertNotNull(controller)
+    }
+
+    /** #4180: the arm runs the host's live refresh for ITS controller (removing the LaunchedEffect leaves the list stale). */
+    @Test
+    fun theArmRunsTheLiveRefreshForItsOwnController() {
+        setGraph(NavRoutes.cloudDocuments())
+        compose.waitForIdle()
+        assertEquals(listOf(assertNotNull(controller)), liveRefreshedFor.toList())
+    }
+
+    /** #4180: the end of a sync drops the pending optimistic removals before the network rescan lands. */
+    @Test
+    fun theSyncEndEdgeDropsPendingOptimisticRemovals() {
+        setGraph(NavRoutes.cloudDocuments())
+        val c = assertNotNull(controller)
+        val onRunning = assertNotNull(progressOnRunning)
+        compose.runOnIdle {
+            c.setItems(listOf(sampleItem("A")))
+            c.applyRemoval("A")
+            c.setItems(listOf(sampleItem("A")))
+        }
+        assertEquals(emptyList(), c.items.value.map { it.initials })
+        compose.runOnIdle { onRunning(false) }
+        compose.runOnIdle { c.setItems(listOf(sampleItem("A"))) }
+        assertEquals(listOf("A"), c.items.value.map { it.initials })
     }
 
     /**
@@ -290,7 +312,7 @@ class CloudDocumentsInGraphArmTest {
         setGraph(NavRoutes.cloudDocuments())
         assertEquals(0, progressStops)
 
-        compose.runOnIdle { navController.navigate(NavRoutes.progressStatus()) }
+        compose.runOnIdle { navController.navigate(OTHER_DESTINATION) }
         compose.waitForIdle()
 
         assertEquals(1, progressStops, "the progress subscription was not released")
@@ -341,7 +363,7 @@ class CloudDocumentsInGraphArmTest {
         // reopen it as a brand new entry, exactly the round trip Download's own overflow row (or
         // Settings' sync row) drives in the real app.
         compose.runOnIdle {
-            navController.navigate(NavRoutes.progressStatus()) {
+            navController.navigate(OTHER_DESTINATION) {
                 popUpTo(NavRoutes.cloudDocuments()) { inclusive = true }
             }
         }
@@ -366,4 +388,6 @@ class CloudDocumentsInGraphArmTest {
         blocked = false, canDeleteLocal = true, cloudDeleted = false,
         sizeLabel = null, sizeBytes = null,
     )
+
+    private companion object { const val OTHER_DESTINATION = "test/other" }
 }

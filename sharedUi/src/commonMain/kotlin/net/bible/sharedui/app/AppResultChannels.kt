@@ -11,7 +11,6 @@ import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
-import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.nav.TextSettingsResult
 import net.bible.sharedcore.nav.WorkspaceResult
@@ -36,7 +35,6 @@ class AppResultChannels(
     val myDocumentPages: NavResultChannel<MyDocumentPagesResult>,
     val myDocuments: NavResultChannel<MyDocumentsResult>,
     val keyChooser: NavResultChannel<KeyChooserResult>,
-    val passage: NavResultChannel<PassageResult>,
     val document: NavResultChannel<DocumentResult>,
     val installZip: NavResultChannel<InstallZipResult>,
     val workspace: NavResultChannel<WorkspaceResult>,

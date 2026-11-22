@@ -130,7 +130,11 @@ internal fun SleepToggleButton(state: SpeakWidgetState, size: Dp) = WidgetIconBu
 @Composable
 internal fun Gap(width: Dp = 6.dp) = Spacer(GlanceModifier.width(width))
 
-/** The "data needs attention" card of #4112: no buttons, no database access; a tap opens the startup recovery question. */
+/**
+ * The "data needs attention" card of #4112: no buttons, no database access; a tap opens the startup recovery question.
+ * In the crash safe mode (#4176) nothing was opened, so the data is not known to be damaged: the card only says that the
+ * app stopped while starting, and the tap opens the safe mode's report.
+ */
 @Composable
 fun AttentionGlanceContent() {
     val context = LocalContext.current
@@ -145,7 +149,9 @@ fun AttentionGlanceContent() {
                 modifier = GlanceModifier.size(24.dp),
             )
             Gap(10.dp)
-            WidgetText(str(R.string.damaged_data_needs_attention), size = 13, maxLines = 3)
+            val text = if (net.bible.android.control.report.StartupCrashGuard.safeMode) R.string.startup_crash_lead
+                else R.string.damaged_data_needs_attention
+            WidgetText(str(text), size = 13, maxLines = 3)
         }
     }
 }

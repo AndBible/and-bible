@@ -1,0 +1,15 @@
+- iOS: desktop keyboard shortcuts, following the printed character on any layout (#4177, #4168)
+- Crash safe mode: after an early startup crash the app offers a crash report and starts in safe mode (#4176)
+- Book, general-book and map choosers open as sheets instead of full-screen screens (#4169, #4172)
+- Progress notification opens the activity sheet (#4174)
+- Fixed a release-build crash loop and widgets showing "Can't show content" after an app update (#4175)
+- Fixed synced highlights not shown until the window was reloaded (#4151)
+- Fixed "Bookmark this verse" on an add-on bookmark using the wrong Bible (#4166)
+- My Documents shows AI entries with the robot icon (#4167)
+- Fixed a crash when the page has no document (#4165)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/

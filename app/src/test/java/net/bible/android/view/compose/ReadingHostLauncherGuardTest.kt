@@ -240,9 +240,9 @@ class ReadingHostLauncherGuardTest {
             Regex("awaitIntent\\(").findAll(code).count(),
         )
         assertEquals(
-            "the other three arms — multi-document, my-document and the general-book key list — " +
-                "each await through awaitChosenKey (3 calls in the dispatch body)",
-            3,
+            "the other two arms — multi-document and my-document — each await through awaitChosenKey " +
+                "(2 calls in the dispatch body; a plain general book opens the key-list sheet, #4172)",
+            2,
             Regex("awaitChosenKey\\(").findAll(code).count(),
         )
         assertTrue(
@@ -258,7 +258,7 @@ class ReadingHostLauncherGuardTest {
             val failure = runCatching { assertGeneralBookChooserAwaited(broken) }.exceptionOrNull()
             assertTrue("scanner did not detect the real launcher defect $call", failure is AssertionError)
         }
-        // Whole-launcher dispatches for Bible/dictionary/map are not general-book defects.
+        // The dictionary's whole-launcher dispatch is not a general-book defect.
         assertTrue(source.contains("context.startActivityForResult("))
         assertGeneralBookChooserAwaited(source)
     }

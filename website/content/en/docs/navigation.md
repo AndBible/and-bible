@@ -6,27 +6,37 @@ To open a bible reference, simply click on the book name at the top of the scree
 
 [![AndBible Header Reference](images/header-reference.png){ height="100" }](images/header-reference.png)
 
-The *Book Chooser* will open where you can select any book that is available in
-the current document. For example, in regular Bible documents you will be able
+The *Book Chooser* will open as a sheet over the reading view, where you can
+select any book that is available in the current document. The keyboard
+shortcuts (**Ctrl+B**, **Ctrl+L** on the desktop, **Cmd+B** on iOS) and a switch to
+a document that does not contain your current reference open the same sheet. For example, in regular Bible documents you will be able
 to see all 66 books of the Bible, but if you go to the *Book Chooser* when the
 active window is a smaller commentary, it will only show the books that are
 available in that commentary.
 
-After you select the book, it will take you to the next screen where you can
+After you select the book, the sheet moves on to the chapters, where you can
 select the chapter. When you pick the book you are reading, the chapter you are
-reading (and, on the verse screen, the verse) is highlighted and scrolled into
-view, so a long book such as Psalms opens near your place:
+reading (and, at the verse step, the verse) is highlighted and scrolled into
+view, so a long book such as Psalms opens near your place. The sheet slides up over
+the lower part of the reading screen, and the book you are reading is outlined:
 
-[![AndBible Chapter Chooser](images/book-chapter-chooser.png){ width="200" }](images/book-chapter-chooser.png)
+[![The Choose Book sheet over the reading view](images/book-chapter-chooser.png){ width="200" }](images/book-chapter-chooser.png)
 
-After selecting a book and then a chapter it will take you back to the Bible
-screen and open the Bible to the selected reference.
+General books and maps have no books and chapters. Their entries (and the same
+shortcuts and title tap) open the same kind of sheet with the list of the entries
+(keys) of that document, where you tap the one you want.
+
+After selecting a book and then a chapter the sheet closes and the Bible opens
+at the selected reference.
 
 ### Book Chooser Customizations
 
-A few customization options are available in the top right vertical three-dot menu
-of the *Book Chooser* screen:
+A few customization options are available in the vertical three-dot menu
+in the header of the *Book Chooser* sheet:
 
+[![The menu of the Book Chooser](images/book-chooser-menu.png){ width="200" }](images/book-chooser-menu.png)
+
+> - **Help in the user guide:** Opens this page.
 > - **Alphabetical Order:** Enabling this option will display the books in
 >     alphabetical order. (Starting with numbers - i.e. 1 Chronicles)
 > - **Order books horizontally:** Enabling this option will list the books from
@@ -40,17 +50,16 @@ of the *Book Chooser* screen:
 >     their category (i.e. Law, History, Poetry, Prophets, etc.)
 > - **Show long book name:** Enabling this option will additionally show the full
 >     book name under its abbreviation.
+> - **Show progress bars:** Shows the [reading progress](reading_progress.md#progress-indicators)
+>     bars on the book and chapter buttons.
 
 ### Opening Deuterocanonical Books
 
 When your active window is a Bible version that contains deuterocanonical books,
-there will be a plus (+) icon in the *Book Chooser*. By clicking on the plus (*+*)
-icon, you will see a list of the included deuterocanonical books. For example,
-when opening the KJVA Bible, you can click the “Book Chooser” and you should
-see the plus (+) menu icon in the top right. Clicking the plus icon (+) will
-display the deuterocanonical books in the list:
-
-[![AndBible Chapter Chooser](images/book-chooser-deuterocanonical.png){ width="200" }](images/book-chooser-deuterocanonical.png)
+the three-dot menu of the *Book Chooser* also has a *Deuterocanonical* item.
+Choosing it replaces the list with the deuterocanonical books (for example in the
+KJVA Bible). The same menu item, now called *Bible*, takes you back to the other
+books.
 
 ### Navigating Directly To Verse
 
@@ -63,6 +72,14 @@ chapter), you can enable the *Navigate to verse* option in Application preferenc
 
 Now after selecting the chapter number, you will be prompted to choose the exact
 verse number you would like to open.
+
+### General Books and Maps
+
+In a general book (other than a StudyPad or one of your own documents) or a map, the title, the
+same keyboard shortcuts and a switch to a book that
+has not been opened yet all open a list of the book's entries (for an EPUB, its table of contents)
+as a sheet over the reading view instead. Pick an entry to open it; closing the list without a
+choice after switching to such a book returns you to where you were.
 
 ## The Reading Toolbar {#the-reading-toolbar}
 
@@ -139,9 +156,10 @@ To open a document, click on either the Bible or Commentary icons in the top nav
 >     i.e. Commentaries, Dictionaries, Generic books, etc).
 
 By default each button opens a sheet. The Bible button lists your Bibles. The
-other button is titled *Commentary* and lists commentaries, general books and
-dictionaries. The tabs are *Recent*, *This verse* and *All*, and *All
-documents…* at the bottom opens the full document list. A tab with no documents is
+other button opens the *Documents* sheet, which lists commentaries, dictionaries,
+general books and maps. The tabs are *Recent*, *This verse* and *All* (grouped
+under a heading for each document type), and *All documents…* at the bottom opens
+the full document list. A tab with no documents is
 not shown. If only two Bibles (or books) are available for the current verse, the
 button switches directly to the other one instead; if none are, it opens the full
 document list.
@@ -221,6 +239,10 @@ Turn it on or off with
 *Show background activity in the menu* in the *Look & feel* section of the
 application settings (see [Appearance and settings](look_and_feel.md#look-feel)).
 
+Tapping the progress notification of a download or install opens the
+reading view with the *Background activity* list on top, whether or not the
+setting is on. This applies on Android, desktop and iOS.
+
 When the setting is on:
 
 - While a download or install, search indexing or sync is running, a thin
@@ -269,14 +291,15 @@ jobs (under a second) are not shown.
 
 With a hardware keyboard, the reading view understands the shortcuts below. They work in the
 reading view, not in text fields or in the note editor (see the notes under
-[Keyboard Search](#keyboard-search)).
+[Keyboard Search](#keyboard-search)); the exceptions on desktop are **Ctrl+S** and **Ctrl+B**, which also
+work while a native text field of the app (for example the search field) has focus.
 
 | Keys | Action | Platforms |
 |---|---|---|
 | **Ctrl+F** (**Cmd+F** on iOS) | Open the search field | All |
 | **Ctrl+B** (**Cmd+B** on iOS) | Open the *Book Chooser* | All |
-| **Ctrl+L** | Open the *Book Chooser* ("go to reference") | Desktop |
-| **Ctrl+B** with text selected | Bookmark the selection | Desktop |
+| **Ctrl+L** (**Cmd+L** on iOS) | Open the *Book Chooser* ("go to reference"); on an iPad keyboard also the physical **Ctrl+L** | Desktop, iOS |
+| **Ctrl+B** (**Cmd+B** on iOS) with text selected | Bookmark the selection | Desktop, iOS |
 | **Ctrl+C** | Copy the selected text | All |
 | **Ctrl+W** | Open the workspace selector | All |
 | **Alt+M** | Open the main menu | All |
@@ -284,13 +307,16 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Alt+Up**, **Alt+Down** | Switch to the previous / next window (also **Alt+Left**, **Alt+Right** on Android and iOS) | All |
 | **Alt+Left** | Go back (same as **Esc**, see [below](#esc-key-as-back)); **Alt+Right** does nothing | Desktop |
 | Mouse back button | Go back | Desktop |
-| **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop |
-| **Ctrl+Plus**, **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** | Larger text, smaller text, default text size | Desktop |
-| **Ctrl+,** | Open *Application preferences* | Desktop |
-| **Ctrl+S** (**Cmd+S** on macOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop |
-| **F11** | Toggle fullscreen | Desktop |
-| **Esc** | Go back, see [below](#esc-key-as-back) | iOS, desktop |
-| **Up / Down** | Scroll the text | All |
+| **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop, iOS |
+| **Ctrl+Plus** (also **Ctrl+=**), **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** (**Cmd+Plus**, **Cmd+=**, **Cmd+Minus**, **Cmd+0** on iOS, no wheel) | Larger text, smaller text, default text size | Desktop, iOS |
+| **Ctrl+H** or **Ctrl+Y** (**Cmd+Y** on macOS; on iOS only **Cmd+Y**; **Cmd+H** is taken by the system) | Open the *History* list; a focused text field keeps these keys (on Linux and Windows **Ctrl+Y** is redo there; the desktop app is not yet checked on macOS) | Desktop, iOS |
+| **Ctrl+,** (**Cmd+,** on iOS, from the reading screen only) | Open *Application preferences* | Desktop, iOS |
+| **Ctrl+S** (**Cmd+S** on macOS and iOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop, iOS |
+| **F11** | Toggle the reading fullscreen of the app (on iOS and Mac it does not toggle the Mac window's full screen; a Mac keyboard may need **Fn**+**F11**) | Desktop, iOS |
+| **Esc** | Go back, see [below](#esc-key-as-back) | All |
+| **Up / Down** | Scroll the text; while the search results list has focus they move its selection instead, and **Up** on the first result returns to the search field | All |
+| **Enter** in the search results | Open the highlighted result, or the first one when nothing is highlighted. On desktop the list takes the focus when results appear; elsewhere it does so when you used the keyboard | All |
+| **Enter** in the search field, with the results of the same query shown | With a hardware keyboard (always on desktop; on Android and iOS when the last key you pressed came from a hardware keyboard): open the first result instead of searching again. Nothing happens while the results still load. After you change the query, or with the on-screen keyboard's search key, it searches | All |
 | **Space** | Pause or resume speaking, while speech is not stopped | All |
 
 When you tap a verse and its action menu is open, **B** adds a bookmark, **N** adds a note and
@@ -300,9 +326,9 @@ When you tap a verse and its action menu is open, **B** adds a bookmark, **N** a
 
 With the reading view open, **Ctrl+F** opens the in-place search field, including
 on iPhone and iPad with a connected keyboard. On iOS, **Cmd+F** also opens search,
-and **Cmd+B** performs the same reading action as **Ctrl+B**. You can also open
-the same search from **Find** in the main menu. Other Command-key combinations
-are not reading shortcuts. Press **Ctrl+F** again (**Cmd+F** on iOS) to focus the
+and **Cmd+B** and **Cmd+L** on iOS open the same *Book Chooser* sheet as **Ctrl+B** does. You can also open
+the same search from **Find** in the main menu. On iOS the Command-key versions of the other shortcuts marked iOS above work too, and the text size keys follow the character printed on your keyboard (**Cmd+Plus** and **Cmd+Minus** on a Finnish or German keyboard too). Other Command-key combinations
+are not reading shortcuts, and none of these act while a text field or the note editor has focus. Press **Ctrl+F** again (**Cmd+F** on iOS) to focus the
 search field and select the whole query; typing replaces the old query without
 running it again. While a native text field has focus, its own
 keyboard commands take precedence over reading shortcuts. In the Bible text's
@@ -313,11 +339,15 @@ such as Ctrl+B and Ctrl+F for caret navigation, and Option+arrow navigation.
 
 ### Esc Key as Back {#esc-key-as-back}
 
-With a hardware keyboard on iPhone, iPad, the iOS app on a Mac and the desktop app, **Esc** works
+With a hardware keyboard on Android, iPhone, iPad, the iOS app on a Mac and the desktop app, **Esc** works
 like the Back button: each press closes the topmost open thing (a dialog, popup or sheet, then the
 main menu, the search results and **Find**), and on a screen opened over the Bible text, such as the
 settings or the Bible chooser, it returns to the previous screen.
-On the desktop reading screen, Esc also exits fullscreen; with nothing open it does nothing.
+On the Android and desktop reading screens, Esc also exits fullscreen; with nothing open it does
+nothing (unlike Back, it never steps back through your reading history or closes the app).
+On Android, Esc does not yet close sheets and dialogs that open in their own window, such as
+*Workspaces*, and after you tap the Bible text it closes only popups in the text, not **Find**;
+use Back for those.
 
 On iPhone, iPad and the iOS app on a Mac, while you type in a text field, the
 first Esc only leaves the field (and hides the on-screen keyboard); press Esc
@@ -397,4 +427,4 @@ Several buttons support long-press for quick access to additional features:
     (whichever is not what a plain tap does, depending on the *Links window* setting),
     *Open link in new window* and, for Bible reference links, *Copy link to clipboard*.
 
-The navigation history list is in the main menu as `History`.
+The navigation history list is in the main menu as `History`; with a keyboard, **Ctrl+H** opens it on the desktop and **Cmd+Y** on iOS.

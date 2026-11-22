@@ -90,24 +90,41 @@ class VerseGlanceWidget : GlanceAppWidget() {
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
         val entry = widgetEntry()
         WidgetUpdater.mono.value = entry.mono
-        val koin = KoinPlatform.getKoin()
-        val strings = koin.get<WidgetStrings>()
-        // A widget that lost its configuration (restore, cleared data) gets a default instead of staying empty.
-        val loads = if (entry.appOpens) verseWidgetLoads(context, appWidgetId, ::defaultVerseWidgetConfig) { config ->
-            val now = System.currentTimeMillis()
-            val zone = koin.get<LocalZone>()
-            val content = withContext(Dispatchers.IO) { koin.get<VerseCandidates>().content(config, now, zone) }
-            VerseWidgetScheduler.schedule(context, appWidgetId, VerseSelector.nextPeriodStart(now, zone, config.frequency))
-            content
-        } else null
+        val loads = verseWidgetLoadsFor(context, appWidgetId, entry) { KoinPlatform.getKoin() }
         provideContent {
             AbWidgetTheme(WidgetUpdater.mono.collectAsState().value) {
                 // The loaded verse follows the saved configuration: a running session is not restarted by update().
                 val load = loads?.let { it.updates.collectAsState(it.initial).value }
                 if (load == null) AttentionGlanceContent()
-                else VerseWidgetBody(load.content, load.config, strings, appWidgetId, LocalSize.current.width, LocalSize.current.height)
+                else VerseWidgetBody(load.content, load.config, KoinPlatform.getKoin().get<WidgetStrings>(), appWidgetId, LocalSize.current.width, LocalSize.current.height)
             }
         }
+    }
+}
+
+/**
+ * The loads of a verse widget, or null when the app did not open ([WidgetEntry.appOpens] false: damaged data #4112 or
+ * the crash safe mode #4176), which shows the attention card. [koin] is not touched in that case: in the safe mode
+ * Koin was never started, and resolving it threw, so the widget showed Glance's error layout instead of the card.
+ */
+internal suspend fun verseWidgetLoadsFor(
+    context: Context,
+    appWidgetId: Int,
+    entry: WidgetEntry,
+    koin: () -> org.koin.core.Koin,
+): VerseWidgetLoads? {
+    if (!entry.appOpens) return null
+    val k = koin()
+    // A widget that lost its configuration (restore, cleared data) gets a default instead of staying empty.
+    return verseWidgetLoads(context, appWidgetId, ::defaultVerseWidgetConfig) { config ->
+        val now = System.currentTimeMillis()
+        val zone = k.get<LocalZone>()
+        // Resolve on Main: the graph under VerseCandidates (ReadingPlanControl, windows, bookmarks) holds main-bound
+        // singletons that must not be first-built on a worker thread (#4175). Only the reading runs on IO.
+        val candidates = withContext(Dispatchers.Main.immediate) { k.get<VerseCandidates>() }
+        val content = withContext(Dispatchers.IO) { candidates.content(config, now, zone) }
+        VerseWidgetScheduler.schedule(context, appWidgetId, VerseSelector.nextPeriodStart(now, zone, config.frequency))
+        content
     }
 }
 

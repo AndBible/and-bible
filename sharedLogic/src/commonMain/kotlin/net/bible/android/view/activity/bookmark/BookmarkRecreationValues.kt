@@ -92,11 +92,12 @@ data class LabelDraftValue(
     val overrideMode: OverrideMode,
     val isSpecialLabel: Boolean,
     val isSpeakLabel: Boolean,
+    val thisBookmarkPrimaryApplies: Boolean = true,
 ) {
     fun toState() = LabelEditState(
         labelId, name, color, customIcon, selectionStyle, wholeVerseStyle, favourite, isAssigning,
         thisBookmarkSelected, thisBookmarkPrimary, hasWorkspaceContext, autoAssign, autoAssignPrimary,
-        overrideMode, isSpecialLabel, isSpeakLabel,
+        overrideMode, isSpecialLabel, isSpeakLabel, thisBookmarkPrimaryApplies = thisBookmarkPrimaryApplies,
     )
 
     companion object {
@@ -104,7 +105,7 @@ data class LabelDraftValue(
             LabelDraftValue(
                 labelId, name, color, customIcon, selectionStyle, wholeVerseStyle, favourite, isAssigning,
                 thisBookmarkSelected, thisBookmarkPrimary, hasWorkspaceContext, autoAssign, autoAssignPrimary,
-                overrideMode, isSpecialLabel, isSpeakLabel,
+                overrideMode, isSpecialLabel, isSpeakLabel, thisBookmarkPrimaryApplies,
             )
         }
     }

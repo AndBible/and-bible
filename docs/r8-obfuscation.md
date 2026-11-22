@@ -43,7 +43,45 @@ Class and member names of obfuscated code change in **every** build. So:
 
 When adding a reflective path, run a release build on the emulator (below) before merging.
 
+## Constructors that libraries call by reflection
+
+R8 runs in full mode (the AGP 8 default). There a member-less rule such as `-keep class * extends Base` keeps the class
+and its name but **not** its default constructor; a class that nothing creates with `new` then loses the constructor
+(and may be made abstract), and a reflective `newInstance()` throws `InstantiationException`. Older libraries still ship
+such rules. 6.0.1279 crash-looped at startup this way (#4175): Glance 1.1.1 pulls in WorkManager 2.7.1 and Room 2.2.5,
+whose rule lacks `{ <init>(); }`, so WorkManager's `WorkDatabase_Impl` could not be created inside androidx.startup,
+before `Application.onCreate` (so no crash dialog either). Glance's own `ActionCallback` rule has the same gap, which
+broke every widget button (`NoSuchMethodException`). `app/proguard-rules.pro` keeps those constructors explicitly.
+
+Every minified variant runs `checkR8ReflectiveConstructors<Variant>` after `minify<Variant>WithR8`
+(`scripts/check-r8-reflective-constructors.py`): it reads the R8 output DEX and mapping and fails the build when a leaf
+subclass of `androidx.room.RoomDatabase`, `androidx.room3.RoomDatabase`, `androidx.work.InputMerger`,
+`androidx.startup.Initializer` or `androidx.glance.appwidget.action.ActionCallback` is abstract or has no no-argument
+constructor. It also sees a base that R8 merged into its only subclass (the mapping lists the base's members under the
+subclass). For Room 2, `InputMerger` and `ActionCallback` it also demands at least one leaf (`MIN_LEAVES`), so a base
+that the descent heuristic misses cannot pass as "0 checked". `package<Variant>` and `bundle<Variant>` depend on the
+check, so a failing check leaves no fresh APK/AAB. CI runs the script's unit tests (`shared-jvm-tests.yml`). When a new
+dependency creates classes by name, add its base class to `BASES` in the script.
+
+`app/build.gradle.kts` declares `androidx.work:work-runtime-ktx` 2.10.x explicitly: Glance 1.1.1 alone pins WorkManager
+2.7.1 and room-runtime 2.2.5 (2021). The explicit keep rules and the check stay (Room 2.6.1's rule is also
+member-less). Room 2 (`androidx.room`, WorkManager only) and Room 3 (`androidx.room3`, AndBible's databases) live in
+different packages and coexist.
+
+### Widgets across an app update
+
+Glance keeps the class name of each widget in a DataStore that survives an update, and `updateAll()` looks widgets up by
+`GlanceAppWidget.class.getCanonicalName()`. R8 names that class differently in each build, so `-keepnames class * extends
+androidx.glance.appwidget.GlanceAppWidget` (and the receiver) in `app/proguard-rules.pro` keeps the lookup stable.
+That was not what made widgets show "Can't show content" after an update, though: the process is cold then, and the first
+`SpeakControl` was built on a Glance worker thread, where `AndroidMediaSession` created a `Handler` without a Looper
+(fixed with a main-looper handler). Details and emulator evidence: `docs/superpowers/status/issue-4175/README.md`.
+Test a widget change with a real update (`adb install -r` of a build with a higher versionCode, widgets already placed),
+not only with a fresh install; place widgets with the app process alive.
+
 ## Reading obfuscated stack traces
+
+See also: the `android-crash-retrace` skill (`.claude/skills/android-crash-retrace/`).
 
 A release build prints frames like
 

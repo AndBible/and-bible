@@ -111,6 +111,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -787,13 +788,7 @@ private fun ReadingToolbarTitle(
             .pointerInput(Unit) { detectTitleGestures(currentCallbacks) },
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = state.pageTitle,
-            style = MaterialTheme.typography.titleMedium,
-            color = LocalContentColor.current,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        FittingPageTitle(state.pageTitle, state.pageTitleShort)
         Row(verticalAlignment = Alignment.CenterVertically) {
             // weight(1f, fill = false) makes this Text yield width to the trailing SyncIndicator:
             // a Row measures non-weighted children (the indicator) FIRST and subtracts their size
@@ -928,3 +923,35 @@ private suspend fun PointerInputScope.detectTitleGestures(currentCallbacks: Stat
         }
     }
 }
+
+/**
+ * The page title, falling back to [short] (short book names) when [full] does not fit the width this block gets,
+ * like the classic app's `MainBibleActivity.updateTitle` (#4200). Two tiers only; if even [short] overflows it is
+ * ellipsized. Measured with the real style in the real constraints, so rotation and split-screen width changes
+ * re-choose on their own.
+ */
+@Composable
+internal fun FittingPageTitle(full: String, short: String?) {
+    val style = MaterialTheme.typography.titleMedium
+    val measurer = rememberTextMeasurer()
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val maxWidth = constraints.maxWidth
+        val shown = fittingPageTitle(full, short) { candidate ->
+            measurer.measure(candidate, style, softWrap = false, maxLines = 1).size.width <= maxWidth
+        }
+        Text(
+            text = shown,
+            style = style,
+            color = LocalContentColor.current,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/**
+ * [full] if it [fits]; else [short] when there is one and it is actually shorter than [full]; else [full]
+ * (left to ellipsize). Pure, for tests.
+ */
+internal fun fittingPageTitle(full: String, short: String?, fits: (String) -> Boolean): String =
+    if (short == null || short.length >= full.length || fits(full)) full else short

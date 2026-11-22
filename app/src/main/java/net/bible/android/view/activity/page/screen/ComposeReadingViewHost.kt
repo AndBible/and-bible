@@ -506,9 +506,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /**
-     * The keys behind a key-chooser sheet, resolved from the extension the full-screen chooser
-     * activities use (`KeyChooserKeys.kt`), so the sheet and the screen can never offer different
-     * lists. A row's id is the INDEX into the returned list, which is why every caller must resolve
+     * The keys behind a key-chooser sheet, resolved from the extension every other opening of the
+     * sheet uses too (`KeyChooserKeys.kt`, through `openKeyListSheet`), so the openings can never
+     * offer different lists. A row's id is the INDEX into the returned list, which is why every caller must resolve
      * ONCE and hold the result for as long as its rows are on screen.
      *
      * [KeyChooserKind.Grid] has no key list at all — it is driven by `GridChoosePassageController` —
@@ -525,12 +525,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * returned — the routing precondition, deliberately NOT a guard inside the sheet body (Task 9
      * amendment E3).
      *
-     * An EMPTY key list is real behaviour, not a degenerate case: both chooser activities answer it
-     * by returning their fallback selection and finishing without ever drawing a list
-     * (`ChooseMapKeyComposeActivity`/`ChooseGeneralBookKeyComposeActivity` `onCreate`, and for a
-     * general book that fallback is `globalKeyList.first()`). A sheet cannot reproduce that, and an
-     * empty sheet with only a ✕ is strictly worse than what exists today — so an empty list falls
-     * through to the Activity exactly as an unrecognised page or a null host does.
+     * An EMPTY key list (an EPUB without a table of contents) opens no sheet: an empty sheet with
+     * only a ✕ would be no help. The caller then hands the page to `AndroidKeyChooserLauncher`, whose
+     * `openKeyListSheet` opens nothing either and gives a page without a key its document's first
+     * key (the removed full-screen choosers' fallback, #4172).
      *
      * Takes the resolved list rather than resolving it, so the caller resolves ONCE and the Grid
      * exemption — it has no key list at all — stays here rather than leaking into the caller.
@@ -1429,7 +1427,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private fun activityWiring(): ActivityHostWiring? {
         val center = getKoin().getOrNull<ActivityCenter>() ?: return null
         val preference = getKoin().getOrNull<ActivityMenuPreference>() ?: return null
-        return ActivityHostWiring(center, preference, syncNow = getKoin().get(), reporter = getKoin().getOrNull(), onOpenAgent = { id ->
+        return ActivityHostWiring(center, preference, listRequests = getKoin().getOrNull<net.bible.android.control.activity.ActivityListRequests>()?.requests, syncNow = getKoin().get(), reporter = getKoin().getOrNull(), onOpenAgent = { id ->
             hostScope.launch {
                 if (activity.hostWindowRepository.id != id) activity.readingCommands.quickSwitchToWorkspace(id.toString())
                 if (activity.hostWindowRepository.id == id) {

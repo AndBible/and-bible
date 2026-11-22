@@ -6,18 +6,29 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavBackStackEntry
+import androidx.savedstate.read
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -69,6 +80,9 @@ import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.installzip.InstallZipOpener
+import net.bible.sharedui.bookmark.LabelAssignSheet
+import net.bible.sharedui.bookmark.LabelAssignSheetActions
+import net.bible.sharedui.bookmark.LabelAssignSheetState
 import net.bible.sharedui.bookmark.ManageLabelsHelpDialog
 import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.bookmark.nav.BookmarksDeps
@@ -150,6 +164,16 @@ class ManageLabelsSession(
 ) {
     lateinit var controller: ManageLabelsController
     var pendingEdit: PendingLabelEdit? = null
+
+    /** Told when the exit's writes failed and no result was delivered (the assign sheet shows itself again). */
+    var onSaveFailed: () -> Unit = {}
+
+    /**
+     * This memo is an assign sheet's (issue #4201). The sheet is not restored after recreation (spec decision 6), so
+     * its working state stays out of [BookmarkHost.recreationSnapshot]: restored, it would resume the abandoned ticks
+     * the next time a request with the same payload opens.
+     */
+    var forAssignSheet = false
 }
 
 /** The label whose editor is currently open, and whether it was created by this visit. */
@@ -204,6 +228,7 @@ class BookmarkHost(
     private var navController: NavHostController? = null
     private var bookmarkResults: NavResultChannel<BookmarkResult>? = null
     private var manageLabelsResults: NavResultChannel<ManageLabelsResult>? = null
+    private var labelEditResults: NavResultChannel<NavLabelEditResult>? = null
 
     /**
      * The value snapshot decoded from the saved state: a fallback each destination consumes when it re-composes,
@@ -230,9 +255,11 @@ class BookmarkHost(
         manageLabelsResults: NavResultChannel<ManageLabelsResult>,
         labelEditResults: NavResultChannel<NavLabelEditResult>,
     ): BookmarkNavDeps {
+        if (this.navController !== navController) popOrphanedSheetEditorOnRestore(navController)
         this.navController = navController
         this.bookmarkResults = bookmarkResults
         this.manageLabelsResults = manageLabelsResults
+        this.labelEditResults = labelEditResults
         return BookmarkNavDeps(
             exitHost = { shell.exitHost() },
             setWindowTitle = { title -> shell.setWindowTitle(title) },
@@ -322,8 +349,9 @@ class BookmarkHost(
     fun recreationSnapshot(): BookmarkRecreationState {
         // A manager whose Save has started must not be offered again: the restored working set would still
         // hold new=true labels and a second Save would insert them twice.
-        val savingManager = manageLabelsSession?.second?.writes?.isStarted == true
-        val manager = manageLabelsSession?.takeUnless { savingManager }
+        val fullScreenSession = manageLabelsSession?.takeUnless { it.second.forAssignSheet }
+        val savingManager = fullScreenSession?.second?.writes?.isStarted == true
+        val manager = fullScreenSession?.takeUnless { savingManager }
         val bookmarks = bookmarksSession
         val editor = labelEditSession
         val documents = platform.documentsRecreation()
@@ -336,17 +364,17 @@ class BookmarkHost(
                 it.pendingAssign?.map { b -> b.id.toString() } ?: it.restoredAssignIds
             } else restoredBookmarks?.pendingAssignIds,
             awaitingManager = bookmarks?.second?.awaitingManageLabels ?: (restoredBookmarks?.awaitingManager == true),
-            managerKey = manager?.first ?: restoredBookmarks?.managerKey.takeIf { manageLabelsSession == null },
+            managerKey = manager?.first ?: restoredBookmarks?.managerKey.takeIf { fullScreenSession == null },
             manager = manager?.second?.controller?.snapshot()?.let {
                 ManageLabelsValue.from(it)
-            } ?: restoredBookmarks?.manager.takeIf { manageLabelsSession == null },
+            } ?: restoredBookmarks?.manager.takeIf { fullScreenSession == null },
             // Only labels the user changed need the Bundle; every other one is reloaded from the database.
             labels = manager?.second?.let { m ->
                 val changedIds = m.controller.resultChanged()
                 m.labelsById.filterKeys { it in changedIds }.values.toList()
-            } ?: restoredBookmarks?.labels.orEmpty().takeIf { manageLabelsSession == null }.orEmpty(),
-            pendingLabel = manager?.second?.pendingEdit?.label ?: if (manageLabelsSession == null) restoredBookmarks?.pendingLabel else null,
-            pendingLabelIsNew = manager?.second?.pendingEdit?.isNew ?: (manageLabelsSession == null && restoredBookmarks?.pendingLabelIsNew == true),
+            } ?: restoredBookmarks?.labels.orEmpty().takeIf { fullScreenSession == null }.orEmpty(),
+            pendingLabel = manager?.second?.pendingEdit?.label ?: if (fullScreenSession == null) restoredBookmarks?.pendingLabel else null,
+            pendingLabelIsNew = manager?.second?.pendingEdit?.isNew ?: (fullScreenSession == null && restoredBookmarks?.pendingLabelIsNew == true),
             editorKey = editor?.first,
             editorDraft = editor?.second?.state?.value?.let {
                 LabelDraftValue.from(it)
@@ -505,12 +533,24 @@ class BookmarkHost(
             val payload = ManageLabelsContract.ManageLabelsData(
                 mode = ManageLabelsContract.Mode.ASSIGN,
                 selectedLabels = labels,
+                bookmarkPrimaryApplies = false,
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
             withContext(Dispatchers.Main) {
                 session.pendingAssign = bookmarks
                 session.restoredAssignIds = null
-                session.awaitingManageLabels = true
-                navigateToManageLabels(payload)
+                // Issue #4201: the sheet first; "Edit labels" in it opens the full-screen list as before.
+                when (val outcome = requestLabelAssign(payload)) {
+                    // Ticks as seeded (only labels themselves were edited): the bookmarks keep their own labels.
+                    is LabelAssignOutcome.Assigned -> applyBookmarksManageLabelsResult(
+                        ManageLabelsResult(outcome.data),
+                        writeBookmarkLabels = outcome.bookmarkLabelsChanged,
+                    )
+                    is LabelAssignOutcome.Expand -> {
+                        session.awaitingManageLabels = true
+                        navigateToManageLabels(outcome.data)
+                    }
+                    LabelAssignOutcome.Cancelled -> if (session.pendingAssign === bookmarks) session.pendingAssign = null
+                }
             }
         }
     }
@@ -552,7 +592,7 @@ class BookmarkHost(
      * because the label manager has no cancel path at all (its Back press SAVES) and every exit it
      * has delivers a result. A user who backs out of it has, by classic's own design, saved.
      */
-    private fun applyBookmarksManageLabelsResult(result: ManageLabelsResult) {
+    private fun applyBookmarksManageLabelsResult(result: ManageLabelsResult, writeBookmarkLabels: Boolean = true) {
         val session = bookmarksSession?.second ?: return
         val bookmarks = session.pendingAssign
         val restoredIds = session.restoredAssignIds
@@ -561,7 +601,7 @@ class BookmarkHost(
         session.awaitingManageLabels = false
 
         val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
-        if (bookmarks != null || restoredIds != null) {
+        if (writeBookmarkLabels && (bookmarks != null || restoredIds != null)) {
             shell.hostScope.launch(Dispatchers.IO) {
                 val targets = bookmarks ?: restoredIds.orEmpty().mapNotNull { id ->
                     bookmarkControl.bibleBookmarkById(IdType(id)) ?: bookmarkControl.genericBookmarkById(IdType(id))
@@ -640,6 +680,36 @@ class BookmarkHost(
      * this one has finished — is seeded afresh rather than resuming a stale working set.
      */
     internal var manageLabelsSession: Pair<String, ManageLabelsSession>? = null
+
+    /**
+     * The label-assign sheet (issue #4201): the bookmark list's multi-select and the reading view's
+     * bookmark flow ask through it, and [Overlays] renders the open request above every destination.
+     */
+    val labelAssignSheets = LabelAssignSheetRequests()
+
+    /**
+     * Opens the assign sheet with an ASSIGN payload and waits for how it ended; the [LabelAssignSheetOpener] of
+     * every entry point. A sheet that ended without its save (a cancelled requester, a replaced request) leaves no
+     * memoised controller behind: the full-screen list opened next with the same payload must not resume it, and
+     * would otherwise answer this finished request instead of its own caller.
+     */
+    suspend fun requestLabelAssign(data: String): LabelAssignOutcome = labelAssignRequests.withLock {
+        try {
+            labelAssignSheets.request(data)
+        } finally {
+            // Callers are on Main (the sheet is UI), so the plain field is touched where it always is.
+            manageLabelsSession?.let { (key, session) ->
+                if (key == data && !session.writes.isStarted) manageLabelsSession = null
+            }
+        }
+    }
+
+    /**
+     * One assign sheet at a time, queued like the full screen's requests were (`HostReadingNavigator.labelRequests`): a
+     * second request waits until the first sheet has saved and answered, instead of cancelling it (its ticks would be
+     * lost) or meeting its still-running save in the memo (it would resume the first request's controller).
+     */
+    private val labelAssignRequests = Mutex()
 
     /** Raised from the ManageLabels overflow; rendered host-level in [Overlays]. */
     internal var manageLabelsHelpOpen by mutableStateOf(false)
@@ -763,6 +833,7 @@ class BookmarkHost(
             suggestedName = suggestedName,
             workspaceOverride = workspaceOverride,
             hasWorkspaceContext = workspaceContext,
+            thisBookmarkPrimaryApplies = session.data.bookmarkPrimaryApplies,
             addonModuleName = if (isNew) null else bookmarkControl.addonModuleOfLabel(label.id)?.let(bookmarkControl::addonModuleName),
         )
         if (isNew) {
@@ -929,7 +1000,7 @@ class BookmarkHost(
 
         shell.hostScope.launch {
             // A failed write was already logged by the app scope's handler; stay on the screen.
-            val idRemap = try { writes.await() } catch (e: Exception) { return@launch }
+            val idRemap = try { writes.await() } catch (e: Exception) { session.onSaveFailed(); return@launch }
 
             fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
             fun remapId(id: String?) = id?.let { idRemap[it] ?: it }
@@ -1270,6 +1341,9 @@ class BookmarkHost(
         // leave it pending, and apply it stale the next time the list composed.
         BookmarksManageLabelsCollector()
 
+        // Read unconditionally (snapshot state), for the reason the comment below spells out.
+        labelAssignSheets.current?.let { request -> key(request) { LabelAssignSheetHost(request) } }
+
         // Host-level, deliberately OUTSIDE the NavHost: the export runs in the host scope
         // and outlives the destination that started it, so a chooser scoped
         // to that destination's composition could be disposed mid-await and leave the
@@ -1374,6 +1448,205 @@ class BookmarkHost(
                 )
             }
         }
+    }
+
+    /**
+     * The open assign sheet's behaviour ([LabelAssignSheetSession]), or null while none is open. Built when the
+     * sheet is first composed; host tests drive the sheet through it.
+     */
+    var assignSheet: LabelAssignSheetSession? by mutableStateOf(null)
+        private set
+
+    /**
+     * The [LabelAssignSheetSession] for [request]. Its controller is the full screen's own (the host memo
+     * [manageLabelsControllerFor], ASSIGN mode), and a close that saves goes through the same
+     * [saveManageLabelsAndExit], so the answer is the result payload the full screen would deliver.
+     * New (+) and a row's long press open the full-screen label editor ([NavRoutes.labelEdit]) over the screen the
+     * sheet was opened on; its answer comes back through [labelEditResults] ([LabelAssignSheetHost] collects it)
+     * and is applied by [applyLabelEditResult], exactly as the full-screen list applies it.
+     */
+    private fun assignSheetSessionFor(request: LabelAssignSheetRequests.Request): AssignSheetBinding {
+        lateinit var sheet: LabelAssignSheetSession
+        // A memo for the same payload belongs to an earlier sheet whose requester was cancelled while its save ran:
+        // reusing it would keep that sheet's answer callback. Its save still finishes on its own session.
+        if (manageLabelsSession?.first == request.data) manageLabelsSession = null
+        val controller = manageLabelsControllerFor(
+            request.data,
+            // The sheet opens the editor itself (startEditor below), so it can tell when that fails.
+            onEditLabel = {},
+            onResult = { result -> sheet.onSaved(result.data) },
+        )
+        val session = manageLabelsSession?.second?.takeIf { it.controller === controller }
+        session?.forAssignSheet = true
+        lateinit var binding: AssignSheetBinding
+        /** This sheet is still the open request and still waiting for its editor. */
+        fun stillEditing() = sheet.phase == LabelAssignSheetSession.Phase.EDITING && labelAssignSheets.current === request
+        sheet = LabelAssignSheetSession(
+            request = request,
+            hasChanges = controller::hasChanges,
+            save = controller::save,
+            startEditor = { id ->
+                shell.hostScope.launch {
+                    val nav = navController
+                    val entry = try {
+                        val payload = session?.let { buildLabelEditPayload(it, id) }
+                        when {
+                            // Cancelled or replaced while the payload was built: open nothing for a sheet that is gone.
+                            !stillEditing() -> { session?.pendingEdit = null; return@launch }
+                            payload == null || nav == null -> null
+                            else -> {
+                                labelEditResults?.consume() // a stale answer must not be taken for this editor's
+                                nav.navigate(NavRoutes.labelEdit(payload))
+                                nav.currentBackStackEntry
+                            }
+                        }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e(TAG_MANAGE_LABELS, "Could not open the label editor from the assign sheet", e)
+                        null
+                    }
+                    if (entry == null || nav == null) { sheet.onEditorFailed(); return@launch }
+                    binding.editorEntry = entry
+                    // The editor's answer is published before its entry is popped, and LabelAssignSheetHost takes it.
+                    // An entry popped with no answer (iOS/desktop openReading pops to the reading route) would leave
+                    // the sheet EDITING and every later request waiting on labelAssignRequests: end it as a cancel.
+                    nav.currentBackStack.first { stack -> stack.none { it.id == entry.id } }
+                    if (binding.editorEntry === entry) binding.editorEntry = null
+                    if (stillEditing() && labelEditResults?.pending?.value == null) {
+                        dropLabelEditSession(entry)
+                        sheet.onEditorResult(NavLabelEditResult.Cancelled)
+                    }
+                }
+            },
+            applyEditorResult = ::applyLabelEditResult,
+            bookmarkLabelsChanged = controller::bookmarkLabelsChanged,
+        )
+        // A failed save delivers nothing: show the sheet again, so the user can retry or keep the ticks in view.
+        session?.onSaveFailed = sheet::onSaveFailed
+        binding = AssignSheetBinding(sheet, controller, session)
+        return binding
+    }
+
+    /** One open assign sheet's session, its controller and memo, and the label editor it has open, if any. */
+    private class AssignSheetBinding(
+        val sheet: LabelAssignSheetSession,
+        val controller: ManageLabelsController,
+        val session: ManageLabelsSession?,
+    ) {
+        var editorEntry: NavBackStackEntry? = null
+    }
+
+    /**
+     * Pops the label editor [binding]'s sheet opened and drops its answer, once that sheet's request is gone. Touches
+     * only that sheet's own editor entry and memo: a newer request may already have its own.
+     */
+    private fun closeOrphanedLabelEditor(binding: AssignSheetBinding) {
+        val nav = navController
+        val entry = binding.editorEntry
+        binding.editorEntry = null
+        if (nav != null && entry != null) {
+            try {
+                if (nav.currentBackStackEntry?.id == entry.id) nav.popBackStack()
+            } catch (e: Exception) {
+                Log.e(TAG_MANAGE_LABELS, "Could not close the assign sheet's label editor", e)
+            }
+            labelEditResults?.consume()
+            dropLabelEditSession(entry)
+        }
+        binding.session?.pendingEdit = null
+    }
+
+    /** Forgets the editor draft of [entry], popped without its controller's answer, so no later save offers it again. */
+    private fun dropLabelEditSession(entry: NavBackStackEntry) {
+        val payload = entry.arguments?.read { getStringOrNull(NavRoutes.ARG_LABEL_DATA) }
+        if (payload != null && labelEditSession?.first == payload) labelEditSession = null
+    }
+
+    /**
+     * After an Activity recreation (or process death) the navigation back stack comes back, but the assign sheet does
+     * not (spec decision 6): a label editor it opened (a LABEL_EDIT entry not over the full-screen label manager) has
+     * nobody to take its Save. Pops it once the restored stack is in place, and drops its restored draft.
+     */
+    private fun popOrphanedSheetEditorOnRestore(nav: NavHostController) {
+        shell.hostScope.launch {
+            nav.currentBackStack.first { it.isNotEmpty() }
+            // The restored stack is published from inside the controller's own graph set-up, and the host scope may be
+            // immediate: step out of that call before popping.
+            yield()
+            val stack = nav.currentBackStack.value
+            val top = stack.lastOrNull() ?: return@launch
+            if (top.destination.route != NavRoutes.LABEL_EDIT_PATTERN) return@launch
+            val parent = stack.getOrNull(stack.size - 2)
+            if (parent?.destination?.route == NavRoutes.MANAGE_LABELS_PATTERN) return@launch
+            if (assignSheet != null || labelAssignSheets.current != null) return@launch
+            if (nav.currentBackStackEntry?.id != top.id) return@launch
+            nav.popBackStack()
+            labelEditResults?.consume()
+            dropLabelEditSession(top)
+            updateRestored { it?.copy(editorKey = null, editorDraft = null, pendingLabel = null, pendingLabelIsNew = false) }
+        }
+    }
+
+    /**
+     * One open assign sheet, drawn while its session is [LabelAssignSheetSession.Phase.OPEN]. While the label
+     * editor is open the sheet is not drawn (it would cover the editor), but this host stays composed to take the
+     * editor's answer; the sheet then slides in again. A close that saves takes the sheet down at once and the save
+     * finishes on the host scope.
+     */
+    @Composable
+    private fun LabelAssignSheetHost(request: LabelAssignSheetRequests.Request) {
+        val binding = remember(request) { assignSheetSessionFor(request) }
+        val sheet = binding.sheet
+        val controller = binding.controller
+        DisposableEffect(sheet) {
+            assignSheet = sheet
+            onDispose {
+                if (assignSheet === sheet) assignSheet = null
+                // The requester went away while the editor was open: the editor's answer has nobody to go to.
+                if (sheet.phase == LabelAssignSheetSession.Phase.EDITING) closeOrphanedLabelEditor(binding)
+            }
+        }
+        val editorResults = labelEditResults
+        if (editorResults != null) {
+            val pendingEdit by editorResults.pending.collectAsState()
+            LaunchedEffect(pendingEdit, sheet.phase) {
+                if (pendingEdit != null && sheet.phase == LabelAssignSheetSession.Phase.EDITING) {
+                    editorResults.consume()?.let(sheet::onEditorResult)
+                }
+            }
+        }
+        val rows by controller.rows.collectAsState()
+        val searchText by controller.searchText.collectAsState()
+        val searchMode by controller.searchMode.collectAsState()
+        val styleTagsVisible by controller.styleTagsVisible.collectAsState()
+        val filters by controller.filters.collectAsState()
+        if (sheet.phase != LabelAssignSheetSession.Phase.OPEN) return
+        LabelAssignSheet(
+            state = LabelAssignSheetState(
+                title = strings.assignLabelsLabel,
+                rows = rows,
+                styleTagsVisible = styleTagsVisible,
+                searchText = searchText,
+                searchMode = searchMode,
+                filters = filters,
+            ),
+            actions = LabelAssignSheetActions(
+                onSearch = controller::setSearch,
+                onSetSearchMode = controller::setSearchMode,
+                onToggleFilter = controller::toggleFilter,
+                onToggleChecked = controller::toggleChecked,
+                onToggleFavourite = controller::toggleFavourite,
+                onSetPrimary = controller::setPrimary,
+                onToggleAutoAssign = controller::toggleAutoAssign,
+                onEditLabel = sheet::editLabel,
+                onNewLabel = sheet::newLabel,
+                onEditLabels = sheet::editLabels,
+                newLabelIcon = { onClick -> NewLabelIcon(onClick) },
+                iconSlot = { customIcon, tint -> icons.ManageLabelIcon(customIcon, tint, false) },
+            ),
+            onDismiss = sheet::dismiss,
+        )
     }
 
     /**

@@ -240,7 +240,7 @@ class IosInstallZipTest {
                 controller.jobs.collect { jobs ->
                     jobs.filter { it.phase is InstallPhase.AwaitingDecision }.forEach {
                         // Exercise the real overwrite path too; the outside sentinel must remain protected.
-                        controller.resolveDecision(it.jobId, true)
+                        controller.resolveDecision(it.jobId, (it.phase as InstallPhase.AwaitingDecision).request, true)
                     }
                 }
             }
@@ -300,7 +300,7 @@ class IosInstallZipTest {
             withTimeout(5_000) { entered.await() }
             assertEquals(InstallPhase.AwaitingDecision(DecisionRequest.Overwrite(listOf("mods.d/kjv.conf"))),
                 platform.jobs.value.single().phase)
-            platform.resolveDecision("decision-job", false)
+            platform.resolveDecision("decision-job", DecisionRequest.Overwrite(listOf("mods.d/kjv.conf")), false)
             assertEquals(InstallPhase.Cancelled, withTimeout(5_000) { terminal.await() })
             assertTrue(platform.jobs.value.isEmpty())
         }

@@ -46,6 +46,8 @@ emptyStudyPad: スタディパッドが空です。テキストエントリを�
 doYouWantToDeleteEntry: このスタディパッドのエントリを削除しますか？
 removeStudyPadConfirmationTitle: スタディパッドのエントリを削除しますか？
 dragHelp: ドラッグして並べ替え
+addonBookmarkThisVerse: この聖句をブックマーク
+addonReadOnly: このコンテンツはアドオンコレクションのもので、読み取り専用です。「自分のラベルにコピー」を使うと編集可能なコピーを作成できます。
 openAll: すべての参照を開く
 editBookmarkPlaceholder: タップしてこのブックマークのマイノートを編集
 onlyLabel: ラベルのみ

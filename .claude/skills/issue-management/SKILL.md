@@ -179,6 +179,11 @@ issue as a side effect. Other skills point here instead of repeating it.
    comment says what the user sees now and that it is fixed on the development branch and will be in an upcoming
    version; it ends with a context marker line (e.g. `_— bug-fix round, Nov 2026_`). Partial work (`Refs`) gets
    a comment if useful and stays open.
+   **A visible change (UI, theme, dialog, widget, layout) gets its screenshots in that comment**, before/after pairs
+   when available, as image attachments (`jailbee outbox stage issue proposal.json` with an `attachments` map; see
+   `jailbee-issue-management`, "Image evidence"). Check the images for private data first (addresses, label names).
+   Also post them when asking the maintainer to judge a visual result. Why: maintainer, 2026-11-21 (#4181): the
+   reporter sees what changed without installing a build.
 4. **Publish** right after staging when `jailbee inbox grant` shows `publish issues` (and `publish projects:
    andbible/11` for Status) covering the actions; otherwise list the staged batch under the host actions of your
    report (`jb issue apply <container>`). A child never stages: it names the issues in `done`.

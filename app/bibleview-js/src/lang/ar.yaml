@@ -46,6 +46,8 @@ emptyStudyPad: لوحة دراسية فارغة. ابدأ في الإضافة إ
 doYouWantToDeleteEntry: حذف مدخل اللوحة الدراسية هذا؟
 removeStudyPadConfirmationTitle: إزالة مدخل اللوحة الدراسية؟
 dragHelp: اسحب لإعادة ترتيب
+addonBookmarkThisVerse: وضع إشارة مرجعية على هذه الآية
+addonReadOnly: يأتي هذا المحتوى من مجموعة إضافة وهو للقراءة فقط. استخدم «نسخ إلى تسمياتي» للحصول على نسخة قابلة للتعديل.
 openAll: افتح كل المراجع
 editBookmarkPlaceholder: انقر لتحرير ملاحظاتي لهذه الإشارة المرجعية
 onlyLabel: فقط الملصق

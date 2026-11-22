@@ -274,7 +274,7 @@ fun LabelEditScreen(
                         // Marks, not a sentence: a collapsed section still says whether anything
                         // inside it is set, with no new translated string, and reusing exactly the
                         // symbols the list row teaches.
-                        if (state.thisBookmarkPrimary) {
+                        if (state.thisBookmarkPrimary && state.thisBookmarkPrimaryApplies) {
                             Icon(
                                 Icons.Filled.Bookmark,
                                 contentDescription = strings.primaryLabelSwitchLabel,
@@ -286,7 +286,7 @@ fun LabelEditScreen(
                 ) {
                     Column(Modifier.padding(horizontal = 16.dp)) {
                         AbSwitchRow(strings.addedToBookmarkLabel, state.thisBookmarkSelected, { onToggleSelected() })
-                        AbSwitchRow(
+                        if (state.thisBookmarkPrimaryApplies) AbSwitchRow(
                             strings.primaryLabelSwitchLabel,
                             state.thisBookmarkPrimary,
                             { onTogglePrimary() },

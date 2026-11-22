@@ -61,6 +61,8 @@ interface Strings {
     val hideBibleReferenceOverlayTitle: String
     val hideWindowButtonsSummary: String
     val hideWindowButtonsTitle: String
+    val textUnderWindowButtonsSummary: String
+    val textUnderWindowButtonsTitle: String
     val memorizeAutoMark: String
     val memorizeAutoMarkSummary: String
     val memorizeErrorHeatmap: String
@@ -184,6 +186,12 @@ interface Strings {
     val documentSyncWifiOnlyTitle: String
     val documentSyncAutoDeleteTitle: String
     val webdavHttpsRequired: String
+    val syncPendingOn: String                              // R.string.sync_pending_on
+    val syncPendingOff: String                             // R.string.sync_pending_off
+    fun syncPendingChanges(count: Int): String             // R.plurals.sync_pending_changes
+    val syncPendingLeaveTitle: String                      // R.string.sync_pending_leave_title
+    val syncCheckingCloudTitle: String                     // R.string.sync_checking_cloud_title
+    val syncCheckingCloudText: String                      // R.string.sync_checking_cloud_text
     // Search cluster
     /** "N verses in M translations": [verses]/[translations] are the already pluralised parts. */
     fun multiSearchResults(verses: String, translations: String): String   // R.string.multi_search_count_summary
@@ -319,7 +327,6 @@ interface Strings {
     val installZipModule: String              // R.string.install_zip_module
     val installZipModuleDiscrete: String      // R.string.install_zip_module_discrete
     val downloadTitle: String             // R.string.download
-    val progressStatus: String             // R.string.progress_status
     val errorDownloading: String             // R.string.error_downloading
     val downloadDialogMessage: String             // R.string.download_dialog_message
     val downloadErrors: String             // R.string.download_errors
@@ -449,6 +456,8 @@ interface Strings {
     val rewind: String
     val forward: String
     val speakNext: String
+    /** Content description of the transport bar's close "X" (R.string.speak_close_bar). */
+    val speakCloseBar: String
     val speakPrevious: String
     val speakBookmarksMenuTitle: String
 
@@ -484,6 +493,7 @@ interface Strings {
     val docTypeAll: String
     val docTypeBible: String
     val docTypeCommentary: String
+    val documentsSheetTitle: String           // R.string.documents_sheet_title
     val readingToolbarOptions: String         // R.string.reading_toolbar_options
     val prefsShowStrongsTitle: String         // R.string.prefs_show_strongs_title
     val switchToWorkspace: String             // R.string.switch_to_workspace
@@ -517,7 +527,6 @@ interface Strings {
     // Batch 5 — search
     val search: String
     val emptyList: String
-    val searchIndex: String
     val allWords: String
     val anyWord: String
     val phrase: String
@@ -620,7 +629,6 @@ interface Strings {
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String
     val helpFts5: String
-    fun searchIn(docAbbrev: String): String
     fun searchWithResults2(count: String, docAbbrev: String): String
 
     // Batch 4 (remainder) — MyDocuments
@@ -978,6 +986,10 @@ interface Strings {
 
     // Batch 7b-1 — ManageLabelsScreen
     val labelsSearchHint: String                    // R.string.labels_search_hint
+    val labelAssignEditLabels: String               // R.string.label_assign_edit_labels (assign sheet footer)
+    val labelAssignFilterFavourites: String         // R.string.label_assign_filter_favourites (assign sheet chip)
+    val labelAssignFilterAutoAssign: String         // R.string.label_assign_filter_auto_assign (assign sheet chip)
+    val labelAssignSearchContains: String           // R.string.label_assign_search_contains (assign sheet chip)
     val activeLabelsHeader: String                  // R.string.active_labels
     val recentLabelsHeader: String                  // R.string.recent_labels
     val otherLabelsHeader: String                   // R.string.other_labels
@@ -1115,9 +1127,6 @@ interface Strings {
     val resetDatabasesDescription: String    // R.string.reset_databases_description
     fun resetSomething(name: String): String // R.string.reset_something (%1$s -- per-db reset button label)
     val lastCrashInfoTitle: String           // R.string.last_crash_info_title
-
-    // Batch 13 T7 — ProgressStatusComposeActivity (generic download-progress screen)
-    val taskKillWarning: String              // R.string.task_kill_warning (top message; classic ProgressStatus's copy, distinct from indexingWaitMsg)
 
     // --- Agent permissions (Batch Z-early) ---
     val agentPermissionTitle: String                        // R.string.agent_permission_title (dialog title)

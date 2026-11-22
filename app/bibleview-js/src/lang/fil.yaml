@@ -46,6 +46,8 @@ emptyStudyPad: Walang laman ang study pad. Simulan ang pagdaragdag sa study pad 
 doYouWantToDeleteEntry: Tanggalin ang entry na ito sa study pad?
 removeStudyPadConfirmationTitle: Alisin ang entry sa study pad?
 dragHelp: I-drag upang muling ayusin
+addonBookmarkThisVerse: I-bookmark ang talatang ito
+addonReadOnly: Galing ang nilalamang ito sa isang koleksyon ng add-on at read-only. Gamitin ang “Kopyahin sa aking mga label” para makakuha ng kopyang maaaring i-edit.
 openAll: Buksan ang lahat ng sanggunian
 editBookmarkPlaceholder: I-tap upang i-edit ang My Notes para sa bookmark na ito
 onlyLabel: Label lamang

@@ -52,6 +52,14 @@ import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSThread
 import platform.Foundation.setValue
 import platform.UIKit.UIColor
+import platform.UIKit.UIKeyboardHIDUsageKeyboardComma
+import platform.UIKit.UIKeyboardHIDUsageKeyboardEqualSign
+import platform.UIKit.UIKeyboardHIDUsageKeyboardHyphen
+import platform.UIKit.UIKeyboardHIDUsageKeyboard0
+import platform.UIKit.UIKeyboardHIDUsageKeyboardTab
+import platform.UIKit.UIKeyboardHIDUsageKeyboardF11
+import platform.UIKit.UIKeyboardHIDUsageKeyboardS
+import platform.UIKit.UIKeyboardHIDUsageKeyboardB
 import platform.UIKit.UIKeyboardHIDUsageKeyboardA
 import platform.UIKit.UIKeyboardHIDUsageKeyboardEscape
 import platform.UIKit.UIKeyboardHIDUsageKeyboardZ
@@ -88,16 +96,40 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
                 return@filterNot true
             }
             if (isEditing()) return@filterNot false
-            val code = when (key.keyCode) {
-                in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
+            val flags = key.modifierFlags
+            // Follow the PRINTED character (Finnish "+" sits on the US "-" position), not the key position.
+            val typed = key.charactersIgnoringModifiers.lowercase()
+            val domKey = when {
+                key.keyCode == UIKeyboardHIDUsageKeyboardTab -> "Tab"
+                key.keyCode == UIKeyboardHIDUsageKeyboardF11 -> "F11"
+                else -> net.bible.sharedui.reading.nativeDomKeyOfCharacter(typed, key.keyCode == UIKeyboardHIDUsageKeyboardS, key.keyCode == UIKeyboardHIDUsageKeyboardB)
+            }
+            val native = domKey?.let {
+                net.bible.sharedui.reading.nativeShortcut(
+                    it,
+                    ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
+                    alt = flags and platform.UIKit.UIKeyModifierAlternate != 0L,
+                    shift = flags and platform.UIKit.UIKeyModifierShift != 0L,
+                    meta = flags and platform.UIKit.UIKeyModifierCommand != 0L,
+                    editing = false,
+                )
+            }
+            if (native != null) {
+                // Not consumed when the reading screen is not current: bubble on.
+                if (!net.bible.sharedui.ios.app.IosNativeShortcutRunner.run(native)) return@filterNot false
+                swallowedPresses.add(press)
+                return@filterNot true
+            }
+            val code = when {
+                typed.length == 1 && typed[0] in 'a'..'z' -> "Key" + typed[0].uppercaseChar()
+                key.keyCode in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
                     "Key" + ('A' + (key.keyCode - UIKeyboardHIDUsageKeyboardA).toInt())
-                UIKeyboardHIDUsageKeyboardRightArrow -> "ArrowRight"
-                UIKeyboardHIDUsageKeyboardLeftArrow -> "ArrowLeft"
-                UIKeyboardHIDUsageKeyboardDownArrow -> "ArrowDown"
-                UIKeyboardHIDUsageKeyboardUpArrow -> "ArrowUp"
+                key.keyCode == UIKeyboardHIDUsageKeyboardRightArrow -> "ArrowRight"
+                key.keyCode == UIKeyboardHIDUsageKeyboardLeftArrow -> "ArrowLeft"
+                key.keyCode == UIKeyboardHIDUsageKeyboardDownArrow -> "ArrowDown"
+                key.keyCode == UIKeyboardHIDUsageKeyboardUpArrow -> "ArrowUp"
                 else -> return@filterNot false
             }
-            val flags = key.modifierFlags
             val command = net.bible.sharedui.reading.readingShortcut(
                 code,
                 ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
@@ -525,6 +557,8 @@ fun iosReadingPaneFactory(
     gesturesFor: (windowId: String) -> HostReadingGestures? = { HostReadingWindows.gesturesFor(it) },
     /** The text-selection menu of the bound host; null (no host bound) leaves WebKit's edit menu untouched. */
     selectionMenu: () -> HostSelectionMenu? = { HostReadingWindows.selectionMenu },
+    /** Whether the reading search bar (Find) is open: the pane then leaves first responder to it on resume (#4196). */
+    searchBarOpen: () -> Boolean = { HostReadingWindows.isSearchBarOpen },
 ): ReadingPaneFactory = { windowId, modifier ->
     attachReadingPane(windowId, sessionFor, bridgeFor, nightMode, isOpen, selectionMenu())
     if (isOpen(windowId)) attachReadingGestures(windowId, gesturesFor(windowId))
@@ -557,6 +591,8 @@ fun iosReadingPaneFactory(
         // At the same moment the web view takes first responder (unless it already has it or a text field elsewhere
         // does): WebKit shows no edit menu for a long-press selection that only made its content view first responder
         // during the gesture, so the first selection after launch or after a route return had no menu (issue #3968).
+        // Not while Find is open (#4196): RESUMED also follows the app's re-activation, when Compose's own input view (not
+        // a text input) can hold first responder, and the claim then gave the keys (Esc) to the web view.
         LaunchedEffect(entry.webView, lifecycle) {
             lifecycle.currentStateFlow.collectLatest { state ->
                 if (state == Lifecycle.State.RESUMED) {
@@ -564,7 +600,7 @@ fun iosReadingPaneFactory(
                     withFrameNanos { }
                     attachGeneration++
                     entry.webView.window?.let { window ->
-                        claimFirstResponderForSelection(entry.webView, firstResponderIn(window))
+                        claimPaneFirstResponderOnResume(entry.webView, firstResponderIn(window), searchBarOpen())
                     }
                 }
             }

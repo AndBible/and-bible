@@ -524,7 +524,8 @@ class SpeakControl constructor(
         }
     }
 
-    fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
+    /** [toast] false stops without the "Stop" info toast (the speak bar's dismiss X). */
+    fun stop(willContinueAfter: Boolean=false, force: Boolean=false, toast: Boolean=true) {
         if(!willContinueAfter) {
             _speakPageManager = null
         }
@@ -543,7 +544,7 @@ class SpeakControl constructor(
             originalSettingsBeforeMemLoop = null
             it.save()
         }
-        if(!force && !wasStopped) {
+        if(toast && !force && !wasStopped) {
             notifier.showInfo(strings.stop)
         }
     }

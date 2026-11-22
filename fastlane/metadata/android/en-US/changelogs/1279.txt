@@ -1,0 +1,11 @@
+- Added home-screen widgets for Android (Glance) and iOS (SwiftUI), with verse selection and speak state (#184)
+- Added add-on bookmark collections: a read-only collection UI with "Copy to my labels", and add-on collections can no longer be edited (#4162)
+- Speak widget starts text-to-speech only when a speak widget is on the home screen, so app cold start no longer initializes TTS (#184)
+- Verse widget reloads its configuration immediately after saving (af0e247364, #4162, #184)
+- Fixed a startup crash and a window race in window loading that could leave the active window in a bad state (#4162)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/

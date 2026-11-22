@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,9 +33,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocRow
 
 /**
@@ -54,6 +57,7 @@ fun DocumentQuickContent(
     onSelect: (String) -> Unit,
     listState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier,
+    groupHeader: ((DocCategory) -> String)? = null,
 ) {
     val categoryIcon = LocalCategoryIcon.current
     // I1 (whole-branch review fix wave): fillMaxWidth, not fillMaxSize -- see WorkspaceQuickContent
@@ -61,7 +65,19 @@ fun DocumentQuickContent(
     // fillMaxSize sets minHeight = maxHeight, pinning the sheet at 400dp for the Recent tab's two or
     // three rows exactly as for a full document list.
     LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
-        items(rows, key = { it.docId }) { row ->
+        itemsIndexed(rows, key = { _, row -> row.docId }) { index, row ->
+            // Rows arrive sorted by type when grouped (see [buildDocumentQuickTabs]); a heading opens each run.
+            if (groupHeader != null && (index == 0 || rows[index - 1].category != row.category)) {
+                Text(
+                    text = groupHeader(row.category),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)
+                        .semantics { heading() },
+                )
+            }
             val isCurrent = row.docId == currentDocId
             Row(
                 modifier = Modifier
