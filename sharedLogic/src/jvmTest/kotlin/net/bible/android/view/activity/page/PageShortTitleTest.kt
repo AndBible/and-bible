@@ -7,6 +7,7 @@ package net.bible.android.view.activity.page
 import org.crosswire.common.util.KLocale
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
+import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
@@ -31,21 +32,23 @@ class PageShortTitleTest {
         }
     }
 
-    private fun both(key: Verse): Pair<String?, String?> {
-        return pageTitlesFor(key)
-    }
-
     @Test fun finnishVerseHasShortBookNameVariant() = inLocale("fi") {
-        assertEquals("2. Mooseksen kirja 1:2" to "2Moos 1:2", both(Verse(kjv, BibleBook.EXOD, 1, 2)))
+        assertEquals("2. Mooseksen kirja 1:2" to "2Moos 1:2", pageTitlesFor(Verse(kjv, BibleBook.EXOD, 1, 2)))
     }
 
     @Test fun finnishWholeChapterHasShortVariant() = inLocale("fi") {
-        assertEquals("2. Mooseksen kirja 1" to "2Moos 1", both(Verse(kjv, BibleBook.EXOD, 1, 0)))
+        assertEquals("2. Mooseksen kirja 1" to "2Moos 1", pageTitlesFor(Verse(kjv, BibleBook.EXOD, 1, 0)))
     }
 
     @Test fun shortVariantDoesNotLeaveShortNamesOnForLaterFullTitles() = inLocale("fi") {
         pageTitlesFor(Verse(kjv, BibleBook.EXOD, 1, 2))
         assertEquals("2. Mooseksen kirja 1:2", pageTitleFor(Verse(kjv, BibleBook.EXOD, 1, 2)))
+    }
+
+    @Test fun nonVerseKeyHasNoShortVariant() = inLocale("fi") {
+        val (full, short) = pageTitlesFor(DefaultLeafKeyList("Aaron"))
+        assertEquals("Aaron", full)
+        assertEquals(null, short)
     }
 
     @Test fun noKeyHasNoShortVariant() = assertEquals(null to null, pageTitlesFor(null))

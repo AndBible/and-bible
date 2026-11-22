@@ -30,6 +30,8 @@ class ReadingToolbarShortTitleTest {
         assertEquals("long", fittingPageTitle("long", "s") { true })
         assertEquals("s", fittingPageTitle("long", "s") { it == "s" })
         assertEquals("long", fittingPageTitle("long", null) { false })
+        // A "short" title that is not shorter is never preferred.
+        assertEquals("abc", fittingPageTitle("abc", "abcd") { it == "abcd" })
     }
 
     private val state = ToolbarState("2. Mooseksen kirja 1:2", "KJV", false, true, true, true, 1, true, true, true,

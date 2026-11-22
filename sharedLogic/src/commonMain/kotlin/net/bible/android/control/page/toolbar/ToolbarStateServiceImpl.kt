@@ -146,7 +146,7 @@ class ToolbarStateServiceImpl(
         )
     }
 
-    /** Port of `MainBibleActivity.pageTitleText` (MainBibleActivity.kt:1180). */
+    /** The key the reading title is derived from: the current Bible verse for a Bible, else the page's display key. */
     private fun titleKey(): Key? {
         val page = pageControl.currentPageManager.currentPage
         val doc = page.currentDocument

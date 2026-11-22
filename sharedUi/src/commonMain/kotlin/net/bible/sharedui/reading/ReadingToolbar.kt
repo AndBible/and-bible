@@ -949,6 +949,9 @@ internal fun FittingPageTitle(full: String, short: String?) {
     }
 }
 
-/** [full] if it [fits], else [short] when there is one, else [full] (left to ellipsize). Pure, for tests. */
+/**
+ * [full] if it [fits]; else [short] when there is one and it is actually shorter than [full]; else [full]
+ * (left to ellipsize). Pure, for tests.
+ */
 internal fun fittingPageTitle(full: String, short: String?, fits: (String) -> Boolean): String =
-    if (short == null || fits(full)) full else short
+    if (short == null || short.length >= full.length || fits(full)) full else short

@@ -166,6 +166,11 @@ class ReadingToolbarGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun shortTitle_fits() = captureGolden("ReadingToolbar", "shortTitle_fits", EDGE_MODE, content = screen(shortTitleState))
 
+    // The feature working: at 360dp the full title overflows but the short one fits whole.
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h640dp")
+    fun shortTitle_fallback360() = captureGolden("ReadingToolbar", "shortTitle_fallback360", EDGE_MODE, content = screen(shortTitleState))
+
     @Test
     fun shortTitle_mono() {
         MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "shortTitle", mode, content = screen(shortTitleState)) }
