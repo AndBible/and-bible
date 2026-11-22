@@ -258,7 +258,7 @@ fun ManageLabelsScreen(
  * toggles ([manageLabelsRowTogglesShown]); [onRowTogglesShownChange] publishes that decision.
  */
 @Composable
-fun ManageLabelsList(
+internal fun ManageLabelsList(
     rows: List<ManageLabelsRow>,
     mode: ManageLabelsMode,
     styleTagsVisible: Boolean,
@@ -745,10 +745,11 @@ internal val NarrowAssignMaxWidth = 480.dp
  * Whether a label row draws its trailing auto-assign / favourite / primary toggles.
  *
  * In ASSIGN (picking labels for one bookmark) the job is to find and tick labels, so on a narrow
- * list the name gets the room instead (issue #4153). The three states stay reachable: tapping the
- * row opens the label's editor, which has the favourite heart, the workspace auto-assign switches
- * and this bookmark's primary switch. Checking the first label still makes it primary automatically
- * (ManageLabelsController), as before.
+ * list the name gets the room instead (issue #4153). The three states stay reachable in the label's
+ * editor, which has the favourite heart, the workspace auto-assign switches and this bookmark's
+ * primary switch: in the full screen a row tap or long press opens it, in the assign sheet
+ * ([LabelAssignSheet], where a tap ticks) a long press does. Checking the first label still makes it
+ * primary automatically (ManageLabelsController), as before.
  * WORKSPACE keeps them at every width: there the toggles are the very thing being edited.
  */
 internal fun manageLabelsRowTogglesShown(mode: ManageLabelsMode, listWidth: Dp): Boolean =

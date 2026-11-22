@@ -913,7 +913,6 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 7b-1 — ManageLabelsScreen
     override val labelsSearchHint: String get() = context.getString(R.string.labels_search_hint)
     override val labelAssignEditLabels: String get() = context.getString(R.string.label_assign_edit_labels)
-    override val labelAssignNewLabelTitle: String get() = context.getString(R.string.label_assign_new_label_title)
     override val labelAssignFilterFavourites: String get() = context.getString(R.string.label_assign_filter_favourites)
     override val labelAssignFilterAutoAssign: String get() = context.getString(R.string.label_assign_filter_auto_assign)
     override val labelAssignSearchContains: String get() = context.getString(R.string.label_assign_search_contains)

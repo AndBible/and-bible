@@ -626,9 +626,9 @@ class ManageLabelsControllerTest {
     fun a_rename_through_applyLabelChanged_re_alphabetises() {
         val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
         // threeLabels(): L1 "Study", L2 "Notes", L3 "Prayer", none selected/recent -> all three fall
-        // into OTHER, alpha order Notes, Prayer, Study. ASSIGN doesn't hide categories, so H_RECENT
-        // and H_OTHER are present even empty/single-bucket (see categorization_and_sort_order_ASSIGN).
-        assertEquals(listOf("H_RECENT", "H_OTHER", "L2", "L3", "L1"), describe(c.rows.value))
+        // into OTHER, alpha order Notes, Prayer, Study. ASSIGN doesn't hide categories, so H_OTHER is
+        // present even single-bucket; an empty H_RECENT is not (issue #4201).
+        assertEquals(listOf("H_OTHER", "L2", "L3", "L1"), describe(c.rows.value))
 
         c.applyLabelChanged(
             item = label("L1", "Aardvark"),
@@ -638,7 +638,7 @@ class ManageLabelsControllerTest {
             autoAssignPrimaryFlag = false,
         )
 
-        assertEquals(listOf("H_RECENT", "H_OTHER", "L1", "L2", "L3"), describe(c.rows.value))
+        assertEquals(listOf("H_OTHER", "L1", "L2", "L3"), describe(c.rows.value))
     }
 
     @Test
@@ -963,5 +963,46 @@ class ManageLabelsControllerTest {
         val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(addonLabel("A", "Comfort")))
         c.applyLabelChanged(label("A", "Comfort", favourite = true), false, false, false, false) // the host's item has no module
         assertEquals("Memory verses", c.currentLabelItems().single().addonModuleName)
+    }
+
+    /** Issue #4201: "Recent labels" with nothing under it is not shown, also when every recent label is active. */
+    @Test
+    fun an_empty_recent_header_is_not_shown() {
+        val none = controller(ManageLabelsMode.ASSIGN, labels = listOf(A, B))
+        assertEquals(listOf("H_OTHER", "A", "B"), describe(none.rows.value))
+
+        val allActive = controller(ManageLabelsMode.ASSIGN, labels = listOf(A, B), recent = listOf("A"), initialSelected = setOf("A"))
+        assertEquals(listOf("H_ACTIVE", "A", "H_OTHER", "B"), describe(allActive.rows.value))
+
+        val oneRecent = controller(ManageLabelsMode.ASSIGN, labels = listOf(A, B), recent = listOf("B"))
+        assertEquals(listOf("H_RECENT", "B", "H_OTHER", "A"), describe(oneRecent.rows.value))
+    }
+
+    /** Issue #4201: the assign sheet's close saves only when [ManageLabelsController.hasChanges]. */
+    @Test
+    fun hasChanges_is_false_until_something_a_save_would_write_changes() {
+        val c = controller(
+            ManageLabelsMode.ASSIGN, labels = listOf(A, B, C), initialSelected = setOf("A", "B"), initialBookmarkPrimary = "A",
+        )
+        assertFalse(c.hasChanges())
+        c.setSearch("Ban"); c.toggleFilter(LabelFilter.FAVOURITE); c.setSearchMode(SearchMode.NAME_CONTAINS)
+        assertFalse(c.hasChanges(), "search, filters and search mode are presentation")
+
+        c.toggleChecked("C")
+        assertTrue(c.hasChanges())
+        c.toggleChecked("C")
+        assertFalse(c.hasChanges(), "ticking and unticking again is no change")
+
+        c.setPrimary("B")
+        assertTrue(c.hasChanges(), "the primary changed")
+    }
+
+    @Test
+    fun hasChanges_counts_favourites_auto_assign_edits_and_deletes() {
+        fun fresh() = controller(ManageLabelsMode.ASSIGN, labels = listOf(A, B))
+        assertTrue(fresh().apply { toggleFavourite("A") }.hasChanges())
+        assertTrue(fresh().apply { toggleAutoAssign("A") }.hasChanges())
+        assertTrue(fresh().apply { applyLabelChanged(label("N", "New"), true, false, true, false) }.hasChanges())
+        assertTrue(fresh().apply { applyLabelDeleted("B", orphaned = false) }.hasChanges())
     }
 }

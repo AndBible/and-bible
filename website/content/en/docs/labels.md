@@ -26,15 +26,23 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
 
 - Tap a label to tick it, or tap it again to untick it. When the bookmark has no
     main label yet, the first label you tick becomes its main label.
+- Long press a label to open its settings, where you can also make it the
+    bookmark's main label, a favourite or an auto-assign label. On a phone held
+    upright the sheet has no room for those icons in the rows, so this is where you
+    set them.
 - Type in the search field to find a label by the start of its name. The chips
     under the field show only favourite labels (*Favourites*), only auto-assign
-    labels (*Auto-assign*), or search anywhere in the name (*Name contains*). A label you have ticked stays listed
+    labels (*Auto-assign*), or search anywhere in the name (the *Abc* chip). The chips
+    are always there, at every screen width. A label you have ticked stays listed
     whatever you search.
-- The *Plus* (+) button at the top creates a new label: enter its name, and the
-    label is added, ticked and made the main label. Its colour is chosen at random; change it in
-    *Edit labels*.
+- The *Plus* (+) button at the top opens the settings of a new label, the same
+    screen as when you [create a label](#create-a-label) from the label list. Save it,
+    and the new label is ticked in the sheet; cancel, and nothing changes.
 - Close the sheet (swipe it down, tap outside it or click the close button) to
-    save the labels.
+    save the labels. If you changed nothing, closing leaves the bookmarks as they were.
+- With several bookmarks selected, the sheet starts with every label that any of
+    them has ticked, and saving gives **each** selected bookmark exactly the ticked
+    labels: a label you leave ticked is added to the bookmarks that did not have it.
 - *Edit labels* at the bottom opens the full label list with your choice so far.
     There you can open a label's settings and set the main label, favourites and
     auto-assign labels; going back saves.
@@ -91,12 +99,14 @@ In the label list the lightning bolt marks auto-assign labels, the heart
 favourites and the bookmark icon main labels. On a narrow screen (a phone held
 upright), the list you open to choose a bookmark's labels leaves these three icons
 out so that the label names have room; tap a label to set them in its settings.
-(The *Assign labels* sheet follows the same rule.)
-In this narrow list, *Search settings* also leaves out the auto-assign and favourite
+The [Assign labels](#assign-labels) sheet leaves the icons out the same way; there
+a tap ticks the label, and a long press opens its settings.
+In the narrow full-screen list, *Search settings* also leaves out the auto-assign and favourite
 filters, since their states are not displayed in the rows. Wider lists, and the
 workspace label settings list, keep these filters. If a wider list becomes narrow
 (for example when resizing a window), active auto-assign and favourite filters are
-cleared so that no invisible filter continues to hide labels.
+cleared so that no invisible filter continues to hide labels. The *Assign labels*
+sheet keeps its *Favourites* and *Auto-assign* chips at every width.
 The ⋮ menu also has *Re-order* for changing the order of the labels.
 
 ## Add-on collections {#add-on-collections}

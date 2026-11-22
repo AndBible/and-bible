@@ -66,6 +66,11 @@ class ManageLabelsController(
     private val deletedWithOrphaned = mutableSetOf<String>()
     private var autoAssignPrimary = initialAutoAssignPrimary
     private var bookmarkPrimary = initialBookmarkPrimary
+    // The seeds, kept for [hasChanges].
+    private val seedSelected = initialSelected.toSet()
+    private val seedAutoAssign = initialAutoAssign.toSet()
+    private val seedAutoAssignPrimary = initialAutoAssignPrimary
+    private val seedBookmarkPrimary = initialBookmarkPrimary
     /** Empty until the initial [load] has read them (the service calls are `suspend`). */
     private var labels = mutableListOf<LabelItem>()
     private var labelsLoaded = false
@@ -269,7 +274,7 @@ class ManageLabelsController(
         val mixed: MutableList<Any> = if (sticky != null) {
             sticky.toMutableList()
         } else {
-            val fresh: MutableList<Any> = (shown + currentHeaders(ctx)).toMutableList()
+            val fresh: MutableList<Any> = (shown + currentHeaders(ctx, shown, recent)).toMutableList()
             fresh.sortWith(compareBy(
                 { any -> bucket(any, ctx, recent) },
                 { any -> if (any is LabelCategory) 1 else 2 },
@@ -304,11 +309,18 @@ class ManageLabelsController(
         else -> error("unreachable")
     }
 
-    /** The headers a fresh sort would show, from the current context. */
-    private fun currentHeaders(ctx: Set<String>): List<LabelCategory> {
+    /**
+     * The headers a fresh sort would show, from the current context. "Recent labels" is left out when no
+     * shown label would sit under it (nothing recent yet, or every recent label is already active): an
+     * empty header only pushes the list down.
+     */
+    private fun currentHeaders(ctx: Set<String>, shown: List<Any>, recent: Set<String>): List<LabelCategory> {
         val headers = mutableListOf<LabelCategory>()
         if (mode.showActiveCategory && ctx.isNotEmpty()) headers.add(LabelCategory.ACTIVE)
-        if (!mode.hideCategories) { headers.add(LabelCategory.RECENT); headers.add(LabelCategory.OTHER) }
+        if (!mode.hideCategories) {
+            if (shown.any { it is LabelItem && bucket(it, ctx, recent) == 2 }) headers.add(LabelCategory.RECENT)
+            headers.add(LabelCategory.OTHER)
+        }
         return headers
     }
 
@@ -481,6 +493,17 @@ class ManageLabelsController(
     // `allLabels` (ManageLabelItemAdapter.kt:179-183). The Compose host must instead read the current
     // favourite back from here at save time and apply it onto the Label about to be persisted.
     fun currentLabelItems(): List<LabelItem> = labels.toList()
+
+    /**
+     * Whether this visit changed anything a save would write or deliver: the ticked set, the auto-assign set or
+     * either primary differs from the seeds, or a label was edited, created, favourited or deleted. Search text,
+     * search mode and filters are presentation and do not count. The assign sheet closes without saving when this
+     * is false (issue #4201): a save would give every selected bookmark the union it was seeded with.
+     */
+    fun hasChanges(): Boolean =
+        selected != seedSelected || autoAssign != seedAutoAssign ||
+            autoAssignPrimary != seedAutoAssignPrimary || bookmarkPrimary != seedBookmarkPrimary ||
+            changed.isNotEmpty() || deleted.isNotEmpty() || deletedWithOrphaned.isNotEmpty()
 
     // ---- result snapshot for the host to build ManageLabelsData ----
     fun resultSelected(): Set<String> = selected

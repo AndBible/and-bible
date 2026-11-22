@@ -91,7 +91,9 @@ class LabelAssignSheetGoldenTest {
             actions = LabelAssignSheetActions(
                 onSearch = {}, onSetSearchMode = {}, onToggleFilter = {}, onToggleChecked = {},
                 onToggleFavourite = {}, onSetPrimary = {}, onToggleAutoAssign = {}, onEditLabels = {},
-                newLabelAction = { IconButton(onClick = {}) { Icon(Icons.Filled.Add, contentDescription = null) } },
+                onEditLabel = {},
+                onNewLabel = {},
+                newLabelIcon = { onClick -> IconButton(onClick = onClick) { Icon(Icons.Filled.Add, contentDescription = null) } },
                 iconSlot = manageLabelIcon,
             ),
             onClose = {},

@@ -51,6 +51,7 @@ import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetContent
 import net.bible.sharedui.components.AbQuickSheetFooterRow
 import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.LocalAbSheetAnimatedClose
 import net.bible.sharedui.components.abFilterChipBorder
 import net.bible.sharedui.components.abFilterChipColors
 import net.bible.sharedui.strings.LocalStrings
@@ -86,8 +87,13 @@ class LabelAssignSheetActions(
     val onToggleFavourite: (String) -> Unit,
     val onSetPrimary: (String) -> Unit,
     val onToggleAutoAssign: (String) -> Unit,
+    /** A row's long press: the full-screen label editor on that label. */
+    val onEditLabel: (String) -> Unit,
+    /** New (+): the full-screen label editor on a new label. */
+    val onNewLabel: () -> Unit,
     val onEditLabels: () -> Unit,
-    val newLabelAction: @Composable RowScope.() -> Unit,
+    /** Draws the New (+) button, calling the given click handler. */
+    val newLabelIcon: @Composable RowScope.(onClick: () -> Unit) -> Unit,
     val iconSlot: @Composable (customIcon: String?, tint: Color) -> Unit,
 )
 
@@ -97,8 +103,13 @@ class LabelAssignSheetActions(
  * label list the full-screen [ManageLabelsScreen] draws ([ManageLabelsList] in [ManageLabelsMode.ASSIGN]),
  * and an "Edit labels" footer that opens the full-screen list.
  *
- * A row tap ticks the label (in the full screen it opens the editor: here there is no editor on top).
- * [onDismiss] is every close (swipe, scrim, back, ✕); the host saves on it, as the full screen's Back does.
+ * A row tap ticks the label (in the full screen it opens the editor). A long press, and New (+), open the
+ * full-screen label editor: on a phone the rows have no toggles ([manageLabelsRowTogglesShown]), so the editor is
+ * where the main label, favourite and auto-assign are set. [onDismiss] is every close (swipe, scrim, back, ✕); the
+ * host saves on it when something changed, as the full screen's Back does.
+ *
+ * The footer, New (+) and the long press slide the sheet away before they act, like ✕ does
+ * ([LocalAbSheetAnimatedClose]; at once with "Disable animations").
  *
  * ROBORAZZI: never capture this composable; capture [LabelAssignSheetFrame].
  */
@@ -109,7 +120,7 @@ fun LabelAssignSheet(state: LabelAssignSheetState, actions: LabelAssignSheetActi
     AbQuickSheet(
         open = true,
         title = state.title,
-        actions = actions.newLabelAction,
+        actions = { NewLabelAction(actions) },
         onDismiss = onDismiss,
         canScrollForward = { listState.canScrollForward },
         footer = { EditLabelsFooter(actions.onEditLabels) },
@@ -117,6 +128,28 @@ fun LabelAssignSheet(state: LabelAssignSheetState, actions: LabelAssignSheetActi
     ) {
         LabelAssignSheetContent(state, actions, listState)
     }
+}
+
+@Composable
+private fun RowScope.NewLabelAction(actions: LabelAssignSheetActions) {
+    val onClick = hideSheetThen(actions.onNewLabel)
+    actions.newLabelIcon(this, onClick)
+}
+
+/**
+ * [action] after the enclosing modal sheet has slid out of view ([LocalAbSheetAnimatedClose]); [action] itself
+ * outside a modal sheet (goldens, UI tests) and with "Disable animations".
+ */
+@Composable
+private fun hideSheetThen(action: () -> Unit): () -> Unit {
+    val animatedClose = LocalAbSheetAnimatedClose.current
+    return { if (animatedClose != null) animatedClose(action) else action() }
+}
+
+@Composable
+private fun hideSheetThen(action: (String) -> Unit): (String) -> Unit {
+    val animatedClose = LocalAbSheetAnimatedClose.current
+    return { id -> if (animatedClose != null) animatedClose { action(id) } else action(id) }
 }
 
 /** The body's share of the window: a label list wants more than the quick sheets' fixed 400dp, and search and chips
@@ -135,7 +168,7 @@ fun LabelAssignSheetFrame(
     AbQuickSheetContent(
         title = state.title,
         onClose = onClose,
-        actions = actions.newLabelAction,
+        actions = { NewLabelAction(actions) },
         canScrollForward = { listState.canScrollForward },
         footer = { EditLabelsFooter(actions.onEditLabels) },
         bodyMaxHeightFraction = LabelAssignSheetBodyFraction,
@@ -147,7 +180,7 @@ fun LabelAssignSheetFrame(
 @Composable
 private fun EditLabelsFooter(onEditLabels: () -> Unit) {
     Column(Modifier.testTag(LABEL_ASSIGN_EDIT_LABELS_TAG)) {
-        AbQuickSheetFooterRow(text = LocalStrings.current.labelAssignEditLabels, onClick = onEditLabels)
+        AbQuickSheetFooterRow(text = LocalStrings.current.labelAssignEditLabels, onClick = hideSheetThen(onEditLabels))
     }
 }
 
@@ -194,12 +227,13 @@ fun LabelAssignSheetContent(
                 icon = { Icon(if (autoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline, contentDescription = null) },
                 onClick = { actions.onToggleFilter(LabelFilter.AUTO_ADD) },
             )
+            // Icon only, named for screen readers: with three labelled chips the third was cut off on a phone.
             val contains = state.searchMode == SearchMode.NAME_CONTAINS
             AssignChip(
                 selected = contains,
-                text = strings.labelAssignSearchContains,
+                text = null,
                 tag = LABEL_ASSIGN_SEARCH_CONTAINS_TAG,
-                icon = { Icon(Icons.Filled.Abc, contentDescription = null) },
+                icon = { Icon(Icons.Filled.Abc, contentDescription = strings.labelAssignSearchContains) },
                 onClick = { actions.onSetSearchMode(if (contains) SearchMode.NAME_START else SearchMode.NAME_CONTAINS) },
             )
         }
@@ -207,9 +241,9 @@ fun LabelAssignSheetContent(
             rows = state.rows,
             mode = ManageLabelsMode.ASSIGN,
             styleTagsVisible = state.styleTagsVisible,
-            // The row ticks: the sheet has no editor to open (the full screen's row tap and long press).
+            // The row ticks; the long press opens the editor (the full screen's row tap and long press both edit).
             onRowClick = actions.onToggleChecked,
-            onRowLongClick = {},
+            onRowLongClick = hideSheetThen(actions.onEditLabel),
             onToggleChecked = actions.onToggleChecked,
             onToggleFavourite = actions.onToggleFavourite,
             onSetPrimary = actions.onSetPrimary,
@@ -221,14 +255,15 @@ fun LabelAssignSheetContent(
 }
 
 @Composable
-private fun AssignChip(selected: Boolean, text: String, tag: String, icon: @Composable () -> Unit, onClick: () -> Unit) {
+private fun AssignChip(selected: Boolean, text: String?, tag: String, icon: @Composable () -> Unit, onClick: () -> Unit) {
     FilterChip(
         selected = selected,
         onClick = onClick,
         colors = abFilterChipColors(),
         border = abFilterChipBorder(true, selected),
-        leadingIcon = icon,
-        label = { Text(text) },
+        // A text chip leads with its icon; an icon-only chip carries the icon as its label, centred.
+        leadingIcon = if (text != null) icon else null,
+        label = { if (text != null) Text(text) else icon() },
         modifier = Modifier.testTag(tag),
     )
 }

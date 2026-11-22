@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
@@ -86,7 +88,6 @@ import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectSheet
-import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.strings.Strings
@@ -215,6 +216,7 @@ class BookmarkHost(
     private var navController: NavHostController? = null
     private var bookmarkResults: NavResultChannel<BookmarkResult>? = null
     private var manageLabelsResults: NavResultChannel<ManageLabelsResult>? = null
+    private var labelEditResults: NavResultChannel<NavLabelEditResult>? = null
 
     /**
      * The value snapshot decoded from the saved state: a fallback each destination consumes when it re-composes,
@@ -244,6 +246,7 @@ class BookmarkHost(
         this.navController = navController
         this.bookmarkResults = bookmarkResults
         this.manageLabelsResults = manageLabelsResults
+        this.labelEditResults = labelEditResults
         return BookmarkNavDeps(
             exitHost = { shell.exitHost() },
             setWindowTitle = { title -> shell.setWindowTitle(title) },
@@ -1428,39 +1431,75 @@ class BookmarkHost(
     }
 
     /**
-     * One open assign sheet. Its controller is the full screen's own (the host memo
-     * [manageLabelsControllerFor], ASSIGN mode), and every close saves through the same
+     * The open assign sheet's behaviour ([LabelAssignSheetSession]), or null while none is open. Built when the
+     * sheet is first composed; host tests drive the sheet through it.
+     */
+    var assignSheet: LabelAssignSheetSession? by mutableStateOf(null)
+        private set
+
+    /**
+     * The [LabelAssignSheetSession] for [request]. Its controller is the full screen's own (the host memo
+     * [manageLabelsControllerFor], ASSIGN mode), and a close that saves goes through the same
      * [saveManageLabelsAndExit], so the answer is the result payload the full screen would deliver.
-     * The sheet is taken down at once and the save finishes on the host scope.
+     * New (+) and a row's long press open the full-screen label editor ([NavRoutes.labelEdit]) over the screen the
+     * sheet was opened on; its answer comes back through [labelEditResults] ([LabelAssignSheetHost] collects it)
+     * and is applied by [applyLabelEditResult], exactly as the full-screen list applies it.
+     */
+    private fun assignSheetSessionFor(
+        request: LabelAssignSheetRequests.Request,
+    ): Pair<LabelAssignSheetSession, ManageLabelsController> {
+        lateinit var sheet: LabelAssignSheetSession
+        val controller = manageLabelsControllerFor(
+            request.data,
+            onEditLabel = { payload ->
+                val nav = navController ?: return@manageLabelsControllerFor
+                labelEditResults?.consume() // a stale answer must not be taken for this editor's
+                sheet.onEditorOpened()
+                nav.navigate(NavRoutes.labelEdit(payload))
+            },
+            onResult = { result -> sheet.onSaved(result.data) },
+        )
+        val session = manageLabelsSession?.second?.takeIf { it.controller === controller }
+        sheet = LabelAssignSheetSession(
+            request = request,
+            hasChanges = controller::hasChanges,
+            save = controller::save,
+            startEditor = { id -> if (id == null) controller.newLabel() else controller.editLabel(id) },
+            applyEditorResult = ::applyLabelEditResult,
+        )
+        // A failed save delivers nothing: show the sheet again, so the user can retry or keep the ticks in view.
+        session?.onSaveFailed = sheet::onSaveFailed
+        return sheet to controller
+    }
+
+    /**
+     * One open assign sheet, drawn while its session is [LabelAssignSheetSession.Phase.OPEN]. While the label
+     * editor is open the sheet is not drawn (it would cover the editor), but this host stays composed to take the
+     * editor's answer; the sheet then slides in again. A close that saves takes the sheet down at once and the save
+     * finishes on the host scope.
      */
     @Composable
     private fun LabelAssignSheetHost(request: LabelAssignSheetRequests.Request) {
-        var expand by remember(request) { mutableStateOf(false) }
-        val controller = remember(request) {
-            manageLabelsControllerFor(
-                request.data,
-                onEditLabel = {},
-                onResult = { result ->
-                    request.finish(if (expand) LabelAssignOutcome.Expand(result.data) else LabelAssignOutcome.Assigned(result.data))
-                },
-            )
+        val (sheet, controller) = remember(request) { assignSheetSessionFor(request) }
+        DisposableEffect(sheet) {
+            assignSheet = sheet
+            onDispose { if (assignSheet === sheet) assignSheet = null }
         }
-        val session = remember(request) { manageLabelsSession?.second?.takeIf { it.controller === controller } }
-        var closing by remember(request) { mutableStateOf(false) }
-        // A failed save delivers nothing: show the sheet again, so the user can retry or keep the ticks in view.
-        session?.onSaveFailed = { expand = false; closing = false }
-        var naming by remember(request) { mutableStateOf<String?>(null) }
+        val editorResults = labelEditResults
+        if (editorResults != null) {
+            val pendingEdit by editorResults.pending.collectAsState()
+            LaunchedEffect(pendingEdit, sheet.phase) {
+                if (pendingEdit != null && sheet.phase == LabelAssignSheetSession.Phase.EDITING) {
+                    editorResults.consume()?.let(sheet::onEditorResult)
+                }
+            }
+        }
         val rows by controller.rows.collectAsState()
         val searchText by controller.searchText.collectAsState()
         val searchMode by controller.searchMode.collectAsState()
         val styleTagsVisible by controller.styleTagsVisible.collectAsState()
         val filters by controller.filters.collectAsState()
-        if (closing) return
-        val close: (Boolean) -> Unit = { toFullScreen ->
-            expand = toFullScreen
-            closing = true
-            controller.save()
-        }
+        if (sheet.phase != LabelAssignSheetSession.Phase.OPEN) return
         LabelAssignSheet(
             state = LabelAssignSheetState(
                 title = strings.assignLabelsLabel,
@@ -1478,47 +1517,13 @@ class BookmarkHost(
                 onToggleFavourite = controller::toggleFavourite,
                 onSetPrimary = controller::setPrimary,
                 onToggleAutoAssign = controller::toggleAutoAssign,
-                onEditLabels = { close(true) },
-                newLabelAction = { NewLabelIcon(onClick = { naming = searchText.trim() }) },
+                onEditLabel = sheet::editLabel,
+                onNewLabel = sheet::newLabel,
+                onEditLabels = sheet::editLabels,
+                newLabelIcon = { onClick -> NewLabelIcon(onClick) },
                 iconSlot = { customIcon, tint -> icons.ManageLabelIcon(customIcon, tint, false) },
             ),
-            onDismiss = { close(false) },
-        )
-        naming?.let { initial ->
-            AbTextInputDialog(
-                title = strings.labelAssignNewLabelTitle,
-                initial = initial,
-                confirmText = strings.create,
-                dismissText = strings.cancel,
-                onConfirm = { name ->
-                    naming = null
-                    session?.let { addLabelFromSheet(it, name) }
-                },
-                onDismiss = { naming = null },
-            )
-        }
-    }
-
-    /**
-     * The assign sheet's New (+): a label named [name], with a random colour and the editor's ASSIGN
-     * presets (ticked, primary), staged in [session] exactly as a new label returned by the editor is
-     * ([applyLabelEditResult]): inserted, and its temporary id remapped, when the sheet saves.
-     */
-    internal fun addLabelFromSheet(session: ManageLabelsSession, name: String) {
-        val trimmed = name.trim()
-        if (trimmed.isEmpty()) return
-        val label = BookmarkEntities.Label(new = true).apply {
-            this.name = trimmed
-            color = manageLabelsService.randomColorArgb()
-        }
-        session.labelsById[label.id.toString()] = label
-        val presets = ManageLabelsMapper.newLabelPresets(session.data.mode)
-        session.controller.applyLabelChanged(
-            item = label.toLabelItem(),
-            selectedFlag = presets.thisBookmarkSelected,
-            autoAssignFlag = presets.autoAssign,
-            bookmarkPrimaryFlag = presets.thisBookmarkPrimary,
-            autoAssignPrimaryFlag = presets.autoAssignPrimary,
+            onDismiss = sheet::dismiss,
         )
     }
 

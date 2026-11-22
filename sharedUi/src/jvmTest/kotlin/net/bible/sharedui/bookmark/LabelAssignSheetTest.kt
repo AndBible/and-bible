@@ -34,7 +34,9 @@ import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
@@ -104,6 +106,7 @@ class LabelAssignSheetTest {
 
     private var editLabels = 0
     private var newLabel = 0
+    private val editedLabels = mutableListOf<String>()
 
     private fun ComposeUiTest.show(controller: ManageLabelsController) {
         setContent {
@@ -127,8 +130,10 @@ class LabelAssignSheetTest {
                                 onToggleFavourite = controller::toggleFavourite,
                                 onSetPrimary = controller::setPrimary,
                                 onToggleAutoAssign = controller::toggleAutoAssign,
+                                onEditLabel = { editedLabels += it },
+                                onNewLabel = { newLabel++ },
                                 onEditLabels = { editLabels++ },
-                                newLabelAction = { IconButton(onClick = { newLabel++ }) { Text("+") } },
+                                newLabelIcon = { onClick -> IconButton(onClick = onClick) { Text("+") } },
                                 iconSlot = { _, _ -> },
                             ),
                             onClose = {},
@@ -208,5 +213,15 @@ class LabelAssignSheetTest {
         onNodeWithText("+").performClick()
         assertEquals(1, editLabels)
         assertEquals(1, newLabel)
+    }
+
+    /** Below 480dp the rows have no toggles; the long press opens the label's editor, where they are. */
+    @Test fun aLongPressOpensTheLabelsEditorWithoutTickingIt() = runComposeUiTest {
+        val controller = controller()
+        show(controller)
+        onNodeWithText("Promises").performTouchInput { longClick() }
+        waitForIdle()
+        assertEquals(listOf("3"), editedLabels)
+        assertTrue("3" !in controller.resultSelected(), "a long press does not tick")
     }
 }

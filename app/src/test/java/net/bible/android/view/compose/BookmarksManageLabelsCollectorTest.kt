@@ -288,44 +288,6 @@ class BookmarksManageLabelsCollectorTest {
     }
 
     /**
-     * The real sheet host's save: what the sheet's controller has ticked, and a label created with its New (+),
-     * reach the bookmark through `saveManageLabelsAndExit` (the new label inserted and its temporary id remapped).
-     */
-    @Test
-    fun closingTheSheetSavesItsTicksAndNewLabelsOntoTheBookmark() {
-        val activity = host()
-        idle()
-        val (bookmark, label) = bookmarkAndLabel()
-        val controller = realController(activity, mutableListOf())
-        val bookmarkHost = activity.appHosts.bookmark
-        val sheets = bookmarkHost.labelAssignSheets
-
-        controller.enterSelection(bookmark.id.toString())
-        controller.assignSelected()
-        idleUntil("the assign sheet to open") { sheets.current != null }
-        val memo = BookmarkHost::class.java.getDeclaredField("manageLabelsSession").apply { isAccessible = true }
-        idleUntil("the sheet to build its controller") { memo.get(bookmarkHost) != null }
-        val session = (memo.get(bookmarkHost) as Pair<*, *>).second as net.bible.sharedui.app.bookmark.ManageLabelsSession
-        val manager = session.controller
-        idleUntil("the sheet's labels to load") {
-            manager.rows.value.any { it is net.bible.sharedcore.bookmark.ManageLabelsRow.Item && it.label.id == label.id.toString() }
-        }
-
-        manager.toggleChecked(label.id.toString())
-        BookmarkHost::class.java.declaredMethods.single { it.name.startsWith("addLabelFromSheet") }
-            .apply { isAccessible = true }.invoke(bookmarkHost, session, "  Brand new  ")
-        manager.save()
-
-        val control: net.bible.android.control.bookmark.BookmarkControl = GlobalContext.get().get()
-        idleUntil("both labels to reach the bookmark") {
-            kotlinx.coroutines.runBlocking { control.labelsForBookmark(bookmark) }.map { it.name }.toSet() == setOf("X", "Brand new")
-        }
-        val created = kotlinx.coroutines.runBlocking { control.labelsForBookmark(bookmark) }.single { it.name == "Brand new" }
-        assertTrue("the new label is a saved label", !created.new)
-        idleUntil("the sheet to close") { sheets.current == null }
-    }
-
-    /**
      * The sheet's "Edit labels": the full-screen ASSIGN list opens with the sheet's state, the gate is armed
      * as before, and the full screen's answer reaches the bookmark.
      */

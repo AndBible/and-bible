@@ -1420,7 +1420,6 @@
 
     <string name="labels_search_hint">Search</string>
     <string name="label_assign_edit_labels">Edit labels</string>
-    <string name="label_assign_new_label_title">New label</string>
     <string name="label_assign_filter_favourites">Favourites</string>
     <string name="label_assign_filter_auto_assign">Auto-assign</string>
     <string name="label_assign_search_contains">Name contains</string>
