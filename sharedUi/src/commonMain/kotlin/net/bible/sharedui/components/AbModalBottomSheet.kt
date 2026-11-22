@@ -1,7 +1,9 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -133,22 +135,28 @@ fun AbModalBottomSheet(
         dragHandle = if (!showDragHandle || handleDescription != null) null
             else ({ AbSheetDragHandle(description = null, mono = mono) }),
     ) {
-        if (showDragHandle && handleDescription != null) {
-            AbSheetDragHandle(
-                description = handleDescription,
-                mono = mono,
-                onDismiss = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() }
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-            )
+        // The cap lives HERE, once: every sheet's content (drag handle included) is measured with at most
+        // AbSheetMaxHeightFraction of the height the sheet window offers (#4207). Scroll regions inside are flexible
+        // (`sheetFlexible`), so the header and footer rows stay and the list takes the rest.
+        Column(Modifier.fillMaxWidth().abSheetHeightCap()) {
+            if (showDragHandle && handleDescription != null) {
+                AbSheetDragHandle(
+                    description = handleDescription,
+                    mono = mono,
+                    onDismiss = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
+            MirrorHostSystemBars()
+            if (mono) NoDialogNavigationContrast()
+            CompositionLocalProvider(
+                LocalAbSheetAnimatedClose provides animatedClose,
+                LocalAbSheetState provides sheetState,
+                LocalAbSheetHeightCapped provides true,
+            ) { content() }
         }
-        MirrorHostSystemBars()
-        if (mono) NoDialogNavigationContrast()
-        CompositionLocalProvider(
-            LocalAbSheetAnimatedClose provides animatedClose,
-            LocalAbSheetState provides sheetState,
-        ) { content() }
     }
     if (instantMotion) InstantSheetMotion(sheetState, dismissOnce)
     ResettleStrandedSheet(sheetState, instantMotion)

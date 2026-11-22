@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.ai
 
+import net.bible.sharedui.components.SheetScrollBody
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -306,11 +307,13 @@ fun AiConnectionSettingsScreen(
             if (page.key == CUSTOM_LANGUAGE_PAGE_KEY) {
                 val strings = LocalStrings.current
                 var current by remember { mutableStateOf(languageSelection.customLanguageInitial) }
-                AbTextInputContent(
-                    initial = languageSelection.customLanguageInitial,
-                    onValueChange = { current = it },
-                )
-                Text(strings.aiLanguageCustomHint, style = MaterialTheme.typography.bodySmall)
+                SheetScrollBody {
+                    AbTextInputContent(
+                        initial = languageSelection.customLanguageInitial,
+                        onValueChange = { current = it },
+                    )
+                    Text(strings.aiLanguageCustomHint, style = MaterialTheme.typography.bodySmall)
+                }
                 SheetConfirmRow(
                     confirmLabel = strings.okay,
                     cancelLabel = strings.cancel,
@@ -478,7 +481,7 @@ fun RetentionSheetContent(
     var text by remember(currentDays) { mutableStateOf(if (currentDays > 0) currentDays.toString() else "") }
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         AbSheetHeader(title = title, onClose = onClose)
-        Column(Modifier.padding(horizontal = 16.dp)) {
+        SheetScrollBody(Modifier.padding(horizontal = 16.dp)) {
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },

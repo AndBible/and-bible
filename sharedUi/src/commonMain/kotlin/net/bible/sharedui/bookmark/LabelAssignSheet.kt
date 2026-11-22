@@ -124,7 +124,7 @@ fun LabelAssignSheet(state: LabelAssignSheetState, actions: LabelAssignSheetActi
         onDismiss = onDismiss,
         canScrollForward = { listState.canScrollForward },
         footer = { EditLabelsFooter(actions.onEditLabels) },
-        bodyMaxHeightFraction = LabelAssignSheetBodyFraction,
+        bodyFillsSheetCap = true,
     ) {
         LabelAssignSheetContent(state, actions, listState)
     }
@@ -152,10 +152,6 @@ private fun hideSheetThen(action: (String) -> Unit): (String) -> Unit {
     return { id -> if (animatedClose != null) animatedClose { action(id) } else action(id) }
 }
 
-/** The body's share of the window: a label list wants more than the quick sheets' fixed 400dp, and search and chips
- *  sit above it, but the screen behind stays visible above the sheet. */
-private const val LabelAssignSheetBodyFraction = 0.7f
-
 /** [LabelAssignSheet] without the modal window: the same header, body and footer, for goldens and UI tests. */
 @kotlin.native.HiddenFromObjC
 @Composable
@@ -171,7 +167,7 @@ fun LabelAssignSheetFrame(
         actions = { NewLabelAction(actions) },
         canScrollForward = { listState.canScrollForward },
         footer = { EditLabelsFooter(actions.onEditLabels) },
-        bodyMaxHeightFraction = LabelAssignSheetBodyFraction,
+        bodyFillsSheetCap = true,
     ) {
         LabelAssignSheetContent(state, actions, listState)
     }

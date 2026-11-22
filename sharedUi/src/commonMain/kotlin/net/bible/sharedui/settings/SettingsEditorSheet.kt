@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.settings
 
+import net.bible.sharedui.components.sheetFlexible
+import net.bible.sharedui.components.SheetScrollBody
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -203,12 +205,14 @@ fun ColumnScope.TextInputRowEditorContent(
 ) {
     val strings = LocalStrings.current
     var current by remember(row.key, row.value) { mutableStateOf(row.value) }
-    AbTextInputContent(
-        initial = row.value,
-        onValueChange = { current = it },
-        numeric = row.numeric,
-        masked = row.masked,
-    )
+    SheetScrollBody {
+        AbTextInputContent(
+            initial = row.value,
+            onValueChange = { current = it },
+            numeric = row.numeric,
+            masked = row.masked,
+        )
+    }
     // CR-9: a row that only takes a non-negative integer cannot apply anything else, so
     // the sheet never closes on a value the screen would silently drop.
     val applied = if (row.nonNegativeIntOnly) current.trim() else current
@@ -315,6 +319,8 @@ fun GenericSettingsEditorSheet(
                     onCheckedChange = { current = it },
                     selectAllText = strings.selectAll,
                     selectNoneText = strings.selectNone,
+                    // Flexible: the list takes what the sheet's half-window cap leaves above the confirm row.
+                    modifier = sheetFlexible(),
                 )
                 SheetConfirmRow(
                     confirmLabel = strings.settingsEditorApply,

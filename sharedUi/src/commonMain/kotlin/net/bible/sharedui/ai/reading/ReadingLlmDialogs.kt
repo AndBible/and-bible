@@ -66,10 +66,9 @@ import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.strings.LocalStrings
 
-/** Bounded height for the scrollable list bodies (prompt selector / model chooser). Kept at 480dp
- *  through round 14a's dialog->sheet conversion: the spec's brief for these two is "same content,
- *  same rows", so the container is the only thing that changes. New wrappers use the port's
- *  `AbSheetContentMaxHeight` (400dp) instead. */
+/** Upper limit of the scrollable list bodies (prompt selector / model chooser): the 480dp they always had. Inside a
+ *  sheet the half-window cap ([net.bible.sharedui.components.AbSheetMaxHeightFraction], #4207) is the smaller bound
+ *  on a phone; this only stops a very tall window from growing the list past what it always had. */
 private val maxListHeight = 480.dp
 
 /**

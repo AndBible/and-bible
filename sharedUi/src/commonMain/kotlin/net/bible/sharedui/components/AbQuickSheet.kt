@@ -103,7 +103,7 @@ fun AbQuickSheet(
     onTabSelected: (String) -> Unit = {},
     footer: (@Composable () -> Unit)? = null,
     canScrollForward: () -> Boolean = { false },
-    bodyMaxHeightFraction: Float? = null,
+    bodyFillsSheetCap: Boolean = false,
     body: @Composable () -> Unit,
 ) {
     if (!open) return
@@ -144,7 +144,7 @@ fun AbQuickSheet(
             onTabSelected = onTabSelected,
             footer = footer,
             canScrollForward = canScrollForward,
-            bodyMaxHeightFraction = bodyMaxHeightFraction,
+            bodyFillsSheetCap = bodyFillsSheetCap,
             body = body,
         )
     }
@@ -163,10 +163,13 @@ data class AbQuickSheetTab(val id: String, val label: String)
  * [AbQuickSheet]'s body. Stateless and free of any sheet container, which is what makes it
  * capturable — and what `SettingsEditorSheetGuardTest` requires of every sheet body.
  *
- * [bodyMaxHeightFraction]: null keeps the fixed [AbSheetContentMaxHeight] body bound. A fraction
- * bounds the body by that share of the height the sheet offers its content instead, for a body
- * that sizes itself to its content and should get more room on a tall screen without ever
- * covering the whole window (the grid key chooser, #4133).
+ * The sheet as a whole is capped at [AbSheetMaxHeightFraction] of the window by [AbModalBottomSheet]; the body is the
+ * flexible part ([AbSheetScrollBound]), so the header, tabs and [footer] stay visible and the body scrolls in what is
+ * left.
+ *
+ * [bodyFillsSheetCap]: false keeps the fixed [AbSheetContentMaxHeight] upper limit on the body. True lifts it inside
+ * a sheet, for a body that sizes itself to its content and should get all the room the half-window cap leaves (the
+ * grid key chooser, #4133; the label list). A content-only frame has no sheet cap and keeps its old bound.
  */
 @Composable
 fun AbQuickSheetContent(
@@ -180,22 +183,28 @@ fun AbQuickSheetContent(
     onTabSelected: (String) -> Unit = {},
     footer: (@Composable () -> Unit)? = null,
     canScrollForward: () -> Boolean = { false },
-    bodyMaxHeightFraction: Float? = null,
+    bodyFillsSheetCap: Boolean = false,
     body: @Composable () -> Unit,
 ) {
-    if (bodyMaxHeightFraction == null) {
+    if (!bodyFillsSheetCap || LocalAbSheetHeightCapped.current) {
+        // Inside a sheet the half-window cap bounds everything and the body flexes; only the fixed upper limit is
+        // chosen here (none for a body that fills what the cap leaves).
+        val bodyMax = if (bodyFillsSheetCap) Dp.Unspecified else AbSheetContentMaxHeight
         QuickSheetColumn(title, onClose, canGoBack, onBack, actions, tabs, selectedTabId, onTabSelected, footer,
-            canScrollForward, AbSheetContentMaxHeight, body)
+            canScrollForward, bodyMax, body)
     } else {
-        // The sheet hands its content the window's usable height; a fraction of it keeps the
-        // reading view visible above the sheet. Unbounded (a content-only test) -> the fixed bound.
+        // A content-only frame (goldens, UI tests) has no sheet cap: keep the bound it always had, 70 % of the
+        // height it is given, or the fixed limit when unbounded, so the frames' goldens do not move.
         BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val bodyMax = if (maxHeight == Dp.Infinity) AbSheetContentMaxHeight else maxHeight * bodyMaxHeightFraction
+            val bodyMax = if (maxHeight == Dp.Infinity) AbSheetContentMaxHeight else maxHeight * FrameBodyFraction
             QuickSheetColumn(title, onClose, canGoBack, onBack, actions, tabs, selectedTabId, onTabSelected, footer,
                 canScrollForward, bodyMax, body)
         }
     }
 }
+
+/** Frame-only body share (see [AbQuickSheetContent]); a real sheet is capped by [AbSheetMaxHeightFraction] instead. */
+private const val FrameBodyFraction = 0.7f
 
 @Composable
 private fun QuickSheetColumn(

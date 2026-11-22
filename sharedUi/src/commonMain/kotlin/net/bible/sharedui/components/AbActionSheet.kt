@@ -124,7 +124,8 @@ fun AbActionSheetContent(
     Column(Modifier.fillMaxWidth().padding(top = topPadding, bottom = 16.dp)) {
         if (title.isNotBlank()) AbSheetHeader(title = title, onClose = onClose, showClose = showClose)
         val body: @Composable () -> Unit = {
-            Column {
+            // A handful of rows normally; scrolls when the sheet's half-window cap is smaller (landscape).
+            Column(Modifier.sheetVerticalScroll()) {
                 if (message != null) {
                     AbHtmlText(
                         html = message,

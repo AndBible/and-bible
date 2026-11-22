@@ -4,11 +4,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +35,8 @@ import kotlin.test.assertTrue
 /**
  * Issue #4133: the Choose Book quick sheet must size itself to its grid — the book list tall
  * enough for all its rows when the window allows, a chapter grid as tall as its own rows (a
- * one-chapter book is one row, not the earlier step's height), and never the whole window.
+ * one-chapter book is one row, not the earlier step's height), and never more than half the window
+ * (#4207: the rows scroll inside the sheet).
  */
 @OptIn(ExperimentalTestApi::class)
 class GridSheetSizesToContentTest {
@@ -81,15 +84,15 @@ class GridSheetSizesToContentTest {
         // The sheet is its own root (a popup layer); the window is the tallest root.
         val window = onAllNodes(isRoot()).fetchSemanticsNodes().maxOf { it.size.height }.toFloat()
 
-        // Book list: every one of the 66 books lies fully inside the sheet (no scrolling needed).
+        // Book list: the sheet is a share of the window and no more than half of it (#4207); the 66 books scroll
+        // inside it, down to the last.
         val bookSheet = sheetHeight()
-        val sheetTop = window - bookSheet
-        for (i in 0 until 66) {
-            val node = onNode(hasClickAction() and hasText("Book$i")).fetchSemanticsNode()
-            val top = node.positionInRoot.y
-            assertTrue(top >= sheetTop && top + node.size.height <= window, "Book$i outside the sheet: top=$top")
-        }
-        assertTrue(bookSheet < window, "the book sheet covers the whole window")
+        assertTrue(bookSheet <= window * 0.5f + 1f, "the book sheet $bookSheet is over half of the window $window")
+        assertTrue(bookSheet > window * 0.3f, "the book sheet $bookSheet did not use the room it has")
+        onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Book65"))
+        val last = onNode(hasClickAction() and hasText("Book65")).fetchSemanticsNode()
+        assertTrue(last.positionInRoot.y + last.size.height <= window, "Book65 is below the window")
+        onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Book0"))
 
         // A one-chapter book: the sheet shrinks to a single grid row.
         onNode(hasClickAction() and hasText("Book0")).performClick()
@@ -97,14 +100,14 @@ class GridSheetSizesToContentTest {
         val judeSheet = sheetHeight()
         assertTrue(judeSheet < bookSheet / 2, "one-chapter sheet $judeSheet not much shorter than book sheet $bookSheet")
 
-        // Back, then a 150-chapter book: the sheet grows but stays capped below the window top.
+        // Back, then a 150-chapter book: the sheet grows but stays at half the window at most.
         onNodeWithContentDescription(strings.settingsEditorBack).performClick()
         waitForIdle()
         onNode(hasClickAction() and hasText("Book1")).performClick()
         waitForIdle()
         val psalmsSheet = sheetHeight()
         assertTrue(psalmsSheet > judeSheet, "150-chapter sheet $psalmsSheet not taller than one-chapter $judeSheet")
-        assertTrue(psalmsSheet <= window * 0.9f, "150-chapter sheet $psalmsSheet covers (almost) the whole window $window")
+        assertTrue(psalmsSheet <= window * 0.5f + 1f, "150-chapter sheet $psalmsSheet is over half of the window $window")
     }
 
     /**
@@ -128,6 +131,7 @@ class GridSheetSizesToContentTest {
         waitForIdle()
         val window = onAllNodes(isRoot()).fetchSemanticsNodes().maxOf { it.size.height }.toFloat()
         assertTrue(sheetHeight() > emptySheet, "the sheet did not grow with the book list")
+        onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Book65"))
         val last = onNode(hasClickAction() and hasText("Book65")).fetchSemanticsNode()
         assertTrue(last.positionInRoot.y + last.size.height <= window, "the last book row is below the window")
     }

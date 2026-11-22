@@ -141,12 +141,6 @@ private fun GridKeyChooserSheet(slots: ReadingHostSlots, sheet: ReadingQuickShee
 }
 
 /**
- * The grid key-chooser sheet's body bound, as a share of the height the sheet offers its content
- * (#4133): enough for the 11-row book list on a phone, while the reading view stays visible above.
- */
-internal const val GRID_SHEET_BODY_FRACTION = 0.7f
-
-/**
  * The grid key-chooser sheet around an existing [controller]: [fallbackTitle] shows until the first
  * step has built, [onClose] runs when the sheet is dismissed (swipe, scrim, the close button, system
  * back at the book step, or back past the last grid step). Public (and objc-hidden) so a platform test
@@ -171,7 +165,7 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
         canGoBack = { step != GridStep.BOOK },
         onBack = { if (!controller.back()) onClose() },
         canScrollForward = { gridState.canScrollForward },
-        bodyMaxHeightFraction = GRID_SHEET_BODY_FRACTION,
+        bodyFillsSheetCap = true,
         dismissRoutesToBack = false,
         // Captures this composition's value: the lambda may run in another composition (a separate popup window
         // under desktop `compose.layers.type=WINDOW`) after `ui` went null for the next step's build, before this
@@ -184,8 +178,7 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
         },
     ) {
         PlatformBackHandler(enabled = step != GridStep.BOOK) { controller.back() }
-        // The sheet follows the grid's own height (#4133), under a body bound of
-        // GRID_SHEET_BODY_FRACTION of the window.
+        // The sheet follows the grid's own height (#4133), under the sheet's half-window cap.
         FittedGridSheetBody(controller, rendered, gridState)
     }
 }
