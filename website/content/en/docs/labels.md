@@ -35,7 +35,8 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
     start of its name: the chip turns into a search field with the keyboard up. While
     you search, the *Abc* button at the end of the field searches anywhere in the
     name, and the filter chips shrink to their icons. The clear (✕) button in the field,
-    or the Esc key, empties the search and closes the field. A label you have ticked
+    Back or the Esc key empties the search and closes the field; the next Back closes the
+    sheet. A label you have ticked
     stays listed whatever you search.
 - The *Plus* (+) button at the top opens the settings of a new label, the same
     screen as when you [create a label](#create-a-label) from the label list. Save it,
