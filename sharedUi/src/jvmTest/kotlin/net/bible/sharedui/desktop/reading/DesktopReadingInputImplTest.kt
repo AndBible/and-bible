@@ -119,20 +119,64 @@ class DesktopReadingInputImplTest {
         for (meta in listOf(false, true)) {
             val event = KeyEvent(Key.S, KeyEventType.KeyDown, isCtrlPressed = !meta, isMetaPressed = meta)
             assertEquals("s", DesktopReadingInputImpl.composeChord(event)?.key)
-            assertTrue(input.onPreviewKeyEvent(event))
+            assertTrue(input.onKeyEvent(event))
         }
-        assertFalse(input.onPreviewKeyEvent(ev(Key.S)))
-        assertFalse(input.onPreviewKeyEvent(ev(Key.S, ctrl = true, alt = true)))
+        assertFalse(input.onKeyEvent(ev(Key.S)))
+        assertFalse(input.onKeyEvent(ev(Key.S, ctrl = true, alt = true)))
         assertEquals(listOf("sync", "sync"), rec.log)
     }
 
     @Test fun ctrlAndCommandHAndYReachTheHistorySheet() {
         for (key in listOf(Key.H, Key.Y)) for (meta in listOf(false, true)) {
             val event = KeyEvent(key, KeyEventType.KeyDown, isCtrlPressed = !meta, isMetaPressed = meta)
-            assertTrue(input.onPreviewKeyEvent(event))
+            assertTrue(input.onKeyEvent(event))
         }
-        assertFalse(input.onPreviewKeyEvent(ev(Key.H)))
+        assertFalse(input.onKeyEvent(ev(Key.H)))
         assertEquals(List(4) { "history" }, rec.log)
+    }
+
+    @Test fun pageHistoryChordsYieldToEditorsAndPassShiftThrough() {
+        val harness = """
+            const listeners = [];
+            const posts = [];
+            global.window = {
+              addEventListener: (name, fn) => { if (name === 'keydown') listeners.push(fn); },
+              androidBridge: {postMessage: text => posts.push(JSON.parse(text).desktopInput)}
+            };
+            ${DesktopInputScript.PREAMBLE}
+            ${DesktopInputScript.KEY_PART}
+            const out = [];
+            for (const code of ['KeyH', 'KeyY']) {
+              for (const tag of ['DIV', 'TEXTAREA', 'INPUT', 'CONTENTEDITABLE']) {
+                for (const shift of [false, true]) {
+                  const e = {
+                    key: code.charAt(3).toLowerCase(), code, ctrlKey: true, metaKey: false, shiftKey: shift,
+                    target: {nodeType: 1, tagName: tag, isContentEditable: tag === 'CONTENTEDITABLE'},
+                    preventDefault() { this.prevented = true; }, stopPropagation() {},
+                  };
+                  const before = posts.length;
+                  listeners.forEach(fn => fn(e));
+                  out.push({code, tag, shift, prevented: !!e.prevented, posts: posts.length - before});
+                }
+              }
+            }
+            console.log(JSON.stringify(out));
+            console.log(JSON.stringify(posts));
+        """.trimIndent()
+        val process = ProcessBuilder("node", "-e", harness).redirectErrorStream(true).start()
+        val lines = process.inputStream.bufferedReader().readLines()
+        assertEquals(0, process.waitFor(), lines.joinToString("\n"))
+        val results = kotlinx.serialization.json.Json.parseToJsonElement(lines[lines.size - 2]) as kotlinx.serialization.json.JsonArray
+        assertEquals(16, results.size)
+        for (r in results) {
+            val o = r as kotlinx.serialization.json.JsonObject
+            val taken = o["tag"].toString() == "\"DIV\"" && o["shift"].toString() == "false"
+            assertEquals(taken, o["prevented"].toString() == "true", "only a plain chord outside an editable is cancelled: $o")
+            assertEquals(if (taken) 1 else 0, o["posts"].toString().toInt(), "posts for $o")
+        }
+        val messages = kotlinx.serialization.json.Json.parseToJsonElement(lines.last()) as kotlinx.serialization.json.JsonArray
+        messages.forEach { input.handleMessage("w1", msg(it.toString())) }
+        assertEquals(listOf("history", "history"), rec.log)
     }
 
     @Test fun pageSyncChordYieldsToEditorsForControlAndCommand() {

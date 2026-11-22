@@ -56,6 +56,8 @@ window.__abDesktop = {
      * work. Inside an editable, Ctrl+C/F/W (what keyboard.ts handles on `document`) are kept from the page's document
      * handler by a one-shot listener on the target that stops propagation after the target's own handlers (an editor's
      * Ctrl+Z needs those); default actions are never prevented. Alt+arrows are not taken from a text field.
+     * Ctrl+S (sync), Ctrl+H and Ctrl+Y (history) are not taken from an editable either, nor with Shift (Ctrl+H is
+     * delete-backward and Ctrl+Y redo in text fields); Ctrl+B (bookmark) only outside an editable, with a selection.
      */
     const val KEY_PART: String = """
 var pendingStop = null;
