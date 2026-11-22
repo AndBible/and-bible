@@ -52,6 +52,7 @@ class DesktopReadingInputImplTest {
         }
         override fun openSettings() { log += "settings" }
         override fun syncNow() { log += "sync" }
+        override fun showHistory() { log += "history" }
         override fun escapeAllowed(windowId: String) = true
         override fun closePageModals(windowId: String?): Boolean { modalChecks += windowId; return false }
     }
@@ -123,6 +124,15 @@ class DesktopReadingInputImplTest {
         assertFalse(input.onPreviewKeyEvent(ev(Key.S)))
         assertFalse(input.onPreviewKeyEvent(ev(Key.S, ctrl = true, alt = true)))
         assertEquals(listOf("sync", "sync"), rec.log)
+    }
+
+    @Test fun ctrlAndCommandHAndYReachTheHistorySheet() {
+        for (key in listOf(Key.H, Key.Y)) for (meta in listOf(false, true)) {
+            val event = KeyEvent(key, KeyEventType.KeyDown, isCtrlPressed = !meta, isMetaPressed = meta)
+            assertTrue(input.onPreviewKeyEvent(event))
+        }
+        assertFalse(input.onPreviewKeyEvent(ev(Key.H)))
+        assertEquals(List(4) { "history" }, rec.log)
     }
 
     @Test fun pageSyncChordYieldsToEditorsForControlAndCommand() {

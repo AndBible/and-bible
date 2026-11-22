@@ -94,6 +94,8 @@ class DesktopShortcutActionsImpl(
 
     override fun syncNow() = HostShortcutActions.syncNow()
 
+    override fun showHistory() = HostShortcutActions.showHistory()
+
     override fun escapeAllowed(windowId: String): Boolean =
         !HostReadingWindows.hasAssembly(windowId) || !HostReadingWindows.sessionFor(windowId).editingTextInJs
 

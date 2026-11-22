@@ -69,6 +69,9 @@ object HostShortcutActions {
 
     fun openSettings() = HostRootLinks.openRoute(NavRoutes.SETTINGS)
 
+    /** Opens the history sheet on the bound reading host; no-op while none is bound. */
+    fun showHistory() = HostReadingWindows.showHistorySheet()
+
     /** Starts the menu's Sync now action, or opens synchronization settings when not configured. */
     fun syncNow() {
         val sync = koin().get<SyncNow>()

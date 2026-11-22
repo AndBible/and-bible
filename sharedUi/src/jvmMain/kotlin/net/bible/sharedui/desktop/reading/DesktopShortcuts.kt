@@ -65,6 +65,9 @@ interface DesktopShortcutActions {
     /** Starts the menu's Sync now action, or opens synchronization settings when not configured. */
     fun syncNow()
 
+    /** Opens the navigation history sheet of the reading screen (the menu's History item). */
+    fun showHistory() {}
+
     /** Whether an Esc from [windowId]'s page may be taken: false while the page edits text (its editors handle Escape). */
     fun escapeAllowed(windowId: String): Boolean
 
@@ -141,6 +144,8 @@ class DesktopShortcuts(
         return when (key) {
             "f" -> !chord.fromPane && id != null && reading { actions.search(id) }
             "l" -> id != null && reading { actions.goToReference(id) }
+            // History: Ctrl+H (browsers on Windows/Linux) and Ctrl+Y (Mac browsers' Cmd+Y; Cmd+H is the OS "Hide").
+            "h", "y" -> !chord.editable && !chord.shift && reading { actions.showHistory() }
             "s" -> !chord.editable && !chord.shift && reading { actions.syncNow() }
             "b" -> when {
                 chord.editable -> false

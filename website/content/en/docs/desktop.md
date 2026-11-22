@@ -73,7 +73,7 @@ The desktop app can be used with the keyboard and the mouse. Among others: **Ctr
 or **Ctrl+L** opens the *Book Chooser*, **Ctrl+Tab** switches windows, **Ctrl+Plus**, **Ctrl+Minus**
 and **Ctrl+0** (or **Ctrl** and the mouse wheel) change the text size, **Ctrl+,** opens
 *Application preferences*, **F11** toggles fullscreen, and **Esc**, **Alt+Left** or the mouse back
-button go back. **Ctrl+=** also enlarges the text. See the full list, with the Android and iOS keys, in
+button go back. **Ctrl+=** also enlarges the text. **Ctrl+H** or **Ctrl+Y** (**Cmd+Y** on macOS) opens the *History* list. In the search results, **Enter** opens the selected result and the arrow keys move the selection. See the full list, with the Android and iOS keys, in
 [Keyboard Shortcuts](navigation.md#keyboard-shortcuts).
 
 In the reading view, **Ctrl+S** (**Cmd+S** on macOS) runs **Sync now**, using the same

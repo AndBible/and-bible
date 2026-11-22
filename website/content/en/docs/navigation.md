@@ -307,12 +307,15 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Alt+Left** | Go back (same as **Esc**, see [below](#esc-key-as-back)); **Alt+Right** does nothing | Desktop |
 | Mouse back button | Go back | Desktop |
 | **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop, iOS |
-| **Ctrl+Plus**, **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** (**Cmd+Plus**, **Cmd+Minus**, **Cmd+0** on iOS, no wheel) | Larger text, smaller text, default text size | Desktop, iOS |
+| **Ctrl+Plus** (also **Ctrl+=**), **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** (**Cmd+Plus**, **Cmd+=**, **Cmd+Minus**, **Cmd+0** on iOS, no wheel) | Larger text, smaller text, default text size | Desktop, iOS |
+| **Ctrl+H** or **Ctrl+Y** (**Cmd+Y** on macOS; **Cmd+H** is taken by macOS) | Open the *History* list | Desktop |
 | **Ctrl+,** (**Cmd+,** on iOS, from the reading screen only) | Open *Application preferences* | Desktop, iOS |
 | **Ctrl+S** (**Cmd+S** on macOS and iOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop, iOS |
 | **F11** | Toggle the reading fullscreen of the app (on iOS and Mac it does not toggle the Mac window's full screen; a Mac keyboard may need **Fn**+**F11**) | Desktop, iOS |
 | **Esc** | Go back, see [below](#esc-key-as-back) | iOS, desktop |
 | **Up / Down** | Scroll the text | All |
+| **Enter** in the search results | Open the selected result (the first one if none is selected), also when the list does not have focus | All |
+| **Up / Down**, **Up** on the first result in the search results | Move the selection; **Up** on the first result returns to the search field | All |
 | **Space** | Pause or resume speaking, while speech is not stopped | All |
 
 When you tap a verse and its action menu is open, **B** adds a bookmark, **N** adds a note and
