@@ -46,6 +46,14 @@ internal fun pageTitleFor(key: Key?): String? =
     if (key is Verse && key.verse == 0) wholeChapter(key, false).titleName else key?.titleName
 
 /**
+ * The shorter variant of [pageTitleFor] for [key] (short book names, e.g. Finnish `2Moos 1:2` for
+ * `2. Mooseksen kirja 1:2`), or null when it is no shorter than the full [fullTitle] (not a verse key, or a book
+ * with no distinct short name). The reading toolbar shows it when the full title does not fit (#4200).
+ */
+internal fun pageShortTitleFor(key: Key?, fullTitle: String?): String? =
+    withShortBookNames { pageTitleFor(key) }?.takeIf { it != fullTitle }
+
+/**
  * The Bible reference overlay's text, `"<document abbreviation>:<page title>"` with short book names (for example
  * `"KJV:John 3:16"`); null when there is no current key. Lifted from Android's `ReadingCommands.bibleOverlayText`.
  */

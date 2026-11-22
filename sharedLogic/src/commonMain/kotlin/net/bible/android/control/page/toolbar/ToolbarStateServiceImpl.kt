@@ -32,8 +32,9 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.service.cloudsync.CloudSync
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.event.Subscriptions
-import net.bible.android.control.versification.wholeChapter
-import net.bible.service.common.titleName
+import net.bible.android.view.activity.page.pageShortTitleFor
+import net.bible.android.view.activity.page.pageTitleFor
+import org.crosswire.jsword.passage.Key
 import org.koin.mp.KoinPlatform
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
@@ -115,6 +116,7 @@ class ToolbarStateServiceImpl(
         val showCommentary = if (swap) documentControl.suggestedCommentary != null else documentControl.commentariesForVerse.isNotEmpty()
         return ToolbarState(
             pageTitle = pageTitleText(),
+            pageTitleShort = pageTitleShortText(),
             documentTitle = page.currentDocumentName,
             syncRunning = false, // overwritten by refresh()'s copy(); cloudSync.runningChanged sets it directly
             showBible = showBible,
@@ -145,12 +147,16 @@ class ToolbarStateServiceImpl(
     }
 
     /** Port of `MainBibleActivity.pageTitleText` (MainBibleActivity.kt:1180). */
-    private fun pageTitleText(): String {
+    private fun pageTitleText(): String = pageTitleFor(titleKey()) ?: ""
+
+    /** The short-book-name variant of [pageTitleText] (#4200); null when there is none. */
+    private fun pageTitleShortText(): String? = titleKey().let { pageShortTitleFor(it, pageTitleFor(it)) }
+
+    private fun titleKey(): Key? {
         val page = pageControl.currentPageManager.currentPage
         val doc = page.currentDocument
         var key = page.displayKey
         if (doc?.bookCategory == BookCategory.BIBLE) key = pageControl.currentBibleVerse
-        return if (key is Verse && key.verse == 0) wholeChapter(key, false).titleName
-        else key?.titleName ?: ""
+        return key
     }
 }
