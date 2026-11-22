@@ -98,7 +98,8 @@ To see all your bookmarks in one place, open the main menu (☰) and click
 - **Open a bookmark:** click a row to go to its verse. Long ones can be
     expanded with the arrow on the right.
 - **Select several:** long-press a row, then click more rows. The top bar then
-    offers *Assign labels* and *Delete* for all selected bookmarks. Deleting asks
+    offers *Assign labels* and *Delete* for all selected bookmarks. *Assign labels*
+    opens the [Assign labels](labels.md#assign-labels) sheet. Deleting asks
     for confirmation.
 
 ### Exporting and importing bookmarks as CSV {#csv-export-import}

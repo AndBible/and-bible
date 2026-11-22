@@ -35,6 +35,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedui.app.bookmark.resolveLabelAssign
 import net.bible.android.view.activity.search.searchIntent
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -154,9 +155,14 @@ class AndroidReadingNavigator(
             selectedLabels = labelIds.toMutableSet(),
             bookmarkPrimaryLabel = bookmark.primaryLabelId
         ).applyFrom(workspaceSettings()).toJSON()
-        val result = activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.manageLabels(data)))
-        if (result.resultCode != Activity.RESULT_OK) return@withContext null
-        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+        // Issue #4201: the assign sheet over the reading view; its "Edit labels" (or a host without the sheet)
+        // opens the full-screen list as before.
+        val sheet = (activity as? NavHostComposeActivity)?.labelAssignSheetOpener()
+        val resultJson = resolveLabelAssign(data, sheet) { payload ->
+            val result = activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.manageLabels(payload)))
+            if (result.resultCode != Activity.RESULT_OK) null else result.data?.getStringExtra("data")
+        } ?: return@withContext null
+        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(resultJson)
         bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
         workspaceSettings()?.updateFrom(resultData)
         resultData.selectedLabels.toList()

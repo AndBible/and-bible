@@ -1420,6 +1420,10 @@
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
     <string name="labels_search_hint">Search</string>
+    <string name="label_assign_edit_labels">Edit labels</string>
+    <string name="label_assign_filter_favourites">Favourites</string>
+    <string name="label_assign_filter_auto_assign">Auto-assign</string>
+    <string name="label_assign_search_contains">Name contains</string>
     <string name="search_mode_name_start">Name (from start)</string>
     <string name="search_mode_name_contains">Name (contains)</string>
     <string name="search_mode_content">Content</string>

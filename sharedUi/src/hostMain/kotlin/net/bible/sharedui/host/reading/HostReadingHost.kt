@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.host.reading
 
+import net.bible.sharedui.app.bookmark.LabelAssignSheetOpener
 import net.bible.sharedcore.settings.textUnderWindowButtons
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityMenuPreference
@@ -163,6 +164,8 @@ class HostReadingHost(
     labelResults: NavResultChannel<ManageLabelsResult> = NavResultChannel { },
     /** Applies the document, key and passage choosers' answers to the window that asked; null: answers are not applied. */
     private val readingResults: HostReadingResults? = null,
+    /** The app's label-assign sheet (issue #4201); null: the label chooser is the full-screen list. */
+    private val labelAssignSheet: () -> LabelAssignSheetOpener? = { null },
     /** Hides or shows the system status bar (full screen hides it); the platform's [ReadingHostPlatform.setStatusBarHidden] by default. */
     private val statusBarHidden: (Boolean) -> Unit = platform::setStatusBarHidden,
     /** Whether the AI features are configured (Android: `CommonUtils.settings.llmConfigured`); shows the AI rows and menu item. */
@@ -269,6 +272,7 @@ class HostReadingHost(
             chooserRequests = readingResults ?: ChooserRequests.None,
             // Android's composeSearch: the toolbar field and results sheet of THIS view, not the search screens.
             openReadingSearch = { searchState.openSearch() },
+            labelAssignSheet = labelAssignSheet,
         )
     }
 

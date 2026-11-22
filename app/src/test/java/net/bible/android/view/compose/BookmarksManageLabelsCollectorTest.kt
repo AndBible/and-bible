@@ -219,14 +219,9 @@ class BookmarksManageLabelsCollectorTest {
         assertEquals(setOf(marker), autoAssignLabels())
     }
 
-    /**
-     * ASSIGN mode through the real `requestAssignLabels` (Dispatchers.IO, then Main): the labels the
-     * label manager returns must end up on the selected bookmark.
-     */
-    @Test
-    fun theRealAssignLabelsRequestArmsTheCollector() {
-        val activity = host()
-        idle()
+    /** A bookmark and a label in Room, and the list's rows loaded, as `requestAssignLabels` needs them. */
+    private fun bookmarkAndLabel(): Pair<net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes,
+        net.bible.android.database.bookmarks.BookmarkEntities.Label> {
         val control: net.bible.android.control.bookmark.BookmarkControl = GlobalContext.get().get()
         val bookmark = kotlinx.coroutines.runBlocking { control.addOrUpdateBibleBookmark(
             net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes(
@@ -251,25 +246,76 @@ class BookmarksManageLabelsCollectorTest {
                 showNotes = false,
             )
         }
+        return bookmark to label
+    }
+
+    private fun labelsOf(bookmark: net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes): List<IdType> {
+        val control: net.bible.android.control.bookmark.BookmarkControl = GlobalContext.get().get()
+        return kotlinx.coroutines.runBlocking { control.labelsForBookmark(bookmark) }.map { it.id }
+    }
+
+    /**
+     * Issue #4201, ASSIGN mode through the real `requestAssignLabels` (Dispatchers.IO, then Main): it opens
+     * the assign SHEET, not the full-screen route, and the selected ids the sheet answers with end up on
+     * the selected bookmark.
+     */
+    @Test
+    fun theRealAssignLabelsRequestOpensTheSheetAndItsAnswerReachesTheBookmark() {
+        val activity = host()
+        idle()
+        val (bookmark, label) = bookmarkAndLabel()
         val navigated = mutableListOf<String>()
         val controller = realController(activity, navigated)
+        val sheets = activity.appHosts.bookmark.labelAssignSheets
 
         controller.enterSelection(bookmark.id.toString())
         controller.assignSelected()
-        idleUntil("requestAssignLabels to navigate") { navigated.isNotEmpty() }
-        assertTrue("requestAssignLabels must arm the gate", isAwaiting(bookmarksSession(activity)))
+        idleUntil("requestAssignLabels to open the assign sheet") { sheets.current != null }
+        assertTrue("the sheet replaces the full-screen route", navigated.isEmpty())
+        assertTrue("the sheet answers directly, not through the channel", !isAwaiting(bookmarksSession(activity)))
+        val request = sheets.current!!
+        assertEquals(ManageLabelsContract.Mode.ASSIGN, ManageLabelsContract.ManageLabelsData.fromJSON(request.data).mode)
 
         val payload = ManageLabelsContract.ManageLabelsData(
             mode = ManageLabelsContract.Mode.ASSIGN,
             selectedLabels = mutableSetOf(label.id),
         ).toJSON()
-        deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+        request.finish(net.bible.sharedui.app.bookmark.LabelAssignOutcome.Assigned(payload))
+
+        // applyBookmarksManageLabelsResult writes on Dispatchers.IO.
+        idleUntil("the assigned label to reach the bookmark") { labelsOf(bookmark) == listOf(label.id) }
+        assertEquals(null, sheets.current)
+    }
+
+    /**
+     * The sheet's "Edit labels": the full-screen ASSIGN list opens with the sheet's state, the gate is armed
+     * as before, and the full screen's answer reaches the bookmark.
+     */
+    @Test
+    fun editLabelsFromTheSheetOpensTheFullScreenWhoseAnswerReachesTheBookmark() {
+        val activity = host()
+        idle()
+        val (bookmark, label) = bookmarkAndLabel()
+        val navigated = mutableListOf<String>()
+        val controller = realController(activity, navigated)
+        val sheets = activity.appHosts.bookmark.labelAssignSheets
+
+        controller.enterSelection(bookmark.id.toString())
+        controller.assignSelected()
+        idleUntil("requestAssignLabels to open the assign sheet") { sheets.current != null }
+        val sheetState = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.ASSIGN,
+            selectedLabels = mutableSetOf(label.id),
+        ).toJSON()
+        sheets.current!!.finish(net.bible.sharedui.app.bookmark.LabelAssignOutcome.Expand(sheetState))
+        idleUntil("the full-screen list to be requested") { navigated.isNotEmpty() }
+        assertEquals(listOf(sheetState), navigated)
+        assertTrue("the expanded request arms the gate", isAwaiting(bookmarksSession(activity)))
+
+        deliverAsTheLabelManagerWould(activity, ManageLabelsResult(sheetState))
 
         assertEquals(null, channel(activity).pending.value)
-        // applyBookmarksManageLabelsResult writes on Dispatchers.IO.
-        idleUntil("the assigned label to reach the bookmark") {
-            kotlinx.coroutines.runBlocking { control.labelsForBookmark(bookmark) }.map { it.id } == listOf(label.id)
-        }
+        idleUntil("the assigned label to reach the bookmark") { labelsOf(bookmark) == listOf(label.id) }
     }
 
     /**

@@ -986,6 +986,10 @@ interface Strings {
 
     // Batch 7b-1 — ManageLabelsScreen
     val labelsSearchHint: String                    // R.string.labels_search_hint
+    val labelAssignEditLabels: String               // R.string.label_assign_edit_labels (assign sheet footer)
+    val labelAssignFilterFavourites: String         // R.string.label_assign_filter_favourites (assign sheet chip)
+    val labelAssignFilterAutoAssign: String         // R.string.label_assign_filter_auto_assign (assign sheet chip)
+    val labelAssignSearchContains: String           // R.string.label_assign_search_contains (assign sheet chip)
     val activeLabelsHeader: String                  // R.string.active_labels
     val recentLabelsHeader: String                  // R.string.recent_labels
     val otherLabelsHeader: String                   // R.string.other_labels
