@@ -57,6 +57,8 @@ data class LabelEditState(
      *  label is read-only (name, style, colour, icon, delete, auto-assign, "this bookmark"); favourite and the
      *  workspace override stay, and "Copy to my labels" makes an editable copy. */
     val addonModule: String? = null,
+    /** False hides the "main label" switch of the "This bookmark" group: the bookmark list's payload never carries a primary label. */
+    val thisBookmarkPrimaryApplies: Boolean = true,
 ) {
     val isAddon: Boolean get() = addonModule != null
     val nameEditable: Boolean get() = !isSpecialLabel && !isAddon

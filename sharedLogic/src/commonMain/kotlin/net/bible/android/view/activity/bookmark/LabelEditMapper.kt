@@ -56,6 +56,7 @@ object LabelEditMapper {
             isSpecialLabel = label.isSpecialLabel,
             isSpeakLabel = label.isSpeakLabel,
             addonModule = data.addonModuleName,
+            thisBookmarkPrimaryApplies = data.thisBookmarkPrimaryApplies,
         )
     }
 
