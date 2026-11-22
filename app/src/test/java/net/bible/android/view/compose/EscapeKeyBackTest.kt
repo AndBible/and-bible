@@ -46,6 +46,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowToast
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -78,7 +79,10 @@ class EscapeKeyBackTest {
 
     @Before fun readingViewIsWhatTheUserSees() = ReadingViewVisibility.setVisible(true)
 
-    @After fun closeHosts() = net.bible.test.closeReadingHostsBeforeReset(hostControllers)
+    @After fun closeHosts() {
+        net.bible.test.closeReadingHostsBeforeReset(hostControllers)
+        ReadingViewVisibility.setVisible(false)
+    }
 
     private fun NavHostComposeActivity.searchModeActive() =
         composeReadingViewHost!!.searchController.searchModeActive.value
@@ -124,6 +128,32 @@ class EscapeKeyBackTest {
 
         assertFalse(activity.isFinishing, "Esc must never exit the app from the plain Bible text")
         assertNull(ShadowToast.getLatestToast(), "nor show Back's 'press again to exit' warning")
+
+        // Control: Back through the same dispatcher does warn here, so the Esc above really reached the chain's end.
+        activity.onBackPressedDispatcher.onBackPressed()
+        assertNotNull(ShadowToast.getLatestToast(), "control: Back warns on plain reading")
+    }
+
+    /**
+     * A screen the host was started on, with nothing below it: Back finishes the Activity (the platform default), Esc
+     * must not. The press goes through that destination's own pass-through handling to the end of the dispatcher.
+     */
+    @Test
+    fun escapeOnANonReadingStartScreenDoesNotExit() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.HELP),
+        ).also { hostControllers += it }.setup()
+        val activity = controller.get()
+        compose.waitForIdle()
+
+        activity.pressEscape()
+        assertFalse(activity.isFinishing, "Esc must not finish the host from its start screen")
+
+        activity.onBackPressedDispatcher.onBackPressed()
+        assertTrue(activity.isFinishing, "control: Back does finish it there")
     }
 
     @Test
@@ -194,6 +224,9 @@ class EscapeKeyBackTest {
 
         assertEquals(depth, historyDepth(), "Esc must not step back in the reading history")
         assertFalse(activity.isFinishing)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+        assertTrue(historyDepth() < depth, "control: Back does walk the history in this fixture")
     }
 
     /**

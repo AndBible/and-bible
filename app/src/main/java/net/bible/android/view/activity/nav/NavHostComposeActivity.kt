@@ -696,7 +696,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             controller.popBackStack()
             return
         }
-        if (escapeBackInProgress) return
         hostBack.isEnabled = false
         try {
             onBackPressedDispatcher.onBackPressed()
@@ -862,16 +861,30 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var escapeBackInProgress = false
 
     /**
+     * The lowest back callback (registered before [hostBack]), enabled only while [escapeBack] dispatches. Esc must
+     * never fall through to the platform's default, which finishes the Activity: whatever pass-through reaches the end
+     * of the chain (the host's [passThroughHostBack], or a Compose `PassThroughBackHandler` that disabled itself and
+     * re-dispatched, e.g. on a non-reading start destination with nothing below it) ends here instead.
+     */
+    private val escapeSink = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            Log.i(TAG_BACK, "Esc: nothing to close")
+        }
+    }
+
+    /**
      * Runs Esc through the same back dispatcher as Back (sheets, dialogs, the drawer, find mode, a pop to the previous
      * screen), except that it never leaves the app or the page: on reading it runs only the steps that close a layer
-     * ([BackStep.closesLayer], no history step, no exit warning; [readingBack]), and where Back would fall through to
-     * the platform's finish ([passThroughHostBack]) it stops.
+     * ([BackStep.closesLayer], no history step, no exit warning; [readingBack]), and a press that would fall through to
+     * the platform's finish ends in [escapeSink].
      */
     private fun escapeBack() {
         escapeBackInProgress = true
+        escapeSink.isEnabled = true
         try {
             onBackPressedDispatcher.onBackPressed()
         } finally {
+            escapeSink.isEnabled = false
             escapeBackInProgress = false
         }
     }
@@ -2562,6 +2575,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
+     * Step 3 of [reconcileReadingStateOnResume]: the active pane takes the key focus. A seam so a test can see the
+     * request (Robolectric's WebView never takes focus itself).
+     */
+    @VisibleForTesting
+    internal var requestPaneFocusOnResume: () -> Unit = { documentViewManager.documentView.asView().requestFocus() }
+
+    /**
      * **T8a item 2: the rest of classic's `onResume` reconciliation block (`:1979-1988`), ported as
      * a block rather than as a line.**
      *
@@ -2592,13 +2612,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * off the reading route rather than falling back to another host's repository, and ~45 of this
      * host's routes are not reading routes.
      */
-    /**
-     * Step 3 of [reconcileReadingStateOnResume]: the active pane takes the key focus. A seam so a test can see the
-     * request (Robolectric's WebView never takes focus itself).
-     */
-    @VisibleForTesting
-    internal var requestPaneFocusOnResume: () -> Unit = { documentViewManager.documentView.asView().requestFocus() }
-
     private suspend fun reconcileReadingStateOnResume(needRefresh: Boolean) {
         if (needRefresh) {
             readingCommands.switchWorkspace(readingCommands.currentWorkspaceId) // reload from db
@@ -3186,6 +3199,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         startStageForTest = "content set, start settings not loaded"
+        // Below hostBack and every Compose handler: catches an Esc that nothing above consumed (see escapeSink).
+        onBackPressedDispatcher.addCallback(this, escapeSink)
         onBackPressedDispatcher.addCallback(this, hostBack)
         setContent {
             // Direct settings/download entry points can precede the startup coroutine.

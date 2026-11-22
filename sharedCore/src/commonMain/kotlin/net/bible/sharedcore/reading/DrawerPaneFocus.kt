@@ -42,6 +42,7 @@ fun shouldRestorePaneFocusOnDrawerClose(searchBarOpen: Boolean): Boolean = !sear
  * Not while the reading search bar is open (issue #4196): the user who left the app with find open comes back to its
  * field, and Esc must still reach the back chain. Before this gate the resume gave the focus to the BibleView (a
  * WebView), which swallowed Esc, so after a trip to another app Esc no longer closed find. As for
- * [shouldRestorePaneFocusOnDrawerClose], the input is the bar's open state, not the field's focus.
+ * [shouldRestorePaneFocusOnDrawerClose], the input is the bar's open state, not the field's focus. Kept separate from
+ * it on purpose: the same answer today, but two different moments that may diverge.
  */
 fun shouldClaimPaneFocusOnResume(searchBarOpen: Boolean): Boolean = !searchBarOpen
