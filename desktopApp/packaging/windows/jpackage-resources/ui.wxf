@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <!-- Override only jpackage's UI fragment, not its version-dependent product/file templates.
+         JDK 17 main.wxs sets JP_UPGRADABLE_FOUND in FindRelatedProducts before the UI. -->
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.JpLicenseRtf)" />
+    <UI Id="JpUI">
+      <UIRef Id="WixUI_InstallDir" />
+      <DialogRef Id="InstallDirNotEmptyDlg" />
+      <Dialog Id="AndBibleUpdateDlg" Width="370" Height="270" Title="!(loc.WelcomeDlg_Title)" TrackDiskSpace="yes">
+        <Control Id="Title" Type="Text" X="15" Y="15" Width="340" Height="25" Transparent="yes" NoPrefix="yes" Text="!(loc.AndBibleUpdateTitle)" />
+        <Control Id="Description" Type="Text" X="25" Y="70" Width="320" Height="80" NoPrefix="yes" Text="!(loc.AndBibleUpdateDescription)" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Install" Type="PushButton" X="212" Y="243" Width="80" Height="17" Default="yes" Text="!(loc.VerifyReadyDlgInstall)">
+          <Publish Event="EndDialog" Value="Return"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
+          <Publish Event="SpawnDialog" Value="OutOfRbDiskDlg">OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 0 AND (PROMPTROLLBACKCOST="P" OR NOT PROMPTROLLBACKCOST)</Publish>
+          <Publish Event="EndDialog" Value="Return">OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 0 AND PROMPTROLLBACKCOST="D"</Publish>
+          <Publish Event="EnableRollback" Value="False">OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 0 AND PROMPTROLLBACKCOST="D"</Publish>
+          <Publish Event="SpawnDialog" Value="OutOfDiskDlg">(OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 1) OR (OutOfDiskSpace = 1 AND PROMPTROLLBACKCOST="F")</Publish>
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+      </Dialog>
+      <InstallUISequence>
+        <Show Dialog="WelcomeDlg" Before="AndBibleUpdateDlg">(NOT Installed AND NOT JP_UPGRADABLE_FOUND) OR PATCH</Show>
+        <Show Dialog="AndBibleUpdateDlg" Before="ProgressDlg">NOT Installed AND JP_UPGRADABLE_FOUND AND NOT PATCH</Show>
+      </InstallUISequence>
+    </UI>
+  </Fragment>
+</Wix>
