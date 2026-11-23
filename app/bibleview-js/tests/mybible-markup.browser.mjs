@@ -37,20 +37,27 @@ for (const mode of ['light', 'dark', 'monochrome', 'no-animations']) {
             await page.goto(origin);
             await page.waitForFunction(() => window.bibleViewDebug?.documents);
             const render = async xml => {
-                await page.evaluate(({xml, mode}) => {
+                const id = xml === fixed ? 'mybible-fixed' : 'mybible-before';
+                await page.evaluate(({xml, mode, id}) => {
                     const {documents, config, appSettings} = window.bibleViewDebug;
                     config.showVerseNumbers = true;
                     config.showSectionTitles = true;
                     appSettings.nightMode = mode === 'dark';
                     appSettings.disableAnimations = mode === 'no-animations';
                     appSettings.monochromeMode = mode === 'monochrome';
+                    appSettings.pureMonochromeMode = mode === 'monochrome';
                     documents.splice(0, Infinity, {
-                        id: 'mybible-markup', type: 'bible', bookInitials: 'MyBible-Fixture', bibleBookName: 'Matthew',
+                        id, type: 'bible', bookInitials: 'MyBible-Fixture', bibleBookName: 'Matthew',
                         chapterNumber: 3, ordinalRange: [100, 101], bookmarks: [], aiDocMarkers: [],
                         osisFragment: {xml, key: 'fixture', features: {}, bookCategory: 'BIBLE', bookInitials: 'MyBible-Fixture'},
                     });
-                }, {xml, mode});
-                await page.locator('#v-101 .verseNumber').waitFor();
+                }, {xml, mode, id});
+                await page.locator(`#doc-${id} #v-101 .verseNumber`).waitFor();
+                // The native host paints the WebView background; emulate that host surface here.
+                await page.evaluate(() => {
+                    const root = document.querySelector('#content').parentElement;
+                    document.body.style.backgroundColor = getComputedStyle(root).getPropertyValue('--background-color');
+                });
             };
             if (process.env.EVIDENCE_DIR) {
                 await mkdir(process.env.EVIDENCE_DIR, {recursive: true});
