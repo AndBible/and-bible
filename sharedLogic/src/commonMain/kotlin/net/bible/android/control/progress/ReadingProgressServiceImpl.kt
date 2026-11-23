@@ -145,6 +145,7 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
     override suspend fun readingCalendarSkeleton(): CalendarSkeleton = withContext(Dispatchers.IO) {
         val now = nowMs()
         var ms = calendar.startOfLocalWeek(calendar.plusWeeks(now, -52))
+        val firstWeekStartMs = ms
 
         val slots = mutableListOf<DaySlot>()
         val monthLabels = mutableListOf<MonthLabel>()
@@ -170,8 +171,14 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
             slots = slots,
             monthLabels = monthLabels,
             weeks = 53,
-            dayOfWeekLabels = listOf("", "M", "", "W", "", "F", ""),
+            // Rows follow the locale's first weekday, so label rows 1, 3 and 5 from the real days of the first week.
+            dayOfWeekLabels = dayOfWeekLabels(firstWeekStartMs),
         )
+    }
+
+    /** Seven row labels: blank except rows 1, 3 and 5, which get the localised narrow weekday name of that row. */
+    private fun dayOfWeekLabels(weekStartMs: Long): List<String> = List(7) { row ->
+        if (row % 2 == 1 && row < 6) calendar.narrowWeekdayName(calendar.plusLocalDays(weekStartMs, row)) else ""
     }
 
     override suspend fun dailyReadCounts(cycle: Int): Map<Long, Int> {
