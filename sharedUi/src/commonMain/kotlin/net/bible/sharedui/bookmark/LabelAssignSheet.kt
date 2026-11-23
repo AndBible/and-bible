@@ -127,8 +127,8 @@ class LabelAssignSheetState(
 /** The assign sheet's actions; see [LabelAssignSheet]. */
 @kotlin.native.HiddenFromObjC
 class LabelAssignSheetActions(
-    /** The search text changed. The sheet's search matches anywhere in a label's name (#4215): the host wires this to
-     *  [net.bible.sharedcore.bookmark.ManageLabelsController.setNameSearch]. */
+    /** Called on opening with the current query and on text edits. The sheet's search matches anywhere in a label's
+     *  name (#4215): the host wires this to [net.bible.sharedcore.bookmark.ManageLabelsController.setNameSearch]. */
     val onSearch: (String) -> Unit,
     val onToggleFilter: (LabelFilter) -> Unit,
     val onToggleChecked: (String) -> Unit,
@@ -240,6 +240,8 @@ fun LabelAssignSheetContent(
     listState: LazyListState = rememberLazyListState(),
 ) {
     val strings = LocalStrings.current
+    // Normalize a reused controller before any edit; keep a restored query intact (#4215).
+    LaunchedEffect(Unit) { actions.onSearch(state.searchText) }
     // Open = the user tapped the chip (saveable) or a search text is already there (restored, or set by the host).
     // `tapped`: the user tapped the chip. `keepOpen`: latched once the field is shown, so backspacing host-set text to
     // empty does not close it. `focusRequest`: the chip tap itself, NOT saveable, so only that tap focuses the field;
@@ -459,8 +461,7 @@ private fun AssignChip(
 
 /**
  * A small toggle with the chip's colours (selected: secondaryContainer, or inverted ink in monochrome, no hue). The
- * outer box is [width] x [height] for touch; the drawn shape is as wide as that and at most 32dp
- * tall, centred.
+ * outer box is [width] x [height] for touch; the drawn shape is as wide as that and at most 32dp tall, centred.
  * Toggleable semantics like a chip.
  */
 @Composable

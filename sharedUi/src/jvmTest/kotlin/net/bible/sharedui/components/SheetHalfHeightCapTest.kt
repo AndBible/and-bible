@@ -143,6 +143,21 @@ class SheetHalfHeightCapTest {
     @Test fun quickSheetWithFooterPortrait() = quickSheetWithFooter(portrait)
     @Test fun quickSheetWithFooterLandscape() = quickSheetWithFooter(landscape)
 
+    @Test fun heightCapHonoursTheRequestedFloorWithoutExceedingTheOfferedHeight() {
+        // Tall window, keyboard-sized portrait, short landscape, and a floor above the offered height.
+        for ((offered, expected) in listOf(760 to 380, 560 to 280, 400 to 280, 280 to 280, 240 to 240, 160 to 160, 120 to 120)) {
+            run(Size(360f, offered.toFloat())) {
+                mount {
+                    Box(Modifier.abSheetHeightCap(minCapHeight = 280.dp).testTag("cap")) {
+                        Box(Modifier.height(1000.dp))
+                    }
+                }
+                assertEquals(expected, onNodeWithTag("cap").fetchSemanticsNode().size.height,
+                    "offered $offered dp with a 280 dp floor")
+            }
+        }
+    }
+
     @Test fun shortSheetKeepsItsNaturalHeight() {
         for (window in listOf(portrait, landscape)) run(window) { h ->
             mount {
