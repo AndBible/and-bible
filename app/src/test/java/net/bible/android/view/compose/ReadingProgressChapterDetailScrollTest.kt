@@ -170,7 +170,7 @@ class ReadingProgressChapterDetailScrollTest {
         }
         compose.waitForIdle()
 
-        compose.onNodeWithText("Gen").performScrollTo().performClick()
+        compose.onNodeWithText("Gen", substring = true).performScrollTo().performClick()
         compose.waitForIdle()
 
         compose.onNodeWithText("Genesis").assertIsDisplayed()
