@@ -108,7 +108,7 @@ class ReadingProgressServiceImplTest {
         val skeleton = service.readingCalendarSkeleton()
 
         assertEquals(53, skeleton.weeks)
-        assertEquals(listOf("", "M", "", "W", "", "F", ""), skeleton.dayOfWeekLabels)
+        assertEquals(7, skeleton.dayOfWeekLabels.size)
 
         assertTrue(skeleton.slots.isNotEmpty())
         assertTrue(skeleton.slots.all { it.weekIndex in 0..52 })
@@ -120,6 +120,31 @@ class ReadingProgressServiceImplTest {
         val now = System.currentTimeMillis()
         assertTrue(skeleton.slots.last().dayTimestamp <= now)
         assertTrue(skeleton.slots.zipWithNext().all { (a, b) -> a.dayTimestamp < b.dayTimestamp })
+    }
+
+    /** #4212: the labels follow the locale's first weekday: Sunday-first US vs Monday-first Britain and Finland. */
+    @Test fun dayOfWeekLabelsMatchRowsOfFirstWeekday() = runBlocking {
+        val prevLocale = java.util.Locale.getDefault()
+        try {
+            service.nowMs = {
+                java.time.ZonedDateTime.of(2026, 6, 10, 12, 0, 0, 0, java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            }
+            val cases = mapOf(
+                java.util.Locale.US to (java.time.DayOfWeek.SUNDAY to listOf("", "M", "", "W", "", "F", "")),
+                java.util.Locale.forLanguageTag("en-GB") to (java.time.DayOfWeek.MONDAY to listOf("", "T", "", "T", "", "S", "")),
+                java.util.Locale.forLanguageTag("fi-FI") to (java.time.DayOfWeek.MONDAY to listOf("", "T", "", "T", "", "L", "")),
+            )
+            for ((locale, expected) in cases) {
+                java.util.Locale.setDefault(locale)
+                val skeleton = service.readingCalendarSkeleton()
+                val firstRow = java.time.Instant.ofEpochMilli(skeleton.slots.first().dayTimestamp)
+                    .atZone(java.time.ZoneId.systemDefault()).dayOfWeek
+                assertEquals("first row $locale", expected.first, firstRow)
+                assertEquals("labels $locale", expected.second, skeleton.dayOfWeekLabels)
+            }
+        } finally {
+            java.util.Locale.setDefault(prevLocale)
+        }
     }
 
     @Test fun calendarSkeletonIsUnchangedAcrossDst() = runBlocking {
@@ -140,7 +165,9 @@ class ReadingProgressServiceImplTest {
                     val (slots, months) = oldSkeleton(now)
                     assertEquals("slots $locale $now", slots, actual.slots.map { it.dayTimestamp })
                     assertEquals("months $locale $now", months, actual.monthLabels.map { it.weekIndex to it.name })
-                    assertEquals(listOf("", "M", "", "W", "", "F", ""), actual.dayOfWeekLabels)
+                    val expected = if (locale == java.util.Locale.US) listOf("", "M", "", "W", "", "F", "")
+                        else listOf("", "T", "", "T", "", "L", "")
+                    assertEquals("labels $locale", expected, actual.dayOfWeekLabels)
                 }
             }
 

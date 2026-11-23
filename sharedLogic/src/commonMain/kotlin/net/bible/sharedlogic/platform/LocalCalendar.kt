@@ -60,4 +60,7 @@ interface LocalCalendar {
     /** Month 0-11. */
     fun localMonth(epochMs: Long): Int
     fun shortMonthName(epochMs: Long): String
+
+    /** Narrow, localised weekday name (e.g. "M", "T") of the local day containing [epochMs]. */
+    fun narrowWeekdayName(epochMs: Long): String
 }
