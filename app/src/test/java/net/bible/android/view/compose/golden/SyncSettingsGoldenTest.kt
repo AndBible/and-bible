@@ -100,7 +100,7 @@ class SyncSettingsGoldenTest {
         ).state.value
 
     /** Signed in, two category switches flipped and not applied yet: pending rows and the Apply bar. */
-    private fun pendingState(): SyncSettingsUiState {
+    private fun pendingState(includeDocuments: Boolean = false): SyncSettingsUiState {
         val controller = SyncSettingsController(
             service = FakeService(snap(signedIn = true)),
             scope = CoroutineScope(Job()),
@@ -109,6 +109,7 @@ class SyncSettingsGoldenTest {
         )
         controller.onSwitch("sync_enable_bookmarks", false)
         controller.onSwitch("sync_enable_workspaces", false)
+        if (includeDocuments) controller.onSwitch("sync_enable_documents", true)
         return controller.state.value
     }
 
@@ -143,6 +144,12 @@ class SyncSettingsGoldenTest {
 
     @Test fun pendingChanges() =
         captureMatrix("SyncSettings", "pendingChanges", heightDp = 2400, content = screen(pendingState()))
+
+    @Test fun pendingDocuments() {
+        val content = screen(pendingState(includeDocuments = true))
+        captureMatrix("SyncSettings", "pendingDocuments", heightDp = 2400, content = content)
+        MONO_MODES.forEach { captureGolden("SyncSettings", "pendingDocuments", it, heightDp = 2400, content = content) }
+    }
 
     @Test fun checkingCloud() =
         captureMatrix("SyncSettings", "checkingCloud", heightDp = 2400,

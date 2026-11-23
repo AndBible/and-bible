@@ -530,9 +530,58 @@ class SyncSettingsServiceImplTest {
             .first { it.key == "sync_documents_auto_download" }
         assertFalse("controller must not retain the old checked value", row.checked)
         controller.onSwitch("sync_enable_documents", false)
+        assertTrue("document switch waits for Apply", service.snapshot.value.documentsEnabled)
+        assertTrue(settings.enabled)
+        controller.applyPending()
         assertFalse(service.snapshot.value.documentsEnabled)
         worker.scheduler.runCurrent()
         assertFalse(settings.enabled)
+    }
+
+    @Test fun controllerDocumentEnableIsPersistedOnlyAfterApplyAndConfirmation() = runBlocking {
+        settings.ensureLoaded()
+        settings.enabled = false
+        val ui = CoroutineScope(Job() + Dispatchers.Unconfined).also { scopes.add(it) }
+        val transfers = mutableListOf<Pair<List<String>, List<String>>>()
+        val starter = object : net.bible.sharedcore.cloud.DocumentSyncStarter {
+            override fun pushDocuments(initials: List<String>) = error("unexpected upload")
+            override fun stop() = error("unexpected stop")
+            override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) {
+                transfers += push to download
+            }
+        }
+        val service = impl(ui, starter = starter)
+        val summary = net.bible.sharedcore.settings.DocSyncSummaryData(listOf("KJV"), emptyList(), 10, 0)
+        val localScan = object : net.bible.sharedcore.settings.SyncSettingsService by service {
+            override suspend fun signIn() = true
+            override suspend fun scanDocuments() = summary
+        }
+        val controller = net.bible.sharedcore.settings.SyncSettingsController(localScan, ui,
+            net.bible.sharedcore.settings.SyncSettingsLabels.forTest(), {})
+
+        controller.onSwitch("sync_enable_documents", true)
+        assertFalse(settings.enabled)
+        assertFalse(service.snapshot.value.documentsEnabled)
+        assertTrue(transfers.isEmpty())
+        controller.discardPending()
+        assertFalse(settings.enabled)
+
+        controller.onSwitch("sync_enable_documents", true)
+        controller.applyPending()
+        assertTrue(controller.state.value.dialog is net.bible.sharedcore.settings.SyncDialog.EnableDocuments)
+        controller.dismissDialog()
+        assertFalse(settings.enabled)
+        assertTrue(transfers.isEmpty())
+
+        controller.onSwitch("sync_enable_documents", true)
+        controller.applyPending()
+        assertFalse(settings.enabled)
+        controller.confirmEnableDocuments()
+        assertTrue(settings.enabled)
+        assertTrue(service.snapshot.value.documentsEnabled)
+        assertEquals(listOf(listOf("KJV") to emptyList<String>()), transfers)
+        settings.awaitFixtureWrites()
+        assertTrue(net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao().get()!!.enabled)
     }
 
     @Test fun coldTogglesWaitForSnapshotThenPublishInSubmissionOrder() = kotlinx.coroutines.runBlocking {

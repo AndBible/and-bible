@@ -541,12 +541,15 @@ class SyncSettingsControllerTest {
         assertFalse(c.state.value.applying)
     }
 
-    @Test fun documentsSwitchStillAppliesImmediately() {
+    @Test fun documentsSwitchIsPendingButTransferOptionsStillApplyImmediately() {
         val svc = FakeSyncSettingsService(syncSnap(documentsEnabled = true))
         val c = controller(svc)
         c.onSwitch("sync_enable_documents", false)
         c.onSwitch("sync_documents_wifi_only", false)
-        assertEquals(listOf("docsDisable", "docToggle:sync_documents_wifi_only=false"), svc.calls)
+        assertEquals(listOf("docToggle:sync_documents_wifi_only=false"), svc.calls)
+        assertEquals(mapOf("sync_enable_documents" to false), c.state.value.pending)
+        c.applyPending()
+        assertTrue("docsDisable" in svc.calls)
         assertEquals(emptyMap(), c.state.value.pending)
     }
 
@@ -556,6 +559,10 @@ class SyncSettingsControllerTest {
         }
         val c = controller(svc)
         c.onSwitch("sync_enable_documents", true)
+        assertEquals(emptyList(), svc.calls, "toggling alone must not sign in, scan or enable sync")
+        assertTrue(row(c, "sync_enable_documents").checked)
+        assertEquals("Will be turned on", row(c, "sync_enable_documents").summary)
+        c.applyPending()
         assertEquals(listOf("signIn", "scan"), svc.calls)
         val d = c.state.value.dialog
         assertTrue(d is SyncDialog.EnableDocuments)
@@ -568,15 +575,132 @@ class SyncSettingsControllerTest {
         val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = true }
         val c = controller(svc)
         c.onSwitch("sync_enable_documents", true)
+        c.applyPending()
+        assertFalse("docsEnable" in svc.calls)
         c.confirmEnableDocuments()
         assertTrue("docsEnable" in svc.calls)
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertFalse(c.state.value.applying)
         assertEquals(SyncDialog.None, c.state.value.dialog)
     }
 
-    @Test fun disableDocuments_immediate() {
-        val svc = FakeSyncSettingsService(syncSnap(documentsEnabled = true))
-        controller(svc).onSwitch("sync_enable_documents", false)
-        assertTrue("docsDisable" in svc.calls)
+    @Test fun discardDocumentsDoesNotWriteOrStartTheEnableFlow() {
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        c.discardPending()
+        assertFalse(row(c, "sync_enable_documents").checked)
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertEquals(emptyList(), svc.calls)
+    }
+
+    @Test fun cancellingDocumentConfirmationDiscardsAllPendingOns() {
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertTrue(c.state.value.dialog is SyncDialog.EnableDocuments)
+        c.dismissDialog()
+        assertEquals(emptyList(), svc.applied)
+        assertFalse("docsEnable" in svc.calls)
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertFalse(c.state.value.applying)
+    }
+
+    @Test fun documentAndDatabaseChangesApplyTogetherAfterDocumentConfirmation() {
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertTrue(svc.applied.isEmpty())
+        c.confirmEnableDocuments()
+        assertEquals(listOf(mapOf("sync_enable_bookmarks" to true)), svc.applied)
+        assertTrue("docsEnable" in svc.calls)
+        assertEquals(emptyMap(), c.state.value.pending)
+    }
+
+    @Test fun failedDocumentSignInKeepsPendingForRetryWithoutScanning() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = false }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        c.applyPending()
+        assertEquals(listOf("signIn"), svc.calls)
+        assertEquals(mapOf("sync_enable_documents" to true), c.state.value.pending)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+        assertFalse(c.state.value.applying)
+    }
+
+    @Test fun cancelledDocumentPreviewStillAppliesPendingOffs() {
+        val svc = FakeSyncSettingsService(syncSnap(enabledCategories = setOf("sync_enable_progress")))
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        c.onSwitch("sync_enable_progress", false)
+        c.applyPending()
+        c.dismissDialog()
+        assertEquals(listOf(mapOf("sync_enable_progress" to false)), svc.applied)
+        assertFalse("docsEnable" in svc.calls)
+        assertEquals(emptyMap(), c.state.value.pending)
+    }
+
+    @Test fun failedMixedApplyDoesNotDisableDocuments() {
+        val svc = FakeSyncSettingsService(syncSnap(documentsEnabled = true)).apply { applyResult = ApplyResult.SignInFailed }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", false)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        assertFalse("docsDisable" in svc.calls)
+        assertEquals(mapOf("sync_enable_documents" to false, "sync_enable_bookmarks" to true), c.state.value.pending)
+    }
+
+    @Test fun failedDatabaseJoinDoesNotEnableDocuments() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { applyResult = ApplyResult.Cancelled }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        c.onSwitch("sync_enable_bookmarks", true)
+        c.applyPending()
+        c.confirmEnableDocuments()
+        assertFalse("docsEnable" in svc.calls)
+        assertEquals(emptyMap(), c.state.value.pending)
+    }
+
+    @Test fun leaveAppliesDocumentsOnlyAfterTransferConfirmation() {
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), {}, onExit = { exits++ })
+        c.onSwitch("sync_enable_documents", true)
+        assertFalse(c.onLeave())
+        c.confirmLeaveApply()
+        assertEquals(0, exits)
+        assertTrue(c.state.value.applying)
+        c.confirmEnableDocuments()
+        assertEquals(1, exits)
+        assertTrue("docsEnable" in svc.calls)
+    }
+
+    @Test fun leaveDiscardDropsDocumentsWithoutSigningIn() {
+        var exits = 0
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), {}, onExit = { exits++ })
+        c.onSwitch("sync_enable_documents", true)
+        assertFalse(c.onLeave())
+        c.confirmLeaveDiscard()
+        assertEquals(1, exits)
+        assertEquals(emptyList(), svc.calls)
+        assertFalse(row(c, "sync_enable_documents").checked)
+    }
+
+    @Test fun documentPendingEntryPrunesOnMatchingSnapshotAndToggleBack() {
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        c.onSwitch("sync_enable_documents", false)
+        assertEquals(emptyMap(), c.state.value.pending)
+        c.onSwitch("sync_enable_documents", true)
+        svc._snap.value = svc._snap.value.copy(documentsEnabled = true)
+        assertEquals(emptyMap(), c.state.value.pending)
+        assertTrue(row(c, "sync_enable_documents").checked)
     }
 
     @Test fun documentToggle_passthrough() {

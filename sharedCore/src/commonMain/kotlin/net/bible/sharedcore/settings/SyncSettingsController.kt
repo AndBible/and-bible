@@ -1,5 +1,6 @@
 package net.bible.sharedcore.settings
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,7 @@ class SyncSettingsController(
     private var lastAdapter = service.snapshot.value.adapter
     private var lastSignedOut = service.snapshot.value.adapterEnabled
     private var applyJob: Job? = null
+    private var documentConfirmation: CompletableDeferred<Boolean>? = null
     /** What the leave dialog's Apply/Discard does once done: an in-graph hop; null = the plain [onExit]. */
     private var afterLeave: (() -> Unit)? = null
     /** False once [abandonLeave] ran: an Apply that finishes later must not leave a screen that is gone. */
@@ -42,7 +44,7 @@ class SyncSettingsController(
                 // entry the persisted state now matches (another path changed it) is done.
                 if (pending.isNotEmpty()) {
                     val reset = s.adapter != lastAdapter || (s.adapterEnabled && !lastSignedOut)
-                    pending = if (reset) emptyMap() else pending.filter { (key, wanted) -> s.categoryEnabled[key] != wanted }
+                    pending = if (reset) emptyMap() else pending.filter { (key, wanted) -> s.persisted(key) != wanted }
                 }
                 lastAdapter = s.adapter
                 lastSignedOut = s.adapterEnabled
@@ -65,6 +67,9 @@ class SyncSettingsController(
         }
         _state.value = _state.value.copy(screen = build(service.snapshot.value), dialog = dialog)
     }
+
+    private fun SyncSettingsSnapshot.persisted(key: String): Boolean =
+        if (key == "sync_enable_documents") documentsEnabled else categoryEnabled[key] ?: false
 
     private fun categoryTitle(key: String): String = when (key) {
         "sync_enable_bookmarks" -> labels.bookmarksTitle
@@ -135,8 +140,9 @@ class SyncSettingsController(
             }
             add(SettingsItem.SwitchRow(
                 key = "sync_enable_documents", title = labels.documentsTitle,
-                summary = labels.formatDocumentsSummary(if (s.documentsEnabled) labels.documentsEnabled else labels.documentsDisabled, s.documentTransferSummary ?: labels.documentsIdle),
-                checked = s.documentsEnabled, iconKey = "sync_enable_documents",
+                summary = pending["sync_enable_documents"]?.let { if (it) labels.pendingOn else labels.pendingOff }
+                    ?: labels.formatDocumentsSummary(if (s.documentsEnabled) labels.documentsEnabled else labels.documentsDisabled, s.documentTransferSummary ?: labels.documentsIdle),
+                checked = pending["sync_enable_documents"] ?: s.documentsEnabled, iconKey = "sync_enable_documents",
             ))
             // ---- Document sync ----
             add(SettingsItem.Category(
@@ -166,20 +172,16 @@ class SyncSettingsController(
         return SettingsScreenState(title = labels.screenTitle, items = items)
     }
 
-    private var documentEnableInProgress = false
-
     fun onSwitch(key: String, checked: Boolean) {
         when {
-            key == "sync_enable_documents" ->
-                if (checked) enableDocumentsFlow() else { service.disableDocuments(); service.refresh() }
-            key in SyncCategoryKeys.DISPLAY -> markPending(key, checked)
+            key == "sync_enable_documents" || key in SyncCategoryKeys.DISPLAY -> markPending(key, checked)
             else -> { service.setDocumentSyncToggle(key, checked); service.refresh() }  // sync_documents_*
         }
     }
 
     /** Records the wanted value of a category switch; a value equal to the persisted one is no change at all. */
     private fun markPending(key: String, wanted: Boolean) {
-        val persisted = service.snapshot.value.categoryEnabled[key] ?: false
+        val persisted = service.snapshot.value.persisted(key)
         setPending(if (wanted == persisted) pending - key else pending + (key to wanted))
     }
 
@@ -209,9 +211,7 @@ class SyncSettingsController(
         applyJob = scope.launch {
             var completed = false
             try {
-                val ok = service.applyCategoryChanges(changes) {
-                    if (_state.value.dialog == SyncDialog.CheckingCloud) dismissDialog()
-                }
+                val ok = applyChanges(changes)
                 // Only a failed sign-in keeps the map for a retry; a cancelled plan left nothing to retry.
                 // Only the applied keys: a switch flipped while the Apply ran stays pending.
                 if (ok != ApplyResult.SignInFailed) setPending(pending - changes.keys)
@@ -288,34 +288,43 @@ class SyncSettingsController(
         finishLeave()
     }
 
-    private fun enableDocumentsFlow() {
-        if (documentEnableInProgress) return
-        documentEnableInProgress = true
-        scope.launch {
-            try {
-                setLoading(true)
-                val ok = service.signIn()
-                if (ok) {
-                    val summary = service.scanDocuments()
-                    val message = service.formatEnableDocumentsMessage(summary)
-                    setLoading(false)
-                    setDialog(SyncDialog.EnableDocuments(summary, message, title = labels.documentsEnableDialogTitle))
-                } else {
-                    setLoading(false)
-                }
+    /** Document transfers keep their own preview, but only inside the shared Apply operation. */
+    private suspend fun applyChanges(changes: Map<String, Boolean>): ApplyResult {
+        val documents = changes["sync_enable_documents"]
+        val categories = changes - "sync_enable_documents"
+        val summary = if (documents == true) {
+            if (!service.signIn()) return ApplyResult.SignInFailed
+            val scanned = service.scanDocuments()
+            val confirmation = CompletableDeferred<Boolean>()
+            documentConfirmation = confirmation
+            setDialog(SyncDialog.EnableDocuments(scanned, service.formatEnableDocumentsMessage(scanned), labels.documentsEnableDialogTitle))
+            val confirmed = try {
+                confirmation.await()
             } finally {
-                documentEnableInProgress = false
+                documentConfirmation = null
+                if (_state.value.dialog is SyncDialog.EnableDocuments) setDialog(SyncDialog.None)
+            }
+            if (!confirmed) {
+                val offs = categories.filterValues { !it }
+                if (offs.isNotEmpty()) service.applyCategoryChanges(offs)
+                return ApplyResult.Cancelled
+            }
+            scanned
+        } else null
+
+        val result = if (categories.isEmpty()) ApplyResult.Applied else {
+            if (categories.values.any { it }) setDialog(SyncDialog.CheckingCloud)
+            service.applyCategoryChanges(categories) {
+                if (_state.value.dialog == SyncDialog.CheckingCloud) dismissDialog()
             }
         }
+        if (documents == false && result != ApplyResult.SignInFailed) service.disableDocuments()
+        if (summary != null && result == ApplyResult.Applied) service.setDocumentsEnabled(summary)
+        return result
     }
 
     fun confirmEnableDocuments() {
-        val d = _state.value.dialog
-        if (d is SyncDialog.EnableDocuments) {
-            service.setDocumentsEnabled(d.summary)
-            service.refresh()
-        }
-        dismissDialog()
+        if (_state.value.dialog is SyncDialog.EnableDocuments) documentConfirmation?.complete(true)
     }
 
     fun onListChoice(key: String, value: String) {
@@ -361,7 +370,11 @@ class SyncSettingsController(
         }
     }
 
-    fun dismissDialog() { _state.value = _state.value.copy(dialog = SyncDialog.None) }
+    fun dismissDialog() {
+        val cancellingDocuments = _state.value.dialog is SyncDialog.EnableDocuments
+        _state.value = _state.value.copy(dialog = SyncDialog.None)
+        if (cancellingDocuments) documentConfirmation?.complete(false)
+    }
     private fun setLoading(v: Boolean) { _state.value = _state.value.copy(loading = v) }
     private fun setDialog(d: SyncDialog) { _state.value = _state.value.copy(dialog = d) }
 }
