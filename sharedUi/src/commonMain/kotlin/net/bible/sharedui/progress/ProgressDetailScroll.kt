@@ -70,9 +70,13 @@ internal fun rememberProgressDetailScroll(detailBookId: String?): ProgressDetail
         // and measure in content coordinates so a previous scroll cannot change the destination.
         val offset = snapshotFlow { target.headingLocation?.takeIf { it.first == book }?.second }
             .filterNotNull().first()
-        if (disableAnimations) scrollState.scrollTo(offset)
-        else scrollState.animateScrollTo(offset)
-        target.complete()
+        // Complete in finally: a drag cancels the animated scroll, and a stale request must not scroll later.
+        try {
+            if (disableAnimations) scrollState.scrollTo(offset)
+            else scrollState.animateScrollTo(offset)
+        } finally {
+            target.complete()
+        }
     }
     return target
 }
