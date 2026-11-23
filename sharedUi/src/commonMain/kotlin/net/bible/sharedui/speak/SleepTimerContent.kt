@@ -44,6 +44,7 @@ import net.bible.sharedcore.speak.SLEEP_TIMER_MIN
 import net.bible.sharedcore.speak.SLEEP_TIMER_PRESETS
 import net.bible.sharedcore.speak.SleepTimerSelection
 import net.bible.sharedui.components.AbSliderRow
+import net.bible.sharedui.components.sheetVerticalScroll
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -79,7 +80,9 @@ fun SleepTimerContent(
     // re-initialises from the persisted selection.
     var customOpen by remember { mutableStateOf(selection is SleepTimerSelection.Custom) }
     var sliderMinutes by remember(customMinutes) { mutableIntStateOf(customMinutes) }
-    Column(modifier.fillMaxWidth()) {
+    // sheetVerticalScroll (#4207): in a landscape sheet under the half-window cap the custom slider would be clipped
+    // below the chips with no way to reach it. A no-op outside a sheet (goldens).
+    Column(modifier.fillMaxWidth().sheetVerticalScroll()) {
         Text(
             strings.sleepTimerTitle,
             style = MaterialTheme.typography.bodyMedium,

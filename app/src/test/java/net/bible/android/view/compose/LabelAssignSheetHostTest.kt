@@ -72,7 +72,7 @@ import org.robolectric.annotation.Config
  * Issue #4201, round 2: the label-assign sheet's host ([BookmarkHost.assignSheet], built by `LabelAssignSheetHost`)
  * in the real `NavHostComposeActivity`, with the real controller memo, save and Room.
  *
- * The sheet's controls are driven through its [LabelAssignSheetSession] (the footer, ✕ and New (+) call exactly these
+ * The sheet's controls are driven through its [LabelAssignSheetSession] (the header pencil, ✕ and New (+) call exactly these
  * members; `LabelAssignSheetTest` covers the wiring from the controls). The host starts on `backup/restore`, as
  * [BookmarksManageLabelsCollectorTest] explains, so nothing but the host-level overlay can answer.
  */
