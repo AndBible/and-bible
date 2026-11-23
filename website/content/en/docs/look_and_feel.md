@@ -375,7 +375,7 @@ including after restoring a database backup.
     the window buttons bar, using the same day or night noise setting as the reading area.
     You can also import a background image and select it separately for day and night
     mode. Imported images remain available after restarting the app; you do not need
-    to import them again. On Windows, choose a JPG or PNG in the file picker, then
+    to import them again. Choose a JPG, PNG or WebP image in the file picker, then
     select its tile to apply it. If an image cannot be read, it is ignored rather
     than preventing Color settings from opening. A failed import shows an error;
     you can choose another image without restarting or resetting your data.
