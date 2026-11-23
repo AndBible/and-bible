@@ -341,7 +341,7 @@ class SheetHalfHeightCapTest {
 
     private val scope = CoroutineScope(Job() + Dispatchers.Unconfined)
 
-    private fun labelAssign(window: Size, search: String? = null) = run(window) { h ->
+    private fun labelAssign(window: Size, search: String? = null, selected: Set<String> = emptySet()) = run(window) { h ->
         try {
         fun label(i: Int) = LabelItem("l$i", "Label ${i.toString().padStart(2, '0')}", 0xFF3366CC.toInt(),
             favourite = false, isUnlabeled = false, isSpecial = false, customIcon = null)
@@ -357,7 +357,7 @@ class SheetHalfHeightCapTest {
             override fun setStyleTagsVisible(visible: Boolean) = Unit
         }
         val controller = ManageLabelsController(
-            mode = ManageLabelsMode.ASSIGN, service = service, scope = scope, initialSelected = emptySet(),
+            mode = ManageLabelsMode.ASSIGN, service = service, scope = scope, initialSelected = selected,
             initialAutoAssign = emptySet(), initialAutoAssignPrimary = null, initialBookmarkPrimary = null,
             highlightLabelId = null, onEditLabel = {}, onSelectStudyPad = { _, _ -> }, onSave = {}, onReset = {},
         )
@@ -427,6 +427,8 @@ class SheetHalfHeightCapTest {
     @Test fun labelAssignLandscape() = labelAssign(landscape)
     /** #4215: a phone landscape window without the keyboard (status bar taken off): still two label rows. */
     @Test fun labelAssignShortLandscapeShowsTwoLabelRows() = labelAssign(Size(800f, 330f))
+    /** A ticked label lists under "Selected labels", the next under "Other labels": two headers, still two rows. */
+    @Test fun labelAssignLandscapeWithATickedLabelShowsTwoLabelRows() = labelAssign(Size(800f, 330f), selected = setOf("l1"))
     @Test fun labelAssignWithKeyboardUpKeepsTheSearchFieldVisible() = labelAssign(Size(760f, 120f), search = "Label")
 }
 

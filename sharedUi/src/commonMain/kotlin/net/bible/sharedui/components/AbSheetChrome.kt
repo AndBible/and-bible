@@ -66,11 +66,12 @@ val AbSheetMinCapHeight: Dp = 160.dp
 /**
  * The label assign sheet's floor (#4215, spec amendment 2026-11-23, item 2): a phone in landscape without the keyboard
  * offers ~330-390dp, half of which showed the header, the chip row and barely one label. This floor keeps the header
- * (48dp), the chip row (48dp), a category header (36dp) and two label rows (2 x 48dp) plus the sheet's 16dp bottom
- * padding visible. Like [AbSheetMinCapHeight] it never exceeds the offered height, so a window shorter than this
+ * (48dp), the chip row (48dp) and two label rows (2 x 48dp) visible even when each sits under its own category header
+ * (2 x 36dp: a ticked label lists under "Selected labels", the next under "Other labels"), plus the sheet's 16dp bottom
+ * padding. The iPhone simulator run showed the 248dp first try cutting the second row in that case. Like [AbSheetMinCapHeight] it never exceeds the offered height, so a window shorter than this
  * (the keyboard up) gets the whole offered height, as before. Other sheets keep the plain cap.
  */
-val AbLabelAssignSheetMinCapHeight: Dp = 248.dp
+val AbLabelAssignSheetMinCapHeight: Dp = 280.dp
 
 /**
  * The upper limit of a new sheet's scrolling region where nothing else bounds it: content-only frames (goldens,
