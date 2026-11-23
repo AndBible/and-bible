@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="AndBibleUpdateTitle">{\WixUI_Font_Title}Update [ProductName]</String>
+  <String Id="AndBibleUpdateDescription">[ProductName] will be updated to version [ProductVersion]. Your documents and settings will be kept.</String>
+</WixLocalization>

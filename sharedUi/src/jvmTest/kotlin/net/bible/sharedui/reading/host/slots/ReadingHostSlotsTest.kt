@@ -635,12 +635,14 @@ class ReadingHostSlotsTest {
 
     @Test
     fun colourControllerImportUsesTheImagePickerPort() {
-        val (slots, _) = slots()
+        val (slots, state) = slots()
         pickerAnswer = "img-token"
         val controller = slots.colorControllerFor(SettingsScope.Workspace("ws"))
         controller.onImportBackgroundImage()
         assertEquals(1, pickerCalls, "the import must ask the ImagePicker port exactly once")
         assertEquals("img-token", importReceived, "the import must receive the port's answer")
+        val dialog = state.readingDialog.value as net.bible.android.view.activity.page.screen.ReadingDialog.Help
+        assertEquals(strings.errorOccurred, dialog.html, "a failed import must open a dialog above the reading sheet")
     }
 
     /**

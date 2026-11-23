@@ -87,6 +87,17 @@ class AndroidLocalCalendar : LocalCalendar {
     override fun shortMonthName(epochMs: Long): String =
         at(epochMs).getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) ?: ""
 
+    override fun narrowWeekdayName(epochMs: Long): String =
+        at(epochMs).let { cal ->
+            // Calendar.NARROW_FORMAT needs API 26; below that Android's ICU-backed SimpleDateFormat knows the narrow
+            // "EEEEE" pattern (the first letter of the short name would give 周 周 周 in Chinese).
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.NARROW_FORMAT, Locale.getDefault())
+            } else {
+                SimpleDateFormat("EEEEE", Locale.getDefault()).apply { timeZone = cal.timeZone }.format(cal.time)
+            }
+        } ?: ""
+
     private companion object {
         private const val TAG = "OneDaysReadingDto"
     }

@@ -65,6 +65,7 @@ internal class TextSettingsEditorState(
     private val strings: () -> Strings,
     private val imagePicker: ImagePicker,
     private val thumbnailFor: (String) -> ImageBitmap?,
+    private val showImportError: () -> Unit,
 ) {
     /** The editor's page stack; independent of the settings screen's own stack. */
     val editor = SettingsEditorStack()
@@ -121,6 +122,7 @@ internal class TextSettingsEditorState(
             scope = settingsScope,
             coroutineScope = scope,
             imagePicker = { imagePicker.pickImage() },
+            onImportError = { showImportError() },
         )
 
     /** Self-hides when the stack is empty, so a host can render it unconditionally. */

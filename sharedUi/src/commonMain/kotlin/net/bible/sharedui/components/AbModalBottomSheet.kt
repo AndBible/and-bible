@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -81,6 +82,8 @@ fun AbModalBottomSheet(
     // library default; callers that have `LocalStrings` pass `strings.sheetDragHandle`.
     dragHandleDescription: String? = null,
     showDragHandle: Boolean = true,
+    // The floor of the half-window cap ([abSheetHeightCap]); only the label assign sheet raises it (#4215).
+    minCapHeight: Dp = AbSheetMinCapHeight,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     TrackOverlay()
@@ -139,7 +142,7 @@ fun AbModalBottomSheet(
         // The cap lives HERE, once: every sheet's content (drag handle included) is measured with at most
         // AbSheetMaxHeightFraction of the height the sheet window offers (#4207). Scroll regions inside are flexible
         // (`sheetFlexible`), so the header and footer rows stay and the list takes the rest.
-        Column(Modifier.fillMaxWidth().abSheetHeightCap()) {
+        Column(Modifier.fillMaxWidth().abSheetHeightCap(minCapHeight = minCapHeight)) {
             if (showDragHandle) {
                 AbSheetDragHandle(
                     description = handleDescription,

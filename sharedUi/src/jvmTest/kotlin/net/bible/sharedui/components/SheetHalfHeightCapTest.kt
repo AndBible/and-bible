@@ -57,6 +57,7 @@ import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedui.bookmark.LABEL_ASSIGN_SEARCH_CHIP_TAG
 import net.bible.sharedui.bookmark.LABEL_ASSIGN_SEARCH_TAG
 import net.bible.sharedui.bookmark.LabelAssignSheet
 import net.bible.sharedui.bookmark.LabelAssignSheetActions
@@ -141,6 +142,21 @@ class SheetHalfHeightCapTest {
 
     @Test fun quickSheetWithFooterPortrait() = quickSheetWithFooter(portrait)
     @Test fun quickSheetWithFooterLandscape() = quickSheetWithFooter(landscape)
+
+    @Test fun heightCapHonoursTheRequestedFloorWithoutExceedingTheOfferedHeight() {
+        // Tall window, keyboard-sized portrait, short landscape, and a floor above the offered height.
+        for ((offered, expected) in listOf(760 to 380, 560 to 280, 400 to 280, 280 to 280, 240 to 240, 160 to 160, 120 to 120)) {
+            run(Size(360f, offered.toFloat())) {
+                mount {
+                    Box(Modifier.abSheetHeightCap(minCapHeight = 280.dp).testTag("cap")) {
+                        Box(Modifier.height(1000.dp))
+                    }
+                }
+                assertEquals(expected, onNodeWithTag("cap").fetchSemanticsNode().size.height,
+                    "offered $offered dp with a 280 dp floor")
+            }
+        }
+    }
 
     @Test fun shortSheetKeepsItsNaturalHeight() {
         for (window in listOf(portrait, landscape)) run(window) { h ->
@@ -340,7 +356,7 @@ class SheetHalfHeightCapTest {
 
     private val scope = CoroutineScope(Job() + Dispatchers.Unconfined)
 
-    private fun labelAssign(window: Size, search: String? = null) = run(window) { h ->
+    private fun labelAssign(window: Size, search: String? = null, selected: Set<String> = emptySet()) = run(window) { h ->
         try {
         fun label(i: Int) = LabelItem("l$i", "Label ${i.toString().padStart(2, '0')}", 0xFF3366CC.toInt(),
             favourite = false, isUnlabeled = false, isSpecial = false, customIcon = null)
@@ -356,7 +372,7 @@ class SheetHalfHeightCapTest {
             override fun setStyleTagsVisible(visible: Boolean) = Unit
         }
         val controller = ManageLabelsController(
-            mode = ManageLabelsMode.ASSIGN, service = service, scope = scope, initialSelected = emptySet(),
+            mode = ManageLabelsMode.ASSIGN, service = service, scope = scope, initialSelected = selected,
             initialAutoAssign = emptySet(), initialAutoAssignPrimary = null, initialBookmarkPrimary = null,
             highlightLabelId = null, onEditLabel = {}, onSelectStudyPad = { _, _ -> }, onSave = {}, onReset = {},
         )
@@ -364,15 +380,14 @@ class SheetHalfHeightCapTest {
         mount {
             val rows by controller.rows.collectAsState()
             val searchText by controller.searchText.collectAsState()
-            val searchMode by controller.searchMode.collectAsState()
             val filters by controller.filters.collectAsState()
             LabelAssignSheet(
                 state = LabelAssignSheetState(
                     title = strings.assignLabelsLabel, rows = rows, styleTagsVisible = false,
-                    searchText = searchText, searchMode = searchMode, filters = filters,
+                    searchText = searchText, filters = filters,
                 ),
                 actions = LabelAssignSheetActions(
-                    onSearch = controller::setSearch, onSetSearchMode = controller::setSearchMode,
+                    onSearch = controller::setNameSearch,
                     onToggleFilter = controller::toggleFilter, onToggleChecked = controller::toggleChecked,
                     onToggleFavourite = controller::toggleFavourite, onSetPrimary = controller::setPrimary,
                     onToggleAutoAssign = controller::toggleAutoAssign, onEditLabel = {}, onNewLabel = {},
@@ -395,6 +410,23 @@ class SheetHalfHeightCapTest {
             assertTrue(field.size.height >= 16, "label search field clipped to ${field.size.height} dp")
             assertTrue(field.positionInRoot.y >= 0f && field.positionInRoot.y + field.size.height <= h + 1f,
                 "label search field outside the window")
+        } else if (window.height < window.width) {
+            // #4215: in landscape the 50 % cap gives way to the sheet's floor: the header, the chip row and at least
+            // two label rows are visible at rest, without scrolling; the sheet is no taller than that floor needs.
+            val height = sheetHeight(h)
+            assertTrue(height <= maxOf(h * 0.5f, AbLabelAssignSheetMinCapHeight.value) + 1f,
+                "label assign $window: sheet $height dp is over its floor")
+            assertOnScreen(strings.assignLabelsLabel, h, "label assign $window")
+            onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertIsDisplayed()
+            // Fully inside the list's viewport (a lazy row cut off at its edge is composed too).
+            val list = onNode(hasScrollAction() and SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange))
+                .fetchSemanticsNode().boundsInRoot
+            val visibleRows = onAllNodes(hasText("Label ", substring = true)).fetchSemanticsNodes().count { node ->
+                val bounds = node.boundsInRoot
+                bounds.height >= 40f && bounds.top >= list.top - 1f && bounds.bottom <= minOf(list.bottom, h) + 1f
+            }
+            assertTrue(visibleRows >= 2, "label assign $window: only $visibleRows label rows visible in a $height dp sheet")
+            assertListReachesLastRow("Label 40", "label assign $window")
         } else {
             assertCapped(h, "label assign $window")
             assertOnScreen(strings.assignLabelsLabel, h, "label assign $window")
@@ -408,6 +440,10 @@ class SheetHalfHeightCapTest {
 
     @Test fun labelAssignPortrait() = labelAssign(portrait)
     @Test fun labelAssignLandscape() = labelAssign(landscape)
+    /** #4215: a phone landscape window without the keyboard (status bar taken off): still two label rows. */
+    @Test fun labelAssignShortLandscapeShowsTwoLabelRows() = labelAssign(Size(800f, 330f))
+    /** A ticked label lists under "Selected labels", the next under "Other labels": two headers, still two rows. */
+    @Test fun labelAssignLandscapeWithATickedLabelShowsTwoLabelRows() = labelAssign(Size(800f, 330f), selected = setOf("l1"))
     @Test fun labelAssignWithKeyboardUpKeepsTheSearchFieldVisible() = labelAssign(Size(760f, 120f), search = "Label")
 }
 

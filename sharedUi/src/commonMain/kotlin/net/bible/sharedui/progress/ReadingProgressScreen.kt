@@ -18,16 +18,12 @@
 package net.bible.sharedui.progress
 
 import net.bible.sharedui.components.AbLoadingIndicator
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -42,7 +38,6 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -152,7 +147,6 @@ fun ReadingProgressScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReadingTabBody(
     model: ReadingProgressModel,
@@ -168,23 +162,16 @@ private fun ReadingTabBody(
 ) {
     var confirmNewCycle by remember { mutableStateOf(false) }
 
-    // F95 (fix batch 3 §2.3.3): classic's showChapterDetail scrolled to the detail it opened. The
-    // FIRST composition is skipped on purpose: a detail that is already there when the screen appears
-    // (the goldens, a restored screen) is not the result of a tap, and scrolling to it would move them.
-    val detailHeading = remember { BringIntoViewRequester() }
-    var firstDetailSeen by remember { mutableStateOf(false) }
-    LaunchedEffect(model.chapterDetail?.title) {
-        if (!firstDetailSeen) {
-            firstDetailSeen = true
-            return@LaunchedEffect
-        }
-        if (model.chapterDetail != null) detailHeading.bringIntoView()
+    val detailScroll = rememberProgressDetailScroll(model.chapterDetail?.bookId)
+    val selectBook: (String) -> Unit = { bookId ->
+        detailScroll.request(bookId)
+        onBookClick(bookId)
     }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .volumeVerticalScroll(rememberScrollState())
+            .volumeVerticalScroll(detailScroll.scrollState)
             .padding(16.dp),
     ) {
         // 1. Summary row.
@@ -239,7 +226,7 @@ private fun ReadingTabBody(
         BookHeatGrid(
             books = model.otBooks,
             colors = { bookProgressColors(it.readPercent, model.bookPercentScaleMax) },
-            onClick = onBookClick,
+            onClick = selectBook,
             onLongClick = onBookLongClick,
         )
         Spacer(Modifier.height(12.dp))
@@ -248,7 +235,7 @@ private fun ReadingTabBody(
         BookHeatGrid(
             books = model.ntBooks,
             colors = { bookProgressColors(it.readPercent, model.bookPercentScaleMax) },
-            onClick = onBookClick,
+            onClick = selectBook,
             onLongClick = onBookLongClick,
         )
         Spacer(Modifier.height(16.dp))
@@ -259,7 +246,7 @@ private fun ReadingTabBody(
             Text(
                 text = detail.title,
                 style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.bringIntoViewRequester(detailHeading),
+                modifier = detailScroll.headingModifier(detail.bookId),
             )
             Spacer(Modifier.height(4.dp))
             AbColorScaleLegend(

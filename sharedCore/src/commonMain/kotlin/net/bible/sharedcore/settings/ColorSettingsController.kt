@@ -1,10 +1,12 @@
 package net.bible.sharedcore.settings
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import net.bible.sharedcore.log.Log
 
 /** Full UI state the colours screen (and the chooser sub-screen) render from. */
 data class ColorSettingsUiState(
@@ -26,6 +28,7 @@ class ColorSettingsController(
     private val scope: SettingsScope,
     private val coroutineScope: CoroutineScope,
     private val imagePicker: suspend () -> String?,
+    private val onImportError: (Exception?) -> Unit = {},
 ) {
     private val _state = MutableStateFlow(
         ColorSettingsUiState(colors = service.loadColors(scope), backgroundOptions = service.loadBackgroundOptions())
@@ -73,11 +76,28 @@ class ColorSettingsController(
     }
 
     fun onImportBackgroundImage() {
+        if (_state.value.loading) return
         _state.value = _state.value.copy(loading = true)
         coroutineScope.launch {
-            service.importBackgroundImage(imagePicker)
-            reload()
-            _state.value = _state.value.copy(loading = false)
+            var imageSelected = false
+            val trackedPicker: suspend () -> String? = {
+                imagePicker().also { if (it != null) imageSelected = true }
+            }
+            try {
+                val result = service.importBackgroundImage(trackedPicker)
+                if (imageSelected && result == null) {
+                    Log.e("ColorSettingsController", "Background image import returned no result after image selection")
+                    onImportError(null)
+                }
+                reload()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("ColorSettingsController", "Background image import failed", e)
+                onImportError(e)
+            } finally {
+                _state.value = _state.value.copy(loading = false)
+            }
         }
     }
 

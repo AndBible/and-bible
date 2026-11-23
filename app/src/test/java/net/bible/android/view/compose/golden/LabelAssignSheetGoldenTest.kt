@@ -29,7 +29,6 @@ import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsRow
-import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.bookmark.LabelAssignSheetActions
 import net.bible.sharedui.bookmark.LabelAssignSheetFrame
 import net.bible.sharedui.bookmark.LabelAssignSheetState
@@ -79,7 +78,6 @@ class LabelAssignSheetGoldenTest {
         rows: List<ManageLabelsRow> = rows(),
         searchText: String = "",
         filters: Set<LabelFilter> = emptySet(),
-        searchMode: SearchMode = SearchMode.NAME_START,
     ): @Composable () -> Unit = {
         LabelAssignSheetFrame(
             state = LabelAssignSheetState(
@@ -87,11 +85,10 @@ class LabelAssignSheetGoldenTest {
                 rows = rows,
                 styleTagsVisible = true,
                 searchText = searchText,
-                searchMode = searchMode,
                 filters = filters,
             ),
             actions = LabelAssignSheetActions(
-                onSearch = {}, onSetSearchMode = {}, onToggleFilter = {}, onToggleChecked = {},
+                onSearch = {}, onToggleFilter = {}, onToggleChecked = {},
                 onToggleFavourite = {}, onSetPrimary = {}, onToggleAutoAssign = {}, onEditLabels = {},
                 onEditLabel = {},
                 onNewLabel = {},
@@ -114,7 +111,7 @@ class LabelAssignSheetGoldenTest {
             content = sheet(),
         )
 
-    /** A query, the favourites filter and "Name (contains)" on: the chips' selected state, and the ticked
+    /** A query and the favourites filter on: the chips' selected state, and the ticked
      *  label that stays listed although the query excludes it. */
     @Test fun labelAssignSheet_filtered() =
         captureMatrix(
@@ -123,11 +120,10 @@ class LabelAssignSheetGoldenTest {
                 rows = listOf(rows()[1], rows()[7]),
                 searchText = "pro",
                 filters = setOf(LabelFilter.FAVOURITE),
-                searchMode = SearchMode.NAME_CONTAINS,
             ),
         )
 
-    /** Search open with the text "pr": the inline field with the Abc toggle at its end and the clear button,
+    /** Search open with the text "pr": the inline field with the clear button (48dp touch box) at its end,
      *  Favourites and Auto-assign collapsed to icon-only chips. */
     @Test fun labelAssignSheet_searching() =
         captureMatrix(

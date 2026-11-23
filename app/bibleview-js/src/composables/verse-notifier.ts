@@ -84,6 +84,9 @@ export function useVerseNotifier(
                 for (const x of iterate(lastDirection)) {
                     element = document.elementFromPoint(x, y) as Nullable<HTMLElement>
                     if (element) {
+                        // Raised note handles and bookmark markers can reach the next verse's first line at
+                        // wide line spacing (RSP, #4219). Sync to the text, not the previous verse's annotation.
+                        if (element.closest(".noteHandle, .bookmark-marker")) continue;
                         element = element.closest("[data-scroll-ordinal], .ordinal") as Nullable<HTMLElement>;
                         if (element) {
                             const direction = window.getComputedStyle(element).getPropertyValue("direction");

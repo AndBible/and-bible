@@ -294,6 +294,19 @@ class ManageLabelsControllerTest {
         assertEquals(listOf("ANT", "BAN", "CAN"), describe(c.rows.value)) // NAME_CONTAINS: all three contain "an"
     }
 
+    /** #4215: the assign sheet's search matches anywhere in the name whatever mode the controller was in. */
+    @Test fun setNameSearch_matches_anywhere_from_NAME_START() {
+        val c = controller(mode = ManageLabelsMode.STUDYPAD, labels = listOf(
+            label("ANT", "Antelope"), label("BAN", "Banana"), label("CAN", "Cantaloupe")))
+        assertEquals(SearchMode.NAME_START, c.searchMode.value)
+        c.setNameSearch("an")
+        assertEquals(listOf("ANT", "BAN", "CAN"), describe(c.rows.value))
+        assertEquals(SearchMode.NAME_CONTAINS, c.searchMode.value)
+        assertEquals("an", c.searchText.value)
+        c.setNameSearch("LOUP")
+        assertEquals(listOf("CAN"), describe(c.rows.value))
+    }
+
     @Test fun name_filter_already_selected_label_bypasses_a_non_matching_search() {
         // Classic ManageLabels.kt:847-850 labelMatches: an already-selected label is always shown,
         // even if its name doesn't match the current search text. STUDYPAD hides category headers

@@ -134,6 +134,8 @@ class HostDocumentSyncStarterProgressTest {
         )
         runCurrent()
         controller.onSwitch("sync_enable_documents", true)
+        // Since #4222 the switch is a pending change; Apply shows the transfer preview.
+        controller.applyPending()
         runCurrent()
         assertTrue(controller.state.value.dialog is net.bible.sharedcore.settings.SyncDialog.EnableDocuments)
         controller.confirmEnableDocuments()

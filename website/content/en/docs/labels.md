@@ -31,10 +31,9 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
     upright the sheet has no room for those icons in the rows, so this is where you
     set them.
 - The chips under the title show only favourite labels (*Favourites*) or only
-    auto-assign labels (*Auto-assign*). Tap the *Search* chip to find a label by the
-    start of its name: the chip turns into a search field with the keyboard up. While
-    you search, the *Abc* button at the end of the field searches anywhere in the
-    name, and the filter chips shrink to their icons. The clear (✕) button in the field,
+    auto-assign labels (*Auto-assign*). Tap the *Search* chip to find a label by any
+    part of its name: the chip turns into a search field with the keyboard up. While
+    you search, the filter chips shrink to their icons. The clear (✕) button in the field,
     Back or the Esc key empties the search and closes the field; the next Back closes the
     sheet. A label you have ticked
     stays listed whatever you search.
@@ -102,6 +101,11 @@ apply different styling to the label and make assigning it easier. You can:
 >     (*Auto-assign as main label*). The main label is the label that is
 >     listed first and determines the style of the bookmark. You can also make a label
 >     the main label on a single bookmark, under *This bookmark*.
+
+The name, colour and icon editor opens in a compact *Edit label* sheet. Its close
+button (✕) is in the title row, above the *Name* field; it closes the sheet without
+clearing the name. Changes apply as you make them. You can also swipe the sheet
+down or tap outside it to close it. Scroll inside the sheet to reach more controls.
 
 In the label list the lightning bolt marks auto-assign labels, the heart
 favourites and the bookmark icon main labels. On a narrow screen (a phone held

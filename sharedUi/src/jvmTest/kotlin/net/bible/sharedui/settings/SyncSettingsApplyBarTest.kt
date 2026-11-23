@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasTestTag
@@ -44,6 +45,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class SyncSettingsApplyBarTest {
     private val key = "sync_enable_bookmarks"
+    private val documentsKey = "sync_enable_documents"
 
     private class Fixture(val service: FakeSyncService, val scope: CoroutineScope) {
         var exits = 0
@@ -81,6 +83,11 @@ class SyncSettingsApplyBarTest {
         onNodeWithTag("settings-row-$key").performClick()
     }
 
+    private fun androidx.compose.ui.test.ComposeUiTest.toggleDocuments() {
+        onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-$documentsKey"))
+        onNodeWithTag("settings-row-$documentsKey").performClick()
+    }
+
     private val en = iosStrings("en")
 
     @Test fun switchingMarksPendingAndShowsTheBarWithApplyAndDiscard() = withFixture(on = true) { f ->
@@ -106,6 +113,51 @@ class SyncSettingsApplyBarTest {
         toggle()
         onNodeWithText(en.dialogApply).performClick()
         assertEquals(listOf(mapOf(key to false)), f.service.applied)
+        onNodeWithTag("sync-apply-bar").assertDoesNotExist()
+    }
+
+    @Test fun documentsSwitchShowsApplyBarWithoutPersistingUntilApply() = withFixture(on = false) { f ->
+        onNodeWithTag("sync-apply-bar").assertDoesNotExist()
+        toggleDocuments()
+        onNodeWithTag("sync-apply-bar").assertIsDisplayed()
+        onNodeWithText(en.syncPendingChanges(1)).assertIsDisplayed()
+        onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-$documentsKey"))
+        onNodeWithTag("settings-row-$documentsKey").assertIsOn()
+        assertFalse(f.service.documentsEnabled.value, "the pending switch must not persist before Apply")
+        assertFalse(f.service.signedIn)
+        assertEquals(0, f.service.documentScans)
+        assertTrue(f.service.applied.isEmpty())
+    }
+
+    @Test fun discardingDocumentsSwitchRestoresTheOffRow() = withFixture(on = false) { f ->
+        toggleDocuments()
+        onNodeWithText(en.discard).performClick()
+        onNodeWithTag("sync-apply-bar").assertDoesNotExist()
+        onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-$documentsKey"))
+        onNodeWithTag("settings-row-$documentsKey").assertIsOff()
+        assertFalse(f.service.documentsEnabled.value)
+        assertTrue(f.service.applied.isEmpty())
+    }
+
+    @Test fun cancellingEnableDocumentsDoesNotPersistThePendingSwitch() = withFixture(on = false) { f ->
+        toggleDocuments()
+        onNodeWithText(en.dialogApply).performClick()
+        onNodeWithText(en.syncStartSyncing).assertIsDisplayed()
+        assertTrue(f.service.signedIn)
+        assertEquals(1, f.service.documentScans)
+        assertFalse(f.service.documentsEnabled.value, "Apply only previews until Start syncing is confirmed")
+
+        onNodeWithText(en.cancel).performClick()
+        onNodeWithText(en.syncStartSyncing).assertDoesNotExist()
+        assertFalse(f.service.documentsEnabled.value, "Cancel must discard the pending enable")
+    }
+
+    @Test fun confirmingEnableDocumentsPersistsTheSwitch() = withFixture(on = false) { f ->
+        toggleDocuments()
+        onNodeWithText(en.dialogApply).performClick()
+        onNodeWithText(en.syncStartSyncing).performClick()
+        assertTrue(f.service.documentsEnabled.value)
+        assertEquals(1, f.service.documentEnables)
         onNodeWithTag("sync-apply-bar").assertDoesNotExist()
     }
 
