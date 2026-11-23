@@ -82,6 +82,22 @@ class MyBibleMarkupTest {
     }
 
     @Test
+    fun spacedChapterRangesKeepTheInheritedBook() = withBible { book ->
+        val fragment = BookData(book, book.getKey("Matt.3.10")).osisFragment
+        assertEquals(listOf("Ps.1.1", "Ps.2-Ps.4", "Ps.5.1"),
+            elements(fragment).filter { it.name == "reference" }.map { it.getAttributeValue("osisRef") })
+    }
+
+    @Test
+    fun malformedExplicitReferencesStillUpdateTheContinuationBook() = withBible { book ->
+        val fragment = BookData(book, book.getKey("Matt.3.9")).osisFragment
+        assertEquals(listOf("Mark.1.2", "Luke.5.6"),
+            elements(fragment).filter { it.name == "reference" }.map { it.getAttributeValue("osisRef") })
+        assertTrue(fragment.value.contains("490 3:4a"), "Malformed references must stay visible")
+        assertTrue(fragment.value.contains("99999 bad; 2:2"), "An unknown explicit book must replace Luke")
+    }
+
+    @Test
     fun missingVersificationLeavesCrossReferenceMarkupUnchanged() = withBible { book ->
         val key = book.getKey("Matt.3.4")
         book.bookMetaData.setProperty("Versification", "MissingMyBibleVersification")
@@ -163,6 +179,8 @@ class MyBibleMarkupTest {
                 db.exec("INSERT INTO stories VALUES (470, 3, 7, ' <x>480 1:2</x> <x>490 3:4</x> The preaching')")
                 db.exec("INSERT INTO verses VALUES (470, 3, 8, 'Verse text.')")
                 db.exec("INSERT INTO stories VALUES (470, 3, 8, '<x>480 1:2</x> <pb/><i>Formatted heading</i>')")
+                db.exec("INSERT INTO verses VALUES (470, 3, 9, '<x>480 1:2; 490 3:4a; 5:6; 99999 bad; 2:2</x>Malformed continuation.')")
+                db.exec("INSERT INTO verses VALUES (470, 3, 10, '<x>230 1:1; 2 - 4; 5:1</x>Chapter range.')")
             }
             state = SqliteVerseBackendState(file.path.toPath())
             book = SwordBook(state.getBookMetaData(), SqliteBackend(state, state.getBookMetaData()))

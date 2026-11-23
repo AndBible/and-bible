@@ -410,8 +410,12 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             crossReference.groupValues[1].split(';').joinToString("; ") { part ->
                 val location = part.trim()
                 val match = crossReferenceLocationRe.matchEntire(location)
-                val explicitBook = match?.groupValues?.get(1)?.takeIf { it.isNotEmpty() }
-                // Remember the numeric ID even when it is unknown: never reuse a preceding known book.
+                val explicitBook = if (match != null) {
+                    match.groupValues[1].takeIf { it.isNotEmpty() }
+                } else {
+                    crossReferenceBookRe.find(location)?.groupValues?.get(1)
+                }
+                // Even a malformed passage or unknown ID must replace the preceding book context.
                 if (explicitBook != null) previousBookNumber = explicitBook.toIntOrNull()
                 val book = previousBookNumber?.let { myBibleBook(it, v11n) }
                 if (match == null || book == null) {
@@ -492,6 +496,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 private val leadingParagraphRe = Regex("""^\s*(?:<pb\s*/>\s*)+""", RegexOption.IGNORE_CASE)
 private val crossReferenceRe = Regex("""<x\s*>(.*?)</x\s*>""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
 private val leadingCrossReferencesRe = Regex("""^\s*(?:<x\s*>.*?</x\s*>\s*)+""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+private val crossReferenceBookRe = Regex("""^(\d+)\s+""")
 private val crossReferenceLocationRe = Regex("""(?:(\d+)\s+)?(\d[\d:,\s-]*)""")
 
 // Match whole anchors and tokenize attributes so quoted text or data-href cannot masquerade as href.
