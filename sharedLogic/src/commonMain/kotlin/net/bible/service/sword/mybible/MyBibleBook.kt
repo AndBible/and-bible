@@ -57,6 +57,7 @@ import net.bible.service.sword.epub.child
 import okio.Path
 import okio.Path.Companion.toPath
 import org.crosswire.common.util.KFiles
+import org.crosswire.common.xml.XMLUtil
 import okio.FileSystem
 import org.koin.mp.KoinPlatform
 
@@ -339,14 +340,15 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             arrayListOf()
         }
 
-        for(story in stories) {
-            text = if(story.startsWith("<")) {
-                "$text$story"
-            } else {
-                "<title canonical=\"false\">$story</title>$text"
-            }
+        val titles = stories.joinToString("") {
+            "<title canonical=\"false\" subType=\"x-preverse\">$it</title>"
         }
-        return text ?: ""
+        // SwordBook inserts the verse marker after preverse material. Keep a leading paragraph
+        // break there too, otherwise Vue renders the number on the previous paragraph's last line.
+        text = leadingParagraphRe.replace(text.orEmpty()) {
+            "<div subType=\"x-preverse\">${it.value}</div>"
+        }
+        return transformCrossReferences(titles + text)
     }
     private fun readDictionary(state: SqliteVerseBackendState, key: Key): String {
         if(key !is DefaultLeafKeyList) throw RuntimeException("Invalid key");
@@ -391,6 +393,30 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             """,
             "${bibleBookToMyBibleInt[verse.book]}", "$toChap", "$toVerse", "$fromChap", "$fromVerse", "$toChap", "$toVerse"
         ) { it.getText(0) }.joinToString {"<div>$it</div>"}
+    }
+
+    /** MyBible's x tag contains numeric book IDs, not displayable reference labels. */
+    private fun transformCrossReferences(text: String): String = crossReferenceRe.replace(text) { crossReference ->
+        crossReference.groupValues[1].split(';').joinToString("; ") { part ->
+            val location = part.trim()
+            val match = crossReferenceLocationRe.matchEntire(location)
+            val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))!!
+            val book = match?.groupValues?.get(1)?.toIntOrNull()?.let { myBibleBook(it, v11n) }
+            if (book == null) {
+                location
+            } else {
+                try {
+                    val key = PassageKeyFactory.instance().getKey(v11n, "${book.osis} ${match.groupValues[2]}")
+                    if (key.getOsisRef().isEmpty()) location
+                    else "<reference osisRef=\"${key.getOsisRef()}\">${XMLUtil.escape(key.getName())}</reference>"
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    // A bad reference must not prevent the rest of the verse from being read.
+                    location
+                }
+            }
+        }
     }
 
     /** Normalize at the source so rendering, reference collection and exports see the same Scripture links. */
@@ -442,6 +468,10 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             throw IOException("Error in readRawContent", e)
         }
 }
+
+private val leadingParagraphRe = Regex("""^\s*(?:<pb\s*/>\s*)+""", RegexOption.IGNORE_CASE)
+private val crossReferenceRe = Regex("""<x\s*>(.*?)</x\s*>""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+private val crossReferenceLocationRe = Regex("""(\d+)\s+(\d[\d:,\s-]*)""")
 
 // Match whole anchors and tokenize attributes so quoted text or data-href cannot masquerade as href.
 private val anchorRe = Regex("""<a\b((?:[^>"']|"[^"]*"|'[^']*')*)>(.*?)</a\s*>""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
