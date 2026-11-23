@@ -102,6 +102,11 @@ apply different styling to the label and make assigning it easier. You can:
 >     listed first and determines the style of the bookmark. You can also make a label
 >     the main label on a single bookmark, under *This bookmark*.
 
+The name, colour and icon editor opens in a compact *Edit label* sheet. Its close
+button (✕) is in the title row, above the *Name* field; it closes the sheet without
+clearing the name. Changes apply as you make them. You can also swipe the sheet
+down or tap outside it to close it. Scroll inside the sheet to reach more controls.
+
 In the label list the lightning bolt marks auto-assign labels, the heart
 favourites and the bookmark icon main labels. On a narrow screen (a phone held
 upright), the list you open to choose a bookmark's labels leaves these three icons

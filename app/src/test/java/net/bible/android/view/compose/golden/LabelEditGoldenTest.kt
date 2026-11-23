@@ -193,9 +193,9 @@ class LabelEditGoldenTest {
     /** The identity sheet open over the editor: name, colour presets, icon grid. Rendered directly
      *  rather than through a sheet-state toggle, because a ModalBottomSheet's own animation makes a
      *  capture flaky. */
-    @Test fun labelEdit_identitySheet() =
+    @Test fun labelEdit_identitySheet() = GoldenMode.entries.forEach { mode ->
         captureGolden(
-            "LabelEdit", "identitySheet", EDGE_MODE, heightDp = 900,
+            "LabelEdit", "identitySheet", mode, heightDp = 900,
             content = {
                 LabelIdentitySheetContent(
                     name = "Study",
@@ -209,6 +209,7 @@ class LabelEditGoldenTest {
                 )
             },
         )
+    }
 
     /** An add-on collection label: no style sections, the identity row is not an editor, and the "From add-on" notice
      *  with "Copy to my labels" takes their place; favourite and the workspace override stay. */
