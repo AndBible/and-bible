@@ -16,7 +16,7 @@
  */
 
 import {describe, it, expect, vi, beforeEach, afterEach} from "vitest";
-import {defineComponent, h, ref, computed} from "vue";
+import {defineComponent, h, ref, computed, nextTick} from "vue";
 import {mount} from "@vue/test-utils";
 import {useVerseNotifier} from "@/composables/verse-notifier";
 
@@ -100,6 +100,30 @@ describe("useVerseNotifier", () => {
         delete document.elementFromPoint;
         document.body.innerHTML = "";
     });
+
+    it.each(["isCrossReference", "isFootNote", "isOther"])(
+        "does not sync back to the previous verse through its %s superscript (#4219)", async noteClass => {
+            const {currentVerse, isScrolling, scrolledToOrdinal} = mountNotifier();
+            const previous = makeOrdinalElement(8, "1Sam.15");
+            const target = makeOrdinalElement(9, "1Sam.15");
+            // Generated rendered-OSIS fixture: RSP has inline word wrappers and note handles,
+            // unlike a plain-text Bible. A raised note handle can overlap the next line.
+            previous.innerHTML = `<span class="skip-offset"><span class="noteHandle ${noteClass}">a</span></span>`;
+            target.innerHTML = `<span class="has-strongs">Synthetic verse nine</span>`;
+            const handle = previous.querySelector(".noteHandle");
+            const text = target.firstElementChild;
+            document.elementFromPoint = vi.fn((x, y) => y < 6 ? handle : text);
+
+            isScrolling.value = true;
+            scrollTo(200); // native sync scrolls to verse 9; do not report intermediate frames
+            isScrolling.value = false;
+            scrollTo(200); // final scroll event after the animation settles
+            await nextTick();
+
+            expect(currentVerse.value).toBe(9);
+            expect(scrolledToOrdinal).toHaveBeenLastCalledWith("1Sam.15", 9);
+        },
+    );
 
     it("does not advance the verse when scrolling up hits a superscript bleeding into the line above (#3865)", () => {
         setScrollY(200);
