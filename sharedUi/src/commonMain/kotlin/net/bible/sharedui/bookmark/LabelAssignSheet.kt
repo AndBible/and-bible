@@ -59,6 +59,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -383,6 +384,9 @@ private fun SearchField(
     // An outside write replaced the text: show it with the cursor at its end. Otherwise the typed value (selection and
     // composition included) is what the field shows.
     val shown = if (typed.text == text.text) typed else TextFieldValue(text.text, TextRange(text.text.length))
+    // Remember the adopted value, so a later outside write that equals an older typed text does not bring back that
+    // old selection.
+    SideEffect { if (typed !== shown) typed = shown }
     // The row is the 48dp touch height; the border is drawn 8dp inside it top and bottom (32dp at the default font).
     // The text keeps 2dp more than that, so a taller text (large font scale) grows the row and the border with it
     // without touching the outline.

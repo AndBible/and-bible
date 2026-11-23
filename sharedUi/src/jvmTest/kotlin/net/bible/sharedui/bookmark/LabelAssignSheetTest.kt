@@ -343,6 +343,30 @@ class LabelAssignSheetTest {
         assertEquals(setOf("Sermon notes", "Sermon ideas"), names(controller))
     }
 
+    /** #4216, fast typing: two keystrokes in flight when the first (stale) echo arrives; the field keeps both. */
+    @Test fun twoKeysInFlightSurviveTheStaleEcho() = runComposeUiTest {
+        val controller = controller()
+        val held = ArrayDeque<String>()
+        show(controller, onSearch = { held.addLast(it) })
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        waitForIdle()
+        val field = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG)
+        field.performTextInput("s")
+        waitForIdle()
+        field.performTextInput("e")
+        waitForIdle()
+        runOnIdle { controller.setNameSearch(held.removeFirst()) } // the stale "s" arrives while the field shows "se"
+        waitForIdle()
+        field.performTextInput("r")
+        waitForIdle()
+        runOnIdle { while (held.isNotEmpty()) controller.setNameSearch(held.removeFirst()) }
+        waitForIdle()
+        val config = field.fetchSemanticsNode().config
+        assertEquals("ser", config[SemanticsProperties.EditableText].text)
+        assertEquals(TextRange(3), config[SemanticsProperties.TextSelectionRange])
+        assertEquals("ser", controller.searchText.value)
+    }
+
     /** #4216: a genuine outside write (not an echo of the field's own edit) still replaces the text, cursor at its end. */
     @Test fun anOutsideWriteReplacesTheTypedText() = runComposeUiTest {
         val controller = controller()
@@ -435,7 +459,7 @@ class LabelAssignSheetTest {
             registry?.let { reg ->
                 val rows by controller.rows.collectAsState()
                 val searchText by controller.searchText.collectAsState()
-                    val filters by controller.filters.collectAsState()
+                val filters by controller.filters.collectAsState()
                 CompositionLocalProvider(
                     androidx.compose.runtime.saveable.LocalSaveableStateRegistry provides reg, LocalStrings provides strings,
                 ) {
