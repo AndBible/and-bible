@@ -101,10 +101,11 @@ fun AbActionSheet(
 }
 
 /**
- * [AbActionSheet]'s body. Not scroll-bounded and carries no fade: an action sheet is a handful of
- * rows by construction (three at the widest call site in this port), so there is nothing below the
- * clip for a fade to advertise. A caller that grows one past a screenful should wrap its rows in
- * [AbSheetScrollBound] itself rather than have every action sheet pay for a viewport it never fills.
+ * [AbActionSheet]'s body. Carries no fade: an action sheet is a handful of rows by construction (three at the
+ * widest call site in this port). The rows sit in a [sheetVerticalScroll] column, so inside a half-window-capped
+ * sheet (#4207) they scroll when they do not fit, e.g. in landscape. Callers' [content] therefore must not contain
+ * lazy lists or flexible scroll regions ([AbSheetScrollBound], [sheetFlexible]): in a scrolling column they collapse
+ * to zero height or throw.
  *
  * [dismissText]/[showClose]: see [AbActionSheet]'s kdoc (run 3 final-review fix wave, I2). Both
  * default to their old behaviour (no dismiss row, ✕ shown), so every existing caller of this content
@@ -124,7 +125,8 @@ fun AbActionSheetContent(
     Column(Modifier.fillMaxWidth().padding(top = topPadding, bottom = 16.dp)) {
         if (title.isNotBlank()) AbSheetHeader(title = title, onClose = onClose, showClose = showClose)
         val body: @Composable () -> Unit = {
-            Column {
+            // A handful of rows normally; scrolls when the sheet's half-window cap is smaller (landscape).
+            Column(Modifier.sheetVerticalScroll()) {
                 if (message != null) {
                     AbHtmlText(
                         html = message,

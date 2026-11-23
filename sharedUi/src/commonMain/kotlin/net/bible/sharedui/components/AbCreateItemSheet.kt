@@ -96,7 +96,7 @@ fun AbCreateItemSheetContent(
     var current by remember(initialName) { mutableStateOf(initialName) }
     Column(Modifier.fillMaxWidth()) {
         AbSheetHeader(title = title, onClose = onClose)
-        Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 24.dp)) {
+        SheetScrollBody(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 24.dp)) {
             AbTextInputContent(
                 initial = initialName,
                 onValueChange = { current = it },

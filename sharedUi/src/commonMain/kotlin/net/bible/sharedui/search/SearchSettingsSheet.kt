@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.search
 
+import net.bible.sharedui.components.SheetScrollBody
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,6 +56,6 @@ fun SearchSettingsSheetContent(onClose: () -> Unit, content: @Composable ColumnS
     val strings = LocalStrings.current
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         AbSheetHeader(title = strings.searchOptions, onClose = onClose)
-        content()
+        SheetScrollBody { content() }
     }
 }

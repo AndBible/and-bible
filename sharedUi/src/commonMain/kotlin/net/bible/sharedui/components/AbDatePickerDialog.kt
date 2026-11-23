@@ -138,7 +138,7 @@ fun AbDatePickerDialog(
     BasicAlertDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
+    ) { OutsideSheetCap {
         if (mono) NoDialogDim()
         BoxWithConstraints {
             val state = rememberDatePickerState(
@@ -184,5 +184,5 @@ fun AbDatePickerDialog(
                 }
             }
         }
-    }
+    }}
 }

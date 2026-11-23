@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.settings
 
+import net.bible.sharedui.components.SheetScrollBody
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.BackgroundImageOption
 import net.bible.sharedcore.settings.ColorField
@@ -199,16 +201,20 @@ fun ColorSettingsEditorSheet(
                 } else stored
                 var working by remember(initial) { mutableStateOf(initial or (0xFF shl 24)) }
                 var presetsPage by remember { mutableStateOf(true) } // classic opens on presets
-                AbColorPickerContent(
-                    initialColor = initial or (0xFF shl 24),
-                    working = working,
-                    onWorkingChange = { working = it },
-                    presetsPage = presetsPage,
-                )
-                if (page.field == ColorField.WORKSPACE) {
-                    // F78: back to "unset" (stock theme); applies at once, so it is its own confirm.
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
-                        TextButton(onClick = { onWorkspaceColorReset(); onPop() }) { Text(strings.resetToDefault) }
+                SheetScrollBody {
+                    AbColorPickerContent(
+                        initialColor = initial or (0xFF shl 24),
+                        working = working,
+                        onWorkingChange = { working = it },
+                        presetsPage = presetsPage,
+                        // The enclosing SheetScrollBody scrolls; no second same-axis scroll inside it.
+                        maxHeight = Dp.Unspecified,
+                    )
+                    if (page.field == ColorField.WORKSPACE) {
+                        // F78: back to "unset" (stock theme); applies at once, so it is its own confirm.
+                        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
+                            TextButton(onClick = { onWorkspaceColorReset(); onPop() }) { Text(strings.resetToDefault) }
+                        }
                     }
                 }
                 // A purpose-named row, not SheetResetConfirmRow: onSwitchPage toggles presets/custom,
