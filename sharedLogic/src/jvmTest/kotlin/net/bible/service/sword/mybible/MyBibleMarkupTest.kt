@@ -59,12 +59,13 @@ class MyBibleMarkupTest {
     }
 
     @Test
-    fun formattedStoriesStayBeforeVerseAndMalformedReferencesDoNotBlankText() = withBible { book ->
+    fun structuralStoriesAreNotHiddenAsTitlesAndMalformedReferencesDoNotBlankText() = withBible { book ->
         val fragment = BookData(book, book.getKey("Matt.3.3")).osisFragment
-        val title = elements(fragment).single { it.name == "title" && it.getAttributeValue("subType") == "x-preverse" }
-        assertTrue(title.value.contains("Formatted heading"))
+        assertFalse(elements(fragment).any { it.name == "title" && it.getAttributeValue("canonical") == "false" },
+            "Structural story markup must not be hidden by the section-title setting")
         val verse = elements(fragment).single { it.name == "verse" }
-        assertFalse(elements(verse).contains(title))
+        assertTrue(elements(verse).any { it.name == "pb" })
+        assertTrue(verse.value.contains("Formatted heading"))
         assertTrue(verse.value.contains("99999 1:1"))
         assertTrue(verse.value.contains("not a reference"))
         assertTrue(verse.value.contains("Still readable."))
@@ -100,7 +101,7 @@ class MyBibleMarkupTest {
                 db.exec("CREATE TABLE stories (book_number INTEGER, chapter INTEGER, verse INTEGER, title TEXT)")
                 db.exec("INSERT INTO stories VALUES (470, 3, 1, '(<x>480 1:2-8; 490 3:1-18; 500 1:19-28</x>) The preaching')")
                 db.exec("INSERT INTO verses VALUES (470, 3, 3, '<x>99999 1:1; not a reference; 10 999999999999999999:1; 10 1:31-2:1</x>Still readable.')")
-                db.exec("INSERT INTO stories VALUES (470, 3, 3, '<i>Formatted heading</i>')")
+                db.exec("INSERT INTO stories VALUES (470, 3, 3, '<pb/><i>Formatted heading</i>')")
             }
             state = SqliteVerseBackendState(file.path.toPath())
             book = SwordBook(state.getBookMetaData(), SqliteBackend(state, state.getBookMetaData()))

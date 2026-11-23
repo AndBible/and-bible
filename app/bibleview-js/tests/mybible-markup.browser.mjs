@@ -67,7 +67,11 @@ for (const mode of ['light', 'dark', 'monochrome', 'no-animations']) {
             await render(fixed);
             const links = page.locator('.titleStyle a.reference');
             assert.equal(await links.count(), 3);
-            assert.equal(await links.first().getAttribute('href'), 'osis://?osis=Mark.1.2-Mark.1.8');
+            assert.deepEqual(await links.evaluateAll(elements => elements.map(link => link.getAttribute('href'))), [
+                'osis://?osis=Mark.1.2-Mark.1.8',
+                'osis://?osis=Luke.3.1-Luke.3.18',
+                'osis://?osis=John.1.19-John.1.28',
+            ]);
             assert.ok(!(await page.locator('.titleStyle').innerText()).match(/480|490|500/));
             const positions = await page.locator('#v-101').evaluate(verse => {
                 const number = verse.querySelector('.verseNumber').getBoundingClientRect();

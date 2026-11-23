@@ -340,7 +340,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             arrayListOf()
         }
 
-        val titles = stories.joinToString("") {
+        val (markup, headings) = stories.partition { it.trimStart().startsWith("<") }
+        val titles = headings.joinToString("") {
             "<title canonical=\"false\" subType=\"x-preverse\">$it</title>"
         }
         // SwordBook inserts the verse marker after preverse material. Keep a leading paragraph
@@ -348,7 +349,9 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         text = leadingParagraphRe.replace(text.orEmpty()) {
             "<div subType=\"x-preverse\">${it.value}</div>"
         }
-        return transformCrossReferences(titles + text)
+        // Already-marked-up story rows can contain structural breaks, not just headings.
+        // Preserve their historical passthrough position and visibility.
+        return transformCrossReferences(titles + text + markup.joinToString(""))
     }
     private fun readDictionary(state: SqliteVerseBackendState, key: Key): String {
         if(key !is DefaultLeafKeyList) throw RuntimeException("Invalid key");
