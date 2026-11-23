@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
@@ -70,11 +69,12 @@ fun MemorizeTabBody(
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
+    val detailScroll = rememberProgressDetailScroll(memorize.memChapterDetail?.bookId)
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .volumeVerticalScroll(rememberScrollState())
+            .volumeVerticalScroll(detailScroll.scrollState)
             .padding(16.dp),
     ) {
         // 1. Summary row.
@@ -121,9 +121,14 @@ fun MemorizeTabBody(
         if (memorize.overviewActive) {
             MemorizeOverview(
                 memorize = memorize,
-                onBookClick = onBookClick,
+                onBookClick = { bookId ->
+                    detailScroll.request(bookId)
+                    onBookClick(bookId)
+                },
                 onChapterClick = onChapterClick,
                 onCalendarDayClick = onCalendarDayClick,
+                detailHeadingModifier = memorize.memChapterDetail?.let { detailScroll.headingModifier(it.bookId) }
+                    ?: Modifier,
             )
         } else {
             MemorizeList(
@@ -145,6 +150,7 @@ private fun MemorizeOverview(
     onBookClick: (bookId: String) -> Unit,
     onChapterClick: (chapter: Int) -> Unit,
     onCalendarDayClick: (dayTimestamp: Long) -> Unit,
+    detailHeadingModifier: Modifier,
 ) {
     val strings = LocalStrings.current
 
@@ -163,7 +169,7 @@ private fun MemorizeOverview(
 
     val detail = memorize.memChapterDetail
     if (detail != null) {
-        Text(text = detail.title, style = MaterialTheme.typography.titleSmall)
+        Text(text = detail.title, style = MaterialTheme.typography.titleSmall, modifier = detailHeadingModifier)
         Spacer(Modifier.height(8.dp))
         ChapterHeatGrid(
             chapters = detail.chapters,
