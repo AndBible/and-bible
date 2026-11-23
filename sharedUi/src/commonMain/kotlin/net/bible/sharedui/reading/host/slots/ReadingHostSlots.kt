@@ -110,6 +110,7 @@ class ReadingHostSlots(
 ) {
     private val textSettings = TextSettingsEditorState(
         hostState, textDisplaySettingsService, scope, strings, imagePicker, thumbnailFor,
+        showImportError = { hostState.showHelp(null, strings().errorOccurred) },
     )
 
     private val speak = SpeakSettingsState(

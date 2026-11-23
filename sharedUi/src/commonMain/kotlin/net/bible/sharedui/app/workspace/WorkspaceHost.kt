@@ -48,6 +48,7 @@ class WorkspaceHost(
     /** The app-lifetime scope; saves and clones started by the selector run in it (see [selectorControllerFor]). */
     private val appScopeProvider: () -> CoroutineScope,
     private val activeWorkspaceId: () -> String,
+    private val userNotifierProvider: () -> net.bible.sharedcore.platform.UserNotifier,
 ) {
     private val workspaceService: WorkspaceService by lazy(workspaceServiceProvider)
 
@@ -146,6 +147,7 @@ class WorkspaceHost(
                     scope = scope,
                     coroutineScope = shell.hostScope,
                     imagePicker = { imagePicker.pickImage() },
+                    onImportError = { cause -> userNotifierProvider().showError(strings.errorOccurred, cause) },
                 )
             },
             hideLabelsPayload = { scope -> entry.hideLabelsPayload(scope) },
