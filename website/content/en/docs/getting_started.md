@@ -94,8 +94,9 @@ AndBible for Windows is new in 6.0 and is in public beta.
     [latest release](https://github.com/AndBible/and-bible/releases/latest).
 <!-- end -->
 2. If you used the MSI, open it. On an upgrade, the installer recognizes the existing installation
-   and asks to install the update; you do not need to uninstall first or choose an installation folder.
-   On a first install, choose the installation folder. See the [code signing policy](/code-signing-policy/)
+   and asks to install the update; you do not need to uninstall first. It keeps the existing installation
+   folder when it can find it. If the old folder cannot be found, or on a first install, choose the
+   installation folder. See the [code signing policy](/code-signing-policy/)
    for signature details.
 
 To uninstall, open Windows *Settings → Apps → Installed apps*, choose **AndBible** and then

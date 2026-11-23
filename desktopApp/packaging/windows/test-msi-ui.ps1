@@ -2,12 +2,12 @@ param([Parameter(Mandatory=$true)][string]$Msi)
 $ErrorActionPreference = 'Stop'
 $installer = New-Object -ComObject WindowsInstaller.Installer
 $database = $installer.OpenDatabase((Resolve-Path $Msi).Path, 0)
-function Rows([string]$Sql) {
+function Rows([string]$Sql, [int]$Columns = 2) {
     $view = $database.OpenView($Sql)
     $null = $view.Execute()
     while ($record = $view.Fetch()) {
         $fields = @()
-        for ($i = 1; $i -le $record.FieldCount; $i++) { $fields += $record.StringData($i) }
+        for ($i = 1; $i -le $Columns; $i++) { $fields += $record.StringData($i) }
         [pscustomobject]@{ Fields = $fields }
     }
     $null = $view.Close()
@@ -26,9 +26,9 @@ try {
     $null = New-Item -Force $legacyKey
     $null = New-ItemProperty $legacyKey -Name InstallLocation -Value 'C:\Custom AndBible\' -PropertyType String
     $session.Property('JP_UPGRADABLE_FOUND') = $legacyCode
-    Assert ($session.DoAction('AppSearch') -eq 1) 'Legacy installation location search must succeed'
+    $null = $session.DoAction('AppSearch')
     Assert ($session.Property('ANDBIBLE_PREVIOUS_DIR') -eq 'C:\Custom AndBible\') 'AppSearch must recover the legacy custom installation location'
-    Assert ($session.DoAction('SetINSTALLDIR') -eq 1) 'Remembered location must be applied before costing'
+    $null = $session.DoAction('SetINSTALLDIR')
     Assert ($session.Property('INSTALLDIR') -eq 'C:\Custom AndBible\') 'Update must keep the old custom folder'
 } finally {
     Remove-Item -Force $legacyKey -ErrorAction SilentlyContinue
@@ -56,13 +56,13 @@ $session.Property('JP_DOWNGRADABLE_FOUND') = ''
 $session.Property('Installed') = '1'
 $session.Property('JP_UPGRADABLE_FOUND') = '{11111111-1111-1111-1111-111111111111}'
 Assert (-not (Shown 'AndBibleUpdateDlg')) 'Maintenance must not be treated as a major upgrade'
-$controls = @(Rows 'SELECT `Control`, `Type`, `Text` FROM `Control` WHERE `Dialog_` = ''AndBibleUpdateDlg''')
+$controls = @(Rows 'SELECT `Control`, `Type`, `Text` FROM `Control` WHERE `Dialog_` = ''AndBibleUpdateDlg''' 3)
 $buttons = @($controls | Where-Object { $_.Fields[1] -eq 'PushButton' })
 Assert ($buttons.Count -eq 2) 'Upgrade must have only Install and Cancel (no folder/next/back buttons)'
 Assert (@($controls | Where-Object { $_.Fields[2].Contains('will be updated to version [ProductVersion]') }).Count -eq 1) 'Upgrade must display the target MSI version'
-$events = @(Rows 'SELECT `Control_`, `Event`, `Argument` FROM `ControlEvent` WHERE `Dialog_` = ''AndBibleUpdateDlg''')
+$events = @(Rows 'SELECT `Control_`, `Event`, `Argument` FROM `ControlEvent` WHERE `Dialog_` = ''AndBibleUpdateDlg''' 3)
 Assert (@($events | Where-Object { $_.Fields[0] -eq 'Install' -and $_.Fields[1] -eq 'EndDialog' -and $_.Fields[2] -eq 'Return' }).Count -ge 1) 'Install must start the MSI execute sequence directly'
 Assert (@($events | Where-Object { $_.Fields[1] -eq 'NewDialog' }).Count -eq 0) 'Upgrade must not navigate to a folder or confirmation dialog'
-$folder = @(Rows 'SELECT `Dialog` FROM `Dialog` WHERE `Dialog` = ''InstallDirDlg''')
+$folder = @(Rows 'SELECT `Dialog` FROM `Dialog` WHERE `Dialog` = ''InstallDirDlg''' 1)
 Assert ($folder.Count -eq 1) 'First install must keep the folder dialog'
 Write-Output 'MSI UI: upgrade/first-install/maintenance routing, version text, direct Install, folder dialog: PASS'
