@@ -916,7 +916,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val labelAssignEditLabels: String get() = context.getString(R.string.label_assign_edit_labels)
     override val labelAssignFilterFavourites: String get() = context.getString(R.string.label_assign_filter_favourites)
     override val labelAssignFilterAutoAssign: String get() = context.getString(R.string.label_assign_filter_auto_assign)
-    override val labelAssignSearchContains: String get() = context.getString(R.string.label_assign_search_contains)
     override val activeLabelsHeader: String get() = context.getString(R.string.active_labels)
     override val recentLabelsHeader: String get() = context.getString(R.string.recent_labels)
     override val otherLabelsHeader: String get() = context.getString(R.string.other_labels)

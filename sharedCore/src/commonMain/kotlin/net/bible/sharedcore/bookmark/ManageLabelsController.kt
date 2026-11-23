@@ -346,6 +346,12 @@ class ManageLabelsController(
     // ---- actions ----
     fun setSearch(t: String) { _searchText.value = t; dispatchSearchOrRebuild() }
     fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; dispatchSearchOrRebuild() }
+    /**
+     * The assign sheet's search (#4215): [t] matched anywhere in a label's name, whatever mode was set before (the sheet
+     * has no mode toggle). One rebuild, like [setSearch]. The mode stays NAME_CONTAINS: the sheet's controller is an
+     * ASSIGN one, and only a STUDYPAD screen persists its search mode (`MANAGE_LABELS_SEARCH_MODE_KEY`).
+     */
+    fun setNameSearch(t: String) { _searchMode.value = SearchMode.NAME_CONTAINS; setSearch(t) }
 
     private var searchModeSeeded = restored != null
     fun seedSearchMode(initialMode: () -> SearchMode) {

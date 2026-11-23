@@ -42,7 +42,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
@@ -60,6 +59,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,20 +82,23 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
-import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.components.AbIcons
+import net.bible.sharedui.components.AbLabelAssignSheetMinCapHeight
 import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetContent
 import net.bible.sharedui.components.LocalAbSheetAnimatedClose
 import net.bible.sharedui.components.abFilterChipBorder
 import net.bible.sharedui.components.abFilterChipColors
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.isPureMonochrome
 
@@ -105,8 +108,8 @@ const val LABEL_ASSIGN_SEARCH_TAG = "label-assign-search"
 const val LABEL_ASSIGN_SEARCH_CHIP_TAG = "label-assign-search-chip"
 const val LABEL_ASSIGN_FILTER_FAVOURITE_TAG = "label-assign-filter-favourite"
 const val LABEL_ASSIGN_FILTER_AUTO_ASSIGN_TAG = "label-assign-filter-auto-assign"
-const val LABEL_ASSIGN_SEARCH_CONTAINS_TAG = "label-assign-search-contains"
 const val LABEL_ASSIGN_EDIT_LABELS_TAG = "label-assign-edit-labels"
+const val LABEL_ASSIGN_SEARCH_CLEAR_TAG = "label-assign-search-clear"
 
 /**
  * Everything the assign sheet shows and every action it offers. One value instead of fifteen
@@ -118,15 +121,15 @@ class LabelAssignSheetState(
     val rows: List<ManageLabelsRow>,
     val styleTagsVisible: Boolean,
     val searchText: String,
-    val searchMode: SearchMode,
     val filters: Set<LabelFilter>,
 )
 
 /** The assign sheet's actions; see [LabelAssignSheet]. */
 @kotlin.native.HiddenFromObjC
 class LabelAssignSheetActions(
+    /** The search text changed. The sheet's search matches anywhere in a label's name (#4215): the host wires this to
+     *  [net.bible.sharedcore.bookmark.ManageLabelsController.setNameSearch]. */
     val onSearch: (String) -> Unit,
-    val onSetSearchMode: (SearchMode) -> Unit,
     val onToggleFilter: (LabelFilter) -> Unit,
     val onToggleChecked: (String) -> Unit,
     val onToggleFavourite: (String) -> Unit,
@@ -169,6 +172,8 @@ fun LabelAssignSheet(state: LabelAssignSheetState, actions: LabelAssignSheetActi
         onDismiss = onDismiss,
         canScrollForward = { listState.canScrollForward },
         bodyFillsSheetCap = true,
+        // Landscape: header, chip row and two label rows even where half the window is less (#4215).
+        minCapHeight = AbLabelAssignSheetMinCapHeight,
     ) {
         LabelAssignSheetContent(state, actions, listState)
     }
@@ -224,8 +229,8 @@ fun LabelAssignSheetFrame(
  * The sheet's body: one chip row, then the shared list. At rest the row is a Search chip plus the Favourites and
  * Auto-assign filter chips (always shown, unlike the full screen's options sheet: their icons are the columns' own,
  * and in a short sheet they are the quickest way to the user's favourite labels). The Search chip opens an inline
- * field in the same row (Favourites and Auto-assign shrink to icons, the Abc toggle sits in the field); clear or
- * Escape closes it.
+ * field in the same row (Favourites and Auto-assign shrink to icons); clear or Escape closes it. The search matches
+ * anywhere in a label's name (#4215: the Abc "name contains" toggle is gone).
  */
 @kotlin.native.HiddenFromObjC
 @Composable
@@ -346,9 +351,15 @@ fun LabelAssignSheetContent(
 
 /**
  * The open search: a chip-shaped text field (drawn at least 32dp tall like the chips, in the same 48dp touch row, so
- * the sheet does not grow when it opens; it grows with the text at a large font scale) with the Abc contains toggle
- * (48dp touch box, drawn 32dp) and a clear icon at its end. Clear empties the text and collapses back to the chip;
- * Escape and Back do the same through [LabelAssignSheetContent]'s handlers. Nothing animates.
+ * the sheet does not grow when it opens; it grows with the text at a large font scale) with a clear icon at its end
+ * (48dp touch box, #4215). Clear empties the text and collapses back to the chip; Escape and Back do the same through
+ * [LabelAssignSheetContent]'s handlers. Nothing animates.
+ *
+ * The field owns its text and selection (#4216): the controller's search text reaches this composable a dispatch after
+ * the keystroke (`collectAsState`), and a field displaying that echo was redrawn with stale text in between. On an
+ * iPhone, typing fast, the stale text clipped the cursor back and the echo then left it there, so it walked towards the
+ * start of the word. The typed [TextFieldValue] is shown at once and every edit still goes to the controller; its echo
+ * is ignored, and only a genuine outside write (a value this field never sent) replaces the text, cursor at its end.
  */
 @Composable
 private fun SearchField(
@@ -368,7 +379,14 @@ private fun SearchField(
         }
     }
     val ink = MaterialTheme.colorScheme.onSurface
-    val contains = state.searchMode == SearchMode.NAME_CONTAINS
+    val text = rememberControllerText(state.searchText)
+    var typed by remember { mutableStateOf(TextFieldValue(text.text, TextRange(text.text.length))) }
+    // An outside write replaced the text: show it with the cursor at its end. Otherwise the typed value (selection and
+    // composition included) is what the field shows.
+    val shown = if (typed.text == text.text) typed else TextFieldValue(text.text, TextRange(text.text.length))
+    // Remember the adopted value, so a later outside write that equals an older typed text does not bring back that
+    // old selection.
+    SideEffect { if (typed !== shown) typed = shown }
     // The row is the 48dp touch height; the border is drawn 8dp inside it top and bottom (32dp at the default font).
     // The text keeps 2dp more than that, so a taller text (large font scale) grows the row and the border with it
     // without touching the outline.
@@ -380,7 +398,7 @@ private fun SearchField(
         ) {
             Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp), tint = ink)
             Box(Modifier.weight(1f).padding(horizontal = 6.dp, vertical = 10.dp), contentAlignment = Alignment.CenterStart) {
-                if (state.searchText.isEmpty()) {
+                if (shown.text.isEmpty()) {
                     // Visual only: the field itself is named by its contentDescription below (no double announcement).
                     Text(
                         strings.labelsSearchHint, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -389,8 +407,11 @@ private fun SearchField(
                     )
                 }
                 BasicTextField(
-                    value = state.searchText,
-                    onValueChange = actions.onSearch,
+                    value = shown,
+                    onValueChange = { value ->
+                        typed = value
+                        if (value.text != text.text) text.edit(value.text, actions.onSearch)
+                    },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.labelLarge.copy(color = ink),
                     cursorBrush = SolidColor(ink),
@@ -400,17 +421,7 @@ private fun SearchField(
                         .testTag(LABEL_ASSIGN_SEARCH_TAG),
                 )
             }
-            // Borderless and compact: a bordered chip inside the field's own border read as a chip in a chip.
-            CompactToggle(
-                selected = contains,
-                tag = LABEL_ASSIGN_SEARCH_CONTAINS_TAG,
-                width = 48.dp,
-                height = 48.dp,
-                drawnWidth = 32.dp,
-                bordered = false,
-                onClick = { actions.onSetSearchMode(if (contains) SearchMode.NAME_START else SearchMode.NAME_CONTAINS) },
-            ) { Icon(Icons.Filled.Abc, contentDescription = strings.labelAssignSearchContains) }
-            IconButton(onClick = onCollapse, modifier = Modifier.size(32.dp)) {
+            IconButton(onClick = onCollapse, modifier = Modifier.size(48.dp).testTag(LABEL_ASSIGN_SEARCH_CLEAR_TAG)) {
                 Icon(Icons.Filled.Clear, contentDescription = strings.searchClear, modifier = Modifier.size(18.dp))
             }
         }
@@ -448,7 +459,8 @@ private fun AssignChip(
 
 /**
  * A small toggle with the chip's colours (selected: secondaryContainer, or inverted ink in monochrome, no hue). The
- * outer box is [width] x [height] for touch; the drawn shape is [drawnWidth] wide and at most 32dp tall, centred.
+ * outer box is [width] x [height] for touch; the drawn shape is as wide as that and at most 32dp
+ * tall, centred.
  * Toggleable semantics like a chip.
  */
 @Composable
@@ -459,7 +471,6 @@ private fun CompactToggle(
     height: Dp,
     bordered: Boolean,
     onClick: () -> Unit,
-    drawnWidth: Dp = width,
     content: @Composable () -> Unit,
 ) {
     val mono = isPureMonochrome()
@@ -477,7 +488,7 @@ private fun CompactToggle(
     val shape = FilterChipDefaults.shape
     // The touch box is larger than the drawn shape: the ripple belongs on the shape, not the whole touch box.
     val interactions = remember { MutableInteractionSource() }
-    val drawn = Modifier.height(minOf(height, 32.dp)).width(drawnWidth)
+    val drawn = Modifier.height(minOf(height, 32.dp)).width(width)
         .clip(shape)
         .background(container)
         .indication(interactions, ripple())
