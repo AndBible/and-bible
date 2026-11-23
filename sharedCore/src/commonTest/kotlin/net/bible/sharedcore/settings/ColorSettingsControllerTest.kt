@@ -1,14 +1,18 @@
 package net.bible.sharedcore.settings
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ColorSettingsControllerTest {
-    private class RecordingService : FakeColoursOnlyService() {
+    private open class RecordingService : FakeColoursOnlyService() {
         val calls = mutableListOf<String>()
         var options = listOf(BackgroundImageOption("BGIMG_a", "a", "BGIMG_a"))
         var dayImage: String? = null
@@ -46,7 +50,9 @@ class ColorSettingsControllerTest {
         svc: RecordingService,
         scope: SettingsScope = SettingsScope.Workspace("ws"),
         imagePicker: suspend () -> String? = { null },
-    ) = ColorSettingsController(svc, scope, CoroutineScope(Dispatchers.Unconfined), imagePicker)
+        coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined),
+        onImportError: (Exception?) -> Unit = {},
+    ) = ColorSettingsController(svc, scope, coroutineScope, imagePicker, onImportError)
 
     @Test fun seedsFromServiceLoads() {
         val svc = RecordingService()
@@ -115,14 +121,110 @@ class ColorSettingsControllerTest {
 
     @Test fun importWithACancelledPickerChangesNothing() {
         val svc = RecordingService()
-        val c = ColorSettingsController(
-            svc, SettingsScope.Workspace("ws"), CoroutineScope(Dispatchers.Unconfined),
-            imagePicker = { null },
-        )
+        val errors = mutableListOf<Exception?>()
+        val c = controller(svc, imagePicker = { null }, onImportError = errors::add)
         val before = c.state.value.backgroundOptions
         c.onImportBackgroundImage()
         assertEquals(before, c.state.value.backgroundOptions)
         assertEquals(false, c.state.value.loading)
+        assertTrue(errors.isEmpty())
+    }
+
+    @Test fun importExceptionIsReportedAndLoadingIsCleared() {
+        val failure = IllegalStateException("import failed")
+        val svc = object : RecordingService() {
+            override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
+                throw failure
+            }
+        }
+        val errors = mutableListOf<Exception?>()
+        val c = controller(
+            svc,
+            imagePicker = { "content://picked" },
+            onImportError = errors::add,
+        )
+
+        c.onImportBackgroundImage()
+
+        assertEquals(listOf<Exception?>(failure), errors)
+        assertEquals(false, c.state.value.loading)
+    }
+
+    @Test fun nullImportAfterPickerSelectedImageReportsFailure() {
+        val svc = object : RecordingService() {
+            override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
+                picker()
+                return null
+            }
+        }
+        val errors = mutableListOf<Exception?>()
+        val c = controller(svc, imagePicker = { "content://picked" }, onImportError = errors::add)
+
+        c.onImportBackgroundImage()
+
+        assertEquals(listOf<Exception?>(null), errors)
+        assertEquals(false, c.state.value.loading)
+    }
+
+    @Test fun cancellationIsNotReportedAndLoadingIsCleared() {
+        val errors = mutableListOf<Exception?>()
+        val scope = CoroutineScope(Dispatchers.Unconfined + Job())
+        var childJob: Job? = null
+        val c = controller(
+            RecordingService(),
+            imagePicker = {
+                childJob = currentCoroutineContext()[Job]
+                throw CancellationException("screen closed")
+            },
+            coroutineScope = scope,
+            onImportError = errors::add,
+        )
+
+        c.onImportBackgroundImage()
+
+        assertTrue(errors.isEmpty())
+        assertTrue(childJob!!.isCancelled)
+        assertEquals(false, c.state.value.loading)
+    }
+
+    @Test fun reloadFailureIsReportedAndLoadingIsCleared() {
+        val failure = IllegalStateException("reload failed")
+        val svc = object : RecordingService() {
+            var loadCount = 0
+            override fun loadColors(scope: SettingsScope): ColorsSnapshot {
+                if (++loadCount > 1) throw failure
+                return super.loadColors(scope)
+            }
+        }
+        val errors = mutableListOf<Exception?>()
+        val c = controller(svc, imagePicker = { "content://picked" }, onImportError = errors::add)
+
+        c.onImportBackgroundImage()
+
+        assertEquals(listOf<Exception?>(failure), errors)
+        assertEquals(false, c.state.value.loading)
+    }
+
+    @Test fun duplicateImportWhileLoadingIsIgnored() {
+        val pickerResult = CompletableDeferred<String?>()
+        var pickerCalls = 0
+        val errors = mutableListOf<Exception?>()
+        val c = controller(
+            RecordingService(),
+            imagePicker = { pickerCalls++; pickerResult.await() },
+            onImportError = errors::add,
+        )
+
+        c.onImportBackgroundImage()
+        c.onImportBackgroundImage()
+        assertEquals(1, pickerCalls)
+        assertTrue(c.state.value.loading)
+
+        pickerResult.complete(null)
+
+        assertEquals(1, pickerCalls)
+        assertEquals(false, c.state.value.loading)
+        assertTrue(errors.isEmpty())
     }
 
     @Test fun deleteConfirmFlow() {

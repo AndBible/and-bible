@@ -1,0 +1,17 @@
+- Assign labels now opens as a bottom sheet with search, filter chips, New label and an "Edit labels" footer (#4201)
+- Ctrl+H and Ctrl+Y open History on desktop, and Cmd+Y does so on iOS (#4198, #4204)
+- Speak bar has a close button that stops speech and hides the bar (#4199)
+- Reading toolbar title falls back to the short book name when the full title does not fit (#4200)
+- Manage workspaces replaces the old workspace selector title (72b51ab67b)
+- Main-label switch is hidden in the label editor where it has no effect (#4201)
+- Esc works as Back on Android 16, closing find, sheets and the drawer (#4196)
+- Esc keeps closing Find after returning to the app on Android and iOS (#4196)
+- Enter in the search field opens the first result when results are shown, and Enter in search results works without list focus (#4197)
+- History shortcut no longer gets swallowed by focused text fields on desktop (#4198)
+- Closing the label assign sheet without changes no longer rewrites bookmarks' labels (#4201)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/

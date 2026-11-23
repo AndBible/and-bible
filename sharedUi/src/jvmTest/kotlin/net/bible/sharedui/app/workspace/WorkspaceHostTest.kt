@@ -105,6 +105,10 @@ class WorkspaceHostTest {
         workspaceServiceProvider = { error("constructing or building deps must not resolve the workspace service") },
         appScopeProvider = { error("appScope is only needed once the selector controller is built") },
         activeWorkspaceId = { "ws-1" },
+        userNotifierProvider = { object : net.bible.sharedcore.platform.UserNotifier {
+            override fun showError(message: String, cause: Throwable?) { calls += "error:$message" }
+            override fun showInfo(message: String, long: Boolean) { calls += "info:$message" }
+        } },
     )
 
     @Test
@@ -116,6 +120,7 @@ class WorkspaceHostTest {
         advanceUntilIdle()
         assertEquals(1, picks)
         assertEquals("content://photo/1", pickerResult)
+        assertEquals(listOf("error:${strings.errorOccurred}"), calls)
     }
 
     @Test

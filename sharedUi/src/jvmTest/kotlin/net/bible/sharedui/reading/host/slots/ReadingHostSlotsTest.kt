@@ -635,12 +635,14 @@ class ReadingHostSlotsTest {
 
     @Test
     fun colourControllerImportUsesTheImagePickerPort() {
-        val (slots, _) = slots()
+        val (slots, state) = slots()
         pickerAnswer = "img-token"
         val controller = slots.colorControllerFor(SettingsScope.Workspace("ws"))
         controller.onImportBackgroundImage()
         assertEquals(1, pickerCalls, "the import must ask the ImagePicker port exactly once")
         assertEquals("img-token", importReceived, "the import must receive the port's answer")
+        val dialog = state.readingDialog.value as net.bible.android.view.activity.page.screen.ReadingDialog.Help
+        assertEquals(strings.errorOccurred, dialog.html, "a failed import must open a dialog above the reading sheet")
     }
 
     /**
@@ -842,19 +844,21 @@ class ReadingHostSlotsTest {
     }
 
     @Test
-    fun workspaceBranchCurrentRowIsInertAndFooterOpensTheSelector() = runComposeUiTest {
+    fun workspaceBranchCurrentRowIsInertAndHeaderIconOpensTheSelector() = runComposeUiTest {
         val quick = QuickFakes()
         val (slots, state) = slots(quick = quick)
         state.showWorkspaceSheet()
         setContent {
             CompositionLocalProvider(LocalStrings provides strings) {
-                net.bible.sharedui.theme.AbTheme(darkTheme = false) { slots.QuickSheet(state.quickSheet.value!!) }
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) { state.quickSheet.value?.let { slots.QuickSheet(it) } }
             }
         }
         waitForIdle()
         onNodeWithText(strings.workspaceListingWithCurrent("Alpha")).performClick()
         assertTrue(quick.switched.isEmpty(), "the current workspace row does nothing")
-        onNodeWithText(strings.manageWorkspaces).performClick()
+        onNodeWithText(strings.manageWorkspaces).assertDoesNotExist()
+        onNodeWithTag(net.bible.sharedui.workspaces.WORKSPACE_MANAGE_TAG).performClick()
+        waitForIdle()
         assertEquals(1, quick.workspaceSelectorOpens.size)
         assertTrue(state.quickSheet.value == null)
     }

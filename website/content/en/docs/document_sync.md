@@ -46,12 +46,17 @@ device background restrictions.
 1. Open the top left main menu (☰).
 2. Under *Administration*, tap `Device synchronization`.
 3. Make sure you are signed in to a cloud account.
-4. Under **Synchronization categories**, toggle on **Documents**.
+4. Under **Synchronization categories**, toggle on **Documents**, then tap **Apply**.
+   The switch only marks a pending change; **Discard** restores its previous value.
 
-When you turn on **Documents**, *AndBible* scans your device and the cloud and shows a
+When you tap **Apply**, *AndBible* scans your device and the cloud and shows a
 summary dialog of what it will transfer — for example how many documents would be
-uploaded and downloaded, with their approximate sizes. Confirm to start; the
-transfers then run in the background.
+uploaded and downloaded, with their approximate sizes. Confirm to continue applying
+your sync changes; the transfers then run in the background. **Cancel** discards the
+pending enable changes without starting document sync.
+
+Turning **Documents** off also waits for **Apply**. Until then, document sync keeps
+its current setting.
 
 If there is nothing to transfer yet, the dialog says so — newly installed
 documents will still sync automatically from then on.

@@ -92,4 +92,7 @@ class DesktopLocalCalendar(
 
     override fun shortMonthName(epochMs: Long): String =
         DateTimeFormatter.ofPattern("LLL", localeProvider()).format(zoned(epochMs))
+
+    override fun narrowWeekdayName(epochMs: Long): String =
+        DateTimeFormatter.ofPattern("ccccc", localeProvider()).format(zoned(epochMs))
 }

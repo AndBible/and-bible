@@ -82,8 +82,8 @@ A dedicated statistics view is available from the main menu (☰) under
 - **Overall progress bar:** Percentage of the entire Bible read.
 - **Bible Overview heatmap:** The books displayed as colored tiles, grouped by
     Old and New Testament. The color intensity indicates how much of each book you
-    have read. Tap a book to expand it and see which individual chapters are marked
-    as read. Tap a chapter to navigate directly to that passage. Press and hold a book or chapter
+    have read. Tap a book to expand its chapter details and scroll them into view,
+    with the book heading near the top when space allows. Tap a chapter to navigate directly to that passage. Press and hold a book or chapter
     to see its read history.
 - **Reading Activity:** A GitHub-style heatmap showing your daily reading
     activity over the past year. Darker squares indicate more chapters read on that day. Tap a day to see what you read.
@@ -93,7 +93,8 @@ A dedicated statistics view is available from the main menu (☰) under
 The tab shows how many verses you have memorized and, when you have set
 memorization goals, the progress towards them. Choose **Overview** to see a book heatmap and a **Memorization Activity** calendar,
 or **List** to see your **Memorized passages** and **Memorization goals**. Tap a passage or a goal to open it in [Memorize](memorize.md), and
-use the X button to remove it from the list.
+use the X button to remove it from the list. In **Overview**, tapping a book also scrolls
+its chapter details into view. On both tabs, this scroll is immediate when **Disable animations** is enabled.
 
 ## Reading Cycles
 

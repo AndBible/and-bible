@@ -53,7 +53,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.reading.host.LocalReadingTopSafeInset
@@ -63,7 +62,6 @@ import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedcore.window.effectiveWeights
 import net.bible.sharedcore.window.separatorDrag
 import net.bible.sharedcore.window.separatorIsActive
-import net.bible.sharedcore.window.splitIsHorizontal
 
 // Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
 // deleted once the Compose reading view replaced what used them. The citations stay as the
@@ -88,9 +86,9 @@ private data class ActiveDrag(val index: Int, val weight1: Float, val weight2: F
 
 /**
  * Lays out the visible windows of [layout] into weighted panes, separated by a draggable
- * [WindowSeparator], choosing orientation from the available space (see the reading-view design
- * spec §2). `isHorizontal = (maxWidth > maxHeight) != layout.reverseSplitMode` — landscape splits
- * side-by-side panes unless `reverseSplitMode` flips it (and vice versa in portrait).
+ * [WindowSeparator], choosing orientation from the current window rather than the keyboard-shrunk
+ * reading area. Android uses its live configuration; iOS and desktop use the window's shape.
+ * Landscape splits side-by-side unless `reverseSplitMode` flips it (and vice versa in portrait).
  *
  * The container is always a single `Row` (horizontal split) or `Column` (vertical split) — never
  * restructured by pane count — so a hosted `AndroidView`/`BibleView` pane survives recomposition
@@ -165,16 +163,7 @@ fun SplitContent(
         // to resolve maxWidth/maxHeight through an ambiguous nested-receiver chain.
         val maxWidthPx = with(density) { maxWidth.toPx() }
         val maxHeightPx = with(density) { maxHeight.toPx() }
-        // F69 / F64: orientation follows the WINDOW's shape, which no keyboard changes -- see
-        // splitIsHorizontal. The measured box is only the fallback before the window size is known.
-        val windowSize = LocalWindowInfo.current.containerSize
-        val isHorizontal = splitIsHorizontal(
-            windowWidthPx = windowSize.width,
-            windowHeightPx = windowSize.height,
-            boxWidthPx = maxWidthPx,
-            boxHeightPx = maxHeightPx,
-            reverseSplitMode = layout.reverseSplitMode,
-        )
+        val isHorizontal = readingWindowIsLandscape(maxWidthPx, maxHeightPx) != layout.reverseSplitMode
         // Visibility is semantic, not the bounds of the surviving collapse/add/restore control.
         // Notify even without a layout pass so hosts replace the document's stale CSS offset.
         val coveredWindows = if (railOverlay != null && buildWindowTabBar(layout).showButtons) {

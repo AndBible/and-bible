@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
@@ -158,7 +160,8 @@ class ReadingProgressChapterDetailScrollTest {
                         ReadingProgressScreen(
                             model = current, loading = false, onUp = {}, onSelectTab = {},
                             onPrevCycle = {}, onNextCycle = {}, onNewCycle = {},
-                            onBookClick = {}, onBookLongClick = {}, onChapterClick = {}, onChapterLongClick = {},
+                            onBookClick = { current = model(withChapterDetail = true) },
+                            onBookLongClick = {}, onChapterClick = {}, onChapterLongClick = {},
                             onCalendarDayClick = {}, onOpenSettings = {}, onShowHelp = {},
                         )
                     }
@@ -167,7 +170,7 @@ class ReadingProgressChapterDetailScrollTest {
         }
         compose.waitForIdle()
 
-        current = model(withChapterDetail = true) // what ReadingProgressController.openChapterDetail publishes
+        compose.onNodeWithText("Gen", substring = true).performScrollTo().performClick()
         compose.waitForIdle()
 
         compose.onNodeWithText("Genesis").assertIsDisplayed()

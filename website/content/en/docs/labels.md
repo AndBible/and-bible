@@ -30,11 +30,13 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
     bookmark's main label, a favourite or an auto-assign label. On a phone held
     upright the sheet has no room for those icons in the rows, so this is where you
     set them.
-- Type in the search field to find a label by the start of its name. The chips
-    under the field show only favourite labels (*Favourites*), only auto-assign
-    labels (*Auto-assign*), or search anywhere in the name (the *Abc* chip). The chips
-    are always there, at every screen width. A label you have ticked stays listed
-    whatever you search.
+- The chips under the title show only favourite labels (*Favourites*) or only
+    auto-assign labels (*Auto-assign*). Tap the *Search* chip to find a label by any
+    part of its name: the chip turns into a search field with the keyboard up. While
+    you search, the filter chips shrink to their icons. The clear (✕) button in the field,
+    Back or the Esc key empties the search and closes the field; the next Back closes the
+    sheet. A label you have ticked
+    stays listed whatever you search.
 - The *Plus* (+) button at the top opens the settings of a new label, the same
     screen as when you [create a label](#create-a-label) from the label list. Save it,
     and the new label is ticked in the sheet; cancel, and nothing changes.
@@ -48,8 +50,8 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
     own labels. The *main label* switch in a label's settings is shown only where it applies:
     when you label a single bookmark from the Bible text. From the bookmarks list
     the switch is hidden, because it would change nothing.
-- *Edit labels* at the bottom opens the full label list with your choice so far.
-    There you can open a label's settings and set the main label, favourites and
+- The *Edit labels* (pencil) button at the top opens the full label list with your
+    choice so far. There you can open a label's settings and set the main label, favourites and
     auto-assign labels; going back saves.
 
 ## Searching for a Label
@@ -99,6 +101,11 @@ apply different styling to the label and make assigning it easier. You can:
 >     (*Auto-assign as main label*). The main label is the label that is
 >     listed first and determines the style of the bookmark. You can also make a label
 >     the main label on a single bookmark, under *This bookmark*.
+
+The name, colour and icon editor opens in a compact *Edit label* sheet. Its close
+button (✕) is in the title row, above the *Name* field; it closes the sheet without
+clearing the name. Changes apply as you make them. You can also swipe the sheet
+down or tap outside it to close it. Scroll inside the sheet to reach more controls.
 
 In the label list the lightning bolt marks auto-assign labels, the heart
 favourites and the bookmark icon main labels. On a narrow screen (a phone held

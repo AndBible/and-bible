@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.ai
 
+import net.bible.sharedui.components.SheetScrollBody
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -883,7 +884,7 @@ fun MaxIterationsSheetContent(
     var text by remember(current) { mutableStateOf(current?.toString() ?: "") }
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         AbSheetHeader(title = strings.promptMaxIterationsLabel, onClose = onClose)
-        Column(Modifier.padding(horizontal = 16.dp)) {
+        SheetScrollBody(Modifier.padding(horizontal = 16.dp)) {
             // F80: the explanation the row never had (the string existed, unreferenced).
             Text(
                 strings.promptMaxIterationsDescription,

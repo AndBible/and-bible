@@ -166,7 +166,7 @@ class MyBibleBookReaderTest {
     fun verseTextGetsStoryTitlesAddedAroundIt() {
         val b = backend(bible())
         assertEquals(
-            "<title canonical=\"false\">Creation</title>In the beginning<x/>",
+            "<title canonical=\"false\" subType=\"x-preverse\">Creation</title>In the beginning<x/>",
             b.readRawContent(state, verse(BibleBook.GEN, 1, 1)),
         )
         assertEquals("And the earth", b.readRawContent(state, verse(BibleBook.GEN, 1, 2)))

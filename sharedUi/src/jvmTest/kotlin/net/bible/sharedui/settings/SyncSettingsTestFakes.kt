@@ -15,18 +15,28 @@ import net.bible.sharedcore.settings.SyncSettingsSnapshot
 internal class FakeSyncService(initial: SyncSettingsSnapshot) : SyncSettingsService {
     override val snapshot: StateFlow<SyncSettingsSnapshot> = MutableStateFlow(initial)
     val applied = mutableListOf<Map<String, Boolean>>()
+    val documentsEnabled = MutableStateFlow(initial.documentsEnabled)
+    var documentEnables = 0
+    var signedIn = false
+    var documentScans = 0
     var gate: CompletableDeferred<ApplyResult>? = null
     var cancelledApply = false
     override fun refresh() {}
-    override suspend fun signIn() = true
-    override suspend fun scanDocuments() = DocSyncSummaryData(emptyList(), emptyList(), 0, 0)
+    override suspend fun signIn(): Boolean { signedIn = true; return true }
+    override suspend fun scanDocuments(): DocSyncSummaryData {
+        documentScans++
+        return DocSyncSummaryData(emptyList(), emptyList(), 0, 0)
+    }
     override suspend fun applyCategoryChanges(changes: Map<String, Boolean>, onProbed: () -> Unit): ApplyResult {
         applied += changes
         val g = gate ?: return ApplyResult.Applied
         try { return g.await() } catch (e: CancellationException) { cancelledApply = true; throw e }
     }
-    override fun setDocumentsEnabled(summary: DocSyncSummaryData) {}
-    override fun disableDocuments() {}
+    override fun setDocumentsEnabled(summary: DocSyncSummaryData) {
+        documentEnables++
+        documentsEnabled.value = true
+    }
+    override fun disableDocuments() { documentsEnabled.value = false }
     override fun setDocumentSyncToggle(key: String, value: Boolean) {}
     override fun setText(key: String, value: String) = true
     override fun forgetCertificate() {}

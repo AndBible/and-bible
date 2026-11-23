@@ -1,7 +1,9 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +41,8 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -78,6 +82,8 @@ fun AbModalBottomSheet(
     // library default; callers that have `LocalStrings` pass `strings.sheetDragHandle`.
     dragHandleDescription: String? = null,
     showDragHandle: Boolean = true,
+    // The floor of the half-window cap ([abSheetHeightCap]); only the label assign sheet raises it (#4215).
+    minCapHeight: Dp = AbSheetMinCapHeight,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     TrackOverlay()
@@ -127,28 +133,34 @@ fun AbModalBottomSheet(
         scrimColor = if (mono) Color.Transparent else BottomSheetDefaults.ScrimColor,
         // M3 1.4.0 defaults tonalElevation to 0.dp and Surface's shadowElevation to 0.dp.
         tonalElevation = 0.dp,
-        // With a description the compact handle is drawn by us as the first row of the content
-        // so that ONE node carries both the name and the dismiss action; M3's wrapper node merged an
-        // empty label on iOS (audit: "Element has no description" on the 32x48 handle).
-        dragHandle = if (!showDragHandle || handleDescription != null) null
-            else ({ AbSheetDragHandle(description = null, mono = mono) }),
+        // The handle is always drawn by us as the first row of the capped content (#4207: the cap covers the whole
+        // sheet, which M3's own handle slot, outside the content, would escape). With a description ONE node carries
+        // both the name and the dismiss action; M3's wrapper node merged an empty label on iOS (audit: "Element has
+        // no description" on the 32x48 handle).
+        dragHandle = null,
     ) {
-        if (showDragHandle && handleDescription != null) {
-            AbSheetDragHandle(
-                description = handleDescription,
-                mono = mono,
-                onDismiss = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() }
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-            )
+        // The cap lives HERE, once: every sheet's content (drag handle included) is measured with at most
+        // AbSheetMaxHeightFraction of the height the sheet window offers (#4207). Scroll regions inside are flexible
+        // (`sheetFlexible`), so the header and footer rows stay and the list takes the rest.
+        Column(Modifier.fillMaxWidth().abSheetHeightCap(minCapHeight = minCapHeight)) {
+            if (showDragHandle) {
+                AbSheetDragHandle(
+                    description = handleDescription,
+                    mono = mono,
+                    onDismiss = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
+            MirrorHostSystemBars()
+            if (mono) NoDialogNavigationContrast()
+            CompositionLocalProvider(
+                LocalAbSheetAnimatedClose provides animatedClose,
+                LocalAbSheetState provides sheetState,
+                LocalAbSheetHeightCapped provides true,
+            ) { content() }
         }
-        MirrorHostSystemBars()
-        if (mono) NoDialogNavigationContrast()
-        CompositionLocalProvider(
-            LocalAbSheetAnimatedClose provides animatedClose,
-            LocalAbSheetState provides sheetState,
-        ) { content() }
     }
     if (instantMotion) InstantSheetMotion(sheetState, dismissOnce)
     ResettleStrandedSheet(sheetState, instantMotion)
@@ -330,7 +342,7 @@ private fun ResettleStrandedSheet(sheetState: SheetState, instantMotion: Boolean
 /**
  * The sheet's drag handle. With a [description] the stock M3 handle is wrapped in ONE node that replaces its
  * semantics (`clearAndSetSemantics`): the screen-reader name plus the dismiss action M3's own wrapper offers
- * ([onDismiss]). The stock 32x4dp bar and localized semantics are retained, with 8dp vertical padding
+ * ([onDismiss]). Without one, the wrapper merges the stock handle's own localized name with that dismiss action. The stock 32x4dp bar and localized semantics are retained, with 8dp vertical padding
  * instead of M3's 22dp. See the call site for why the semantics wrapper is ours.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -355,8 +367,13 @@ fun AbSheetDragHandle(
         if (mono) BottomSheetDefaults.DragHandle(modifier = compact, color = monoInk(LocalIsDarkTheme.current))
         else BottomSheetDefaults.DragHandle(modifier = compact)
     }
-    if (description == null) handle()
-    else Box(modifier.clearAndSetSemantics {
+    if (description == null) {
+        // No caller-given name: keep M3's own localized handle name and merge the dismiss action into that one node,
+        // so a screen reader still hears a name and can close the sheet (M3's slot wrapper, which we bypass, did this).
+        Box(modifier.semantics(mergeDescendants = true) {
+            if (onDismiss != null) dismiss { onDismiss(); true }
+        }) { handle() }
+    } else Box(modifier.clearAndSetSemantics {
         contentDescription = description
         if (onDismiss != null) dismiss { onDismiss(); true }
     }) { handle() }

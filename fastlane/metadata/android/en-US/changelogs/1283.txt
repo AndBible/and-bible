@@ -1,0 +1,11 @@
+- Label assign sheet: search is now a Search chip that opens an inline field with a case toggle and clear button; Escape or Back closes the search first ([#4207](https://github.com/AndBible/and-bible/issues/4207))
+- Bottom sheets are capped at half the window height, with a minimum on very short windows, so headers and confirm rows stay visible while lists scroll ([#4207](https://github.com/AndBible/and-bible/issues/4207))
+- Edit labels and manage workspaces are now pencil icons in the sheet header instead of footer rows ([#4207](https://github.com/AndBible/and-bible/issues/4207))
+- Text settings margins and font size pages keep their Cancel/OK row visible in landscape ([#4207](https://github.com/AndBible/and-bible/issues/4207))
+- Speak repeat-range and sleep-timer pages no longer clip their buttons or slider in landscape ([#4207](https://github.com/AndBible/and-bible/issues/4207))
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/

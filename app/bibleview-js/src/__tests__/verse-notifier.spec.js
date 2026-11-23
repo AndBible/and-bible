@@ -16,7 +16,7 @@
  */
 
 import {describe, it, expect, vi, beforeEach, afterEach} from "vitest";
-import {defineComponent, h, ref, computed} from "vue";
+import {defineComponent, h, ref, computed, nextTick} from "vue";
 import {mount} from "@vue/test-utils";
 import {useVerseNotifier} from "@/composables/verse-notifier";
 
@@ -100,6 +100,61 @@ describe("useVerseNotifier", () => {
         delete document.elementFromPoint;
         document.body.innerHTML = "";
     });
+
+    it.each(["isCrossReference", "isFootNote", "isOther"])(
+        "does not sync back to the previous verse through its %s superscript (#4219)", async noteClass => {
+            const {currentVerse, isScrolling, scrolledToOrdinal} = mountNotifier();
+            const previous = makeOrdinalElement(8, "1Sam.15");
+            const target = makeOrdinalElement(9, "1Sam.15");
+            // Generated rendered-OSIS fixture: RSP has inline word wrappers and note handles,
+            // unlike a plain-text Bible. A raised note handle can overlap the next line.
+            previous.innerHTML = `<span class="skip-offset"><span class="noteHandle ${noteClass}">a</span></span>`;
+            target.innerHTML = `<span class="has-strongs">Synthetic verse nine</span>`;
+            const handle = previous.querySelector(".noteHandle");
+            const text = target.firstElementChild;
+            document.elementFromPoint = vi.fn((x, y) => y < 6 ? handle : text);
+
+            isScrolling.value = true;
+            scrollTo(200); // native sync scrolls to verse 9; do not report intermediate frames
+            isScrolling.value = false;
+            scrollTo(200); // final scroll event after the animation settles
+            await nextTick();
+
+            expect(currentVerse.value).toBe(9);
+            expect(scrolledToOrdinal).toHaveBeenLastCalledWith("1Sam.15", 9);
+        },
+    );
+
+    it.each([
+        ["ltr", false], ["rtl", false], ["ltr", true], ["rtl", true],
+    ])("continues along the same line after a note handle (direction %s, multi-reference %s)",
+        (direction, multiReference) => {
+            const {currentVerse, updateCurrentVerse} = mountNotifier();
+            const previous = makeOrdinalElement(8, "1Sam.15");
+            previous.innerHTML = `<span class="skip-offset"><span class="noteHandle isCrossReference">a</span></span>`;
+            const target = makeOrdinalElement(9, "1Sam.15");
+            target.style.direction = direction;
+            if (multiReference) {
+                target.classList.remove("ordinal");
+                target.dataset.ordinal = "7000"; // source ordinal differs from the local scroll ordinal
+                target.dataset.scrollOrdinal = "9";
+            }
+            const handle = previous.querySelector(".noteHandle");
+            // Establish the document's direction before checking a single-line sample.
+            previous.style.direction = direction;
+            document.elementFromPoint = vi.fn(() => previous);
+            updateCurrentVerse();
+            expect(currentVerse.value).toBe(8);
+            document.elementFromPoint = vi.fn((x, y) => {
+                if (y >= 6) return null; // only this line contains text
+                return x > window.innerWidth - 30 || x < 30 ? handle : target;
+            });
+
+            scrollTo(200);
+
+            expect(currentVerse.value).toBe(9);
+        },
+    );
 
     it("does not advance the verse when scrolling up hits a superscript bleeding into the line above (#3865)", () => {
         setScrollY(200);

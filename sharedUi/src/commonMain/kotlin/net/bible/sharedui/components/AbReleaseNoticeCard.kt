@@ -156,7 +156,7 @@ fun AbReleaseNoticeCard(
     Dialog(
         onDismissRequest = { onAnswer(null, dontShowAgain) },
         properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
+    ) { OutsideSheetCap {
         if (isPureMonochrome()) NoDialogDim()
         CompositionLocalProvider(LocalDensity provides density) {
             Column(
@@ -283,7 +283,7 @@ fun AbReleaseNoticeCard(
                 }
             }
         }
-    }
+    }}
 }
 
 /**

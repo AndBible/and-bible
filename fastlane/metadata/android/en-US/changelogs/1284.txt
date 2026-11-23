@@ -1,0 +1,18 @@
+- Document sync switches (Windows, Android, iOS, desktop) now wait for Apply, along with the other sync settings; cancelling discards pending changes ([#4222](https://github.com/AndBible/and-bible/issues/4222))
+- Background image import shows errors above the reading settings sheet, clears its loading state on failure, and offers document recovery ([#4225](https://github.com/AndBible/and-bible/issues/4225))
+- Windows installer keeps the existing installation folder on upgrade and shows a one-click update confirmation ([#4223](https://github.com/AndBible/and-bible/issues/4223))
+- Label assign sheet: the search always matches anywhere in a label's name, the "Abc" toggle is removed, landscape shows at least two label rows, and the clear button has a larger touch target ([#4215](https://github.com/AndBible/and-bible/issues/4215))
+- Label sheet close button moved into a compact title row, so the header stays visible while the content scrolls ([#4209](https://github.com/AndBible/and-bible/issues/4209))
+- MyBible module import: cross-references become working links, paragraph verse numbers and story headings render correctly, and malformed references no longer break book context ([#4217](https://github.com/AndBible/and-bible/issues/4217))
+- Background image file paths are resolved safely on Windows ([#4225](https://github.com/AndBible/and-bible/issues/4225))
+- Label search on iPhone no longer moves the cursor back to the start of the word during fast typing ([#4216](https://github.com/AndBible/and-bible/issues/4216))
+- Book chapter details scroll to the top on both progress tabs ([#4213](https://github.com/AndBible/and-bible/issues/4213))
+- Android split layout follows the current orientation after rotation ([#4220](https://github.com/AndBible/and-bible/issues/4220))
+- Reading Activity heatmap weekday labels appear on the correct rows for each locale's first weekday ([#4212](https://github.com/AndBible/and-bible/issues/4212))
+- Verse position sync ignores raised note handles and bookmark markers ([#4219](https://github.com/AndBible/and-bible/issues/4219))
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/

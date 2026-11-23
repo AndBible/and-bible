@@ -58,10 +58,9 @@ data class ReadHistoryRow(
 )
 
 /**
- * Cap on the row list's height. 480dp, unchanged from the dialog this replaces: the spec's brief for
- * G2.5 is "same content, same bound, same commit-on-dismiss semantics", so the container is the only
- * thing that changes. (New wrappers use the port's 400dp `AbSheetContentMaxHeight` instead; classic
- * used a `ScrollView` capped at 60% of the display height, which commonMain cannot measure.)
+ * Upper limit of the row list's height: the 480dp the dialog this replaces had. Inside the sheet the half-window cap
+ * ([net.bible.sharedui.components.AbSheetMaxHeightFraction], #4207) is the smaller bound on a phone; this only stops
+ * a very tall window from growing the list past what it always had.
  */
 private val ReadHistoryMaxHeight = 480.dp
 
