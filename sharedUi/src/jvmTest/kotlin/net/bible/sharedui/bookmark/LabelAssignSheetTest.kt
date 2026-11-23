@@ -158,6 +158,32 @@ class LabelAssignSheetTest {
     private fun names(controller: ManageLabelsController) =
         controller.rows.value.filterIsInstance<ManageLabelsRow.Item>().map { it.label.name }.toSet()
 
+    @Test fun openingWithAnExistingQueryMatchesAnywhereBeforeAnyEdit() = runComposeUiTest {
+        val controller = controller()
+        controller.setSearchMode(SearchMode.NAME_START)
+        controller.setSearch("ide")
+        assertEquals(emptySet(), names(controller))
+
+        show(controller)
+
+        assertEquals(SearchMode.NAME_CONTAINS, controller.searchMode.value)
+        assertEquals("ide", controller.searchText.value)
+        assertEquals(setOf("Sermon ideas"), names(controller))
+        onNodeWithText("Sermon ideas").assertExists()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertIsNotFocused()
+    }
+
+    @Test fun openingTheModalWithAnEmptyQueryAlsoResetsTheSearchMode() = runComposeUiTest {
+        val controller = controller()
+        controller.setSearchMode(SearchMode.NAME_START)
+
+        showInSheet(controller)
+
+        assertEquals(SearchMode.NAME_CONTAINS, controller.searchMode.value)
+        assertEquals("", controller.searchText.value)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertExists()
+    }
+
     /** #4215: no Abc toggle; the search matches anywhere in the name, also after the controller was in NAME_START. */
     @Test fun searchMatchesAnywhereInTheNameWithoutAModeToggle() = runComposeUiTest {
         val controller = controller()
@@ -326,6 +352,7 @@ class LabelAssignSheetTest {
         val controller = controller()
         val held = ArrayDeque<String>()
         show(controller, onSearch = { held.addLast(it) })
+        held.clear() // Only edits below are delayed; opening the sheet also normalizes its search mode.
         fun deliver() = runOnIdle { while (held.isNotEmpty()) controller.setNameSearch(held.removeFirst()) }
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
         waitForIdle()
@@ -348,6 +375,7 @@ class LabelAssignSheetTest {
         val controller = controller()
         val held = ArrayDeque<String>()
         show(controller, onSearch = { held.addLast(it) })
+        held.clear() // Only edits below are delayed; opening the sheet also normalizes its search mode.
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
         waitForIdle()
         val field = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG)

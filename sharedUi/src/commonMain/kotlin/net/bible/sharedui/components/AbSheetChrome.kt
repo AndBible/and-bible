@@ -68,8 +68,10 @@ val AbSheetMinCapHeight: Dp = 160.dp
  * offers ~330-390dp, half of which showed the header, the chip row and barely one label. This floor keeps the header
  * (48dp), the chip row (48dp) and two label rows (2 x 48dp) visible even when each sits under its own category header
  * (2 x 36dp: a ticked label lists under "Selected labels", the next under "Other labels"), plus the sheet's 16dp bottom
- * padding. The iPhone simulator run showed the 248dp first try cutting the second row in that case. Like [AbSheetMinCapHeight] it never exceeds the offered height, so a window shorter than this
- * (the keyboard up) gets the whole offered height, as before. Other sheets keep the plain cap.
+ * padding. The iPhone simulator run showed the 248dp first try cutting the second row in that case.
+ * The floor also raises the cap with the keyboard up: an offered 320-560dp in portrait is capped at 280dp,
+ * and an offered 160-280dp in landscape is used in full. Like [AbSheetMinCapHeight], the floor never exceeds
+ * the offered height. Other sheets keep the plain cap.
  */
 val AbLabelAssignSheetMinCapHeight: Dp = 280.dp
 
