@@ -121,11 +121,14 @@ In the `Text options` submenu, `Copy settings to` copies this window's text disp
 
 `Synchronise` in the window menu is a submenu with `Group 1` to `Group 6` and, once the window is in a group, `Disable synchronize`. Windows in the same group always show the same verse. A window can be in one group at a time.
 
+Synchronised scrolling follows the Bible text, not the raised footnote, cross-reference or bookmark
+markers, so a marker at the end of the previous verse does not pull the windows back to it.
+
 ### Other options in the three-dot menu
 
 These toggles in the ⋮ menu affect all windows of the workspace:
 
-- `Reversed split mode`: normally windows are side by side in landscape and stacked in portrait; this flips that. Shown only while more than one window is open.
+- `Reversed split mode`: normally windows are side by side in landscape and stacked in portrait; this flips that. The split follows device rotation automatically in either mode, without toggling the setting. Opening the keyboard does not change the split direction. Shown only while more than one window is open.
 - `Tilt to scroll`: scrolls the text by tilting the device. Shown only on devices that have a motion sensor, so not on desktop.
 - `Window pinning`: see above.
 - `Workspaces` opens the [workspace selector](workspaces.md), and `Label settings` opens the [label settings](labels.md) for the workspace.

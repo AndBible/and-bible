@@ -144,6 +144,7 @@ class AppHosts(
             workspaceServiceProvider = { koin.get<WorkspaceService>() },
             appScopeProvider = { koin.get<AppCoroutineScope>() },
             activeWorkspaceId = { koin.get<WindowControl>().windowRepository.id.toString() },
+            userNotifierProvider = { koin.get<UserNotifier>() },
         )
     }
 

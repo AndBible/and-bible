@@ -177,6 +177,12 @@ rather than importing the module independently when retaining saved locations.
 Bible verse links in MyBible commentaries work like other Scripture references.
 When an entry contains two or more references, **Open all** opens them together.
 Web links and Strong's dictionary links remain separate from this reference collection.
+In MyBible Bibles, numeric cross-references in section headings and verse text are
+shown as named Scripture links, including references that omit a repeated book name.
+References to books outside the module's numbering scheme show the book name without
+a link when it is known. Section headings can begin with references as well as text.
+Paragraph breaks at the start of a verse appear before its verse number, keeping the
+number with the verse text.
 
 ## Maps
 

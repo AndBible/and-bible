@@ -26,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
@@ -47,6 +48,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -117,11 +119,11 @@ class LabelAssignSheetTest {
     private var newLabel = 0
     private val editedLabels = mutableListOf<String>()
 
-    private fun ComposeUiTest.show(controller: ManageLabelsController) {
+    /** [onSearch] replaces the controller's own search (a test holding the controller's echo, #4216). */
+    private fun ComposeUiTest.show(controller: ManageLabelsController, onSearch: ((String) -> Unit)? = null) {
         setContent {
             val rows by controller.rows.collectAsState()
             val searchText by controller.searchText.collectAsState()
-            val searchMode by controller.searchMode.collectAsState()
             val filters by controller.filters.collectAsState()
             CompositionLocalProvider(LocalStrings provides strings) {
                 AbTheme(darkTheme = false) {
@@ -129,11 +131,10 @@ class LabelAssignSheetTest {
                         LabelAssignSheetFrame(
                             state = LabelAssignSheetState(
                                 title = strings.assignLabelsLabel, rows = rows, styleTagsVisible = false,
-                                searchText = searchText, searchMode = searchMode, filters = filters,
+                                searchText = searchText, filters = filters,
                             ),
                             actions = LabelAssignSheetActions(
-                                onSearch = controller::setSearch,
-                                onSetSearchMode = controller::setSearchMode,
+                                onSearch = onSearch ?: controller::setNameSearch,
                                 onToggleFilter = controller::toggleFilter,
                                 onToggleChecked = controller::toggleChecked,
                                 onToggleFavourite = controller::toggleFavourite,
@@ -157,27 +158,53 @@ class LabelAssignSheetTest {
     private fun names(controller: ManageLabelsController) =
         controller.rows.value.filterIsInstance<ManageLabelsRow.Item>().map { it.label.name }.toSet()
 
-    @Test fun searchNarrowsTheListByNameStartAndTheContainsChipWidensIt() = runComposeUiTest {
+    @Test fun openingWithAnExistingQueryMatchesAnywhereBeforeAnyEdit() = runComposeUiTest {
         val controller = controller()
-        show(controller)
-        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
-        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextInput("ser")
-        waitForIdle()
-        assertEquals(setOf("Sermon notes", "Sermon ideas"), names(controller))
-        onNodeWithText("Prayer").assertDoesNotExist()
-
+        controller.setSearchMode(SearchMode.NAME_START)
         controller.setSearch("ide")
-        waitForIdle()
-        assertEquals(emptySet(), names(controller), "name-start does not match inside a name")
-        onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).performClick()
-        waitForIdle()
+        assertEquals(emptySet(), names(controller))
+
+        show(controller)
+
         assertEquals(SearchMode.NAME_CONTAINS, controller.searchMode.value)
+        assertEquals("ide", controller.searchText.value)
         assertEquals(setOf("Sermon ideas"), names(controller))
         onNodeWithText("Sermon ideas").assertExists()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertIsNotFocused()
+    }
 
-        onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).performClick()
+    @Test fun openingTheModalWithAnEmptyQueryAlsoResetsTheSearchMode() = runComposeUiTest {
+        val controller = controller()
+        controller.setSearchMode(SearchMode.NAME_START)
+
+        showInSheet(controller)
+
+        assertEquals(SearchMode.NAME_CONTAINS, controller.searchMode.value)
+        assertEquals("", controller.searchText.value)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertExists()
+    }
+
+    /** #4215: no Abc toggle; the search matches anywhere in the name, also after the controller was in NAME_START. */
+    @Test fun searchMatchesAnywhereInTheNameWithoutAModeToggle() = runComposeUiTest {
+        val controller = controller()
+        controller.setSearchMode(SearchMode.NAME_START) // e.g. left over by the full screen sharing this controller
+        show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
         waitForIdle()
-        assertEquals(SearchMode.NAME_START, controller.searchMode.value, "the chip toggles back")
+        // The open row has the field, the clear button and the two filter toggles; nothing else toggles.
+        val row = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).fetchSemanticsNode().boundsInRoot
+        val inRow = onAllNodes(isToggleable()).fetchSemanticsNodes().count { it.boundsInRoot.center.y in row.top..row.bottom }
+        assertEquals(2, inRow, "a mode toggle is back in the field row")
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextInput("ide")
+        waitForIdle()
+        assertEquals(setOf("Sermon ideas"), names(controller), "matches inside a name")
+        onNodeWithText("Sermon ideas").assertExists()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextReplacement("ser")
+        waitForIdle()
+        assertEquals(setOf("Sermon notes", "Sermon ideas"), names(controller), "and at its start")
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextReplacement("OMI")
+        waitForIdle()
+        assertEquals(setOf("Promises"), names(controller), "ignoring case")
     }
 
     @Test fun theFavouriteChipShowsOnlyFavouritesAndTheAutoAssignChipOnlyAutoAssigned() = runComposeUiTest {
@@ -242,12 +269,11 @@ class LabelAssignSheetTest {
         assertTrue("3" !in controller.resultSelected(), "a long press does not tick")
     }
 
-    @Test fun atRestThereIsASearchChipAndNeitherTheFieldNorTheContainsToggle() = runComposeUiTest {
+    @Test fun atRestThereIsASearchChipAndNoField() = runComposeUiTest {
         show(controller())
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertExists()
         onNodeWithText(strings.labelsSearchHint).assertExists()
         onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertDoesNotExist()
-        onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).assertDoesNotExist()
         onNodeWithTag(LABEL_ASSIGN_FILTER_FAVOURITE_TAG).assertExists()
         onNodeWithText(strings.labelAssignFilterFavourites).assertExists()
     }
@@ -259,7 +285,7 @@ class LabelAssignSheetTest {
         waitForIdle()
         onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertIsFocused()
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertDoesNotExist()
-        onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).assertExists()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CLEAR_TAG).assertExists()
         onNodeWithText(strings.labelAssignFilterFavourites).assertDoesNotExist()
         onNodeWithContentDescription(strings.labelAssignFilterFavourites).assertExists()
         onNodeWithContentDescription(strings.labelAssignFilterAutoAssign).assertExists()
@@ -317,13 +343,70 @@ class LabelAssignSheetTest {
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertDoesNotExist()
     }
 
-    @Test fun theContainsToggleSitsInTheOpenFieldRow() = runComposeUiTest {
+    /**
+     * #4216: the controller's search text reaches the field a dispatch after the keystroke. Typing "s", a
+     * recomposition while that echo is still held (the old field redrew the stale "" and clipped the cursor to 0), the
+     * echo, then "e": the field must read "se" with the cursor at its end, not "es".
+     */
+    @Test fun theFieldKeepsTextAndCursorWhileTheControllerEchoIsDelayed() = runComposeUiTest {
+        val controller = controller()
+        val held = ArrayDeque<String>()
+        show(controller, onSearch = { held.addLast(it) })
+        held.clear() // Only edits below are delayed; opening the sheet also normalizes its search mode.
+        fun deliver() = runOnIdle { while (held.isNotEmpty()) controller.setNameSearch(held.removeFirst()) }
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        waitForIdle()
+        val field = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG)
+        for (key in listOf("s", "e", "r")) {
+            field.performTextInput(key)
+            waitForIdle() // a recomposition while the echo is in flight
+            deliver()
+            waitForIdle()
+        }
+        val config = field.fetchSemanticsNode().config
+        assertEquals("ser", config[SemanticsProperties.EditableText].text)
+        assertEquals(TextRange(3), config[SemanticsProperties.TextSelectionRange], "the cursor left the end of the text")
+        assertEquals("ser", controller.searchText.value)
+        assertEquals(setOf("Sermon notes", "Sermon ideas"), names(controller))
+    }
+
+    /** #4216, fast typing: two keystrokes in flight when the first (stale) echo arrives; the field keeps both. */
+    @Test fun twoKeysInFlightSurviveTheStaleEcho() = runComposeUiTest {
+        val controller = controller()
+        val held = ArrayDeque<String>()
+        show(controller, onSearch = { held.addLast(it) })
+        held.clear() // Only edits below are delayed; opening the sheet also normalizes its search mode.
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        waitForIdle()
+        val field = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG)
+        field.performTextInput("s")
+        waitForIdle()
+        field.performTextInput("e")
+        waitForIdle()
+        runOnIdle { controller.setNameSearch(held.removeFirst()) } // the stale "s" arrives while the field shows "se"
+        waitForIdle()
+        field.performTextInput("r")
+        waitForIdle()
+        runOnIdle { while (held.isNotEmpty()) controller.setNameSearch(held.removeFirst()) }
+        waitForIdle()
+        val config = field.fetchSemanticsNode().config
+        assertEquals("ser", config[SemanticsProperties.EditableText].text)
+        assertEquals(TextRange(3), config[SemanticsProperties.TextSelectionRange])
+        assertEquals("ser", controller.searchText.value)
+    }
+
+    /** #4216: a genuine outside write (not an echo of the field's own edit) still replaces the text, cursor at its end. */
+    @Test fun anOutsideWriteReplacesTheTypedText() = runComposeUiTest {
         val controller = controller()
         show(controller)
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
-        onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).performClick()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextInput("ser")
         waitForIdle()
-        assertEquals(SearchMode.NAME_CONTAINS, controller.searchMode.value)
+        runOnIdle { controller.setNameSearch("pro") }
+        waitForIdle()
+        val config = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).fetchSemanticsNode().config
+        assertEquals("pro", config[SemanticsProperties.EditableText].text)
+        assertEquals(TextRange(3), config[SemanticsProperties.TextSelectionRange])
     }
 
     private var dismissed = 0
@@ -333,17 +416,16 @@ class LabelAssignSheetTest {
         setContent {
             val rows by controller.rows.collectAsState()
             val searchText by controller.searchText.collectAsState()
-            val searchMode by controller.searchMode.collectAsState()
             val filters by controller.filters.collectAsState()
             CompositionLocalProvider(LocalStrings provides strings) {
                 AbTheme(darkTheme = false, disableAnimations = true) {
                     LabelAssignSheet(
                         state = LabelAssignSheetState(
                             title = strings.assignLabelsLabel, rows = rows, styleTagsVisible = false,
-                            searchText = searchText, searchMode = searchMode, filters = filters,
+                            searchText = searchText, filters = filters,
                         ),
                         actions = LabelAssignSheetActions(
-                            onSearch = controller::setSearch, onSetSearchMode = controller::setSearchMode,
+                            onSearch = controller::setNameSearch,
                             onToggleFilter = controller::toggleFilter, onToggleChecked = controller::toggleChecked,
                             onToggleFavourite = controller::toggleFavourite, onSetPrimary = controller::setPrimary,
                             onToggleAutoAssign = controller::toggleAutoAssign, onEditLabel = {}, onNewLabel = {},
@@ -405,7 +487,6 @@ class LabelAssignSheetTest {
             registry?.let { reg ->
                 val rows by controller.rows.collectAsState()
                 val searchText by controller.searchText.collectAsState()
-                val searchMode by controller.searchMode.collectAsState()
                 val filters by controller.filters.collectAsState()
                 CompositionLocalProvider(
                     androidx.compose.runtime.saveable.LocalSaveableStateRegistry provides reg, LocalStrings provides strings,
@@ -414,10 +495,10 @@ class LabelAssignSheetTest {
                         LabelAssignSheetFrame(
                             state = LabelAssignSheetState(
                                 title = strings.assignLabelsLabel, rows = rows, styleTagsVisible = false,
-                                searchText = searchText, searchMode = searchMode, filters = filters,
+                                searchText = searchText, filters = filters,
                             ),
                             actions = LabelAssignSheetActions(
-                                onSearch = controller::setSearch, onSetSearchMode = controller::setSearchMode,
+                                onSearch = controller::setNameSearch,
                                 onToggleFilter = controller::toggleFilter, onToggleChecked = controller::toggleChecked,
                                 onToggleFavourite = controller::toggleFavourite, onSetPrimary = controller::setPrimary,
                                 onToggleAutoAssign = controller::toggleAutoAssign, onEditLabel = {}, onNewLabel = {},
@@ -444,15 +525,13 @@ class LabelAssignSheetTest {
         onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertIsNotFocused()
     }
 
-    /** #4207 review finding 3: the Abc toggle in the open field has a 48dp touch box (it is drawn 32dp). */
-    @Test fun theContainsToggleHasA48dpTouchTarget() = runComposeUiTest {
+    /** #4215 (decision 28): the clear button in the open field has a 48dp touch box. */
+    @Test fun theClearButtonHasA48dpTouchTarget() = runComposeUiTest {
         show(controller())
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
         waitForIdle()
-        val node = onNodeWithTag(LABEL_ASSIGN_SEARCH_CONTAINS_TAG).fetchSemanticsNode()
-        // The node's own size, not touchBoundsInRoot: that one includes Compose's minimum-touch-target expansion,
-        // which only applies when no other target is nearer (the clear icon sits right next to it).
-        val size = node.size
+        // The node's own size, not touchBoundsInRoot: that one includes Compose's minimum-touch-target expansion.
+        val size = onNodeWithTag(LABEL_ASSIGN_SEARCH_CLEAR_TAG).fetchSemanticsNode().size
         with(density) {
             assertTrue(size.height >= 48.dp.roundToPx(), "touch height ${size.height.toDp()}")
             assertTrue(size.width >= 48.dp.roundToPx(), "touch width ${size.width.toDp()}")

@@ -154,6 +154,43 @@ class SharedAddonScannerTest {
         assertEquals("/mods/photo/images/leaf.jpg".toPath(), inventory.getValue("Photo").path)
     }
 
+    @Test fun backgroundInventorySkipsInvalidLocationAndKeepsHealthyImages() {
+        touch("/mods/healthy/leaf.png")
+        val healthy = FakeAddonBook(FakeAddonMetaData("Healthy", "/mods/healthy",
+            mapOf("AndBibleProvidesBackgroundImage" to listOf("Leaf;leaf.png")), emptyMap()))
+        val invalid = FakeAddonBook(FakeAddonMetaData("Invalid", null,
+            mapOf("AndBibleProvidesBackgroundImage" to listOf("Broken;broken.png")), emptyMap()))
+        invalid.bookMetaData.location = org.crosswire.common.util.KUri("file:/bad%00path/")
+        assertEquals(setOf("Healthy"), SharedAddonScanner({ listOf(invalid, healthy) }, fs).backgroundImages().keys)
+    }
+
+    @Test fun backgroundInventorySkipsInvalidStoredPathsAndKeepsHealthyImages() {
+        touch("/mods/healthy/leaf.png")
+        fun image(initials: String, location: String, filename: String) = FakeAddonBook(
+            FakeAddonMetaData(initials, location,
+                mapOf("AndBibleProvidesBackgroundImage" to listOf("Image;$filename")), emptyMap())
+        )
+        val healthy = image("Healthy", "/mods/healthy", "leaf.png")
+        val invalid = image("Invalid", "/mods/bad", "bad\u0000.png")
+        val missing = image("Missing", "/mods/missing", "absent.png")
+        val unreadable = object : okio.ForwardingFileSystem(fs) {
+            override fun metadataOrNull(path: okio.Path): okio.FileMetadata? {
+                require('\u0000' !in path.toString()) { "Invalid stored image path" }
+                return super.metadataOrNull(path)
+            }
+        }
+        val inventory = SharedAddonScanner({ listOf(invalid, missing, healthy) }, unreadable).backgroundImages()
+        assertEquals(setOf("Healthy"), inventory.keys)
+    }
+
+    @Test fun backgroundInventoryRejectsNonFileLocations() {
+        touch("/mods/healthy/leaf.png")
+        val metadata = FakeAddonMetaData("Remote", "/mods/healthy",
+            mapOf("AndBibleProvidesBackgroundImage" to listOf("Leaf;leaf.png")), emptyMap())
+        metadata.location = org.crosswire.common.util.KUri("https://example.invalid/mods/healthy")
+        assertTrue(SharedAddonScanner({ listOf(FakeAddonBook(metadata)) }, fs).backgroundImages().isEmpty())
+    }
+
     @Test fun fontCatalogRejectsMalformedMissingAndEscapingFilesAndUsesTheLastFamily() {
         touch("/mods/a/one.ttf")
         touch("/mods/b/two.ttf")

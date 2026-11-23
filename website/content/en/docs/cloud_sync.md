@@ -66,7 +66,11 @@ When you tap **Apply**, a *Checking the cloud…* dialog looks for data that you
 The same dialog appears at a later sync if *AndBible* finds that the cloud data
 was reset. Background syncs never show it: they wait until you open the app.
 
-Document sync is not part of this: its switch takes effect immediately.
+The **Documents** switch uses the same **Apply** and **Discard** step, both when
+turning it on and when turning it off. When enabling documents, **Apply** first
+shows a preview of the document transfers; confirm it to continue applying your
+changes. Cancelling that preview leaves document sync and the data categories you
+were turning on disabled. See [Document Sync](document_sync.md).
 
 ### Setting Up Nextcloud
 

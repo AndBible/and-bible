@@ -181,6 +181,12 @@ class IosLocalCalendar(
         dateFormat = "LLL"
     }.stringFromDate(date(epochMs))
 
+    override fun narrowWeekdayName(epochMs: Long): String = NSDateFormatter().apply {
+        locale = localeProvider()
+        calendar = this@IosLocalCalendar.calendar
+        dateFormat = "ccccc"
+    }.stringFromDate(date(epochMs))
+
     private fun plusUnit(epochMs: Long, unit: ULong, amount: Int): Long =
         calendar.dateByAddingUnit(unit, amount.toLong(), toDate = date(epochMs), options = 0u)?.toEpochMs() ?: epochMs
 }

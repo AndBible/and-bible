@@ -27,7 +27,7 @@ import net.bible.sharedlogic.platform.PromptPackRef
 import net.bible.sharedlogic.platform.PromptPackSource
 import okio.FileSystem
 import okio.Path
-import okio.Path.Companion.toPath
+import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.Book
 
 private const val TAG = "SharedAddonScanner"
@@ -59,7 +59,15 @@ class SharedAddonScanner(
         cached = null
     }
 
-    private fun Book.base(): Path? = bookMetaData.location?.getPath()?.toPath()
+    // A URI path is not a filesystem path on Windows: /C:/... must become C:/... .
+    private fun Book.base(): Path? = bookMetaData.location?.let { location ->
+        try { NetUtil.toPath(location) }
+        catch (e: kotlinx.coroutines.CancellationException) { throw e }
+        catch (e: Exception) {
+            Log.e(TAG, "Ignoring invalid add-on location for $initials", e)
+            null
+        }
+    }
 
     /** `File(parent, child)` on Android drops leading separators of a relative-looking child; do the same. */
     private fun Path.child(name: String): Path = this / name.trimStart('/')
@@ -102,10 +110,16 @@ class SharedAddonScanner(
     fun backgroundImages(): Map<String, net.bible.sharedlogic.platform.AddonBackgroundImage> = buildMap {
         for (book in addons) {
             val marker = book.bookMetaData.getValues("AndBibleProvidesBackgroundImage")?.firstOrNull() ?: continue
-            val parts = marker.split(';')
-            val path = (book.base() ?: continue).child(parts.getOrElse(1) { "" })
-            if (files.metadataOrNull(path)?.isRegularFile == true) {
-                put(book.initials, net.bible.sharedlogic.platform.AddonBackgroundImage(parts[0], path))
+            try {
+                val parts = marker.split(';')
+                val path = (book.base() ?: continue).child(parts.getOrElse(1) { "" })
+                if (files.metadataOrNull(path)?.isRegularFile == true) {
+                    put(book.initials, net.bible.sharedlogic.platform.AddonBackgroundImage(parts[0], path))
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) {
+                // One damaged/missing background must not strand the colours editor or the reading view.
+                Log.e(TAG, "Ignoring unreadable background image for ${book.initials}", e)
             }
         }
     }

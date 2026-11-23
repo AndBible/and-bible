@@ -64,6 +64,9 @@ read-only freely, every write confirmed, all replies of a session in one `batch`
 - **No greeting at the start and no signature at the end** ("Hello," / "God bless, AndBible team"
   etc.): osTicket adds both automatically (maintainer, 2026-11-07).
 - Reply in the reporter's language (the ticket's own language).
+- **Never promise that the maintainer will contact a third party** (CrossWire, a module publisher, a
+  translator) on the user's behalf. Tell the user where and how to report it themselves (maintainer,
+  2026-11-23).
 - Link the GitHub issue that tracks or fixed the report; say "fixed on our development branch, will
   be in an upcoming version" for fixes that are not released yet.
 - **A new bug reported in a ticket gets its GitHub issue first**, then the reply links it ("which you

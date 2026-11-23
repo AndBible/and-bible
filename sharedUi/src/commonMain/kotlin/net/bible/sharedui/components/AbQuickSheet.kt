@@ -104,6 +104,7 @@ fun AbQuickSheet(
     footer: (@Composable () -> Unit)? = null,
     canScrollForward: () -> Boolean = { false },
     bodyFillsSheetCap: Boolean = false,
+    minCapHeight: Dp = AbSheetMinCapHeight,
     body: @Composable () -> Unit,
 ) {
     if (!open) return
@@ -131,6 +132,7 @@ fun AbQuickSheet(
         },
         sheetState = sheetState,
         showDragHandle = false,
+        minCapHeight = minCapHeight,
         modifier = Modifier.testTag(AbQuickSheetTag),
     ) {
         AbQuickSheetContent(
