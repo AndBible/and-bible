@@ -64,6 +64,15 @@ const val AbSheetMaxHeightFraction: Float = 0.5f
 val AbSheetMinCapHeight: Dp = 160.dp
 
 /**
+ * The label assign sheet's floor (#4215, spec amendment 2026-11-23, item 2): a phone in landscape without the keyboard
+ * offers ~330-390dp, half of which showed the header, the chip row and barely one label. This floor keeps the header
+ * (48dp), the chip row (48dp), a category header (36dp) and two label rows (2 x 48dp) plus the sheet's 16dp bottom
+ * padding visible. Like [AbSheetMinCapHeight] it never exceeds the offered height, so a window shorter than this
+ * (the keyboard up) gets the whole offered height, as before. Other sheets keep the plain cap.
+ */
+val AbLabelAssignSheetMinCapHeight: Dp = 248.dp
+
+/**
  * The upper limit of a new sheet's scrolling region where nothing else bounds it: content-only frames (goldens,
  * UI tests) that render without a sheet window, and bodies that are not given the flexible height. 400dp is
  * round 12c's shipped cap (`SettingsEditorSheet.kt`) and round 13a's (`SpeakSettingsSheet.kt`).
@@ -85,13 +94,17 @@ val AbSheetContentMaxHeight: Dp = 400.dp
 val LocalAbSheetHeightCapped = staticCompositionLocalOf { false }
 
 /**
- * [AbModalBottomSheet]'s bound: measures its content with at most [fraction] of the height it is offered (but see the floor, [AbSheetMinCapHeight]). Unbounded
+ * [AbModalBottomSheet]'s bound: measures its content with at most [fraction] of the height it is offered, but never
+ * less than `min(offered, minCapHeight)` (the floor, [AbSheetMinCapHeight] unless a sheet asks for more). Unbounded
  * constraints (a content-only frame) pass through untouched.
  */
-fun Modifier.abSheetHeightCap(fraction: Float = AbSheetMaxHeightFraction): Modifier = layout { measurable, constraints ->
+fun Modifier.abSheetHeightCap(
+    fraction: Float = AbSheetMaxHeightFraction,
+    minCapHeight: Dp = AbSheetMinCapHeight,
+): Modifier = layout { measurable, constraints ->
     val cap = if (constraints.hasBoundedHeight) {
-        // cap = max(fraction * offered, min(offered, AbSheetMinCapHeight)): see [AbSheetMinCapHeight].
-        maxOf((constraints.maxHeight * fraction).roundToInt(), minOf(constraints.maxHeight, AbSheetMinCapHeight.roundToPx()))
+        // cap = max(fraction * offered, min(offered, minCapHeight)): see [AbSheetMinCapHeight].
+        maxOf((constraints.maxHeight * fraction).roundToInt(), minOf(constraints.maxHeight, minCapHeight.roundToPx()))
     } else constraints.maxHeight
     val placeable = measurable.measure(constraints.copy(minHeight = minOf(constraints.minHeight, cap), maxHeight = cap))
     layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }

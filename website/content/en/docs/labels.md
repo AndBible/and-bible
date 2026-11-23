@@ -31,10 +31,9 @@ when several bookmarks are selected in the [bookmarks list](bookmarks.md).
     upright the sheet has no room for those icons in the rows, so this is where you
     set them.
 - The chips under the title show only favourite labels (*Favourites*) or only
-    auto-assign labels (*Auto-assign*). Tap the *Search* chip to find a label by the
-    start of its name: the chip turns into a search field with the keyboard up. While
-    you search, the *Abc* button at the end of the field searches anywhere in the
-    name, and the filter chips shrink to their icons. The clear (✕) button in the field,
+    auto-assign labels (*Auto-assign*). Tap the *Search* chip to find a label by any
+    part of its name: the chip turns into a search field with the keyboard up. While
+    you search, the filter chips shrink to their icons. The clear (✕) button in the field,
     Back or the Esc key empties the search and closes the field; the next Back closes the
     sheet. A label you have ticked
     stays listed whatever you search.

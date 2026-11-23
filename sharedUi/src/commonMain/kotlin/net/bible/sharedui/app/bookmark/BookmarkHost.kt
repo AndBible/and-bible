@@ -1618,7 +1618,6 @@ class BookmarkHost(
         }
         val rows by controller.rows.collectAsState()
         val searchText by controller.searchText.collectAsState()
-        val searchMode by controller.searchMode.collectAsState()
         val styleTagsVisible by controller.styleTagsVisible.collectAsState()
         val filters by controller.filters.collectAsState()
         if (sheet.phase != LabelAssignSheetSession.Phase.OPEN) return
@@ -1628,12 +1627,10 @@ class BookmarkHost(
                 rows = rows,
                 styleTagsVisible = styleTagsVisible,
                 searchText = searchText,
-                searchMode = searchMode,
                 filters = filters,
             ),
             actions = LabelAssignSheetActions(
-                onSearch = controller::setSearch,
-                onSetSearchMode = controller::setSearchMode,
+                onSearch = controller::setNameSearch,
                 onToggleFilter = controller::toggleFilter,
                 onToggleChecked = controller::toggleChecked,
                 onToggleFavourite = controller::toggleFavourite,
