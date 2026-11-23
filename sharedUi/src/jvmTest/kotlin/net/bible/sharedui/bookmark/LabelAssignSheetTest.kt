@@ -26,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
@@ -47,6 +48,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -117,7 +119,8 @@ class LabelAssignSheetTest {
     private var newLabel = 0
     private val editedLabels = mutableListOf<String>()
 
-    private fun ComposeUiTest.show(controller: ManageLabelsController) {
+    /** [onSearch] replaces the controller's own search (a test holding the controller's echo, #4216). */
+    private fun ComposeUiTest.show(controller: ManageLabelsController, onSearch: ((String) -> Unit)? = null) {
         setContent {
             val rows by controller.rows.collectAsState()
             val searchText by controller.searchText.collectAsState()
@@ -131,7 +134,7 @@ class LabelAssignSheetTest {
                                 searchText = searchText, filters = filters,
                             ),
                             actions = LabelAssignSheetActions(
-                                onSearch = controller::setNameSearch,
+                                onSearch = onSearch ?: controller::setNameSearch,
                                 onToggleFilter = controller::toggleFilter,
                                 onToggleChecked = controller::toggleChecked,
                                 onToggleFavourite = controller::toggleFavourite,
@@ -312,6 +315,46 @@ class LabelAssignSheetTest {
         assertEquals("", controller.searchText.value)
         onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).assertExists()
         onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).assertDoesNotExist()
+    }
+
+    /**
+     * #4216: the controller's search text reaches the field a dispatch after the keystroke. Typing "s", a
+     * recomposition while that echo is still held (the old field redrew the stale "" and clipped the cursor to 0), the
+     * echo, then "e": the field must read "se" with the cursor at its end, not "es".
+     */
+    @Test fun theFieldKeepsTextAndCursorWhileTheControllerEchoIsDelayed() = runComposeUiTest {
+        val controller = controller()
+        val held = ArrayDeque<String>()
+        show(controller, onSearch = { held.addLast(it) })
+        fun deliver() = runOnIdle { while (held.isNotEmpty()) controller.setNameSearch(held.removeFirst()) }
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        waitForIdle()
+        val field = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG)
+        for (key in listOf("s", "e", "r")) {
+            field.performTextInput(key)
+            waitForIdle() // a recomposition while the echo is in flight
+            deliver()
+            waitForIdle()
+        }
+        val config = field.fetchSemanticsNode().config
+        assertEquals("ser", config[SemanticsProperties.EditableText].text)
+        assertEquals(TextRange(3), config[SemanticsProperties.TextSelectionRange], "the cursor left the end of the text")
+        assertEquals("ser", controller.searchText.value)
+        assertEquals(setOf("Sermon notes", "Sermon ideas"), names(controller))
+    }
+
+    /** #4216: a genuine outside write (not an echo of the field's own edit) still replaces the text, cursor at its end. */
+    @Test fun anOutsideWriteReplacesTheTypedText() = runComposeUiTest {
+        val controller = controller()
+        show(controller)
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_CHIP_TAG).performClick()
+        onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).performTextInput("ser")
+        waitForIdle()
+        runOnIdle { controller.setNameSearch("pro") }
+        waitForIdle()
+        val config = onNodeWithTag(LABEL_ASSIGN_SEARCH_TAG).fetchSemanticsNode().config
+        assertEquals("pro", config[SemanticsProperties.EditableText].text)
+        assertEquals(TextRange(3), config[SemanticsProperties.TextSelectionRange])
     }
 
     private var dismissed = 0

@@ -81,6 +81,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -95,6 +97,7 @@ import net.bible.sharedui.components.AbQuickSheetContent
 import net.bible.sharedui.components.LocalAbSheetAnimatedClose
 import net.bible.sharedui.components.abFilterChipBorder
 import net.bible.sharedui.components.abFilterChipColors
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.isPureMonochrome
 
@@ -350,6 +353,12 @@ fun LabelAssignSheetContent(
  * the sheet does not grow when it opens; it grows with the text at a large font scale) with a clear icon at its end
  * (48dp touch box, #4215). Clear empties the text and collapses back to the chip; Escape and Back do the same through
  * [LabelAssignSheetContent]'s handlers. Nothing animates.
+ *
+ * The field owns its text and selection (#4216): the controller's search text reaches this composable a dispatch after
+ * the keystroke (`collectAsState`), and a field displaying that echo was redrawn with stale text in between. On an
+ * iPhone, typing fast, the stale text clipped the cursor back and the echo then left it there, so it walked towards the
+ * start of the word. The typed [TextFieldValue] is shown at once and every edit still goes to the controller; its echo
+ * is ignored, and only a genuine outside write (a value this field never sent) replaces the text, cursor at its end.
  */
 @Composable
 private fun SearchField(
@@ -369,6 +378,11 @@ private fun SearchField(
         }
     }
     val ink = MaterialTheme.colorScheme.onSurface
+    val text = rememberControllerText(state.searchText)
+    var typed by remember { mutableStateOf(TextFieldValue(text.text, TextRange(text.text.length))) }
+    // An outside write replaced the text: show it with the cursor at its end. Otherwise the typed value (selection and
+    // composition included) is what the field shows.
+    val shown = if (typed.text == text.text) typed else TextFieldValue(text.text, TextRange(text.text.length))
     // The row is the 48dp touch height; the border is drawn 8dp inside it top and bottom (32dp at the default font).
     // The text keeps 2dp more than that, so a taller text (large font scale) grows the row and the border with it
     // without touching the outline.
@@ -380,7 +394,7 @@ private fun SearchField(
         ) {
             Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp), tint = ink)
             Box(Modifier.weight(1f).padding(horizontal = 6.dp, vertical = 10.dp), contentAlignment = Alignment.CenterStart) {
-                if (state.searchText.isEmpty()) {
+                if (shown.text.isEmpty()) {
                     // Visual only: the field itself is named by its contentDescription below (no double announcement).
                     Text(
                         strings.labelsSearchHint, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -389,8 +403,11 @@ private fun SearchField(
                     )
                 }
                 BasicTextField(
-                    value = state.searchText,
-                    onValueChange = actions.onSearch,
+                    value = shown,
+                    onValueChange = { value ->
+                        typed = value
+                        if (value.text != text.text) text.edit(value.text, actions.onSearch)
+                    },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.labelLarge.copy(color = ink),
                     cursorBrush = SolidColor(ink),
