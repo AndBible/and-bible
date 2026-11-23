@@ -376,5 +376,11 @@ class SyncSettingsController(
         if (cancellingDocuments) documentConfirmation?.complete(false)
     }
     private fun setLoading(v: Boolean) { _state.value = _state.value.copy(loading = v) }
-    private fun setDialog(d: SyncDialog) { _state.value = _state.value.copy(dialog = d) }
+    private fun setDialog(d: SyncDialog) {
+        // A dialog replacing the document transfer preview must not leave Apply waiting for it forever.
+        if (_state.value.dialog is SyncDialog.EnableDocuments && d !is SyncDialog.EnableDocuments) {
+            documentConfirmation?.complete(false)
+        }
+        _state.value = _state.value.copy(dialog = d)
+    }
 }
