@@ -340,7 +340,9 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             arrayListOf()
         }
 
-        val (markup, headings) = stories.partition { it.trimStart().startsWith("<") }
+        val (markup, headings) = stories.partition {
+            leadingCrossReferencesRe.replace(it, "").trimStart().startsWith("<")
+        }
         val titles = headings.joinToString("") {
             "<title canonical=\"false\" subType=\"x-preverse\">$it</title>"
         }
@@ -399,24 +401,42 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     }
 
     /** MyBible's x tag contains numeric book IDs, not displayable reference labels. */
-    private fun transformCrossReferences(text: String): String = crossReferenceRe.replace(text) { crossReference ->
-        crossReference.groupValues[1].split(';').joinToString("; ") { part ->
-            val location = part.trim()
-            val match = crossReferenceLocationRe.matchEntire(location)
-            val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))!!
-            val book = match?.groupValues?.get(1)?.toIntOrNull()?.let { myBibleBook(it, v11n) }
-            if (book == null) {
-                location
-            } else {
-                try {
-                    val key = PassageKeyFactory.instance().getKey(v11n, "${book.osis} ${match.groupValues[2]}")
-                    if (key.getOsisRef().isEmpty()) location
-                    else "<reference osisRef=\"${key.getOsisRef()}\">${XMLUtil.escape(key.getName())}</reference>"
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (_: Exception) {
-                    // A bad reference must not prevent the rest of the verse from being read.
+    private fun transformCrossReferences(text: String): String {
+        if (!crossReferenceRe.containsMatchIn(text)) return text
+        val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))
+            ?: return text
+        return crossReferenceRe.replace(text) { crossReference ->
+            var previousBookNumber: Int? = null
+            crossReference.groupValues[1].split(';').joinToString("; ") { part ->
+                val location = part.trim()
+                val match = crossReferenceLocationRe.matchEntire(location)
+                val explicitBook = if (match != null) {
+                    match.groupValues[1].takeIf { it.isNotEmpty() }
+                } else {
+                    crossReferenceBookRe.find(location)?.groupValues?.get(1)
+                }
+                // Even a malformed passage or unknown ID must replace the preceding book context.
+                if (explicitBook != null) previousBookNumber = explicitBook.toIntOrNull()
+                val book = previousBookNumber?.let { myBibleBook(it, v11n) }
+                if (match == null || book == null) {
                     location
+                } else {
+                    try {
+                        val passage = match.groupValues[2]
+                        if (!v11n.containsBook(book)) {
+                            v11n.getLongName(book).takeIf { it.isNotBlank() }
+                                ?.let { XMLUtil.escape("$it $passage") } ?: location
+                        } else {
+                            val key = PassageKeyFactory.instance().getKey(v11n, "${book.osis} $passage")
+                            if (key.getOsisRef().isEmpty()) location
+                            else "<reference osisRef=\"${key.getOsisRef()}\">${XMLUtil.escape(key.getName())}</reference>"
+                        }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        // A bad reference must not prevent the rest of the verse from being read.
+                        location
+                    }
                 }
             }
         }
@@ -445,7 +465,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             ?.let { it.groups[2]?.value ?: it.groups[3]?.value ?: it.groups[4]?.value }
             ?: return anchor.value
         val link = bibleLinkRe.matchEntire(href) ?: return anchor.value
-        val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))!!
+        val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))
+            ?: return anchor.value
         val book = link.groupValues[1].toIntOrNull()?.let { myBibleBook(it, v11n) } ?: return anchor.value
         val osisRef = try {
             PassageKeyFactory.instance().getKey(v11n, "${book.osis} ${link.groupValues[2]}").getOsisRef()
@@ -474,7 +495,9 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
 private val leadingParagraphRe = Regex("""^\s*(?:<pb\s*/>\s*)+""", RegexOption.IGNORE_CASE)
 private val crossReferenceRe = Regex("""<x\s*>(.*?)</x\s*>""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
-private val crossReferenceLocationRe = Regex("""(\d+)\s+(\d[\d:,\s-]*)""")
+private val leadingCrossReferencesRe = Regex("""^\s*(?:<x\s*>.*?</x\s*>\s*)+""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+private val crossReferenceBookRe = Regex("""^(\d+)\s+""")
+private val crossReferenceLocationRe = Regex("""(?:(\d+)\s+)?(\d[\d:,\s-]*)""")
 
 // Match whole anchors and tokenize attributes so quoted text or data-href cannot masquerade as href.
 private val anchorRe = Regex("""<a\b((?:[^>"']|"[^"]*"|'[^']*')*)>(.*?)</a\s*>""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
