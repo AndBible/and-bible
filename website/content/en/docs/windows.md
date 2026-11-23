@@ -125,7 +125,7 @@ In the `Text options` submenu, `Copy settings to` copies this window's text disp
 
 These toggles in the ⋮ menu affect all windows of the workspace:
 
-- `Reversed split mode`: normally windows are side by side in landscape and stacked in portrait; this flips that. Shown only while more than one window is open.
+- `Reversed split mode`: normally windows are side by side in landscape and stacked in portrait; this flips that. The split follows device rotation automatically in either mode, without toggling the setting. Opening the keyboard does not change the split direction. Shown only while more than one window is open.
 - `Tilt to scroll`: scrolls the text by tilting the device. Shown only on devices that have a motion sensor, so not on desktop.
 - `Window pinning`: see above.
 - `Workspaces` opens the [workspace selector](workspaces.md), and `Label settings` opens the [label settings](labels.md) for the workspace.
