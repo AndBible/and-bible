@@ -121,9 +121,8 @@ In the `Text options` submenu, `Copy settings to` copies this window's text disp
 
 `Synchronise` in the window menu is a submenu with `Group 1` to `Group 6` and, once the window is in a group, `Disable synchronize`. Windows in the same group always show the same verse. A window can be in one group at a time.
 
-Synchronised scrolling follows the Bible text, not raised footnote or cross-reference
-markers. A marker from the preceding verse should not move the windows back to
-that verse, including when you use a large line spacing.
+Synchronised scrolling follows the Bible text, not the raised footnote, cross-reference or bookmark
+markers, so a marker at the end of the previous verse does not pull the windows back to it.
 
 ### Other options in the three-dot menu
 
