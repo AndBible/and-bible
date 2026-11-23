@@ -4,6 +4,25 @@
     <!-- Override only jpackage's UI fragment, not its version-dependent product/file templates.
          JDK 17 main.wxs sets JP_UPGRADABLE_FOUND in FindRelatedProducts before the UI. -->
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <!-- Legacy jpackage installs record ARPINSTALLLOCATION in the uninstall key.
+         FindRelatedProducts (25) precedes AppSearch (50), so its product code is available. -->
+    <Property Id="ANDBIBLE_PREVIOUS_DIR" Secure="yes">
+      <RegistrySearch Id="AndBibleLegacyUserDir" Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[JP_UPGRADABLE_FOUND]" Name="InstallLocation" Type="raw" Win64="yes" />
+      <RegistrySearch Id="AndBibleLegacyMachineDir" Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[JP_UPGRADABLE_FOUND]" Name="InstallLocation" Type="raw" Win64="yes" />
+    </Property>
+    <Property Id="ANDBIBLE_REMEMBERED_DIR" Secure="yes">
+      <RegistrySearch Id="AndBibleRememberedDir" Root="HKCU" Key="Software\AndBible\Installer" Name="InstallDir" Type="raw" Win64="yes" />
+    </Property>
+    <SetProperty Id="ANDBIBLE_PREVIOUS_DIR" Value="[ANDBIBLE_REMEMBERED_DIR]" After="AppSearch" Sequence="both">NOT Installed AND JP_UPGRADABLE_FOUND AND NOT ANDBIBLE_PREVIOUS_DIR AND ANDBIBLE_REMEMBERED_DIR</SetProperty>
+    <SetProperty Id="INSTALLDIR" Value="[ANDBIBLE_PREVIOUS_DIR]" After="SetANDBIBLE_PREVIOUS_DIR" Sequence="both">NOT Installed AND JP_UPGRADABLE_FOUND AND ANDBIBLE_PREVIOUS_DIR</SetProperty>
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="AndBibleRememberInstallDir" Guid="*" Win64="yes">
+        <RegistryValue Root="HKCU" Key="Software\AndBible\Installer" Name="InstallDir" Type="string" Value="[INSTALLDIR]" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <FeatureRef Id="DefaultFeature">
+      <ComponentRef Id="AndBibleRememberInstallDir" />
+    </FeatureRef>
     <WixVariable Id="WixUILicenseRtf" Value="$(var.JpLicenseRtf)" />
     <UI Id="JpUI">
       <UIRef Id="WixUI_InstallDir" />
@@ -24,8 +43,8 @@
         </Control>
       </Dialog>
       <InstallUISequence>
-        <Show Dialog="WelcomeDlg" Before="AndBibleUpdateDlg">(NOT Installed AND NOT JP_UPGRADABLE_FOUND) OR PATCH</Show>
-        <Show Dialog="AndBibleUpdateDlg" Before="ProgressDlg">NOT Installed AND JP_UPGRADABLE_FOUND AND NOT PATCH</Show>
+        <Show Dialog="WelcomeDlg" Before="AndBibleUpdateDlg">(NOT Installed AND (NOT JP_UPGRADABLE_FOUND OR NOT ANDBIBLE_PREVIOUS_DIR)) OR PATCH</Show>
+        <Show Dialog="AndBibleUpdateDlg" Before="ProgressDlg">NOT Installed AND JP_UPGRADABLE_FOUND AND ANDBIBLE_PREVIOUS_DIR AND NOT PATCH</Show>
       </InstallUISequence>
     </UI>
   </Fragment>

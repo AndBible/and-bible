@@ -17,6 +17,22 @@ function Assert([bool]$Condition, [string]$Message) {
 }
 # Evaluate the compiled MSI conditions, not a second implementation of the UI routing.
 $session = $installer.OpenPackage((Resolve-Path $Msi).Path, 1)
+$upgrades = @(Rows 'SELECT `ActionProperty`, `VersionMax` FROM `Upgrade`')
+Assert (@($upgrades | Where-Object { $_.Fields[0] -eq 'JP_UPGRADABLE_FOUND' -and $_.Fields[1] -eq $session.Property('ProductVersion') }).Count -eq 1) 'The UI must use the actual jpackage upgrade-detection property'
+# Exercise AppSearch against a legacy custom-location install without installing a fixture MSI.
+$legacyCode = '{' + [guid]::NewGuid().ToString().ToUpperInvariant() + '}'
+$legacyKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\' + $legacyCode
+try {
+    $null = New-Item -Force $legacyKey
+    $null = New-ItemProperty $legacyKey -Name InstallLocation -Value 'C:\Custom AndBible\' -PropertyType String
+    $session.Property('JP_UPGRADABLE_FOUND') = $legacyCode
+    Assert ($session.DoAction('AppSearch') -eq 1) 'Legacy installation location search must succeed'
+    Assert ($session.Property('ANDBIBLE_PREVIOUS_DIR') -eq 'C:\Custom AndBible\') 'AppSearch must recover the legacy custom installation location'
+    Assert ($session.DoAction('SetINSTALLDIR') -eq 1) 'Remembered location must be applied before costing'
+    Assert ($session.Property('INSTALLDIR') -eq 'C:\Custom AndBible\') 'Update must keep the old custom folder'
+} finally {
+    Remove-Item -Force $legacyKey -ErrorAction SilentlyContinue
+}
 $shows = @(Rows 'SELECT `Action`, `Condition` FROM `InstallUISequence`')
 function Shown([string]$Dialog) {
     $row = @($shows | Where-Object { $_.Fields[0] -eq $Dialog })
@@ -25,12 +41,20 @@ function Shown([string]$Dialog) {
 $session.Property('Installed') = ''
 $session.Property('PATCH') = ''
 $session.Property('JP_UPGRADABLE_FOUND') = '{11111111-1111-1111-1111-111111111111}'
+$session.Property('ANDBIBLE_PREVIOUS_DIR') = 'C:\Custom AndBible\'
 Assert (Shown 'AndBibleUpdateDlg') 'An upgrade must start at the one-click update dialog'
 Assert (-not (Shown 'WelcomeDlg')) 'An upgrade must not start the first-install wizard'
+$session.Property('ANDBIBLE_PREVIOUS_DIR') = ''
+Assert (Shown 'WelcomeDlg') 'An upgrade with an unknown location must fall back to the folder wizard'
+Assert (-not (Shown 'AndBibleUpdateDlg')) 'An unknown old location must never silently move the installation'
 $session.Property('JP_UPGRADABLE_FOUND') = ''
 Assert (Shown 'WelcomeDlg') 'A first install must retain the standard welcome wizard'
 Assert (-not (Shown 'AndBibleUpdateDlg')) 'A first install must not show the upgrade dialog'
+$session.Property('JP_DOWNGRADABLE_FOUND') = '{22222222-2222-2222-2222-222222222222}'
+Assert (-not (Shown 'AndBibleUpdateDlg')) 'A newer installed version must not be described as an upgrade'
+$session.Property('JP_DOWNGRADABLE_FOUND') = ''
 $session.Property('Installed') = '1'
+$session.Property('JP_UPGRADABLE_FOUND') = '{11111111-1111-1111-1111-111111111111}'
 Assert (-not (Shown 'AndBibleUpdateDlg')) 'Maintenance must not be treated as a major upgrade'
 $controls = @(Rows 'SELECT `Control`, `Type`, `Text` FROM `Control` WHERE `Dialog_` = ''AndBibleUpdateDlg''')
 $buttons = @($controls | Where-Object { $_.Fields[1] -eq 'PushButton' })
