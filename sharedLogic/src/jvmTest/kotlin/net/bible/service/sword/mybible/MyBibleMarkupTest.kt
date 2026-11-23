@@ -72,6 +72,60 @@ class MyBibleMarkupTest {
         assertEquals("Gen.1.31-Gen.2.1", elements(verse).single { it.name == "reference" }.getAttributeValue("osisRef"))
     }
 
+    @Test
+    fun continuationReferencesInheritTheMostRecentBookWithinEachCrossReference() = withBible { book ->
+        val fragment = BookData(book, book.getKey("Matt.3.4")).osisFragment
+        assertEquals(listOf("Mark.1.2", "Mark.3.4", "Luke.2.1", "Luke.4.2"),
+            elements(fragment).filter { it.name == "reference" }.map { it.getAttributeValue("osisRef") })
+        assertTrue(fragment.value.contains("1:1"), "A new x tag must not inherit the previous tag's book")
+        assertTrue(fragment.value.contains("99999 1:1; 2:2"), "Unknown books must not inherit a known book")
+    }
+
+    @Test
+    fun missingVersificationLeavesCrossReferenceMarkupUnchanged() = withBible { book ->
+        val key = book.getKey("Matt.3.4")
+        book.bookMetaData.setProperty("Versification", "MissingMyBibleVersification")
+        assertEquals("<x>480 1:2; 3:4; 490 2:1; 4:2; 99999 1:1; 2:2</x><x>1:1</x>Continuations.",
+            book.getRawText(key))
+    }
+
+    @Test
+    fun missingVersificationLeavesBibleAnchorsUnchanged() = withBible { book ->
+        val key = book.getKey("Matt.3.5")
+        book.bookMetaData.setProperty("Versification", "MissingMyBibleVersification")
+        assertEquals("<a href=\"B:480 1:2\">Mark</a> Still readable.", book.getRawText(key))
+    }
+
+    @Test
+    fun booksOutsideTheVersificationHaveReadableNamesWithoutLinks() = withBible { book ->
+        book.bookMetaData.setProperty("Versification", "KJV")
+        val fragment = BookData(book, book.getKey("Matt.3.6")).osisFragment
+        assertEquals(emptyList(), elements(fragment).filter { it.name == "reference" })
+        assertTrue(fragment.value.contains("Tobit 1:1; Tobit 2:2"), fragment.value)
+        assertTrue(fragment.value.contains("99999 1:1"), "Unmapped books must remain readable")
+    }
+
+    @Test
+    fun storiesStartingWithCrossReferencesRemainPreverseHeadings() = withBible { book ->
+        val fragment = BookData(book, book.getKey("Matt.3.7")).osisFragment
+        val title = elements(fragment).single { it.name == "title" && it.getAttributeValue("subType") == "x-preverse" }
+        assertTrue(title.value.endsWith("The preaching"))
+        assertEquals(listOf("Mark.1.2", "Luke.3.4"),
+            elements(title).filter { it.name == "reference" }.map { it.getAttributeValue("osisRef") })
+        val verse = elements(fragment).single { it.name == "verse" }
+        assertEquals("Verse text.", verse.value)
+        assertTrue(verse.parentElement!!.content.indexOf(title) < verse.parentElement!!.content.indexOf(verse))
+    }
+
+    @Test
+    fun leadingCrossReferencesDoNotTurnStructuralStoriesIntoHeadings() = withBible { book ->
+        val fragment = BookData(book, book.getKey("Matt.3.8")).osisFragment
+        assertFalse(elements(fragment).any { it.name == "title" && it.getAttributeValue("canonical") == "false" })
+        val verse = elements(fragment).single { it.name == "verse" }
+        assertTrue(elements(verse).any { it.name == "pb" })
+        assertTrue(verse.value.contains("Formatted heading"))
+    }
+
     private fun elements(root: Element): List<Element> =
         (root.descendants as Iterable<*>).filterIsInstance<Element>()
 
@@ -102,6 +156,13 @@ class MyBibleMarkupTest {
                 db.exec("INSERT INTO stories VALUES (470, 3, 1, '(<x>480 1:2-8; 490 3:1-18; 500 1:19-28</x>) The preaching')")
                 db.exec("INSERT INTO verses VALUES (470, 3, 3, '<x>99999 1:1; not a reference; 10 999999999999999999:1; 10 1:31-2:1</x>Still readable.')")
                 db.exec("INSERT INTO stories VALUES (470, 3, 3, '<pb/><i>Formatted heading</i>')")
+                db.exec("INSERT INTO verses VALUES (470, 3, 4, '<x>480 1:2; 3:4; 490 2:1; 4:2; 99999 1:1; 2:2</x><x>1:1</x>Continuations.')")
+                db.exec("INSERT INTO verses VALUES (470, 3, 5, '<a href=\"B:480 1:2\">Mark</a> Still readable.')")
+                db.exec("INSERT INTO verses VALUES (470, 3, 6, '<x>170 1:1; 2:2; 99999 1:1</x>Unsupported books.')")
+                db.exec("INSERT INTO verses VALUES (470, 3, 7, 'Verse text.')")
+                db.exec("INSERT INTO stories VALUES (470, 3, 7, ' <x>480 1:2</x> <x>490 3:4</x> The preaching')")
+                db.exec("INSERT INTO verses VALUES (470, 3, 8, 'Verse text.')")
+                db.exec("INSERT INTO stories VALUES (470, 3, 8, '<x>480 1:2</x> <pb/><i>Formatted heading</i>')")
             }
             state = SqliteVerseBackendState(file.path.toPath())
             book = SwordBook(state.getBookMetaData(), SqliteBackend(state, state.getBookMetaData()))
