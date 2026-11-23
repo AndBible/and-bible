@@ -25,14 +25,14 @@ class AppWideSheetChromeGoldenTest {
         }
     }
 
-    @Test fun labelIdentity() = captureMatrix("AppWideSheetChrome", "labelIdentity", heightDp = 500) {
+    @Test fun labelIdentity() = captureMatrix("AppWideSheetChrome", "labelIdentity", heightDp = 560) {
         SheetSurface {
             LabelIdentitySheetContent("Study", true, 0xff808080.toInt(), null, emptyList(), false,
                 {}, {}, {}, onClose = {}, iconSlot = { _, _ -> })
         }
     }
 
-    @Test fun labelIdentityRtl() = captureRtl("AppWideSheetChrome", "labelIdentity", heightDp = 500) {
+    @Test fun labelIdentityRtl() = captureRtl("AppWideSheetChrome", "labelIdentity", heightDp = 560) {
         SheetSurface {
             LabelIdentitySheetContent("Study", true, 0xff808080.toInt(), null, emptyList(), false,
                 {}, {}, {}, onClose = {}, iconSlot = { _, _ -> })

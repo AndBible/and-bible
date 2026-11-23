@@ -22,14 +22,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +48,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.components.AbColorPickerDialog
-import net.bible.sharedui.components.AbSheetCloseButton
+import net.bible.sharedui.components.AbSheetHeader
+import net.bible.sharedui.components.SheetScrollBody
 import net.bible.sharedui.components.ColorPickerPresetsPage
 import net.bible.sharedui.strings.LocalStrings
 
@@ -93,26 +91,23 @@ fun LabelIdentitySheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
-        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp)) {
-            LabelIdentitySheetContent(
-                name = name,
-                nameEditable = nameEditable,
-                colorArgb = colorArgb,
-                customIcon = customIcon,
-                iconKeys = iconKeys,
-                iconVisible = iconVisible,
-                onName = onName,
-                onColor = onColor,
-                onCustomIcon = onCustomIcon,
-                onClose = onDismiss,
-                iconSlot = iconSlot,
-            )
-        }
+        LabelIdentitySheetContent(
+            name = name,
+            nameEditable = nameEditable,
+            colorArgb = colorArgb,
+            customIcon = customIcon,
+            iconKeys = iconKeys,
+            iconVisible = iconVisible,
+            onName = onName,
+            onColor = onColor,
+            onCustomIcon = onCustomIcon,
+            onClose = onDismiss,
+            iconSlot = iconSlot,
+        )
     }
 }
 
-/** The controls themselves, with no sheet chrome of its own — see [LabelIdentitySheet]'s doc for
- *  why this is a separate composable. */
+/** Header and scrolling controls without a modal window, so tests can capture the content directly. */
 @Composable
 fun LabelIdentitySheetContent(
     name: String,
@@ -132,57 +127,57 @@ fun LabelIdentitySheetContent(
     var customPickerOpen by remember { mutableStateOf(false) }
     val nameText = rememberControllerText(name)
 
-    Column(modifier) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    Column(modifier.fillMaxWidth()) {
+        AbSheetHeader(title = strings.editLabelTitle, onClose = onClose)
+        SheetScrollBody(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
             OutlinedTextField(
                 value = nameText.text,
                 onValueChange = { nameText.edit(it, onName) },
                 enabled = nameEditable,
                 singleLine = true,
                 label = { Text(strings.labelNameHint) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
             )
-            AbSheetCloseButton(onClose)
-        }
 
-        Text(
-            strings.colorPickerTitle,
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
-        )
-        ColorPickerPresetsPage(initialColor = colorArgb, color = colorArgb, onColorChange = onColor)
-        TextButton(onClick = { customPickerOpen = true }) { Text(strings.colorPickerCustom) }
-
-        if (iconVisible) {
             Text(
-                strings.selectCustomIconLabel,
+                strings.colorPickerTitle,
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
             )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                iconKeys.forEach { key ->
-                    val chosen = key == customIcon
-                    Box(
-                        Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (chosen) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                            )
-                            .selectable(
-                                selected = chosen,
-                                onClick = { onCustomIcon(key) },
-                                role = Role.RadioButton,
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        // Cells go through the HOST's slot, so every glyph is tinted by the host's
-                        // AndroidLabelIcon. That is the fix for the two icons whose vector fillColor
-                        // is darker_gray rather than black: no drawable's own fill colour is read.
-                        iconSlot(key, LocalContentColor.current)
+            ColorPickerPresetsPage(initialColor = colorArgb, color = colorArgb, onColorChange = onColor)
+            TextButton(onClick = { customPickerOpen = true }) { Text(strings.colorPickerCustom) }
+
+            if (iconVisible) {
+                Text(
+                    strings.selectCustomIconLabel,
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    iconKeys.forEach { key ->
+                        val chosen = key == customIcon
+                        Box(
+                            Modifier
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (chosen) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                                )
+                                .selectable(
+                                    selected = chosen,
+                                    onClick = { onCustomIcon(key) },
+                                    role = Role.RadioButton,
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            // Cells go through the HOST's slot, so every glyph is tinted by the host's
+                            // AndroidLabelIcon. That is the fix for the two icons whose vector fillColor
+                            // is darker_gray rather than black: no drawable's own fill colour is read.
+                            iconSlot(key, LocalContentColor.current)
+                        }
                     }
                 }
             }
