@@ -2,7 +2,9 @@ package net.bible.android.view.compose.golden
 
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.android.TEST_SDK
@@ -91,27 +93,33 @@ class SyncSettingsGoldenTest {
         httpsOnly = true, certificateVisible = true, certificateSummary = "AB:CD:EF:01:23:45:67:89…",
     )
 
-    private fun uiStateFor(snapshot: SyncSettingsSnapshot): SyncSettingsUiState =
-        SyncSettingsController(
-            service = FakeService(snapshot),
-            scope = CoroutineScope(Job()),
-            labels = SyncSettingsLabels.forTest(),
-            onOpenCloudDocuments = {},
-        ).state.value
+    private fun uiStateFor(
+        snapshot: SyncSettingsSnapshot,
+        configure: (SyncSettingsController) -> Unit = {},
+    ): SyncSettingsUiState {
+        // Consume the initial snapshot before editing pending switches, all on the fixture's thread.
+        // Default's collector raced onSwitch and could overwrite one pending row before the first capture.
+        val scope = CoroutineScope(Job() + Dispatchers.Unconfined)
+        return try {
+            SyncSettingsController(
+                service = FakeService(snapshot),
+                scope = scope,
+                labels = SyncSettingsLabels.forTest(),
+                onOpenCloudDocuments = {},
+            ).also(configure).state.value
+        } finally {
+            // Captures only need the frozen value, not a live controller collecting forever.
+            scope.cancel()
+        }
+    }
 
     /** Signed in, two category switches flipped and not applied yet: pending rows and the Apply bar. */
-    private fun pendingState(includeDocuments: Boolean = false): SyncSettingsUiState {
-        val controller = SyncSettingsController(
-            service = FakeService(snap(signedIn = true)),
-            scope = CoroutineScope(Job()),
-            labels = SyncSettingsLabels.forTest(),
-            onOpenCloudDocuments = {},
-        )
-        controller.onSwitch("sync_enable_bookmarks", false)
-        controller.onSwitch("sync_enable_workspaces", false)
-        if (includeDocuments) controller.onSwitch("sync_enable_documents", true)
-        return controller.state.value
-    }
+    private fun pendingState(includeDocuments: Boolean = false): SyncSettingsUiState =
+        uiStateFor(snap(signedIn = true)) { controller ->
+            controller.onSwitch("sync_enable_bookmarks", false)
+            controller.onSwitch("sync_enable_workspaces", false)
+            if (includeDocuments) controller.onSwitch("sync_enable_documents", true)
+        }
 
     private fun screen(uiState: SyncSettingsUiState): @Composable () -> Unit = {
         SyncSettingsScreen(
@@ -126,6 +134,17 @@ class SyncSettingsGoldenTest {
             onConfirmForgetCertificate = {},
             onDismissDialog = {},
         )
+    }
+
+    @Test fun pendingDocumentFixtureKeepsAllSwitchesPending() {
+        repeat(500) {
+            val state = pendingState(includeDocuments = true)
+            val documents = state.screen.items.single { it.key == "sync_enable_documents" }
+                as net.bible.sharedcore.settings.SettingsItem.SwitchRow
+            org.junit.Assert.assertEquals("Will be turned on", documents.summary)
+            org.junit.Assert.assertTrue(documents.checked)
+            org.junit.Assert.assertEquals(3, state.pending.size)
+        }
     }
 
     // heightDp=2400: the full sync list is longer than the default viewport.
