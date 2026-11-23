@@ -138,6 +138,11 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
   managed inbox monitor (`jailbee inbox follow`), which survives messages and restarts. Do not tell a child to
   re-arm a waiter or start one: a second waiter next to the monitor is wrong. Only a headless or non-Claude child
   uses the fallback `jailbee inbox wait`. A child that does not answer: check `jailbee inbox status` first.
+- **Mark every handled inbox item read** (`jailbee inbox read <id>`; success statuses in bulk with
+  `jailbee inbox read --ok-statuses`). A monitor event or `inbox ls` does not mark anything read, and the
+  orchestrator's own `inbox follow` re-announces every unread item when it starts: after a Claude restart, stale
+  questions and notes come back as if new. Why: 2026-11-22, two day-old messages (already handled, children
+  merged) re-surfaced after a restart.
 - **A hung child:** first try `restart --agent-only --resume last` (keeps its slot, no queue). Only when the
   broker refuses (non-waiter background processes) `stop` and do an ordinary `restart`; that queues for a slot.
 - **Every restart prompt after a `stop` (or any container restart) says so explicitly:** "The container was
