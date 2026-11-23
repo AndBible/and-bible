@@ -125,6 +125,37 @@ describe("useVerseNotifier", () => {
         },
     );
 
+    it.each([
+        ["ltr", false], ["rtl", false], ["ltr", true], ["rtl", true],
+    ])("continues along the same line after a note handle (direction %s, multi-reference %s)",
+        (direction, multiReference) => {
+            const {currentVerse, updateCurrentVerse} = mountNotifier();
+            const previous = makeOrdinalElement(8, "1Sam.15");
+            previous.innerHTML = `<span class="skip-offset"><span class="noteHandle isCrossReference">a</span></span>`;
+            const target = makeOrdinalElement(9, "1Sam.15");
+            target.style.direction = direction;
+            if (multiReference) {
+                target.classList.remove("ordinal");
+                target.dataset.ordinal = "7000"; // source ordinal differs from the local scroll ordinal
+                target.dataset.scrollOrdinal = "9";
+            }
+            const handle = previous.querySelector(".noteHandle");
+            // Establish the document's direction before checking a single-line sample.
+            previous.style.direction = direction;
+            document.elementFromPoint = vi.fn(() => previous);
+            updateCurrentVerse();
+            expect(currentVerse.value).toBe(8);
+            document.elementFromPoint = vi.fn((x, y) => {
+                if (y >= 6) return null; // only this line contains text
+                return x > window.innerWidth - 30 || x < 30 ? handle : target;
+            });
+
+            scrollTo(200);
+
+            expect(currentVerse.value).toBe(9);
+        },
+    );
+
     it("does not advance the verse when scrolling up hits a superscript bleeding into the line above (#3865)", () => {
         setScrollY(200);
         const {currentVerse, currentKey} = mountNotifier();
