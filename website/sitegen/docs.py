@@ -63,6 +63,8 @@ def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
     for page in pages:
         source = resolve(content, lang, f"docs/{page}")
         text, embedded = expand_lines(channel.apply(source.read_text(encoding="utf-8"), release, str(source)))
+        if not tutorials.episodes:
+            text = text.replace("](/tutorials/)", "](/videos/)")
         stem = Path(page).with_suffix("").as_posix()
         episodes = tutorials.by_docs().get(stem, [])
         shown = {*embedded, *(e.youtube for e in episodes if e.youtube)}
@@ -129,7 +131,8 @@ def site_extra(site: dict[str, Any], lang: str) -> dict[str, Any]:
     }
 
 
-def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site: dict[str, Any]) -> str:
+def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site: dict[str, Any],
+                     tutorials: Series = Series(None, ())) -> str:
     # Zensical 0.0.67 panics on absolute docs_dir/site_dir and rejects a site_dir outside
     # the config's directory, so both are written relative to <config dir>.
     config_dir = paths.BUILD / lang
@@ -142,6 +145,21 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site
     docs_css = hashlib.sha256((paths.THEME / "assets" / "andbible-docs.css").read_bytes()).hexdigest()[:8]
     asset_extra = {"embeds_css": hashes["css/embeds.css"], "lite_yt_js": hashes["js/lite-yt.js"],
                    "analytics_js": hashes["js/analytics.js"], "docs_css": docs_css}
+    if not tutorials.episodes:
+        nav = tomllib.loads(base)["project"]["nav"]
+
+        def without_tutorial_link(node: Any) -> Any:
+            if isinstance(node, list):
+                return [without_tutorial_link(item) for item in node
+                        if not (isinstance(item, dict) and list(item.values()) == ["/tutorials/"])]
+            if isinstance(node, dict):
+                return {key: without_tutorial_link(value) for key, value in node.items()}
+            return node
+
+        # The source nav is a multiline TOML array; replace only its generated copy.
+        start = base.index("nav = [")
+        end = base.index("\n]", start) + 2
+        base = base[:start] + "nav = " + _toml(without_tutorial_link(nav)) + base[end:]
     lines = []
     seen_theme = seen_extra = False
     for line in base.splitlines():
@@ -181,7 +199,7 @@ def build_docs(content: Path, out: Path, related: dict[str, list[tuple[str, str]
         # Build inside the config's directory, then copy to the real destination.
         built = paths.BUILD / lang / "site"
         config = paths.BUILD / lang / "zensical.toml"
-        config.write_text(_language_config(base.read_text(), lang, stage_dir, built, site))
+        config.write_text(_language_config(base.read_text(), lang, stage_dir, built, site, tutorials))
         # Run through this interpreter so the venv's zensical is used, not PATH's.
         subprocess.run([sys.executable, "-m", "zensical", "build", "--clean", "--strict",
                         "-f", str(config)], check=True, cwd=paths.WEBSITE)

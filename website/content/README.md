@@ -90,12 +90,12 @@ cd website && uv run python -m sitegen.newvideo <url-or-id> --topic "Getting sta
 
 It reads the title from YouTube (unless `--title`) and the publication date from the watch page
 (unless `--published`; if the scrape fails the tool says so and asks for the flag), looks up the AndBible
-version current on that date in the GitHub releases (`version:`, shown on /videos/ only; `--version` overrides, a failed lookup
+version current on that date in the GitHub releases (`version:`, shown in /videos/archive/; `--version` overrides, a failed lookup
 only prints a note and leaves it out), appends a line to `data/videos.yaml`, fetches
 the thumbnail into the media repo and writes `content/en/blog/<date>-<slug>.md` (no feature image:
 the thumbnail would duplicate it). The catalog `kind` defaults to `video`; use `whats-new` or `interview` for those kinds. The `post` field is automatically set to the new post slug, and omitted with `--no-post`. It refuses a known id, an unknown topic, a `--docs` page that is
 not published, `--docs` on a short, and an existing post. `published` is a required catalog field
-(`YYYY-MM-DD`, not in the future); the landing page teases the 3 newest videos by it. Then extend the post body, commit in the
+(`YYYY-MM-DD`, not in the future); the landing page shows the tutorial series teaser when available and up to two newest current-feed videos by date. Then extend the post body, commit in the
 media repo first, bump the gitlink, and run `make site site-check`. The `video-blog-post` skill
 (`.claude/skills/`) drives this end to end.
 

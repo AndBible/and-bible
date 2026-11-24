@@ -268,6 +268,31 @@ groups:
     assert "youtube-nocookie" not in html and "i.ytimg.com" not in html
 
 
+@pytest.mark.parametrize("episode_id,has_series,has_feed", [
+    ("abcDEF12345", True, False),
+    (None, False, True),
+    (None, True, False),
+])
+def test_home_video_edge_combinations(content, tmp_path, episode_id, has_series, has_feed):
+    data = tmp_path / "data"
+    _catalog(data, [("newest00005", "2026-11-20", False)] if has_feed else [])
+    if has_series:
+        youtube = episode_id or "null"
+        (data / "tutorials.yaml").write_text(f"""placeholder: RlLkpKZZwTg
+episodes:
+  - {{slug: tutorial-01-a, number: 1, title: One, docs: search, anchor: null, youtube: {youtube}}}
+groups:
+  - {{title: First, episodes: [1]}}
+""")
+    out = tmp_path / "out"
+    build(content, out, data=data, docs=False)
+    html = (out / "index.html").read_text()
+    assert ('href="/tutorials/"' in html) is bool(episode_id)
+    assert ('data-yt-id="newest00005"' in html) is has_feed
+    if episode_id:
+        assert '1 videos' in html
+
+
 def test_home_never_shows_archive_videos(content, tmp_path):
     _catalog(tmp_path / "data", [("archive0001", "2026-10-31", False)])
     out = tmp_path / "out"

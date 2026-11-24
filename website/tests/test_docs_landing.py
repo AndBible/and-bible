@@ -50,10 +50,10 @@ def test_landing_catalog_renders_existing_post_link(tmp_path):
 @pytest.fixture(scope="module")
 def landing_html(tmp_path_factory):
     out = tmp_path_factory.mktemp("landing")
-    build_docs(paths.CONTENT, out, {})
     # /videos/ belongs to the landing site, not the docs build: render the real catalog page beside the docs.
     pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
     series = load_tutorials(paths.DATA / "tutorials.yaml", pages)
+    build_docs(paths.CONTENT, out, {}, tutorials=series)
     render_catalog(paths.DATA / "videos.yaml", pages, out, series)
     render_tutorials(home.environment(), strings(paths.CONTENT, "en"), series, out)
     return out, (out / "docs" / "index.html").read_text()

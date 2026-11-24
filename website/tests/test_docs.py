@@ -62,6 +62,22 @@ def test_stage_falls_back_to_english_and_adds_related_videos(tmp_path):
     assert 'data-yt-id="abcDEF12345"' in b
 
 
+@pytest.mark.parametrize("populated", [False, True])
+def test_staged_index_and_generated_nav_follow_tutorial_page(tmp_path, monkeypatch, populated):
+    from sitegen.tutorials import Series, load
+
+    pages = published_pages(paths.WEBSITE / "zensical.toml")
+    series = load(paths.DATA / "tutorials.yaml", {p.removesuffix(".md") for p in pages}) if populated else Series(None, ())
+    monkeypatch.setattr(paths, "BUILD", tmp_path / "build")
+    build_docs(paths.CONTENT, tmp_path / "out", {}, tutorials=series)
+    config_dir = paths.BUILD / "en"
+    nav = tomllib.loads((config_dir / "zensical.toml").read_text())["project"]["nav"]
+    index = (config_dir / "docs" / "index.md").read_text()
+    assert ('/tutorials/' in str(nav)) is populated
+    assert f'[tutorial videos]({"/tutorials/" if populated else "/videos/"})' in index
+    assert '/videos/' in str(nav)
+
+
 def test_build_docs_produces_directory_urls(tmp_path):
     out = tmp_path / "out"
     build_docs(paths.CONTENT, out, {})
