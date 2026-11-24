@@ -103,6 +103,11 @@ def load(path: Path, docs_pages: set[str], today: date | None = None,
     return videos
 
 
+def anchor_id(title: str) -> str:
+    """Turn a section title into a lowercase ASCII anchor."""
+    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+
+
 def feed(videos: list[Video]) -> list[Video]:
     """Current entries newest first; catalog order breaks publication-date ties."""
     return sorted((v for v in videos if v.published >= FEED_SINCE),
