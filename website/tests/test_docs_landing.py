@@ -6,6 +6,7 @@ import pytest
 
 from sitegen import home, paths
 from sitegen.docs import build_docs, published_pages
+from sitegen.content import load_posts
 from sitegen.i18n import strings
 from sitegen.videos import load as load_videos, render_videos
 from sitegen.tutorials import load as load_tutorials, render_tutorials
@@ -29,6 +30,23 @@ def test_legacy_anchors_survive():
     assert "{#contents}" in text
 
 
+def render_catalog(catalog, pages, out, series):
+    posts = load_posts(paths.CONTENT / "en" / "blog", paths.MEDIA)
+    videos = load_videos(catalog, pages, posts={post.slug for post in posts})
+    render_videos(home.environment(), strings(paths.CONTENT, "en"), videos, out, series,
+                  {post.slug: post.path for post in posts})
+
+
+def test_landing_catalog_renders_existing_post_link(tmp_path):
+    post = load_posts(paths.CONTENT / "en" / "blog", paths.MEDIA)[0]
+    catalog = tmp_path / "videos.yaml"
+    catalog.write_text(f'- {{id: "abcDEF12345", title: "Test", topic: "Getting started", '
+                       f'published: "2026-11-02", post: "{post.slug}"}}\n')
+    pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
+    render_catalog(catalog, pages, tmp_path, load_tutorials(paths.DATA / "tutorials.yaml", pages))
+    assert f'href="{post.path}"' in (tmp_path / "videos/index.html").read_text()
+
+
 @pytest.fixture(scope="module")
 def landing_html(tmp_path_factory):
     out = tmp_path_factory.mktemp("landing")
@@ -36,9 +54,18 @@ def landing_html(tmp_path_factory):
     # /videos/ belongs to the landing site, not the docs build: render the real catalog page beside the docs.
     pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
     series = load_tutorials(paths.DATA / "tutorials.yaml", pages)
-    render_videos(home.environment(), strings(paths.CONTENT, "en"), load_videos(paths.DATA / "videos.yaml", pages), out, series)
+    render_catalog(paths.DATA / "videos.yaml", pages, out, series)
     render_tutorials(home.environment(), strings(paths.CONTENT, "en"), series, out)
     return out, (out / "docs" / "index.html").read_text()
+
+
+def test_current_video_feed_has_distinct_title(landing_html):
+    out, _ = landing_html
+    feed = (out / "videos/index.html").read_text()
+    tutorials = (out / "tutorials/index.html").read_text()
+    assert "<h1>Videos</h1>" in feed
+    assert "<h1>AndBible 6.0 video tutorials</h1>" in tutorials
+    assert 'href="/tutorials/"' in feed
 
 
 def test_built_landing_links_resolve(landing_html):
@@ -111,6 +138,7 @@ def test_docs_header_and_nav_link_to_the_videos_page(landing_html, built_faq):
     html = landing_html[1]
     header = html[html.index("<header"):html.index("</header>")]
     assert '<a href="/videos/">' in header, "docs header lost its Videos link"
+    assert re.search(r'<a href="/tutorials/" class="md-nav__link">\s*(?:<[^>]+>\s*)*Video tutorials', built_faq)
     assert re.search(r'<a href="/videos/" class="md-nav__link">\s*(?:<[^>]+>\s*)*All videos', built_faq)
 
 

@@ -133,15 +133,14 @@ blog:
   all_tags: All tags
   posted_in: Posted in
 videos:
-  title: Tutorial videos
+  title: Videos
   months: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   date_format: "{d} {month} {y}"
   version_label: "v{version}"
   description: >-
-    Short video tutorials for AndBible: windows and workspaces, bookmarks and
-    StudyPads, search, sync and customisation.
+    Current AndBible video updates and interviews, plus the video tutorial series.
   intro: >-
-    Video tutorials from the AndBible YouTube channel.
+    Explore recent updates and interviews from the AndBible YouTube channel, or browse the tutorial series.
   teaser_title: AndBible 6.0 video tutorials
   teaser_count: "{n} videos"
   teaser_link: Explore the tutorials

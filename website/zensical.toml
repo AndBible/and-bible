@@ -23,7 +23,7 @@ nav = [
   { "Sharing, Backup & Sync" = ["share.md", "bible_links.md", "backup_restore.md", "cloud_sync.md", "document_sync.md"] },
   { "Desktop & Platforms" = ["desktop.md", "platform_differences.md", "discrete_build.md"] },
   { "Customisation & Advanced" = ["customisation/index.md", "customisation/custom_css.md", "customisation/module_creation.md"] },
-  { "Help & Reference" = ["faq.md", "support.md", { "All videos" = "/videos/" }, { "Releases" = ["releases/index.md", "releases/release_6_0.md", "releases/release_5_0.md", "releases/release_4_1.md", "releases/release_4_0.md"] }] },
+  { "Help & Reference" = ["faq.md", "support.md", { "Video tutorials" = "/tutorials/" }, { "All videos" = "/videos/" }, { "Releases" = ["releases/index.md", "releases/release_6_0.md", "releases/release_5_0.md", "releases/release_4_1.md", "releases/release_4_0.md"] }] },
 ]
 
 [project.theme]
