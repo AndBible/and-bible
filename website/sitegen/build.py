@@ -49,7 +49,7 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
                             load_pages(content / DEFAULT_LANG / "pages"), out, paths.MEDIA)
     if docs:
         sitemap += build_docs(content, out, related=related(videos), tutorials=tutorials)
-    sitemap += render_videos(env, strings(content, DEFAULT_LANG), videos, out, tutorials)
+    sitemap += render_videos(env, strings(content, DEFAULT_LANG), videos, out, tutorials, {p.slug: p.path for p in posts})
     sitemap += render_tutorials(env, strings(content, DEFAULT_LANG), tutorials, out)
     if paths.MEDIA.is_dir():
         shutil.copytree(paths.MEDIA, out / "media", ignore=shutil.ignore_patterns(".git"))

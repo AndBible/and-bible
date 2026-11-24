@@ -10,7 +10,7 @@ import yaml
 
 from sitegen import paths
 from sitegen.docs import stage
-from sitegen.tutorials import Episode, Series, docs_block, insert_after_title, load, videos_section
+from sitegen.tutorials import Episode, Series, docs_block, insert_after_title, load
 
 REPO = paths.WEBSITE.parent
 KOTLIN = REPO / "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/TutorialVideos.kt"

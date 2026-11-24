@@ -8,6 +8,7 @@ from sitegen import home, paths
 from sitegen.docs import build_docs, published_pages
 from sitegen.i18n import strings
 from sitegen.videos import load as load_videos, render_videos
+from sitegen.tutorials import load as load_tutorials, render_tutorials
 
 INDEX = paths.CONTENT / "en" / "docs" / "index.md"
 
@@ -34,7 +35,9 @@ def landing_html(tmp_path_factory):
     build_docs(paths.CONTENT, out, {})
     # /videos/ belongs to the landing site, not the docs build: render the real catalog page beside the docs.
     pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
-    render_videos(home.environment(), strings(paths.CONTENT, "en"), load_videos(paths.DATA / "videos.yaml", pages), out)
+    series = load_tutorials(paths.DATA / "tutorials.yaml", pages)
+    render_videos(home.environment(), strings(paths.CONTENT, "en"), load_videos(paths.DATA / "videos.yaml", pages), out, series)
+    render_tutorials(home.environment(), strings(paths.CONTENT, "en"), series, out)
     return out, (out / "docs" / "index.html").read_text()
 
 

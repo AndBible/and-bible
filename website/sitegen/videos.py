@@ -13,7 +13,7 @@ from jinja2 import Environment
 from markupsafe import Markup, escape
 
 from sitegen.paths import BASE_URL
-from sitegen.tutorials import Series, videos_section
+from sitegen.tutorials import Series
 from sitegen.youtube import embed_html
 
 TOPICS = ("Getting started", "Navigation & windows", "Bookmarks & StudyPads", "Search & study tools",
@@ -156,19 +156,59 @@ def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
     return result
 
 
-def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path,
-                  tutorials: Series = Series(None, ())) -> list[str]:
-    def embeds(topic: str) -> list[Markup]:
-        """One ordered list per topic: clips and shorts together, in catalog order."""
-        return [card(v, strings, show_version=True) for v in videos if v.topic == topic]
+def teaser(series: Series, strings: dict) -> dict | None:
+    count = series.published_count()
+    labels = strings["videos"]
+    return {"title": labels["teaser_title"], "count_text": labels["teaser_count"].format(n=count),
+            "url": "/tutorials/"} if count else None
 
-    sections = [(topic, embeds(topic)) for topic in TOPICS]
+
+def _time(video: Video, strings: dict) -> Markup:
+    labels = strings["videos"]
+    when = format_date(video.published, labels.get("months", ENGLISH_MONTHS), labels.get("date_format", "{d} {month} {y}"))
+    return Markup('<time datetime="{}">{}</time>').format(video.published.isoformat(), when)
+
+
+def _row(video: Video, meta: Markup, badge=None, links=()) -> dict:
+    return {"title": video.title, "url": f"https://www.youtube.com/watch?v={video.id}",
+            "thumb": video.id, "meta": meta, "badge": badge, "links": links}
+
+
+def feed_row(video: Video, strings: dict, post_urls: dict[str, str]) -> dict:
+    labels = strings["videos"]
+    kind = labels["kinds"]["short" if video.short else video.kind]
+    links = [{"url": post_urls[video.post], "label": labels["read_post"]}] if video.post else []
+    return _row(video, Markup("{} · {}").format(_time(video, strings), kind), links=links)
+
+
+def archive_row(video: Video, strings: dict) -> dict:
+    labels = strings["videos"]
+    meta = _time(video, strings)
+    if video.version:
+        meta = Markup("{} · {}").format(labels["version_label"].format(version=video.version), meta)
+    return _row(video, meta, badge=labels["kinds"]["short"] if video.short else None)
+
+
+def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path,
+                  tutorials: Series = Series(None, ()), post_urls: dict[str, str] | None = None) -> list[str]:
     page = strings["videos"]
+    common = dict(lang="en", prefix="", strings=strings, og_type="website")
     target = out / "videos" / "index.html"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("videos.html").render(
-        lang="en", prefix="", strings=strings, sections=[s for s in sections if s[1]],
-        series=videos_section(tutorials, strings) if tutorials.episodes else None,
-        title=page["title"], description=page["description"], canonical=f"{BASE_URL}/videos/",
-        og_type="website"), encoding="utf-8")
-    return ["/videos/"]
+        **common, rows=[feed_row(v, strings, post_urls or {}) for v in feed(videos)],
+        teaser=teaser(tutorials, strings), title=page["title"], description=page["description"],
+        canonical=f"{BASE_URL}/videos/"), encoding="utf-8")
+    old = archive(videos)
+    groups = []
+    for topic in TOPICS:
+        selected = sorted((v for v in old if v.topic == topic), key=lambda v: v.published, reverse=True)
+        if selected:
+            groups.append({"title": topic, "id": anchor_id(topic), "count": len(selected),
+                           "rows": [archive_row(v, strings) for v in selected]})
+    target = out / "videos" / "archive" / "index.html"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(env.get_template("videos_archive.html").render(
+        **common, groups=groups, title=page["archive"]["title"], description=page["archive"]["description"],
+        canonical=f"{BASE_URL}/videos/archive/"), encoding="utf-8")
+    return ["/videos/", "/videos/archive/"]

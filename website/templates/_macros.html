@@ -1,3 +1,11 @@
+{% macro tutorial_teaser(teaser, label) %}
+<section class="teaser">
+  <h2>{{ teaser.title }}</h2>
+  <p>{{ teaser.count_text }}</p>
+  <a href="{{ teaser.url }}">{{ label }}</a>
+</section>
+{% endmacro %}
+
 {% macro video_row(row) %}
 <li class="vrow">
   {% if row.url %}<a href="{{ row.url }}" tabindex="-1" aria-hidden="true">{% endif %}

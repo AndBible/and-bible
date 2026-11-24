@@ -13,7 +13,6 @@ from html import escape
 from pathlib import Path
 
 import yaml
-from markupsafe import Markup
 
 from sitegen.youtube import embed_html
 
@@ -222,21 +221,6 @@ def insert_after_title(markdown: str, block: str) -> str:
             lines[index + 1:index + 1] = ["", block, *after]
             return "\n".join(lines) + ("\n" if markdown.endswith("\n") else "")
     return block + "\n\n" + markdown
-
-
-def videos_section(series: Series, strings: dict | None = None) -> dict:
-    """Temporary compatibility for /videos/ until Task 4 replaces its renderer."""
-    labels = _labels(strings)
-    rows = []
-    for e in series.episodes:
-        heading = labels["episode"].format(n=e.number) if e.number is not None else None
-        rows.append({
-            "number": e.number, "label": heading, "title": e.title, "docs_url": e.docs_path,
-            "embed": Markup(embed_html(e.youtube, "video", e.title, card=True)) if e.youtube else None,
-        })
-    preview = Markup(embed_html(series.placeholder, "video", None, card=True)) if series.placeholder else None
-    return {"rows": rows, "preview": preview if any(r["embed"] is None for r in rows) else None,
-            "labels": labels}
 
 
 def render_tutorials(env, strings: dict, series: Series, out: Path) -> list[str]:
