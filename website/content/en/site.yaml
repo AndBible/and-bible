@@ -101,7 +101,7 @@ sections:
   reviews_all: Read all reviews on Google Play
   reviews_all_url: "https://play.google.com/store/apps/details?id=net.bible.android.activity&showAllReviews=true"
   videos: Learn with videos
-  videos_link: Browse the video catalog
+  videos_link: All videos
   support_title: Support AndBible
   support_text: >-
     AndBible is free and has no ads. Sponsored development time keeps it moving.
@@ -133,22 +133,29 @@ blog:
   all_tags: All tags
   posted_in: Posted in
 videos:
-  title: Tutorial videos
+  title: Videos
   months: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   date_format: "{d} {month} {y}"
   version_label: "v{version}"
   description: >-
-    Short video tutorials for AndBible: windows and workspaces, bookmarks and
-    StudyPads, search, sync and customisation.
+    Current AndBible video updates and interviews, plus the video tutorial series.
   intro: >-
-    Video tutorials from the AndBible YouTube channel.
+    Explore recent updates and interviews from the AndBible YouTube channel, or browse the tutorial series.
+  teaser_title: AndBible 6.0 video tutorials
+  teaser_count: "{n} videos"
+  teaser_link: Explore the tutorials
+  archive_link: Browse earlier videos
+  read_post: Read the post
+  kinds:
+    video: Video
+    whats-new: What's new
+    interview: Interview
+    short: Short
   tutorials:
     title: Video tutorials (AndBible 6.0)
     intro: >-
       A short video for each part of the app, in the order we suggest watching them. Each one has a
       matching page in the user documentation, which is also where its video is embedded.
-    preview_note: >-
-      The tutorials are being published one by one. Until a video is out, its entry says "Coming soon".
     docs_link: Read the docs page
     video_tutorial: "Video tutorial: {title}"
     coming_soon: Coming soon
@@ -156,4 +163,14 @@ videos:
     episode: "Episode {n}"
   archive:
     title: Earlier videos
+    description: Browse earlier AndBible videos by topic.
+    contents: Contents
     intro: Videos from before AndBible 6.0. The app has changed since, but the basic ideas still apply.
+
+tutorials_page:
+  title: AndBible 6.0 video tutorials
+  description: Explore the AndBible 6.0 video tutorial series by topic.
+  intro: Learn AndBible step by step with these short videos and their accompanying documentation.
+  contents: Contents
+  start_here: Start here
+  whats_new_label: What's new

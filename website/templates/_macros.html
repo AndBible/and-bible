@@ -1,3 +1,31 @@
+{% macro tutorial_teaser(teaser, label, inner=false) %}
+{#- inner=true: a card nested in another section (landing page): h3 and no .teaser chrome of its own. -#}
+<section class="{{ 'series-card' if inner else 'teaser teaser--series' }}">
+  <{{ 'h3' if inner else 'h2' }}>{{ teaser.title }}</{{ 'h3' if inner else 'h2' }}>
+  <p>{{ teaser.count_text }}</p>
+  <a href="{{ teaser.url }}">{{ label }}</a>
+</section>
+{% endmacro %}
+
+{% macro video_row(row) %}
+<li class="vrow">
+  {% if row.url %}<a href="{{ row.url }}" tabindex="-1" aria-hidden="true">{% endif %}
+  {% if row.thumb %}<img class="vrow__thumb" src="/media/videos/{{ row.thumb }}.webp" alt="" loading="lazy" width="120" height="68">
+  {% else %}<span class="vrow__thumb vrow__thumb--blank"></span>{% endif %}
+  {% if row.url %}</a>{% endif %}
+  <div class="vrow__text">
+    <div class="vrow__title">{% if row.url %}<a href="{{ row.url }}">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}
+      {% if row.badge %}<span class="vrow__badge">{{ row.badge }}</span>{% endif %}</div>
+    {% if row.meta %}<div class="vrow__meta">{{ row.meta }}</div>{% endif %}
+    {% if row.links %}<div class="vrow__links">{% for link in row.links %}<a href="{{ link.url }}">{{ link.label }}</a>{% endfor %}</div>{% endif %}
+  </div>
+</li>
+{% endmacro %}
+
+{% macro toc(items) %}
+<nav class="toc"><ul>{% for item in items %}<li><a href="#{{ item.id }}">{{ item.title }} ({{ item.count }})</a></li>{% endfor %}</ul></nav>
+{% endmacro %}
+
 {% macro post_card(post) %}
 <article class="post-card">
   {% if post.image_url %}<a href="{{ post.path }}" tabindex="-1" aria-hidden="true"><img src="{{ post.image_url }}" alt="{{ post.image_alt or '' }}" loading="lazy" width="1200" height="630"></a>{% endif %}

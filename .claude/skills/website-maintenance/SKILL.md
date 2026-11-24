@@ -15,6 +15,7 @@ Chat in Finnish; content English. Sources: `website/README.md`, `website/content
 **Map.** `website/content/en/` (source language): `site.yaml` (UI strings, nav, hero), `blog/`,
 `pages/`, `docs/` (Zensical, nav in `website/zensical.toml`). `content/<lang>/` mirrors it.
 `website/data/`: `videos.yaml`, `tutorials.yaml` (the 6.0 series: ids, docs pages; see `content/README.md` "Tutorial series"), `reviews.yaml`, `redirects.yaml`, `wp-uploads-redirects.yaml`.
+`/tutorials/` groups the series; `/videos/` is the current feed since 2026-11-01 and `/videos/archive/` holds older videos.
 `website/sitegen/` generator, `templates/`, `theme/`, `assets/` (css, js), `tests/` (pytest and
 `*.mjs`). `website/media` = submodule (images, `videos/<id>.webp`). `website/_site`, `_build` = generated.
 
@@ -34,7 +35,7 @@ output to a file if it died. Both need `uv`.
 - Phone screens in the hero: cropped from the Play screenshots by `cd website && uv run python -m sitegen.appshots` (list and order in `sitegen/appshots.py`), written to `assets/img/appshots/`; animation in `assets/js/appshots.js`.
 - Share preview (Open Graph card `assets/img/og-default.jpg`, `apple-touch-icon.png`): drawn by `cd website && uv run python -m sitegen.ogimage` from the hero eyebrow/headline, fonts, logo and first two appshots; re-run when those change. Tags in `templates/base.html`, alt text `meta.image_alt` in `site.yaml`.
 - Video in catalog without a post: `cd website && uv run python -m sitegen.newvideo <url> --topic "<T>" --summary "<s>" --no-post`
-  (or edit `data/videos.yaml`: `id, title, topic, published` required; then `make site-thumbs`).
+  (or edit `data/videos.yaml`: `id, title, topic, published` required; optional `kind` and `post` slug; add new tutorial episode numbers to `tutorials.yaml` `groups`; then `make site-thumbs`).
 - UI strings / hero text: `content/en/site.yaml`. Other languages merge over English per key.
 - New language: `content/<lang>/site.yaml` existing = the language exists; any missing file falls back to English.
 - Old URLs (WordPress, Read the Docs) must never break: `data/redirects.yaml` (paths ending `/` = dirs;

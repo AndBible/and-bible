@@ -67,7 +67,7 @@ git add website/media && git commit -m "website: bump media (thumbnail refresh)"
 ("videos coming soon") video. It is hand-maintainable, and the site build reads only this file, never
 `website/video/` (a private submodule is planned for that).
 
-- `/videos/` shows the series at the top in episode order, the older catalog (`videos.yaml`) below as an archive.
+- `/tutorials/` shows the tutorial series grouped by topic. `/videos/` is the current catalog feed for videos published on or after 2026-11-01; `/videos/archive/` contains older videos grouped by topic.
 - Each docs page that has an episode shows its video(s) under the page title, in episode order. An episode whose
   `youtube` id is `null` shows a compact "Coming soon" note linking the placeholder video (the AI page has four
   episodes; four identical placeholder thumbnails would look broken). Once the id is set, the embed (click-to-load,
@@ -77,7 +77,7 @@ git add website/media && git commit -m "website: bump media (thumbnail refresh)"
   writes the id into `tutorials.yaml` (a one-line edit; commit both). Run `make site-thumbs` afterwards to fetch the
   thumbnail (commit it in `website/media` first, then the gitlink). `tests/test_tutorials.py` fails when the
   episodes or ids of `tutorials.yaml` and `TutorialVideos.kt` differ.
-- New episode: add a line to `tutorials.yaml`, a `TutorialVideos.Episode` entry and the episode folder.
+- New episode: add a line to `tutorials.yaml`, add its number to exactly one `groups` entry, and add a `TutorialVideos.Episode` entry and the episode folder.
 - UI strings are `videos.tutorials.*` and `videos.archive.*` in `content/en/site.yaml`.
 
 ## New video -> blog post
@@ -85,17 +85,17 @@ git add website/media && git commit -m "website: bump media (thumbnail refresh)"
 ```bash
 cd website && uv run python -m sitegen.newvideo <url-or-id> --topic "Getting started" \
   --summary "One or two sentences." [--title T] [--slug S] [--date YYYY-MM-DD] [--docs PAGE] \
-  [--published YYYY-MM-DD] [--version X.Y] [--short] [--category C] [--tag T] [--no-post]
+  [--published YYYY-MM-DD] [--version X.Y] [--kind video|whats-new|interview] [--short] [--category C] [--tag T] [--no-post]
 ```
 
 It reads the title from YouTube (unless `--title`) and the publication date from the watch page
 (unless `--published`; if the scrape fails the tool says so and asks for the flag), looks up the AndBible
-version current on that date in the GitHub releases (`version:`, shown on /videos/ only; `--version` overrides, a failed lookup
+version current on that date in the GitHub releases (`version:`, shown in /videos/archive/; `--version` overrides, a failed lookup
 only prints a note and leaves it out), appends a line to `data/videos.yaml`, fetches
 the thumbnail into the media repo and writes `content/en/blog/<date>-<slug>.md` (no feature image:
-the thumbnail would duplicate it). It refuses a known id, an unknown topic, a `--docs` page that is
+the thumbnail would duplicate it). The catalog `kind` defaults to `video`; use `whats-new` or `interview` for those kinds. The `post` field is automatically set to the new post slug, and omitted with `--no-post`. It refuses a known id, an unknown topic, a `--docs` page that is
 not published, `--docs` on a short, and an existing post. `published` is a required catalog field
-(`YYYY-MM-DD`, not in the future); the landing page teases the 3 newest videos by it. Then extend the post body, commit in the
+(`YYYY-MM-DD`, not in the future); the landing page shows the tutorial series teaser when available and up to two newest current-feed videos by date. Then extend the post body, commit in the
 media repo first, bump the gitlink, and run `make site site-check`. The `video-blog-post` skill
 (`.claude/skills/`) drives this end to end.
 

@@ -23,7 +23,7 @@ from sitegen.i18n import languages, strings
 from sitegen.paths import DEFAULT_LANG
 from sitegen.redirects import write_stubs
 from sitegen.reviews import load as load_reviews
-from sitegen.tutorials import load as load_tutorials
+from sitegen.tutorials import load as load_tutorials, render_tutorials
 from sitegen.videos import load as load_videos, related, render_videos
 
 
@@ -39,17 +39,22 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
              for p in load_posts(content / DEFAULT_LANG / "blog", paths.MEDIA)]
     reviews = load_reviews(data / "reviews.yaml")
     docs_pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
-    videos = load_videos(data / "videos.yaml", docs_pages)
+    videos = load_videos(data / "videos.yaml", docs_pages, posts={p.slug for p in posts})
+    referenced = {video.post for video in videos if video.post is not None}
+    for slug in referenced:
+        if sum(post.slug == slug for post in posts) > 1:
+            raise ValueError(f"ambiguous blog post slug {slug!r} referenced by videos.yaml")
     tutorials = load_tutorials(data / "tutorials.yaml", docs_pages)
     for lang in languages(content):
-        render_home(env, strings(content, lang), lang, posts, out, reviews, videos)
+        render_home(env, strings(content, lang), lang, posts, out, reviews, videos, tutorials=tutorials)
     sitemap = ["/"]
     sitemap += render_blog(env, strings(content, DEFAULT_LANG), posts, out, paths.MEDIA)
     sitemap += render_pages(env, strings(content, DEFAULT_LANG),
                             load_pages(content / DEFAULT_LANG / "pages"), out, paths.MEDIA)
     if docs:
         sitemap += build_docs(content, out, related=related(videos), tutorials=tutorials)
-    sitemap += render_videos(env, strings(content, DEFAULT_LANG), videos, out, tutorials)
+    sitemap += render_videos(env, strings(content, DEFAULT_LANG), videos, out, tutorials, {p.slug: p.path for p in posts})
+    sitemap += render_tutorials(env, strings(content, DEFAULT_LANG), tutorials, out)
     if paths.MEDIA.is_dir():
         shutil.copytree(paths.MEDIA, out / "media", ignore=shutil.ignore_patterns(".git"))
     stubs: dict[str, str] = {}

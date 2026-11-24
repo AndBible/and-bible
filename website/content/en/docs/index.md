@@ -32,7 +32,7 @@ shows how to find your way around the app.
 
 <div class="ab-docs-landing" markdown>
 
-The sections follow the order in which the [tutorial videos](/videos/) introduce the app. Each link opens the
+The sections follow the order in which the [tutorial videos](/tutorials/) introduce the app. Each link opens the
 first page of the section; the menu on the left lists the rest.
 
 | Section | What's inside |
