@@ -11,8 +11,8 @@ def test_kind_defaults_to_video_and_accepts_the_known_kinds(tmp_path):
 
 
 def test_unknown_kind_rejected(tmp_path):
-    text = "- {id: unknownVID01, title: Unknown, topic: Getting started, kind: podcast, published: 2026-11-01}\n"
-    with pytest.raises(ValueError, match="kind"):
+    text = "- {id: unknownVID1, title: Unknown, topic: Getting started, kind: podcast, published: 2026-11-01}\n"
+    with pytest.raises(ValueError, match="unknown kind 'podcast'"):
         load(write(tmp_path, text), set())
 
 
