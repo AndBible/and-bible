@@ -13,7 +13,6 @@ from html import escape
 from pathlib import Path
 
 import yaml
-from markupsafe import Markup
 
 from sitegen.youtube import embed_html
 
@@ -45,9 +44,19 @@ class Episode:
 
 
 @dataclass(frozen=True)
+class Group:
+    title: str
+    episodes: tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class Series:
     placeholder: str | None
     episodes: tuple[Episode, ...]
+    groups: tuple[Group, ...] = ()
+
+    def published_count(self) -> int:
+        return sum(1 for e in self.episodes if e.number is not None and e.youtube)
 
     def ids(self) -> set[str]:
         """Every YouTube id the series can show (for thumbnails)."""
@@ -135,7 +144,37 @@ def load(path: Path, docs_pages: set[str]) -> Series:
                 raise ValueError(f"{path}: episode {slug} reuses YouTube id {youtube}")
             ids.add(youtube)
         episodes.append(Episode(slug, number, title, docs, anchor, youtube, _subtitles(path, slug, entry.get("subtitles"))))
-    return Series(placeholder, tuple(episodes))
+    from sitegen.videos import anchor_id
+
+    raw_groups = data.get("groups", [])
+    if not isinstance(raw_groups, list):
+        raise ValueError(f"{path}: groups must be a list")
+    numbers = {e.number for e in episodes if e.number is not None}
+    seen: set[int] = set()
+    anchors: set[str] = {"site-nav"}  # Reserved by the shared base template.
+    groups = []
+    for entry in raw_groups:
+        if not isinstance(entry, dict) or not isinstance(entry.get("title"), str) or not entry["title"].strip():
+            raise ValueError(f"{path}: group needs a title")
+        title = entry["title"].strip()
+        anchor = anchor_id(title)
+        if not anchor or anchor in anchors:
+            raise ValueError(f"{path}: group has empty or duplicate anchor {anchor!r}")
+        anchors.add(anchor)
+        members = entry.get("episodes")
+        if not isinstance(members, list) or not members:
+            raise ValueError(f"{path}: group {title} has no episodes")
+        for number in members:
+            if type(number) is not int or number not in numbers:
+                raise ValueError(f"{path}: unknown episode {number!r} in group {title}")
+            if number in seen:
+                raise ValueError(f"{path}: episode {number} in more than one group")
+            seen.add(number)
+        groups.append(Group(title, tuple(members)))
+    missing = numbers - seen
+    if missing:
+        raise ValueError(f"{path}: episodes not in any group: {sorted(missing)}")
+    return Series(placeholder, tuple(episodes), tuple(groups))
 
 
 def _labels(strings: dict | None) -> dict[str, str]:
@@ -184,16 +223,30 @@ def insert_after_title(markdown: str, block: str) -> str:
     return block + "\n\n" + markdown
 
 
-def videos_section(series: Series, strings: dict | None = None) -> dict:
-    """Template data for the /videos/ series section."""
-    labels = _labels(strings)
-    rows = []
-    for e in series.episodes:
-        heading = labels["episode"].format(n=e.number) if e.number is not None else None
-        rows.append({
-            "number": e.number, "label": heading, "title": e.title, "docs_url": e.docs_path,
-            "embed": Markup(embed_html(e.youtube, "video", e.title, card=True)) if e.youtube else None,
-        })
-    preview = Markup(embed_html(series.placeholder, "video", None, card=True)) if series.placeholder else None
-    return {"rows": rows, "preview": preview if any(r["embed"] is None for r in rows) else None,
-            "labels": labels}
+def render_tutorials(env, strings: dict, series: Series, out: Path) -> list[str]:
+    """Render the grouped tutorial index, omitting it for an empty series."""
+    if not series.episodes:
+        return []
+    from sitegen.paths import BASE_URL
+    from sitegen.videos import anchor_id
+
+    labels = strings["videos"]["tutorials"]
+    page = strings["tutorials_page"]
+
+    def row(episode: Episode) -> dict:
+        return {"title": episode.title, "url": f"https://www.youtube.com/watch?v={episode.youtube}" if episode.youtube else None,
+                "thumb": episode.youtube, "badge": None if episode.youtube else labels["coming_soon"],
+                "meta": labels["episode"].format(n=episode.number) if episode.number is not None else page["whats_new_label"],
+                "links": [{"url": episode.docs_path, "label": labels["docs_link"]}]}
+
+    by_number = {e.number: e for e in series.episodes if e.number is not None}
+    groups = [{"title": g.title, "id": anchor_id(g.title), "count": len(g.episodes),
+               "rows": [row(by_number[n]) for n in g.episodes]} for g in series.groups]
+    target = out / "tutorials" / "index.html"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(env.get_template("tutorials.html").render(
+        lang="en", prefix="", strings=strings, page=page, groups=groups,
+        introductory=[row(e) for e in series.episodes if e.number is None],
+        title=page["title"], description=page["description"], canonical=f"{BASE_URL}/tutorials/",
+        og_type="website"), encoding="utf-8")
+    return ["/tutorials/"]

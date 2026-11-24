@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import video_row, toc %}
+{% block content %}
+<section class="videos">
+  <h1>{{ strings.videos.archive.title }}</h1>
+  <p class="videos__intro">{{ strings.videos.archive.intro }}</p>
+  {% if groups %}<h2>{{ strings.videos.archive.contents }}</h2>{{ toc(groups) }}{% endif %}
+  {% for group in groups %}
+  <section class="videos__topic">
+    <h2 id="{{ group.id }}">{{ group.title }}</h2>
+    <ul class="vrows">{% for row in group.rows %}{{ video_row(row) }}{% endfor %}</ul>
+  </section>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -20,6 +20,7 @@ import yaml
 
 from sitegen import paths, releases, thumbnails, videos
 from sitegen.docs import published_pages
+from sitegen.content import load_posts, validate_post_slug
 from sitegen.youtube import parse as parse_url
 
 _BARE_ID = re.compile(r"[A-Za-z0-9_-]{11}")
@@ -82,7 +83,7 @@ def slugify(title: str) -> str:
 
 
 def catalog_line(video_id: str, title: str, topic: str, docs: str | None, short: bool, published: date,
-                 version: str | None = None) -> str:
+                 version: str | None = None, kind: str = "video", post: str | None = None) -> str:
     """One flow-style line in the layout of data/videos.yaml."""
     parts = [f"id: {json.dumps(video_id)}", f"title: {json.dumps(title, ensure_ascii=False)}",
              f"topic: {json.dumps(topic)}"]
@@ -93,6 +94,10 @@ def catalog_line(video_id: str, title: str, topic: str, docs: str | None, short:
     parts.append(f"published: {json.dumps(published.isoformat())}")
     if version:
         parts.append(f"version: {json.dumps(version)}")
+    if kind != "video":
+        parts.append(f"kind: {json.dumps(kind)}")
+    if post is not None:
+        parts.append(f"post: {json.dumps(post)}")
     return "- {" + ", ".join(parts) + "}\n"
 
 
@@ -122,7 +127,8 @@ def run(args: argparse.Namespace, *, fetcher: Callable[[str], bytes] = _http_get
     if args.topic not in videos.TOPICS:
         raise NewVideoError(f"unknown topic {args.topic!r}; choose one of: {', '.join(videos.TOPICS)}")
     existing = catalog.read_text(encoding="utf-8") if catalog.is_file() else ""
-    if video_id in {v.id for v in videos.load(catalog, docs_pages)}:
+    post_slugs = {p.slug for p in load_posts(content / "en" / "blog", media)}
+    if video_id in {v.id for v in videos.load(catalog, docs_pages, posts=post_slugs)}:
         raise NewVideoError(f"video {video_id} is already in {catalog.name}")
     title = args.title or fetch_title(video_id, fetcher)
     try:
@@ -140,21 +146,28 @@ def run(args: argparse.Namespace, *, fetcher: Callable[[str], bytes] = _http_get
         else:
             if version is None:
                 notes.append(f"note: no version recorded, no AndBible release on or before {published}")
-    line = catalog_line(video_id, title, args.topic, args.docs, short, published, version)
+    post: Path | None = None
+    slug = None
+    if not args.no_post:
+        day = date.fromisoformat(args.date) if args.date else (today or date.today())
+        slug = args.slug if args.slug is not None else slugify(title)
+        try:
+            validate_post_slug(slug, "--slug")
+        except ValueError as exc:
+            raise NewVideoError(str(exc)) from exc
+        post = content / "en" / "blog" / f"{day.isoformat()}-{slug}.md"
+        if post.exists():
+            raise NewVideoError(f"{post} already exists")
+        if slug in post_slugs:
+            raise NewVideoError(f"post slug {slug!r} already exists")
+    line = catalog_line(video_id, title, args.topic, args.docs, short, published, version, args.kind, slug)
     with tempfile.TemporaryDirectory() as tmp:  # validate with the build's own rules
         probe = Path(tmp) / "videos.yaml"
         probe.write_text(probe_text(existing) + line, encoding="utf-8")
         try:
-            videos.load(probe, docs_pages)
+            videos.load(probe, docs_pages, posts=post_slugs | ({slug} if slug else set()))
         except ValueError as exc:
             raise NewVideoError(str(exc).replace(str(probe), catalog.name)) from exc
-    post: Path | None = None
-    if not args.no_post:
-        day = date.fromisoformat(args.date) if args.date else (today or date.today())
-        slug = args.slug or slugify(title)
-        post = content / "en" / "blog" / f"{day.isoformat()}-{slug}.md"
-        if post.exists():
-            raise NewVideoError(f"{post} already exists")
     thumbnails.fetch([video_id], media, opener)  # first: a failure must not leave a catalog line behind
     catalog.parent.mkdir(parents=True, exist_ok=True)
     catalog.write_text(probe_text(existing) + line, encoding="utf-8")
@@ -186,6 +199,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--date", help="YYYY-MM-DD, default today")
     p.add_argument("--published", help="YYYY-MM-DD, default: read from the YouTube watch page")
     p.add_argument("--version", help="AndBible X.Y current when published, default: latest GitHub release on or before it")
+    p.add_argument("--kind", choices=videos.KINDS, default="video", help="catalog video kind")
     p.add_argument("--docs", help="published docs page stem the video belongs to")
     p.add_argument("--short", action="store_true", help="a YouTube Short (implied by a /shorts/ URL)")
     p.add_argument("--category", action="append", default=[])

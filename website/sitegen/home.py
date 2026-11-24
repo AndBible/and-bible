@@ -16,7 +16,8 @@ from sitegen import channel, github, paths
 from sitegen.content import Post
 from sitegen.i18n import prefix
 from sitegen.reviews import Review
-from sitegen.videos import Video, card, newest
+from sitegen.tutorials import Series
+from sitegen.videos import Video, card, feed, teaser
 
 
 def _md_inline(text: str) -> Markup:
@@ -62,14 +63,15 @@ def headline_posts(posts: Sequence[Post], today: date) -> list[Post]:
 
 
 def render_home(env: Environment, strings: dict, lang: str, latest: list[Post], out: Path,
-                reviews: Sequence[Review] = (), videos: Sequence[Video] = (), today: date | None = None) -> None:
+                reviews: Sequence[Review] = (), videos: Sequence[Video] = (), today: date | None = None,
+                tutorials: Series = Series(None, ())) -> None:
     target = out / prefix(lang).lstrip("/") / "index.html"
     strings = strings | {"getapp": channel.getapp(strings, f"content/{lang}/site.yaml")}
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("home.html").render(
         lang=lang, prefix=prefix(lang), strings=strings, latest=latest[:3], reviews=reviews,
         headlines=headline_posts(latest, today or date.today()),
-        video_cards=[card(v, strings) for v in newest(list(videos))],
+        video_cards=[card(v, strings) for v in feed(list(videos))[:2]], tutorial_teaser=teaser(tutorials, strings),
         title=strings["meta"]["title"], description=strings["meta"]["description"],
         canonical=f"{paths.BASE_URL}{prefix(lang)}/",
         og_type="website",

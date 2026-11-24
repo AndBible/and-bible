@@ -13,13 +13,15 @@ from jinja2 import Environment
 from markupsafe import Markup, escape
 
 from sitegen.paths import BASE_URL
-from sitegen.tutorials import Series, videos_section
+from sitegen.tutorials import Series
 from sitegen.youtube import embed_html
 
 TOPICS = ("Getting started", "Navigation & windows", "Bookmarks & StudyPads", "Search & study tools",
           "Sync & backup", "AI assistant", "Customisation", "Developer diaries")
 _ID = re.compile(r"[A-Za-z0-9_-]{11}")
 _VERSION = re.compile(r"\d+\.\d+")
+KINDS: tuple[str, ...] = ("video", "whats-new", "interview")
+FEED_SINCE = date(2026, 11, 1)
 
 
 @dataclass(frozen=True)
@@ -31,6 +33,8 @@ class Video:
     docs: str | None = None
     short: bool = False
     version: str | None = None
+    kind: str = "video"
+    post: str | None = None
 
 
 class _Loader(yaml.SafeLoader):
@@ -56,7 +60,8 @@ def _published(path: Path, vid: str, raw: object, today: date) -> date:
     return day
 
 
-def load(path: Path, docs_pages: set[str], today: date | None = None) -> list[Video]:
+def load(path: Path, docs_pages: set[str], today: date | None = None,
+         posts: set[str] = frozenset()) -> list[Video]:
     """Read and validate the catalog; a missing file is an empty catalog. Raises ValueError."""
     if not path.is_file():
         return []
@@ -88,8 +93,30 @@ def load(path: Path, docs_pages: set[str], today: date | None = None) -> list[Vi
         version = entry.get("version")
         if version is not None and not (isinstance(version, str) and _VERSION.fullmatch(version)):
             raise ValueError(f"{path}: video {vid} needs version: \"major.minor\" such as \"5.1\" (got {version!r})")
-        videos.append(Video(vid, title, entry["topic"], published, docs, short, version))
+        kind = entry.get("kind", "video")
+        if kind not in KINDS:
+            raise ValueError(f"{path}: video {vid} has unknown kind {kind!r}")
+        post = entry.get("post")
+        if post is not None and post not in posts:
+            raise ValueError(f"{path}: video {vid} links to unknown blog post {post!r}")
+        videos.append(Video(vid, title, entry["topic"], published, docs, short, version, kind, post))
     return videos
+
+
+def anchor_id(title: str) -> str:
+    """Turn a section title into a lowercase ASCII anchor."""
+    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+
+
+def feed(videos: list[Video]) -> list[Video]:
+    """Current entries newest first; catalog order breaks publication-date ties."""
+    return sorted((v for v in videos if v.published >= FEED_SINCE),
+                  key=lambda v: v.published, reverse=True)
+
+
+def archive(videos: list[Video]) -> list[Video]:
+    """Entries before the feed cutoff, preserving catalog order."""
+    return [v for v in videos if v.published < FEED_SINCE]
 
 
 def newest(videos: list[Video], n: int = 3) -> list[Video]:
@@ -129,19 +156,59 @@ def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
     return result
 
 
-def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path,
-                  tutorials: Series = Series(None, ())) -> list[str]:
-    def embeds(topic: str) -> list[Markup]:
-        """One ordered list per topic: clips and shorts together, in catalog order."""
-        return [card(v, strings, show_version=True) for v in videos if v.topic == topic]
+def teaser(series: Series, strings: dict) -> dict | None:
+    count = series.published_count()
+    labels = strings["videos"]
+    return {"title": labels["teaser_title"], "count_text": labels["teaser_count"].format(n=count),
+            "url": "/tutorials/"} if count else None
 
-    sections = [(topic, embeds(topic)) for topic in TOPICS]
+
+def _time(video: Video, strings: dict) -> Markup:
+    labels = strings["videos"]
+    when = format_date(video.published, labels.get("months", ENGLISH_MONTHS), labels.get("date_format", "{d} {month} {y}"))
+    return Markup('<time datetime="{}">{}</time>').format(video.published.isoformat(), when)
+
+
+def _row(video: Video, meta: Markup, badge=None, links=()) -> dict:
+    return {"title": video.title, "url": f"https://www.youtube.com/watch?v={video.id}",
+            "thumb": video.id, "meta": meta, "badge": badge, "links": links}
+
+
+def feed_row(video: Video, strings: dict, post_urls: dict[str, str]) -> dict:
+    labels = strings["videos"]
+    kind = labels["kinds"]["short" if video.short else video.kind]
+    links = [{"url": post_urls[video.post], "label": labels["read_post"]}] if video.post else []
+    return _row(video, Markup("{} · {}").format(_time(video, strings), kind), links=links)
+
+
+def archive_row(video: Video, strings: dict) -> dict:
+    labels = strings["videos"]
+    meta = _time(video, strings)
+    if video.version:
+        meta = Markup("{} · {}").format(labels["version_label"].format(version=video.version), meta)
+    return _row(video, meta, badge=labels["kinds"]["short"] if video.short else None)
+
+
+def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path,
+                  tutorials: Series = Series(None, ()), post_urls: dict[str, str] | None = None) -> list[str]:
     page = strings["videos"]
+    common = dict(lang="en", prefix="", strings=strings, og_type="website")
     target = out / "videos" / "index.html"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("videos.html").render(
-        lang="en", prefix="", strings=strings, sections=[s for s in sections if s[1]],
-        series=videos_section(tutorials, strings) if tutorials.episodes else None,
-        title=page["title"], description=page["description"], canonical=f"{BASE_URL}/videos/",
-        og_type="website"), encoding="utf-8")
-    return ["/videos/"]
+        **common, rows=[feed_row(v, strings, post_urls or {}) for v in feed(videos)],
+        teaser=teaser(tutorials, strings), title=page["title"], description=page["description"],
+        canonical=f"{BASE_URL}/videos/"), encoding="utf-8")
+    old = archive(videos)
+    groups = []
+    for topic in TOPICS:
+        selected = sorted((v for v in old if v.topic == topic), key=lambda v: v.published, reverse=True)
+        if selected:
+            groups.append({"title": topic, "id": anchor_id(topic), "count": len(selected),
+                           "rows": [archive_row(v, strings) for v in selected]})
+    target = out / "videos" / "archive" / "index.html"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(env.get_template("videos_archive.html").render(
+        **common, groups=groups, title=page["archive"]["title"], description=page["archive"]["description"],
+        canonical=f"{BASE_URL}/videos/archive/"), encoding="utf-8")
+    return ["/videos/", "/videos/archive/"]

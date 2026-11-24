@@ -104,6 +104,11 @@ def _names(data: dict[str, object], key: str, source: Path) -> tuple[str, ...]:
     return tuple(v.strip() for v in value)
 
 
+def validate_post_slug(slug: str, source: str | Path) -> None:
+    if not _SLUG.fullmatch(slug) or slug == "page":
+        raise ValueError(f"{source}: slug must be lowercase-kebab-case and not 'page'")
+
+
 def parse_post(source: Path, media_dir: Path) -> Post:
     match = _FILENAME.fullmatch(source.name)
     if match is None:
@@ -114,8 +119,7 @@ def parse_post(source: Path, media_dir: Path) -> Post:
     if published.isoformat() != match.group(1):
         raise ValueError(f"{source}: date must match the filename prefix")
     slug = _required(data, "slug", source)
-    if not _SLUG.fullmatch(slug) or slug == "page":
-        raise ValueError(f"{source}: slug must be lowercase-kebab-case and not 'page'")
+    validate_post_slug(slug, source)
     url_date = _date(data, "url_date", source) if "url_date" in data else published
     image = _required(data, "image", source) if "image" in data else None
     image_alt = None

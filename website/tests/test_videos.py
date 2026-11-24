@@ -3,6 +3,49 @@ import pytest
 from sitegen.videos import load, related
 
 
+def test_kind_defaults_to_video_and_accepts_the_known_kinds(tmp_path):
+    text = ("- {id: defaultVID1, title: Default, topic: Getting started, published: 2026-11-01}\n"
+            "- {id: interview01, title: Interview, topic: Getting started, kind: interview, published: 2026-11-02}\n")
+    vids = load(write(tmp_path, text), set())
+    assert [v.kind for v in vids] == ["video", "interview"]
+
+
+def test_unknown_kind_rejected(tmp_path):
+    text = "- {id: unknownVID1, title: Unknown, topic: Getting started, kind: podcast, published: 2026-11-01}\n"
+    with pytest.raises(ValueError, match="unknown kind 'podcast'"):
+        load(write(tmp_path, text), set())
+
+
+def test_post_must_name_a_known_blog_slug(tmp_path):
+    text = "- {id: blogposVID1, title: Blog post video, topic: Getting started, post: my-post, published: 2026-11-01}\n"
+    (video,) = load(write(tmp_path, text), set(), posts={"my-post"})
+    assert video.post == "my-post"
+    with pytest.raises(ValueError, match="my-post"):
+        load(write(tmp_path, text), set(), posts=set())
+
+
+def test_feed_and_archive_split_on_the_cutoff_day(tmp_path):
+    from datetime import date
+    from sitegen.videos import archive, feed
+
+    text = "".join(f"- {{id: splt{i:07d}, title: V{i}, topic: Getting started, published: {day}}}\n"
+                   for i, day in enumerate(("2026-10-31", "2026-11-01", "2026-11-20")))
+    vids = load(write(tmp_path, text), set(), today=date(2026, 12, 1))
+    assert [v.published.isoformat() for v in feed(vids)] == ["2026-11-20", "2026-11-01"]
+    assert [v.published.isoformat() for v in archive(vids)] == ["2026-10-31"]
+
+
+def test_real_catalog_puts_only_whats_new_in_the_feed():
+    from sitegen import paths
+    from sitegen.docs import published_pages
+    from sitegen.videos import feed
+
+    pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
+    vids = load(paths.DATA / "videos.yaml", pages, posts=set())
+    assert [v.id for v in feed(vids)] == ["t-6xwtEcnTE"]
+    assert feed(vids)[0].docs is None
+
+
 def write(tmp_path, text):
     p = tmp_path / "videos.yaml"
     p.write_text(text)
@@ -72,18 +115,18 @@ def test_page_renders_sections_in_topic_order(tmp_path):
 
     vids = load(write(tmp_path, GOOD + "- {id: devDIARY123, title: Diary, topic: Developer diaries, published: 2024-05-06}\n"), {"bookmarks"})
     written = render_videos(home.environment(), strings(CONTENT, "en"), vids, tmp_path)
-    html = (tmp_path / "videos" / "index.html").read_text()
-    assert written == ["/videos/"]
+    html = (tmp_path / "videos" / "archive" / "index.html").read_text()
+    assert written == ["/videos/", "/videos/archive/"]
     assert html.index("Getting started") < html.index("Bookmarks &amp; StudyPads") < html.index("Developer diaries")
     assert "Customisation" not in html.split("<main")[1]  # empty topics are skipped
-    assert 'data-yt-id="shortID1234"' in html and "yt--short" in html
+    assert "shortID1234" in html and "Short" in html
 
 
 def test_built_videos_page_groups_by_topic():
     from sitegen import paths
-    html = (paths.SITE / "videos" / "index.html").read_text()
+    html = (paths.SITE / "videos" / "archive" / "index.html").read_text()
     assert html.index("Getting started") < html.index("Developer diaries")
-    assert 'data-yt-id="' in html
+    assert 'class="vrow"' in html
 
 
 def test_catalog_ids_have_thumbnails_and_docs_links_resolve():
@@ -146,12 +189,10 @@ def test_listing_cards_share_one_shape(tmp_path):
 
     vids = load(write(tmp_path, GOOD), {"bookmarks"})
     render_videos(home.environment(), strings(CONTENT, "en"), vids, tmp_path)
-    html = (tmp_path / "videos" / "index.html").read_text()
-    cards = re.findall(r'<div class="(yt [^"]*)" data-yt-id="([^"]+)">', html)
-    assert len(cards) == 2 and all("yt--card" in c for c, _ in cards)
-    short = html.split('data-yt-id="shortID1234"')[1]
-    regular = html.split('data-yt-id="abcDEF12345"')[1].split('data-yt-id="shortID1234"')[0]
-    assert 'class="yt__backdrop"' in short and "yt__backdrop" not in regular
+    html = (tmp_path / "videos" / "archive" / "index.html").read_text()
+    assert html.count('class="vrow"') == 2
+    assert "shortID1234" in html and "abcDEF12345" in html
+
 
 
 def test_clip_and_short_share_one_grid_in_catalog_order(tmp_path):
@@ -164,10 +205,10 @@ def test_clip_and_short_share_one_grid_in_catalog_order(tmp_path):
             "- {id: clipMIDDLE1, title: C1, topic: Getting started, published: 2025-01-01}\n"
             "- {id: shortLAST12, title: S2, topic: Getting started, short: true, published: 2025-01-01}\n")
     render_videos(home.environment(), strings(CONTENT, "en"), load(write(tmp_path, text), set()), tmp_path)
-    html = (tmp_path / "videos" / "index.html").read_text()
-    assert "video-grid--shorts" not in html and html.count('class="video-grid"') == 1
-    grid = html.split('class="video-grid"')[1].split("</section>")[0]
-    assert grid.index("shortFIRST1") < grid.index("clipMIDDLE1") < grid.index("shortLAST12")
+    html = (tmp_path / "videos" / "archive" / "index.html").read_text()
+    assert html.count('class="vrows"') == 1
+    assert html.index("shortFIRST1") < html.index("clipMIDDLE1") < html.index("shortLAST12")
+
 
 
 def test_version_is_optional_and_kept_as_text(tmp_path):
@@ -216,20 +257,63 @@ def _videos_page(tmp_path, text):
     from sitegen.paths import CONTENT
     from sitegen.videos import render_videos
     render_videos(home.environment(), strings(CONTENT, "en"), load(write(tmp_path, text), {"bookmarks"}), tmp_path)
-    return (tmp_path / "videos" / "index.html").read_text()
+    return (tmp_path / "videos" / "archive" / "index.html").read_text()
 
 
 def test_videos_page_card_shows_version_then_date_and_omits_a_missing_version(tmp_path):
     text = GOOD.replace("published: 2025-01-02", 'published: 2025-01-02, version: "5.1"')
     html = _videos_page(tmp_path, text)
-    first = html.split('data-yt-id="abcDEF12345"')[1].split('data-yt-id="shortID1234"')[0]
-    second = html.split('data-yt-id="shortID1234"')[1]
-    assert '<span class="yt__meta">v5.1 · <time datetime="2025-01-02">2 Jan 2025</time></span>' in first
-    assert '<span class="yt__meta"><time datetime="2025-03-04">4 Mar 2025</time></span>' in second
-    assert "v5" not in second.split("yt__meta")[1].split("</span>")[0]
+    assert 'v5.1 · <time datetime="2025-01-02">2 Jan 2025</time>' in html
+    assert '<time datetime="2025-03-04">4 Mar 2025</time>' in html
+
 
 
 def test_docs_related_videos_have_no_meta_line():
     from sitegen.youtube import embed_html
     assert "yt__meta" not in embed_html("abcDEF12345", "video", "Title")
     assert "yt__meta" in embed_html("abcDEF12345", "video", "Title", card=True, meta="x")
+
+
+def test_videos_page_is_teaser_feed_then_archive_link(tmp_path):
+    from datetime import date
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.paths import CONTENT
+    from sitegen.tutorials import Episode, Series
+    from sitegen.videos import Video, render_videos
+    series = Series(None, (Episode("intro", 1, "Intro", "intro", youtube="abcdefghijk"),))
+    videos = [Video("interview01", "Current interview", "Getting started", date(2026, 11, 2), kind="interview", post="post"),
+              Video("oldvideo001", "Archived title", "Getting started", date(2025, 1, 1))]
+    render_videos(home.environment(), strings(CONTENT, "en"), videos, tmp_path, series, {"post": "/post/"})
+    html = (tmp_path / "videos/index.html").read_text()
+    assert html.index('/tutorials/') < html.index('Current interview') < html.index('/videos/archive/')
+    assert '2 Nov 2026' in html and 'Interview' in html and 'href="/post/"' in html
+    assert 'Archived title' not in html
+
+
+def test_videos_page_without_feed_or_series_still_has_archive_link(tmp_path):
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.paths import CONTENT
+    from sitegen.videos import render_videos
+    render_videos(home.environment(), strings(CONTENT, "en"), [], tmp_path)
+    html = (tmp_path / "videos/index.html").read_text()
+    assert 'class="vrows"' not in html and 'href="/tutorials/"' not in html
+    assert 'href="/videos/archive/"' in html
+
+
+def test_archive_groups_by_topic_with_toc(tmp_path):
+    import re
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.paths import CONTENT
+    from sitegen.videos import render_videos
+    text = ("- {id: oldvideo001, title: Old, topic: Getting started, published: 2025-01-01}\n"
+            "- {id: newvideo001, title: New, topic: Getting started, short: true, published: 2025-02-01}\n"
+            "- {id: diaryvid001, title: Diary, topic: Developer diaries, published: 2025-01-01}\n")
+    render_videos(home.environment(), strings(CONTENT, "en"), load(write(tmp_path, text), set()), tmp_path)
+    html = (tmp_path / "videos/archive/index.html").read_text()
+    assert html.index('id="getting-started"') < html.index('id="developer-diaries"')
+    assert html.index('New') < html.index('Old') and 'Short' in html
+    for anchor in re.findall(r'href="#([^"]+)"', html):
+        assert html.count(f'id="{anchor}"') == 1
