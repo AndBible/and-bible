@@ -157,3 +157,10 @@ videos:
   archive:
     title: Earlier videos
     intro: Videos from before AndBible 6.0. The app has changed since, but the basic ideas still apply.
+
+tutorials_page:
+  title: AndBible 6.0 video tutorials
+  description: Explore the AndBible 6.0 video tutorial series by topic.
+  intro: Learn AndBible step by step with these short videos and their accompanying documentation.
+  contents: Contents
+  whats_new_label: What's new

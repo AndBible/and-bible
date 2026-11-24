@@ -25,6 +25,9 @@ episodes:
   - {slug: whats-new-6-0, number: null, title: "What's new", docs: search, anchor: null, youtube: null}
   - {slug: tutorial-01-a, number: 1, title: One, docs: search, anchor: null, youtube: null}
   - {slug: tutorial-02-b, number: 2, title: "Two: more", docs: search, anchor: advanced-search, youtube: abcDEF12345}
+groups:
+  - {title: First, episodes: [1]}
+  - {title: "More & study", episodes: [2]}
 """
 
 
@@ -94,12 +97,67 @@ def test_insert_after_title():
     assert insert_after_title("```\n# not a title\n```\n# T\nx", "B") == "```\n# not a title\n```\n# T\n\nB\n\nx"
 
 
-def test_videos_section_shows_one_preview_only_while_something_is_unpublished():
-    series = Series(PLACEHOLDER, (Episode("a", 1, "One", "p", None, "abcDEF12345"),))
-    assert videos_section(series)["preview"] is None
-    series = Series(PLACEHOLDER, (Episode("a", 1, "One", "p"), Episode("b", 2, "Two", "p")))
-    section = videos_section(series)
-    assert section["preview"].count("data-yt-id") == 1 and [r["embed"] for r in section["rows"]] == [None, None]
+def test_groups_load_in_order(tmp_path):
+    series = load(write(tmp_path, GOOD), {"search"})
+    assert [(g.title, g.episodes) for g in series.groups] == [("First", (1,)), ("More & study", (2,))]
+
+
+@pytest.mark.parametrize("groups, message", [
+    ("  - {title: First, episodes: [1]}", "not in any group"),
+    ("  - {title: First, episodes: [1, 2]}\n  - {title: Second, episodes: [2]}", "more than one group"),
+    ("  - {title: First, episodes: [1, 2, 3]}", "unknown episode"),
+    ("  - {title: First, episodes: []}", "no episodes"),
+    ("  - {title: First, episodes: [1, 2, null]}", "unknown episode"),
+    ("  - {title: First, episodes: [true, 2]}", "unknown episode"),
+])
+def test_invalid_groups_rejected(tmp_path, groups, message):
+    with pytest.raises(ValueError, match=message):
+        load(write(tmp_path, GOOD.split("groups:")[0] + "groups:\n" + groups + "\n"), {"search"})
+
+
+def test_published_count_excludes_whats_new_and_unpublished(tmp_path):
+    series = load(write(tmp_path, GOOD.replace("youtube: null}", "youtube: zzzDEF12345}", 1)), {"search"})
+    assert series.published_count() == 1
+
+
+def test_tutorials_page_groups_rows_with_toc(tmp_path):
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.tutorials import render_tutorials
+    series = load(write(tmp_path, GOOD), {"search"})
+    assert render_tutorials(home.environment(), strings(paths.CONTENT, "en"), series, tmp_path) == ["/tutorials/"]
+    page = (tmp_path / "tutorials/index.html").read_text()
+    assert page.index("What&#39;s new") < page.index('<h2 id="first"')
+    assert '<h2 id="more-study"' in page
+    for anchor in re.findall(r'href="#([^"]+)"', page):
+        assert len(re.findall(r'id="' + re.escape(anchor) + r'"', page)) == 1
+    row = re.search(r'<li class="vrow">(?:(?!</li>).)*One(?:(?!</li>).)*</li>', page, re.S).group()
+    assert "Coming soon" in row and "youtube.com" not in row and "None.webp" not in row
+    for episode in series.episodes:
+        assert f'href="{episode.docs_path}"' in page
+
+
+def test_real_series_groups_cover_every_numbered_episode():
+    series = load(DATA, _published_pages())
+    assert sorted(n for group in series.groups for n in group.episodes) == list(range(1, 33))
+
+
+def test_tutorials_page_never_embeds_or_repeats_the_placeholder(tmp_path):
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.tutorials import render_tutorials
+    series = load(write(tmp_path, GOOD), {"search"})
+    render_tutorials(home.environment(), strings(paths.CONTENT, "en"), series, tmp_path)
+    page = (tmp_path / "tutorials/index.html").read_text()
+    assert "data-yt-id" not in page and PLACEHOLDER not in page
+
+
+def test_empty_tutorials_page_is_not_generated(tmp_path):
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.tutorials import render_tutorials
+    assert render_tutorials(home.environment(), strings(paths.CONTENT, "en"), Series(None, ()), tmp_path) == []
+    assert not (tmp_path / "tutorials").exists()
 
 
 def test_stage_embeds_after_the_title_in_episode_order_and_skips_a_catalog_duplicate(tmp_path):
@@ -181,17 +239,6 @@ def test_the_site_build_never_reads_website_video():
         if re.search(r"website/video|WEBSITE\s*/\s*[\"']video[\"']|[\"']video[\"']\s*/\s*[\"']episodes|\.\./video", text):
             offenders.append(source.name)
     assert offenders == []
-
-
-def test_videos_page_renders_the_preview_as_html_not_text(tmp_path):
-    from sitegen import home
-    from sitegen.i18n import strings
-    from sitegen.videos import render_videos
-    series = Series(PLACEHOLDER, (Episode("a", 1, "One", "search"), Episode("b", 2, "Two", "search", None, "abcDEF12345")))
-    render_videos(home.environment(), strings(paths.CONTENT, "en"), [], tmp_path, series)
-    page = (tmp_path / "videos" / "index.html").read_text()
-    assert "&lt;div" not in page and page.count('class="yt yt--video yt--card"') == 2
-    assert page.index("Video tutorials (AndBible 6.0)") < page.index("One") < page.index("Two")
 
 
 def test_subtitles_accept_android_style_folder_names(tmp_path):

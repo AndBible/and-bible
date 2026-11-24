@@ -23,7 +23,7 @@ from sitegen.i18n import languages, strings
 from sitegen.paths import DEFAULT_LANG
 from sitegen.redirects import write_stubs
 from sitegen.reviews import load as load_reviews
-from sitegen.tutorials import load as load_tutorials
+from sitegen.tutorials import load as load_tutorials, render_tutorials
 from sitegen.videos import load as load_videos, related, render_videos
 
 
@@ -50,6 +50,7 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
     if docs:
         sitemap += build_docs(content, out, related=related(videos), tutorials=tutorials)
     sitemap += render_videos(env, strings(content, DEFAULT_LANG), videos, out, tutorials)
+    sitemap += render_tutorials(env, strings(content, DEFAULT_LANG), tutorials, out)
     if paths.MEDIA.is_dir():
         shutil.copytree(paths.MEDIA, out / "media", ignore=shutil.ignore_patterns(".git"))
     stubs: dict[str, str] = {}

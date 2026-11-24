@@ -10,6 +10,7 @@
 # - subtitles: YouTube caption languages uploaded for the episode, besides English (sorted BCP-47 codes such as fi, pt-BR);
 #   filled by `youtube_upload.py` and used to open videos with captions.
 # - docs / anchor: the docs page stem (relative to docs/, no .md) the episode is embedded in, and an optional heading anchor.
+# - groups: ordered topic titles and numbered episodes; every numbered episode appears exactly once.
 # App metadata is generated: cd website && uv run python -m sitegen.app_tutorials
 # website/tests/test_app_tutorials.py rejects a stale generated catalog.
 placeholder: RlLkpKZZwTg
@@ -49,3 +50,16 @@ episodes:
   - {slug: tutorial-30-ai-2-prompts, number: 30, title: "AI assistant, part 2: running prompts", docs: ai, anchor: null, youtube: R8-c0SFPgek, subtitles: []}
   - {slug: tutorial-31-ai-3-tools-data-permissions, number: 31, title: "AI assistant, part 3: tools, your data and permissions", docs: ai, anchor: null, youtube: 7KSQzS1YcGA, subtitles: []}
   - {slug: tutorial-32-ai-4-custom-prompts-costs-sync, number: 32, title: "AI assistant, part 4: your own prompts, costs and sync", docs: ai, anchor: null, youtube: 34lsdWGHkgc, subtitles: []}
+
+groups:
+  - {title: "Getting started", episodes: [1, 2, 3, 4]}
+  - {title: "Windows & workspaces", episodes: [5, 6, 7]}
+  - {title: "Bookmarks, notes & study pads", episodes: [8, 9, 10, 11]}
+  - {title: "Search", episodes: [12, 13]}
+  - {title: "Listening & reading plans", episodes: [14, 15]}
+  - {title: "Backup & sync", episodes: [16, 17, 18]}
+  - {title: "Appearance", episodes: [19, 20]}
+  - {title: "Documents", episodes: [21, 22, 23]}
+  - {title: "Sharing, memorizing & desktop", episodes: [24, 25, 26]}
+  - {title: "Study workflows", episodes: [27, 28]}
+  - {title: "AI assistant", episodes: [29, 30, 31, 32]}
