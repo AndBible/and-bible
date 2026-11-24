@@ -2,8 +2,9 @@
 # sitegen.videos.TOPICS), published (YYYY-MM-DD, required, not in the future; the landing page shows
 # the 3 newest), version (optional "major.minor": the latest public AndBible release on or before
 # `published`, shown on /videos/ only; sitegen.newvideo fills it in; omitted when the title names its own version), docs (published docs page
-# stem: shows under its Related videos), short.
+# stem: shows under its Related videos), short, kind (video, whats-new or interview; defaults to video), post (English blog slug).
 # Run `make site-thumbs` after adding a video.
+- {id: "t-6xwtEcnTE", title: "What's new in AndBible 6.0", topic: "Getting started", kind: "whats-new", published: "2026-11-24"}
 - {id: "Gm-JLot1uf4", title: "AndBible 5.1 new features", topic: "Getting started", published: "2026-05-31"}
 - {id: "SQhya_vCnCk", title: "How to setup custom document repositories in AndBible", topic: "Getting started", docs: "custom_repositories", published: "2023-12-20", version: "5.0"}
 - {id: "drE6bGncpvw", title: "Installing, Updating and Uninstalling documents in AndBible", topic: "Getting started", docs: "documents", published: "2023-11-30", version: "5.0"}

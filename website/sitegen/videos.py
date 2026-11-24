@@ -20,6 +20,8 @@ TOPICS = ("Getting started", "Navigation & windows", "Bookmarks & StudyPads", "S
           "Sync & backup", "AI assistant", "Customisation", "Developer diaries")
 _ID = re.compile(r"[A-Za-z0-9_-]{11}")
 _VERSION = re.compile(r"\d+\.\d+")
+KINDS: tuple[str, ...] = ("video", "whats-new", "interview")
+FEED_SINCE = date(2026, 11, 1)
 
 
 @dataclass(frozen=True)
@@ -31,6 +33,8 @@ class Video:
     docs: str | None = None
     short: bool = False
     version: str | None = None
+    kind: str = "video"
+    post: str | None = None
 
 
 class _Loader(yaml.SafeLoader):
@@ -56,7 +60,8 @@ def _published(path: Path, vid: str, raw: object, today: date) -> date:
     return day
 
 
-def load(path: Path, docs_pages: set[str], today: date | None = None) -> list[Video]:
+def load(path: Path, docs_pages: set[str], today: date | None = None,
+         posts: set[str] = frozenset()) -> list[Video]:
     """Read and validate the catalog; a missing file is an empty catalog. Raises ValueError."""
     if not path.is_file():
         return []
@@ -88,8 +93,25 @@ def load(path: Path, docs_pages: set[str], today: date | None = None) -> list[Vi
         version = entry.get("version")
         if version is not None and not (isinstance(version, str) and _VERSION.fullmatch(version)):
             raise ValueError(f"{path}: video {vid} needs version: \"major.minor\" such as \"5.1\" (got {version!r})")
-        videos.append(Video(vid, title, entry["topic"], published, docs, short, version))
+        kind = entry.get("kind", "video")
+        if kind not in KINDS:
+            raise ValueError(f"{path}: video {vid} has unknown kind {kind!r}")
+        post = entry.get("post")
+        if post is not None and post not in posts:
+            raise ValueError(f"{path}: video {vid} links to unknown blog post {post!r}")
+        videos.append(Video(vid, title, entry["topic"], published, docs, short, version, kind, post))
     return videos
+
+
+def feed(videos: list[Video]) -> list[Video]:
+    """Current entries newest first; catalog order breaks publication-date ties."""
+    return sorted((v for v in videos if v.published >= FEED_SINCE),
+                  key=lambda v: v.published, reverse=True)
+
+
+def archive(videos: list[Video]) -> list[Video]:
+    """Entries before the feed cutoff, preserving catalog order."""
+    return [v for v in videos if v.published < FEED_SINCE]
 
 
 def newest(videos: list[Video], n: int = 3) -> list[Video]:

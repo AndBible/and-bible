@@ -3,6 +3,49 @@ import pytest
 from sitegen.videos import load, related
 
 
+def test_kind_defaults_to_video_and_accepts_the_known_kinds(tmp_path):
+    text = ("- {id: defaultVID1, title: Default, topic: Getting started, published: 2026-11-01}\n"
+            "- {id: interview01, title: Interview, topic: Getting started, kind: interview, published: 2026-11-02}\n")
+    vids = load(write(tmp_path, text), set())
+    assert [v.kind for v in vids] == ["video", "interview"]
+
+
+def test_unknown_kind_rejected(tmp_path):
+    text = "- {id: unknownVID01, title: Unknown, topic: Getting started, kind: podcast, published: 2026-11-01}\n"
+    with pytest.raises(ValueError, match="kind"):
+        load(write(tmp_path, text), set())
+
+
+def test_post_must_name_a_known_blog_slug(tmp_path):
+    text = "- {id: blogposVID1, title: Blog post video, topic: Getting started, post: my-post, published: 2026-11-01}\n"
+    (video,) = load(write(tmp_path, text), set(), posts={"my-post"})
+    assert video.post == "my-post"
+    with pytest.raises(ValueError, match="my-post"):
+        load(write(tmp_path, text), set(), posts=set())
+
+
+def test_feed_and_archive_split_on_the_cutoff_day(tmp_path):
+    from datetime import date
+    from sitegen.videos import archive, feed
+
+    text = "".join(f"- {{id: splt{i:07d}, title: V{i}, topic: Getting started, published: {day}}}\n"
+                   for i, day in enumerate(("2026-10-31", "2026-11-01", "2026-11-20")))
+    vids = load(write(tmp_path, text), set(), today=date(2026, 12, 1))
+    assert [v.published.isoformat() for v in feed(vids)] == ["2026-11-20", "2026-11-01"]
+    assert [v.published.isoformat() for v in archive(vids)] == ["2026-10-31"]
+
+
+def test_real_catalog_puts_only_whats_new_in_the_feed():
+    from sitegen import paths
+    from sitegen.docs import published_pages
+    from sitegen.videos import feed
+
+    pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
+    vids = load(paths.DATA / "videos.yaml", pages, posts=set())
+    assert [v.id for v in feed(vids)] == ["t-6xwtEcnTE"]
+    assert feed(vids)[0].docs is None
+
+
 def write(tmp_path, text):
     p = tmp_path / "videos.yaml"
     p.write_text(text)

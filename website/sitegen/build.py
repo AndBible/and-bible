@@ -39,7 +39,7 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
              for p in load_posts(content / DEFAULT_LANG / "blog", paths.MEDIA)]
     reviews = load_reviews(data / "reviews.yaml")
     docs_pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
-    videos = load_videos(data / "videos.yaml", docs_pages)
+    videos = load_videos(data / "videos.yaml", docs_pages, posts={p.slug for p in posts})
     tutorials = load_tutorials(data / "tutorials.yaml", docs_pages)
     for lang in languages(content):
         render_home(env, strings(content, lang), lang, posts, out, reviews, videos)
