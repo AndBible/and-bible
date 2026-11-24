@@ -101,7 +101,7 @@ sections:
   reviews_all: Read all reviews on Google Play
   reviews_all_url: "https://play.google.com/store/apps/details?id=net.bible.android.activity&showAllReviews=true"
   videos: Learn with videos
-  videos_link: Browse the video catalog
+  videos_link: All videos
   support_title: Support AndBible
   support_text: >-
     AndBible is free and has no ads. Sponsored development time keeps it moving.

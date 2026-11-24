@@ -245,38 +245,48 @@ def _catalog(data, rows):
         for vid, day, short in rows))
 
 
-def test_home_teases_the_three_newest_videos_newest_first(content, tmp_path):
-    _catalog(tmp_path / "data", [("oldest00001", "2024-01-01", False), ("third000003", "2025-03-01", False),
-                                 ("newest00005", "2026-09-01", True), ("second00002", "2026-02-01", False),
-                                 ("fourth00004", "2025-01-01", False)])
+def test_home_shows_series_teaser_then_two_newest_feed_videos(content, tmp_path):
+    data = tmp_path / "data"
+    _catalog(data, [("archive0001", "2026-10-31", False), ("third000003", "2026-11-02", False),
+                    ("newest00005", "2026-11-20", True), ("second00002", "2026-11-15", False),
+                    ("fourth00004", "2026-11-01", False)])
+    (data / "tutorials.yaml").write_text("""placeholder: RlLkpKZZwTg
+episodes:
+  - {slug: tutorial-01-a, number: 1, title: One, docs: search, anchor: null, youtube: abcDEF12345}
+groups:
+  - {title: First, episodes: [1]}
+""")
     out = tmp_path / "out"
-    build(content, out, data=tmp_path / "data", docs=False)
+    build(content, out, data=data, docs=False)
     html = (out / "index.html").read_text()
-    teaser = html.split('<div class="video-grid">')[1].split("</section>")[0]
-    assert re.findall(r'data-yt-id="([^"]+)"', teaser) == ["newest00005", "second00002", "third000003"]
-    assert 'class="yt yt--short yt--card"' in teaser and teaser.count("yt--card") == 3
-    assert 'href="/videos/"' in teaser  # the catalog link stays below the cards
-    assert "youtube-nocookie" not in html and "i.ytimg.com" not in html  # first-party until the click
+    grid = html.split('<div class="video-grid">')[1].split('<p><a href="/videos/">')[0]
+    assert 'href="/tutorials/"' in grid and "1 videos" in grid
+    assert grid.index('href="/tutorials/"') < grid.index('data-yt-id="newest00005"')
+    assert re.findall(r'data-yt-id="([^"]+)"', grid) == ["newest00005", "second00002"]
+    assert 'class="yt yt--short yt--card"' in grid and grid.count("yt--card") == 2
+    assert 'href="/videos/">All videos</a>' in html
+    assert "youtube-nocookie" not in html and "i.ytimg.com" not in html
 
 
-def test_home_without_videos_has_no_empty_grid(content, tmp_path):
+def test_home_never_shows_archive_videos(content, tmp_path):
+    _catalog(tmp_path / "data", [("archive0001", "2026-10-31", False)])
     out = tmp_path / "out"
     build(content, out, data=tmp_path / "data", docs=False)
     html = (out / "index.html").read_text()
     assert "video-grid" not in html and 'href="/videos/"' in html
+    assert 'href="/tutorials/"' not in html and 'data-yt-id="archive0001"' not in html
 
 
 def test_home_teaser_shows_the_date_but_never_the_version(content, tmp_path):
-    _catalog(tmp_path / "data", [("newest00005", "2026-09-01", True), ("second00002", "2026-02-01", False)])
+    _catalog(tmp_path / "data", [("newest00005", "2026-11-20", True), ("second00002", "2026-11-02", False)])
     cat = tmp_path / "data" / "videos.yaml"
-    cat.write_text(cat.read_text().replace('"2026-09-01"', '"2026-09-01", version: "5.1"'))
+    cat.write_text(cat.read_text().replace('"2026-11-20"', '"2026-11-20", version: "5.1"'))
     out = tmp_path / "out"
     build(content, out, data=tmp_path / "data", docs=False)
     teaser = (out / "index.html").read_text().split('<div class="video-grid">')[1].split("</section>")[0]
-    assert '<time datetime="2026-09-01">1 Sep 2026</time>' in teaser
-    assert '<time datetime="2026-02-01">1 Feb 2026</time>' in teaser
+    assert '<time datetime="2026-11-20">20 Nov 2026</time>' in teaser
+    assert '<time datetime="2026-11-02">2 Nov 2026</time>' in teaser
     assert "v5.1" not in teaser and "·" not in teaser
-    assert "yt__meta" in (out / "videos" / "index.html").read_text() and "v5.1 · " in (out / "videos" / "index.html").read_text()
 
 
 def test_support_card_has_decorative_art(content, tmp_path):

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import post_card %}
+{% from "_macros.html" import post_card, tutorial_teaser as render_tutorial_teaser %}
 {% block head_extra %}<script src="{{ asset_url('js/reviews-carousel.js') }}" defer></script><script src="{{ asset_url('js/appshots.js') }}" defer></script>{% endblock %}
 {% block content %}
 <section class="hero">
@@ -82,8 +82,9 @@
 <section class="block">
   <div class="teaser">
     <h2>{{ strings.sections.videos }}</h2>
-    {% if video_cards %}
+    {% if video_cards or tutorial_teaser %}
     <div class="video-grid">
+      {% if tutorial_teaser %}{{ render_tutorial_teaser(tutorial_teaser, strings.videos.teaser_link) }}{% endif %}
       {% for card in video_cards %}<div>{{ card }}</div>{% endfor %}
     </div>
     {% endif %}
