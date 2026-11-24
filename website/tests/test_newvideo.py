@@ -168,6 +168,42 @@ def test_existing_post_not_overwritten(env):
     assert (env / "data" / "videos.yaml").read_text() == EXISTING
 
 
+@pytest.mark.parametrize("slug", ["Invalid", "page", "bad--slug", "../escape"])
+def test_invalid_explicit_slug_rejected_before_writes(env, slug):
+    with pytest.raises(NewVideoError, match="slug"):
+        call(env, *base(), "--slug", slug)
+    assert (env / "data/videos.yaml").read_text() == EXISTING
+    assert not list((env / "content/en/blog").iterdir())
+    assert not (env / "media/videos").exists()
+
+
+def test_existing_slug_on_different_date_rejected_before_writes(env):
+    blog = env / "content/en/blog"
+    old = blog / "2026-10-02-my-slug.md"
+    old.write_text("---\ntitle: Old\ndate: '2026-10-02'\nslug: my-slug\nsummary: Old.\n---\n\nOld.\n")
+    with pytest.raises(NewVideoError, match="slug.*already"):
+        call(env, *base(), "--slug", "my-slug")
+    assert (env / "data/videos.yaml").read_text() == EXISTING
+    assert list(blog.iterdir()) == [old]
+    assert not (env / "media/videos").exists()
+
+
+def test_build_rejects_ambiguous_referenced_post_slug(env, tmp_path):
+    import shutil
+    from sitegen import build, paths
+
+    blog = env / "content/en/blog"
+    for day in ("2026-10-01", "2026-10-02"):
+        (blog / f"{day}-same.md").write_text(
+            f"---\ntitle: Post\ndate: '{day}'\nslug: same\nsummary: Text.\n---\n\nText.\n")
+    shutil.copy(paths.CONTENT / "en/site.yaml", env / "content/en/site.yaml")
+    shutil.copy(paths.DATA / "reviews.yaml", env / "data/reviews.yaml")
+    (env / "data/videos.yaml").write_text(
+        '- {id: "abcDEF12345", title: "Video", topic: "Getting started", published: "2026-11-02", post: "same"}\n')
+    with pytest.raises(ValueError, match="ambiguous.*same|same.*ambiguous"):
+        build.build(env / "content", tmp_path / "out", env / "data", docs=False)
+
+
 def test_thumbnail_written(env):
     call(env, *base(), "--no-post")
     assert (env / "media" / "videos" / f"{ID}.webp").is_file()

@@ -40,6 +40,10 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
     reviews = load_reviews(data / "reviews.yaml")
     docs_pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
     videos = load_videos(data / "videos.yaml", docs_pages, posts={p.slug for p in posts})
+    referenced = {video.post for video in videos if video.post is not None}
+    for slug in referenced:
+        if sum(post.slug == slug for post in posts) > 1:
+            raise ValueError(f"ambiguous blog post slug {slug!r} referenced by videos.yaml")
     tutorials = load_tutorials(data / "tutorials.yaml", docs_pages)
     for lang in languages(content):
         render_home(env, strings(content, lang), lang, posts, out, reviews, videos, tutorials=tutorials)

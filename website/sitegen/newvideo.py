@@ -20,7 +20,7 @@ import yaml
 
 from sitegen import paths, releases, thumbnails, videos
 from sitegen.docs import published_pages
-from sitegen.content import load_posts
+from sitegen.content import load_posts, validate_post_slug
 from sitegen.youtube import parse as parse_url
 
 _BARE_ID = re.compile(r"[A-Za-z0-9_-]{11}")
@@ -150,10 +150,16 @@ def run(args: argparse.Namespace, *, fetcher: Callable[[str], bytes] = _http_get
     slug = None
     if not args.no_post:
         day = date.fromisoformat(args.date) if args.date else (today or date.today())
-        slug = args.slug or slugify(title)
+        slug = args.slug if args.slug is not None else slugify(title)
+        try:
+            validate_post_slug(slug, "--slug")
+        except ValueError as exc:
+            raise NewVideoError(str(exc)) from exc
         post = content / "en" / "blog" / f"{day.isoformat()}-{slug}.md"
         if post.exists():
             raise NewVideoError(f"{post} already exists")
+        if slug in post_slugs:
+            raise NewVideoError(f"post slug {slug!r} already exists")
     line = catalog_line(video_id, title, args.topic, args.docs, short, published, version, args.kind, slug)
     with tempfile.TemporaryDirectory() as tmp:  # validate with the build's own rules
         probe = Path(tmp) / "videos.yaml"
