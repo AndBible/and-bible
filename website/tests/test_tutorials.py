@@ -109,6 +109,7 @@ def test_groups_load_in_order(tmp_path):
     ("  - {title: First, episodes: []}", "no episodes"),
     ("  - {title: First, episodes: [1, 2, null]}", "unknown episode"),
     ("  - {title: First, episodes: [true, 2]}", "unknown episode"),
+    ("  - {title: Site nav, episodes: [1, 2]}", "anchor"),
 ])
 def test_invalid_groups_rejected(tmp_path, groups, message):
     with pytest.raises(ValueError, match=message):

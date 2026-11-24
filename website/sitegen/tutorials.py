@@ -152,7 +152,7 @@ def load(path: Path, docs_pages: set[str]) -> Series:
         raise ValueError(f"{path}: groups must be a list")
     numbers = {e.number for e in episodes if e.number is not None}
     seen: set[int] = set()
-    anchors: set[str] = set()
+    anchors: set[str] = {"site-nav"}  # Reserved by the shared base template.
     groups = []
     for entry in raw_groups:
         if not isinstance(entry, dict) or not isinstance(entry.get("title"), str) or not entry["title"].strip():
