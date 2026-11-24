@@ -130,6 +130,7 @@ def test_tutorials_page_groups_rows_with_toc(tmp_path):
     page = (tmp_path / "tutorials/index.html").read_text()
     assert page.index("What&#39;s new") < page.index('<h2 id="first"')
     assert '<h2 id="more-study"' in page
+    assert page.index("Contents") < page.index("<h2>Start here</h2>") < page.index("What&#39;s new")
     for anchor in re.findall(r'href="#([^"]+)"', page):
         assert len(re.findall(r'id="' + re.escape(anchor) + r'"', page)) == 1
     row = re.search(r'<li class="vrow">(?:(?!</li>).)*One(?:(?!</li>).)*</li>', page, re.S).group()

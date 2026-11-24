@@ -5,7 +5,7 @@
   <h1>{{ page.title }}</h1>
   <p class="videos__intro">{{ page.intro }}</p>
   {% if groups %}<h2>{{ page.contents }}</h2>{{ toc(groups) }}{% endif %}
-  {% if introductory %}<ul class="vrows">{% for row in introductory %}{{ video_row(row) }}{% endfor %}</ul>{% endif %}
+  {% if introductory %}<h2>{{ page.start_here }}</h2><ul class="vrows">{% for row in introductory %}{{ video_row(row) }}{% endfor %}</ul>{% endif %}
   {% for group in groups %}
   <section class="videos__topic">
     <h2 id="{{ group.id }}">{{ group.title }}</h2>

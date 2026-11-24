@@ -271,6 +271,10 @@ section.block { padding: 48px 0 0; }
 .teaser { padding: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .teaser h2 { margin-top: 0; }
 .teaser p { color: var(--muted); max-width: 40rem; }
+.teaser--series { margin-bottom: 2rem; }
+.series-card { padding: 16px; background: var(--surface-2); border-radius: 8px; }
+.series-card h3 { margin: 0 0 .25rem; font-size: 1.1rem; }
+.series-card p { margin: 0 0 .5rem; color: var(--muted); }
 /* Support card: text and button beside a decorative illustration; art on the left, on narrow screens above the text and smaller. */
 .support { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr); align-items: center; gap: 56px; }
 .support__text { min-width: 0; }
@@ -353,4 +357,3 @@ img.vrow__thumb { height: auto; }
 /* ---- Tutorial series (data/tutorials.yaml) on /videos/ ---- */
 .tutorial-note__badge { flex: none; padding: 1px 10px; border: 1px solid var(--border); border-radius: 999px;
   background: var(--surface); color: var(--muted); font-size: .8rem; white-space: nowrap; }
-.videos__topic-title { margin: 0 0 1rem; font-size: 1.25rem; }

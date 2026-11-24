@@ -289,7 +289,11 @@ groups:
     html = (out / "index.html").read_text()
     assert ('href="/tutorials/"' in html) is bool(episode_id)
     assert ('data-yt-id="newest00005"' in html) is has_feed
+    hero = html.split('class="actions"')[1].split("</div>")[0]
+    assert ('href="/tutorials/"' in hero) is bool(episode_id)
+    assert ('href="/videos/"' in hero) is not bool(episode_id)
     if episode_id:
+        assert "<h3>AndBible 6.0 video tutorials</h3>" in html and 'class="teaser teaser--series"' not in html
         assert '1 videos' in html
 
 

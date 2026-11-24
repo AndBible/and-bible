@@ -17,7 +17,7 @@
       <p class="lead">{{ strings.hero.lead }}</p>
       <div class="actions">
         <a class="button button--primary" href="{{ prefix }}/docs/">{{ strings.hero.docs_button }}</a>
-        <a class="button button--secondary" href="/videos/">{{ strings.hero.videos_button }}</a>
+        <a class="button button--secondary" href="{{ tutorial_teaser.url if tutorial_teaser else '/videos/' }}">{{ strings.hero.videos_button }}</a>
       </div>
     </div>
     <div class="getapp">
@@ -84,7 +84,7 @@
     <h2>{{ strings.sections.videos }}</h2>
     {% if video_cards or tutorial_teaser %}
     <div class="video-grid">
-      {% if tutorial_teaser %}{{ render_tutorial_teaser(tutorial_teaser, strings.videos.teaser_link) }}{% endif %}
+      {% if tutorial_teaser %}{{ render_tutorial_teaser(tutorial_teaser, strings.videos.teaser_link, true) }}{% endif %}
       {% for card in video_cards %}<div>{{ card }}</div>{% endfor %}
     </div>
     {% endif %}

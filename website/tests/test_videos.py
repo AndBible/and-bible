@@ -289,6 +289,7 @@ def test_videos_page_is_teaser_feed_then_archive_link(tmp_path):
     assert html.index('/tutorials/') < html.index('Current interview') < html.index('/videos/archive/')
     assert '2 Nov 2026' in html and 'Interview' in html and 'href="/post/"' in html
     assert 'Archived title' not in html
+    assert 'class="teaser teaser--series"' in html
 
 
 def test_videos_page_without_feed_or_series_still_has_archive_link(tmp_path):

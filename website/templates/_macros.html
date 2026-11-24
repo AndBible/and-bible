@@ -1,6 +1,7 @@
-{% macro tutorial_teaser(teaser, label) %}
-<section class="teaser">
-  <h2>{{ teaser.title }}</h2>
+{% macro tutorial_teaser(teaser, label, inner=false) %}
+{#- inner=true: a card nested in another section (landing page): h3 and no .teaser chrome of its own. -#}
+<section class="{{ 'series-card' if inner else 'teaser teaser--series' }}">
+  <{{ 'h3' if inner else 'h2' }}>{{ teaser.title }}</{{ 'h3' if inner else 'h2' }}>
   <p>{{ teaser.count_text }}</p>
   <a href="{{ teaser.url }}">{{ label }}</a>
 </section>
