@@ -51,6 +51,10 @@ case "$endpoint" in
     */pending_deployments)
         if [[ "$method" == POST ]]; then
             n=$(count posts)
+            if [[ "$SCENARIO" == lost-response || "$SCENARIO" == partial-approval ]]; then
+                printf '%s\n' "$endpoint" > "$STATE/approved"
+                printf 'approval response lost\n' >&2; exit 1
+            fi
             if [[ "$SCENARIO" == post-error || ( "$SCENARIO" == retry && "$n" == 1 ) ]]; then
                 printf 'temporary approval error\n' >&2; exit 1
             fi
@@ -61,10 +65,18 @@ case "$endpoint" in
         if [[ "$SCENARIO" == pending-error && "$n" == 1 ]]; then
             printf 'temporary pending error\n' >&2; exit 1
         fi
-        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting ]]; then
+        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || -f "$STATE/approved" ]]; then
             json='[]'
         else
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":true}]'
+        fi ;;
+    */approvals)
+        if [[ "$SCENARIO" == partial-approval ]]; then
+            json='[{"state":"approved","environments":[{"id":42}]}]'
+        elif [[ -f "$STATE/approved" ]]; then
+            json='[{"state":"approved","environments":[{"id":42},{"id":43}]}]'
+        else
+            json='[]'
         fi ;;
     */jobs)
         n=$(count jobs)
@@ -113,7 +125,7 @@ for scenario in delayed tag-only replaced retry lookup-error pending-error; do
     run_case "$scenario"
     assert_approved || failed=$((failed + 1))
 done
-for scenario in waiting post-error; do
+for scenario in waiting post-error partial-approval; do
     run_case "$scenario"
     assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
 done
@@ -122,6 +134,9 @@ assert_warning 'https://github.com/AndBible/and-bible/actions/workflows/build-ap
 run_case follow windows-sign
 assert_approved || failed=$((failed + 1))
 grep -q 'SignPath reminder' "$STATE/output" || { fail 'follow: missing signing reminder'; failed=$((failed + 1)); }
+run_case lost-response windows-sign
+assert_approved || failed=$((failed + 1))
+grep -q 'SignPath reminder' "$STATE/output" || { fail 'lost response: missing signing reminder'; failed=$((failed + 1)); }
 run_case follow-failed windows-sign
 [[ "$rc" != 0 ]] || { fail 'failed signing job reported success'; failed=$((failed + 1)); }
 printf 'failed %s\n' "$failed"
