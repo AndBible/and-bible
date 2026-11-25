@@ -32,10 +32,16 @@ case "$endpoint" in
     */workflows/*/runs\?*) boundary=lookup ;;
     */pending_deployments) boundary=pending ;;
     */jobs) boundary=jobs ;;
-    */actions/runs/202) boundary=status ;;
+    */actions/runs/202|*/actions/runs/101|*/actions/runs/303) boundary=status ;;
     *) printf 'Unexpected endpoint: %s\n' "$endpoint" >&2; exit 1 ;;
 esac
 n=$(count "$method-$boundary")
+# A stale approved run must look successful, not merely trigger an unexpected-endpoint error.
+case "$endpoint:$boundary:$method" in
+    */101:status:GET|*/303:status:GET) printf '{"status":"completed","conclusion":"success"}\n' | jq -r "$query"; exit ;;
+    */101/jobs:jobs:GET|*/303/jobs:jobs:GET)
+        printf '{"jobs":[{"name":"%s","status":"completed","conclusion":"success"}]}\n' "$JOB" | jq -r "$query"; exit ;;
+esac
 if [[ "$method" == GET ]]; then
     [[ "$SCENARIO" != success-stderr ]] || printf 'diagnostic only (HTTP 403)\n' >&2
     if [[ "$SCENARIO" == "get-$boundary-"* && "$n" == 1 ]]; then
