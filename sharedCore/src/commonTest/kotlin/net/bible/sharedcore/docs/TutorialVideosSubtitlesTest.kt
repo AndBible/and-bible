@@ -2,13 +2,13 @@ package net.bible.sharedcore.docs
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class TutorialVideosSubtitlesTest {
     private val subs = setOf("fi", "pt", "zh-Hans")
     private val watch = "https://www.youtube.com/watch?v=abc123"
+    private val placeholder = "https://www.youtube.com/watch?v=${TutorialVideos.PLACEHOLDER_VIDEO_ID}"
 
     @Test fun exactMatchWinsAndIsCaseInsensitive() {
         assertEquals("zh-Hans", TutorialVideos.matchSubtitle(subs, "zh_hans"))
@@ -66,36 +66,24 @@ class TutorialVideosSubtitlesTest {
     }
 
     @Test fun unpublishedEpisodeRequestsThePlaceholdersCaptions() {
-        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
-        for (language in listOf("fi", "de", "sv")) {
-            assertEquals(
-                "https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=$language&hl=$language",
-                TutorialVideos.url(episode, language),
-            )
-            assertTrue(TutorialVideos.hasPlainLabel(episode, language), language)
-            assertEquals(language, TutorialVideos.subtitleLanguage(episode, language))
-        }
+        assertEquals("$placeholder&cc_load_policy=1&cc_lang_pref=fi&hl=fi", TutorialVideos.buildUrl(null, emptySet(), "fi"))
+        assertEquals("fi", TutorialVideos.matchSubtitle(TutorialVideos.PLACEHOLDER_SUBTITLES, "fi"))
     }
 
-    @Test fun unpublishedEpisodeWithoutMatchingCaptionsKeepsTheEnglishQualifier() {
-        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
-        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.url(episode, "zxx"))
-        assertFalse(TutorialVideos.hasPlainLabel(episode, "zxx"))
-        assertNull(TutorialVideos.subtitleLanguage(episode, "zxx"))
+    @Test fun unpublishedEpisodeWithoutMatchingCaptionsKeepsThePlainWatchUrl() {
+        assertEquals(placeholder, TutorialVideos.buildUrl(null, emptySet(), "zxx"))
+        assertNull(TutorialVideos.matchSubtitle(TutorialVideos.PLACEHOLDER_SUBTITLES, "zxx"))
     }
 
-    @Test fun unpublishedEpisodeInEnglishUsesThePlainPlaceholderUrlAndLabel() {
-        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
-        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.url(episode, "en-US"))
-        assertTrue(TutorialVideos.hasPlainLabel(episode, "en-US"))
+    @Test fun unpublishedEpisodeInEnglishUsesThePlainPlaceholderUrl() {
+        assertEquals(placeholder, TutorialVideos.buildUrl(null, emptySet(), "en-US"))
     }
 
     @Test fun unpublishedEpisodeIgnoresItsOwnSubtitleMetadata() {
-        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.buildUrl(null, setOf("zxx"), "zxx"))
+        assertEquals(placeholder, TutorialVideos.buildUrl(null, setOf("zxx"), "zxx"))
     }
 
     @Test fun placeholderCaptionsMatchPlatformLanguageTags() {
-        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
         val cases = mapOf(
             "in" to "id", "id" to "id", "he" to "iw", "iw" to "iw",
             "sr-Latn" to "sr-Latn", "sr-Latn-RS" to "sr-Latn", "sr-Cyrl-RS" to "sr", "sr-RS" to "sr",
@@ -105,27 +93,23 @@ class TutorialVideosSubtitlesTest {
             "nb" to "nb", "no" to "nb", "no-NO" to "nb", "tl" to "fil", "fil" to "fil",
         )
         for ((app, caption) in cases) {
-            assertEquals(caption, TutorialVideos.subtitleLanguage(episode, app), app)
+            assertEquals(caption, TutorialVideos.matchSubtitle(TutorialVideos.PLACEHOLDER_SUBTITLES, app), app)
             assertEquals(
-                "https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=$caption&hl=$caption",
-                TutorialVideos.url(episode, app), app,
+                "$placeholder&cc_load_policy=1&cc_lang_pref=$caption&hl=$caption",
+                TutorialVideos.buildUrl(null, emptySet(), app), app,
             )
-            assertTrue(TutorialVideos.hasPlainLabel(episode, app), app)
         }
     }
 
     @Test fun bareChineseAndMacaoUseTheAppsTraditionalChineseCaptions() {
-        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
         for (tag in listOf("zh", "zh-MO")) {
-            assertEquals("zh-TW", TutorialVideos.subtitleLanguage(episode, tag), tag)
+            assertEquals("zh-TW", TutorialVideos.matchSubtitle(TutorialVideos.PLACEHOLDER_SUBTITLES, tag), tag)
         }
     }
 
     @Test fun cantoneseDoesNotSelectAMandarinTrack() {
-        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
-        assertNull(TutorialVideos.subtitleLanguage(episode, "yue"))
-        assertNull(TutorialVideos.subtitleLanguage(episode, "yue-Hant-HK"))
-        assertFalse(TutorialVideos.hasPlainLabel(episode, "yue"))
+        assertNull(TutorialVideos.matchSubtitle(TutorialVideos.PLACEHOLDER_SUBTITLES, "yue"))
+        assertNull(TutorialVideos.matchSubtitle(TutorialVideos.PLACEHOLDER_SUBTITLES, "yue-Hant-HK"))
     }
 
     @Test fun explicitSimplifiedChineseInMacaoDoesNotSelectTraditionalCaptions() {
@@ -138,16 +122,8 @@ class TutorialVideosSubtitlesTest {
         assertTrue("cc_lang_pref=x%26y%3Dz&hl=x%26y%3Dz" in url, url)
     }
 
-    @Test fun labelIsPlainForEnglishOrMatchedCaptions() {
-        assertTrue(TutorialVideos.plainLabel(emptySet(), "en-GB"))
-        assertTrue(TutorialVideos.plainLabel(subs, "fi"))
-        assertFalse(TutorialVideos.plainLabel(subs, "de"))
-        assertFalse(TutorialVideos.plainLabel(emptySet(), "fi"))
-    }
-
-    @Test fun englishAppKeepsTheEpisodesOwnUrl() {
-        val e = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
-        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.url(e, "en"))
-        assertNull(TutorialVideos.subtitleLanguage(e, "en"))
+    @Test fun englishAppKeepsTheUnpublishedPlaceholderUrl() {
+        assertEquals(placeholder, TutorialVideos.buildUrl(null, emptySet(), "en"))
+        assertNull(TutorialVideos.matchSubtitle(TutorialVideos.PLACEHOLDER_SUBTITLES, "en"))
     }
 }
