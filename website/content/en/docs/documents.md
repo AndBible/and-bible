@@ -141,7 +141,10 @@ repositories (Sword) or directly loaded from your device’s filesystem.
 Since version 5.0, *AndBible* also supports ePub digital books, which can be loaded from
 your device’s filesystem and read as generic books. An EPUB appears in the document
 list under the *Book* group. Its table of contents (the list of its chapters) opens as a sheet from the title at the
-top of the screen. EPUBs have their own search modes, including *Raw query syntax*; see
+top of the screen. If the table of contents is missing or incomplete, AndBible lists the
+book's sections in reading order instead. If no readable chapters are found, AndBible
+shows an error message rather than silently returning to the previous document.
+EPUBs have their own search modes, including *Raw query syntax*; see
 [Searching EPUB books](search.md#searching-epub-books).
 
 The link action menu appears only when a tap has several possible actions; a plain tap

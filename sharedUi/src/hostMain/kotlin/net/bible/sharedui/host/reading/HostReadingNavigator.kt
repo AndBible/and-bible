@@ -193,14 +193,20 @@ class HostReadingNavigator(
                     shell.navigate(NavRoutes.myDocumentPages(docId.toString(), doc.initials, doc.name))
                 }
                 // The key-list quick sheet a title tap opens (#4172): there is no full-screen general-book chooser.
-                else -> openKeyListSheet(page, hostState, onCancelledWithoutKey = { history().goBack() })
+                else -> openKeyListSheet(page, hostState, onCancelledWithoutKey = { history().goBack() },
+                    onEmptyEpub = ::showEmptyEpub)
             }
         }
     }
 
+    private fun showEmptyEpub(name: String) {
+        dialogs.postUnlessQueued(net.bible.sharedui.reading.toolbar.emptyEpubMessage(strings(), name))
+    }
+
     private fun startKeyListSheet(page: CurrentPage) {
         shell.hostScope.launch(mainContext) {
-            openKeyListSheet(page, hostState, onCancelledWithoutKey = { history().goBack() })
+            openKeyListSheet(page, hostState, onCancelledWithoutKey = { history().goBack() },
+                onEmptyEpub = ::showEmptyEpub)
         }
     }
 

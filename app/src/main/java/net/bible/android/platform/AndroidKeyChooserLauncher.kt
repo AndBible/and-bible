@@ -82,7 +82,14 @@ class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?
             return false
         }
         context.lifecycleScope.launch(Dispatchers.Main) {
-            openKeyListSheet(page, host.hostState, onCancelledWithoutKey = { context.goBackInHistory() })
+            openKeyListSheet(page, host.hostState, onCancelledWithoutKey = { context.goBackInHistory() },
+                onEmptyEpub = { name ->
+                    org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.ui.dialog.AppDialogController>(
+                        net.bible.sharedcore.ui.dialog.AppDialogController::class.java,
+                    ).postUnlessQueued(net.bible.sharedui.reading.toolbar.emptyEpubMessage(
+                        net.bible.sharedui.strings.AndroidStrings(context), name,
+                    ))
+                })
         }
         return true
     }

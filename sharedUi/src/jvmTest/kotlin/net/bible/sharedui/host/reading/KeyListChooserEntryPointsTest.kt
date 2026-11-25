@@ -8,6 +8,8 @@ package net.bible.sharedui.host.reading
 
 import androidx.compose.runtime.snapshots.Snapshot
 import java.io.File
+import okio.Path.Companion.toPath
+import net.bible.service.sword.epub.epubBackend
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlinx.coroutines.Dispatchers
@@ -275,6 +277,51 @@ class KeyListChooserEntryPointsTest {
         host.navigator.startKeyChooser(page)
         assertKeyListSheet(host, KeyChooserKind.Map, awaitChooser(host))
         assertSame(asking, control.activeWindow, "the sheet answers the active window, so the asking window is activated")
+    }
+
+    /** #4237: a valid EPUB package with no spine entries must report an error, not silently go back. */
+    @Test fun openingAnEpubWithNoKeysShowsAnError() = withHost { host, control ->
+        val koin = KoinPlatform.getKoin()
+        val modules = koin.get<net.bible.sharedcore.platform.AppDirectories>().modulesDir
+        val dir = File(modules.toString(), "epub/empty-key-list.epub").apply { mkdirs() }
+        val initials = net.bible.service.sword.epub.epubInitials(dir.name)
+        File(dir, "META-INF").mkdirs()
+        File(dir, "META-INF/container.xml").writeText("""
+            <container xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+              <rootfiles><rootfile full-path="content.opf"/></rootfiles>
+            </container>
+        """.trimIndent())
+        File(dir, "content.opf").writeText("""
+            <package xmlns="http://www.idpf.org/2007/opf">
+              <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <dc:title>Empty EPUB</dc:title><dc:language>en</dc:language>
+              </metadata><manifest/><spine/>
+            </package>
+        """.trimIndent())
+        try {
+            net.bible.service.sword.epub.addEpubBook(dir.toString().toPath(),
+                koin.get(), koin.get())
+            HostRootLinks.attachReading(host.navigator, { _, _ -> false })
+            control.activeWindow.pageManager.setCurrentDocument(book(initials))
+            val dialogs = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()
+            val shown = withTimeout(10_000) {
+                while (dialogs.pending.value == null) delay(10)
+                checkNotNull(dialogs.pending.value)
+            }
+            val request = (shown.request as? net.bible.sharedcore.ui.dialog.AppDialogRequest.Localized)?.resolve()
+                ?: shown.request
+            val message = kotlin.test.assertIs<net.bible.sharedcore.ui.dialog.AppDialogRequest.Message>(request)
+            kotlin.test.assertTrue(message.title.orEmpty().contains("no readable chapters", ignoreCase = true), message.toString())
+            kotlin.test.assertTrue(message.title.orEmpty().contains("Empty EPUB"), message.toString())
+            assertNull(host.hostState.quickSheet.value)
+            dialogs.respond(shown.id, net.bible.sharedcore.ui.dialog.AppDialogResult.Ok)
+        } finally {
+            koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>().cancelAll()
+            Books.installed().getBook(initials)?.let {
+                it.epubBackend?.state?.close()
+                Books.installed().removeBook(it)
+            }
+        }
     }
 
     private companion object {

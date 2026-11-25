@@ -166,15 +166,18 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     private val tocFile = XmlQueries.tocItem(content, epubNamespace)?.getAttribute("href")?.value?.let { rootFolder.child(it) }
 
-    private val toc = tocFile?.run { useKdomBuilder { it.build(KFiles.readBytes(this)) } }
+    private val toc = tocFile?.takeIf { KFiles.exists(it) }?.let { file ->
+        useKdomBuilder { it.build(KFiles.readBytes(file)) }
+    }
 
     internal val fileToTitle = toc?.let { document ->
-        XmlQueries.navPointContents(document, tocNamespace).reversed().associate {
-            val textElem = XmlQueries.navLabelTexts(it, tocNamespace).first()
-            val fileAndId = getFileAndId(it.getAttribute("src")!!.value)
+        XmlQueries.navPointContents(document, tocNamespace).reversed().mapNotNull {
+            val textElem = XmlQueries.navLabelTexts(it, tocNamespace).firstOrNull() ?: return@mapNotNull null
+            val src = it.getAttribute("src")?.value ?: return@mapNotNull null
+            val fileAndId = getFileAndId(src)
             val fileName = fileAndId?.first?.let { name -> decodeUrl(name) }
             fileName to textElem.text
-        }
+        }.toMap()
     }
 
     private fun queryMetadata(key: String): String? = XmlQueries.dcElements(content, key, dcNamespace).firstOrNull()?.value
@@ -227,14 +230,13 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     suspend fun tocKeys(): List<Key> {
         return withOpen {
-            // Check if toc is null and return an empty list if it is
-            if (toc == null) return emptyList()
-
-            val content = XmlQueries.navPointContents(toc, tocNamespace)
+            val content = toc?.let { XmlQueries.navPointContents(it, tocNamespace) }.orEmpty()
             val book = Books.installed().getBook(getBookMetaData().initials)
-            return content.mapNotNull { c ->
+            val coveredIds = mutableSetOf<String>()
+            val entries = content.mapNotNull { c ->
                 val label = XmlQueries.navLabelTexts(c, tocNamespace).firstOrNull()?.text
-                val fileAndId = getFileAndId(c.getAttribute("src")!!.value)
+                val src = c.getAttribute("src")?.value ?: return@mapNotNull null
+                val fileAndId = getFileAndId(src)
                 val fileName = fileAndId?.first?.let { decodeUrl(it) }
                 val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
                 val id = fileToId[fileName] ?: return@mapNotNull null
@@ -244,7 +246,19 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
                     "$id#$htmlId"
                 }
                 val frag = dao.getFragment(keyStr)
-                frag?.let { BookAndKey(getKey(it, label = label), book, htmlId = htmlId) }
+                frag?.let {
+                    coveredIds.add(it.originalId)
+                    BookAndKey(getKey(it, label = label), book, htmlId = htmlId)
+                }
+            }
+            val fragments = dao.fragments().sortedBy { it.id }
+            val readableIds = fragments.map { it.originalId }.toSet()
+            if (entries.isNotEmpty() && coveredIds.containsAll(readableIds)) return entries
+
+            return fragments.map { frag ->
+                val filename = idToFile[frag.originalId]
+                val label = filename?.let { fileToTitle?.get(it) ?: it } ?: strings.namelessTitle
+                BookAndKey(getKey(frag, label), book)
             }
         }
     }
@@ -311,13 +325,22 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
             KFiles.delete(epubDbFile)
         }
 
-        if(!KFiles.exists(epubDbFile)) {
+        if (KFiles.exists(epubDbFile) && !KFiles.exists(appDbFile)) {
+            gunzipFile(epubDbFile, appDbFile)
+        }
+        // Older optimizers could publish a complete-looking database with no fragments.
+        // Only rebuild when every source is available: optimization removes existing output.
+        val emptyWithSources = if (KFiles.exists(epubDbFile) && sourcesPresent) {
+            val existingDb = getEpubDatabase(appDbFilename)
+            try {
+                KoinPlatform.getKoin().get<EpubStoreEdge>().fragments(existingDb.epubDao()).isEmpty()
+            } finally {
+                existingDb.close()
+            }
+        } else false
+        if (!KFiles.exists(epubDbFile) || emptyWithSources) {
             optimizeEpub()
             gzipFile(appDbFile, epubDbFile)
-        } else {
-            if(!KFiles.exists(appDbFile))  {
-                gunzipFile(epubDbFile, appDbFile)
-            }
         }
     }
     private val readDb = getEpubDatabase(appDbFilename)

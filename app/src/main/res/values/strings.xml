@@ -1595,6 +1595,8 @@
     <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>
     <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
     <string name="processing_epub">Processing EPUB: %s</string>
+    <string name="epub_no_readable_chapters">No readable chapters found in “%s”</string>
+    <string name="epub_no_readable_chapters_help">Try importing another copy of this EPUB, or check that it contains readable chapters.</string>
     <string name="buy_development">Buy development work</string>
     <string name="buy_development2">Support project</string>
     <string name="dont_show">

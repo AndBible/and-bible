@@ -421,6 +421,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val openLogFolder: String get() = context.getString(R.string.open_log_folder)
     override val startupReportBug: String get() = context.getString(R.string.startup_report_bug)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
+    override fun epubNoReadableChapters(name: String): String = context.getString(R.string.epub_no_readable_chapters, name)
+    override val epubNoReadableChaptersHelp: String get() = context.getString(R.string.epub_no_readable_chapters_help)
     override val okay: String get() = context.getString(R.string.okay)
     override fun externalLinkDontAskAgain(host: String): String = context.getString(R.string.external_link_dont_ask_again, host)
     override val prefsTrustedLinkDomainsTitle: String get() = context.getString(R.string.prefs_trusted_link_domains_title)
