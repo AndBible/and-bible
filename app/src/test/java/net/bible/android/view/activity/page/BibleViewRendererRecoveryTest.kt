@@ -32,6 +32,7 @@ import org.robolectric.annotation.Config
 class BibleViewRendererRecoveryTest {
     private lateinit var repository: WindowRepository
     private lateinit var activity: NavHostComposeActivity
+    private val hostControllers = mutableListOf<org.robolectric.android.controller.ActivityController<NavHostComposeActivity>>()
     private lateinit var readingHost: ComposeReadingViewHost
     private lateinit var window: Window
     private lateinit var factory: BibleViewFactory
@@ -45,7 +46,7 @@ class BibleViewRendererRecoveryTest {
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).get()
+        ).also(hostControllers::add).get()
         activity.readingAppBootstrap.windowRepository = repository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
         CurrentActivityHolder.activate(activity)
@@ -63,7 +64,7 @@ class BibleViewRendererRecoveryTest {
             activity.lifecycleScope.cancel()
             CurrentActivityHolder.deactivate(activity)
         }
-        if (::repository.isInitialized) DatabaseResetter.resetDatabase(repository.scope)
+        net.bible.test.closeReadingHostsBeforeReset(hostControllers)
     }
 
     @Test fun rendererDeathDisposesTheCachedViewAndReloadsAfterComposeRemount() {

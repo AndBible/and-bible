@@ -73,6 +73,7 @@ class BibleViewFactory(
     }
 
     private val windowBibleViewMap: MutableMap<IdType, BibleView> = HashMap()
+    private val rendererRecoveryFocus = RendererRecoveryFocus()
 
     /** Live views of the workspace switched away from, waiting for an incoming window to take them over (#3950). */
     private val spareViews = ArrayDeque<BibleView>()
@@ -96,6 +97,7 @@ class BibleViewFactory(
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
+            bibleView.rendererRecoveryFocus = rendererRecoveryFocus
             bibleView.initialise()
             // By view, not by the creating window's id: a reused view serves another window by then.
             bibleView.onDestroy = {
@@ -123,6 +125,7 @@ class BibleViewFactory(
             bw.doDestroy()
         }
         windowBibleViewMap.clear()
+        rendererRecoveryFocus.clear()
         releaseSpares()
     }
 
@@ -140,6 +143,7 @@ class BibleViewFactory(
             spareViews.addLast(bw)
         }
         windowBibleViewMap.clear()
+        rendererRecoveryFocus.clear()
     }
 
     /** A parked view for [window]: its own old view when the same workspace is reloaded, else the oldest one. */
