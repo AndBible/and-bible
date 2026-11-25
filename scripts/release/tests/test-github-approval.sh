@@ -65,7 +65,7 @@ case "$endpoint" in
         if [[ "$SCENARIO" == pending-error && "$n" == 1 ]]; then
             printf 'temporary pending error\n' >&2; exit 1
         fi
-        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || -f "$STATE/approved" ]]; then
+        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || -f "$STATE/approved" ]]; then
             json='[]'
         else
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":true}]'
@@ -80,14 +80,21 @@ case "$endpoint" in
         fi ;;
     */jobs)
         n=$(count jobs)
-        if [[ "$SCENARIO" == follow-failed ]]; then
+        if [[ "$SCENARIO" == skipped-signing ]]; then
+            json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"skipped"}]}'
+        elif [[ "$SCENARIO" == follow-failed ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"failure"}]}'
         elif [[ "$n" == 1 ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"in_progress","conclusion":null}]}'
         else
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"success"}]}'
         fi ;;
-    */actions/runs/*) json='{"status":"completed"}' ;;
+    */actions/runs/*)
+        if [[ "$SCENARIO" == completed-no-approval ]]; then
+            json='{"status":"completed","conclusion":"failure"}'
+        else
+            json='{"status":"in_progress","conclusion":null}'
+        fi ;;
     *) printf 'Unexpected endpoint: %s\n' "$endpoint" >&2; exit 1 ;;
 esac
 printf '%s\n' "$json" | jq -r "$query"
@@ -98,7 +105,7 @@ export PATH="$T:$PATH"
 # Advance the deadline deterministically without waiting on wall-clock time.
 sleep() { SECONDS=$((SECONDS + $1)); }
 signpath_approval_reminder() { printf 'SignPath reminder\n'; }
-fail() { printf 'FAIL: %s\n' "$*" >&2; return 1; }
+fail() { printf 'FAIL: %s\n' "$*" >&2; }
 run_case() {
     export SCENARIO="$1" STATE="$T/$1"
     mkdir -p "$STATE"
@@ -139,5 +146,10 @@ assert_approved || failed=$((failed + 1))
 grep -q 'SignPath reminder' "$STATE/output" || { fail 'lost response: missing signing reminder'; failed=$((failed + 1)); }
 run_case follow-failed windows-sign
 [[ "$rc" != 0 ]] || { fail 'failed signing job reported success'; failed=$((failed + 1)); }
+for scenario in completed-no-approval skipped-signing; do
+    run_case "$scenario" windows-sign
+    assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
+    [[ "$SECONDS" -lt 2 ]] || { fail "$scenario: terminal run/job waited until the deadline"; failed=$((failed + 1)); }
+done
 printf 'failed %s\n' "$failed"
 [[ "$failed" == 0 ]]

@@ -75,6 +75,19 @@ approve_workflow_deployments() {
                 done <<< "$attempted_ids"
                 approved="$all_approved"
             fi
+            if [[ -z "$pending" && -z "$approved" ]]; then
+                local run_status="" terminal_job=""
+                run_status=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id" \
+                    --jq '.status') || run_status=""
+                if [[ -n "$follow_job" ]]; then
+                    terminal_job=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
+                        --jq ".jobs[] | select(.name == \"$follow_job\") | .conclusion // empty") || terminal_job=""
+                fi
+                if [[ "$run_status" == completed || -n "$terminal_job" ]]; then
+                    echo "WARNING: Deployment approval for $workflow ($tag) did not occur before the run/job completed. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
+                    return 1
+                fi
+            fi
             if [[ -n "$approved" ]]; then
                 echo "Deployment approved for $workflow run $run_id"
                 [[ -z "$follow_job" ]] && return 0
