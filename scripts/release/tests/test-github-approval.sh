@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Offline deployment approval regression tests. Only gh is stubbed; jq evaluates the real queries.
+# Run: bash scripts/release/tests/test-github-approval.sh
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 T="$(mktemp -d)"
@@ -41,7 +42,7 @@ case "$endpoint" in
             printf 'Missing release tag/event filter\n' >&2; exit 1
         elif [[ "$SCENARIO" == missing || ( "$SCENARIO" == delayed && "$n" -lt 3 ) ]]; then
             json='{"workflow_runs":[]}'
-        elif [[ "$SCENARIO" == lookup-error && "$n" == 1 ]]; then
+        elif [[ "$SCENARIO" == quiet-lookup || ( "$SCENARIO" == lookup-error && "$n" == 1 ) ]]; then
             printf 'temporary lookup error\n' >&2; exit 1
         elif [[ "$SCENARIO" == replaced && "$n" == 1 ]]; then
             json='{"workflow_runs":[{"id":303,"status":"in_progress","head_branch":"beta-1284","event":"push"}]}'
@@ -68,10 +69,10 @@ case "$endpoint" in
             exit 0
         fi
         n=$(count pending)
-        if [[ "$SCENARIO" == pending-error && "$n" == 1 ]]; then
+        if [[ "$SCENARIO" == quiet-pending || ( "$SCENARIO" == pending-error && "$n" == 1 ) ]]; then
             printf 'temporary pending error\n' >&2; exit 1
         fi
-        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || -f "$STATE/approved" ]]; then
+        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || "$SCENARIO" == quiet-* || -f "$STATE/approved" ]]; then
             json='[]'
         elif [[ "$SCENARIO" == non-approvable ]]; then
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":false},{"environment":{"id":44}}]'
@@ -79,6 +80,7 @@ case "$endpoint" in
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":true}]'
         fi ;;
     */approvals)
+        if [[ "$SCENARIO" == quiet-approvals ]]; then printf 'temporary approvals error\n' >&2; exit 1; fi
         if [[ "$SCENARIO" == partial-approval ]]; then
             json='[{"state":"approved","environments":[{"id":42}]}]'
         elif [[ -f "$STATE/approved" || "$SCENARIO" == manual-apk || "$SCENARIO" == manual-desktop ]]; then
@@ -87,8 +89,11 @@ case "$endpoint" in
             json='[]'
         fi ;;
     */jobs)
+        if [[ "$SCENARIO" == quiet-jobs ]]; then printf 'temporary jobs error\n' >&2; exit 1; fi
         n=$(count jobs)
-        if [[ "$SCENARIO" == completed-no-approval ]]; then
+        if [[ "$SCENARIO" == quiet-* ]]; then
+            json='{"jobs":[{"name":"windows-sign","status":"queued","conclusion":null}]}'
+        elif [[ "$SCENARIO" == completed-no-approval ]]; then
             json='{"jobs":[]}'
         elif [[ "$SCENARIO" == skipped-signing ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"skipped"}]}'
@@ -100,6 +105,7 @@ case "$endpoint" in
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"success"}]}'
         fi ;;
     */actions/runs/*)
+        if [[ "$SCENARIO" == quiet-status ]]; then printf 'temporary status error\n' >&2; exit 1; fi
         if [[ "$SCENARIO" == completed-no-approval || "$SCENARIO" == manual-apk ]]; then
             json='{"status":"completed","conclusion":"failure"}'
         else
@@ -182,5 +188,13 @@ grep -q 'environment_ids\[\]=42' "$STATE/calls" || { fail 'non-approvable: missi
 if grep -Eq 'environment_ids\[\]=(43|44)' "$STATE/calls"; then
     fail 'non-approvable: posted unauthorized environments'; failed=$((failed + 1))
 fi
+for scenario in quiet-lookup quiet-pending quiet-approvals quiet-status quiet-jobs; do
+    run_case "$scenario" windows-sign
+    [[ "$rc" != 0 ]] || { fail "$scenario: expected bounded failure"; failed=$((failed + 1)); }
+    if grep -q 'temporary .* error' "$STATE/output"; then
+        fail "$scenario: polling GET leaked stderr"; failed=$((failed + 1))
+    fi
+    [[ "$(grep -c 'lookup failed' "$STATE/output" || true)" == 1 ]] || { fail "$scenario: expected one lookup failure summary"; failed=$((failed + 1)); }
+done
 printf 'failed %s\n' "$failed"
 [[ "$failed" == 0 ]]
