@@ -779,6 +779,39 @@ tasks.register("packageAppImage") {
     }
 }
 
+// Linux release assets for distribution packagers (e.g. the AUR): the createDistributable image split into a small
+// per-release app archive and a large base archive (JRE, CEF natives, third-party jars) named by a hash of its content,
+// so a packaged update downloads the base only when it changed. The split itself and its rules are in
+// packaging/linux/split-app-image.py (tests: test-split-app-image.py); this task tells it which jars are our own.
+val linuxSplitDir = layout.buildDirectory.dir("compose/binaries/main/split")
+tasks.register("packageLinuxSplit") {
+    group = "distribution"
+    description = "Splits the app image into build/compose/binaries/main/split/{app,base} archives and a split.json."
+    dependsOn("createDistributable")
+    val image = layout.buildDirectory.dir("compose/binaries/main/app/andbible")
+    val script = layout.projectDirectory.file("packaging/linux/split-app-image.py")
+    // Our own jars: the project (and included-build) dependencies plus this module's jar. They change with every build.
+    val ownJars = configurations.named("runtimeClasspath").flatMap { it.incoming.artifacts.resolvedArtifacts }
+        .map { artifacts -> artifacts.filter { it.id.componentIdentifier is ProjectComponentIdentifier }.map { it.file.name } }
+        .zip(tasks.named<Jar>("jar").flatMap { it.archiveFileName }) { deps, own -> (deps + own).sorted() }
+    inputs.dir(image).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.files(script, linuxDesktop, linuxMetadata)
+    inputs.property("version", desktopVersion)
+    inputs.property("ownJars", ownJars)
+    outputs.dir(linuxSplitDir)
+    doLast {
+        check(hostTarget == "linux-x64") { "packageLinuxSplit requires Linux x64 (this host is $hostTarget)" }
+        val out = linuxSplitDir.get().asFile.apply { deleteRecursively() }
+        runLinuxPackagingTool(
+            listOf("python3", "-I", script.asFile.absolutePath, "--image", image.get().asFile.absolutePath,
+                "--out", out.absolutePath, "--version", desktopVersion,
+                "--extra", "${linuxDesktop.asFile.absolutePath}=share/applications/org.andbible.AndBible.desktop",
+                "--extra", "${linuxMetadata.asFile.absolutePath}=share/metainfo/org.andbible.AndBible.metainfo.xml") +
+                ownJars.get().flatMap { listOf("--own-jar", it) },
+        )
+    }
+}
+
 // packageDeb runs its own jpackage, so its .deb is unpacked, given the executable bits back and rebuilt under the same
 // name. The Version field is then checked against version.properties, so the .deb can never drift from the tarball.
 tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.configureEach {

@@ -62,7 +62,7 @@ Run `winget validate --manifest <version-directory>` on Windows and resolve all 
 On Linux x86-64, JDK 17 and Node 24, build the packages with:
 
 ```sh
-./gradlew -PdesktopReleaseKind=test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage
+./gradlew -PdesktopReleaseKind=test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage :desktopApp:packageLinuxSplit
 ```
 
 The Flatpak manifest uses the freedesktop 25.08 runtime, OpenJDK 17 and Node 24. Regenerate its pinned npm and Gradle sources using `bash packaging/flatpak/update-sources.sh` after installing the generator and prerequisites described in `packaging/flatpak/README.md`. Review the source changes and validate a clean `--disable-download` build. The manifest application source commit must be updated to the intended release commit; CI overrides it with the exact workflow commit for its own build.
@@ -79,5 +79,28 @@ The desktop release job waits up to 30 minutes for `build-apk.yml` to create the
 - `andbible-desktop-<tag>-x86_64.AppImage`
 - `andbible-desktop-<tag>-linux-x64.tar.gz`
 - `andbible-desktop-<tag>-x64.msi`
+- `andbible-desktop-<tag>-linux-x64-app.tar.zst`, `andbible-desktop-linux-x64-base-<base id>.tar.zst` and
+  `andbible-desktop-<tag>-linux-x64-split.json` (see "Split archives" below)
+
+### Split archives for distribution packagers
+
+Most of the Linux app image is the same from one release to the next: across beta-1272..1284 only our own jars
+changed (23-30 MB of 669 MB). The JRE, the CEF natives and the third-party jars changed in none of them. A package
+built from the `.deb` or tarball still makes every user download the full ~355 MB again. `:desktopApp:packageLinuxSplit`
+(`desktopApp/packaging/linux/split-app-image.py`) splits the `createDistributable` image so a packager can ship two
+packages instead:
+
+- **app** (`...-app.tar.zst`, ~30 MB): the launcher, `lib/app/andbible.cfg`, our own jars (the project dependencies
+  of `:desktopApp`), the jars Compose rewrites on every build, the icon, `share/applications/` and
+  `share/metainfo/` files, and `lib/base-id`, which names the base it needs.
+- **base** (`...-base-<base id>.tar.zst`, ~290 MB): everything else: `lib/runtime`, `lib/app/resources/kcef-natives`
+  and the third-party jars. The base id is a hash of its paths, modes and contents; it changes only when the JBR/CEF
+  pin or a dependency changes.
+
+Paths in both archives are relative to the install directory (`/opt/andbible` in the `.deb`); the two never share a
+file and together give exactly the app image. The archives are reproducible, so a release that reuses a base uploads
+a byte-identical copy under the same name. The `split.json` gives the base id, the base file name and both SHA-256
+sums. A packager bumps the base package only when `base_id` changes and makes the app package depend on that exact
+base version.
 
 The update check is available only to eligible GitHub builds, not Flatpak or MSIX. It asks for consent before contacting GitHub, and can be changed in Settings. With consent, it requests GitHub releases at most once per 24 hours; GitHub sees the IP address and `AndBible-Desktop/<version>` user agent. No cookies or device identifier are sent. Failures are silent. A newer release opens a prompt linking to GitHub; installation remains manual.

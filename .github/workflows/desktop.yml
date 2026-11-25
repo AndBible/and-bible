@@ -63,7 +63,9 @@ jobs:
       - name: Install Linux packaging prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y appstream desktop-file-utils file squashfs-tools
+          sudo apt-get install -y appstream desktop-file-utils file squashfs-tools zstd
+      - name: Linux split archive tests
+        run: python3 -I desktopApp/packaging/linux/test-split-app-image.py
       - name: Desktop tests and Linux packages
         env:
           REF_TYPE: ${{ github.ref_type }}
@@ -73,7 +75,7 @@ jobs:
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == test-* ]]; then kind=test; fi
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == production-* ]]; then kind=production; fi
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == beta-* ]]; then kind=beta; fi
-          ./gradlew "-PdesktopReleaseKind=$kind" :desktopApp:test :desktopWebView2:test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage
+          ./gradlew "-PdesktopReleaseKind=$kind" :desktopApp:test :desktopWebView2:test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage :desktopApp:packageLinuxSplit
       # v4
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -92,6 +94,12 @@ jobs:
         with:
           name: andbible-desktop-appimage
           path: desktopApp/build/appimage/*.AppImage
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: andbible-desktop-split
+          path: desktopApp/build/compose/binaries/main/split/*
           if-no-files-found: error
           retention-days: 14
   flatpak-sources:
@@ -319,6 +327,12 @@ jobs:
           copy_one andbible-desktop-appimage '*.AppImage' "andbible-desktop-$TAG-x86_64.AppImage"
           copy_one andbible-desktop-tarball '*.tar.gz' "andbible-desktop-$TAG-linux-x64.tar.gz"
           copy_one andbible-desktop-windows-x64 '*.msi' "andbible-desktop-$TAG-x64.msi"
+          # Split Linux archives for distribution packagers (docs/desktop-release.md, "Split archives").
+          # The base keeps its content-hash name, so it is the same asset name in every release that reuses it.
+          copy_one andbible-desktop-split '*-app.tar.zst' "andbible-desktop-$TAG-linux-x64-app.tar.zst"
+          copy_one andbible-desktop-split '*-split.json' "andbible-desktop-$TAG-linux-x64-split.json"
+          base=$(find artifacts/andbible-desktop-split -maxdepth 1 -name 'andbible-desktop-linux-x64-base-*.tar.zst' -printf '%f\n')
+          copy_one andbible-desktop-split "$base" "$base"
       - name: Attest release assets
         uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
