@@ -134,12 +134,16 @@ export PATH="$T:$PATH"
 sleep() { SECONDS=$((SECONDS + $1)); }
 signpath_approval_reminder() { printf 'SignPath reminder\n'; }
 fail() { printf 'FAIL: %s\n' "$*" >&2; }
+cases=0
 run_case() {
     export SCENARIO="$1" STATE="$T/$1"
+    local workflow=build-apk.yml
+    [[ -z "${2:-}" ]] || workflow=desktop.yml
+    cases=$((cases + 1))
     mkdir -p "$STATE"
     SECONDS=0
     rc=0
-    approve_workflow_deployments build-apk.yml beta-1284 8 2 "${2:-}" > "$STATE/output" 2>&1 || rc=$?
+    approve_workflow_deployments "$workflow" beta-1284 8 2 "${2:-}" > "$STATE/output" 2>&1 || rc=$?
 }
 assert_approved() {
     [[ "$rc" == 0 && -f "$STATE/approved" ]] || { fail "$SCENARIO: expected approval, exit=$rc"; return 1; }
@@ -217,5 +221,5 @@ for scenario in get-client-lookup get-client-pending get-client-approvals get-cl
     [[ "$rc" != 0 && "$SECONDS" -lt 2 ]] || { fail "$scenario: permanent GET error retried"; failed=$((failed + 1)); }
     grep -q 'https://github.com/AndBible/and-bible/actions/' "$STATE/output" || { fail "$scenario: missing action URL"; failed=$((failed + 1)); }
 done
-printf 'failed %s\n' "$failed"
+printf 'scenarios %s, failed %s\n' "$cases" "$failed"
 [[ "$failed" == 0 ]]
