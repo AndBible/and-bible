@@ -204,11 +204,19 @@ WIKI_TEST_SOURCE_SETS = {
 }
 
 
+def is_wiki_test_source(source, root):
+    directories = source.relative_to(root).parts[:-1]
+    # Roots are either a module's src directory or the native/web app directory.
+    if directories and directories[0] == "src":
+        directories = directories[1:]
+    return bool(directories and directories[0] in WIKI_TEST_SOURCE_SETS)
+
+
 def legacy_wiki_links(roots):
     return [f"{source}:{n}: use a DocsLink catalog entry instead of the GitHub wiki"
             for root in roots for source in sorted(root.rglob("*"))
             if source.suffix in {".kt", ".java", ".xml", ".swift", ".ts", ".vue", ".yaml", ".html"}
-            and not WIKI_TEST_SOURCE_SETS.intersection(source.relative_to(root).parts[:-1])
+            and not is_wiki_test_source(source, root)
             for n, line in enumerate(source.read_text(encoding="utf-8").splitlines(), 1)
             if re.search(r"github\.com/AndBible/and-bible/wiki\b", line, re.IGNORECASE)]
 
@@ -249,6 +257,18 @@ def test_wiki_guard_does_not_skip_production_paths_containing_test(tmp_path, dir
         f"{source}:1: use a DocsLink catalog entry instead of the GitHub wiki"]
 
 
+@pytest.mark.parametrize("relative_source", [
+    "main/test/Help.kt", "main/tests/Help.kt", "main/commonTest/Help.kt",
+    "src/components/test/Help.vue",
+])
+def test_wiki_guard_does_not_treat_nested_production_directories_as_source_sets(tmp_path, relative_source):
+    source = tmp_path / relative_source
+    source.parent.mkdir(parents=True)
+    source.write_text('"https://github.com/AndBible/and-bible/wiki/Support"')
+    assert legacy_wiki_links([tmp_path]) == [
+        f"{source}:1: use a DocsLink catalog entry instead of the GitHub wiki"]
+
+
 @pytest.mark.parametrize("ending", [")", "<"])
 def test_wiki_guard_reports_bare_wiki_before_punctuation(tmp_path, ending):
     source = tmp_path / "Help.kt"
@@ -258,12 +278,13 @@ def test_wiki_guard_reports_bare_wiki_before_punctuation(tmp_path, ending):
 
 
 @pytest.mark.parametrize("directory", [
-    "test", "androidTest", "commonTest", "jvmTest", "iosTest", "iosSimulatorArm64Test",
-    "__tests__", "iosAppUITests", "iosAppUnitTests",
+    "test", "tests", "androidTest", "androidUnitTest", "androidInstrumentedTest",
+    "commonTest", "jvmTest", "iosTest", "iosArm64Test", "iosSimulatorArm64Test",
+    "__tests__", "iosAppUITests", "iosAppUnitTests", "src/__tests__",
 ])
 def test_wiki_guard_skips_real_test_source_sets(tmp_path, directory):
     source = tmp_path / directory / "Help.kt"
-    source.parent.mkdir()
+    source.parent.mkdir(parents=True)
     source.write_text('"https://github.com/AndBible/and-bible/wiki/Support"')
     assert legacy_wiki_links([tmp_path]) == []
 
