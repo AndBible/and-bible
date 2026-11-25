@@ -56,7 +56,14 @@ class DocsLinkCatalogTest {
             DocsLink.WINDOWS to "https://andbible.org/docs/windows/",
             DocsLink.WORKSPACES to "https://andbible.org/docs/workspaces/",
         )
-        assertEquals(DocsLink.entries.toSet(), original.keys)
+        val migratedWikiTargets = mapOf(
+            DocsLink.CONTRIBUTE to "https://andbible.org/docs/contribute/",
+            DocsLink.CONTRIBUTE_TRANSLATING to "https://andbible.org/docs/contribute/#translating-the-user-interface",
+            DocsLink.FAQ_ADD_MODULE to "https://andbible.org/docs/faq/#please-add-module-x-to-andbible",
+            DocsLink.FAQ_TEXT_ISSUE to "https://andbible.org/docs/faq/#i-found-a-text-issue-in-a-bible-commentary-module",
+        )
+        assertEquals(DocsLink.entries.toSet(), original.keys + migratedWikiTargets.keys)
+        migratedWikiTargets.forEach { (link, expected) -> assertEquals(expected, link.url, link.name) }
         original.forEach { (link, expected) ->
             assertEquals(expected, link.url, link.name)
         }

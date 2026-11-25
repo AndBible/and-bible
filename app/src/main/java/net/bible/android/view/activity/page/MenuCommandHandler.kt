@@ -56,10 +56,10 @@ import net.bible.sharedui.strings.AndroidStrings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-contribute"
-const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
-const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-module-x-to-and-bible"
-const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
+val contributeLink = net.bible.sharedcore.docs.DocsLink.CONTRIBUTE.url
+val needHelpLink = net.bible.sharedcore.docs.DocsLink.SUPPORT.url
+val howToAdd = net.bible.sharedcore.docs.DocsLink.FAQ_ADD_MODULE.url
+val textIssue = net.bible.sharedcore.docs.DocsLink.FAQ_TEXT_ISSUE.url
 const val buyDevelopmentLink = net.bible.sharedcore.docs.SiteLinks.SHOP_URL
 const val homepageLink = "https://andbible.org"
 // Other distributions and debug/discrete packages do not have their own Play listing.

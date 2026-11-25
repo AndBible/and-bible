@@ -232,10 +232,10 @@ class SettingsHost(
 
     /**
      * The persecution-help HTML body. It feeds [AppSettingsController.showDiscreteHelp], rendered as a message
-     * dialog whose inline wiki link goes through the `askBeforeOpeningLink` / `onOpenExternal` pair.
+     * dialog whose inline documentation link goes through the `askBeforeOpeningLink` / `onOpenExternal` pair.
      */
     internal fun buildDiscreteHelpHtml(): String {
-        val linkUrl = "https://github.com/AndBible/and-bible/wiki/Discrete-build"
+        val linkUrl = net.bible.sharedcore.docs.DocsLink.DISCRETE_BUILD.url
         val linkText = "<a href=\"$linkUrl\">$linkUrl</a>"
 
         val dPar1 = strings.discreteModeInfoPar1
