@@ -1677,17 +1677,15 @@ class BibleView(
      * Gaining view focus makes this window the active one, so that keyboard / D-pad navigation
      * between the panes (and focus in touch mode, e.g. by accessibility services) selects a window.
      *
-     * Except for a focus hand-over: out of touch mode (mouse, hardware keyboard, Waydroid) Android
-     * gives focus to the first focusable view whenever the focused one lets go of it with nothing
-     * to pass it to (`View.clearFocus` -> `rootViewRequestFocus`; the Compose search field or the
-     * search-index sheet leaving the composition) or when leaving touch mode with nothing focused
-     * (`restoreDefaultFocus`). That view is usually window 1's BibleView, and a search made in
-     * window 3 then made window 1 active. Such a gain, with no view focused before it, is not the
-     * user's choice of window: keep the active window and hand focus back to its pane.
+     * Except for automatic focus assignment: Android gives focus to another pane when a focused
+     * view is removed, including in touch mode during renderer recovery. Newly mounted views can
+     * also receive focus before attachment. Neither is a window selection: preserve the active
+     * window and hand focus back to its pane. Touch selection is handled by [onTouchEvent];
+     * keyboard navigation still transfers focus from an existing focused view.
      */
     override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         if(focused && windowRepository.activeWindow.id != window.id) {
-            if (focusRequestWithoutPreviousFocus && !isInTouchMode) {
+            if (focusRequestWithoutPreviousFocus || !isAttachedToWindow) {
                 post {
                     val activeView = windowRepository.activeWindow.bibleView
                     if (hasFocus() && activeView !== this) activeView?.requestFocus()

@@ -18,6 +18,9 @@ controls that window, just as tapping a reading window does on Android. When you
 change a window's document, its window-button label updates without needing to
 activate a different window first.
 
+On Android, returning from another app keeps the selected window, including when
+Android has reclaimed the WebView renderer and the reading panes need to reload.
+
 When you scroll a synchronised commentary window, its title follows the verse
 range of the entry in view, including when you return to an already-loaded entry.
 The synchronised Bible windows follow that entry, too.

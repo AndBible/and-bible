@@ -50,7 +50,7 @@ import android.os.Looper
  * `WebView.requestFocus(FOCUS_DOWN, null)` -> `BibleView.onFocusChanged`.
  *
  * Focus that the user moves from a focused view (keyboard/D-pad navigation between windows) must
- * still change the active window, and so must any focus gain in touch mode.
+ * still change the active window. Automatic focus assignment during renderer recovery must not.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK], shadows = [BibleViewFocusHandOverActiveWindowTest.ShadowFocusableWebView::class])
@@ -134,6 +134,7 @@ class BibleViewFocusHandOverActiveWindowTest {
         }
         if (::factory.isInitialized) factory.clear()
         if (::navActivity.isInitialized) {
+            navActivity.composeReadingViewHost?.dispose()
             navActivity.lifecycleScope.cancel()
             CurrentActivityHolder.deactivate(navActivity)
         }
@@ -154,6 +155,58 @@ class BibleViewFocusHandOverActiveWindowTest {
         repository.activeWindow = window
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals("precondition: active window", window.id, repository.activeWindow.id)
+    }
+
+    @Test fun rendererRecoveryOfTheActivePaneKeepsTheActiveWindow() {
+        setTouchMode(true)
+        makeActive(window1)
+        assertTrue(view1.requestFocus())
+        assertTrue(view1.hasFocus())
+
+        assertTrue(view1.webViewClient.onRenderProcessGone(
+            view1, org.mockito.Mockito.mock(android.webkit.RenderProcessGoneDetail::class.java)))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals("renderer teardown must not activate the surviving pane", window1.id, repository.activeWindow.id)
+        val replacement = factory.getOrCreateBibleView(window1).apply {
+            isFocusable = true
+            isFocusableInTouchMode = true
+        }
+        (field.parent as ViewGroup).addView(replacement, 0)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("remount must keep the selected pane", window1.id, repository.activeWindow.id)
+    }
+
+    @Test fun defaultFocusOnARecreatedPaneInTouchModeKeepsTheActiveWindow() {
+        setTouchMode(true)
+        makeActive(window2)
+        field.requestFocus()
+        field.clearFocus()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertFalse("precondition: no pane holds focus", view1.hasFocus() || view2.hasFocus())
+
+        // ViewGroup.removeView calls rootViewRequestFocus, whose default direction is FOCUS_DOWN.
+        assertTrue(view1.requestFocus(View.FOCUS_DOWN, null))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals("default focus from remount is not window selection", window2.id, repository.activeWindow.id)
+    }
+
+    @Test fun rendererRecoveryOfANonActivePaneKeepsTheActiveWindow() {
+        setTouchMode(true)
+        makeActive(window2)
+        assertTrue(view2.requestFocus())
+
+        assertTrue(view1.webViewClient.onRenderProcessGone(
+            view1, org.mockito.Mockito.mock(android.webkit.RenderProcessGoneDetail::class.java)))
+        val replacement = factory.getOrCreateBibleView(window1).apply {
+            isFocusable = true
+            isFocusableInTouchMode = true
+        }
+        (field.parent as ViewGroup).addView(replacement, 0)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals("replacing another pane must not select it", window2.id, repository.activeWindow.id)
     }
 
     @Test fun releasingFocusOutOfTouchModeKeepsTheActiveWindowAndItsFocus() {
@@ -186,14 +239,13 @@ class BibleViewFocusHandOverActiveWindowTest {
         assertTrue(view1.isFocused)
     }
 
-    @Test fun focusGainInTouchModeStillChangesTheActiveWindow() {
+    @Test fun focusTransferInTouchModeStillChangesTheActiveWindow() {
         setTouchMode(true)
         makeActive(window2)
         field.requestFocus()
-        field.clearFocus() // in touch mode Android does not refocus: nothing is focused now
         shadowOf(Looper.getMainLooper()).idle()
 
-        // e.g. an accessibility action focusing window 1's WebView
+        // An explicit focus transfer (e.g. accessibility) still selects a different pane.
         assertTrue(view1.requestFocus())
         shadowOf(Looper.getMainLooper()).idle()
 
