@@ -808,7 +808,6 @@
   <string name="please_wait">กรุณารอ…</string>
   <string name="all">ทั้งหมด</string>
   <string name="reset_generic">รีเซ็ต</string>
-  <string name="watch_tutorial_video">ดูวิดีโอสอนการใช้งาน (ภาษาอังกฤษ)</string>
   <string name="watch_tutorial_video_plain">ดูวิดีโอสอนใช้งาน</string>
   <string name="verse_not_found">ไม่พบข้อพระคัมภีร์</string>
   <!--Errors-->

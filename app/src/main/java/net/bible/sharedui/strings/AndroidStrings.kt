@@ -1111,7 +1111,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val autoAssignLabelsHelpIntroWorkspace: String get() = context.getString(R.string.auto_assign_labels_help_intro_workspace)
     override val hideLabelsHelpIntro: String get() = context.getString(R.string.bookmark_settings_hide_labels_summary)
     override val studyPadsHelpText: String get() = context.getString(R.string.help_studypads_text)
-    override val watchTutorialVideo: String get() = context.getString(R.string.watch_tutorial_video)
     override val buyDevelopment: String get() = context.getString(R.string.buy_development)
     override val buyDevelopment2: String get() = context.getString(R.string.buy_development2)
     override val watchTutorialVideoPlain: String get() = context.getString(R.string.watch_tutorial_video_plain)

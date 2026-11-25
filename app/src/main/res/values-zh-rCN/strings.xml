@@ -848,7 +848,6 @@ http://www.heartlight.org 准予使用
   <string name="please_wait">请稍候...</string>
   <string name="all">全部</string>
   <string name="reset_generic">重设</string>
-  <string name="watch_tutorial_video">观看示范影片 (英文)</string>
   <string name="watch_tutorial_video_plain">观看教程视频</string>
   <string name="verse_not_found">找不到节</string>
   <!--Errors-->

@@ -844,7 +844,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="please_wait">Wachten a.u.b.</string>
   <string name="all">Alles</string>
   <string name="reset_generic">Reset</string>
-  <string name="watch_tutorial_video">Bekijk de rondleidingsvideo (Engels)</string>
   <string name="watch_tutorial_video_plain">Instructievideo bekijken</string>
   <string name="verse_not_found">Vers niet gevonden</string>
   <!--Errors-->

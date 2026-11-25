@@ -27,6 +27,7 @@ import net.bible.sharedui.app.ports.HelpAndTips
 import net.bible.sharedui.help.HelpScreen
 import net.bible.sharedui.help.HelpTab
 import net.bible.sharedui.help.nav.HelpNavDeps
+import net.bible.sharedui.strings.LocalAppLanguage
 import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -110,6 +111,25 @@ class HelpScreenGoldenTest {
             onUp = {},
         )
     }
+
+    private fun highlightedBookmarkWithNoMatchingCaptions(): @Composable () -> Unit = {
+        val page = UserGuideToc.sections.flatMap { it.pages }.first { it.stem == "bookmarks" }
+        androidx.compose.runtime.CompositionLocalProvider(LocalAppLanguage provides "kk") {
+            HelpScreen(
+                tips = emptyList(),
+                sections = listOf(UserGuideToc.Section("Basics", "user_guide_section_basics", listOf(page))),
+                tutorialVideos = catalog.tutorialVideos("kk"),
+                versionText = "Version 6.0.0",
+                appLanguage = "kk",
+                highlight = DocsLink.BOOKMARKS,
+                onOpenUrl = {},
+                onUp = {},
+            )
+        }
+    }
+
+    @Test fun userGuideHighlightedNoCaptions_matrix() =
+        captureMatrix("HelpScreen", "userGuideHighlightedNoCaptions", heightDp = 800, content = highlightedBookmarkWithNoMatchingCaptions())
 
     @Test fun userGuideHighlighted_matrix() = captureMatrix("HelpScreen", "userGuideHighlighted", heightDp = 800, content = highlighted())
 

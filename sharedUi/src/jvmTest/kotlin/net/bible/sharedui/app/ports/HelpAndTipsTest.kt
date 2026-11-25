@@ -42,14 +42,12 @@ class HelpAndTipsTest {
         assertFalse(html.joinToString().contains("shop.andbible.org"))
     }
 
-    @Test fun videoLabelIsPlainForEnglishAndKeepsEnglishQualifierWithoutMatchingCaptions() {
+    @Test fun videoLabelIsPlainForEnglishAndNonEnglishLanguages() {
         val strings = net.bible.sharedui.strings.iosStrings("en")
         val labels = { lang: String -> HelpAndTips.toUi(strings, { it }, appLanguage = lang).filter { it.videoUrl != null }.map { it.videoLabel }.distinct() }
         assertEquals(listOf(strings.watchTutorialVideoPlain), labels("en-GB"))
-        // Unpublished episodes use the placeholder's caption tracks, not their own empty subtitle sets.
         assertEquals(listOf(strings.watchTutorialVideoPlain), labels("fi"))
-        assertEquals(listOf(strings.watchTutorialVideo), labels("kk"))
-        assertNotEquals(strings.watchTutorialVideo, strings.watchTutorialVideoPlain)
+        assertEquals(listOf(strings.watchTutorialVideoPlain), labels("kk"))
         assertFalse(strings.watchTutorialVideoPlain.contains("English"))
     }
 

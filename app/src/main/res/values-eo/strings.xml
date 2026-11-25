@@ -830,7 +830,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="please_wait">Bonvolu atendi…</string>
   <string name="all">Ĉiuj</string>
   <string name="reset_generic">Reagordi</string>
-  <string name="watch_tutorial_video">Spekti filmetan instruilon (en la angla)</string>
   <string name="watch_tutorial_video_plain">Spekti lernvideon</string>
   <string name="verse_not_found">Ne trovis verson</string>
   <!--Errors-->

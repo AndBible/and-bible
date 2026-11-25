@@ -832,7 +832,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="please_wait">Attendi…</string>
   <string name="all">Tutto</string>
   <string name="reset_generic">Ripristina</string>
-  <string name="watch_tutorial_video">Guarda il video tutorial (inglese)</string>
   <string name="watch_tutorial_video_plain">Guarda il video tutorial</string>
   <string name="verse_not_found">Versetto non trovato</string>
   <!--Errors-->

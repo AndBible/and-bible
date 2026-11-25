@@ -857,7 +857,6 @@
   <string name="please_wait">Lütfen bekleyin…</string>
   <string name="all">Hepsi</string>
   <string name="reset_generic">Sıfırla</string>
-  <string name="watch_tutorial_video">Kullanma rehber videosu izle (İngilizce)</string>
   <string name="watch_tutorial_video_plain">Eğitim videosunu izle</string>
   <string name="verse_not_found">Ayet bulunamadı</string>
   <!--Errors-->

@@ -811,7 +811,6 @@
   <string name="please_wait">Моля, изчакайте…</string>
   <string name="all">Всичко</string>
   <string name="reset_generic">Изчистване</string>
-  <string name="watch_tutorial_video">Гледай гид на потребителя (на английски)</string>
   <string name="watch_tutorial_video_plain">Гледай видео урока</string>
   <string name="verse_not_found">Стихът не е намерен</string>
   <!--Errors-->

@@ -66,12 +66,9 @@ data class HelpTipUi(
     val docUrl: String?,
 )
 
-/**
- * A row of the "Tutorial videos" list: the episode [title] and the [url] it opens. [plainLabel] is false when the
- * video has no caption track in the app language, which adds the "(English)" qualifier to the row's label.
- */
+/** A row of the "Tutorial videos" list: the episode [title] and the [url] it opens. */
 @kotlin.native.HiddenFromObjC
-data class VideoRowUi(val title: String, val url: String, val plainLabel: Boolean = true)
+data class VideoRowUi(val title: String, val url: String)
 
 /**
  * The full-screen Help & tips: a "Tips" tab (the tip cards, a link to the full documentation and the version) and a
@@ -81,8 +78,8 @@ data class VideoRowUi(val title: String, val url: String, val plainLabel: Boolea
  * and the sub-view, which survive rotation:
  * every link goes through [onOpenUrl], so the host can confirm before leaving the app.
  *
- * All episodes are visible. Unpublished episodes open the placeholder; [TutorialVideos] chooses the URL and
- * label from the opened video's captions for [appLanguage].
+ * All episodes are visible. Unpublished episodes open the placeholder; [TutorialVideos] chooses the URL from the
+ * opened video's captions for [appLanguage].
  */
 /** The Help & tips tabs, in display order. The first entry is the default tab. */
 @kotlin.native.HiddenFromObjC
@@ -242,7 +239,6 @@ private fun UserGuideTab(
                 items(page.episodes, key = { "e:${page.stem}:${it.name}" }) { episode ->
                     VideoRow(
                         guideStrings.episode(episode),
-                        TutorialVideos.hasPlainLabel(episode, appLanguage),
                         { onOpenUrl(TutorialVideos.url(episode, appLanguage)) },
                         marked,
                     )
@@ -258,7 +254,7 @@ private fun TutorialVideosList(videos: List<VideoRowUi>, onOpenUrl: (String) -> 
     val listState = rememberLazyListState()
     LazyColumn(state = listState, modifier = modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         // Several episodes can share the placeholder URL, so it cannot be a LazyColumn key.
-        items(videos) { video -> VideoRow(video.title, video.plainLabel, { onOpenUrl(video.url) }) }
+        items(videos) { video -> VideoRow(video.title, { onOpenUrl(video.url) }) }
     }
 }
 
@@ -329,13 +325,13 @@ private fun GuideRow(title: String, onClick: () -> Unit, marked: Boolean = false
     )
 }
 
-/** A playable video row: play icon, the [title] and the "Watch tutorial video" label ("(English)" unless [plainLabel]). */
+/** A playable video row: play icon, the [title] and a localized tutorial-video label. */
 @Composable
-private fun VideoRow(title: String, plainLabel: Boolean, onClick: () -> Unit, marked: Boolean = false) {
+private fun VideoRow(title: String, onClick: () -> Unit, marked: Boolean = false) {
     val strings = LocalStrings.current
     ListItem(
         headlineContent = { Text(title) },
-        supportingContent = { Text(if (plainLabel) strings.watchTutorialVideoPlain else strings.watchTutorialVideo) },
+        supportingContent = { Text(strings.watchTutorialVideoPlain) },
         leadingContent = { Icon(Icons.Outlined.PlayCircle, contentDescription = null) },
         colors = highlightColors(marked),
         modifier = Modifier

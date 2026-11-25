@@ -852,7 +852,6 @@
   <string name="please_wait">기다려 주세요...</string>
   <string name="all">전체</string>
   <string name="reset_generic">재설정</string>
-  <string name="watch_tutorial_video">튜토리얼 비디오를 봐 주세요 (영어)</string>
   <string name="watch_tutorial_video_plain">튜토리얼 동영상 보기</string>
   <string name="verse_not_found">절이 없음</string>
   <!--Errors-->

@@ -856,7 +856,6 @@ i GT och NT varje dag.
   <string name="please_wait">Vänta...</string>
   <string name="all">Alla</string>
   <string name="reset_generic">Återställ</string>
-  <string name="watch_tutorial_video">Se instruktionsvideo (på engelska)</string>
   <string name="watch_tutorial_video_plain">Titta på instruktionsvideon</string>
   <string name="verse_not_found">Versen hittades inte</string>
   <!--Errors-->

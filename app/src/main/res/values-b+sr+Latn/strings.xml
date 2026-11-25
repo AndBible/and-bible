@@ -858,7 +858,6 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="please_wait">Molim sačekajte...</string>
   <string name="all">Sve</string>
   <string name="reset_generic">Povrati</string>
-  <string name="watch_tutorial_video">Pogledajte video sa uputstvima (na engleskom)</string>
   <string name="watch_tutorial_video_plain">Pogledaj video uputstvo</string>
   <string name="verse_not_found">Stih nije pronađen</string>
   <!--Errors-->
