@@ -43,11 +43,11 @@ A powerful, yet easy to use, offline Bible study application.
 
 Please see the [AndBible website](https://andbible.org/) for a list of features and additional user guides. New users can start with the [getting started guide](https://andbible.org/docs/getting_started/), and the [platform differences](https://andbible.org/docs/platform_differences/) page lists what differs between Android, iOS, Mac, Windows and Linux.
 
-For help, see the [wiki](https://github.com/andbible/and-bible/wiki) and [FAQ](https://github.com/andbible/and-bible/wiki/FAQ), or chat with us on [Matrix](https://matrix.to/#/#andbible:matrix.org).
+For help, see the [FAQ](https://andbible.org/docs/faq/) or chat with us on [Matrix](https://matrix.to/#/#andbible:matrix.org).
 
 ## 🏗️ Developers
 
-The project is built with Kotlin Multiplatform and Compose Multiplatform (Android, iOS, desktop), plus Vue.js for the Bible view. If you know these technologies, your skills would be of great use in this project. Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Developer-documentation) in the project wiki for details.
+The project is built with Kotlin Multiplatform and Compose Multiplatform (Android, iOS, desktop), plus Vue.js for the Bible view. If you know these technologies, your skills would be of great use in this project. Pull requests are welcome! See the [contributor guide](https://andbible.org/docs/contribute/) for details.
 
 Current Developers:
 
@@ -60,17 +60,17 @@ Current Developers:
 
 ## 💬 Translators
 
-Everyone is welcome to help translate AndBible to different languages via easy to use web-based Transifex tool. Please see our [Wiki page](https://github.com/AndBible/and-bible/wiki/Translating-User-Interface) to get started.
+Everyone is welcome to help translate AndBible to different languages via easy to use web-based Transifex tool. Please see the [translation guide](https://andbible.org/docs/contribute/#translating-the-user-interface) to get started.
 
 ## 🤝 All Contributors
 
-There are so many ways to contribute to AndBible! See our [contributor guide](https://github.com/AndBible/and-bible/wiki/How-to-contribute).
+There are so many ways to contribute to AndBible! See our [contributor guide](https://andbible.org/docs/contribute/).
 
 ## 🪙 Sponsor AndBible development
 
 You can support the AndBible project financially by sponsoring professional software development work time.
 
-For more information, see [WIKI page](https://github.com/AndBible/and-bible/wiki/Buy-development-work).
+For more information, see the [contributor guide](https://andbible.org/docs/contribute/).
 
 ## 📢 Acknowledgements
 

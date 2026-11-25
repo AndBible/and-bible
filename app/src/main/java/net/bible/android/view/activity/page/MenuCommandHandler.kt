@@ -39,6 +39,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
@@ -56,10 +57,10 @@ import net.bible.sharedui.strings.AndroidStrings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-val contributeLink = net.bible.sharedcore.docs.DocsLink.CONTRIBUTE.url
-val needHelpLink = net.bible.sharedcore.docs.DocsLink.SUPPORT.url
-val howToAdd = net.bible.sharedcore.docs.DocsLink.FAQ_ADD_MODULE.url
-val textIssue = net.bible.sharedcore.docs.DocsLink.FAQ_TEXT_ISSUE.url
+val contributeLink = DocsLink.CONTRIBUTE.url
+val needHelpLink = DocsLink.SUPPORT.url
+val howToAdd = DocsLink.FAQ_ADD_MODULE.url
+val textIssue = DocsLink.FAQ_TEXT_ISSUE.url
 const val buyDevelopmentLink = net.bible.sharedcore.docs.SiteLinks.SHOP_URL
 const val homepageLink = "https://andbible.org"
 // Other distributions and debug/discrete packages do not have their own Play listing.

@@ -14,7 +14,7 @@ Use the in-app **Feedback / bug report** option when possible; it includes infor
 
 ## Develop for AndBible
 
-AndBible is built with Kotlin, JavaScript and Vue.js, among other technologies. Browse [good first issues](https://github.com/AndBible/and-bible/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+for+starting+contributors%22), or contact us if an issue needs more detail before you can start. Contributions are submitted as pull requests to the [AndBible repository](https://github.com/AndBible/and-bible).
+AndBible is built with Kotlin, JavaScript and Vue.js, among other technologies. Browse [good first issues](https://github.com/AndBible/and-bible/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+for+starting+contributors%22), or contact us if an issue needs more detail before you can start. Contributions are submitted as pull requests to the [AndBible repository](https://github.com/AndBible/and-bible), targeting the `develop` branch. See [CONTRIBUTING.md](https://github.com/AndBible/and-bible/blob/develop/CONTRIBUTING.md) for pull request guidance and [build instructions](https://github.com/AndBible/and-bible/blob/develop/CONTRIBUTING.md#building-and-bible).
 
 ## Create or improve modules
 

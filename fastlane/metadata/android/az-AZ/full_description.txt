@@ -5,7 +5,7 @@ And Bible açıq mənbədir, offlayn, reklamsız və tamamilə pulsuz Müqəddə
 * Interface in multiple languages
 Müqəddəs Kitabın fərqli oxuma planları
 Tamamilə pulsuz, reklamsız, emeylsız
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://andbible.org/docs/faq/#i-can-t-find-esv-any-more-in-downloads-what-s-wrong)
 Müqəddəs Kitab üzrə 29 Şərh kitabları
 Böyük lüğət və məsihçi kitablarının kolleksiyası
 Bütün materiallar qanuni tərzdə paylanılır (bu səbəblə NKJV and NIV daxil deyil)
@@ -28,5 +28,5 @@ The provenance of all documents is thoroughly researched to ensure all documents
 
 1 Qeydlər 1 
 And Bible-ni Facebook-da Layk edin: https://www.facebook.com/AndBible/
-* And Bible-nin tez-tez verilən sualları buradadır: https://github.com/AndBible/and-bible/wiki/FAQ
+* And Bible-nin tez-tez verilən sualları buradadır: https://andbible.org/docs/faq/
 * Github-da layihənin səhifəsi: https://github.com/AndBible/and-bible
