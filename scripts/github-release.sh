@@ -53,16 +53,22 @@ approve_workflow_deployments() {
             run_id="$candidate"
             approved=""
             pending=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" \
-                --jq '.[].environment.id') || pending=""
+                --jq '.[] | select(.current_user_can_approve == true) | .environment.id') || pending=""
             if [[ -n "$pending" ]]; then
                 local args=() eid
                 while IFS= read -r eid; do args+=(-F "environment_ids[]=$eid"); done <<< "$pending"
                 attempted_run="$run_id"
                 attempted_ids="$pending"
-                if gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
-                    -f state=approved -f comment="Approved via increment-version script" >/dev/null; then
+                local post_error=""
+                if post_error=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
+                    -f state=approved -f comment="Approved via increment-version script" 2>&1 >/dev/null); then
                     approved=1
                 else
+                    # gh reports HTTP failures on stderr; only network/server failures are retryable.
+                    if [[ "$post_error" =~ HTTP[[:space:]]4[0-9][0-9] ]]; then
+                        echo "WARNING: Deployment approval for $workflow run $run_id failed: $post_error. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
+                        return 1
+                    fi
                     echo "Could not confirm approval of $workflow run $run_id; retrying until the deadline." >&2
                 fi
             else

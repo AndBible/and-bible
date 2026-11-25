@@ -55,6 +55,12 @@ case "$endpoint" in
                 printf '%s\n' "$endpoint" > "$STATE/approved"
                 printf 'approval response lost\n' >&2; exit 1
             fi
+            if [[ "$SCENARIO" == client-* ]]; then
+                printf 'gh: approval forbidden (HTTP %s)\n' "${SCENARIO#client-}" >&2; exit 1
+            fi
+            if [[ "$SCENARIO" == server-error && "$n" == 1 ]]; then
+                printf 'gh: unavailable (HTTP 503)\n' >&2; exit 1
+            fi
             if [[ "$SCENARIO" == post-error || ( "$SCENARIO" == retry && "$n" == 1 ) ]]; then
                 printf 'temporary approval error\n' >&2; exit 1
             fi
@@ -67,6 +73,8 @@ case "$endpoint" in
         fi
         if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || -f "$STATE/approved" ]]; then
             json='[]'
+        elif [[ "$SCENARIO" == non-approvable ]]; then
+            json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":false},{"environment":{"id":44}}]'
         else
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":true}]'
         fi ;;
@@ -130,7 +138,7 @@ assert_warning() {
 
 # A missing retry/refresh, SHA-only selection, or swallowed error breaks these cases.
 failed=0
-for scenario in delayed tag-only replaced retry lookup-error pending-error; do
+for scenario in delayed tag-only replaced retry server-error lookup-error pending-error; do
     run_case "$scenario"
     assert_approved || failed=$((failed + 1))
 done
@@ -163,5 +171,16 @@ for scenario in manual-desktop manual-job-state; do
     grep -q 'windows-sign: success' "$STATE/output" || { fail "$scenario: signing was not followed"; failed=$((failed + 1)); }
     grep -q 'SignPath reminder' "$STATE/output" || { fail "$scenario: missing signing reminder"; failed=$((failed + 1)); }
 done
+for scenario in client-400 client-401 client-403 client-404 client-422; do
+    run_case "$scenario"
+    assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
+    [[ "$(< "$STATE/posts")" == 1 && "$SECONDS" -lt 2 ]] || { fail "$scenario: client error retried"; failed=$((failed + 1)); }
+done
+run_case non-approvable
+[[ "$rc" == 0 && -f "$STATE/approved" ]] || { fail 'non-approvable: eligible deployment not approved'; failed=$((failed + 1)); }
+grep -q 'environment_ids\[\]=42' "$STATE/calls" || { fail 'non-approvable: missing eligible environment'; failed=$((failed + 1)); }
+if grep -Eq 'environment_ids\[\]=(43|44)' "$STATE/calls"; then
+    fail 'non-approvable: posted unauthorized environments'; failed=$((failed + 1))
+fi
 printf 'failed %s\n' "$failed"
 [[ "$failed" == 0 ]]
