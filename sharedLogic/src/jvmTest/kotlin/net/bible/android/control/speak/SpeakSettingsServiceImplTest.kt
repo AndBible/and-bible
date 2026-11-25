@@ -79,6 +79,7 @@ class SpeakSettingsServiceImplTest {
             first.setSpeakChapterChanges(false)
             first.setSpeakTitles(false)
             first.setSpeakFootnotes(true)
+            first.setSpeakLinks(false)
         } finally {
             first.close()
         }
@@ -90,6 +91,7 @@ class SpeakSettingsServiceImplTest {
             assertFalse(reloaded.playback.value.speakChapterChanges)
             assertFalse(reloaded.playback.value.speakTitles)
             assertTrue(reloaded.playback.value.speakFootnotes)
+            assertFalse(reloaded.playback.value.speakLinks)
         } finally {
             reloaded.close()
         }

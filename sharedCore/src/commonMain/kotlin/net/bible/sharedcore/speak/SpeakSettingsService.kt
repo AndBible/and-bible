@@ -18,6 +18,7 @@ interface SpeakSettingsService {
     fun setSpeakChapterChanges(on: Boolean)
     fun setSpeakTitles(on: Boolean)
     fun setSpeakFootnotes(on: Boolean)
+    fun setSpeakLinks(on: Boolean)
     fun clearRepeatRange()
 
     /** 0 = off. A non-zero value is also remembered as the "last" timer for the next open. */
