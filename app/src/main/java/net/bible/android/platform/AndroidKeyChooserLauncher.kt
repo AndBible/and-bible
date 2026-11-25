@@ -27,6 +27,10 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedui.reading.toolbar.activateWindowOf
 import net.bible.sharedui.reading.toolbar.openKeyListSheet
+import net.bible.sharedui.reading.toolbar.showEmptyEpub
+import net.bible.sharedui.strings.AndroidStrings
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import org.koin.mp.KoinPlatform
 
 private const val TAG = "KeyChooserLauncher"
 
@@ -84,11 +88,7 @@ class AndroidKeyChooserLauncher(private val currentActivity: () -> ActivityBase?
         context.lifecycleScope.launch(Dispatchers.Main) {
             openKeyListSheet(page, host.hostState, onCancelledWithoutKey = { context.goBackInHistory() },
                 onEmptyEpub = { name ->
-                    org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.ui.dialog.AppDialogController>(
-                        net.bible.sharedcore.ui.dialog.AppDialogController::class.java,
-                    ).postUnlessQueued(net.bible.sharedui.reading.toolbar.emptyEpubMessage(
-                        net.bible.sharedui.strings.AndroidStrings(context), name,
-                    ))
+                    showEmptyEpub(KoinPlatform.getKoin().get<AppDialogController>(), AndroidStrings(context), name)
                 })
         }
         return true

@@ -28,6 +28,8 @@ import net.bible.android.control.page.CurrentPage
 import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
 import net.bible.sharedcore.log.Log
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.epub.epubBackend
+import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedcore.reading.KeyChooserKind
@@ -62,19 +64,26 @@ suspend fun openKeyListSheet(
 ): Boolean {
     val kind = keyListKindOf(page) ?: return false
     val document = page.currentDocument
-    val keys = withContext(Dispatchers.Default) { keyListOf(page) }
-    if (page.currentDocument != document) return false
-    if (keys.isEmpty()) {
-        // EPUB TOC lookup already falls back to spine fragments. An empty result really has no readable keys.
-        if (document?.isEpub == true && page.pageManager.currentPage === page) onEmptyEpub(document.name)
-        if (page.key == null && page.pageManager.currentPage === page) openFirstKeyOrGoBack(page, onCancelledWithoutKey)
-        Log.w(TAG, "No keys to choose from in ${document?.initials}; no chooser shown.")
-        return false
+    val (keys, emptyEpub) = withContext(Dispatchers.Default) {
+        val keys = keyListOf(page)
+        val emptyEpub = keys.isEmpty() && document?.isEpub == true &&
+            document.epubBackend?.state?.keys?.isEmpty() == true
+        keys to emptyEpub
     }
+    if (page.currentDocument != document) return false
     activateWindowOf(page)
     val window = page.pageManager.window
     if (window.windowRepository.activeWindow !== window || page.pageManager.currentPage !== page) {
         Log.w(TAG, "The window asking for a ${document?.initials} key is not the active one; no chooser shown.")
+        return false
+    }
+    if (keys.isEmpty()) {
+        if (emptyEpub && page.pageManager.currentPage === page) {
+            onEmptyEpub(document!!.name)
+        } else if (page.key == null && page.pageManager.currentPage === page) {
+            openFirstKeyOrGoBack(page, onCancelledWithoutKey)
+        }
+        Log.w(TAG, "No keys to choose from in ${document?.initials}; no chooser shown.")
         return false
     }
     hostState.showKeyChooserSheet(kind, keys)
@@ -94,6 +103,11 @@ fun emptyEpubMessage(strings: Strings, name: String): AppDialogRequest.Message =
     message = strings.epubNoReadableChaptersHelp,
     confirmText = strings.okay,
 )
+
+@kotlin.native.HiddenFromObjC
+fun showEmptyEpub(dialogs: AppDialogController, strings: Strings, name: String) {
+    dialogs.postUnlessQueued(emptyEpubMessage(strings, name))
+}
 
 /** The removed full-screen choosers' empty-list answer: the document's first global key, else back in history. */
 private fun openFirstKeyOrGoBack(page: CurrentPage, onCancelledWithoutKey: () -> Unit) {

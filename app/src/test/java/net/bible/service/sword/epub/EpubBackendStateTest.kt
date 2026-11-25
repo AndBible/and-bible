@@ -367,12 +367,12 @@ class EpubBackendStateTest {
     @Test fun absentTocFallsBackToSpineOrder() = runTest {
         val state = newState(tocFixture("toc-absent", null))
         assertSpineFallback(state)
-        assertEquals(listOf("ch1.xhtml", "ch2.xhtml"), state.tocKeys().map { it.getName() })
+        assertEquals(listOf("Chapter One", "Chapter Two"), state.tocKeys().map { it.getName() })
     }
 
-    @Test fun partialTocFallbackKeepsKnownLabelAndUsesFilenameForMissingLabel() = runTest {
+    @Test fun partialTocKeepsKnownLabelAndUsesDocumentTitleForMissingLabel() = runTest {
         val state = newState(tocFixture("toc-partial-labels", navPoint("First chapter", "ch1.xhtml")))
-        assertEquals(listOf("First chapter", "ch2.xhtml"), state.tocKeys().map { it.getName() })
+        assertEquals(listOf("First chapter", "Chapter Two"), state.tocKeys().map { it.getName() })
     }
 
     @Test fun missingDeclaredNcxFallsBackToSpineOrder() = runTest {
@@ -385,7 +385,7 @@ class EpubBackendStateTest {
         val dir = tocFixture("toc-missing-label", "<navPoint><content src=\"ch1.xhtml\"/></navPoint>")
         val state = newState(dir)
         assertSpineFallback(state)
-        assertEquals(listOf("ch1.xhtml", "ch2.xhtml"), state.tocKeys().map { it.getName() })
+        assertEquals(listOf("Chapter One", "Chapter Two"), state.tocKeys().map { it.getName() })
     }
 
     @Test fun missingTocTargetStillAllowsSpineFallback() = runTest {
@@ -423,6 +423,199 @@ class EpubBackendStateTest {
         val toc = newState(dir).tocKeys().map { it as net.bible.service.sword.BookAndKey }
         assertEquals(listOf("Second", "First"), toc.map { it.getName() })
         assertEquals(listOf("target", null), toc.map { it.htmlId })
+    }
+
+    @Test fun tocKeepsLabelsAnchorsAndOrderWithUncoveredNonlinearAndTextlessItems() = runTest {
+        val dir = tocFixture("toc-frontmatter", navPoint("Second", "ch2.xhtml#target") + navPoint("First", "ch1.xhtml"))
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText().replace("</manifest>", """
+            <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
+            <item id="copyright" href="copyright.xhtml" media-type="application/xhtml+xml"/>
+            <item id="blank" href="blank.xhtml" media-type="application/xhtml+xml"/></manifest>
+        """.trimIndent()).replace("<spine>", """
+            <spine><itemref idref="cover" linear="no"/><itemref idref="copyright" linear="no"/><itemref idref="blank"/>
+        """.trimIndent()))
+        File(dir, "OEBPS/cover.xhtml").writeText(chapterXhtml("Cover", ""))
+        File(dir, "OEBPS/copyright.xhtml").writeText(chapterXhtml("Copyright", "Copyright notice."))
+        File(dir, "OEBPS/blank.xhtml").writeText(chapterXhtml("Blank", ""))
+        val chapter = File(dir, "OEBPS/ch2.xhtml")
+        chapter.writeText(chapter.readText().replace("<p>", "<p id=\"target\">"))
+        val toc = newState(dir).tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(listOf("Second", "First"), toc.map { it.getName() })
+        assertEquals(listOf("target", null), toc.map { it.htmlId })
+    }
+
+    @Test fun partialTocAddsMissingChaptersWithoutReplacingExistingEntries() = runTest {
+        val dir = tocFixture("toc-partial-anchored", navPoint("Second section", "ch2.xhtml#target"))
+        val chapter = File(dir, "OEBPS/ch2.xhtml")
+        chapter.writeText(chapter.readText().replace("<p>", "<p id=\"target\">"))
+        val state = newState(dir)
+        val toc = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(listOf("Second section", "Chapter One"), toc.map { it.getName() })
+        assertEquals(listOf("target", null), toc.map { it.htmlId })
+        assertTrue(state.read(toc[1].key).contains("first chapter"))
+    }
+
+    @Test fun fallbackListsSplitSpineDocumentOnceAtItsFirstFragment() = runTest {
+        val dir = tocFixture("toc-split", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText("""
+            <html xmlns="http://www.w3.org/1999/xhtml"><head><title>Long chapter</title></head><body>
+            ${(1..1200).joinToString("") { "<p id=\"paragraph-$it\">Short paragraph $it.</p>" }}
+            </body></html>
+        """.trimIndent())
+        val state = newState(dir)
+        assertTrue("fixture must actually split a chapter", state.keys.size > 2)
+        val toc = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(2, toc.size)
+        assertEquals(state.keys.first().getOsisRef(), toc.first().key.getOsisRef())
+        assertEquals(listOf("Long chapter", "Chapter Two"), toc.map { it.getName() })
+    }
+
+    @Test fun fallbackTitleSurvivesReopeningAndGetKeyUsesTheSameTitle() = runTest {
+        val dir = tocFixture("toc-title", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText("""
+            <html xmlns="http://www.w3.org/1999/xhtml"><head><title> </title></head>
+            <body><h2>A real heading</h2><p>Readable prose.</p></body></html>
+        """.trimIndent())
+        File(dir, "OEBPS/ch2.xhtml").writeText(chapterXhtml("", "Readable prose without a heading."))
+        newState(dir).close()
+        val state = newState(dir)
+        val names = listOf("A real heading", testCoreStrings().namelessTitle)
+        assertEquals(names, state.tocKeys().map { it.getName() })
+        assertEquals(names, listOf(state.getKey("ch1", "")!!.getName(), state.getKey("ch2", "")!!.getName()))
+    }
+
+    @Test fun legacySplitDocumentUsesFirstHeadingRegardlessOfKeyLookupOrder() = runTest {
+        val dir = tocFixture("legacy-title-order", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText("""
+            <html xmlns="http://www.w3.org/1999/xhtml"><head><title>Legacy title</title></head>
+            <body><h1>First heading</h1>
+            ${(1..1200).joinToString("") { "<p id=\"paragraph-$it\">Short paragraph $it.</p>" }}
+            </body></html>
+        """.trimIndent())
+        val initial = newState(dir)
+        assertTrue(initial.keys.size > 2)
+        initial.close()
+        File(dir, "optimized").listFiles()!!.filter { it.name.endsWith(".xhtml.gz") }.forEach { file ->
+            val xml = readFragment(file.toOkioPath()).replace(Regex(" data-andbible-document-title=\"[^\"]*\""), "")
+            writeFragment(file.toOkioPath(), xml)
+        }
+        val state = newState(dir)
+        assertEquals("First heading", state.getKey("ch1", "paragraph-1200")!!.getName())
+        assertEquals("First heading", state.tocKeys().first().getName())
+    }
+
+    @Test fun reopeningUnchangedInstalledGzPreservesDerivedCharacterCache() = runTest {
+        val dir = buildEpub("gz-preserves-meta")
+        val first = newState(dir)
+        assertEquals(107, first.totalCharacters())
+        val filename = first.appDbFilename
+        first.close()
+        newState(dir)
+        val db = getEpubDatabase(filename)
+        try {
+            assertEquals("derived text count must survive reopening the same installed book", 107, db.epubDao().getMeta()?.totalCharacters)
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test fun changedGzInvalidatesCharacterCacheEvenWhenChapterIndexIsIdentical() = runTest {
+        val dir = buildEpub("gz-meta-replacement")
+        val sources = listOf("ch1.xhtml", "ch2.xhtml").associateWith { File(dir, "OEBPS/$it").readText() }
+        val first = newState(dir)
+        assertEquals(107, first.totalCharacters())
+        val appDb = application.getDatabasePath(first.appDbFilename)
+        first.close()
+        val staleDatabase = appDb.readBytes()
+        File(dir, "optimized.sqlite3.gz").delete()
+        sources.forEach { (name, text) -> File(dir, "OEBPS/$name").writeText(text.replace("readable content", "much longer replacement readable content")) }
+        val replacement = newState(dir)
+        replacement.close()
+        appDb.writeBytes(staleDatabase)
+        val state = newState(dir)
+        assertTrue("same fragment ranges do not make an old character count valid", state.totalCharacters() > 107)
+    }
+
+    @Test fun cacheMarkerWriteFailureDoesNotPreventReading() = runTest {
+        val dir = buildEpub("cache-marker-unwritable")
+        val first = newState(dir)
+        first.close()
+        // Deterministically deny the file write, even when tests run with elevated filesystem privileges.
+        File(dir, "optimized/installed-cache.sha256.tmp").mkdir()
+        val state = newState(dir)
+        assertEquals(2, state.keys.size)
+        assertTrue(state.read(state.keys.first()).contains("first chapter"))
+        assertEquals(107, state.totalCharacters())
+    }
+
+    @Test fun installedEmptyGzIsRecoveredEvenWhenAppDatabaseContainsStaleFragments() {
+        val dir = buildEpub("empty-gz-stale-db")
+        val opf = File(dir, "OEBPS/content.opf")
+        val originalOpf = opf.readText()
+        val sources = listOf("ch1.xhtml", "ch2.xhtml").associateWith { File(dir, "OEBPS/$it").readText() }
+        val first = newState(dir)
+        val appDb = application.getDatabasePath(first.appDbFilename)
+        first.close()
+        val staleDatabase = appDb.readBytes()
+        File(dir, "optimized.sqlite3.gz").delete()
+        opf.writeText(originalOpf.replace("<itemref idref=\"ch1\"/>", "").replace("<itemref idref=\"ch2\"/>", ""))
+        newState(dir).close()
+        appDb.writeBytes(staleDatabase)
+        sources.forEach { (name, text) -> File(dir, "OEBPS/$name").writeText(text.replace("readable content", "fresh content")) }
+        opf.writeText(originalOpf)
+        val repaired = newState(dir)
+        assertEquals(2, repaired.keys.size)
+        assertTrue("installed empty gz must trigger rebuilding rather than reusing stale rows", repaired.read(repaired.keys.first()).contains("fresh content"))
+    }
+
+    @Test fun installedReadableGzWinsOverCorruptAppDatabaseWithoutReoptimizingSources() {
+        val dir = buildEpub("readable-gz-corrupt-db")
+        val sources = listOf("ch1.xhtml", "ch2.xhtml").associateWith { File(dir, "OEBPS/$it").readText() }
+        val first = newState(dir)
+        val appDb = application.getDatabasePath(first.appDbFilename)
+        first.close()
+        appDb.writeText("not a SQLite database")
+        sources.forEach { (name, text) -> File(dir, "OEBPS/$name").writeText(text.replace("readable content", "replacement content")) }
+        val state = newState(dir)
+        assertEquals(2, state.keys.size)
+        assertTrue("readable installed gz, not a silently reset app DB, determines recovery", state.read(state.keys.first()).contains("readable content"))
+        assertTrue("valid optimization must not delete sources again", File(dir, "OEBPS/ch1.xhtml").exists())
+    }
+
+    @Test fun freshReadableGzReplacesStaleAppDatabaseEvenWithoutOriginalSources() {
+        val dir = buildEpub("fresh-gz-stale-db")
+        val sources = listOf("ch1.xhtml", "ch2.xhtml").associateWith { File(dir, "OEBPS/$it").readText() }
+        val first = newState(dir)
+        val appDb = application.getDatabasePath(first.appDbFilename)
+        first.close()
+        val staleDatabase = appDb.readBytes()
+        File(dir, "optimized.sqlite3.gz").delete()
+        sources.forEach { (name, text) -> File(dir, "OEBPS/$name").writeText(text) }
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText().replace("<itemref idref=\"ch2\"/>", ""))
+        newState(dir).close()
+        File(dir, "OEBPS/ch2.xhtml").delete()
+        appDb.writeBytes(staleDatabase)
+        val state = newState(dir)
+        assertEquals("installed gz has one chapter, stale app DB has two", 1, state.keys.size)
+        assertTrue(state.keys.all { state.read(it).isNotEmpty() })
+    }
+
+    @Test fun opfQueriesIgnoreNestedAndForeignPackages() {
+        val ns = fi.sykero.kdom.Namespace.getNamespace("opf", "http://www.idpf.org/2007/opf")
+        val doc = KdomBuilder().build("""
+            <package xmlns="${ns.uri}" xmlns:f="urn:foreign">
+              <manifest><item id="good"/><manifest><item id="nested"/></manifest></manifest>
+              <spine><itemref idref="good"/></spine>
+              <metadata><manifest><item id="metadata"/></manifest><spine><itemref idref="metadata"/></spine></metadata>
+              <f:package><manifest><item id="foreign"/></manifest></f:package>
+            </package>
+        """.trimIndent())
+        assertEquals(listOf("good"), XmlQueries.manifestItems(doc, ns).map { it.getAttributeValue("id") })
+        assertEquals(listOf("good"), XmlQueries.spineItemrefs(doc, ns).map { it.getAttributeValue("idref") })
+        val foreign = KdomBuilder().build("""<package xmlns="urn:foreign"><manifest xmlns="${ns.uri}"><item id="bad"/></manifest></package>""")
+        assertTrue(XmlQueries.manifestItems(foreign, ns).isEmpty())
     }
 
     @Test fun installedEmptyOptimizationWithSourcesIsRebuilt() {

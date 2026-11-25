@@ -85,19 +85,19 @@ class XmlQueriesJaxenParityTest {
 
     private fun documentParity(doc: Document) {
         parity("//ns:rootfile", doc, XmlQueries.rootfiles(doc, container), container)
-        parity("//ns:manifest/ns:item", doc, XmlQueries.manifestItems(doc, opf), opf)
+        parity("/ns:package/ns:manifest/ns:item", doc, XmlQueries.manifestItems(doc, opf), opf)
         val ncxItems = XmlQueries.tocNcxItems(doc, opf)
         val idItems = XmlQueries.tocIdItems(doc, opf)
         val navItems = XmlQueries.tocNavItems(doc, opf)
-        parity("//ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']", doc, ncxItems, opf)
-        parity("//ns:manifest/ns:item[@id='toc']", doc, idItems, opf)
-        parity("//ns:manifest/ns:item[@properties='nav']", doc, navItems, opf)
+        parity("/ns:package/ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']", doc, ncxItems, opf)
+        parity("/ns:package/ns:manifest/ns:item[@id='toc']", doc, idItems, opf)
+        parity("/ns:package/ns:manifest/ns:item[@properties='nav']", doc, navItems, opf)
         assertSame((ncxItems + idItems + navItems).firstOrNull(), XmlQueries.tocItem(doc, opf))
         parity("//ns:navPoint/ns:content", doc, XmlQueries.navPointContents(doc, ncx), ncx)
         for (key in listOf("identifier", "title", "creator", "language", "missing")) {
             parity("//dc:$key", doc, XmlQueries.dcElements(doc, key, dc), dc)
         }
-        parity("//ns:spine/ns:itemref", doc, XmlQueries.spineItemrefs(doc, opf), opf)
+        parity("/ns:package/ns:spine/ns:itemref", doc, XmlQueries.spineItemrefs(doc, opf), opf)
     }
 
     private fun contextParity(context: Parent) {
@@ -193,8 +193,6 @@ class XmlQueriesJaxenParityTest {
 
     @Test fun nestedParentsKeepDocumentOrderForEveryTwoStepQuery() {
         for ((parent, child, ns, query) in listOf(
-            Quad("manifest", "item", opf, { d: Document -> XmlQueries.manifestItems(d, opf) }),
-            Quad("spine", "itemref", opf, { d: Document -> XmlQueries.spineItemrefs(d, opf) }),
             Quad("navPoint", "content", ncx, { d: Document -> XmlQueries.navPointContents(d, ncx) }),
         )) {
             val doc = parse("""<root xmlns="${ns.uri}"><$parent><$child id="a"/><$parent><$child id="b"/></$parent><$child id="c"/></$parent></root>""")

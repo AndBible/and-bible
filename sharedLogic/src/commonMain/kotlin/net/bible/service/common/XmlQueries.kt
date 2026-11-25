@@ -10,10 +10,13 @@ import fi.sykero.kdom.Text
 /** Domain queries with eager results: callers may detach or move nodes while iterating. */
 object XmlQueries {
     fun rootfiles(container: Document, ns: Namespace): List<Element> = container.findAll("rootfile", ns)
-    private fun opfChildren(opf: Document, ns: Namespace, parent: String, child: String): List<Element> =
-        opf.allElements().filter { it.isNamed(parent, ns) || it.isNamed(parent, Namespace.NO_NAMESPACE) }
+    private fun opfChildren(opf: Document, ns: Namespace, parent: String, child: String): List<Element> {
+        val root = opf.rootElement
+        if (!root.isNamed("package", ns) && !root.isNamed("package", Namespace.NO_NAMESPACE)) return emptyList()
+        return root.childElements().filter { it.isNamed(parent, ns) || it.isNamed(parent, Namespace.NO_NAMESPACE) }
             .flatMap { it.childElements().filter { e -> e.isNamed(child, ns) || e.isNamed(child, Namespace.NO_NAMESPACE) } }
             .toList()
+    }
     fun manifestItems(opf: Document, ns: Namespace): List<Element> = opfChildren(opf, ns, "manifest", "item")
     fun tocNcxItems(opf: Document, ns: Namespace): List<Element> =
         manifestItems(opf, ns).filter { it.attributeIs("media-type", "application/x-dtbncx+xml") }

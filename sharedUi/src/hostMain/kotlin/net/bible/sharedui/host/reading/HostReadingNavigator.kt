@@ -200,7 +200,7 @@ class HostReadingNavigator(
     }
 
     private fun showEmptyEpub(name: String) {
-        dialogs.postUnlessQueued(net.bible.sharedui.reading.toolbar.emptyEpubMessage(strings(), name))
+        net.bible.sharedui.reading.toolbar.showEmptyEpub(dialogs, strings(), name)
     }
 
     private fun startKeyListSheet(page: CurrentPage) {

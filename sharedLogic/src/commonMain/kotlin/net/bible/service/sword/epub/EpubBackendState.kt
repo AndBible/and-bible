@@ -38,6 +38,8 @@ import okio.FileSystem
 import okio.ForwardingSource
 import okio.GzipSink
 import okio.GzipSource
+import okio.HashingSource
+import okio.Buffer
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.Source
@@ -51,6 +53,7 @@ import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubMeta
 import net.bible.service.common.useKdomBuilder
 import net.bible.service.common.XmlQueries
+import net.bible.service.db.queryLong
 import net.bible.service.sword.BookAndKey
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -62,6 +65,8 @@ import net.bible.service.sword.index.isInProgress
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import fi.sykero.kdom.Namespace
+import fi.sykero.kdom.query.descendantElements
+import fi.sykero.kdom.query.descendantTexts
 
 /** Job id prefix of EPUB index builds (`EPUB_INDEX_JOB_PREFIX + epubDir`); the search-index job predicate matches it. */
 const val EPUB_INDEX_JOB_PREFIX = "index-creation-"
@@ -222,9 +227,27 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
         try { return canonicalInsideBook(rootFolder.child(resourcePath)) } finally { releaseUse() }
     }
 
+    private val documentTitles = mutableMapOf<String, String>()
+    private val firstFragments by lazy {
+        KoinPlatform.getKoin().get<EpubStoreEdge>().fragments(dao).sortedBy { it.id }
+            .distinctBy { it.originalId }.associateBy { it.originalId }
+    }
+
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
-        val filePath = idToFile.let { it[fragment.originalId] }
-        val keyName = label ?: filePath?.let { fp -> fileToTitle?.let {it[fp] } } ?: strings.namelessTitle
+        val filePath = idToFile[fragment.originalId]
+        val keyName = label?.takeIf { it.isNotBlank() }
+            ?: filePath?.let { fileToTitle?.get(it) }?.takeIf { it.isNotBlank() }
+            ?: withMonitor(documentTitles) {
+                documentTitles.getOrPut(fragment.originalId) {
+                    val first = firstFragments[fragment.originalId] ?: fragment
+                    val text = readFragment(first)
+                    val root = text.takeIf { it.isNotBlank() }?.let { xml -> useKdomBuilder { it.build(xml) }.rootElement }
+                    root?.getAttributeValue(EPUB_DOCUMENT_TITLE)?.takeIf { it.isNotBlank() }
+                        ?: root?.descendantElements()?.firstOrNull { it.name in EPUB_HEADINGS && it.value.isNotBlank() }
+                            ?.value?.trim()
+                        ?: strings.namelessTitle
+                }
+            }
         return DefaultLeafKeyList(keyName, "${fragment.id}")
     }
 
@@ -251,15 +274,19 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
                     BookAndKey(getKey(it, label = label), book, htmlId = htmlId)
                 }
             }
-            val fragments = dao.fragments().sortedBy { it.id }
-            val readableIds = fragments.map { it.originalId }.toSet()
-            if (entries.isNotEmpty() && coveredIds.containsAll(readableIds)) return entries
-
-            return fragments.map { frag ->
-                val filename = idToFile[frag.originalId]
-                val label = filename?.let { fileToTitle?.get(it) ?: it } ?: strings.namelessTitle
-                BookAndKey(getKey(frag, label), book)
+            val fragmentsByDocument = dao.fragments().sortedBy { it.id }.groupBy { it.originalId }
+            val additions = linearOriginalIds.mapNotNull { id ->
+                if (id in coveredIds) return@mapNotNull null
+                val fragments = fragmentsByDocument[id] ?: return@mapNotNull null
+                val hasText = fragments.any { frag ->
+                    val text = readFragment(frag)
+                    text.isNotBlank() && useKdomBuilder { it.build(text) }.rootElement
+                        .descendantTexts().any { it.text.isNotBlank() }
+                }
+                if (!hasText) return@mapNotNull null
+                BookAndKey(getKey(fragments.first()), book)
             }
+            return entries + additions
         }
     }
 
@@ -289,7 +316,10 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     val cardinality get() = keys.size
 
-    internal val originalIds: List<String> get() = XmlQueries.spineItemrefs(content, epubNamespace).map { it.getAttribute("idref")!!.value }
+    private val spineItems = XmlQueries.spineItemrefs(content, epubNamespace)
+    internal val originalIds: List<String> get() = spineItems.map { it.getAttribute("idref")!!.value }
+    private val linearOriginalIds: List<String> get() = spineItems.filter { it.getAttributeValue("linear") != "no" }
+        .map { it.getAttribute("idref")!!.value }
 
     val keys: List<Key> get() = withOpen { KoinPlatform.getKoin().get<EpubStoreEdge>().fragments(dao).map { getKey(it) } }
 
@@ -304,8 +334,26 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
     private val searchDbFile = epubDir.child(searchDbFilename)
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
+    private val appDbFile = env.databasePath(appDbFilename).toPath()
+    private val installedCacheMarker get() = fragDir / "installed-cache.sha256"
+    private var installedGzipHash = ""
+
+    private val cacheMarkerLock = Any()
+
+    private fun recordInstalledCache() = withMonitor(cacheMarkerLock) {
+        try {
+            // productionConfig uses TRUNCATE, so a completed DAO write is in the main database file.
+            val identity = "$installedGzipHash\n${fileHash(appDbFile)}"
+            val temporary = fragDir / "installed-cache.sha256.tmp"
+            KFiles.write(temporary, identity.encodeToByteArray())
+            FileSystem.SYSTEM.atomicMove(temporary, installedCacheMarker)
+        } catch (e: okio.IOException) {
+            // Read-only media may prevent a cache marker; the next open can safely restore the gzip again.
+            Log.w(TAG, "Could not record EPUB cache identity", e)
+        }
+    }
+
     init {
-        val appDbFile = env.databasePath(appDbFilename).toPath()
         var epubDbFile = epubDir.child(alternativeEpubDbFilename)
         if(!KFiles.exists(epubDbFile)) {
             epubDbFile = epubDir.child(epubDbFilename)
@@ -325,23 +373,36 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
             KFiles.delete(epubDbFile)
         }
 
-        if (KFiles.exists(epubDbFile) && !KFiles.exists(appDbFile)) {
-            gunzipFile(epubDbFile, appDbFile)
-        }
-        // Older optimizers could publish a complete-looking database with no fragments.
-        // Only rebuild when every source is available: optimization removes existing output.
-        val emptyWithSources = if (KFiles.exists(epubDbFile) && sourcesPresent) {
-            val existingDb = getEpubDatabase(appDbFilename)
+        // The installed gzip is authoritative, not a same-initials cache left by an earlier install.
+        // Read its snapshot at an absolute path so corrupt input cannot silently become an empty cache.
+        val emptyWithSources = if (KFiles.exists(epubDbFile)) {
+            val snapshot = appDbFile.parent!! / "${appDbFilename}.installed-$ownerGeneration"
             try {
-                KoinPlatform.getKoin().get<EpubStoreEdge>().fragments(existingDb.epubDao()).isEmpty()
+                gunzipFile(epubDbFile, snapshot)
+                val empty = net.bible.service.db.openSqlite(snapshot.toString(), readOnly = true).use {
+                    it.queryLong("SELECT EXISTS(SELECT 1 FROM EpubFragment)") == 0L
+                }
+                installedGzipHash = fileHash(epubDbFile)
+                val appHash = if (KFiles.exists(appDbFile)) fileHash(appDbFile) else ""
+                val marker = if (KFiles.exists(installedCacheMarker)) KFiles.readUtf8(installedCacheMarker) else ""
+                if (marker != "$installedGzipHash\n$appHash") {
+                    net.bible.service.db.deleteAppDatabase(appDbFilename)
+                    FileSystem.SYSTEM.atomicMove(snapshot, appDbFile)
+                }
+                empty && sourcesPresent
             } finally {
-                existingDb.close()
+                listOf("", "-journal", "-wal", "-shm", ".lck").forEach { suffix ->
+                    FileSystem.SYSTEM.delete("$snapshot$suffix".toPath(), mustExist = false)
+                }
             }
         } else false
         if (!KFiles.exists(epubDbFile) || emptyWithSources) {
             optimizeEpub()
             gzipFile(appDbFile, epubDbFile)
+            installedGzipHash = fileHash(epubDbFile)
         }
+        // Old optimized EPUBs can predate the optimized/ directory; do not manufacture it for a broken install.
+        if (KFiles.isDirectory(fragDir)) recordInstalledCache()
     }
     private val readDb = getEpubDatabase(appDbFilename)
     private val search = EpubSearch(searchDbFile)
@@ -558,7 +619,10 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
             }
             // Only cache the result when every fragment was read successfully; otherwise a
             // transient/repairable inconsistency would freeze an inaccurate count forever.
-            if (!failed) dao.insert(EpubMeta(totalCharacters = total))
+            if (!failed) {
+                dao.insert(EpubMeta(totalCharacters = total))
+                if (KFiles.isDirectory(fragDir)) recordInstalledCache()
+            }
             total
         }
     }
@@ -573,6 +637,12 @@ internal fun Path.child(relative: String): Path = this / relative.trimStart('/')
 /** Writes an optimized fragment file in the gzip format `GZIPInputStream` reads. */
 @VisibleForTesting fun writeFragment(path: Path, content: String) {
     KFiles.write(path, Gzip(content.encodeToByteArray()).compress())
+}
+
+private fun fileHash(path: Path): String = HashingSource.sha256(FileSystem.SYSTEM.source(path)).use { source ->
+    val buffer = Buffer()
+    while (source.read(buffer, 8192) != -1L) buffer.clear()
+    source.hash.hex()
 }
 
 private fun gzipFile(source: Path, destination: Path) {

@@ -28,6 +28,7 @@ import net.bible.service.common.XmlQueries
 import net.bible.service.sword.SwordContentFacade
 import fi.sykero.kdom.Document
 import fi.sykero.kdom.Element
+import fi.sykero.kdom.query.descendantElements
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedlogic.platform.EpubStoreEdge
 import net.bible.sharedlogic.util.decodeUrl
@@ -37,6 +38,8 @@ import org.koin.mp.KoinPlatform
 private val urlRe = Regex("""^https?://.*""")
 
 const val EPUB_OPTIMIZER_VERSION = 2
+internal const val EPUB_DOCUMENT_TITLE = "data-andbible-document-title"
+internal val EPUB_HEADINGS = setOf("h1", "h2", "h3", "h4", "h5", "h6")
 
 fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     val file = fileForOriginalId(origId)?: return Pair(null, 0)
@@ -86,6 +89,12 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
             val processed = fixReferences(it.rootElement)
             val body = XmlQueries.body(processed, xhtmlNamespace)
                 ?: return Pair(null, 0)
+            // Only the body survives optimization; carry its document title into every split fragment.
+            val title = processed.children.firstOrNull { it.name == "head" }?.children
+                ?.firstOrNull { it.name == "title" }?.value?.trim()?.takeIf { it.isNotEmpty() }
+                ?: body.descendantElements().firstOrNull { it.name in EPUB_HEADINGS && it.value.isNotBlank() }
+                    ?.value?.trim()
+            title?.let { body.setAttribute(EPUB_DOCUMENT_TITLE, it) }
             val maxOrdinal = SwordContentFacade.addAnchors(body, getBookMetaData().language.code, true)
             Pair(it, maxOrdinal)
         }
