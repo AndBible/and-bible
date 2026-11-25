@@ -13,9 +13,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.cancel
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
@@ -49,6 +47,7 @@ class ReadingMenusHideKeyboardTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
     private lateinit var repository: WindowRepository
     private lateinit var host: NavHostComposeActivity
+    private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private lateinit var reading: ComposeReadingViewHost
     private lateinit var container: ActivityController<Activity>
     private lateinit var editor: EditText
@@ -61,10 +60,12 @@ class ReadingMenusHideKeyboardTest {
         DatabaseResetter.runResetBlocking {
             GlobalContext.get().get<net.bible.service.cloudsync.documents.DocumentSyncSettings>().ensureLoaded()
         }
-        host = Robolectric.buildActivity(
+        val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).get()
+        )
+        controllers.add(controller)
+        host = controller.get()
         host.readingAppBootstrap.windowRepository = repository
         host.setNewHistoryTraversal(GlobalContext.get().get())
         CurrentActivityHolder.activate(host)
@@ -90,12 +91,11 @@ class ReadingMenusHideKeyboardTest {
             (container.get().findViewById<View>(android.R.id.content) as ViewGroup).removeAllViews()
             container.pause().stop().destroy()
         }
-        if (::host.isInitialized) {
-            host.composeReadingViewHost?.dispose()
-            host.lifecycleScope.cancel()
-            CurrentActivityHolder.deactivate(host)
-        }
-        if (::repository.isInitialized) DatabaseResetter.resetDatabase(repository.scope)
+        net.bible.test.closeReadingHostsBeforeReset(
+            controllers,
+            afterClose = { if (::host.isInitialized) CurrentActivityHolder.deactivate(host) },
+            reset = { if (::repository.isInitialized) DatabaseResetter.resetDatabase(repository.scope) },
+        )
     }
 
     @Test fun openingPaneMenuHidesNativeEditorKeyboard() {
@@ -113,6 +113,17 @@ class ReadingMenusHideKeyboardTest {
             assertNotNull("the real pane menu state opens", reading.hostState.paneMenuWindowId.value)
             assertFalse("opening pane menu hides native editor IME", shadowOf(ime).isSoftInputVisible)
         }
+    }
+
+    @Test fun openingPaneMenuHidesKeyboardWhenActivityHasNoCurrentFocus() {
+        shadowOf(host).setCurrentFocus(null)
+        assertTrue("precondition: keyboard remains visible", shadowOf(ime).isSoftInputVisible)
+        assertTrue("precondition: decor has a window token", host.window.decorView.windowToken != null)
+
+        reading.hostState.openPaneMenu(repository.activeWindow.id.toString(), PaneMenuAnchor.Pane)
+
+        assertNotNull("the pane menu opens", reading.hostState.paneMenuWindowId.value)
+        assertFalse("opening pane menu hides the keyboard without activity focus", shadowOf(ime).isSoftInputVisible)
     }
 
     @Test fun openingOverflowMenuHidesNativeEditorKeyboard() {

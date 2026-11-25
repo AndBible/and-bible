@@ -81,7 +81,11 @@ class ReadingHostHooks(
     val activeWindowId: (() -> IdType)? = null,
     /** The history items of a window, newest first; defaults to [HistoryManager.getHistory]. */
     val historyItemsFor: ((IdType) -> List<HistoryItem>)? = null,
-    /** Hides a platform editor's keyboard before the pane popup takes window focus. */
+    /**
+     * Hides a native editor's keyboard before the pane popup takes window focus. Android supplies
+     * this hook; the iOS and desktop hosts currently leave it inert, so this is not a guarantee
+     * that their platform keyboards are dismissed.
+     */
     val hideKeyboardForPaneMenu: () -> Unit = {},
     /** The ☰ menu items for a window, or null when the window no longer exists. */
     val paneMenuItemsFor: (windowId: String) -> List<WindowPaneMenuItem>? = { null },

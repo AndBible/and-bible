@@ -285,6 +285,7 @@ class HostReadingHost(
             formatHistoryTimestamp = { createdAt -> formatHistoryTimestamp(createdAt.getTime()) },
             installedDocRows = ::installedDocRows,
             recentDocumentInitials = { koin.get<RecentDocumentsStore>().read() },
+            // Unlike Android, this host has no native-editor keyboard dismissal hook yet.
             paneMenuItemsFor = ::paneMenuItemsFor,
             dismissLlmSheets = ::dismissLlmSheets,
             openPromptSelector = ::openPromptSelector,
