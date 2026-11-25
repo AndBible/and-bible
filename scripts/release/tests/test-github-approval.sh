@@ -26,6 +26,9 @@ while (($#)); do
         *) printf 'Unexpected argument: %s\n' "$1" >&2; exit 1 ;;
     esac
 done
+if [[ "$method" == GET && "$SCENARIO" == success-stderr ]]; then
+    printf 'gh: diagnostic only (HTTP 403)\n' >&2
+fi
 if [[ "$method" == GET && "$SCENARIO" == get-client-* ]]; then
     case "$SCENARIO:$endpoint" in
         get-client-lookup:*/workflows/*|get-client-pending:*/pending_deployments|get-client-approvals:*/approvals|get-client-jobs:*/jobs|get-client-status:*/actions/runs/202)
@@ -39,6 +42,18 @@ count() {
     printf '%s\n' "$n" > "$STATE/$1"
     printf '%s\n' "$n"
 }
+if [[ "$SCENARIO" == rate-* && ! -f "$STATE/rate-failed" ]]; then
+    case "$SCENARIO:$method:$endpoint" in
+        rate-post-*:POST:*|rate-lookup-*:GET:*/workflows/*|rate-pending-*:GET:*/pending_deployments|rate-approvals-*:GET:*/approvals|rate-status-*:GET:*/actions/runs/202|rate-jobs-*:GET:*/jobs)
+            touch "$STATE/rate-failed"
+            case "$SCENARIO" in
+                *-429) printf 'gh: Too Many Requests (HTTP 429)\n' >&2 ;;
+                *-secondary) printf 'gh: secondary rate limit (HTTP 403)\n' >&2 ;;
+                *-primary) printf 'gh: API rate limit exceeded (HTTP 403)\n' >&2 ;;
+            esac
+            exit 1 ;;
+    esac
+fi
 case "$endpoint" in
     */workflows/*/runs\?*)
         n=$(count lookups)
@@ -62,6 +77,10 @@ case "$endpoint" in
                 printf '%s\n' "$endpoint" > "$STATE/approved"
                 printf 'approval response lost\n' >&2; exit 1
             fi
+            if [[ "$SCENARIO" == post-race-* ]]; then
+                printf '%s\n' "$endpoint" > "$STATE/approved"
+                printf 'gh: No pending deployment requests (HTTP %s)\n' "${SCENARIO#post-race-}" >&2; exit 1
+            fi
             if [[ "$SCENARIO" == client-* ]]; then
                 printf 'gh: approval forbidden (HTTP %s)\n' "${SCENARIO#client-}" >&2; exit 1
             fi
@@ -80,8 +99,12 @@ case "$endpoint" in
         fi
         if [[ "$SCENARIO" == partial-retry && "$n" == 2 ]]; then
             json='[{"environment":{"id":43},"current_user_can_approve":true}]'
-        elif [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || "$SCENARIO" == race-* || "$SCENARIO" == quiet-* || "$SCENARIO" == get-client-* || -f "$STATE/approved" ]]; then
+        elif [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == completed-success-no-approval || "$SCENARIO" == skipped-approved || "$SCENARIO" == manual-* || "$SCENARIO" == race-* || "$SCENARIO" == quiet-* || "$SCENARIO" == get-client-* || "$SCENARIO" == rate-approvals-* || "$SCENARIO" == rate-status-* || "$SCENARIO" == rate-jobs-* || -f "$STATE/approved" ]]; then
             json='[]'
+        elif [[ "$SCENARIO" == denied-false ]]; then
+            json='[{"environment":{"id":42},"current_user_can_approve":false}]'
+        elif [[ "$SCENARIO" == denied-missing ]]; then
+            json='[{"environment":{"id":42}}]'
         elif [[ "$SCENARIO" == non-approvable ]]; then
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":false},{"environment":{"id":44}}]'
         else
@@ -97,7 +120,7 @@ case "$endpoint" in
             json='[{"state":"approved","environments":[{"id":43}]}]'
         elif [[ "$SCENARIO" == partial-approval ]]; then
             json='[{"state":"approved","environments":[{"id":42}]}]'
-        elif [[ -f "$STATE/approved" || "$SCENARIO" == manual-apk || "$SCENARIO" == manual-desktop ]]; then
+        elif [[ -f "$STATE/approved" || "$SCENARIO" == manual-apk || "$SCENARIO" == manual-desktop || "$SCENARIO" == skipped-approved ]]; then
             json='[{"state":"approved","environments":[{"id":42},{"id":43}]}]'
         else
             json='[]'
@@ -111,7 +134,7 @@ case "$endpoint" in
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"failure"}]}'
         elif [[ "$SCENARIO" == completed-no-approval ]]; then
             json='{"jobs":[]}'
-        elif [[ "$SCENARIO" == skipped-signing ]]; then
+        elif [[ "$SCENARIO" == skipped-signing || "$SCENARIO" == skipped-approved ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"skipped"}]}'
         elif [[ "$SCENARIO" == follow-failed ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"failure"}]}'
@@ -122,7 +145,9 @@ case "$endpoint" in
         fi ;;
     */actions/runs/*)
         if [[ "$SCENARIO" == quiet-status ]]; then printf 'temporary status error\n' >&2; exit 1; fi
-        if [[ "$SCENARIO" == completed-no-approval || "$SCENARIO" == manual-apk || "$SCENARIO" == history-retry || "$SCENARIO" == race-* ]]; then
+        if [[ "$SCENARIO" == completed-success-no-approval ]]; then
+            json='{"status":"completed","conclusion":"success"}'
+        elif [[ "$SCENARIO" == completed-no-approval || "$SCENARIO" == manual-apk || "$SCENARIO" == history-retry || "$SCENARIO" == race-* ]]; then
             json='{"status":"completed","conclusion":"failure"}'
         else
             json='{"status":"in_progress","conclusion":null}'
@@ -182,10 +207,16 @@ assert_approved || failed=$((failed + 1))
 grep -q 'SignPath reminder' "$STATE/output" || { fail 'lost response: missing signing reminder'; failed=$((failed + 1)); }
 run_case follow-failed windows-sign
 [[ "$rc" != 0 ]] || { fail 'failed signing job reported success'; failed=$((failed + 1)); }
-for scenario in completed-no-approval skipped-signing; do
-    run_case "$scenario" windows-sign
-    assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
-    [[ "$SECONDS" -lt 2 ]] || { fail "$scenario: terminal run/job waited until the deadline"; failed=$((failed + 1)); }
+for scenario in completed-no-approval skipped-signing skipped-approved completed-success-no-approval; do
+    follow_job=windows-sign
+    [[ "$scenario" != completed-success-no-approval ]] || follow_job=""
+    run_case "$scenario" "$follow_job"
+    [[ "$rc" != 0 && "$SECONDS" -lt 2 ]] || { fail "$scenario: terminal run/job did not fail immediately"; failed=$((failed + 1)); }
+    grep -q 'https://github.com/AndBible/and-bible/actions/runs/202' "$STATE/output" || { fail "$scenario: missing run URL"; failed=$((failed + 1)); }
+    grep -Eqi 'did not run|build.*failed|completed.*without.*approval' "$STATE/output" || { fail "$scenario: missing actionable run/job explanation"; failed=$((failed + 1)); }
+    if grep -qi 'WARNING.*Deployment approval' "$STATE/output"; then
+        fail "$scenario: terminal state misreported as approval failure"; failed=$((failed + 1))
+    fi
 done
 run_case manual-apk
 [[ "$rc" == 0 ]] || { fail 'manual-apk: approval history was not detected'; failed=$((failed + 1)); }
@@ -230,5 +261,29 @@ run_case race-apk
 run_case race-desktop windows-sign
 [[ "$rc" != 0 ]] || { fail 'race-desktop: failed signing reported success'; failed=$((failed + 1)); }
 grep -q 'windows-sign: failure' "$STATE/output" || { fail 'race-desktop: signing conclusion was not followed'; failed=$((failed + 1)); }
+run_case success-stderr
+assert_approved || failed=$((failed + 1))
+if grep -q 'diagnostic only' "$STATE/output"; then
+    fail 'success-stderr: successful lookup stderr contaminated data/output'; failed=$((failed + 1))
+fi
+# Rate limits are transient on every lookup boundary and on the approval POST.
+for endpoint in post lookup pending approvals status jobs; do
+    for limit in 429 secondary primary; do
+        run_case "rate-$endpoint-$limit" windows-sign
+        [[ "$rc" == 0 && -f "$STATE/rate-failed" ]] || { fail "$SCENARIO: rate limit was not retried to success"; failed=$((failed + 1)); }
+        grep -q 'windows-sign: success' "$STATE/output" || { fail "$SCENARIO: signing was not followed after rate limit"; failed=$((failed + 1)); }
+    done
+done
+for scenario in denied-false denied-missing; do
+    run_case "$scenario"
+    assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
+    [[ "$SECONDS" -lt 2 && ! -f "$STATE/posts" ]] || { fail "$SCENARIO: unauthorized environment waited or was posted"; failed=$((failed + 1)); }
+done
+# A rejected POST can race with a manual or concurrent approval.
+for status in 400 401 403 404 422; do
+    run_case "post-race-$status"
+    [[ "$rc" == 0 ]] || { fail "$SCENARIO: concurrent approval was not recovered"; failed=$((failed + 1)); }
+    [[ "$(< "$STATE/posts")" == 1 ]] || { fail "$SCENARIO: repeated approval POST"; failed=$((failed + 1)); }
+done
 printf 'scenarios %s, failed %s\n' "$cases" "$failed"
 [[ "$failed" == 0 ]]

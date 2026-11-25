@@ -44,17 +44,31 @@ approve_workflow_deployments() {
     local workflow="$1" tag="$2" timeout="$3" interval="$4" follow_job="${5:-}"
     local deadline=$((SECONDS + timeout)) run_id="" candidate="" pending=""
     local attempted_run="" attempted_ids="" approved="" lookup_warned="" uncertain_run=""
+    approval_error_is_permanent() {
+        local error="$1"
+        [[ "$error" =~ HTTP[[:space:]]4[0-9][0-9] ]] || return 1
+        [[ "$error" =~ HTTP[[:space:]]429 ]] && return 1
+        if [[ "$error" =~ HTTP[[:space:]]403 ]] && grep -qi 'rate.*limit' <<< "$error"; then
+            return 1
+        fi
+        return 0
+    }
     # Assign into this waiter's locals so a failed lookup never looks like an empty response.
     approval_lookup() {
-        local target="$1" endpoint="$2" query="$3" response="" url="https://github.com/AndBible/and-bible/actions/workflows/$workflow"
+        local target="$1" endpoint="$2" query="$3" response="" error="" error_file
+        local url="https://github.com/AndBible/and-bible/actions/workflows/$workflow"
         [[ -z "$run_id" ]] || url="https://github.com/AndBible/and-bible/actions/runs/$run_id"
-        if response=$(gh api --method GET "$endpoint" --jq "$query" 2>&1); then
+        error_file=$(mktemp) || return 2
+        if response=$(gh api --method GET "$endpoint" --jq "$query" 2>"$error_file"); then
+            rm -f "$error_file"
             printf -v "$target" '%s' "$response"
             return 0
         fi
+        error=$(< "$error_file")
+        rm -f "$error_file"
         printf -v "$target" '%s' ""
-        if [[ "$response" =~ HTTP[[:space:]]4[0-9][0-9] ]]; then
-            echo "WARNING: Deployment approval lookup failed for $workflow ($tag): $response. Check: $url" >&2
+        if approval_error_is_permanent "$error"; then
+            echo "WARNING: Deployment approval lookup failed for $workflow ($tag): $error. Check: $url" >&2
             return 2
         fi
         if [[ -z "$lookup_warned" ]]; then
@@ -62,6 +76,19 @@ approve_workflow_deployments() {
             lookup_warned=1
         fi
         return 1
+    }
+    approval_pending() {
+        local deployments="" eid can_approve
+        approval_lookup deployments "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" '.[] | "\(.environment.id) \(.current_user_can_approve == true)"' || return $?
+        pending=""
+        while read -r eid can_approve; do
+            [[ "$can_approve" == true ]] || continue
+            pending="${pending:+$pending$'\n'}$eid"
+        done <<< "$deployments"
+        if [[ -n "$deployments" && -z "$pending" ]]; then
+            echo "WARNING: Deployment approval for $workflow ($tag) is required but the current user cannot approve it. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
+            return 2
+        fi
     }
     approval_history() {
         local approved_ids="" all_approved=1 eid
@@ -76,6 +103,52 @@ approve_workflow_deployments() {
         fi
         return 0
     }
+    approval_submit() {
+        local args=() eid post_error=""
+        while IFS= read -r eid; do args+=(-F "environment_ids[]=$eid"); done <<< "$pending"
+        if [[ "$attempted_run" != "$run_id" ]]; then
+            attempted_run="$run_id"
+            attempted_ids=""
+        fi
+        while IFS= read -r eid; do
+            if [[ $'\n'"$attempted_ids"$'\n' != *$'\n'"$eid"$'\n'* ]]; then
+                attempted_ids="${attempted_ids:+$attempted_ids$'\n'}$eid"
+            fi
+        done <<< "$pending"
+        if post_error=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
+            -f state=approved -f comment="Approved via increment-version script" 2>&1 >/dev/null); then
+            [[ "$uncertain_run" == "$run_id" ]] || approved=1
+            return 0
+        fi
+        uncertain_run="$run_id"
+        if [[ "$post_error" =~ HTTP[[:space:]]4[0-9][0-9] ]]; then
+            # A manual approval can consume the request before our POST arrives.
+            approval_history || return $?
+            if [[ -z "$approved" ]]; then
+                approval_pending || return $?
+                [[ -n "$pending" ]] || approval_history || return $?
+            fi
+            if [[ -z "$approved" ]] && approval_error_is_permanent "$post_error"; then
+                echo "WARNING: Deployment approval for $workflow run $run_id failed: $post_error. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
+                return 2
+            fi
+        fi
+        if [[ -z "$approved" ]]; then
+            echo "Could not confirm approval of $workflow run $run_id; retrying until the deadline." >&2
+            return 1
+        fi
+        return 0
+    }
+    approval_terminal_message() {
+        local url="https://github.com/AndBible/and-bible/actions/runs/$run_id"
+        if [[ "$job_state" == 'completed skipped' ]]; then
+            echo "$follow_job did not run (skipped); check the preceding build jobs: $url" >&2
+        elif [[ "$run_status" == 'completed failure' ]]; then
+            echo "Build failed before deployment approval for $workflow ($tag). Check: $url" >&2
+        else
+            echo "Run/job completed without deployment approval for $workflow ($tag) ($run_status; $job_state). Check: $url" >&2
+        fi
+    }
     echo "Waiting for $workflow run of $tag to ask for deployment approval..."
     while (( SECONDS < deadline )); do
         # Refresh until approved: tag creation/run registration can lag behind the push.
@@ -87,36 +160,17 @@ approve_workflow_deployments() {
         if [[ -n "$candidate" ]]; then
             run_id="$candidate"
             approved=""
-            approval_lookup pending "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" '.[] | select(.current_user_can_approve == true) | .environment.id' || {
+            approval_pending || {
                 [[ $? != 2 ]] || return 1
                 sleep "$interval"
                 continue
             }
             if [[ -n "$pending" ]]; then
-                local args=() eid
-                while IFS= read -r eid; do args+=(-F "environment_ids[]=$eid"); done <<< "$pending"
-                if [[ "$attempted_run" != "$run_id" ]]; then
-                    attempted_run="$run_id"
-                    attempted_ids=""
-                fi
-                while IFS= read -r eid; do
-                    if [[ $'\n'"$attempted_ids"$'\n' != *$'\n'"$eid"$'\n'* ]]; then
-                        attempted_ids="${attempted_ids:+$attempted_ids$'\n'}$eid"
-                    fi
-                done <<< "$pending"
-                local post_error=""
-                if post_error=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
-                    -f state=approved -f comment="Approved via increment-version script" 2>&1 >/dev/null); then
-                    [[ "$uncertain_run" == "$run_id" ]] || approved=1
-                else
-                    uncertain_run="$run_id"
-                    # gh reports HTTP failures on stderr; only network/server failures are retryable.
-                    if [[ "$post_error" =~ HTTP[[:space:]]4[0-9][0-9] ]]; then
-                        echo "WARNING: Deployment approval for $workflow run $run_id failed: $post_error. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
-                        return 1
-                    fi
-                    echo "Could not confirm approval of $workflow run $run_id; retrying until the deadline." >&2
-                fi
+                approval_submit || {
+                    [[ $? != 2 ]] || return 1
+                    sleep "$interval"
+                    continue
+                }
             else
                 # Recover both a lost POST response and an approval made outside this waiter.
                 approval_history || {
@@ -125,10 +179,9 @@ approve_workflow_deployments() {
                     continue
                 }
             fi
-            local job_state=""
+            local job_state="" run_status=""
             if [[ -z "$pending" && -z "$approved" ]]; then
-                local run_status=""
-                approval_lookup run_status "repos/{owner}/{repo}/actions/runs/$run_id" '.status' || {
+                approval_lookup run_status "repos/{owner}/{repo}/actions/runs/$run_id" '"\(.status) \(.conclusion)"' || {
                     [[ $? != 2 ]] || return 1
                     sleep "$interval"
                     continue
@@ -142,7 +195,7 @@ approve_workflow_deployments() {
                 fi
                 if [[ "$attempted_run" != "$run_id" && ( "$job_state" == in_progress* || "$job_state" == 'completed success' ) ]]; then
                     approved=1
-                elif [[ "$run_status" == completed || "$job_state" == completed* ]]; then
+                elif [[ "$run_status" == completed* || "$job_state" == completed* ]]; then
                     # Approval may have arrived between the history and terminal-state reads.
                     approval_history || {
                         [[ $? != 2 ]] || return 1
@@ -150,7 +203,7 @@ approve_workflow_deployments() {
                         continue
                     }
                     if [[ -z "$approved" ]]; then
-                        echo "WARNING: Deployment approval for $workflow ($tag) did not occur before the run/job completed. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
+                        approval_terminal_message
                         return 1
                     fi
                 fi
@@ -168,6 +221,10 @@ approve_workflow_deployments() {
                         }
                     fi
                     if [[ "$job_state" == completed* ]]; then
+                        if [[ "$job_state" == 'completed skipped' ]]; then
+                            approval_terminal_message
+                            return 1
+                        fi
                         echo "$follow_job: ${job_state#completed } (https://github.com/AndBible/and-bible/actions/runs/$run_id)"
                         [[ "$job_state" == "completed success" ]]
                         return
