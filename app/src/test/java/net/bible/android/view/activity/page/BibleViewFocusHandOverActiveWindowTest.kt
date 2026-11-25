@@ -73,6 +73,12 @@ class BibleViewFocusHandOverActiveWindowTest {
 
         @Implementation
         fun findFocus(): View? = Shadow.directlyOn(realWebView, ViewGroup::class.java, "findFocus")
+
+        @Implementation
+        fun performAccessibilityActionInternal(action: Int, arguments: android.os.Bundle?): Boolean =
+            Shadow.directlyOn(realWebView, View::class.java, "performAccessibilityActionInternal",
+                ReflectionHelpers.ClassParameter.from(Int::class.javaPrimitiveType, action),
+                ReflectionHelpers.ClassParameter.from(android.os.Bundle::class.java, arguments))
     }
 
     private lateinit var repository: WindowRepository
@@ -237,6 +243,20 @@ class BibleViewFocusHandOverActiveWindowTest {
 
         assertEquals(window1.id, repository.activeWindow.id)
         assertTrue(view1.isFocused)
+    }
+
+    @Test fun accessibilityFocusWithoutPreviousFocusSelectsTheRequestedPane() {
+        setTouchMode(true)
+        makeActive(window2)
+        field.requestFocus()
+        field.clearFocus()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertFalse(view1.hasFocus() || view2.hasFocus())
+
+        assertTrue(view1.performAccessibilityAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_FOCUS, null))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals("an explicit accessibility action selects its pane", window1.id, repository.activeWindow.id)
     }
 
     @Test fun focusTransferInTouchModeStillChangesTheActiveWindow() {

@@ -1661,6 +1661,19 @@ class BibleView(
         emit(BibleViewEvents.exportHtml())
     }
 
+    // ACTION_FOCUS is a deliberate selection even when no view previously held input focus.
+    private var accessibilityFocusRequested = false
+
+    override fun performAccessibilityAction(action: Int, arguments: android.os.Bundle?): Boolean {
+        val previous = accessibilityFocusRequested
+        accessibilityFocusRequested = previous || action == android.view.accessibility.AccessibilityNodeInfo.ACTION_FOCUS
+        try {
+            return super.performAccessibilityAction(action, arguments)
+        } finally {
+            accessibilityFocusRequested = previous
+        }
+    }
+
     /** True while [requestFocus] runs for a request made when no view of the window had focus. */
     private var focusRequestWithoutPreviousFocus = false
 
@@ -1685,7 +1698,7 @@ class BibleView(
      */
     override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         if(focused && windowRepository.activeWindow.id != window.id) {
-            if (focusRequestWithoutPreviousFocus || !isAttachedToWindow) {
+            if (!accessibilityFocusRequested && (focusRequestWithoutPreviousFocus || !isAttachedToWindow)) {
                 post {
                     val activeView = windowRepository.activeWindow.bibleView
                     if (hasFocus() && activeView !== this) activeView?.requestFocus()
