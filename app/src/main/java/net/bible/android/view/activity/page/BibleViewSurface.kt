@@ -30,6 +30,7 @@ import net.bible.android.control.event.UserMessages
 import net.bible.android.platform.AndroidBackupHost
 import net.bible.service.common.CommonUtils
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
+import net.bible.sharedui.webview.sharedFileName
 import okio.Path.Companion.toOkioPath
 import java.io.File
 
@@ -50,11 +51,12 @@ class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface 
         hostActivity.startActivity(Intent.createChooser(sendIntent, hostActivity.getString(R.string.share)))
     }
 
-    /** [title] is the share subject (the document's name). */
+    /** [title] names the exported file and is also the share subject. */
     override fun shareHtml(html: String, title: String) {
-        val targetDir = File(SharedConstants.internalFilesDir, "backup/")
+        val targetDir = File(SharedConstants.internalFilesDir, "export/")
         targetDir.mkdirs()
-        val targetFile = File(targetDir, "shared.html")
+        val fileName = "${sharedFileName(title)}.html"
+        val targetFile = File(targetDir, fileName)
         targetFile.writeText(html)
 
         val titleStr = hostActivity.getString(R.string.export_fileformat, "HTML")
@@ -62,12 +64,14 @@ class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface 
             org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
                 AndroidBackupHost { hostActivity },
                 targetFile.toOkioPath(),
-                fileName = "shared.html",
+                fileName = fileName,
                 shareMimeType = "text/html",
                 saveMimeType = "text/html",
                 chooserTitle = titleStr,
                 message = titleStr,
-                subject = title
+                subject = title,
+                promptTitle = hostActivity.getString(R.string.export_destination_title),
+                promptMessage = hostActivity.getString(R.string.export_destination_message),
             )
         }
     }

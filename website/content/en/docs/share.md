@@ -74,6 +74,14 @@ To export several study pads at once, use *Export Study Pads* in the ⋮ menu of
 want. To import a study pad file you have received, use *Import Study Pads* in
 the same ⋮ menu. See [Study Pads](study_pads.md#exporting-and-importing-study-pads).
 
+*Export as HTML* is also available from the window menu of Compare, My Notes and
+other multi-reference windows. The HTML file is named after the document (for
+example, `Multiple references.html` for Compare, or your Study Pad's name), with characters that cannot be
+used in file names removed or replaced. On Android, *Export to where?* lets you
+save the file to *Phone Storage* or *Share* it with another app. Open the saved
+file with an app that supports local HTML files; some mobile browsers restrict
+opening files from device storage.
+
 Empty text entries do not include the "Tap to edit text" placeholder in HTML exports.
 The placeholder remains visible in the Study Pad so you can add text later.
 

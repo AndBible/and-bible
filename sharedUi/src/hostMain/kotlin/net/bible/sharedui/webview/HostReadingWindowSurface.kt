@@ -85,10 +85,3 @@ class HostReadingWindowSurface(
 
     override fun openWebSearch(query: String) = links.open(webSearchUrl(query))
 }
-
-/** A file-name stem from [title]: path separators and control characters become spaces, trimmed, at most 60 characters. */
-internal fun sharedFileName(title: String): String {
-    val cleaned = title.map { if (it in "/\\:*?\"<>|" || it.code < 32) ' ' else it }.joinToString("")
-        .trim().take(60).trim().trimStart('.')
-    return cleaned.ifBlank { "shared" }
-}
