@@ -81,6 +81,8 @@ class ReadingHostHooks(
     val activeWindowId: (() -> IdType)? = null,
     /** The history items of a window, newest first; defaults to [HistoryManager.getHistory]. */
     val historyItemsFor: ((IdType) -> List<HistoryItem>)? = null,
+    /** Hides a platform editor's keyboard before the pane popup takes window focus. */
+    val hideKeyboardForPaneMenu: () -> Unit = {},
     /** The ☰ menu items for a window, or null when the window no longer exists. */
     val paneMenuItemsFor: (windowId: String) -> List<WindowPaneMenuItem>? = { null },
     /** Every installed (and pseudo) document as a row; BLOCKING, see [ReadingHostState.buildDocumentQuickTabsForHost]. */
@@ -387,6 +389,7 @@ class ReadingHostState(
     fun openPaneMenu(windowId: String, anchor: PaneMenuAnchor) {
         windowButtonsVisibility.onTouch()
         if (!refreshPaneMenuItems(windowId)) return
+        hooks.hideKeyboardForPaneMenu()
         paneMenuAnchor.value = anchor
         paneMenuWindowId.value = windowId
     }

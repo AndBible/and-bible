@@ -286,6 +286,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             openCompare = { range -> linkControl.openCompare(range) },
             applyChosenVerse = { osisId -> activity.readingCommands.applyChosenVerse(osisId) },
             formatHistoryTimestamp = { createdAt -> format("h:mm a, E d MMM ", createdAt).toString() },
+            // The editor is a native WebView, so Compose's keyboard controller may ignore hide().
+            hideKeyboardForPaneMenu = { activity.hostActivity.closeKeyboard() },
             paneMenuItemsFor = { windowId ->
                 activity.hostWindowRepository.getWindow(IdType(windowId))?.let { paneMenuStateBuilder.build(it) }
             },
@@ -991,6 +993,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         if (searchController.searchModeActive.value) return
         activity.fullScreen = false
         overflowItems.value = activity.readingCommands.buildOptionsMenuItems()
+        activity.hostActivity.closeKeyboard()
         overflowExpanded.value = true
     }
 

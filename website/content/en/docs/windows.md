@@ -94,7 +94,7 @@ Reposition the window by using the `Move to` menu option.
 
 ## The window menu
 
-Long-press a window button at the bottom of the screen, or tap the button at the top right of a window, to open its menu. Which items you see depends on the window and its document:
+Long-press a window button at the bottom of the screen, or tap the button at the top right of a window, to open its menu. On Android, opening this menu or the three-dot menu hides the on-screen keyboard, including while editing a Study Pad. Close the menu and tap the editor to continue typing. Which items you see depends on the window and its document:
 
 - `New window`, `Maximise` and `Minimise`: see above.
 - `Change to normal window`: shown for the links window; turns it into an ordinary window.
