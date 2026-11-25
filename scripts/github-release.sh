@@ -37,64 +37,107 @@ signpath_approval_reminder() {
     echo "==> ACTION NEEDED: approve the Windows signing request ($policy) in SignPath: $url"
 }
 
-# Approves the pending environment deployments of the newest run of workflow $1 for commit $2.
-# Waits up to $3 seconds for the run to appear and ask for approval, polling every $4 seconds.
-# With job name $5, then waits (same deadline) for that job to finish and fails unless it succeeded.
-approve_workflow_deployments() {
-    local workflow="$1" sha="$2" timeout="$3" interval="$4" follow_job="${5:-}"
-    local deadline=$((SECONDS + timeout)) run_id="" pending=""
-    echo "Waiting for $workflow run of $sha to ask for deployment approval..."
-    while (( SECONDS < deadline )); do
-        if [[ -z "$run_id" ]]; then
-            run_id=$(gh api "repos/{owner}/{repo}/actions/workflows/$workflow/runs?head_sha=$sha&per_page=1" \
-                --jq '.workflow_runs[0].id // empty' 2>/dev/null || true)
+# Follow a tag push for the released commit, allowing five minutes of host/GitHub clock skew.
+# Approval means the gated job left waiting; Desktop additionally waits for its conclusion.
+# Args: workflow, tag, timeout, interval, gated job, commit, push time (UTC), wait for completion.
+approve_workflow_deployments() (
+    local workflow="$1" tag="$2" timeout="$3" interval="$4" follow_job="$5"
+    local commit="$6" pushed_at="$7" wait_for_completion="${8:-false}"
+    local deadline=$((SECONDS + timeout)) next_progress=$((SECONDS + 60)) run_id=""
+    local url="https://github.com/AndBible/and-bible/actions/workflows/$workflow"
+    local run_status="" job_state="" deployments="" approved="" started="" denied_warned="" lookup_warned=""
+    local error_file error="" eid can_approve args ids approved_ids=" "
+    error_file=$(mktemp) || return 1
+    trap 'rm -f "$error_file"' EXIT
+
+    # Separate successful stdout from diagnostics; one stderr file belongs to this waiter.
+    approval_lookup() {
+        local target="$1" endpoint="$2" query="$3" response=""
+        if response=$(gh api --method GET "$endpoint" --jq "$query" 2>"$error_file"); then
+            printf -v "$target" '%s' "$response"
+            return 0
         fi
-        if [[ -n "$run_id" ]]; then
-            pending=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --jq '.[].environment.id' 2>/dev/null || true)
-            if [[ -n "$pending" ]]; then
-                local args=() eid
-                while IFS= read -r eid; do args+=(-F "environment_ids[]=$eid"); done <<< "$pending"
-                if gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
-                    -f state=approved -f comment="Approved via increment-version script" >/dev/null 2>&1; then
-                    echo "Deployment approved for $workflow run $run_id"
-                    [[ -z "$follow_job" ]] && return 0
-                    local job_state="" reminded=""
-                    while (( SECONDS < deadline )); do
-                        job_state=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
-                            --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"" 2>/dev/null || true)
-                        if [[ "$job_state" == completed* ]]; then
-                            echo "$follow_job: ${job_state#completed } (https://github.com/AndBible/and-bible/actions/runs/$run_id)"
-                            [[ "$job_state" == "completed success" ]]
-                            return
-                        fi
-                        if [[ -z "$reminded" && "$job_state" == in_progress* ]]; then
-                            reminded=1
-                            signpath_approval_reminder
-                        fi
-                        sleep "$interval"
-                    done
-                    echo "$follow_job did not finish in time (a production signing request needs approval in SignPath). Check: https://github.com/AndBible/and-bible/actions/runs/$run_id"
-                    return 1
+        error=$(< "$error_file")
+        if [[ "$error" =~ HTTP[[:space:]](401|404) ||
+            ( "$error" =~ HTTP[[:space:]]403 && ! "$error" =~ [Rr][Aa][Tt][Ee].?[Ll][Ii][Mm][Ii][Tt] ) ||
+            ( -z "$run_id" && "$error" =~ HTTP[[:space:]]422 ) ]]; then
+            echo "WARNING: Deployment approval lookup failed for $workflow ($tag): ${error//$'\n'/ }. Check: $url" >&2
+            exit 1
+        fi
+        if [[ -z "$lookup_warned" ]]; then
+            echo "WARNING: Deployment approval lookup failed for $workflow ($tag); retrying until the deadline. Check: $url" >&2
+            lookup_warned=1
+        fi
+        return 1
+    }
+
+    echo "Waiting for $workflow run of $tag and gated job $follow_job..."
+    while (( SECONDS < deadline )); do
+        if (( SECONDS >= next_progress )); then
+            echo "Still waiting for $workflow ($tag), job $follow_job. Check: $url"
+            next_progress=$((SECONDS + 60))
+        fi
+        if [[ -z "$run_id" ]]; then
+            approval_lookup run_id "repos/{owner}/{repo}/actions/workflows/$workflow/runs?branch=$tag&event=push&per_page=100" \
+                "[.workflow_runs[] | select(.head_sha == \"$commit\" and .head_branch == \"$tag\" and .event == \"push\" and .created_at >= (\"$pushed_at\" | fromdateiso8601 - 300 | todateiso8601))] | max_by(.created_at) | .id // empty" || true
+            [[ -z "$run_id" ]] || url="https://github.com/AndBible/and-bible/actions/runs/$run_id"
+        fi
+        # Read jobs AFTER run status, so a just-completed run has fresh job evidence.
+        if [[ -n "$run_id" ]] &&
+            approval_lookup run_status "repos/{owner}/{repo}/actions/runs/$run_id" '"\(.status) \(.conclusion)"' &&
+            approval_lookup job_state "repos/{owner}/{repo}/actions/runs/$run_id/jobs" ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\""; then
+            if [[ "$job_state" == queued* || "$job_state" == in_progress* || "$job_state" == 'completed success' ]]; then
+                if [[ -z "$approved" ]]; then
+                    approved=1
+                    echo "Deployment approved for $workflow run $run_id ($follow_job left waiting)"
+                    [[ "$wait_for_completion" == true ]] || return 0
                 fi
-                echo "Could not approve deployment. Approve manually at: https://github.com/AndBible/and-bible/actions/runs/$run_id"
+                if [[ "$job_state" == in_progress* && -z "$started" ]]; then
+                    started=1
+                    signpath_approval_reminder
+                fi
+            fi
+            if [[ "$job_state" == completed* || "$run_status" == completed* ]]; then
+                local terminal_state="$run_status"
+                [[ "$job_state" != completed* ]] || terminal_state="$job_state"
+                if [[ -n "$approved" ]]; then
+                    echo "$follow_job: ${terminal_state#completed } ($url)"
+                    [[ "$job_state" == 'completed success' ]]
+                    return
+                fi
+                local not_run=""
+                [[ "$job_state" != 'completed skipped' && "$job_state" != waiting* ]] || not_run=" without the gated job running"
+                echo "Run/job completed (${terminal_state#completed })$not_run: $workflow ($tag), $follow_job. Check: $url" >&2
                 return 1
             fi
-            local status
-            status=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id" --jq .status 2>/dev/null || true)
-            if [[ "$status" == "completed" ]]; then
-                echo "$workflow run $run_id completed without asking for approval"
-                return 1
+            if approval_lookup deployments "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" '.[] | "\(.environment.id) \(.current_user_can_approve == true)"'; then
+                args=(); ids=""
+                while read -r eid can_approve; do
+                    [[ -n "$eid" && "$approved_ids" != *" $eid "* ]] || continue
+                    if [[ "$can_approve" == true ]]; then
+                        args+=(-F "environment_ids[]=$eid"); ids+=" $eid "
+                    elif [[ -z "$denied_warned" ]]; then
+                        echo "WARNING: Current user cannot approve a pending deployment for $workflow ($tag). Check: $url" >&2
+                        denied_warned=1
+                    fi
+                done <<< "$deployments"
+                if (( ${#args[@]} )); then
+                    if error=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
+                        -f state=approved -f comment="Approved via github-release script" 2>&1 >/dev/null); then
+                        approved_ids+="$ids"
+                    else
+                        echo "Deployment approval POST failed; retrying: ${error//$'\n'/ }. Check: $url" >&2
+                    fi
+                fi
             fi
         fi
         sleep "$interval"
     done
-    if [[ -n "$run_id" ]]; then
-        echo "$workflow run $run_id did not ask for approval in time. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id"
-    else
-        echo "Could not find a $workflow run for $sha. Check GitHub Actions manually."
-    fi
+    local detail=""
+    [[ -z "$approved" || "$job_state" != queued* ]] || detail=" Deployment approved; $follow_job is waiting for a runner."
+    echo "WARNING: Deployment approval/job wait for $workflow ($tag) exceeded $timeout seconds.$detail ACTION NEEDED: check manually: $url" >&2
     return 1
-}
+)
 
 # Retry wrapper for GPG/network operations that may fail due to YubiKey timeout
 # Usage: retry_command <description> <command...>
@@ -211,6 +254,8 @@ fi
 git tag -a "$TAG_NAME" -m "$TAG_MESSAGE" "$COMMIT"
 echo -e "${GREEN}✓ Tag $TAG_NAME created${NC}"
 retry_command "Push to GitHub" git push "$REMOTE"
+# Capture before pushing: the workflow may be registered before git push returns.
+TAG_PUSHED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 retry_command "Push tag to GitHub" git push "$REMOTE" "$TAG_NAME"
 echo -e "${GREEN}✓ Branch and tag pushed${NC}"
 
@@ -220,11 +265,13 @@ echo -e "${GREEN}✓ Branch and tag pushed${NC}"
 DESKTOP_WAITER_PID=""
 if command -v "$GH" >/dev/null 2>&1; then
     gh() { command "$GH" "$@"; }   # `command`: never this function itself when GH=gh
-    approve_workflow_deployments desktop.yml "$COMMIT" 14400 30 windows-sign \
+    approve_workflow_deployments desktop.yml "$TAG_NAME" 14400 30 windows-sign "$COMMIT" "$TAG_PUSHED_AT" true \
         > >(sed -u 's/^/[Windows signing] /') 2>&1 &
     DESKTOP_WAITER_PID=$!
     echo "Windows signing approval runs in the background; the script waits for it at the end."
-    approve_workflow_deployments build-apk.yml "$COMMIT" 60 2 || true
+    if ! approve_workflow_deployments build-apk.yml "$TAG_NAME" 900 5 build "$COMMIT" "$TAG_PUSHED_AT"; then
+        echo -e "${YELLOW}WARNING: APK deployment approval failed; the release needs manual attention at the URL above.${NC}" >&2
+    fi
 
     # Keep only the most recent test release.
     if [[ "$KIND" == test ]]; then
