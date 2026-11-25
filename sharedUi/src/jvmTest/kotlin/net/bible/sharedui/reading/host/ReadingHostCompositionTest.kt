@@ -293,8 +293,16 @@ class ReadingHostCompositionTest {
         val deps = deps(state, controller("w1"), drawerMenu = menu)
         setContent { Themed { ReadingHost(deps) } }
 
-        repeat(2) {
-            state.openDrawer()
+        repeat(2) { opening ->
+            if (opening == 0) {
+                state.openDrawer()
+            } else {
+                onRoot().performTouchInput {
+                    down(androidx.compose.ui.geometry.Offset(4f, centerY))
+                    repeat(40) { moveBy(androidx.compose.ui.geometry.Offset(6f, 0f), delayMillis = 16) }
+                    up()
+                }
+            }
             waitForIdle()
             onNodeWithText("Drawer Header").assertIsDisplayed()
             val scrollRange = onNode(hasScrollAction()).fetchSemanticsNode()
