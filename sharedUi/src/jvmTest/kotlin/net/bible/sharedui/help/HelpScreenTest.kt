@@ -183,10 +183,22 @@ class HelpScreenTest {
     }
 
     @Test fun episodeRowsUseThePlainLabelWithoutCaptions() = runComposeUiTest {
-        show(videos = emptyList(), appLanguage = "kk")
+        val opened = mutableListOf<String>()
+        val episode = Episode.TUTORIAL_02_FINDING_YOUR_WAY
+        show(videos = emptyList(), appLanguage = "kk", opened = opened)
         onNodeWithText(strings.helpTabUserGuide).performClick()
-        onNodeWithText(episodeTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY)).assertExists()
         onAllNodesWithText(strings.watchTutorialVideoPlain).assertCountEquals(2)
+        onNodeWithText(episodeTitle(episode)).performClick()
+        assertEquals(listOf(TutorialVideos.url(episode, "kk")), opened)
+    }
+
+    @Test fun episodeRowsUseTheAppLanguageForTheirUrls() = runComposeUiTest {
+        val opened = mutableListOf<String>()
+        val episode = Episode.TUTORIAL_02_FINDING_YOUR_WAY
+        show(videos = emptyList(), appLanguage = "fi", opened = opened)
+        onNodeWithText(strings.helpTabUserGuide).performClick()
+        onNodeWithText(episodeTitle(episode)).performClick()
+        assertEquals(listOf(TutorialVideos.url(episode, "fi")), opened)
     }
 
     @Test fun videoRowWithoutCaptionsUsesThePlainLabel() = runComposeUiTest {
