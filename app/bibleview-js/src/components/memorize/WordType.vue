@@ -282,12 +282,11 @@ function updateInputPosition() {
 
 function scrollToCurrentWord() {
     nextTick(() => {
+        updateInputPosition();
         const el = wordRefs.value[currentWordIndex.value] as HTMLElement | undefined;
         if (el?.scrollIntoView) {
             el.scrollIntoView({behavior: 'smooth', block: 'nearest'});
             requestAnimationFrame(updateInputPosition);
-        } else {
-            updateInputPosition();
         }
     });
 }
@@ -368,8 +367,13 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 function focusInput() {
+    const activeWord = wordRefs.value[currentWordIndex.value] as HTMLElement | undefined;
+    if (activeWord?.scrollIntoView) {
+        activeWord.scrollIntoView({behavior: 'auto', block: 'nearest'});
+    }
     updateInputPosition();
     hiddenInput.value?.focus({preventScroll: true});
+    requestAnimationFrame(updateInputPosition);
 }
 
 function resetWords() {

@@ -29,7 +29,7 @@ test('word typing input follows the active word through phone resize and scrolli
             window.bibleViewDebug.documents.splice(0, Infinity, {
                 id: 'typing-position-test', type: 'memorize', title: 'Typing position',
                 texts: [{key: 'long-verse', text}],
-                state: {memorize: {mode: 'type', modeConfig: {typeConfig: {currentWordIndex: 65}}}},
+                state: {memorize: {mode: 'type', modeConfig: {typeConfig: {currentWordIndex: 130}}}},
             });
         }, longText);
         const textArea = page.locator('.type-text');
@@ -57,9 +57,20 @@ test('word typing input follows the active word through phone resize and scrolli
         assert.equal(await input.evaluate(el => el === document.activeElement), true);
 
         await input.press('w');
-        await page.waitForFunction(() => document.querySelector('.type-word.type-current')?.textContent === 'word66');
+        await page.waitForFunction(() => document.querySelector('.type-word.type-current')?.textContent === 'word131');
         await assertInputTracksWord();
         assert.equal(await input.evaluate(el => el === document.activeElement), true);
+
+        await page.evaluate(() => {
+            window.scrollTo(0, 0);
+            document.querySelector('.type-text').dispatchEvent(new MouseEvent('click', {bubbles: true}));
+        });
+        const restoredWordIsVisible = await page.locator('.type-word.type-current').evaluate(el => {
+            const rect = el.getBoundingClientRect();
+            return rect.top >= 0 && rect.bottom <= window.innerHeight;
+        });
+        assert.equal(restoredWordIsVisible, true, 'focusing a restored word must reveal it');
+        await assertInputTracksWord();
     } finally {
         await page.close();
     }
