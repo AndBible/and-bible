@@ -65,25 +65,32 @@ approve_workflow_deployments() {
                 else
                     echo "Could not confirm approval of $workflow run $run_id; retrying until the deadline." >&2
                 fi
-            elif [[ "$attempted_run" == "$run_id" ]]; then
-                # A successful POST can lose its response. Verify every attempted environment before following the job.
-                local approved_ids="" all_approved=1
+            else
+                # Recover both a lost POST response and an approval made outside this waiter.
+                local approved_ids="" all_approved=1 eid
                 approved_ids=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/approvals" \
                     --jq '.[] | select(.state == "approved") | .environments[].id') || approved_ids=""
-                while IFS= read -r eid; do
-                    [[ $'\n'"$approved_ids"$'\n' == *$'\n'"$eid"$'\n'* ]] || all_approved=""
-                done <<< "$attempted_ids"
-                approved="$all_approved"
+                if [[ "$attempted_run" == "$run_id" ]]; then
+                    while IFS= read -r eid; do
+                        [[ $'\n'"$approved_ids"$'\n' == *$'\n'"$eid"$'\n'* ]] || all_approved=""
+                    done <<< "$attempted_ids"
+                    approved="$all_approved"
+                elif [[ -n "$approved_ids" ]]; then
+                    approved=1
+                fi
             fi
+            local job_state=""
             if [[ -z "$pending" && -z "$approved" ]]; then
-                local run_status="" terminal_job=""
+                local run_status=""
                 run_status=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id" \
                     --jq '.status') || run_status=""
                 if [[ -n "$follow_job" ]]; then
-                    terminal_job=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
-                        --jq ".jobs[] | select(.name == \"$follow_job\") | .conclusion // empty") || terminal_job=""
+                    job_state=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
+                        --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"") || job_state=""
                 fi
-                if [[ "$run_status" == completed || -n "$terminal_job" ]]; then
+                if [[ "$attempted_run" != "$run_id" && ( "$job_state" == in_progress* || "$job_state" == 'completed success' ) ]]; then
+                    approved=1
+                elif [[ "$run_status" == completed || "$job_state" == completed* ]]; then
                     echo "WARNING: Deployment approval for $workflow ($tag) did not occur before the run/job completed. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
                     return 1
                 fi
@@ -91,10 +98,12 @@ approve_workflow_deployments() {
             if [[ -n "$approved" ]]; then
                 echo "Deployment approved for $workflow run $run_id"
                 [[ -z "$follow_job" ]] && return 0
-                local job_state="" reminded=""
+                local reminded=""
                 while (( SECONDS < deadline )); do
-                    job_state=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
-                        --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"") || job_state=""
+                    if [[ -z "$job_state" ]]; then
+                        job_state=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
+                            --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"") || job_state=""
+                    fi
                     if [[ "$job_state" == completed* ]]; then
                         echo "$follow_job: ${job_state#completed } (https://github.com/AndBible/and-bible/actions/runs/$run_id)"
                         [[ "$job_state" == "completed success" ]]
@@ -105,6 +114,7 @@ approve_workflow_deployments() {
                         signpath_approval_reminder
                     fi
                     sleep "$interval"
+                    job_state=""
                 done
                 echo "$follow_job did not finish in time (a production signing request needs approval in SignPath). Check: https://github.com/AndBible/and-bible/actions/runs/$run_id"
                 return 1

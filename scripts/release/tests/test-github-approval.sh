@@ -65,7 +65,7 @@ case "$endpoint" in
         if [[ "$SCENARIO" == pending-error && "$n" == 1 ]]; then
             printf 'temporary pending error\n' >&2; exit 1
         fi
-        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || -f "$STATE/approved" ]]; then
+        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || -f "$STATE/approved" ]]; then
             json='[]'
         else
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":true}]'
@@ -73,7 +73,7 @@ case "$endpoint" in
     */approvals)
         if [[ "$SCENARIO" == partial-approval ]]; then
             json='[{"state":"approved","environments":[{"id":42}]}]'
-        elif [[ -f "$STATE/approved" ]]; then
+        elif [[ -f "$STATE/approved" || "$SCENARIO" == manual-apk || "$SCENARIO" == manual-desktop ]]; then
             json='[{"state":"approved","environments":[{"id":42},{"id":43}]}]'
         else
             json='[]'
@@ -90,7 +90,7 @@ case "$endpoint" in
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"success"}]}'
         fi ;;
     */actions/runs/*)
-        if [[ "$SCENARIO" == completed-no-approval ]]; then
+        if [[ "$SCENARIO" == completed-no-approval || "$SCENARIO" == manual-apk ]]; then
             json='{"status":"completed","conclusion":"failure"}'
         else
             json='{"status":"in_progress","conclusion":null}'
@@ -150,6 +150,16 @@ for scenario in completed-no-approval skipped-signing; do
     run_case "$scenario" windows-sign
     assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
     [[ "$SECONDS" -lt 2 ]] || { fail "$scenario: terminal run/job waited until the deadline"; failed=$((failed + 1)); }
+done
+run_case manual-apk
+[[ "$rc" == 0 ]] || { fail 'manual-apk: approval history was not detected'; failed=$((failed + 1)); }
+[[ ! -f "$STATE/posts" && "$SECONDS" -lt 2 ]] || { fail 'manual-apk: posted or kept polling'; failed=$((failed + 1)); }
+for scenario in manual-desktop manual-job-state; do
+    run_case "$scenario" windows-sign
+    [[ "$rc" == 0 ]] || { fail "$scenario: manual approval was not detected"; failed=$((failed + 1)); }
+    [[ ! -f "$STATE/posts" ]] || { fail "$scenario: unexpected approval POST"; failed=$((failed + 1)); }
+    grep -q 'windows-sign: success' "$STATE/output" || { fail "$scenario: signing was not followed"; failed=$((failed + 1)); }
+    grep -q 'SignPath reminder' "$STATE/output" || { fail "$scenario: missing signing reminder"; failed=$((failed + 1)); }
 done
 printf 'failed %s\n' "$failed"
 [[ "$failed" == 0 ]]
