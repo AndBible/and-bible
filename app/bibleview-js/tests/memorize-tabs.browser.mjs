@@ -19,6 +19,52 @@ after(async () => {
     await server?.close();
 });
 
+test('word typing input follows the active word through phone resize and scrolling', async () => {
+    const page = await browser.newPage({viewport: {width: 320, height: 640}});
+    try {
+        await page.goto(`${origin}?lang=fi`);
+        await page.waitForFunction(() => window.bibleViewDebug?.documents);
+        const longText = Array.from({length: 180}, (_, i) => `word${i}`).join(' ');
+        await page.evaluate(text => {
+            window.bibleViewDebug.documents.splice(0, Infinity, {
+                id: 'typing-position-test', type: 'memorize', title: 'Typing position',
+                texts: [{key: 'long-verse', text}],
+                state: {memorize: {mode: 'type', modeConfig: {typeConfig: {currentWordIndex: 65}}}},
+            });
+        }, longText);
+        const textArea = page.locator('.type-text');
+        await textArea.waitFor();
+        const input = page.locator('.type-hidden-input');
+        await textArea.click();
+
+        const assertInputTracksWord = async () => {
+            const metrics = await page.evaluate(() => {
+                const input = document.querySelector('.type-hidden-input');
+                const word = document.querySelector('.type-word.type-current');
+                const inputRect = input.getBoundingClientRect();
+                const wordRect = word.getBoundingClientRect();
+                return {input: {left: inputRect.left, top: inputRect.top}, word: {left: wordRect.left, top: wordRect.top}};
+            });
+            assert.ok(Math.abs(metrics.input.left - metrics.word.left) < 1, JSON.stringify(metrics));
+            assert.ok(Math.abs(metrics.input.top - metrics.word.top) < 1, JSON.stringify(metrics));
+        };
+
+        await assertInputTracksWord();
+        await page.setViewportSize({width: 360, height: 640});
+        await assertInputTracksWord();
+        await page.evaluate(() => window.scrollTo(0, 800));
+        await assertInputTracksWord();
+        assert.equal(await input.evaluate(el => el === document.activeElement), true);
+
+        await input.press('w');
+        await page.waitForFunction(() => document.querySelector('.type-word.type-current')?.textContent === 'word66');
+        await assertInputTracksWord();
+        assert.equal(await input.evaluate(el => el === document.activeElement), true);
+    } finally {
+        await page.close();
+    }
+});
+
 for (const width of [320, 360, 800]) {
     test(`memorize labels stay inside their tabs at ${width}px`, async () => {
         const page = await browser.newPage({viewport: {width, height: 800}});

@@ -67,20 +67,20 @@
                 class="type-buffer">{{ typedBuffer }}</span>
         </template>
       </div>
+      <!-- Keep this input mounted and anchor it to the active word for stable IME focus. -->
+      <input ref="hiddenInput"
+             class="type-hidden-input"
+             :style="inputPosition"
+             type="text"
+             autocomplete="off"
+             autocapitalize="off"
+             autocorrect="off"
+             @input="onInput"
+             @keydown="onKeydown"
+             @focus="isFocused = true"
+             @blur="isFocused = false"
+      />
     </div>
-
-    <!-- Hidden input for keyboard capture -->
-    <input ref="hiddenInput"
-           class="type-hidden-input"
-           type="text"
-           autocomplete="off"
-           autocapitalize="off"
-           autocorrect="off"
-           @input="onInput"
-           @keydown="onKeydown"
-           @focus="isFocused = true"
-           @blur="isFocused = false"
-    />
   </div>
 </template>
 
@@ -126,6 +126,8 @@ const incorrectIndex = ref<number | null>(null);
 const isFocused = ref(false);
 const hiddenInput = ref<HTMLInputElement | null>(null);
 const wordRefs = ref<Record<number, Element | null>>({});
+const inputPosition = ref({left: "0px", top: "0px"});
+let textResizeObserver: ResizeObserver | undefined;
 const settingsOpen = ref(false);
 // Back closes the open popup instead of leaving the window (#4118). No registry in isolated component tests.
 inject(modalKey, null)?.registerPopup(settingsOpen);
@@ -265,11 +267,27 @@ function skipPunctuationTokens() {
     }
 }
 
+function updateInputPosition() {
+    const text = hiddenInput.value?.parentElement;
+    const activeWord = wordRefs.value[currentWordIndex.value] as HTMLElement | undefined;
+    if (!text || !activeWord) return;
+
+    const textRect = text.getBoundingClientRect();
+    const wordRect = activeWord.getBoundingClientRect();
+    inputPosition.value = {
+        left: `${wordRect.left - textRect.left - text.clientLeft}px`,
+        top: `${wordRect.top - textRect.top - text.clientTop}px`,
+    };
+}
+
 function scrollToCurrentWord() {
     nextTick(() => {
-        const el = wordRefs.value[currentWordIndex.value];
-        if (el && (el as HTMLElement).scrollIntoView) {
-            (el as HTMLElement).scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        const el = wordRefs.value[currentWordIndex.value] as HTMLElement | undefined;
+        if (el?.scrollIntoView) {
+            el.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            requestAnimationFrame(updateInputPosition);
+        } else {
+            updateInputPosition();
         }
     });
 }
@@ -350,7 +368,8 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 function focusInput() {
-    hiddenInput.value?.focus();
+    updateInputPosition();
+    hiddenInput.value?.focus({preventScroll: true});
 }
 
 function resetWords() {
@@ -359,6 +378,7 @@ function resetWords() {
     incorrectIndex.value = null;
     skipPunctuationTokens();
     saveState();
+    scrollToCurrentWord();
 }
 
 function saveState() {
@@ -382,10 +402,19 @@ onMounted(() => {
     errorCounts.value = config?.errorCounts ?? {};
     skipPunctuationTokens();
     window.addEventListener('click', onClickOutsideSettings);
+    window.addEventListener('resize', updateInputPosition);
+    if (typeof ResizeObserver !== "undefined") {
+        textResizeObserver = new ResizeObserver(updateInputPosition);
+        const text = hiddenInput.value?.parentElement;
+        if (text) textResizeObserver.observe(text);
+    }
+    nextTick(updateInputPosition);
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener('click', onClickOutsideSettings);
+    window.removeEventListener('resize', updateInputPosition);
+    textResizeObserver?.disconnect();
 });
 </script>
 
@@ -526,8 +555,10 @@ onBeforeUnmount(() => {
 .type-hidden-input {
   position: absolute;
   opacity: 0;
-  height: 0;
-  width: 0;
+  height: 1px;
+  width: 1px;
+  padding: 0;
+  border: 0;
   pointer-events: none;
 }
 

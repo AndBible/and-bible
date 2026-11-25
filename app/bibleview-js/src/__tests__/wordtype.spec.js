@@ -68,6 +68,41 @@ describe("WordType.vue", () => {
         });
     };
 
+    it("keeps the focused input beside the active word through restore, advance, completion, and reset", async () => {
+        const wrapper = createWrapper({
+            textItems: [{ key: "verse1", text: "For God so" }],
+            modeConfig: { typeConfig: { currentWordIndex: 1, typeEverything: false } },
+        });
+        await nextTick();
+
+        const text = wrapper.find(".type-text").element;
+        const words = wrapper.findAll(".type-word:not(.punctuation)");
+        const rect = (left, top) => ({left, top, right: left + 20, bottom: top + 12, width: 20, height: 12, x: left, y: top, toJSON() {}});
+        vi.spyOn(text, "getBoundingClientRect").mockReturnValue(rect(100, 200));
+        words.forEach((word, index) => vi.spyOn(word.element, "getBoundingClientRect").mockReturnValue(rect(110 + index * 30, 220)));
+
+        const input = wrapper.find(".type-hidden-input").element;
+        const focus = vi.spyOn(input, "focus");
+        await wrapper.find(".type-text").trigger("click");
+        expect(focus).toHaveBeenCalledWith({preventScroll: true});
+        expect(input.style.left).toBe("40px");
+        expect(input.style.top).toBe("20px");
+
+        await wrapper.find(".type-hidden-input").setValue("G");
+        await nextTick();
+        expect(input.style.left).toBe("70px");
+
+        await wrapper.find(".type-hidden-input").setValue("S");
+        await nextTick();
+        expect(input.style.left).toBe("70px");
+        expect(wrapper.emitted("memorize-completed")).toHaveLength(1);
+
+        await wrapper.find(".memorize-controls .icon-button").trigger("click");
+        await nextTick();
+        expect(input.style.left).toBe("10px");
+        wrapper.unmount();
+    });
+
     it("renders all words with type-unreached or type-current class initially", () => {
         const wrapper = createWrapper();
         const words = wrapper.findAll(".type-word:not(.punctuation)");
