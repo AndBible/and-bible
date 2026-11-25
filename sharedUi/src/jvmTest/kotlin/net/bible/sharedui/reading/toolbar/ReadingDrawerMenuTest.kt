@@ -153,7 +153,7 @@ class ReadingDrawerMenuTest {
                 "downloads", "navigate:backup/restore", "navigate:settings/sync",
                 "navigate:ai/prompts", "navigate:settings/app",
                 "extra:helpButton", "extra:buyDevelopment",
-                "url:${ReadingDrawerMenu.NEED_HELP_LINK}", "url:${ReadingDrawerMenu.CONTRIBUTE_LINK}",
+                "url:https://andbible.org/docs/support/", "url:https://andbible.org/docs/contribute/",
                 "extra:appLicence", "extra:tellFriend", "extra:rateButton", "extra:bugReport",
             ),
             host.calls,

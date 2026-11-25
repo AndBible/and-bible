@@ -78,12 +78,25 @@ def missing(site, links):
     return problems
 
 
+# Intentional additions since the pre-catalog snapshot; never rewrite the historical fixture.
+ADDED_TARGETS = {
+    "CONTRIBUTE": "https://andbible.org/docs/contribute/",
+    "CONTRIBUTE_TRANSLATING": "https://andbible.org/docs/contribute/#translating-the-user-interface",
+    "FAQ_ADD_MODULE": "https://andbible.org/docs/faq/#please-add-module-x-to-andbible",
+    "FAQ_TEXT_ISSUE": "https://andbible.org/docs/faq/#i-found-a-text-issue-in-a-bible-commentary-module",
+}
+ADDED_CALL_SITES = {
+    "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/UserGuideToc.kt": ["CONTRIBUTE"],
+    "app/src/main/java/net/bible/service/common/CommonUtils.kt": ["CONTRIBUTE_TRANSLATING"],
+}
+
+
 def test_catalog_preserves_original_urls():
     baseline = Path(__file__).parent / "fixtures/app_docs_links_before_catalog.tsv"
     old = [line.split("\t")[2] for line in baseline.read_text().splitlines() if not line.startswith("#")]
     current = [f"https://andbible.org/docs/{page}/" + (f"#{anchor}" if anchor else "")
                for _, _, page, anchor in scan()]
-    assert Counter(current) == Counter(set(old))
+    assert Counter(current) == Counter(set(old) | set(ADDED_TARGETS.values()))
 
 
 def test_migrated_call_sites_preserve_original_targets():
@@ -94,6 +107,7 @@ def test_migrated_call_sites_preserve_original_targets():
             source, name, _ = line.split("\t")
             by_source.setdefault(source, []).append(name)
     for source, names in by_source.items():
+        names += ADDED_CALL_SITES.get(source, [])
         kt = paths.REPO / source
         if kt == GENERATED_TOC:
             current = re.findall(r'DocsLink\.([A-Z][A-Z0-9_]*)\.url', kt.read_text(encoding="utf-8"))
@@ -148,6 +162,35 @@ def test_no_hardcoded_docs_urls_left():
              for n, line in enumerate(kt.read_text(encoding="utf-8").splitlines(), 1)
              if "docs.andbible.org" in line or "andbible.org/docs/" in line]
     assert stale == []
+
+
+def legacy_wiki_links(roots):
+    return [f"{source}:{n}: use a DocsLink catalog entry instead of the GitHub wiki"
+            for root in roots for source in sorted(root.rglob("*"))
+            if source.suffix in {".kt", ".java", ".xml", ".swift"}
+            and not any("test" in p.lower() for p in source.relative_to(root).parts)
+            for n, line in enumerate(source.read_text(encoding="utf-8").splitlines(), 1)
+            if re.search(r"github\.com/AndBible/and-bible/wiki(?:[/#\s\"']|$)", line, re.IGNORECASE)]
+
+
+def test_no_github_wiki_urls_in_app_code():
+    assert legacy_wiki_links(ROOTS) == []
+
+
+@pytest.mark.parametrize("suffix", [".kt", ".java", ".xml", ".swift"])
+def test_legacy_wiki_link_is_reported(tmp_path, suffix):
+    source = tmp_path / f"X{suffix}"
+    source.write_text('\n"https://github.com/AndBible/and-bible/wiki/Support"\n')
+    assert legacy_wiki_links([tmp_path]) == [
+        f"{source}:2: use a DocsLink catalog entry instead of the GitHub wiki"]
+
+
+def test_wiki_guard_ignores_test_fixtures_and_other_repositories(tmp_path):
+    tests = tmp_path / "commonTest"
+    tests.mkdir()
+    (tests / "X.kt").write_text('"https://github.com/AndBible/and-bible/wiki/Support"')
+    (tmp_path / "X.kt").write_text('"https://github.com/Other/project/wiki/Support"')
+    assert legacy_wiki_links([tmp_path]) == []
 
 
 def test_no_uncataloged_docs_calls():

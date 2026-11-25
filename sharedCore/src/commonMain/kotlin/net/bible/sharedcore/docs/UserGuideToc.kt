@@ -62,6 +62,7 @@ object UserGuideToc {
         Section("Help & Reference", "user_guide_section_help_reference", listOf(
             Page("faq", "Frequently Asked Questions", "user_guide_page_faq", DocsLink.FAQ.url, listOf()),
             Page("support", "Support", "user_guide_page_support", DocsLink.SUPPORT.url, listOf()),
+            Page("contribute", "Contribute", "user_guide_page_contribute", DocsLink.CONTRIBUTE.url, listOf()),
         )),
     )
 

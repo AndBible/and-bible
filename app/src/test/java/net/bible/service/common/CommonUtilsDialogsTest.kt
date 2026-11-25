@@ -399,6 +399,7 @@ class CommonUtilsDialogsTest {
         advance()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
         assertEquals(application.getString(R.string.incomplete_translation_question), head.title)
+        assertTrue(head.message!!.contains("https://andbible.org/docs/contribute/#translating-the-user-interface"))
         assertFalse(head.cancellable)
         assertEquals(3, head.options.size)
         val labels = head.options.map { it.label }

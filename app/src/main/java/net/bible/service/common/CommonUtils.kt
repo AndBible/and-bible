@@ -1209,7 +1209,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val lang = Locale.getDefault().displayLanguage
         val instr = application.getString(R.string.instructions_for_translators)
-        val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
+        val instructionsUrl = DocsLink.CONTRIBUTE_TRANSLATING.url
         val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
         val msg = application.getString(R.string.incomplete_translation, lang, application.getString(incompleteTranslationAppName(isDiscrete)), instructionsLink)
 

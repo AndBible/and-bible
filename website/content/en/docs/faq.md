@@ -210,5 +210,4 @@ with your code in case you need it when setting up another device.
 Yes! You can contribute with your skills (code, translations, documentation)
 or sponsor development work at [shop.andbible.org](https://shop.andbible.org/).
 
-See our [contribution guide](https://github.com/AndBible/and-bible/wiki/How-to-contribute)
-for all the ways you can help.
+See our [contribution guide](contribute.md) for ways you can help.
