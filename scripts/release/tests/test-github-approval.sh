@@ -77,9 +77,11 @@ case "$endpoint" in
                 printf '%s\n' "$endpoint" > "$STATE/approved"
                 printf 'approval response lost\n' >&2; exit 1
             fi
-            if [[ "$SCENARIO" == post-race-* ]]; then
+            if [[ "$SCENARIO" == post-race-* && ( "$SCENARIO" != post-race-new-eligible || "$n" == 1 ) ]]; then
                 printf '%s\n' "$endpoint" > "$STATE/approved"
-                printf 'gh: No pending deployment requests (HTTP %s)\n' "${SCENARIO#post-race-}" >&2; exit 1
+                status="${SCENARIO#post-race-}"
+                [[ "$SCENARIO" != post-race-new-* ]] || status=422
+                printf 'gh: No pending deployment requests (HTTP %s)\n' "$status" >&2; exit 1
             fi
             if [[ "$SCENARIO" == client-* ]]; then
                 printf 'gh: approval forbidden (HTTP %s)\n' "${SCENARIO#client-}" >&2; exit 1
@@ -97,7 +99,11 @@ case "$endpoint" in
         if [[ "$SCENARIO" == quiet-pending || ( "$SCENARIO" == pending-error && "$n" == 1 ) ]]; then
             printf 'temporary pending error\n' >&2; exit 1
         fi
-        if [[ "$SCENARIO" == partial-retry && "$n" == 2 ]]; then
+        if [[ "$SCENARIO" == post-race-new-denied && -f "$STATE/approved" ]]; then
+            json='[{"environment":{"id":44},"current_user_can_approve":false}]'
+        elif [[ "$SCENARIO" == post-race-new-eligible && -f "$STATE/approved" && "$(< "$STATE/posts")" == 1 ]]; then
+            json='[{"environment":{"id":44},"current_user_can_approve":true}]'
+        elif [[ "$SCENARIO" == partial-retry && "$n" == 2 ]]; then
             json='[{"environment":{"id":43},"current_user_can_approve":true}]'
         elif [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == completed-success-no-approval || "$SCENARIO" == skipped-approved || "$SCENARIO" == manual-* || "$SCENARIO" == race-* || "$SCENARIO" == quiet-* || "$SCENARIO" == get-client-* || "$SCENARIO" == rate-approvals-* || "$SCENARIO" == rate-status-* || "$SCENARIO" == rate-jobs-* || -f "$STATE/approved" ]]; then
             json='[]'
@@ -116,6 +122,8 @@ case "$endpoint" in
         if [[ "$SCENARIO" == history-retry && "$n" == 1 ]]; then printf 'temporary approvals error\n' >&2; exit 1; fi
         if [[ "$SCENARIO" == race-* && "$n" -gt 1 ]]; then
             json='[{"state":"approved","environments":[{"id":42},{"id":43}]}]'
+        elif [[ "$SCENARIO" == post-race-new-eligible && -f "$STATE/posts" && "$(< "$STATE/posts")" -gt 1 ]]; then
+            json='[{"state":"approved","environments":[{"id":42},{"id":43},{"id":44}]}]'
         elif [[ "$SCENARIO" == partial-retry ]]; then
             json='[{"state":"approved","environments":[{"id":43}]}]'
         elif [[ "$SCENARIO" == partial-approval ]]; then
@@ -279,6 +287,13 @@ for scenario in denied-false denied-missing; do
     assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
     [[ "$SECONDS" -lt 2 && ! -f "$STATE/posts" ]] || { fail "$SCENARIO: unauthorized environment waited or was posted"; failed=$((failed + 1)); }
 done
+# An approved history entry cannot hide a new unapprovable pending environment.
+run_case post-race-new-denied
+assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
+[[ "$SECONDS" -lt 2 ]] || { fail "$SCENARIO: new permission blocker was not immediate"; failed=$((failed + 1)); }
+run_case post-race-new-eligible
+[[ "$rc" == 0 && "$(< "$STATE/posts")" == 2 ]] || { fail "$SCENARIO: new eligible environment was not approved"; failed=$((failed + 1)); }
+grep -q 'environment_ids\[\]=44' "$STATE/calls" || { fail "$SCENARIO: new environment omitted from approval"; failed=$((failed + 1)); }
 # A rejected POST can race with a manual or concurrent approval.
 for status in 400 401 403 404 422; do
     run_case "post-race-$status"

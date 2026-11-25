@@ -124,10 +124,13 @@ approve_workflow_deployments() {
         if [[ "$post_error" =~ HTTP[[:space:]]4[0-9][0-9] ]]; then
             # A manual approval can consume the request before our POST arrives.
             approval_history || return $?
-            if [[ -z "$approved" ]]; then
-                approval_pending || return $?
-                [[ -n "$pending" ]] || approval_history || return $?
+            approval_pending || return $?
+            if [[ -n "$pending" && -n "$approved" ]]; then
+                # Newly pending environments still need approval, even if the old ones passed.
+                approved=""
+                return 1
             fi
+            [[ -n "$pending" ]] || approval_history || return $?
             if [[ -z "$approved" ]] && approval_error_is_permanent "$post_error"; then
                 echo "WARNING: Deployment approval for $workflow run $run_id failed: $post_error. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
                 return 2
