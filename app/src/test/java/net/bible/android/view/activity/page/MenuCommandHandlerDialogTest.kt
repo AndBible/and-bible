@@ -95,7 +95,7 @@ class MenuCommandHandlerDialogTest {
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idle()
 
-    @Test
+    @Test(timeout = 30000)
     fun questionsAndContributeOpenTheWebsiteDocs() {
         val targets = listOf(
             R.id.needHelp to "https://andbible.org/docs/support/",

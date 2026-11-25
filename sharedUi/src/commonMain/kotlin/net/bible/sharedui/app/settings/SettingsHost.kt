@@ -5,6 +5,7 @@ package net.bible.sharedui.app.settings
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
@@ -235,7 +236,7 @@ class SettingsHost(
      * dialog whose inline documentation link goes through the `askBeforeOpeningLink` / `onOpenExternal` pair.
      */
     internal fun buildDiscreteHelpHtml(): String {
-        val linkUrl = net.bible.sharedcore.docs.DocsLink.DISCRETE_BUILD.url
+        val linkUrl = DocsLink.DISCRETE_BUILD.url
         val linkText = "<a href=\"$linkUrl\">$linkUrl</a>"
 
         val dPar1 = strings.discreteModeInfoPar1
