@@ -58,6 +58,9 @@ class BibleViewSurfaceHtmlExportTest {
     @Before fun setup() {
         Dispatchers.setMain(dispatcher)
         activity = activityController.setup().get()
+        // Each Robolectric test has a new filesDir; reattach the real provider to refresh its path strategy.
+        val providerInfo = activity.packageManager.resolveContentProvider("${activity.packageName}.provider", 0)!!
+        androidx.core.content.FileProvider().attachInfo(activity, providerInfo)
         val host = mock<ReadingHostActivity>()
         lifecycle = LifecycleRegistry.createUnsafe(host)
         lifecycle.currentState = Lifecycle.State.RESUMED
@@ -118,6 +121,27 @@ class BibleViewSurfaceHtmlExportTest {
         assertEquals("Study Pad  John 1.html", save.getStringExtra(Intent.EXTRA_TITLE))
         assertTrue("HTML exports must not use the backup directory", file.isFile)
         assertEquals(html, file.readText())
+    }
+
+    @Test fun nextExportRemovesOldHtmlButKeepsRecentSharesAndOtherExports() = runTest(dispatcher) {
+        val dir = File(SharedConstants.internalFilesDir, "export/").apply { mkdirs() }
+        val old = File(dir, "old.html").apply {
+            writeText("old")
+            assertTrue(setLastModified(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L))
+        }
+        val recent = File(dir, "recent.html").apply { writeText("recent") }
+        val other = File(dir, "old.csv").apply {
+            writeText("other")
+            assertTrue(setLastModified(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L))
+        }
+        exportedFiles += listOf(old, recent, other, File(dir, "Compare.html"))
+
+        BibleViewSurface(view).shareHtml("<p>Compare</p>", "Compare")
+        advanceUntilIdle()
+
+        assertFalse("stale HTML export copies must not accumulate forever", old.exists())
+        assertEquals("recent", recent.readText())
+        assertEquals("other", other.readText())
     }
 
     @Test fun shareUsesTheDocumentFilenameAndHtmlMimeType() = runTest(dispatcher) {

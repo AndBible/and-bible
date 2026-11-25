@@ -55,6 +55,10 @@ class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface 
     override fun shareHtml(html: String, title: String) {
         val targetDir = File(SharedConstants.internalFilesDir, "export/")
         targetDir.mkdirs()
+        // Recipients may open a shared URI asynchronously; retain recent exports for at least a day.
+        val expiredBefore = System.currentTimeMillis() - 24 * 60 * 60 * 1000L
+        targetDir.listFiles()?.filter { it.isFile && it.extension == "html" && it.lastModified() < expiredBefore }
+            ?.forEach { it.delete() }
         val fileName = "${sharedFileName(title)}.html"
         val targetFile = File(targetDir, fileName)
         targetFile.writeText(html)

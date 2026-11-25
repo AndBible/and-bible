@@ -17,7 +17,8 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class HtmlExportDestinationGoldenTest {
     @Test fun exportDestination() {
-        val strings = AndroidStrings(ApplicationProvider.getApplicationContext())
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val strings = AndroidStrings(context)
         captureMatrix("HtmlExport", "destination", heightDp = 340) {
             SheetSurface {
                 AbActionSheetContent(
@@ -25,7 +26,7 @@ class HtmlExportDestinationGoldenTest {
                     message = strings.exportDestinationMessage,
                     onClose = {},
                 ) {
-                    AbActionSheetRow(label = strings.share, onClick = {})
+                    AbActionSheetRow(label = context.getString(net.bible.android.activity.R.string.share), onClick = {})
                     AbActionSheetRow(label = strings.backupPhoneStorage, onClick = {})
                 }
             }
