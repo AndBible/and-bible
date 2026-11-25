@@ -10,7 +10,7 @@ assignees: bvahedy
 **FAQ first**
 
 Did you also check FAQ and not find solution there?
-https://github.com/AndBible/and-bible/wiki/FAQ
+https://andbible.org/docs/faq/
 
 **Describe your problem**
 A clear and concise description of what's your problem.
