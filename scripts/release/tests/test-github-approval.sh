@@ -80,7 +80,9 @@ case "$endpoint" in
         fi ;;
     */jobs)
         n=$(count jobs)
-        if [[ "$SCENARIO" == skipped-signing ]]; then
+        if [[ "$SCENARIO" == completed-no-approval ]]; then
+            json='{"jobs":[]}'
+        elif [[ "$SCENARIO" == skipped-signing ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"skipped"}]}'
         elif [[ "$SCENARIO" == follow-failed ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"failure"}]}'
