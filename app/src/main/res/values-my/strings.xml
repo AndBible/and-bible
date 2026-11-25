@@ -497,6 +497,7 @@
   <string name="please_wait">ကျေးဇူးပြု၍ စောင့်ပါ...</string>
   <string name="all">အားလုံး</string>
   <string name="reset_generic">ပြန်လည်သတ်မှတ်ပါ</string>
+  <string name="watch_tutorial_video_plain">လမ်းညွှန် ဗီဒီယိုကိုကြည့်ပါ</string>
   <string name="verse_not_found">အခန်းငယ် ရှာမတွေ့ပါ</string>
   <!--Errors-->
   <string name="report_error">သတင်းပို့ပါ</string>

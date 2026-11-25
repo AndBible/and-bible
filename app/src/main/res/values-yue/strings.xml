@@ -555,6 +555,7 @@ http://www.heartlight.org 准予使用
   <string name="please_wait">請稍候...</string>
   <string name="all">全部</string>
   <string name="reset_generic">重設</string>
+  <string name="watch_tutorial_video_plain">觀看示範影片</string>
   <string name="verse_not_found">找不到節</string>
   <!--Errors-->
   <string name="report_error">發送報告</string>
