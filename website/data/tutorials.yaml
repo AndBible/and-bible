@@ -14,7 +14,7 @@
 # App metadata is generated: cd website && uv run python -m sitegen.app_tutorials
 # website/tests/test_app_tutorials.py rejects a stale generated catalog.
 placeholder: RlLkpKZZwTg
-placeholder_subtitles: [af, ar, bg, bn, ca, cs, da, de, el, eo, es, et, fi, fil, fr, hi, hr, hu, id, it, iw, ja, ko, lt, ms, nl, pl, sr, sr-Latn, sv]
+placeholder_subtitles: [af, ar, bg, bn, ca, cs, da, de, el, eo, es, et, fi, fil, fr, hi, hr, hu, id, it, iw, ja, ko, lt, ms, nl, pl, pt, sr, sr-Latn, sv]
 playlist: null
 episodes:
   - {slug: whats-new-6-0, number: null, title: "What's new in AndBible 6.0", docs: releases/release_6_0, anchor: null, youtube: t-6xwtEcnTE, subtitles: []}

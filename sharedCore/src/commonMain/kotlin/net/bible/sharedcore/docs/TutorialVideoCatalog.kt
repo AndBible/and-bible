@@ -4,7 +4,7 @@ package net.bible.sharedcore.docs
 internal object TutorialVideoCatalog {
     data class Video(val youtubeId: String?, val subtitles: Set<String>)
     val placeholderId: String? = "RlLkpKZZwTg"
-    val placeholderSubtitles: Set<String> = setOf("af", "ar", "bg", "bn", "ca", "cs", "da", "de", "el", "eo", "es", "et", "fi", "fil", "fr", "hi", "hr", "hu", "id", "it", "iw", "ja", "ko", "lt", "ms", "nl", "pl", "sr", "sr-Latn", "sv")
+    val placeholderSubtitles: Set<String> = setOf("af", "ar", "bg", "bn", "ca", "cs", "da", "de", "el", "eo", "es", "et", "fi", "fil", "fr", "hi", "hr", "hu", "id", "it", "iw", "ja", "ko", "lt", "ms", "nl", "pl", "pt", "sr", "sr-Latn", "sv")
     val playlistId: String? = null
     val episodes: Map<String, Video> = mapOf(
         "whats-new-6-0" to Video("t-6xwtEcnTE", setOf()),
