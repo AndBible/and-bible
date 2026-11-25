@@ -37,31 +37,32 @@ signpath_approval_reminder() {
     echo "==> ACTION NEEDED: approve the Windows signing request ($policy) in SignPath: $url"
 }
 
-# Approves the pending environment deployments of the newest run of workflow $1 for commit $2.
+# Approves the pending environment deployments of the newest push run of workflow $1 for tag $2.
 # Waits up to $3 seconds for the run to appear and ask for approval, polling every $4 seconds.
 # With job name $5, then waits (same deadline) for that job to finish and fails unless it succeeded.
 approve_workflow_deployments() {
-    local workflow="$1" sha="$2" timeout="$3" interval="$4" follow_job="${5:-}"
-    local deadline=$((SECONDS + timeout)) run_id="" pending=""
-    echo "Waiting for $workflow run of $sha to ask for deployment approval..."
+    local workflow="$1" tag="$2" timeout="$3" interval="$4" follow_job="${5:-}"
+    local deadline=$((SECONDS + timeout)) run_id="" candidate="" pending=""
+    echo "Waiting for $workflow run of $tag to ask for deployment approval..."
     while (( SECONDS < deadline )); do
-        if [[ -z "$run_id" ]]; then
-            run_id=$(gh api "repos/{owner}/{repo}/actions/workflows/$workflow/runs?head_sha=$sha&per_page=1" \
-                --jq '.workflow_runs[0].id // empty' 2>/dev/null || true)
-        fi
-        if [[ -n "$run_id" ]]; then
-            pending=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --jq '.[].environment.id' 2>/dev/null || true)
+        # Refresh until approved: tag creation/run registration can lag behind the push.
+        candidate=$(gh api --method GET "repos/{owner}/{repo}/actions/workflows/$workflow/runs?branch=$tag&event=push&per_page=1" \
+            --jq '.workflow_runs[0].id // empty') || candidate=""
+        if [[ -n "$candidate" ]]; then
+            run_id="$candidate"
+            pending=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" \
+                --jq '.[].environment.id') || pending=""
             if [[ -n "$pending" ]]; then
                 local args=() eid
                 while IFS= read -r eid; do args+=(-F "environment_ids[]=$eid"); done <<< "$pending"
                 if gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
-                    -f state=approved -f comment="Approved via increment-version script" >/dev/null 2>&1; then
+                    -f state=approved -f comment="Approved via increment-version script" >/dev/null; then
                     echo "Deployment approved for $workflow run $run_id"
                     [[ -z "$follow_job" ]] && return 0
                     local job_state="" reminded=""
                     while (( SECONDS < deadline )); do
-                        job_state=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
-                            --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"" 2>/dev/null || true)
+                        job_state=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
+                            --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"") || job_state=""
                         if [[ "$job_state" == completed* ]]; then
                             echo "$follow_job: ${job_state#completed } (https://github.com/AndBible/and-bible/actions/runs/$run_id)"
                             [[ "$job_state" == "completed success" ]]
@@ -76,23 +77,14 @@ approve_workflow_deployments() {
                     echo "$follow_job did not finish in time (a production signing request needs approval in SignPath). Check: https://github.com/AndBible/and-bible/actions/runs/$run_id"
                     return 1
                 fi
-                echo "Could not approve deployment. Approve manually at: https://github.com/AndBible/and-bible/actions/runs/$run_id"
-                return 1
-            fi
-            local status
-            status=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id" --jq .status 2>/dev/null || true)
-            if [[ "$status" == "completed" ]]; then
-                echo "$workflow run $run_id completed without asking for approval"
-                return 1
+                echo "Could not approve $workflow run $run_id; retrying until the deadline." >&2
             fi
         fi
         sleep "$interval"
     done
-    if [[ -n "$run_id" ]]; then
-        echo "$workflow run $run_id did not ask for approval in time. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id"
-    else
-        echo "Could not find a $workflow run for $sha. Check GitHub Actions manually."
-    fi
+    local url="https://github.com/AndBible/and-bible/actions/workflows/$workflow"
+    [[ -z "$run_id" ]] || url="https://github.com/AndBible/and-bible/actions/runs/$run_id"
+    echo "WARNING: Deployment approval for $workflow ($tag) did not succeed within $timeout seconds. ACTION NEEDED: check and approve manually: $url" >&2
     return 1
 }
 
@@ -220,11 +212,13 @@ echo -e "${GREEN}✓ Branch and tag pushed${NC}"
 DESKTOP_WAITER_PID=""
 if command -v "$GH" >/dev/null 2>&1; then
     gh() { command "$GH" "$@"; }   # `command`: never this function itself when GH=gh
-    approve_workflow_deployments desktop.yml "$COMMIT" 14400 30 windows-sign \
+    approve_workflow_deployments desktop.yml "$TAG_NAME" 14400 30 windows-sign \
         > >(sed -u 's/^/[Windows signing] /') 2>&1 &
     DESKTOP_WAITER_PID=$!
     echo "Windows signing approval runs in the background; the script waits for it at the end."
-    approve_workflow_deployments build-apk.yml "$COMMIT" 60 2 || true
+    if ! approve_workflow_deployments build-apk.yml "$TAG_NAME" 900 5; then
+        echo -e "${YELLOW}WARNING: APK deployment approval failed; the release needs manual attention at the URL above.${NC}" >&2
+    fi
 
     # Keep only the most recent test release.
     if [[ "$KIND" == test ]]; then
