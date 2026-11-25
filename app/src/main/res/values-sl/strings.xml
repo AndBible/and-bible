@@ -858,7 +858,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="please_wait">Prosimo počakajte…</string>
   <string name="all">Vsi</string>
   <string name="reset_generic">Reset</string>
-  <string name="watch_tutorial_video">Ogled video navodil (v angleščini).</string>
   <string name="watch_tutorial_video_plain">Oglejte si videoposnetek z navodili</string>
   <string name="verse_not_found">Vrstice ni mogoče najti</string>
   <!--Errors-->

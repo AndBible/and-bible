@@ -854,7 +854,6 @@
   <string name="please_wait">தயவு கூர்ந்து காத்திருக்கவும்...</string>
   <string name="all">அனைத்தும்</string>
   <string name="reset_generic">மீட்டமை</string>
-  <string name="watch_tutorial_video">பயிற்சி காணொளியை காண்க (ஆங்கிலம்)</string>
   <string name="watch_tutorial_video_plain">பயிற்சி வீடியோவைப் பாருங்கள்</string>
   <string name="verse_not_found">வசனம் கிடைக்கவில்லை</string>
   <!--Errors-->

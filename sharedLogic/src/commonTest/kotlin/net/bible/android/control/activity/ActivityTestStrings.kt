@@ -157,7 +157,6 @@ internal class ActivityTestStrings : CoreStrings {
     override val helpInUserGuide = "helpInUserGuide"
     override val verseTip = "verseTip"
     override val helpBookmarksText = "helpBookmarksText"
-    override val watchTutorialVideo = "watchTutorialVideo"
     override val watchTutorialVideoPlain = "watchTutorialVideoPlain"
     override val bookmarksAndMyNotesTitle = "bookmarksAndMyNotesTitle"
 

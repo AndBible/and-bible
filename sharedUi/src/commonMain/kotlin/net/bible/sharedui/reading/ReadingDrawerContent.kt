@@ -23,6 +23,7 @@ import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -100,9 +101,10 @@ fun ReadingDrawerSheet(
     onItemClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = readingDrawerWindowInsets(),
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     ModalDrawerSheet(modifier = modifier.width(ReadingDrawerWidth), windowInsets = windowInsets) {
-        ReadingDrawerContent(state = state, icon = icon, onItemClick = onItemClick)
+        ReadingDrawerContent(state = state, icon = icon, onItemClick = onItemClick, scrollState = scrollState)
     }
 }
 
@@ -143,12 +145,13 @@ fun ReadingDrawerContent(
     icon: @Composable (iconKey: String) -> Painter?,
     onItemClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     Column(modifier.fillMaxWidth()) {
         Column(
             Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             ReadingDrawerHeader(appName = state.appName, logo = icon("ic_logo"))
             state.groups.forEachIndexed { index, group ->

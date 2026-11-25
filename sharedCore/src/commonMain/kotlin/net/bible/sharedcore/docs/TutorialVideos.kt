@@ -92,16 +92,9 @@ object TutorialVideos {
      */
     fun url(episode: Episode, appLanguage: String): String = buildUrl(episode.youtubeId, episode.subtitles, appLanguage)
 
-    /** True when the "(English)" qualifier of the video label is not needed: English app, or captions in the app language. */
-    fun hasPlainLabel(episode: Episode, appLanguage: String): Boolean =
-        plainLabel(effectiveSubtitles(episode.youtubeId, episode.subtitles), appLanguage)
-
     /** The fallback chain episode, then placeholder, then channel; separate from the ids so a test can drive it. */
     internal fun resolve(episodeId: String?, placeholderId: String?, channel: String = CHANNEL_URL): String =
         (episodeId ?: placeholderId)?.let(::watchUrl) ?: channel
-
-    internal fun plainLabel(subtitles: Set<String>, appLanguage: String): Boolean =
-        isEnglish(appLanguage) || matchSubtitle(subtitles, appLanguage) != null
 
     private fun effectiveSubtitles(youtubeId: String?, subtitles: Set<String>): Set<String> =
         if (youtubeId == null) PLACEHOLDER_SUBTITLES else subtitles

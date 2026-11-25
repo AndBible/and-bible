@@ -114,6 +114,7 @@ The toolbar at the top of the reading screen has these parts, from left to right
 
 The main menu (☰, top left) lists these rows. It is also opened by swiping in from the edge of the
 screen, see [Swipe from the edge](#swipe-from-the-edge-to-open-the-main-menu).
+Each time you open it, the menu starts at the top, even if you scrolled down before closing it.
 
 Rows named after their screen (`Find`, `Speak`, `My Documents`, `Reading Plan`, `History`,
 `Backup & Restore`, `Device synchronization`, `AI Settings`, `Application preferences`) open that

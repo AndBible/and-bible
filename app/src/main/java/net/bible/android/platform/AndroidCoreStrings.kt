@@ -215,7 +215,6 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val helpInUserGuide: String get() = context.getString(R.string.help_in_user_guide)
     override val verseTip: String get() = context.getString(R.string.verse_tip)
     override val helpBookmarksText: String get() = context.getString(R.string.help_bookmarks_text)
-    override val watchTutorialVideo: String get() = context.getString(R.string.watch_tutorial_video)
     override val watchTutorialVideoPlain: String get() = context.getString(R.string.watch_tutorial_video_plain)
     override val bookmarksAndMyNotesTitle: String get() = context.getString(R.string.bookmarks_and_mynotes_title)
 

@@ -858,7 +858,6 @@
   <string name="please_wait">Молим сачекајте...</string>
   <string name="all">Све</string>
   <string name="reset_generic">Ресет</string>
-  <string name="watch_tutorial_video">Погледајте видео са упутствима (на енглеском)</string>
   <string name="watch_tutorial_video_plain">Погледај видео упутство</string>
   <string name="verse_not_found">Стих није пронађен</string>
   <!--Errors-->

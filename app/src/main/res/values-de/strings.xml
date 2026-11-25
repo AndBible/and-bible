@@ -825,7 +825,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="please_wait">Bitte warten...</string>
   <string name="all">Alles</string>
   <string name="reset_generic">Zurücksetzen</string>
-  <string name="watch_tutorial_video">Tutorial ansehen (auf Englisch)</string>
   <string name="watch_tutorial_video_plain">Anleitungsvideo ansehen</string>
   <string name="verse_not_found">Vers wurde nicht gefunden</string>
   <!--Errors-->

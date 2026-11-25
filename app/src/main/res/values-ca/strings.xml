@@ -814,7 +814,6 @@
   <string name="please_wait">Espera…</string>
   <string name="all">Tot</string>
   <string name="reset_generic">Restableix</string>
-  <string name="watch_tutorial_video">Mira el vídeo tutorial (en anglès)</string>
   <string name="watch_tutorial_video_plain">Mira el vídeo tutorial</string>
   <string name="verse_not_found">No s\'ha trobat el verset</string>
   <!--Errors-->

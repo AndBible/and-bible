@@ -860,7 +860,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="please_wait">Пожалуйста, подождите…</string>
   <string name="all">Все</string>
   <string name="reset_generic">Сброс настроек</string>
-  <string name="watch_tutorial_video">Просмотреть обучающее видео (на англ.)</string>
   <string name="watch_tutorial_video_plain">Смотреть обучающее видео</string>
   <string name="verse_not_found">Стих не найден</string>
   <!--Errors-->

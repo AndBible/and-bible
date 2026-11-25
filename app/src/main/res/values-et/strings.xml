@@ -843,7 +843,6 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="please_wait">Palun oota...</string>
   <string name="all">Kõik</string>
   <string name="reset_generic">Nulli</string>
-  <string name="watch_tutorial_video">Vaata videoõpetust (inglise keeles)</string>
   <string name="watch_tutorial_video_plain">Vaata õppevideot</string>
   <string name="verse_not_found">Salmi ei leitud</string>
   <!--Errors-->

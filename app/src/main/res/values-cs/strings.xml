@@ -863,7 +863,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="please_wait">Čekejte prosím...</string>
   <string name="all">Vše</string>
   <string name="reset_generic">Resetovat</string>
-  <string name="watch_tutorial_video">Instruktážní video (Angličtina)</string>
   <string name="watch_tutorial_video_plain">Sledovat výukové video</string>
   <string name="verse_not_found">Verš nebyl nalezen</string>
   <!--Errors-->

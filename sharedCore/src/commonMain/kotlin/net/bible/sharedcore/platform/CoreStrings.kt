@@ -164,7 +164,6 @@ interface CoreStrings {
     val helpInUserGuide: String // R.string.help_in_user_guide
     val verseTip: String // R.string.verse_tip
     val helpBookmarksText: String // R.string.help_bookmarks_text
-    val watchTutorialVideo: String // R.string.watch_tutorial_video
     val watchTutorialVideoPlain: String // R.string.watch_tutorial_video_plain
     val bookmarksAndMyNotesTitle: String // R.string.bookmarks_and_mynotes_title
 

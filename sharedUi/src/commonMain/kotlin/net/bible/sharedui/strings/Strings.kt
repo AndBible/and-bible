@@ -1184,7 +1184,6 @@ interface Strings {
     val autoAssignLabelsHelpIntroWorkspace: String    // R.string.auto_assign_labels_help_intro_workspace
     val hideLabelsHelpIntro: String                   // R.string.bookmark_settings_hide_labels_summary
     val studyPadsHelpText: String                     // R.string.help_studypads_text
-    val watchTutorialVideo: String                    // R.string.watch_tutorial_video
     val watchTutorialVideoPlain: String               // R.string.watch_tutorial_video_plain
 
     // Help & tips screen (#4134)
