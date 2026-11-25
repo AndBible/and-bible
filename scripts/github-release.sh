@@ -43,39 +43,60 @@ signpath_approval_reminder() {
 approve_workflow_deployments() {
     local workflow="$1" tag="$2" timeout="$3" interval="$4" follow_job="${5:-}"
     local deadline=$((SECONDS + timeout)) run_id="" candidate="" pending=""
-    local attempted_run="" attempted_ids="" approved="" lookup_warned=""
+    local attempted_run="" attempted_ids="" approved="" lookup_warned="" uncertain_run=""
+    # Assign into this waiter's locals so a failed lookup never looks like an empty response.
+    approval_lookup() {
+        local target="$1" endpoint="$2" query="$3" response="" url="https://github.com/AndBible/and-bible/actions/workflows/$workflow"
+        [[ -z "$run_id" ]] || url="https://github.com/AndBible/and-bible/actions/runs/$run_id"
+        if response=$(gh api --method GET "$endpoint" --jq "$query" 2>&1); then
+            printf -v "$target" '%s' "$response"
+            return 0
+        fi
+        printf -v "$target" '%s' ""
+        if [[ "$response" =~ HTTP[[:space:]]4[0-9][0-9] ]]; then
+            echo "WARNING: Deployment approval lookup failed for $workflow ($tag): $response. Check: $url" >&2
+            return 2
+        fi
+        if [[ -z "$lookup_warned" ]]; then
+            echo "WARNING: Deployment approval lookup failed for $workflow ($tag); retrying until the deadline." >&2
+            lookup_warned=1
+        fi
+        return 1
+    }
     echo "Waiting for $workflow run of $tag to ask for deployment approval..."
     while (( SECONDS < deadline )); do
         # Refresh until approved: tag creation/run registration can lag behind the push.
-        candidate=$(gh api --method GET "repos/{owner}/{repo}/actions/workflows/$workflow/runs?branch=$tag&event=push&per_page=1" \
-            --jq '.workflow_runs[0].id // empty' 2>/dev/null) || {
-            candidate=""
-            if [[ -z "$lookup_warned" ]]; then
-                echo "WARNING: Deployment approval lookup failed for $workflow ($tag); retrying until the deadline." >&2
-                lookup_warned=1
-            fi
+        approval_lookup candidate "repos/{owner}/{repo}/actions/workflows/$workflow/runs?branch=$tag&event=push&per_page=1" '.workflow_runs[0].id // empty' || {
+            [[ $? != 2 ]] || return 1
+            sleep "$interval"
+            continue
         }
         if [[ -n "$candidate" ]]; then
             run_id="$candidate"
             approved=""
-            pending=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" \
-                --jq '.[] | select(.current_user_can_approve == true) | .environment.id' 2>/dev/null) || {
-                    pending=""
-                    if [[ -z "$lookup_warned" ]]; then
-                        echo "WARNING: Deployment approval lookup failed for $workflow ($tag); retrying until the deadline." >&2
-                        lookup_warned=1
-                    fi
-                }
+            approval_lookup pending "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" '.[] | select(.current_user_can_approve == true) | .environment.id' || {
+                [[ $? != 2 ]] || return 1
+                sleep "$interval"
+                continue
+            }
             if [[ -n "$pending" ]]; then
                 local args=() eid
                 while IFS= read -r eid; do args+=(-F "environment_ids[]=$eid"); done <<< "$pending"
-                attempted_run="$run_id"
-                attempted_ids="$pending"
+                if [[ "$attempted_run" != "$run_id" ]]; then
+                    attempted_run="$run_id"
+                    attempted_ids=""
+                fi
+                while IFS= read -r eid; do
+                    if [[ $'\n'"$attempted_ids"$'\n' != *$'\n'"$eid"$'\n'* ]]; then
+                        attempted_ids="${attempted_ids:+$attempted_ids$'\n'}$eid"
+                    fi
+                done <<< "$pending"
                 local post_error=""
                 if post_error=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
                     -f state=approved -f comment="Approved via increment-version script" 2>&1 >/dev/null); then
-                    approved=1
+                    [[ "$uncertain_run" == "$run_id" ]] || approved=1
                 else
+                    uncertain_run="$run_id"
                     # gh reports HTTP failures on stderr; only network/server failures are retryable.
                     if [[ "$post_error" =~ HTTP[[:space:]]4[0-9][0-9] ]]; then
                         echo "WARNING: Deployment approval for $workflow run $run_id failed: $post_error. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
@@ -86,13 +107,10 @@ approve_workflow_deployments() {
             else
                 # Recover both a lost POST response and an approval made outside this waiter.
                 local approved_ids="" all_approved=1 eid
-                approved_ids=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/approvals" \
-                    --jq '.[] | select(.state == "approved") | .environments[].id' 2>/dev/null) || {
-                    approved_ids=""
-                    if [[ -z "$lookup_warned" ]]; then
-                        echo "WARNING: Deployment approval lookup failed for $workflow ($tag); retrying until the deadline." >&2
-                        lookup_warned=1
-                    fi
+                approval_lookup approved_ids "repos/{owner}/{repo}/actions/runs/$run_id/approvals" '.[] | select(.state == "approved") | .environments[].id' || {
+                    [[ $? != 2 ]] || return 1
+                    sleep "$interval"
+                    continue
                 }
                 if [[ "$attempted_run" == "$run_id" ]]; then
                     while IFS= read -r eid; do
@@ -106,22 +124,16 @@ approve_workflow_deployments() {
             local job_state=""
             if [[ -z "$pending" && -z "$approved" ]]; then
                 local run_status=""
-                run_status=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id" \
-                    --jq '.status' 2>/dev/null) || {
-                    run_status=""
-                    if [[ -z "$lookup_warned" ]]; then
-                        echo "WARNING: Deployment approval lookup failed for $workflow ($tag); retrying until the deadline." >&2
-                        lookup_warned=1
-                    fi
+                approval_lookup run_status "repos/{owner}/{repo}/actions/runs/$run_id" '.status' || {
+                    [[ $? != 2 ]] || return 1
+                    sleep "$interval"
+                    continue
                 }
                 if [[ -n "$follow_job" ]]; then
-                    job_state=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
-                        --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"" 2>/dev/null) || {
-                        job_state=""
-                        if [[ -z "$lookup_warned" ]]; then
-                            echo "WARNING: Deployment approval lookup failed for $workflow ($tag); retrying until the deadline." >&2
-                            lookup_warned=1
-                        fi
+                    approval_lookup job_state "repos/{owner}/{repo}/actions/runs/$run_id/jobs" ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"" || {
+                        [[ $? != 2 ]] || return 1
+                        sleep "$interval"
+                        continue
                     }
                 fi
                 if [[ "$attempted_run" != "$run_id" && ( "$job_state" == in_progress* || "$job_state" == 'completed success' ) ]]; then
@@ -137,13 +149,10 @@ approve_workflow_deployments() {
                 local reminded=""
                 while (( SECONDS < deadline )); do
                     if [[ -z "$job_state" ]]; then
-                        job_state=$(gh api --method GET "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
-                            --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"" 2>/dev/null) || {
-                            job_state=""
-                            if [[ -z "$lookup_warned" ]]; then
-                                echo "WARNING: Deployment approval lookup failed for $workflow ($tag); retrying until the deadline." >&2
-                                lookup_warned=1
-                            fi
+                        approval_lookup job_state "repos/{owner}/{repo}/actions/runs/$run_id/jobs" ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"" || {
+                            [[ $? != 2 ]] || return 1
+                            sleep "$interval"
+                            continue
                         }
                     fi
                     if [[ "$job_state" == completed* ]]; then

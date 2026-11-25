@@ -26,6 +26,12 @@ while (($#)); do
         *) printf 'Unexpected argument: %s\n' "$1" >&2; exit 1 ;;
     esac
 done
+if [[ "$method" == GET && "$SCENARIO" == get-client-* ]]; then
+    case "$SCENARIO:$endpoint" in
+        get-client-lookup:*/workflows/*|get-client-pending:*/pending_deployments|get-client-approvals:*/approvals|get-client-jobs:*/jobs|get-client-status:*/actions/runs/202)
+            printf 'gh: forbidden (HTTP 403)\n' >&2; exit 1 ;;
+    esac
+fi
 count() {
     local n=0
     [[ ! -f "$STATE/$1" ]] || read -r n < "$STATE/$1"
@@ -52,7 +58,7 @@ case "$endpoint" in
     */pending_deployments)
         if [[ "$method" == POST ]]; then
             n=$(count posts)
-            if [[ "$SCENARIO" == lost-response || "$SCENARIO" == partial-approval ]]; then
+            if [[ "$SCENARIO" == lost-response || "$SCENARIO" == partial-approval || "$SCENARIO" == history-retry || ( "$SCENARIO" == partial-retry && "$n" == 1 ) ]]; then
                 printf '%s\n' "$endpoint" > "$STATE/approved"
                 printf 'approval response lost\n' >&2; exit 1
             fi
@@ -72,7 +78,9 @@ case "$endpoint" in
         if [[ "$SCENARIO" == quiet-pending || ( "$SCENARIO" == pending-error && "$n" == 1 ) ]]; then
             printf 'temporary pending error\n' >&2; exit 1
         fi
-        if [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || "$SCENARIO" == quiet-* || -f "$STATE/approved" ]]; then
+        if [[ "$SCENARIO" == partial-retry && "$n" == 2 ]]; then
+            json='[{"environment":{"id":43},"current_user_can_approve":true}]'
+        elif [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || "$SCENARIO" == quiet-* || "$SCENARIO" == get-client-* || -f "$STATE/approved" ]]; then
             json='[]'
         elif [[ "$SCENARIO" == non-approvable ]]; then
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":false},{"environment":{"id":44}}]'
@@ -81,7 +89,11 @@ case "$endpoint" in
         fi ;;
     */approvals)
         if [[ "$SCENARIO" == quiet-approvals ]]; then printf 'temporary approvals error\n' >&2; exit 1; fi
-        if [[ "$SCENARIO" == partial-approval ]]; then
+        n=$(count history)
+        if [[ "$SCENARIO" == history-retry && "$n" == 1 ]]; then printf 'temporary approvals error\n' >&2; exit 1; fi
+        if [[ "$SCENARIO" == partial-retry ]]; then
+            json='[{"state":"approved","environments":[{"id":43}]}]'
+        elif [[ "$SCENARIO" == partial-approval ]]; then
             json='[{"state":"approved","environments":[{"id":42}]}]'
         elif [[ -f "$STATE/approved" || "$SCENARIO" == manual-apk || "$SCENARIO" == manual-desktop ]]; then
             json='[{"state":"approved","environments":[{"id":42},{"id":43}]}]'
@@ -91,7 +103,7 @@ case "$endpoint" in
     */jobs)
         if [[ "$SCENARIO" == quiet-jobs ]]; then printf 'temporary jobs error\n' >&2; exit 1; fi
         n=$(count jobs)
-        if [[ "$SCENARIO" == quiet-* ]]; then
+        if [[ "$SCENARIO" == quiet-* || "$SCENARIO" == get-client-* ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"queued","conclusion":null}]}'
         elif [[ "$SCENARIO" == completed-no-approval ]]; then
             json='{"jobs":[]}'
@@ -106,7 +118,7 @@ case "$endpoint" in
         fi ;;
     */actions/runs/*)
         if [[ "$SCENARIO" == quiet-status ]]; then printf 'temporary status error\n' >&2; exit 1; fi
-        if [[ "$SCENARIO" == completed-no-approval || "$SCENARIO" == manual-apk ]]; then
+        if [[ "$SCENARIO" == completed-no-approval || "$SCENARIO" == manual-apk || "$SCENARIO" == history-retry ]]; then
             json='{"status":"completed","conclusion":"failure"}'
         else
             json='{"status":"in_progress","conclusion":null}'
@@ -195,6 +207,15 @@ for scenario in quiet-lookup quiet-pending quiet-approvals quiet-status quiet-jo
         fail "$scenario: polling GET leaked stderr"; failed=$((failed + 1))
     fi
     [[ "$(grep -c 'lookup failed' "$STATE/output" || true)" == 1 ]] || { fail "$scenario: expected one lookup failure summary"; failed=$((failed + 1)); }
+done
+run_case partial-retry
+assert_warning 'https://github.com/AndBible/and-bible/actions/runs/202' || failed=$((failed + 1))
+run_case history-retry
+[[ "$rc" == 0 ]] || { fail 'history-retry: transient history failure caused terminal failure'; failed=$((failed + 1)); }
+for scenario in get-client-lookup get-client-pending get-client-approvals get-client-status get-client-jobs; do
+    run_case "$scenario" windows-sign
+    [[ "$rc" != 0 && "$SECONDS" -lt 2 ]] || { fail "$scenario: permanent GET error retried"; failed=$((failed + 1)); }
+    grep -q 'https://github.com/AndBible/and-bible/actions/' "$STATE/output" || { fail "$scenario: missing action URL"; failed=$((failed + 1)); }
 done
 printf 'failed %s\n' "$failed"
 [[ "$failed" == 0 ]]
