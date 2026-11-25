@@ -80,7 +80,7 @@ case "$endpoint" in
         fi
         if [[ "$SCENARIO" == partial-retry && "$n" == 2 ]]; then
             json='[{"environment":{"id":43},"current_user_can_approve":true}]'
-        elif [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || "$SCENARIO" == quiet-* || "$SCENARIO" == get-client-* || -f "$STATE/approved" ]]; then
+        elif [[ "$endpoint" == */101/* || "$endpoint" == */303/* || "$SCENARIO" == waiting || "$SCENARIO" == completed-no-approval || "$SCENARIO" == skipped-signing || "$SCENARIO" == manual-* || "$SCENARIO" == race-* || "$SCENARIO" == quiet-* || "$SCENARIO" == get-client-* || -f "$STATE/approved" ]]; then
             json='[]'
         elif [[ "$SCENARIO" == non-approvable ]]; then
             json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":false},{"environment":{"id":44}}]'
@@ -91,7 +91,9 @@ case "$endpoint" in
         if [[ "$SCENARIO" == quiet-approvals ]]; then printf 'temporary approvals error\n' >&2; exit 1; fi
         n=$(count history)
         if [[ "$SCENARIO" == history-retry && "$n" == 1 ]]; then printf 'temporary approvals error\n' >&2; exit 1; fi
-        if [[ "$SCENARIO" == partial-retry ]]; then
+        if [[ "$SCENARIO" == race-* && "$n" -gt 1 ]]; then
+            json='[{"state":"approved","environments":[{"id":42},{"id":43}]}]'
+        elif [[ "$SCENARIO" == partial-retry ]]; then
             json='[{"state":"approved","environments":[{"id":43}]}]'
         elif [[ "$SCENARIO" == partial-approval ]]; then
             json='[{"state":"approved","environments":[{"id":42}]}]'
@@ -105,6 +107,8 @@ case "$endpoint" in
         n=$(count jobs)
         if [[ "$SCENARIO" == quiet-* || "$SCENARIO" == get-client-* ]]; then
             json='{"jobs":[{"name":"windows-sign","status":"queued","conclusion":null}]}'
+        elif [[ "$SCENARIO" == race-desktop ]]; then
+            json='{"jobs":[{"name":"windows-sign","status":"completed","conclusion":"failure"}]}'
         elif [[ "$SCENARIO" == completed-no-approval ]]; then
             json='{"jobs":[]}'
         elif [[ "$SCENARIO" == skipped-signing ]]; then
@@ -118,7 +122,7 @@ case "$endpoint" in
         fi ;;
     */actions/runs/*)
         if [[ "$SCENARIO" == quiet-status ]]; then printf 'temporary status error\n' >&2; exit 1; fi
-        if [[ "$SCENARIO" == completed-no-approval || "$SCENARIO" == manual-apk || "$SCENARIO" == history-retry ]]; then
+        if [[ "$SCENARIO" == completed-no-approval || "$SCENARIO" == manual-apk || "$SCENARIO" == history-retry || "$SCENARIO" == race-* ]]; then
             json='{"status":"completed","conclusion":"failure"}'
         else
             json='{"status":"in_progress","conclusion":null}'
@@ -221,5 +225,10 @@ for scenario in get-client-lookup get-client-pending get-client-approvals get-cl
     [[ "$rc" != 0 && "$SECONDS" -lt 2 ]] || { fail "$scenario: permanent GET error retried"; failed=$((failed + 1)); }
     grep -q 'https://github.com/AndBible/and-bible/actions/' "$STATE/output" || { fail "$scenario: missing action URL"; failed=$((failed + 1)); }
 done
+run_case race-apk
+[[ "$rc" == 0 ]] || { fail 'race-apk: approval between history and status was missed'; failed=$((failed + 1)); }
+run_case race-desktop windows-sign
+[[ "$rc" != 0 ]] || { fail 'race-desktop: failed signing reported success'; failed=$((failed + 1)); }
+grep -q 'windows-sign: failure' "$STATE/output" || { fail 'race-desktop: signing conclusion was not followed'; failed=$((failed + 1)); }
 printf 'scenarios %s, failed %s\n' "$cases" "$failed"
 [[ "$failed" == 0 ]]

@@ -63,6 +63,19 @@ approve_workflow_deployments() {
         fi
         return 1
     }
+    approval_history() {
+        local approved_ids="" all_approved=1 eid
+        approval_lookup approved_ids "repos/{owner}/{repo}/actions/runs/$run_id/approvals" '.[] | select(.state == "approved") | .environments[].id' || return $?
+        if [[ "$attempted_run" == "$run_id" ]]; then
+            while IFS= read -r eid; do
+                [[ $'\n'"$approved_ids"$'\n' == *$'\n'"$eid"$'\n'* ]] || all_approved=""
+            done <<< "$attempted_ids"
+            approved="$all_approved"
+        elif [[ -n "$approved_ids" ]]; then
+            approved=1
+        fi
+        return 0
+    }
     echo "Waiting for $workflow run of $tag to ask for deployment approval..."
     while (( SECONDS < deadline )); do
         # Refresh until approved: tag creation/run registration can lag behind the push.
@@ -106,20 +119,11 @@ approve_workflow_deployments() {
                 fi
             else
                 # Recover both a lost POST response and an approval made outside this waiter.
-                local approved_ids="" all_approved=1 eid
-                approval_lookup approved_ids "repos/{owner}/{repo}/actions/runs/$run_id/approvals" '.[] | select(.state == "approved") | .environments[].id' || {
+                approval_history || {
                     [[ $? != 2 ]] || return 1
                     sleep "$interval"
                     continue
                 }
-                if [[ "$attempted_run" == "$run_id" ]]; then
-                    while IFS= read -r eid; do
-                        [[ $'\n'"$approved_ids"$'\n' == *$'\n'"$eid"$'\n'* ]] || all_approved=""
-                    done <<< "$attempted_ids"
-                    approved="$all_approved"
-                elif [[ -n "$approved_ids" ]]; then
-                    approved=1
-                fi
             fi
             local job_state=""
             if [[ -z "$pending" && -z "$approved" ]]; then
@@ -139,8 +143,16 @@ approve_workflow_deployments() {
                 if [[ "$attempted_run" != "$run_id" && ( "$job_state" == in_progress* || "$job_state" == 'completed success' ) ]]; then
                     approved=1
                 elif [[ "$run_status" == completed || "$job_state" == completed* ]]; then
-                    echo "WARNING: Deployment approval for $workflow ($tag) did not occur before the run/job completed. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
-                    return 1
+                    # Approval may have arrived between the history and terminal-state reads.
+                    approval_history || {
+                        [[ $? != 2 ]] || return 1
+                        sleep "$interval"
+                        continue
+                    }
+                    if [[ -z "$approved" ]]; then
+                        echo "WARNING: Deployment approval for $workflow ($tag) did not occur before the run/job completed. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id" >&2
+                        return 1
+                    fi
                 fi
             fi
             if [[ -n "$approved" ]]; then
