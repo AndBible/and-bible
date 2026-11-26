@@ -113,6 +113,11 @@ class AbOptionsDialogTest {
         compose.onNodeWithText("New version available").assertIsDisplayed()
         compose.onNodeWithText("Don't notify me about updates").assertIsDisplayed()
         updateDialogAnswers.forEach { compose.onNodeWithText(it.label).assertIsDisplayed() }
+        compose.onAllNodesWithTag("dialog-buttons-divider-top").assertCountEquals(0)
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(0)
+        val area = compose.onNodeWithTag("dialog-buttons-area").fetchSemanticsNode().boundsInRoot
+        val last = compose.onNodeWithText(updateDialogAnswers.last().label).fetchSemanticsNode().boundsInRoot
+        assertTrue("last action $last outside button area $area", last.top >= area.top && last.bottom <= area.bottom)
     }
 
     @Ax5 @Test
@@ -133,6 +138,14 @@ class AbOptionsDialogTest {
         compose.setContent { AbTheme { ManyActionOptionsFixture() } }
         compose.onNodeWithTag("dialog-lead").assertIsDisplayed()
         compose.onNodeWithTag("dialog-middle").assertIsDisplayed()
+        val d = compose.density.density
+        listOf("dialog-lead-area", "dialog-middle-area").forEach { tag ->
+            val h = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.height
+            assertTrue("$tag $h must retain a usable viewport", h >= 8 * d)
+        }
+        compose.onNodeWithText("AndBible production-99999 is available. You have 6.0.1266.")
+            .performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Don't notify me about updates").performScrollTo().assertIsDisplayed()
         updateDialogAnswers.forEach { answer ->
             compose.onNodeWithText(answer.label).performScrollTo().assertIsDisplayed()
         }
