@@ -159,12 +159,10 @@ class SyncService: Service() {
                         succeeded = runDatabaseSyncJob(cloudSync, settings, allowInteraction = !isLeave, backgroundErrors = isLeave || !userInitiated, reportTransportErrors = !isLeave && userInitiated)
                     }
                     isLeave = synchronized(this@SyncService) {
-                        scheduler.consumeLeaveOrComplete(succeeded) {
-                            if (run == currentRun) {
-                                finish(succeeded, jobStarted, wakeLock, completePending = false)
-                                currentRun++
-                                wakeLock = null
-                            }
+                        if (run != currentRun) false else scheduler.consumeLeaveOrComplete(succeeded) {
+                            finish(succeeded, jobStarted, wakeLock, completePending = false)
+                            currentRun++
+                            wakeLock = null
                         }
                     }
                 } while (isLeave)

@@ -286,7 +286,12 @@ class SyncServiceLeaveBehaviorTest {
             withTimeout(10000) { firstProbe.await() }
             val leave = scheduler.startLeave()
             assertEquals("one leave start", 2, starts.get())
-            if (!refuse) service.onStartCommand(Intent().setAction(SyncService.ACTION_LEAVE), 0, 2)
+            val secondLeave = scheduler.startLeave()
+            assertSame("multiple leaves join the same pending work", pending, secondLeave)
+            if (!refuse) {
+                service.onStartCommand(Intent().setAction(SyncService.ACTION_LEAVE), 0, 2)
+                service.onStartCommand(Intent().setAction(SyncService.ACTION_LEAVE), 0, 3)
+            }
             messages.clear()
             release.complete(Unit)
             withTimeout(10000) { service.scope.coroutineContext[Job]!!.children.toList().forEach { it.join() } }
