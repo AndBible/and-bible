@@ -47,12 +47,12 @@ Switching workspaces reuses the reading pages. Returning to a workspace restores
 
 ### Opening backups and document files with the Windows MSI
 
-The MSI does not register generic ZIP, CSV, font, image, EPUB or SQLite extensions as default
-AndBible file types. Backups and module ZIPs remain openable from **Backup & Restore** or
-**Load Documents From Files** inside AndBible. To open a supported file from Explorer, choose
-**Open with** and browse to `AndBible.exe`; do not choose **Always** unless you want all files
-of that type to use AndBible. The MSIX package can still appear in **Open with** without replacing
-an existing default.
+The MSI lists AndBible as an **Open with** candidate for ZIP, EPUB and SQLite (`.sqlite3`) files,
+without making it the default. ZIP double-clicks continue to open your archive application; CSV,
+font and image defaults are also left unchanged. Backups and module ZIPs remain openable from
+**Backup & Restore** or **Load Documents From Files** inside AndBible. To open one from Explorer,
+choose **Open with > AndBible**; do not choose **Always** unless you want all files of that type to
+use AndBible. The MSIX package also supports **Open with** without replacing an existing default.
 
 If an older MSI changed a default, choose your preferred application in **Settings > Apps > Default apps**.
 An explicit choice saved in Windows is not reset by AndBible. Upgrading removes the old MSI's generic
@@ -93,13 +93,17 @@ The interface and the WebView2 reading pane use the same density; moving the win
 lets Windows update its native DPI rather than applying that scale twice.
 
 To make the whole interface smaller or larger, open **Application preferences** and choose **UI scale**
-(75%, 100%, 125%, 150%, 175% or 200%), then close and restart AndBible. This desktop-only preference
-multiplies your display scale: 75% on a Windows display set to 150% gives an interface at 112.5%.
+(75%, 100%, 125%, 150%, 175% or 200%), then close and restart AndBible. This preference is available
+only in the Windows and Linux desktop builds, not on macOS. It multiplies your display scale: 75% on a
+Windows display set to 150% gives an interface at 112.5%. On Windows it scales Compose menus, toolbars,
+dialogs and controls, and the WebView2 reading pane follows the same scale (including document text and
+inline controls). It does not change the document's font-size setting or the Windows desktop scale.
 The default is 100%. It is stored on this device, not synchronized. The **font size multiplier** remains
 separate: it changes document text, not menus and toolbars.
 
 For troubleshooting, `ANDBIBLE_UI_SCALE` or `-Dandbible.uiScale` sets an absolute app scale and takes
-precedence over this preference on Windows and Linux. For example, from PowerShell:
+precedence over this preference on Windows and Linux. Explicit JDK scale settings (`-Dsun.java2d.uiScale`
+or `J2D_UISCALE`) also take precedence over the preference. For example, from PowerShell:
 
 ```powershell
 $env:ANDBIBLE_UI_SCALE = "1.25"
@@ -123,7 +127,8 @@ ANDBIBLE_UI_SCALE=1.5 andbible
 Good to know:
 
 - The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
-- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. For example, 125% becomes 100% and 150% becomes 200%. The normal off-screen engine supports fractional scales.
+- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. For example, 125% becomes 100% and 150% becomes 200%. The **UI scale** row also shows the effective scale for the current session; changing a preset does not change it until restart. The normal off-screen engine supports fractional scales.
+- Explicit `-Dsun.java2d.uiScale`, `J2D_UISCALE` and `GDK_SCALE` values take precedence over the UI scale preference, as does disabling JDK scaling with `-Dsun.java2d.uiScale.enabled=false`.
 - On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.
 
 The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.

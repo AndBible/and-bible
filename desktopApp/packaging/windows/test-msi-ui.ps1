@@ -4,25 +4,33 @@ $installer = New-Object -ComObject WindowsInstaller.Installer
 $database = $installer.OpenDatabase((Resolve-Path $Msi).Path, 0)
 function Rows([string]$Sql, [int]$Columns = 2) {
     $view = $database.OpenView($Sql)
-    $null = $view.Execute()
-    while ($record = $view.Fetch()) {
-        $fields = @()
-        for ($i = 1; $i -le $Columns; $i++) { $fields += $record.StringData($i) }
-        [pscustomobject]@{ Fields = $fields }
+    try {
+        $null = $view.Execute()
+        while ($record = $view.Fetch()) {
+            try {
+                $fields = @()
+                for ($i = 1; $i -le $Columns; $i++) { $fields += $record.StringData($i) }
+                [pscustomobject]@{ Fields = $fields }
+            } finally { $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($record) }
+        }
+    } finally {
+        $null = $view.Close()
+        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($view)
     }
-    $null = $view.Close()
 }
 function Assert([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
-# Inspect the compiled registry table: jpackage's non-advertised associations can silently replace generic defaults.
-$genericDefaults = @(Rows 'SELECT `Key`, `Name`, `Value` FROM `Registry`' 3 | Where-Object {
-    $_.Fields[0] -match '^(Software\\Classes\\)?\.(zip|csv|ttf|epub|jpg|jpeg|png|webp|sqlite3)$' -and
-        ($_.Fields[1] -eq '' -or $_.Fields[1] -eq '@')
-})
-Assert ($genericDefaults.Count -eq 0) 'MSI must not replace default handlers for generic files'
-# Advertised associations use MSI's Extension table instead of explicit Registry rows.
 $tables = @(Rows 'SELECT `Name` FROM `_Tables`' 1 | ForEach-Object { $_.Fields[0] })
+# Inspect the compiled registry table: jpackage's non-advertised associations can silently replace generic defaults.
+if ('Registry' -in $tables) {
+    $genericDefaults = @(Rows 'SELECT `Key`, `Name`, `Value` FROM `Registry`' 3 | Where-Object {
+        $_.Fields[0] -match '^(Software\\Classes\\)?\.(zip|csv|ttf|epub|jpg|jpeg|png|webp|sqlite3)$' -and
+            ($_.Fields[1] -eq '' -or $_.Fields[1] -eq '@')
+    })
+    Assert ($genericDefaults.Count -eq 0) 'MSI must not replace default handlers for generic files'
+}
+# Advertised associations use MSI's Extension table instead of explicit Registry rows.
 if ('Extension' -in $tables) {
     $genericAdvertised = @(Rows 'SELECT `Extension` FROM `Extension`' 1 | Where-Object {
         $_.Fields[0] -match '^(zip|csv|ttf|epub|jpg|jpeg|png|webp|sqlite3)$'
@@ -79,4 +87,15 @@ Assert (@($events | Where-Object { $_.Fields[0] -eq 'Install' -and $_.Fields[1] 
 Assert (@($events | Where-Object { $_.Fields[1] -eq 'NewDialog' }).Count -eq 0) 'Upgrade must not navigate to a folder or confirmation dialog'
 $folder = @(Rows 'SELECT `Dialog` FROM `Dialog` WHERE `Dialog` = ''InstallDirDlg''' 1)
 Assert ($folder.Count -eq 1) 'First install must keep the folder dialog'
-Write-Output 'MSI UI: upgrade/first-install/maintenance routing, version text, direct Install, folder dialog: PASS'
+$registry = if ('Registry' -in $tables) { @(Rows 'SELECT `Root`, `Key`, `Name`, `Value` FROM `Registry`' 4) } else { @() }
+foreach ($extension in @('epub', 'sqlite3', 'zip')) {
+    $key = "Software\Classes\.$extension\OpenWithProgids"
+    Assert (@($registry | Where-Object {
+        $_.Fields[0] -eq '1' -and $_.Fields[1] -eq $key -and $_.Fields[2] -eq 'AndBible.Document'
+    }).Count -eq 1) "MSI must register only an Open with candidate for .$extension"
+}
+Assert (@($registry | Where-Object {
+    $_.Fields[0] -eq '1' -and $_.Fields[1] -eq 'Software\Classes\AndBible.Document\shell\open\command' -and
+        $_.Fields[3] -eq '"[INSTALLDIR]AndBible.exe" "%1"'
+}).Count -eq 1) 'Open with must invoke the installed executable with the selected file'
+Write-Output 'MSI UI and Open with: upgrade/first-install/maintenance routing, version text, direct Install, folder dialog, candidate registrations: PASS'

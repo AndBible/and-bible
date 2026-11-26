@@ -994,6 +994,10 @@ tasks.register("packageWindowsMsi") {
             "powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
             project.file("packaging/windows/test-msi-ui.ps1").absolutePath, "-Msi", msi.absolutePath,
         ))
+        runWindowsTool(listOf(
+            "powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+            project.file("packaging/windows/test-msi-associations.ps1").absolutePath,
+        ))
         val output = layout.buildDirectory.file("compose/binaries/main/andbible-$windowsPackageVersion-windows-x64.msi").get().asFile
         Files.copy(msi.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
         signWindowsArtifact(output)
