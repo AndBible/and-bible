@@ -285,7 +285,16 @@ class DesktopUpdatePromptsTest {
             }, opened)
             assertEquals(if (choice == "download") 1240 else 0, prefs.getInt("desktop_update_announced_build", 0))
             if (choice == "whats_new") {
-                assertNotNull(dialogs.pending.value, "Opt-out must not remove the current offer")
+                val reopened = assertNotNull(dialogs.pending.value, "Opt-out must not remove the current offer")
+                val request = (reopened.request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
+                kotlin.test.assertTrue(request.checkboxChecked, "Reopened offer must show the saved opt-out")
+                dialogs.respond(reopened.id, AppDialogResult.SelectedWithCheckbox("whats_new", false)); runCurrent()
+                assertEquals("daily", prefs.getString(CONSENT_KEY), "Unchecking opt-out restores the original interval")
+                val restored = assertNotNull(dialogs.pending.value)
+                val restoredRequest = (restored.request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
+                kotlin.test.assertFalse(restoredRequest.checkboxChecked)
+                dialogs.respond(restored.id, AppDialogResult.SelectedWithCheckbox("whats_new", true)); runCurrent()
+                assertEquals("never", prefs.getString(CONSENT_KEY))
                 dialogs.cancelAll(); runCurrent()
             }
             now += 3 * 86400000L

@@ -69,17 +69,21 @@ class DesktopUpdatePrompts(
             else -> null
         }
     }, announceAndAwait = { release ->
+        val originalInterval = settings.updateInterval() ?: DesktopUpdateInterval.WEEKLY
         var choice: Pair<String, Boolean>?
         do {
             val result = dialogs.await(AppDialogRequest.Localized {
-                desktopUpdateDialog(strings.current, release.version ?: release.tag, version)
+                desktopUpdateDialog(strings.current, release.version ?: release.tag, version,
+                    dontNotify = settings.updateInterval() == DesktopUpdateInterval.NEVER)
             })
             choice = when (result) {
                 is AppDialogResult.Selected -> result.value to false
                 is AppDialogResult.SelectedWithCheckbox -> result.value to result.checked
                 else -> null
             }
-            if (choice?.second == true) settings.putString(CONSENT_KEY, DesktopUpdateInterval.NEVER.value)
+            choice?.let { (_, checked) ->
+                settings.putString(CONSENT_KEY, if (checked) DesktopUpdateInterval.NEVER.value else originalInterval.value)
+            }
             if (choice?.first == "whats_new") links.open(DocsLinks.releaseNotes(release.version))
         } while (choice?.first == "whats_new")
         val snoozeDays = when (choice?.first) { "snooze_day" -> 1; "snooze_week" -> 7; "snooze_month" -> 30; else -> 0 }

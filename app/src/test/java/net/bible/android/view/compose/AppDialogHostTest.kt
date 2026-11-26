@@ -360,6 +360,16 @@ class AppDialogHostTest {
         assertEquals(listOf(43L to AppDialogResult.SelectedWithCheckbox("a", false)), answers)
     }
 
+    @Test fun optionsCheckboxCanRestoreCheckedOptOut() {
+        show(ShownDialog(44, AppDialogRequest.Options(
+            title = "Question", message = null,
+            options = listOf(SettingsItem.Choice("a", "Answer")).toAnswers(),
+            dismissText = "Cancel", asActionSheet = false, checkboxLabel = "Remember", checkboxChecked = true,
+        )))
+        compose.onNodeWithText("Answer").performClick()
+        assertEquals(listOf(44L to AppDialogResult.SelectedWithCheckbox("a", true)), answers)
+    }
+
     @Test fun aNewOptionsDialogDoesNotInheritTheCheckedOptOut() {
         val request = AppDialogRequest.Options(
             title = "Question", message = null,

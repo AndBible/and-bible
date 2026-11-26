@@ -64,8 +64,9 @@ fun AbOptionsDialog(
     cancellable: Boolean = true,
     checkboxLabel: String? = null,
     onSelectWithCheckbox: ((String, Boolean) -> Unit)? = null,
+    initialChecked: Boolean = false,
 ) {
-    var checked by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(initialChecked) }
     AbDialogShell(
         onDismissRequest = { if (cancellable) onDismissRequest() },
         properties = DialogProperties(dismissOnBackPress = cancellable, dismissOnClickOutside = cancellable),

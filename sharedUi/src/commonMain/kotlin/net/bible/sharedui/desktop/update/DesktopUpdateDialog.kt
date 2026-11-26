@@ -6,7 +6,7 @@ import net.bible.sharedcore.ui.dialog.toAnswers
 import net.bible.sharedui.strings.keyed.StringTable
 
 /** The desktop update offer, shared with screenshot tests so its copy and choices cannot drift. */
-fun desktopUpdateDialog(table: StringTable, available: String, current: String): AppDialogRequest.Options =
+fun desktopUpdateDialog(table: StringTable, available: String, current: String, dontNotify: Boolean = false): AppDialogRequest.Options =
     AppDialogRequest.Options(
         title = table.text("desktop_update_available_title"),
         message = "${table.fmt("desktop_update_available_message", available, current)}<br><br>${table.text("desktop_update_reenable")}",
@@ -19,5 +19,5 @@ fun desktopUpdateDialog(table: StringTable, available: String, current: String):
             SettingsItem.Choice("skip", table.text("desktop_update_skip")),
         ).toAnswers(),
         dismissText = null, asActionSheet = false, cancellable = false,
-        checkboxLabel = table.text("desktop_update_dont_notify"),
+        checkboxLabel = table.text("desktop_update_dont_notify"), checkboxChecked = dontNotify,
     )
