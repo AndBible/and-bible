@@ -269,7 +269,9 @@ function skipPunctuationTokens() {
 
 function updateInputPosition() {
     const text = hiddenInput.value?.parentElement;
-    const activeWord = wordRefs.value[currentWordIndex.value] as HTMLElement | undefined;
+    // Completion adds padding; keep the focused IME anchor beside the last rendered token.
+    const anchorIndex = Math.min(currentWordIndex.value, totalWords.value - 1);
+    const activeWord = wordRefs.value[anchorIndex] as HTMLElement | undefined;
     if (!text || !activeWord) return;
 
     const textRect = text.getBoundingClientRect();
