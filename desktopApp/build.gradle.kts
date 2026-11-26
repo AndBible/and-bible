@@ -537,6 +537,17 @@ tasks.register("verifyWebView2Pins") {
 }
 tasks.named("check") { dependsOn("verifyWebView2Pins") }
 
+// Windows packaging checks the compiled MSI with PowerShell; container/Unix gates check the WiX source.
+if (!isWindowsHost) {
+    val verifyMsiPolicy by tasks.registering(Exec::class) {
+        group = "verification"
+        description = "Checks candidate-only Windows MSI associations without Windows tooling."
+        commandLine("python3", "-I", layout.projectDirectory.file("packaging/windows/test_msi_policy.py").asFile.absolutePath)
+    }
+    tasks.named("test") { dependsOn(verifyMsiPolicy) }
+    tasks.named("check") { dependsOn(verifyMsiPolicy) }
+}
+
 // Headless desktop Compose (no X server in the container / CI).
 tasks.withType<Test>().configureEach {
     systemProperty("java.awt.headless", "true")

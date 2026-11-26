@@ -47,8 +47,8 @@ Switching workspaces reuses the reading pages. Returning to a workspace restores
 
 ### Opening backups and document files with the Windows MSI
 
-The MSI lists AndBible as an **Open with** candidate for ZIP, EPUB, SQLite (`.sqlite3`), CSV and
-JPEG/PNG/WebP image files, matching the MSIX package's supported types, without making it the default. Existing ZIP, CSV, font and image defaults are left unchanged.
+The MSI lists AndBible as an **Open with** candidate for ZIP, EPUB, SQLite (`.sqlite3`), CSV,
+JPEG/PNG/WebP image files and TrueType (`.ttf`) fonts, without making it the default. Existing ZIP, CSV, font and image defaults are left unchanged.
 If you have not explicitly chosen a ZIP default, Windows may show its own new-app chooser after installation;
 keep **File Explorer** there to continue browsing archives rather than opening them in AndBible. Backups and module ZIPs remain openable from
 **Backup & Restore** or **Load Documents From Files** inside AndBible. To open one from Explorer,

@@ -44,6 +44,9 @@
       <Component Id="AndBibleOpenWithWebp" Guid="*" Win64="yes">
         <RegistryValue Root="HKCU" Key="Software\Classes\.webp\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
       </Component>
+      <Component Id="AndBibleOpenWithTtf" Guid="*" Win64="yes">
+        <RegistryValue Root="HKCU" Key="Software\Classes\.ttf\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
+      </Component>
       <Component Id="AndBibleDocumentProgId" Guid="*" Win64="yes">
         <RegistryValue Root="HKCU" Key="Software\Classes\AndBible.Document\Application" Name="ApplicationName" Type="string" Value="AndBible" />
         <RegistryValue Root="HKCU" Key="Software\Classes\AndBible.Document\DefaultIcon" Type="string" Value="&quot;[INSTALLDIR]AndBible.exe&quot;,0" />
@@ -60,6 +63,7 @@
       <ComponentRef Id="AndBibleOpenWithJpeg" />
       <ComponentRef Id="AndBibleOpenWithPng" />
       <ComponentRef Id="AndBibleOpenWithWebp" />
+      <ComponentRef Id="AndBibleOpenWithTtf" />
       <ComponentRef Id="AndBibleDocumentProgId" />
     </FeatureRef>
     <WixVariable Id="WixUILicenseRtf" Value="$(var.JpLicenseRtf)" />
