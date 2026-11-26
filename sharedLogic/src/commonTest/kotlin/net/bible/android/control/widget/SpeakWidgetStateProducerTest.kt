@@ -57,6 +57,28 @@ class SpeakWidgetStateProducerTest {
         return p to source
     }
 
+    @Test fun changeDuringFirstReadIsNotLostBeforeSubscription() = runTest {
+        val source = FakeSource { currentTime }
+        var first = true
+        val changing = object : SpeakWidgetSource by source {
+            override suspend fun facts(): SpeakFacts {
+                val result = source.facts()
+                if (first) {
+                    first = false
+                    source.facts = source.facts.copy(reference = "John 3:16")
+                    source.events.tryEmit(Unit)
+                }
+                return result
+            }
+        }
+        val producer = SpeakWidgetStateProducer(backgroundScope, changing, FakeWidgetStrings())
+        producer.start()
+        runCurrent()
+        advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1)
+        runCurrent()
+        assertEquals("John 3:16", producer.state.value.reference)
+    }
+
     @Test fun speakingStateHasPauseAndStatusLine() = runTest {
         val (p, _) = producer()
         val s = p.state.value

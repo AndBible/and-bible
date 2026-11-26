@@ -7,6 +7,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.view.activity.startRouteForBoot
+import net.bible.test.dropSingle
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.hasUsableBible
 import net.bible.sharedcore.nav.NavRoutes
@@ -54,6 +55,13 @@ class WidgetStartupIntentTest {
     }
 
     private fun withoutInstalledModules(block: () -> Unit) {
+        val koin = org.koin.mp.KoinPlatform.getKoin()
+        fun dropSpeakWidgetSingles() {
+            // Their onClose hooks stop collection and detach the process-wide Books listener.
+            koin.dropSingle(net.bible.android.control.widget.SpeakWidgetStateProducer::class)
+            koin.dropSingle(net.bible.android.control.widget.ControlSpeakWidgetSource::class)
+        }
+        dropSpeakWidgetSingles()
         val registry = Books.installed()
         val books = registry.getBooks().toList()
         // Registry changes must not enqueue asynchronous database writes in the JVM-global watcher.
@@ -68,6 +76,8 @@ class WidgetStartupIntentTest {
             block()
         } finally {
             try {
+                // A test may have resolved the source while the registry listener was detached.
+                dropSpeakWidgetSingles()
                 books.forEach { registry.addBook(it) }
             } finally {
                 listener?.let { registry.addBooksListener(it) }
