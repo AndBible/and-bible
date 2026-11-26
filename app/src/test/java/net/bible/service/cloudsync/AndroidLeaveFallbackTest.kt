@@ -98,7 +98,7 @@ class AndroidLeaveFallbackTest {
         }
     }
 
-    @Test fun manualSyncJoinsFallbackDuringWorkspaceSave(): Unit = runBlocking {
+    @Test fun manualSyncJoinsFallbackDuringWorkspacePersistenceWait(): Unit = runBlocking {
         val context = ApplicationProvider.getApplicationContext<TestBibleApplication>()
         val starts = AtomicInteger()
         val wrapper = object : ContextWrapper(context) {
@@ -127,7 +127,7 @@ class AndroidLeaveFallbackTest {
                 single { scheduler }
                 single { cloud }
                 single<AppSettings> { settings }
-                single { SyncNowPorts(saveWorkspace = { entered.complete(Unit); release.await() }, networkAvailable = { true }, noNetwork = {}) }
+                single { SyncNowPorts(saveWorkspace = { error("leave must not repeat the onPause save") }, networkAvailable = { true }, noNetwork = {}, awaitWorkspacePersisted = { entered.complete(Unit); release.await() }) }
             })
         }
         val driver = app.koin.get<SyncTriggerDriver>()
@@ -138,7 +138,7 @@ class AndroidLeaveFallbackTest {
             val job = driver.onBackground()
             withTimeout(10000) { entered.await() }
             val manual = scheduler.startUserInitiatedDatabaseSync()
-            assertEquals("manual sync must join while the fallback saves", 1, starts.get())
+            assertEquals("manual sync must join while the fallback awaits persistence", 1, starts.get())
             assertFalse(manual.isCompleted)
             release.complete(Unit)
             withTimeout(10000) { job.join(); manual.await() }
@@ -206,7 +206,7 @@ class AndroidLeaveFallbackTest {
                 single { scheduler }
                 single { cloud }
                 single<AppSettings> { settings }
-                single { SyncNowPorts(saveWorkspace = { prepares.incrementAndGet() }, networkAvailable = { true }, noNetwork = {}) }
+                single { SyncNowPorts(saveWorkspace = { error("leave must not repeat the onPause save") }, networkAvailable = { true }, noNetwork = {}, awaitWorkspacePersisted = { prepares.incrementAndGet() }) }
             })
         }
         val driver = app.koin.get<SyncTriggerDriver>()
@@ -217,7 +217,7 @@ class AndroidLeaveFallbackTest {
             val job = driver.onBackground()
             withTimeout(10000) { job.join() }
             assertEquals("one rejected service start", 1, starts.get())
-            assertEquals("fallback saves once", 1, prepares.get())
+            assertEquals("fallback awaits persistence once", 1, prepares.get())
             assertEquals("fallback invokes the actual sync job", 1, edges.count { it })
             refuse = false
             val retry = scheduler.startDatabaseSync()

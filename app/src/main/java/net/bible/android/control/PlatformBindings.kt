@@ -88,13 +88,7 @@ fun buildPlatformBindings() = module {
                     koin.get<net.bible.android.control.page.window.WindowControl>()
                         .currentWindowRepositoryOrNull?.takeIf { it.initialized }
                 }
-                if (repository != null && kotlinx.coroutines.withTimeoutOrNull(5_000) {
-                        repository.persistence.awaitPersisted()
-                        true
-                    } == null
-                ) {
-                    net.bible.sharedcore.log.Log.w("DeviceSync", "Timed out waiting for workspace persistence")
-                }
+                repository?.persistence?.awaitPersisted()
             },
         )
     }
@@ -106,19 +100,20 @@ fun buildPlatformBindings() = module {
         val ports = get<net.bible.service.cloudsync.SyncNowPorts>()
         val koin = getKoin()
         fun cloudSync() = koin.get<net.bible.service.cloudsync.CloudSync>()
+        val policy = net.bible.service.cloudsync.BackgroundSyncPolicy(
+            syncEnabled = { CommonUtils.isCloudSyncEnabled },
+            replacing = { net.bible.service.db.DatabaseContainer.replacing },
+            intervalSeconds = {
+                CommonUtils.settings.getLong("cloud_sync_interval", net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS)
+            },
+            lastSynchronizedMs = { CommonUtils.settings.getLong("globalLastSynchronized", 0L) },
+            nowMs = System::currentTimeMillis,
+            signedIn = { cloudSync().signedIn },
+            signIn = { cloudSync().signIn() },
+            startSync = { cloudSync().start() },
+        )
         net.bible.service.cloudsync.SyncTriggerDriver(
-            policy = net.bible.service.cloudsync.BackgroundSyncPolicy(
-                syncEnabled = { CommonUtils.isCloudSyncEnabled },
-                replacing = { net.bible.service.db.DatabaseContainer.replacing },
-                intervalSeconds = {
-                    CommonUtils.settings.getLong("cloud_sync_interval", net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS)
-                },
-                lastSynchronizedMs = { CommonUtils.settings.getLong("globalLastSynchronized", 0L) },
-                nowMs = System::currentTimeMillis,
-                signedIn = { cloudSync().signedIn },
-                signIn = { cloudSync().signIn() },
-                startSync = { cloudSync().start() },
-            ),
+            policy = policy,
             scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO),
             // The workspace save is queued; cloud sync must not apply remote rows before it has landed.
             prepare = ports.saveWorkspace,
@@ -126,7 +121,8 @@ fun buildPlatformBindings() = module {
             leaveHandOff = { koin.get<net.bible.android.platform.AndroidSyncScheduler>().startLeave() },
             leaveFallback = {
                 koin.get<net.bible.android.platform.AndroidSyncScheduler>().runFallback { userInitiated ->
-                    ports.saveWorkspace()
+                    if (!policy.canRun() || !ports.networkAvailable()) return@runFallback false
+                    if (!net.bible.service.cloudsync.awaitLeaveWorkspacePersisted(ports)) return@runFallback false
                     val cloud = cloudSync()
                     if (cloud.signedIn || (userInitiated && cloud.signIn() == true)) {
                         net.bible.service.cloudsync.runDatabaseSyncJob(

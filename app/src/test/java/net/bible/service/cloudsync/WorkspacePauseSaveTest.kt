@@ -47,12 +47,47 @@ class WorkspacePauseSaveTest {
             }
         }
         try {
-            runBlocking {
-                kotlinx.coroutines.withTimeout(15000) {
-                    GlobalContext.get().get<SyncNowPorts>().awaitWorkspacePersisted()
+            val edges = java.util.concurrent.CopyOnWriteArrayList<Boolean>()
+            val cloud = GlobalContext.get().get<CloudSync>()
+            val scheduler = GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
+            val settings = GlobalContext.get().get<net.bible.sharedcore.platform.AppSettings>()
+            val category = SyncableDatabaseDefinition.BOOKMARKS
+            val oldEnabled = category.isSyncEnabled(settings)
+            val oldId = cloud.adapterId
+            val field = CloudSync::class.java.getDeclaredField("_adapter").apply { isAccessible = true }
+            val oldAdapter = field.get(cloud)
+            val network = GlobalContext.get().get<SyncNetworkState>()
+            val oldOnline = network.available
+            val subscription = cloud.runningChanged.subscribe { edges += it }
+            val service = Robolectric.buildService(SyncService::class.java).create().get()
+            try {
+                cloud.adapterId = "WEBDAV"
+                category.setSyncEnabled(settings, true)
+                network.available = true
+                field.set(cloud, java.lang.reflect.Proxy.newProxyInstance(CloudAdapter::class.java.classLoader, arrayOf(CloudAdapter::class.java)) { _, method, _ ->
+                    if (method.name == "getSignedIn") true else throw java.io.IOException("fixture transport")
+                })
+                val result = scheduler.startLeave()!!
+                service.onStartCommand(android.content.Intent().setAction(SyncService.ACTION_LEAVE), 0, 1)
+                net.bible.test.DatabaseResetter.runResetBlocking { kotlinx.coroutines.withTimeout(15000) { result.await() } }
+                org.junit.Assert.assertTrue("the initialized repository's persistence must be awaited", entered.get())
+                org.junit.Assert.assertFalse("timeout must skip sync rather than apply rows over an unfinished save", edges.contains(true))
+            } finally {
+                net.bible.test.DatabaseResetter.runResetBlocking {
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                        kotlinx.coroutines.withTimeout(10000) {
+                            service.scope.coroutineContext[kotlinx.coroutines.Job]!!.apply { cancel(); join() }
+                        }
+                    }
                 }
+                service.onDestroy()
+                scheduler.complete(false)
+                subscription.cancel()
+                cloud.adapterId = oldId
+                field.set(cloud, oldAdapter)
+                category.setSyncEnabled(settings, oldEnabled)
+                network.available = oldOnline
             }
-            org.junit.Assert.assertTrue("the initialized repository's persistence must be awaited", entered.get())
         } finally {
             repository.persistence = original
         }

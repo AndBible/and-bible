@@ -61,6 +61,32 @@ class SyncServicePendingRegressionTest {
         }
     }
 
+    @Test fun followUpReacquiresExpiredWakeLock() = runBlocking {
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val preparations = AtomicInteger()
+        var followUpHeldLock = false
+        fixture(signedIn = true, prepare = {
+            val lock = org.robolectric.shadows.ShadowPowerManager.getLatestWakeLock()
+            if (preparations.incrementAndGet() == 1) {
+                lock.release() // Model the first iteration exhausting its bounded wake-lock allowance.
+                entered.complete(Unit)
+                release.await()
+                throw IOException("first iteration failed")
+            } else followUpHeldLock = lock.isHeld
+        }) { service, scheduler, _ ->
+            try {
+                val result = scheduler.startLeave()!!
+                service.onStartCommand(Intent().setAction(SyncService.ACTION_LEAVE), 0, 1)
+                withTimeout(10000) { entered.await() }
+                scheduler.startLeave()
+                release.complete(Unit)
+                withTimeout(10000) { result.await() }
+                assertTrue("each follow-up must hold a renewed wake lock", followUpHeldLock)
+            } finally { release.complete(Unit) }
+        }
+    }
+
     @Test fun skippedFollowUpDoesNotReturnPreviousSuccess() = runBlocking {
         val entered = CountDownLatch(1)
         val release = CountDownLatch(1)

@@ -159,6 +159,10 @@ class SyncTriggerDriver(
                 return Job().apply { complete() }
             }
             leaveHandOff.invoke()?.let { job ->
+                val start = policy.now()
+                lastPassStartMs.value = start
+                lastPassMarkMs.value = start
+                job.invokeOnCompletion { lastPassMarkMs.value = policy.now() }
                 synchronized(lock) { leaveJob = job }
                 return job
             }

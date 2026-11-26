@@ -45,6 +45,16 @@ private const val SYNC_NOTIFICATION_ID=2
 const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
 private const val WAKELOCK_TAG = "andbible:sync-wakelock"
 
+/** Leave sync must not apply remote rows while the independent onPause save is still pending. */
+internal suspend fun awaitLeaveWorkspacePersisted(ports: SyncNowPorts): Boolean {
+    val persisted = kotlinx.coroutines.withTimeoutOrNull(5_000) {
+        ports.awaitWorkspacePersisted()
+        true
+    } == true
+    if (!persisted) Log.w("DeviceSync", "Timed out waiting for workspace persistence; skipping sync iteration")
+    return persisted
+}
+
 class SyncService: Service() {
     private val cloudSync: CloudSync by inject()
     private val scheduler: net.bible.android.platform.AndroidSyncScheduler by inject()
@@ -156,18 +166,20 @@ class SyncService: Service() {
             try {
                 Log.i(TAG, "Synchronize started")
                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
-                wakeLock.acquire(5 * 60 * 1000)
+                wakeLock.setReferenceCounted(false)
                 var isLeave = leave
                 var interactive = userInitiated
                 do {
+                    wakeLock?.acquire(5 * 60 * 1000)
                     succeeded = false
                     try {
                         if (interactive && !cloudSync.signedIn && cloudSync.signIn(waitForExisting = true) != true) {
                             // A cancelled or failed sign-in must not start a sync pass.
                         } else if (!isLeave || (CommonUtils.isCloudSyncEnabled && ports.networkAvailable() && cloudSync.signedIn && !net.bible.service.db.DatabaseContainer.replacing)) {
-                            if (isLeave) ports.awaitWorkspacePersisted()
-                            jobStarted = true
-                            succeeded = runDatabaseSyncJob(cloudSync, settings, allowInteraction = !isLeave, backgroundErrors = isLeave || !interactive, reportTransportErrors = !isLeave && interactive)
+                            if (!isLeave || awaitLeaveWorkspacePersisted(ports)) {
+                                jobStarted = true
+                                succeeded = runDatabaseSyncJob(cloudSync, settings, allowInteraction = !isLeave, backgroundErrors = isLeave || !interactive, reportTransportErrors = !isLeave && interactive)
+                            }
                         }
                     } catch (e: CancellationException) {
                         currentCoroutineContext().ensureActive()

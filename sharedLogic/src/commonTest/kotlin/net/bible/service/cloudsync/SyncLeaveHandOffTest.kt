@@ -2,11 +2,14 @@ package net.bible.service.cloudsync
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -33,6 +36,63 @@ class SyncLeaveHandOffTest {
         assertEquals(1, handoffs, "duplicate leave does not start another service")
         assertFalse(job.isCompleted)
         accepted.complete(true)
+    }
+
+    @Test
+    fun acceptedLeaveHandOffMarksPassStartForNetworkRestore() = runTest {
+        val handoff = CompletableDeferred<Unit>()
+        var online = true
+        val driver = SyncTriggerDriver(
+            policy = BackgroundSyncPolicy(
+                syncEnabled = { true }, replacing = { false }, intervalSeconds = { 300 },
+                lastSynchronizedMs = { 0 }, nowMs = { currentTime }, signedIn = { true },
+                signIn = { true }, startSync = { CompletableDeferred(true) },
+            ),
+            scope = backgroundScope, leaveHandOff = { handoff },
+            networkAvailable = { online }, networkRestoreGapMs = 30_000L,
+        )
+
+        assertSame(handoff, driver.onBackground())
+        advanceTimeBy(5_000)
+        handoff.complete(Unit)
+        runCurrent()
+        online = false
+        driver.onForeground()
+        runCurrent()
+        online = true
+
+        assertNull(driver.onNetworkAvailable(), "the hand-off start should suppress a recent network restore")
+    }
+
+    @Test
+    fun acceptedLeaveHandOffCompletionMovesTimerMark() = runTest {
+        val intervalMs = 300_000L
+        val handoff = CompletableDeferred<Unit>()
+        var online = true
+        var syncs = 0
+        val policy = BackgroundSyncPolicy(
+            syncEnabled = { true }, replacing = { false }, intervalSeconds = { 300 },
+            lastSynchronizedMs = { 0 }, nowMs = { currentTime }, signedIn = { true },
+            signIn = { true }, startSync = { syncs++; CompletableDeferred(true) },
+        )
+        val driver = SyncTriggerDriver(
+            policy = policy, scope = backgroundScope, leaveHandOff = { handoff },
+            networkAvailable = { online }, networkRestoreGapMs = 30_000L,
+        )
+
+        assertSame(handoff, driver.onBackground())
+        advanceTimeBy(5_000)
+        handoff.complete(Unit)
+        runCurrent()
+        online = false
+        driver.onForeground()
+        runCurrent()
+        online = true
+        advanceTimeBy(intervalMs - 1)
+        assertEquals(0, syncs, "the timer should count from hand-off completion")
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(1, syncs, "the timer runs one interval after the hand-off completes")
     }
 
     @Test
