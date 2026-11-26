@@ -24,6 +24,7 @@ class MsiPolicyTest(unittest.TestCase):
             r'Software\Classes\.jpeg\OpenWithProgids',
             r'Software\Classes\.png\OpenWithProgids',
             r'Software\Classes\.webp\OpenWithProgids',
+            r'Software\Classes\.ttf\OpenWithProgids',
         }
         self.assertEqual(expected_candidates, {value.get('Key') for _, value in candidates})
         for component, value in candidates:
@@ -49,7 +50,7 @@ class MsiPolicyTest(unittest.TestCase):
         for _, value in values:
             key = value.get('Key', '')
             self.assertFalse(key in {fr'Software\Classes\.{extension}' for extension in
-                                     ('zip', 'epub', 'sqlite3', 'csv', 'jpg', 'jpeg', 'png', 'webp')}
+                                     ('zip', 'epub', 'sqlite3', 'csv', 'jpg', 'jpeg', 'png', 'webp', 'ttf')}
                              and value.get('Name', '') in {'', '@'})
 
 

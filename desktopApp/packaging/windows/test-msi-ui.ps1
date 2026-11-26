@@ -88,7 +88,7 @@ Assert (@($events | Where-Object { $_.Fields[1] -eq 'NewDialog' }).Count -eq 0) 
 $folder = @(Rows 'SELECT `Dialog` FROM `Dialog` WHERE `Dialog` = ''InstallDirDlg''' 1)
 Assert ($folder.Count -eq 1) 'First install must keep the folder dialog'
 $registry = if ('Registry' -in $tables) { @(Rows 'SELECT `Root`, `Key`, `Name`, `Value` FROM `Registry`' 4) } else { @() }
-foreach ($extension in @('epub', 'sqlite3', 'zip', 'csv', 'jpg', 'jpeg', 'png', 'webp')) {
+foreach ($extension in @('epub', 'sqlite3', 'zip', 'csv', 'jpg', 'jpeg', 'png', 'webp', 'ttf')) {
     $key = "Software\Classes\.$extension\OpenWithProgids"
     Assert (@($registry | Where-Object {
         $_.Fields[0] -eq '1' -and $_.Fields[1] -eq $key -and $_.Fields[2] -eq 'AndBible.Document'
