@@ -21,7 +21,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -895,12 +899,14 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 onExitSelection = controller::clearSelection,
                 bottomBar = {
                     // Scaffold reserves the measured bar height so the last row stays reachable.
-                    // The bar owns its system inset, including the iOS home-indicator area.
+                    // A bottom bar replaces Scaffold's content bottom inset, so it must also own the IME.
                     if (firstDownload) {
                         Button(
                             onClick = { navController.popOrExit(backStackEntry, deps.exitHost) },
                             enabled = bibleInstalled,
-                            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                                .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars))
+                                .padding(16.dp),
                         ) {
                             Text(strings.okay)
                         }

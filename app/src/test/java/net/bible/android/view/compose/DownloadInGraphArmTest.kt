@@ -208,7 +208,12 @@ class DownloadInGraphArmTest {
     @Config(sdk = [35])
     fun firstDownloadListStopsAboveButtonWithoutSystemInsets() = assertFirstDownloadLayout(navBottom = 0)
 
-    private fun assertFirstDownloadLayout(navBottom: Int) {
+    @Test
+    @Config(sdk = [35], qualifiers = "h900dp")
+    fun firstDownloadSearchKeepsLastRowAndOkayAboveKeyboard() =
+        assertFirstDownloadLayout(navBottom = 160, imeBottom = 320)
+
+    private fun assertFirstDownloadLayout(navBottom: Int, imeBottom: Int = 0) {
         setGraph(NavRoutes.download(firstDownload = true))
         compose.runOnIdle {
             controller!!.setDocuments((1..30).map { index ->
@@ -222,19 +227,27 @@ class DownloadInGraphArmTest {
                 )
             })
         }
+        if (imeBottom > 0) {
+            compose.runOnIdle { controller!!.openSearch() }
+            compose.waitForIdle()
+            assertTrue(controller!!.searchModeActive.value)
+        }
         val root: ViewGroup = compose.activity.findViewById(android.R.id.content)
         compose.runOnUiThread {
             ViewCompat.dispatchApplyWindowInsets(
                 root,
                 WindowInsetsCompat.Builder()
                     .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, navBottom))
+                    .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, imeBottom))
+                    .setVisible(WindowInsetsCompat.Type.ime(), imeBottom > 0)
                     .build(),
             )
         }
         compose.waitForIdle()
         val rootBounds = compose.onNodeWithTag("download-test-root").fetchSemanticsNode().boundsInRoot
         val button = compose.onNodeWithText(string(R.string.okay)).fetchSemanticsNode().boundsInRoot
-        assertTrue(button.bottom <= rootBounds.bottom - navBottom, "OK overlaps navigation bar: $button / $rootBounds")
+        val safeBottom = rootBounds.bottom - maxOf(navBottom, imeBottom)
+        assertTrue(button.bottom <= safeBottom, "OK overlaps system UI: $button / safe bottom $safeBottom")
         val list = compose.onNode(hasScrollAction())
         val listBounds = list.fetchSemanticsNode().boundsInRoot
         assertTrue(listBounds.bottom <= button.top, "list runs underneath OK: $listBounds / $button")

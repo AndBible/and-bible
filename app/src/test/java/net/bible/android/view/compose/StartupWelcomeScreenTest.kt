@@ -26,6 +26,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import net.bible.sharedui.components.LocalWindowControls
+import net.bible.sharedui.components.WindowControlsInsets
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.semantics.SemanticsActions
@@ -75,6 +79,19 @@ class StartupWelcomeScreenTest {
         progressText = progress,
     )
 
+    private val windowControls = mutableStateOf(WindowControlsInsets.None)
+
+    @Test
+    @Config(qualifiers = "h900dp")
+    fun headerClearsMacWindowControlsBand() {
+        show(state())
+        val before = compose.onNodeWithText("AndBible").fetchSemanticsNode().boundsInRoot
+        val density = view.resources.displayMetrics.density
+        compose.runOnIdle { windowControls.value = WindowControlsInsets(top = 28.0, left = 78.0, right = 0.0) }
+        val after = compose.onNodeWithText("AndBible").fetchSemanticsNode().boundsInRoot
+        assertEquals("header must clear the Mac controls band", before.top + 28f * density, after.top, 1f)
+    }
+
     private var scheme: ColorScheme? = null
     private lateinit var view: View
 
@@ -112,18 +129,20 @@ class StartupWelcomeScreenTest {
         mode: DisplayColorMode = DisplayColorMode.NORMAL,
     ) = compose.setContent {
         ProvideAppLocals {
-            AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
-                scheme = MaterialTheme.colorScheme
-                view = LocalView.current
-                Box(Modifier.fillMaxSize().testTag("test-root")) {
-                    StartupWelcomeScreen(
-                        state = s, appName = "AndBible", logo = null,
-                        onSelectTab = { calls += "tab:$it" },
-                        onDownload = { calls += "download" }, onImport = { calls += "import" },
-                        onRestore = { calls += "restore" }, onRedownload = { calls += "redownload" },
-                        onEasyStart = { calls += "easy" },
-                        onOpenHomepage = { calls += "home" }, onOpenGithub = { calls += "github" },
-                    )
+            CompositionLocalProvider(LocalWindowControls provides windowControls.value) {
+                AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
+                    scheme = MaterialTheme.colorScheme
+                    view = LocalView.current
+                    Box(Modifier.fillMaxSize().testTag("test-root")) {
+                        StartupWelcomeScreen(
+                            state = s, appName = "AndBible", logo = null,
+                            onSelectTab = { calls += "tab:$it" },
+                            onDownload = { calls += "download" }, onImport = { calls += "import" },
+                            onRestore = { calls += "restore" }, onRedownload = { calls += "redownload" },
+                            onEasyStart = { calls += "easy" },
+                            onOpenHomepage = { calls += "home" }, onOpenGithub = { calls += "github" },
+                        )
+                    }
                 }
             }
         }
