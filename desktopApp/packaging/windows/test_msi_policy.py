@@ -30,6 +30,9 @@ class MsiPolicyTest(unittest.TestCase):
         self.assertEqual(1, len(command))
         self.assertEqual('HKCU', command[0].get('Root'))
         self.assertEqual('"[INSTALLDIR]AndBible.exe" "%1"', command[0].get('Value'))
+        self.assertTrue(any(value.get('Key') == r'Software\Classes\AndBible.Document\Application'
+                            and value.get('Name') == 'ApplicationName' and value.get('Value') == 'AndBible'
+                            for _, value in values))
         self.assertFalse(root.findall('.//w:Extension', NS))
         for _, value in values:
             key = value.get('Key', '')

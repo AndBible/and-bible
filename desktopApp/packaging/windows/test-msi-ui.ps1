@@ -98,4 +98,8 @@ Assert (@($registry | Where-Object {
     $_.Fields[0] -eq '1' -and $_.Fields[1] -eq 'Software\Classes\AndBible.Document\shell\open\command' -and
         $_.Fields[3] -eq '"[INSTALLDIR]AndBible.exe" "%1"'
 }).Count -eq 1) 'Open with must invoke the installed executable with the selected file'
+Assert (@($registry | Where-Object {
+    $_.Fields[1] -eq 'Software\Classes\AndBible.Document\Application' -and
+        $_.Fields[2] -eq 'ApplicationName' -and $_.Fields[3] -eq 'AndBible'
+}).Count -eq 1) 'Open with must identify the candidate as AndBible'
 Write-Output 'MSI UI and Open with: upgrade/first-install/maintenance routing, version text, direct Install, folder dialog, candidate registrations: PASS'
