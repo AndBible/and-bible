@@ -422,6 +422,8 @@ interface Strings {
     val openLogFolder: String                       // R.string.open_log_folder
     val startupReportBug: String                    // R.string.startup_report_bug
     val errorOccurred: String
+    fun epubNoReadableChapters(name: String): String  // R.string.epub_no_readable_chapters
+    val epubNoReadableChaptersHelp: String          // R.string.epub_no_readable_chapters_help
     val okay: String
     // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing
     // R.string.external_link_open_question words `CommonUtils.openLink` already asks.

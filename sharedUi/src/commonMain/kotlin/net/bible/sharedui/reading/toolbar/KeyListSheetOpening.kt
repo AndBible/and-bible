@@ -27,6 +27,11 @@ import net.bible.android.control.page.CurrentMapPage
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
 import net.bible.sharedcore.log.Log
+import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.epub.epubBackend
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedui.strings.Strings
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedui.reading.host.ReadingHostState
 import org.crosswire.jsword.passage.Key
@@ -41,8 +46,9 @@ private const val TAG = "KeyListSheetOpening"
  * Must be called on the main thread. The keys are resolved once, off-main, from [page] itself (an EPUB offers its table
  * of contents); a row's id is the index into them. The sheet reads and answers the ACTIVE window, so [page]'s window is
  * activated first ([activateWindowOf]); nothing opens when that window did not become active (closed, switched away
- * or refused) or when [page] changed while the keys were resolved. With no keys at all nothing opens either, and a page
- * without a key opens its document's first key instead (the full-screen choosers' fallback).
+ * or refused) or when [page] changed while the keys were resolved. With no keys at all no sheet opens; an empty EPUB
+ * activates its window only to report [onEmptyEpub], and a keyless nonempty page tries its document's first key (the
+ * full-screen choosers' fallback) without activating its window.
  *
  * Suspends until the sheet is gone. Closed without a choice while [page] still has no key (an auto-open after switching
  * to a book that was never opened), [onCancelledWithoutKey] runs: the full-screen choosers' cancel guard, which goes
@@ -55,15 +61,27 @@ suspend fun openKeyListSheet(
     page: CurrentPage,
     hostState: ReadingHostState,
     onCancelledWithoutKey: () -> Unit,
+    onEmptyEpub: (String) -> Unit,
 ): Boolean {
     val kind = keyListKindOf(page) ?: return false
     val document = page.currentDocument
-    val keys = withContext(Dispatchers.Default) { keyListOf(page) }
+    val (keys, emptyEpub) = withContext(Dispatchers.Default) {
+        val keys = keyListOf(page)
+        val emptyEpub = keys.isEmpty() && document?.isEpub == true &&
+            document.epubBackend?.state?.keys?.isEmpty() == true
+        keys to emptyEpub
+    }
     if (page.currentDocument != document) return false
     if (keys.isEmpty()) {
-        // Nothing to list (an EPUB without a table of contents): the full-screen choosers' fallback opens the book's
-        // first key rather than leave a book that has none on an empty page.
-        if (page.key == null && page.pageManager.currentPage === page) openFirstKeyOrGoBack(page, onCancelledWithoutKey)
+        if (emptyEpub && page.pageManager.currentPage === page) {
+            activateWindowOf(page)
+            val window = page.pageManager.window
+            if (window.windowRepository.activeWindow === window && page.pageManager.currentPage === page) {
+                onEmptyEpub(document!!.name)
+            }
+        } else if (page.key == null && page.pageManager.currentPage === page) {
+            openFirstKeyOrGoBack(page, onCancelledWithoutKey)
+        }
         Log.w(TAG, "No keys to choose from in ${document?.initials}; no chooser shown.")
         return false
     }
@@ -81,6 +99,19 @@ suspend fun openKeyListSheet(
     // A picked key is applied in the same click that closes the sheet, so it is in place by now.
     if (next == null && page.key == null && page.pageManager.currentPage === page) onCancelledWithoutKey()
     return true
+}
+
+/** Uses the existing themed message dialog, with the book name kept in plain text rather than interpreted as HTML. */
+@kotlin.native.HiddenFromObjC
+fun emptyEpubMessage(strings: Strings, name: String): AppDialogRequest.Message = AppDialogRequest.Message(
+    title = strings.epubNoReadableChapters(name),
+    message = strings.epubNoReadableChaptersHelp,
+    confirmText = strings.okay,
+)
+
+@kotlin.native.HiddenFromObjC
+fun showEmptyEpub(dialogs: AppDialogController, strings: Strings, name: String) {
+    dialogs.postUnlessQueued(emptyEpubMessage(strings, name))
 }
 
 /** The removed full-screen choosers' empty-list answer: the document's first global key, else back in history. */

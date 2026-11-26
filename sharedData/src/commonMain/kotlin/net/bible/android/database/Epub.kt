@@ -48,6 +48,8 @@ class EpubFragment(
     val ordinalStart: Int,
     val ordinalEnd: Int,
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
+    val title: String? = null,
+    @androidx.room3.ColumnInfo(defaultValue = "0") val hasText: Boolean = false,
 ) {
     @Ignore var element: Element? = null
     val fragFileName: String get() = id.toString().padStart(3, '0') + ".xhtml.gz"
@@ -119,13 +121,20 @@ interface EpubDao {
 }
 
 
-const val EPUB_DATABASE_VERSION = 2
+const val EPUB_DATABASE_VERSION = 3
 
 private val addEpubMeta = makeMigration(1..2) { db ->
     db.execSQL("CREATE TABLE IF NOT EXISTS `EpubMeta` (`id` INTEGER NOT NULL, `totalCharacters` INTEGER NOT NULL, PRIMARY KEY(`id`))")
 }
 
-val epubMigrations = arrayOf<Migration>(addEpubMeta)
+private val addDocumentMetadata = makeMigration(2..3) { db ->
+    db.execSQL("ALTER TABLE EpubFragment ADD COLUMN title TEXT")
+    db.execSQL("ALTER TABLE EpubFragment ADD COLUMN hasText INTEGER NOT NULL DEFAULT 0")
+    // Old optimizers removed the sources; unknown text content must not hide existing chapters.
+    db.execSQL("UPDATE EpubFragment SET hasText = 1")
+}
+
+val epubMigrations = arrayOf<Migration>(addEpubMeta, addDocumentMetadata)
 
 @Database(
     entities = [

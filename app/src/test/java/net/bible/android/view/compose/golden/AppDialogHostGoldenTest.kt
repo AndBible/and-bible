@@ -68,6 +68,12 @@ class AppDialogHostGoldenTest {
         ).invoke()
     }
 
+    /** #4237: the no-readable-chapters error uses the shared message shell in every display mode. */
+    @Test fun emptyEpub() = captureMatrix("AppDialogHost", "empty_epub") {
+        val strings = AndroidStrings(ApplicationProvider.getApplicationContext())
+        host(net.bible.sharedui.reading.toolbar.emptyEpubMessage(strings, "Empty EPUB <study>")).invoke()
+    }
+
     @Test fun confirm() = captureMatrix("AppDialogHost", "confirm") {
         host(AppDialogRequest.Confirm(title = "Are you sure?", message = "Delete 3 bookmarks?", confirmText = "OK", dismissText = "Cancel")).invoke()
     }

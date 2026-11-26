@@ -166,15 +166,18 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     private val tocFile = XmlQueries.tocItem(content, epubNamespace)?.getAttribute("href")?.value?.let { rootFolder.child(it) }
 
-    private val toc = tocFile?.run { useKdomBuilder { it.build(KFiles.readBytes(this)) } }
+    private val toc = tocFile?.takeIf { KFiles.exists(it) }?.let { file ->
+        useKdomBuilder { it.build(KFiles.readBytes(file)) }
+    }
 
     internal val fileToTitle = toc?.let { document ->
-        XmlQueries.navPointContents(document, tocNamespace).reversed().associate {
-            val textElem = XmlQueries.navLabelTexts(it, tocNamespace).first()
-            val fileAndId = getFileAndId(it.getAttribute("src")!!.value)
+        XmlQueries.navPointContents(document, tocNamespace).reversed().mapNotNull {
+            val textElem = XmlQueries.navLabelTexts(it, tocNamespace).firstOrNull() ?: return@mapNotNull null
+            val src = it.getAttribute("src")?.value ?: return@mapNotNull null
+            val fileAndId = getFileAndId(src)
             val fileName = fileAndId?.first?.let { name -> decodeUrl(name) }
             fileName to textElem.text
-        }
+        }.toMap()
     }
 
     private fun queryMetadata(key: String): String? = XmlQueries.dcElements(content, key, dcNamespace).firstOrNull()?.value
@@ -220,21 +223,25 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
     }
 
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
-        val filePath = idToFile.let { it[fragment.originalId] }
-        val keyName = label ?: filePath?.let { fp -> fileToTitle?.let {it[fp] } } ?: strings.namelessTitle
+        val keyName = label?.takeIf { it.isNotBlank() }
+            ?: idToFile[fragment.originalId]?.let { fileToTitle?.get(it) }?.takeIf { it.isNotBlank() }
+            ?: fragment.title?.takeIf { it.isNotBlank() }
+            ?: strings.namelessTitle
         return DefaultLeafKeyList(keyName, "${fragment.id}")
     }
 
+    private val cachedToc = atomic<List<Key>?>(null)
+
     suspend fun tocKeys(): List<Key> {
         return withOpen {
-            // Check if toc is null and return an empty list if it is
-            if (toc == null) return emptyList()
-
-            val content = XmlQueries.navPointContents(toc, tocNamespace)
+            cachedToc.value?.let { return@withOpen it }
+            val content = toc?.let { XmlQueries.navPointContents(it, tocNamespace) }.orEmpty()
             val book = Books.installed().getBook(getBookMetaData().initials)
-            return content.mapNotNull { c ->
+            val coveredIds = mutableSetOf<String>()
+            val entries = content.mapNotNull { c ->
                 val label = XmlQueries.navLabelTexts(c, tocNamespace).firstOrNull()?.text
-                val fileAndId = getFileAndId(c.getAttribute("src")!!.value)
+                val src = c.getAttribute("src")?.value ?: return@mapNotNull null
+                val fileAndId = getFileAndId(src)
                 val fileName = fileAndId?.first?.let { decodeUrl(it) }
                 val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
                 val id = fileToId[fileName] ?: return@mapNotNull null
@@ -244,8 +251,30 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
                     "$id#$htmlId"
                 }
                 val frag = dao.getFragment(keyStr)
-                frag?.let { BookAndKey(getKey(it, label = label), book, htmlId = htmlId) }
+                frag?.let {
+                    coveredIds.add(it.originalId)
+                    BookAndKey(getKey(it, label = label), book, htmlId = htmlId)
+                }
             }
+            val fragments = dao.fragments().sortedBy { it.id }
+            val firstFragments = fragments.distinctBy { it.originalId }.associateBy { it.originalId }
+            val originalByFragment = fragments.associate { it.id.toString() to it.originalId }
+            val positions = originalIds.withIndex().associate { it.value to it.index }
+            val includeTextless = entries.isEmpty() && linearOriginalIds.none { firstFragments[it]?.hasText == true }
+            val result = entries.toMutableList()
+            for (id in linearOriginalIds) {
+                if (id in coveredIds) continue
+                val fragment = firstFragments[id]?.takeIf { it.hasText || includeTextless } ?: continue
+                val addition = BookAndKey(getKey(fragment), book)
+                val position = positions.getValue(id)
+                val next = result.indexOfFirst { entry ->
+                    val originalId = originalByFragment[entry.key.getOsisRef()]
+                    (positions[originalId] ?: -1) > position
+                }
+                if (next < 0) result.add(addition) else result.add(next, addition)
+                coveredIds.add(id)
+            }
+            result.toList().also { if (book != null) cachedToc.compareAndSet(null, it) }
         }
     }
 
@@ -275,7 +304,10 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     val cardinality get() = keys.size
 
-    internal val originalIds: List<String> get() = XmlQueries.spineItemrefs(content, epubNamespace).map { it.getAttribute("idref")!!.value }
+    private val spineItems = XmlQueries.spineItemrefs(content, epubNamespace)
+    internal val originalIds: List<String> get() = spineItems.map { it.getAttribute("idref")!!.value }.distinct()
+    private val linearOriginalIds: List<String> get() = spineItems.filter { it.getAttributeValue("linear") != "no" }
+        .map { it.getAttribute("idref")!!.value }
 
     val keys: List<Key> get() = withOpen { KoinPlatform.getKoin().get<EpubStoreEdge>().fragments(dao).map { getKey(it) } }
 
@@ -290,34 +322,34 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
     private val searchDbFile = epubDir.child(searchDbFilename)
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
+    private val appDbFile = env.databasePath(appDbFilename).toPath()
     init {
-        val appDbFile = env.databasePath(appDbFilename).toPath()
-        var epubDbFile = epubDir.child(alternativeEpubDbFilename)
-        if(!KFiles.exists(epubDbFile)) {
-            epubDbFile = epubDir.child(epubDbFilename)
+        val epubDbFile = epubDir.child(alternativeEpubDbFilename).takeIf { KFiles.exists(it) }
+            ?: epubDir.child(epubDbFilename)
+        if (KFiles.exists(epubDbFile) && !KFiles.exists(appDbFile)) {
+            gunzipFile(epubDbFile, appDbFile)
         }
-
-        // F124: the gz is only as good as the fragment files it indexes. version.txt is written last by
-        // optimizeEpub, so its absence means the optimized output is missing or incomplete (an EPUB shipped
-        // with a foreign gz, or external storage cleaned). Re-optimizing needs the source files, though:
-        // every optimizer deletes each source after optimizing it, and EPUBs optimized before version.txt
-        // existed (2023-11) are intact but have neither version.txt nor sources. Those must be reused as is;
-        // deleting their gz/fragments would destroy the only copy. So discard only when sources are present.
-        val optimizedOutputComplete = KFiles.isDirectory(fragDir) && KFiles.isFile(versionFile)
-        val ids = originalIds
-        val sourcesPresent = ids.isNotEmpty() && ids.all { fileForOriginalId(it)?.let { f -> KFiles.exists(f) } == true }
-        if(KFiles.exists(epubDbFile) && !optimizedOutputComplete && sourcesPresent) {
-            Log.w(TAG, "Optimized output missing for ${epubDir.name}; discarding ${epubDbFile.name} and re-optimizing")
-            KFiles.delete(epubDbFile)
+        // version.txt is written last. Rebuild incomplete output only while every original source still exists.
+        val optimizedOutputComplete = KFiles.isDirectory(fragDir) && KFiles.exists(versionFile)
+        val sourcesPresent = originalIds.isNotEmpty() && originalIds.all {
+            fileForOriginalId(it)?.let { file -> KFiles.exists(file) } == true
         }
-
-        if(!KFiles.exists(epubDbFile)) {
+        val emptyWithSources = if (KFiles.exists(appDbFile) && sourcesPresent) {
+            val existingDb = getEpubDatabase(appDbFilename)
+            try {
+                KoinPlatform.getKoin().get<EpubStoreEdge>().fragments(existingDb.epubDao()).isEmpty()
+            } finally {
+                existingDb.close()
+            }
+        } else false
+        if (!KFiles.exists(appDbFile) || emptyWithSources || (!optimizedOutputComplete && sourcesPresent)) {
+            // Recreated fragments get new IDs; an existing search index must not keep the old ones.
+            if (KFiles.exists(searchDbFile)) {
+                val oldSearch = EpubSearch(searchDbFile)
+                try { oldSearch.deleteIndex() } finally { oldSearch.close() }
+            }
             optimizeEpub()
             gzipFile(appDbFile, epubDbFile)
-        } else {
-            if(!KFiles.exists(appDbFile))  {
-                gunzipFile(epubDbFile, appDbFile)
-            }
         }
     }
     private val readDb = getEpubDatabase(appDbFilename)
@@ -535,7 +567,9 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
             }
             // Only cache the result when every fragment was read successfully; otherwise a
             // transient/repairable inconsistency would freeze an inaccurate count forever.
-            if (!failed) dao.insert(EpubMeta(totalCharacters = total))
+            if (!failed) {
+                dao.insert(EpubMeta(totalCharacters = total))
+            }
             total
         }
     }
