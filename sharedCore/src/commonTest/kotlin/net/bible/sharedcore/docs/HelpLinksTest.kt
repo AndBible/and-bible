@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 
 class HelpLinksTest {
     @Test fun everyDocsLinkRoundTripsThroughItsHelpUrl() {
-        for (link in DocsLink.entries) {
+        for (link in DocsLink.entries.filter { it.isHelpTopic }) {
             val url = HelpLinks.url(link)
             assertTrue(HelpLinks.isHelpUrl(url), url)
             assertEquals(link, HelpLinks.parse(url))
@@ -25,10 +25,11 @@ class HelpLinksTest {
 
     /** Release notes are external updater targets; every other topic belongs to the in-app User guide tab. */
     @Test fun everyHelpTopicResolvesToAUserGuidePage() {
-        val externalReleaseNotes = setOf(DocsLink.RELEASE_4_0, DocsLink.RELEASE_4_1, DocsLink.RELEASE_5_0, DocsLink.RELEASE_6_0)
-        val missing = DocsLink.entries.filter { it !in externalReleaseNotes && UserGuideToc.pageFor(it) == null }
+        val helpTopics = DocsLink.entries.filter { it.isHelpTopic }
+        val externalPages = DocsLink.entries.filterNot { it.isHelpTopic }
+        val missing = helpTopics.filter { UserGuideToc.pageFor(it) == null }
         assertEquals(emptyList(), missing, "Help topics without a User guide tab page")
-        externalReleaseNotes.forEach { assertNull(UserGuideToc.pageFor(it), it.name) }
+        externalPages.forEach { assertNull(UserGuideToc.pageFor(it), it.name) }
     }
 
     @Test fun anchoredTopicsResolveToTheirPage() {

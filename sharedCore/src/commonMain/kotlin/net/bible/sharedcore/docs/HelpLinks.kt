@@ -14,7 +14,9 @@ object HelpLinks {
 
     /** The topic of an [url] made by [url]; null for any other URL or an unknown topic name. */
     fun parse(url: String): DocsLink? =
-        if (!isHelpUrl(url)) null else DocsLink.entries.firstOrNull { it.name == url.removePrefix(SCHEME) }
+        if (!isHelpUrl(url)) null else DocsLink.entries.firstOrNull {
+            it.isHelpTopic && it.name == url.removePrefix(SCHEME)
+        }
 
     /**
      * Where a help link goes when the app cannot open Help & tips: its topic's guide page, or the guide's home for a

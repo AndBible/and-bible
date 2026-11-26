@@ -66,4 +66,6 @@ enum class DocsLink(val page: String, val anchor: String? = null) {
     WORKSPACES("workspaces");
 
     val url: String get() = DocsLinks.page(this)
+
+    val isHelpTopic: Boolean get() = !page.startsWith("releases/")
 }
