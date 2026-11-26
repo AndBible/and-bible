@@ -516,6 +516,8 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 5 — search
     override val search: String get() = context.getString(R.string.search)
     override val emptyList: String get() = context.getString(R.string.empty_list)
+    override val desktopUiScaleTitle: String get() = context.getString(R.string.desktop_ui_scale_title)
+    override val desktopUiScaleSummary: String get() = context.getString(R.string.desktop_ui_scale_summary)
     override val desktopUpdateSettingTitle: String get() = context.getString(R.string.desktop_update_setting_title)
     override val desktopUpdateSettingSummary: String get() = context.getString(R.string.desktop_update_setting_summary)
     override val desktopUpdateIntervalDaily: String get() = context.getString(R.string.desktop_update_interval_daily)

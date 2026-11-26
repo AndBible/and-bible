@@ -73,6 +73,30 @@ If you integrated an older AppImage with AppImageLauncher or appimaged, remove a
 integration (or delete the old `~/.local/share/applications/*andbible*.desktop` file), because the
 integrated copy still lists the old file types.
 
+## Desktop UI scale
+
+On Windows, AndBible follows Windows' display scaling, including fractional scales such as 125% and 150%.
+The interface and the WebView2 reading pane use the same density; moving the window to another monitor
+lets Windows update its native DPI rather than applying that scale twice.
+
+To make the whole interface smaller or larger, open **Application preferences** and choose **UI scale**
+(75%, 100%, 125%, 150%, 175% or 200%), then close and restart AndBible. This desktop-only preference
+multiplies your display scale: 75% on a Windows display set to 150% gives an interface at 112.5%.
+The default is 100%. It is stored on this device, not synchronized. The **font size multiplier** remains
+separate: it changes document text, not menus and toolbars.
+
+For troubleshooting, `ANDBIBLE_UI_SCALE` or `-Dandbible.uiScale` sets an absolute app scale and takes
+precedence over this preference on Windows and Linux. For example, from PowerShell:
+
+```powershell
+$env:ANDBIBLE_UI_SCALE = "1.25"
+& "$env:LOCALAPPDATA\AndBible\AndBible.exe"
+```
+
+Use your installation's actual executable path if different. Remove the environment override to use
+automatic display detection and the UI scale preference again. The selected scale is recorded in the
+startup log; on Windows this is `%APPDATA%\AndBible\logs\andbible.log`.
+
 ## Display scaling on Linux
 
 AndBible follows your desktop's display scale: the menus, toolbars and the Bible text get the same size as in other apps. It reads the scale that GNOME, KDE Plasma and Xfce publish for X11 apps (the `Xft.dpi` setting, which also includes GNOME's "Large Text" setting), or `GDK_SCALE` when it is set. On Wayland the app runs through Xwayland, so the scale comes from what the desktop gives Xwayland apps.
@@ -86,7 +110,7 @@ ANDBIBLE_UI_SCALE=1.5 andbible
 Good to know:
 
 - The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
-- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds fractional scaling to a whole number, including for Bible text.
+- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. For example, 125% becomes 100% and 150% becomes 200%. The normal off-screen engine supports fractional scales.
 - On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.
 
 The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.

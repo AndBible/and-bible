@@ -1064,6 +1064,8 @@ interface Strings {
     val memorizeCalendar: String                            // memorize_calendar
 
     // Batch 10-remainder — preference search (main Settings screen)
+    val desktopUiScaleTitle: String
+    val desktopUiScaleSummary: String
     val desktopUpdateSettingTitle: String
     val desktopUpdateSettingSummary: String
     val desktopUpdateIntervalDaily: String

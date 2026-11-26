@@ -96,7 +96,7 @@ fun main(args: Array<String>) {
 }
 
 fun runDesktopApp(args: Array<String>, provider: DesktopEngineProvider) {
-    // Linux display scale (#4006): before anything touches AWT, which reads sun.java2d.uiScale once.
+    // Linux must set its scale before AWT; Windows keeps the JDK's native fractional/per-monitor DPI.
     DesktopDisplayScale.init(integerOnly = provider.windowedRendering)
     desktopLayersType(provider)?.let { System.setProperty("compose.layers.type", it) }
     runApp(args.toList(), provider)
@@ -333,6 +333,11 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
             // disposing the window while they are still in it removes the CEF canvases from an already-disposed
             // SkiaLayer ("SkiaLayer is disposed" crash, process left hanging).
             ScaledDensity(scaleFactor) {
+                val density = androidx.compose.ui.platform.LocalDensity.current.density
+                LaunchedEffect(density) {
+                    val awtDensity = awtWindow.graphicsConfiguration.defaultTransform.scaleX
+                    desktopEngineLog("[desktop] window density: AWT $awtDensity, Compose $density, content factor $scaleFactor")
+                }
                 ExitSyncWindow(closing, state.language, skipRequested, requestClose, tasks = tasks) {
                     DesktopEngineReadyGate(
                         awaitReady = { if (lockFailure == null) provider.awaitWindowReady(awtWindow) },

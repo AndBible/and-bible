@@ -69,6 +69,8 @@ import net.bible.sharedui.desktop.update.desktopBuildNumber
 import net.bible.sharedui.desktop.update.detectDistribution
 import net.bible.sharedui.settings.DesktopBetaUpdateSetting
 import net.bible.sharedui.settings.DesktopUpdateCheckSetting
+import net.bible.sharedui.settings.DesktopUiScaleSetting
+import net.bible.sharedui.desktop.settings.PersistentDesktopUiScaleSetting
 import java.nio.file.Path
 
 // OWNER: plan D3d (desktop misc: night mode, notification permission, system screens, debug actions, bug report, text
@@ -152,6 +154,7 @@ object DesktopNoSentenceBreaker : SentenceBreaker {
 }
 
 fun desktopMiscModule(): Module = module {
+    single<DesktopUiScaleSetting> { PersistentDesktopUiScaleSetting(get()) }
     single<net.bible.android.control.activity.ActivityReporter> {
         net.bible.android.control.activity.HostActivityReporter(get<AppCoroutineScope>())
     }
