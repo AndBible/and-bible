@@ -64,7 +64,7 @@ data class DesktopRelease(
 )
 
 // Tags carry only a build number. The release workflow puts the marketing version in the title.
-private val releaseNameVersion = Regex("^(?:Release|Beta release|Test release) (\\d+\\.\\d+\\.\\d+(?:-(?:beta|test))?)$")
+private val releaseNameVersion = Regex("\\d+\\.\\d+\\.\\d+(?:-(?:beta|test))?")
 
 fun parseDesktopReleases(json: String): List<DesktopRelease> {
     val releases = Json.parseToJsonElement(json) as? JsonArray ?: return emptyList()
@@ -79,7 +79,7 @@ fun parseDesktopReleases(json: String): List<DesktopRelease> {
         if (assets.none { (it as? JsonObject)?.get("name")?.jsonPrimitive?.contentOrNull?.startsWith("andbible-desktop-") == true }) return@mapNotNull null
         val url = release["html_url"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
         val name = release["name"]?.jsonPrimitive?.contentOrNull
-        val version = name?.let { releaseNameVersion.matchEntire(it)?.groupValues?.get(1) }
+        val version = name?.let { releaseNameVersion.find(it)?.value }
         DesktopRelease(tag, build, DesktopChannel.fromTagPrefix(match.groupValues[1]) ?: return@mapNotNull null, url, version)
     }
 }

@@ -69,20 +69,23 @@ class DesktopUpdatePrompts(
             else -> null
         }
     }, announceAndAwait = { release ->
-        val result = dialogs.await(AppDialogRequest.Localized {
-            desktopUpdateDialog(strings.current, release.tag, version)
-        })
-        val choice = when (result) {
-            is AppDialogResult.Selected -> result.value to false
-            is AppDialogResult.SelectedWithCheckbox -> result.value to result.checked
-            else -> null
-        }
-        if (choice?.second == true) settings.putString(CONSENT_KEY, DesktopUpdateInterval.NEVER.value)
+        var choice: Pair<String, Boolean>?
+        do {
+            val result = dialogs.await(AppDialogRequest.Localized {
+                desktopUpdateDialog(strings.current, release.version ?: release.tag, version)
+            })
+            choice = when (result) {
+                is AppDialogResult.Selected -> result.value to false
+                is AppDialogResult.SelectedWithCheckbox -> result.value to result.checked
+                else -> null
+            }
+            if (choice?.second == true) settings.putString(CONSENT_KEY, DesktopUpdateInterval.NEVER.value)
+            if (choice?.first == "whats_new") links.open(DocsLinks.releaseNotes(release.version))
+        } while (choice?.first == "whats_new")
         val snoozeDays = when (choice?.first) { "snooze_day" -> 1; "snooze_week" -> 7; "snooze_month" -> 30; else -> 0 }
         if (snoozeDays > 0) settings.snoozeUntil(clock() + snoozeDays * DAY_MS)
         when (choice?.first) {
             "download" -> { links.open(release.htmlUrl); true }
-            "whats_new" -> { links.open(DocsLinks.releaseNotes(release.version)); false }
             "skip" -> true
             else -> false
         }
