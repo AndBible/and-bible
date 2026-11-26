@@ -80,7 +80,8 @@ example, `Multiple references.html` for Compare, or your Study Pad's name), with
 used in file names removed or replaced. On Android, *Export to where?* lets you
 save the file to *Phone Storage* or *Share* it with another app. Open the saved
 file with an app that supports local HTML files; some mobile browsers restrict
-opening files from device storage.
+opening files from device storage. On Android, exporting the same document again
+creates a separate temporary copy, so it does not change an earlier share.
 
 Empty text entries do not include the "Tap to edit text" placeholder in HTML exports.
 The placeholder remains visible in the Study Pad so you can add text later.

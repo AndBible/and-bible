@@ -1,9 +1,6 @@
 package net.bible.android.view.activity.page
 
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
-import android.content.res.Resources
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import com.nhaarman.mockitokotlin2.mock
@@ -49,7 +46,8 @@ class BibleViewSurfaceHtmlExportTest {
     private lateinit var view: BibleView
     private lateinit var lifecycle: LifecycleRegistry
     private lateinit var dialogs: AppDialogController
-    private val exportedFiles = mutableListOf<File>()
+    private val exportRoot get() = File(SharedConstants.internalFilesDir, "export/")
+    private val htmlRoot get() = File(exportRoot, "html/")
 
     class ExportActivity : ActivityBase() {
         override val doNotInitializeApp = true
@@ -65,7 +63,7 @@ class BibleViewSurfaceHtmlExportTest {
         lifecycle = LifecycleRegistry.createUnsafe(host)
         lifecycle.currentState = Lifecycle.State.RESUMED
         whenever(host.lifecycle).thenReturn(lifecycle)
-        whenever(host.hostContext).thenReturn(WebViewResourcesContext(RuntimeEnvironment.getApplication()))
+        whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
         val callbacks = BibleViewHostCallbacks(
             hostActivity = activity, onNext = {}, onPrevious = {}, showLlmPromptSelector = { _, _ -> },
             composeSearchIfHosted = { _, _ -> false }, composeOpenDrawerIfHosted = { false },
@@ -89,12 +87,11 @@ class BibleViewSurfaceHtmlExportTest {
         view.destroy()
         activityController.pause().stop().destroy()
         dispatcher.scheduler.runCurrent()
-        exportedFiles.forEach { it.delete() }
+        exportRoot.deleteRecursively()
         Dispatchers.resetMain()
     }
 
     @Test fun htmlExportAsksForAnExportDestinationNotABackupDestination() = runTest(dispatcher) {
-        exportedFiles += File(SharedConstants.internalFilesDir, "export/Compare.html")
         BibleViewSurface(view).shareHtml("<p>Compare</p>", "Compare")
         advanceUntilIdle()
 
@@ -105,8 +102,6 @@ class BibleViewSurfaceHtmlExportTest {
 
     @Test fun saveSuggestsTheSanitisedDocumentNameAndWritesUtf8HtmlInExportDirectory() = runTest(dispatcher) {
         val html = "<!DOCTYPE html><p>אα</p>"
-        val file = File(SharedConstants.internalFilesDir, "export/Study Pad  John 1.html")
-        exportedFiles += file
         BibleViewSurface(view).shareHtml(html, "../Study Pad: John 1")
         advanceUntilIdle()
         val pending = dialogs.pending.value!!
@@ -119,33 +114,106 @@ class BibleViewSurfaceHtmlExportTest {
         assertEquals(Intent.ACTION_CREATE_DOCUMENT, save.action)
         assertEquals("text/html", save.type)
         assertEquals("Study Pad  John 1.html", save.getStringExtra(Intent.EXTRA_TITLE))
-        assertTrue("HTML exports must not use the backup directory", file.isFile)
+        val file = htmlRoot.walkTopDown().single { it.isFile }
+        assertEquals("Study Pad  John 1.html", file.name)
         assertEquals(html, file.readText())
     }
 
     @Test fun nextExportRemovesOldHtmlButKeepsRecentSharesAndOtherExports() = runTest(dispatcher) {
-        val dir = File(SharedConstants.internalFilesDir, "export/").apply { mkdirs() }
-        val old = File(dir, "old.html").apply {
+        val old = File(htmlRoot, "old-export/old.html").apply {
+            parentFile!!.mkdirs()
             writeText("old")
-            assertTrue(setLastModified(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L))
+            makeOld(this)
         }
-        val recent = File(dir, "recent.html").apply { writeText("recent") }
-        val other = File(dir, "old.csv").apply {
+        val recent = File(htmlRoot, "recent-export/recent.html").apply {
+            parentFile!!.mkdirs()
+            writeText("recent")
+        }
+        val other = File(exportRoot, "old.csv").apply {
             writeText("other")
-            assertTrue(setLastModified(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L))
+            makeOld(this)
         }
-        exportedFiles += listOf(old, recent, other, File(dir, "Compare.html"))
 
         BibleViewSurface(view).shareHtml("<p>Compare</p>", "Compare")
         advanceUntilIdle()
 
         assertFalse("stale HTML export copies must not accumulate forever", old.exists())
+        assertFalse("expired per-export directories must not accumulate", old.parentFile!!.exists())
         assertEquals("recent", recent.readText())
         assertEquals("other", other.readText())
     }
 
+    @Test fun nextExportDoesNotPruneOldMyDocumentHtml() = runTest(dispatcher) {
+        val myDocument = File(exportRoot, "My page.html").apply {
+            parentFile!!.mkdirs()
+            writeText("my document")
+            makeOld(this)
+        }
+
+        BibleViewSurface(view).shareHtml("new reading window", "Compare")
+        advanceUntilIdle()
+
+        assertTrue("reading-window cleanup must not delete My Document exports", myDocument.exists())
+        assertEquals("my document", myDocument.readText())
+    }
+
+    @Test fun sameTitleExportsKeepIndependentShareUrisAndContents() = runTest(dispatcher) {
+        val first = shareAndGetUri("first export", "Multiple references")
+        val second = shareAndGetUri("second export", "Multiple references")
+
+        assertNotEquals("each export needs its own URI", first, second)
+        assertEquals("Multiple references.html", first.lastPathSegment)
+        assertEquals("Multiple references.html", second.lastPathSegment)
+        assertEquals("first export", readSharedHtml(first))
+        assertEquals("second export", readSharedHtml(second))
+    }
+
+    @Test fun sameTitleMyDocumentIsNotOverwrittenByReadingWindowExport() = runTest(dispatcher) {
+        val myDocument = File(exportRoot, "Compare.html").apply {
+            parentFile!!.mkdirs()
+            writeText("my document")
+        }
+
+        val uri = shareAndGetUri("reading window", "Compare")
+
+        assertEquals("my document", myDocument.readText())
+        assertEquals("reading window", readSharedHtml(uri))
+    }
+
+    @Test fun oldSameTitleExportIsPrunedButFreshContentIsShared() = runTest(dispatcher) {
+        val old = File(htmlRoot, "old-export/Compare.html").apply {
+            parentFile!!.mkdirs()
+            writeText("stale content")
+            makeOld(this)
+        }
+
+        val uri = shareAndGetUri("fresh content", "Compare")
+
+        assertFalse("the old same-title copy should expire", old.exists())
+        assertEquals("Compare.html", uri.lastPathSegment)
+        assertEquals("fresh content", readSharedHtml(uri))
+    }
+
+    private fun makeOld(file: File) {
+        assertTrue(file.setLastModified(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L))
+    }
+
+    private suspend fun kotlinx.coroutines.test.TestScope.shareAndGetUri(html: String, title: String): android.net.Uri {
+        BibleViewSurface(view).shareHtml(html, title)
+        advanceUntilIdle()
+        val pending = dialogs.pending.value!!
+        val request = pending.request as AppDialogRequest.Options
+        dialogs.respond(pending.id, AppDialogResult.Selected(request.options[0].value))
+        advanceUntilIdle()
+        val chooser = shadowOf(activity).nextStartedActivityForResult.intent
+        val share = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
+        return share.getParcelableExtra(Intent.EXTRA_STREAM)!!
+    }
+
+    private fun readSharedHtml(uri: android.net.Uri): String =
+        activity.contentResolver.openInputStream(uri)!!.bufferedReader().use { it.readText() }
+
     @Test fun shareUsesTheDocumentFilenameAndHtmlMimeType() = runTest(dispatcher) {
-        exportedFiles += File(SharedConstants.internalFilesDir, "export/Compare.html")
         BibleViewSurface(view).shareHtml("<p>Compare</p>", "Compare")
         advanceUntilIdle()
         val pending = dialogs.pending.value!!
@@ -160,20 +228,8 @@ class BibleViewSurfaceHtmlExportTest {
         assertEquals("Compare", share.getStringExtra(Intent.EXTRA_SUBJECT))
         val uri = share.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)!!
         assertEquals("Compare.html", uri.lastPathSegment)
-        assertTrue(uri.path!!.contains("/exported_documents/"))
+        assertTrue(uri.path!!.contains("/reading_window_html/"))
+        assertEquals("<p>Compare</p>", readSharedHtml(uri))
     }
 
-    /** BibleView resolves WebView-owned menu resources during construction. */
-    private class WebViewResourcesContext(base: Context) : ContextWrapper(base) {
-        @Suppress("DEPRECATION")
-        private val res = object : Resources(base.assets, base.resources.displayMetrics, base.resources.configuration) {
-            override fun getResourceEntryName(resid: Int): String = when (resid) {
-                33620236 -> "select_action_menu_select_all"
-                33620231 -> "select_action_menu_copy"
-                else -> base.resources.getResourceEntryName(resid)
-            }
-        }
-        override fun getResources(): Resources = res
-        override fun getApplicationContext(): Context = this
-    }
 }

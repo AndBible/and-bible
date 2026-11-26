@@ -33,6 +33,7 @@ import net.bible.sharedui.reading.bridge.ReadingWindowSurface
 import net.bible.sharedui.webview.sharedFileName
 import okio.Path.Companion.toOkioPath
 import java.io.File
+import java.util.UUID
 
 /** Android [ReadingWindowSurface] over one [BibleView] (its WebView selection, host activity and clipboard). */
 class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface {
@@ -53,12 +54,17 @@ class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface 
 
     /** [title] names the exported file and is also the share subject. */
     override fun shareHtml(html: String, title: String) {
-        val targetDir = File(SharedConstants.internalFilesDir, "export/")
-        targetDir.mkdirs()
-        // Do not prune recent shares: recipients may open their URIs asynchronously. Same-title exports still overwrite.
+        val exportRoot = File(SharedConstants.internalFilesDir, "export/html/")
+        // Only prune reading-window copies, never My Documents' exports in the parent directory.
+        // Keep recent URIs immutable: recipients may open them after another export has started.
         val expiredBefore = System.currentTimeMillis() - 24 * 60 * 60 * 1000L
-        targetDir.listFiles()?.filter { it.isFile && it.extension == "html" && it.lastModified() < expiredBefore }
-            ?.forEach { it.delete() }
+        exportRoot.listFiles()?.filter { it.isDirectory }?.forEach { previousExport ->
+            previousExport.listFiles()?.filter {
+                it.isFile && it.extension == "html" && it.lastModified() < expiredBefore
+            }?.forEach { it.delete() }
+            if (previousExport.listFiles()?.isEmpty() == true) previousExport.delete()
+        }
+        val targetDir = File(exportRoot, UUID.randomUUID().toString()).apply { mkdirs() }
         val fileName = "${sharedFileName(title)}.html"
         val targetFile = File(targetDir, fileName)
         targetFile.writeText(html)
