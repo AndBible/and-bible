@@ -387,6 +387,64 @@ class KeyListChooserEntryPointsTest {
         }
     }
 
+    /** An empty TOC on readable EPUB content uses the old first-global-key fallback without activating its window. */
+    @Test fun keylessEpubWithNoChooserEntriesFallsBackWithoutActivatingItsWindow() = withHost { host, control ->
+        val koin = KoinPlatform.getKoin()
+        val modules = koin.get<net.bible.sharedcore.platform.AppDirectories>().modulesDir
+        val dir = File(modules.toString(), "epub/keyless-no-toc.epub").apply { mkdirs() }
+        val initials = net.bible.service.sword.epub.epubInitials(dir.name)
+        try {
+            File(dir, "META-INF").mkdirs()
+            File(dir, "META-INF/container.xml").writeText("""
+                <container xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+                  <rootfiles><rootfile full-path="content.opf"/></rootfiles>
+                </container>
+            """.trimIndent())
+            File(dir, "content.opf").writeText("""
+                <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+                  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                    <dc:title>Keyless No TOC</dc:title><dc:language>en</dc:language>
+                  </metadata>
+                  <manifest><item id="chapter" href="chapter.xhtml" media-type="application/xhtml+xml"/></manifest>
+                  <spine><itemref idref="chapter" linear="no"/></spine>
+                </package>
+            """.trimIndent())
+            File(dir, "chapter.xhtml").writeText("""
+                <html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter</title></head>
+                  <body><p>Readable text.</p></body></html>
+            """.trimIndent())
+            net.bible.service.sword.epub.addEpubBook(dir.toString().toPath(), koin.get(), koin.get())
+            val epub = book(initials)
+            val backend = checkNotNull(epub.epubBackend)
+            kotlin.test.assertTrue(backend.state.keys.isNotEmpty(), "fixture has readable fragments")
+            assertEquals(emptyList(), backend.tocKeys(), "the non-linear spine contributes no TOC entries")
+
+            val manager = control.activeWindow.pageManager
+            manager.setCurrentDocument(epub)
+            val page = manager.currentPage
+            assertNull(page.key, "precondition: the EPUB page has no key")
+            val firstGlobalKey = epub.getGlobalKeyList().first()
+            val asking = control.activeWindow
+            val unrelated = control.addNewWindow(asking)
+            control.activeWindow = unrelated
+            var emptyError = false
+
+            assertEquals(false, net.bible.sharedui.reading.toolbar.openKeyListSheet(
+                page, host.hostState,
+                onCancelledWithoutKey = { error("readable EPUB fallback must not navigate back") },
+                onEmptyEpub = { emptyError = true },
+            ))
+
+            assertEquals(firstGlobalKey, manager.currentPage.key, "a keyless page uses its first global key")
+            assertSame(unrelated, control.activeWindow, "the unrelated active window remains active")
+            assertEquals(false, emptyError, "readable fragments must not be reported as an empty EPUB")
+            assertNull(host.hostState.quickSheet.value, "an empty chooser list does not show a sheet")
+        } finally {
+            koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>().cancelAll()
+            deleteEpubModule(dir.toString().toPath())
+        }
+    }
+
     private companion object {
         const val GEN_BOOK = "K4GenBook"
         const val MAP = "K4Map"

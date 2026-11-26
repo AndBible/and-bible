@@ -46,8 +46,9 @@ private const val TAG = "KeyListSheetOpening"
  * Must be called on the main thread. The keys are resolved once, off-main, from [page] itself (an EPUB offers its table
  * of contents); a row's id is the index into them. The sheet reads and answers the ACTIVE window, so [page]'s window is
  * activated first ([activateWindowOf]); nothing opens when that window did not become active (closed, switched away
- * or refused) or when [page] changed while the keys were resolved. With no keys at all no sheet opens; an EPUB reports
- * [onEmptyEpub], and a page without a key tries its document's first key (the full-screen choosers' fallback).
+ * or refused) or when [page] changed while the keys were resolved. With no keys at all no sheet opens; an empty EPUB
+ * activates its window only to report [onEmptyEpub], and a keyless nonempty page tries its document's first key (the
+ * full-screen choosers' fallback) without activating its window.
  *
  * Suspends until the sheet is gone. Closed without a choice while [page] still has no key (an auto-open after switching
  * to a book that was never opened), [onCancelledWithoutKey] runs: the full-screen choosers' cancel guard, which goes
@@ -71,19 +72,23 @@ suspend fun openKeyListSheet(
         keys to emptyEpub
     }
     if (page.currentDocument != document) return false
-    activateWindowOf(page)
-    val window = page.pageManager.window
-    if (window.windowRepository.activeWindow !== window || page.pageManager.currentPage !== page) {
-        Log.w(TAG, "The window asking for a ${document?.initials} key is not the active one; no chooser shown.")
-        return false
-    }
     if (keys.isEmpty()) {
         if (emptyEpub && page.pageManager.currentPage === page) {
-            onEmptyEpub(document!!.name)
+            activateWindowOf(page)
+            val window = page.pageManager.window
+            if (window.windowRepository.activeWindow === window && page.pageManager.currentPage === page) {
+                onEmptyEpub(document!!.name)
+            }
         } else if (page.key == null && page.pageManager.currentPage === page) {
             openFirstKeyOrGoBack(page, onCancelledWithoutKey)
         }
         Log.w(TAG, "No keys to choose from in ${document?.initials}; no chooser shown.")
+        return false
+    }
+    activateWindowOf(page)
+    val window = page.pageManager.window
+    if (window.windowRepository.activeWindow !== window || page.pageManager.currentPage !== page) {
+        Log.w(TAG, "The window asking for a ${document?.initials} key is not the active one; no chooser shown.")
         return false
     }
     hostState.showKeyChooserSheet(kind, keys)
