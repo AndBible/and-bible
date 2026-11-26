@@ -228,7 +228,7 @@
   <string name="error">തെറ്റ്</string>
   <string name="all">എല്ലാം</string>
   <string name="reset_generic">പുനഃരാരംഭിക്കൂ</string>
-  <string name="watch_tutorial_video_plain">ടൂട്ടോറിയൽ വീഡിയോ കാണുക</string>
+    <string name="watch_tutorial_video_plain">ടൂട്ടോറിയൽ വീഡിയോ കാണുക</string>
 <!--Errors-->
   <string name="report_error">റിപ്പോർട്ട് അയയ്ക്കുക</string>
   <string name="error_occurred">ഒരു തെറ്റ് പറ്റിയിരിക്കുന്നു</string>

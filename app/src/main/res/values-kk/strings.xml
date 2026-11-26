@@ -538,7 +538,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="please_wait">Өтінеміз күтіңіз...</string>
   <string name="all">Бәрі</string>
   <string name="reset_generic">Қайта бастау</string>
-  <string name="watch_tutorial_video_plain">Үйрету видеосын көріңіз</string>
+    <string name="watch_tutorial_video_plain">Үйрету видеосын көріңіз</string>
 <string name="verse_not_found">Аят табылмады</string>
   <!--Errors-->
   <string name="report_error">Есеп Жіберу</string>
