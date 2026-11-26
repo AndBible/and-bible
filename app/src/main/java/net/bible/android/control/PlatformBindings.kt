@@ -124,7 +124,8 @@ fun buildPlatformBindings() = module {
                     if (!policy.canRun() || !ports.networkAvailable()) return@runFallback false
                     if (!net.bible.service.cloudsync.awaitLeaveWorkspacePersisted(ports)) return@runFallback false
                     val cloud = cloudSync()
-                    if (cloud.signedIn || (userInitiated && cloud.signIn() == true)) {
+                    if ((cloud.signedIn || (userInitiated && cloud.signIn(waitForExisting = true) == true)) &&
+                        policy.canRun() && ports.networkAvailable()) {
                         net.bible.service.cloudsync.runDatabaseSyncJob(
                             cloud, koin.get(), allowInteraction = userInitiated,
                             backgroundErrors = !userInitiated, reportTransportErrors = userInitiated,

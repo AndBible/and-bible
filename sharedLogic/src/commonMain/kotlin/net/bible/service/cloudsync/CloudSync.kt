@@ -965,6 +965,7 @@ class CloudSync(
     suspend fun waitUntilFinished(fromService: Boolean = false) {
         if(!fromService) {
             syncStarted?.await()
+            scheduler.pendingDatabaseSync?.await()
         }
         syncMutex.withLock {  }
     }

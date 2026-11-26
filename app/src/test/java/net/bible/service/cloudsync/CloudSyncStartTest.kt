@@ -2,6 +2,7 @@ package net.bible.service.cloudsync
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -90,6 +91,39 @@ class CloudSyncStartTest {
             assertEquals("manual origin must reach the scheduler even after an automatic join",
                 net.bible.android.platform.AndroidSyncScheduler.Request.Interactive, scheduler.consumeRequest())
         } finally { scheduler.complete(false) }
+    }
+
+    @Test
+    fun waitUntilFinishedIncludesLeavePendingBeforeEngineStarts() = runBlocking {
+        val scheduler = org.koin.core.context.GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
+        val cloud = org.koin.core.context.GlobalContext.get().get<CloudSync>()
+        try {
+            scheduler.startLeave()!!
+            val waiter = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                cloud.waitUntilFinished()
+            }
+            assertFalse("restore must wait for the leave service even before its engine starts", waiter.isCompleted)
+            scheduler.complete(true)
+            withTimeout(1000) { waiter.await() }
+        } finally { scheduler.complete(false) }
+    }
+
+    @Test
+    fun waitUntilFinishedIncludesInProcessFallback() = runBlocking {
+        val scheduler = org.koin.core.context.GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
+        val cloud = org.koin.core.context.GlobalContext.get().get<CloudSync>()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val fallback = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            scheduler.runFallback { entered.complete(Unit); release.await(); true }
+        }
+        try {
+            entered.await()
+            val waiter = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { cloud.waitUntilFinished() }
+            assertFalse("restore must wait for fallback persistence as well as its engine", waiter.isCompleted)
+            release.complete(Unit)
+            withTimeout(1000) { fallback.await(); waiter.await() }
+        } finally { release.complete(Unit); fallback.cancel(); scheduler.complete(false) }
     }
 
     @Test

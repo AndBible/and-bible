@@ -176,7 +176,8 @@ class SyncService: Service() {
                         if (interactive && !cloudSync.signedIn && cloudSync.signIn(waitForExisting = true) != true) {
                             // A cancelled or failed sign-in must not start a sync pass.
                         } else if (!isLeave || (CommonUtils.isCloudSyncEnabled && ports.networkAvailable() && cloudSync.signedIn && !net.bible.service.db.DatabaseContainer.replacing)) {
-                            if (!isLeave || awaitLeaveWorkspacePersisted(ports)) {
+                            if (!isLeave || (awaitLeaveWorkspacePersisted(ports) && CommonUtils.isCloudSyncEnabled &&
+                                    ports.networkAvailable() && !net.bible.service.db.DatabaseContainer.replacing)) {
                                 jobStarted = true
                                 succeeded = runDatabaseSyncJob(cloudSync, settings, allowInteraction = !isLeave, backgroundErrors = isLeave || !interactive, reportTransportErrors = !isLeave && interactive)
                             }

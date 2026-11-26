@@ -40,7 +40,7 @@ class SyncLeaveHandOffTest {
 
     @Test
     fun acceptedLeaveHandOffMarksPassStartForNetworkRestore() = runTest {
-        val handoff = CompletableDeferred<Unit>()
+        val handoff = CompletableDeferred<Boolean>()
         var online = true
         val driver = SyncTriggerDriver(
             policy = BackgroundSyncPolicy(
@@ -54,7 +54,7 @@ class SyncLeaveHandOffTest {
 
         assertSame(handoff, driver.onBackground())
         advanceTimeBy(5_000)
-        handoff.complete(Unit)
+        handoff.complete(true)
         runCurrent()
         online = false
         driver.onForeground()
@@ -67,7 +67,7 @@ class SyncLeaveHandOffTest {
     @Test
     fun acceptedLeaveHandOffCompletionMovesTimerMark() = runTest {
         val intervalMs = 300_000L
-        val handoff = CompletableDeferred<Unit>()
+        val handoff = CompletableDeferred<Boolean>()
         var online = true
         var syncs = 0
         val policy = BackgroundSyncPolicy(
@@ -82,7 +82,7 @@ class SyncLeaveHandOffTest {
 
         assertSame(handoff, driver.onBackground())
         advanceTimeBy(5_000)
-        handoff.complete(Unit)
+        handoff.complete(true)
         runCurrent()
         online = false
         driver.onForeground()
@@ -198,6 +198,84 @@ class SyncLeaveHandOffTest {
         assertEquals(0, prepared, "fallback owns saving, so the driver must not prepare first")
         assertEquals(0, syncs, "fallback owns syncing, so the driver must not start a second sync")
         assertEquals(1, fallbacks)
+    }
+
+    @Test
+    fun offlineOpenSignsInOnNetworkRestoreBeforeNextLeave() = runTest {
+        var online = false
+        var signedIn = false
+        var signIns = 0
+        var syncs = 0
+        var handoffs = 0
+        val driver = SyncTriggerDriver(
+            policy = BackgroundSyncPolicy(
+                syncEnabled = { true }, replacing = { false }, intervalSeconds = { 300 },
+                lastSynchronizedMs = { 0 }, nowMs = { currentTime }, signedIn = { signedIn },
+                signIn = { signIns++; signedIn = true; true },
+                startSync = { syncs++; CompletableDeferred(true) },
+            ),
+            scope = backgroundScope, networkAvailable = { online },
+            leaveHandOff = { handoffs++; CompletableDeferred(true) },
+        )
+        driver.onForeground()?.join()
+        assertEquals(0, signIns, "offline open must not attempt sign-in")
+        online = true
+        driver.onNetworkAvailable()?.join()
+        assertEquals(1, signIns, "network restoration signs in in the foreground")
+        assertEquals(1, syncs)
+        driver.onBackground().join()
+        assertEquals(1, handoffs, "the next leave sees the foreground-restored adapter")
+    }
+
+    @Test
+    fun skippedHandOffDoesNotPostponeTimer() = runTest {
+        val handoff = CompletableDeferred<Boolean>()
+        var online = true
+        var syncs = 0
+        val driver = SyncTriggerDriver(
+            policy = BackgroundSyncPolicy(
+                syncEnabled = { true }, replacing = { false }, intervalSeconds = { 300 },
+                lastSynchronizedMs = { 0 }, nowMs = { currentTime }, signedIn = { true },
+                signIn = { true }, startSync = { syncs++; CompletableDeferred(true) },
+            ),
+            scope = backgroundScope, leaveHandOff = { handoff }, networkAvailable = { online },
+        )
+        advanceTimeBy(10_000)
+        driver.onBackground()
+        advanceTimeBy(10_000)
+        handoff.complete(false)
+        runCurrent()
+        online = false
+        driver.onForeground()
+        runCurrent()
+        online = true
+        advanceTimeBy(280_000)
+        runCurrent()
+        assertEquals(1, syncs, "a skipped leave must not move the interval deadline")
+    }
+
+    @Test
+    fun skippedHandOffDoesNotSuppressNetworkRestore() = runTest {
+        val handoff = CompletableDeferred<Boolean>()
+        var online = true
+        var syncs = 0
+        val driver = SyncTriggerDriver(
+            policy = BackgroundSyncPolicy(
+                syncEnabled = { true }, replacing = { false }, intervalSeconds = { 300 },
+                lastSynchronizedMs = { 0 }, nowMs = { currentTime }, signedIn = { true },
+                signIn = { true }, startSync = { syncs++; CompletableDeferred(true) },
+            ),
+            scope = backgroundScope, leaveHandOff = { handoff }, networkAvailable = { online },
+        )
+        driver.onBackground()
+        handoff.complete(false)
+        runCurrent()
+        online = false
+        driver.onForeground()
+        runCurrent()
+        online = true
+        driver.onNetworkAvailable()?.join()
+        assertEquals(1, syncs, "a skipped leave must not swallow the next usable network")
     }
 
     @Test
