@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.page
 
 import android.content.Intent
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import com.nhaarman.mockitokotlin2.mock
@@ -58,7 +59,7 @@ class BibleViewSurfaceHtmlExportTest {
         activity = activityController.setup().get()
         // Each Robolectric test has a new filesDir; reattach the real provider to refresh its path strategy.
         val providerInfo = activity.packageManager.resolveContentProvider("${activity.packageName}.provider", 0)!!
-        androidx.core.content.FileProvider().attachInfo(activity, providerInfo)
+        FileProvider().attachInfo(activity, providerInfo)
         val host = mock<ReadingHostActivity>()
         lifecycle = LifecycleRegistry.createUnsafe(host)
         lifecycle.currentState = Lifecycle.State.RESUMED
@@ -88,6 +89,9 @@ class BibleViewSurfaceHtmlExportTest {
         activityController.pause().stop().destroy()
         dispatcher.scheduler.runCurrent()
         exportRoot.deleteRecursively()
+        // Do not leave this sandbox's filesDir cached for the next Robolectric application.
+        FileProvider::class.java.getDeclaredField("sCache").apply { isAccessible = true }
+            .let { (it.get(null) as MutableMap<*, *>).clear() }
         Dispatchers.resetMain()
     }
 

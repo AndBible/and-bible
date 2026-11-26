@@ -124,8 +124,11 @@ class BackupControlTest {
     fun fileProviderResolvesAllSaveOrShareDirectories() {
         val context = RuntimeEnvironment.getApplication()
         val authority = "${context.packageName}.provider"
+        // Rebind roots to this Robolectric application's filesDir, not a preceding test's sandbox.
+        val providerInfo = context.packageManager.resolveContentProvider(authority, 0)!!
+        FileProvider().attachInfo(context, providerInfo)
         // Directories (relative to filesDir) that saveOrShare() callers write into.
-        val saveOrShareDirs = listOf("backup", "export")
+        val saveOrShareDirs = listOf("backup", "export", "export/html/sample-export")
         for (dir in saveOrShareDirs) {
             val targetDir = File(context.filesDir, dir).apply { mkdirs() }
             val file = File(targetDir, "sample.txt").apply { writeText("x") }
