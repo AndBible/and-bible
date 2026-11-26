@@ -68,7 +68,12 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         }
     }
 
-    override fun updateSettings(change: SpeakSettingsChange) {}
+    private var speakSettings = net.bible.android.database.bookmarks.SpeakSettings.load()
+
+    // Whole passages are rendered at setup; changed settings apply from the next start.
+    override fun updateSettings(change: SpeakSettingsChange) {
+        speakSettings = change.speakSettings
+    }
 
     override var isSpeaking: Boolean
         get() = false
@@ -96,7 +101,7 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         this.keyList = keyList
         // first concatenate the number of required chapters
         try {
-            val speakLinks = net.bible.android.database.bookmarks.SpeakSettings.load().playbackSettings.speakLinks
+            val speakLinks = speakSettings.playbackSettings.speakLinks
             for (key in keyList) {
                 // intro
                 textToSpeak.add(key.getName() + ". ")

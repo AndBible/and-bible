@@ -122,6 +122,11 @@ class BibleSpeakTextProvider(
 
     override fun updateSettings(change: SpeakSettingsChange) {
         lock.withLock {
+            if (settings.playbackSettings.speakLinks != change.speakSettings.playbackSettings.speakLinks) {
+                // Restart the audible verse, discarding cached/prefetched text and in-flight calculations.
+                reset()
+                if (this::startVerse.isInitialized) currentVerse = startVerse
+            }
             this.settings = change.speakSettings
             Log.i(TAG, "SpeakSettings updated: $change")
             val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())

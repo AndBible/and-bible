@@ -24,6 +24,13 @@ class SkippedSpeakLinksTest {
     }
 
     @Test
+    fun removedLinksSeparateWordsEvenWithoutSourceWhitespace() {
+        val marker = SkippedSpeakLinks.marker
+        assertEquals("foo bar", SkippedSpeakLinks.clean("foo${marker}bar"))
+        assertEquals("foo bar", SkippedSpeakLinks.cleanParts(listOf("foo", marker, marker, "bar")).joinToString(""))
+    }
+
+    @Test
     fun whitespaceAwayFromSkippedLinksIsUntouched() {
         val marker = SkippedSpeakLinks.marker
         assertEquals("Keep  two\t spaces , ( aside ) before after.",

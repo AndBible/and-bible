@@ -3,6 +3,7 @@ package net.bible.service.device.speak
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.speak.AdvancedSpeakSettings
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.sword.BookAndKey
@@ -128,6 +129,74 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
         assertEquals("Matthew 2:6", testSwordContentFacade().getGenBookSpeakCommands(
             BookAndKey(verse(1), doc, OrdinalRange(1))
         ).filterIsInstance<TextCommand>().joinToString("") { it.text }.trim())
+    }
+
+    @Test
+    fun `Bible provider replaces cached and pending speech after link settings change`() = runBlocking {
+        val doc = sparseCommentary("<p>Before <reference osisRef='Matt.2.9'>link</reference>.</p><note type='study'>Footnote.</note><p>Ending.</p>")
+        val provider = BibleSpeakTextProvider(
+            bibleTraverser, bookmarkControl, doc, FakeSpeakPlatform(FakeSpeakEngine(emptyMap())),
+            testAppSettings(), AdvancedSpeakSettings(testAppSettings()), testOrderedLauncher(), testSwordContentFacade(),
+        )
+        provider.settings = SpeakSettings(PlaybackSettings(speakFootnotes = true, speakTitles = false))
+        provider.setupReading(doc, verse(1))
+        fun change(links: Boolean) = provider.updateSettings(SpeakSettingsChange(
+            provider.settings.copy(playbackSettings = provider.settings.playbackSettings.copy(speakLinks = links)),
+        ))
+        assertEquals("Before Matthew 2:9.", (provider.getNextSpeakCommand("before", isCurrent = true) as TextCommand).text)
+        change(false)
+        val after = provider.getNextSpeakCommand("after", isCurrent = true)
+        assertTrue("Updated speech must restart the current verse, not retain its prefetched note: $after", after is TextCommand)
+        assertEquals("Before.", (after as TextCommand).text)
+        assertEquals(verse(1), provider.getCurrentlyPlayingKey())
+        change(true)
+        assertEquals("Before Matthew 2:9.", (provider.getNextSpeakCommand("on", isCurrent = true) as TextCommand).text)
+        provider.pause()
+        change(false)
+        assertEquals("Before.", (provider.getNextSpeakCommand("resumed", isCurrent = true) as TextCommand).text)
+    }
+
+    @Test
+    fun `General provider restarts current text when link settings change`() = runBlocking {
+        val doc = sparseCommentary("<p>Before. <reference osisRef='Matt.2.9'>link</reference> After.</p>")
+        val provider = GeneralSpeakTextProvider(
+            bookmarkControl, doc, FakeSpeakPlatform(FakeSpeakEngine(emptyMap())), testAppSettings(),
+            AdvancedSpeakSettings(testAppSettings()), testOrderedLauncher(), GlobalContext.get().get(),
+            testSwordContentFacade(), testCoreStrings(), bibleTraverser,
+        )
+        provider.settings = SpeakSettings(PlaybackSettings(speakChapterChanges = false))
+        provider.setupReading(BookAndKey(verse(1), doc, OrdinalRange(0)))
+        assertEquals("Before.", (provider.getNextSpeakCommand("before", isCurrent = true) as TextCommand).text)
+        provider.updateSettings(SpeakSettingsChange(provider.settings.copy(
+            playbackSettings = provider.settings.playbackSettings.copy(speakLinks = false),
+        )))
+        assertEquals("Before.", (provider.getNextSpeakCommand("after", isCurrent = true) as TextCommand).text)
+    }
+
+    @Test
+    fun `legacy provider uses updated speakLinks when reading is set up again`() {
+        val doc = sparseCommentary("<p>Before [<reference osisRef='Matt.2.9'>Matthew 2:9</reference>] after.</p>")
+        val provider = LegacySpeakTextProvider(testAppSettings(), testCoreStrings(), net.bible.android.platform.androidSaxTextPolicy())
+        val initial = SpeakSettings(PlaybackSettings(speakLinks = true))
+        provider.updateSettings(SpeakSettingsChange(initial))
+
+        fun read() = runBlocking {
+            provider.reset()
+            provider.setupReading(doc, listOf(verse(1)))
+            val pieces = mutableListOf<String>()
+            repeat(10) { index ->
+                if (!provider.isMoreTextToSpeak()) return@runBlocking pieces.joinToString("")
+                pieces += (provider.getNextSpeakCommand("legacy-links-$index") as TextCommand).text
+            }
+            pieces.joinToString("")
+        }
+
+        val withLinks = read()
+        provider.updateSettings(SpeakSettingsChange(initial.copy(playbackSettings = initial.playbackSettings.copy(speakLinks = false))))
+        val withoutLinks = read()
+
+        assertTrue(withLinks, withLinks.contains("Matthew 2 verse 9"))
+        assertFalse(withoutLinks, withoutLinks.contains("Matthew 2 verse 9"))
     }
 
     @Test

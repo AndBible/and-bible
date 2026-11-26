@@ -12,6 +12,7 @@ internal object SkippedSpeakLinks {
         val text = parts.joinToString("")
         if (marker !in text) return parts
         val removed = BooleanArray(text.length) { text[it] == marker[0] }
+        val separators = mutableSetOf<Int>()
         val brackets = ArrayList<Int>()
         for (i in text.indices) {
             when (text[i]) {
@@ -44,12 +45,16 @@ internal object SkippedSpeakLinks {
             val space = (start until i).firstOrNull { !removed[it] && text[it].isWhitespace() }
             val keepSpace = start > 0 && i < text.length && text[start - 1] !in "([{" && text[i] !in ",;:.!?)]}"
             for (j in start until i) removed[j] = !(keepSpace && j == space)
+            if (keepSpace && space == null) separators.add(start)
         }
         if (text.indices.none { !removed[it] && text[it].isLetterOrDigit() }) return parts.map { "" }
         var offset = 0
         return parts.map { part ->
             buildString {
-                for (j in part.indices) if (!removed[offset + j]) append(part[j])
+                for (j in part.indices) {
+                    if (offset + j in separators) append(' ')
+                    if (!removed[offset + j]) append(part[j])
+                }
             }.also { offset += part.length }
         }
     }

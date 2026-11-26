@@ -122,6 +122,10 @@ class GeneralSpeakTextProvider(
 
     override fun updateSettings(change: SpeakSettingsChange) {
         lock.withLock {
+            if (settings.playbackSettings.speakLinks != change.speakSettings.playbackSettings.speakLinks) {
+                reset()
+                if (this::startKey.isInitialized) currentKey = startKey
+            }
             this.settings = change.speakSettings
             Log.i(TAG, "SpeakSettings updated: $change")
             val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
