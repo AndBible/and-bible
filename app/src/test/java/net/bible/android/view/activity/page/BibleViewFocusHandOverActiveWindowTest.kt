@@ -226,7 +226,7 @@ class BibleViewFocusHandOverActiveWindowTest {
         crash(view1)
         val replacement = replace(window1)
         view2.isClickable = true
-        assertTrue(view2.performClick())
+        view2.performClick() // View returns false without a click listener; pane selection is the contract.
         loaded(replacement)
         assertEquals(window2.id, repository.activeWindow.id)
         assertTrue(view2.hasFocus())
