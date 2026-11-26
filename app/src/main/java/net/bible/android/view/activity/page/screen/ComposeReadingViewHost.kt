@@ -84,7 +84,6 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
 import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
-import net.bible.android.view.activity.page.BiblePaneFrame
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.KeyIsNull
@@ -1387,7 +1386,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // freshly created WebView still draws its platform-default white over that pane
             // background until its first document finishes loading -- same flash, one layer up.
             AndroidView(modifier = modifier, factory = {
-                val view = activity.readingCommands.bibleViewFactory.getOrCreateBibleView(window).apply {
+                activity.readingCommands.bibleViewFactory.getOrCreateBibleView(window).apply {
                     // Classic parity + safety net: `BibleFrame.build()/recreate()` detach the
                     // BibleView from its old frame before adding it (`BibleFrame.kt:128,147`).
                     // Compose has no equivalent — `AndroidViewHolder.onRelease()` only runs the
@@ -1426,7 +1425,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     )
                     updateBackgroundColor()
                 }
-                BiblePaneFrame(view)
             })
         }
     }

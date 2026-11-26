@@ -1463,7 +1463,6 @@ class BibleView(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.actionMasked == MotionEvent.ACTION_DOWN) rendererRecoveryFocus.userSelected(window.id)
         windowControl.activeWindow = window
 
         val handled = super.onTouchEvent(event)
@@ -1664,17 +1663,7 @@ class BibleView(
         emit(BibleViewEvents.exportHtml())
     }
 
-    internal var rendererRecoveryFocus = RendererRecoveryFocus { windowControl.windowRepository }
-
-    internal fun userSelectedPane() {
-        rendererRecoveryFocus.userSelected(window.id)
-        windowControl.activeWindow = window
-    }
-
-    override fun performClick(): Boolean {
-        userSelectedPane()
-        return super.performClick()
-    }
+    internal lateinit var rendererRecoveryFocus: RendererRecoveryFocus
 
     /** True while [requestFocus] runs for a request made when no view of the window had focus. */
     private var focusRequestWithoutPreviousFocus = false
@@ -1708,7 +1697,7 @@ class BibleView(
                     if (hasFocus() && activeView !== this) activeView?.requestFocus()
                 }
             } else {
-                windowRepository.activeWindow = window
+                rendererRecoveryFocus.focusChanged(window)
             }
         }
         super.onFocusChanged(focused, direction, previouslyFocusedRect)

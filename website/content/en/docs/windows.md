@@ -20,6 +20,8 @@ activate a different window first.
 
 On Android, returning from another app keeps the selected window, including when
 Android has reclaimed the WebView renderer and the reading panes need to reload.
+If you select a different window while the panes reload, that selection takes
+priority. Minimised windows do not need to reload before selection is restored.
 
 When you scroll a synchronised commentary window, its title follows the verse
 range of the entry in view, including when you return to an already-loaded entry.
