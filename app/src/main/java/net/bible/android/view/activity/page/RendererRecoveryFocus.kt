@@ -3,17 +3,26 @@ package net.bible.android.view.activity.page
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.IdType
 import net.bible.sharedcore.event.Subscription
 
 /** Restores the pre-crash pane after replacements load, unless another command selects a pane. */
-internal class RendererRecoveryFocus(private val repository: () -> WindowRepository) {
+internal class RendererRecoveryFocus(
+    private val lifecycle: Lifecycle,
+    private val repository: () -> WindowRepository,
+) {
     private val handler = Handler(Looper.getMainLooper())
     private val pending = mutableSetOf<IdType>()
     private var activeId: IdType? = null
     private var loadingSince: Long? = null
+    private var recoverySince = 0L
+    private val hostObserver = LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_STOP || event == Lifecycle.Event.ON_DESTROY) clear()
+    }
     private var userChoice: IdType? = null
     private var focusDriven = false
     private var selectionChanges: Subscription? = null
@@ -34,7 +43,9 @@ internal class RendererRecoveryFocus(private val repository: () -> WindowReposit
             val now = SystemClock.uptimeMillis()
             if (!mountedLoading) loadingSince = null
             else if (loadingSince == null) loadingSince = now
-            if (!loaded && (loadingSince == null || now - loadingSince!! < 10_000)) {
+            // Missing replacements never start the loading timer, but must not retain the host forever.
+            if (!loaded && now - recoverySince < 30_000 &&
+                (loadingSince == null || now - loadingSince!! < 10_000)) {
                 handler.postDelayed(this, 100)
                 return
             }
@@ -46,8 +57,12 @@ internal class RendererRecoveryFocus(private val repository: () -> WindowReposit
     }
 
     fun rendererGone(windowId: IdType) {
+        if (lifecycle.currentState == Lifecycle.State.CREATED ||
+            lifecycle.currentState == Lifecycle.State.DESTROYED) return
         if (activeId == null) {
+            recoverySince = SystemClock.uptimeMillis()
             activeId = repository().activeWindow.id
+            lifecycle.addObserver(hostObserver)
             // Synchronous delivery keeps the source marker scoped to exactly the focus setter.
             selectionChanges = repository().activeWindowSelections.subscribe { window ->
                 if (!focusDriven) userChoice = window.id
@@ -68,6 +83,7 @@ internal class RendererRecoveryFocus(private val repository: () -> WindowReposit
 
     fun clear() {
         handler.removeCallbacks(check)
+        lifecycle.removeObserver(hostObserver)
         selectionChanges?.cancel()
         selectionChanges = null
         pending.clear()

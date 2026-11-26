@@ -409,6 +409,82 @@ class BibleViewFocusHandOverActiveWindowTest {
         assertTrue(replacement.hasFocus())
     }
 
+    private fun selectionSubscriptionCount(): Int = ReflectionHelpers.getField<List<*>>(
+        repository.activeWindowSelections, "handlers").size
+
+    private fun assertRecoveryReleased(recovery: RendererRecoveryFocus = view1.rendererRecoveryFocus) {
+        val handler = ReflectionHelpers.getField<android.os.Handler>(recovery, "handler")
+        val check = ReflectionHelpers.getField<Runnable>(recovery, "check")
+        assertEquals("Recovery must stop polling and release the selection subscription",
+            false to 0, handler.hasCallbacks(check) to selectionSubscriptionCount())
+    }
+
+    @Test fun missingVisibleReplacementEndsRecoveryAndReleasesSubscription() {
+        setTouchMode(true)
+        makeActive(window2)
+        crash(view1)
+        field.requestFocus()
+        assertEquals(1, selectionSubscriptionCount())
+
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(31))
+
+        assertRecoveryReleased()
+        assertTrue("Restore the surviving pane even if another never re-attaches", view2.hasFocus())
+    }
+
+    @Test fun anotherRendererDeathDoesNotExtendTheOverallRecoveryLimit() {
+        makeActive(window2)
+        crash(view1)
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(20))
+        crash(view2)
+
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(11))
+
+        assertRecoveryReleased()
+    }
+
+    private fun recoveryWithLifecycle(): Pair<androidx.lifecycle.LifecycleRegistry, RendererRecoveryFocus> {
+        val host = org.mockito.Mockito.mock(ReadingHostActivity::class.java)
+        val lifecycle = androidx.lifecycle.LifecycleRegistry(host)
+        org.mockito.Mockito.`when`(host.lifecycle).thenReturn(lifecycle)
+        val testFactory = BibleViewFactory(host, factory.hostCallbacks)
+        return lifecycle to ReflectionHelpers.getField(testFactory, "rendererRecoveryFocus")
+    }
+
+    @Test fun stoppingHostReleasesPendingRecovery() {
+        val (lifecycle, recovery) = recoveryWithLifecycle()
+        lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+        try {
+            recovery.rendererGone(window1.id)
+            assertEquals(1, selectionSubscriptionCount())
+
+            lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP)
+
+            assertRecoveryReleased(recovery)
+            recovery.rendererGone(window1.id)
+            assertRecoveryReleased(recovery)
+
+            lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+            recovery.rendererGone(window1.id)
+            assertEquals("A restarted host can recover again", 1, selectionSubscriptionCount())
+        } finally { recovery.clear() }
+    }
+
+    @Test fun destroyingHostReleasesPendingRecoveryWithoutStop() {
+        val (lifecycle, recovery) = recoveryWithLifecycle()
+        try {
+            recovery.rendererGone(window1.id)
+            assertEquals(1, selectionSubscriptionCount())
+            lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE)
+
+            lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_DESTROY)
+
+            assertRecoveryReleased(recovery)
+            recovery.rendererGone(window1.id)
+            assertRecoveryReleased(recovery)
+        } finally { recovery.clear() }
+    }
+
     @Test fun releasingFocusOutOfTouchModeKeepsTheActiveWindowAndItsFocus() {
         setTouchMode(false)
         makeActive(window2)

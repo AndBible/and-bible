@@ -73,7 +73,7 @@ class BibleViewFactory(
     }
 
     private val windowBibleViewMap: MutableMap<IdType, BibleView> = HashMap()
-    private val rendererRecoveryFocus = RendererRecoveryFocus { windowControl.windowRepository }
+    private val rendererRecoveryFocus = RendererRecoveryFocus(host.lifecycle) { windowControl.windowRepository }
 
     /** Live views of the workspace switched away from, waiting for an incoming window to take them over (#3950). */
     private val spareViews = ArrayDeque<BibleView>()
