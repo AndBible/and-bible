@@ -2,7 +2,7 @@ package net.bible.service.format.osistohtml.osishandlers
 
 /** Removes only punctuation/introductions belonging to skipped links, across SAX chunks or BVA ordinals. */
 internal object SkippedSpeakLinks {
-    const val marker = ""
+    const val marker = "\uE000"
     private val introduction = Regex("\\bsee\\s*(?=$marker)", RegexOption.IGNORE_CASE)
     private val emptyReference = Regex("[\\s,;:.!?\\[\\](){}$marker]|\\bsee\\b", RegexOption.IGNORE_CASE)
 
