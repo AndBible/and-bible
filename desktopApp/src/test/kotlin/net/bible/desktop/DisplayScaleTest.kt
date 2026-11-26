@@ -140,6 +140,39 @@ class DisplayScaleTest {
         }
     }
 
+    @Test fun smallerPresetsApplyAtNormalAndHighDpiWithoutPinningWindows() {
+        for (linux in listOf(true, false)) {
+            for ((percent, native, expected) in listOf(
+                Triple(50, 1.0, 0.5), Triple(60, 1.0, 0.6),
+                Triple(50, 1.25, 0.625), Triple(60, 1.25, 0.75),
+                Triple(50, 2.0, 1.0), Triple(60, 2.0, 1.2),
+            )) {
+                val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                    linux, emptyMap(), { null }, null, "Xft.dpi: ${native * 96}",
+                    windowsScale = native, preferencePercent = percent,
+                ))!!
+                assertEquals(expected, scale.scale, "Linux=$linux, OS=$native, preset=$percent")
+                assertEquals(if (linux) expected else percent / 100.0, scale.composeFactor)
+                val properties = mutableMapOf<String, String>()
+                scale.applyToJdk { key, value -> properties[key] = value }
+                if (linux) assertEquals("1", properties["sun.java2d.uiScale"])
+                else assertTrue(properties.isEmpty(), "A smaller preset must retain per-monitor DPI")
+            }
+        }
+    }
+
+    @Test fun windowedLinuxSmallPresetsStayAtLeastOneWithAnExplanation() {
+        for (percent in listOf(50, 60)) {
+            val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                true, emptyMap(), { null }, null, "Xft.dpi: 96", preferencePercent = percent,
+            ))!!.integerOnly()
+            assertEquals(1.0, scale.scale)
+            assertEquals(1, scale.awtScale)
+            assertEquals(1.0, scale.composeFactor)
+            assertTrue("rounded: Compose popups are own windows" in scale.source)
+        }
+    }
+
     @Test fun linuxPreferenceProductIsClampedToTheMaximumScale() {
         for (env in listOf(emptyMap(), mapOf("GDK_SCALE" to "3"))) {
             val scale = DisplayScaleDetector.detect(DisplayScaleInputs(

@@ -517,6 +517,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val search: String get() = context.getString(R.string.search)
     override val emptyList: String get() = context.getString(R.string.empty_list)
     override fun desktopUiScalePercent(percent: Int): String = context.getString(R.string.desktop_ui_scale_percent, percent)
+    override fun desktopUiScaleCurrentValue(value: String): String = context.getString(R.string.desktop_ui_scale_current_value, value)
     override fun desktopUiScaleEffective(percent: Int, effectivePercent: Int): String = context.getString(R.string.desktop_ui_scale_effective, percent, effectivePercent)
     override fun desktopUiScaleOverridden(percent: Int): String = context.getString(R.string.desktop_ui_scale_overridden, percent)
     override fun desktopUiScaleOverriddenEffective(percent: Int, effectivePercent: Int): String = context.getString(R.string.desktop_ui_scale_overridden_effective, percent, effectivePercent)
