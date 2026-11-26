@@ -179,7 +179,7 @@ class HelpScreenTest {
         onAllNodesWithText(title).assertCountEquals(1)
         onNodeWithText(episodeTitle(Episode.TUTORIAL_03_VERSE_MENU)).assertExists()
         onNodeWithText(title).performClick()
-        assertEquals(listOf(TutorialVideos.url(Episode.TUTORIAL_02_FINDING_YOUR_WAY, "en")), opened)
+        assertEquals(listOf("https://www.youtube.com/watch?v=FESfauIvIBE"), opened)
     }
 
     @Test fun episodeRowsUseThePlainLabelWithoutCaptions() = runComposeUiTest {
@@ -189,16 +189,16 @@ class HelpScreenTest {
         onNodeWithText(strings.helpTabUserGuide).performClick()
         onAllNodesWithText(strings.watchTutorialVideoPlain).assertCountEquals(2)
         onNodeWithText(episodeTitle(episode)).performClick()
-        assertEquals(listOf(TutorialVideos.url(episode, "kk")), opened)
+        assertEquals(listOf("https://www.youtube.com/watch?v=FESfauIvIBE"), opened)
     }
 
-    @Test fun episodeRowsUseTheAppLanguageForTheirUrls() = runComposeUiTest {
+    @Test fun episodeRowsDoNotRequestUnpublishedFinnishCaptions() = runComposeUiTest {
         val opened = mutableListOf<String>()
         val episode = Episode.TUTORIAL_02_FINDING_YOUR_WAY
         show(videos = emptyList(), appLanguage = "fi", opened = opened)
         onNodeWithText(strings.helpTabUserGuide).performClick()
         onNodeWithText(episodeTitle(episode)).performClick()
-        assertEquals(listOf(TutorialVideos.url(episode, "fi")), opened)
+        assertEquals(listOf("https://www.youtube.com/watch?v=FESfauIvIBE"), opened)
     }
 
     @Test fun videoRowWithoutCaptionsUsesThePlainLabel() = runComposeUiTest {

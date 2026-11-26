@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.testTag
@@ -315,6 +317,42 @@ class ReadingHostCompositionTest {
             waitForIdle()
             onNodeWithText("Drawer Row 30").assertIsNotDisplayed()
         }
+    }
+
+    @Test
+    fun openDrawerKeepsItsScrollAfterSavedStateRestore() = runComposeUiTest {
+        val state = newState()
+        val menu = DrawerMenuState(
+            appName = "Drawer Header",
+            groups = listOf(DrawerGroup(null, (1..30).map {
+                DrawerItem("item-$it", "Drawer Row $it", "settings")
+            })),
+            versionText = "1.0",
+        )
+        val deps = deps(state, controller("w1"), drawerMenu = menu)
+        val registry = mutableStateOf<SaveableStateRegistry?>(SaveableStateRegistry(null) { true })
+        setContent {
+            registry.value?.let { reg ->
+                CompositionLocalProvider(LocalSaveableStateRegistry provides reg) {
+                    Themed { ReadingHost(deps) }
+                }
+            }
+        }
+        state.openDrawer()
+        waitForIdle()
+        onNodeWithText("Drawer Row 30").performScrollTo().assertIsDisplayed()
+        val scrollBefore = onNode(hasScrollAction()).fetchSemanticsNode()
+            .config[SemanticsProperties.VerticalScrollAxisRange].value()
+        assertTrue(scrollBefore > 0f)
+        var saved: Map<String, List<Any?>> = emptyMap()
+        runOnIdle { saved = registry.value!!.performSave() }
+        runOnIdle { registry.value = null }
+        waitForIdle()
+        runOnIdle { registry.value = SaveableStateRegistry(saved) { true } }
+        waitForIdle()
+        onNodeWithText("Drawer Row 30").assertIsDisplayed()
+        assertEquals(scrollBefore, onNode(hasScrollAction()).fetchSemanticsNode()
+            .config[SemanticsProperties.VerticalScrollAxisRange].value())
     }
 
     /** #4074: the leading-edge swipe opens the real host's drawer (and its request state); a swipe in the panes does not. */

@@ -321,9 +321,11 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         state.settings.getBoolean("full_screen_hide_buttons_pref", true)
     val md3DrawerState = rememberDrawerState(DrawerValue.Closed)
     val drawerScrollState = rememberScrollState()
-    // The sheet stays composed while closed; reset both toolbar and edge-swipe openings.
-    LaunchedEffect(md3DrawerState.targetValue) {
-        if (md3DrawerState.targetValue == DrawerValue.Open) drawerScrollState.scrollTo(0)
+    // Reset toolbar and edge-swipe openings, not an already-open drawer restored after a config change.
+    LaunchedEffect(md3DrawerState) {
+        snapshotFlow { md3DrawerState.targetValue }
+            .drop(1)
+            .collect { target -> if (target == DrawerValue.Open) drawerScrollState.scrollTo(0) }
     }
     val drawerOpen = state.drawerOpen
     val pane = LocalReadingPane.current

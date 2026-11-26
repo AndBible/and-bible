@@ -114,7 +114,7 @@ const emit = defineEmits<{
 }>();
 
 const {settings: globalSettings, updateSettings} = inject(readingProgressSettingsKey)!;
-const {strings} = useCommon();
+const {strings, appSettings} = useCommon();
 
 const currentWordIndex = ref(0);
 const typeEverything = ref(false);
@@ -269,7 +269,9 @@ function skipPunctuationTokens() {
 
 function updateInputPosition() {
     const text = hiddenInput.value?.parentElement;
-    const activeWord = wordRefs.value[currentWordIndex.value] as HTMLElement | undefined;
+    // Completion adds padding; keep the focused IME anchor beside the last rendered token.
+    const anchorIndex = Math.min(currentWordIndex.value, totalWords.value - 1);
+    const activeWord = wordRefs.value[anchorIndex] as HTMLElement | undefined;
     if (!text || !activeWord) return;
 
     const textRect = text.getBoundingClientRect();
@@ -285,7 +287,7 @@ function scrollToCurrentWord() {
         updateInputPosition();
         const el = wordRefs.value[currentWordIndex.value] as HTMLElement | undefined;
         if (el?.scrollIntoView) {
-            el.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            el.scrollIntoView({behavior: appSettings.disableAnimations ? 'auto' : 'smooth', block: 'nearest'});
             requestAnimationFrame(updateInputPosition);
         }
     });
