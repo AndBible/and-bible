@@ -65,7 +65,7 @@ class LegacyWidgetUpgradeTest {
         val parser = javax.xml.parsers.DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
             .newDocumentBuilder()
         val expected = listOf(
-            listOf("small_speak_control", "40", "40", "40", "40", "4", "1", "horizontal"),
+            listOf("small_speak_control", "110", "40", "40", "40", "4", "1", "horizontal"),
             listOf("middle_speak_control", "110", "40", "40", "40", "4", "1", "horizontal"),
             listOf("large_speak_control", "250", "40", "40", "40", "4", "1", "horizontal"),
             listOf("speak_text_control", "180", "110", "110", "110", "3", "2", "horizontal|vertical"),

@@ -78,7 +78,7 @@ class VerseGlanceWidgetTest {
         val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
         fun verseLines(height: Int): Int = body(long, w = 110, h = height).allViews()
             .filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }.maxLines
-        assertEquals(1, verseLines(110))
+        assertEquals(2, verseLines(110))
         assertTrue("a taller compact widget should show more verse", verseLines(162) >= 3)
     }
 
@@ -102,6 +102,33 @@ class VerseGlanceWidgetTest {
         val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
         assertTrue("the default 4x2 widget must not collapse to one verse line", text.layout.lineCount >= 2)
         text.assertCompleteLines("default 250x110 verse")
+    }
+
+    @Test fun verseLineBudgetReservesFontPaddingAndThePaddedReferenceBlock() {
+        val long = verse.copy(text = "gyp descenders ".repeat(60))
+        val v = body(long, config.copy(showSourceAndDate = false), w = 110, h = 121)
+        val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
+        // 121 - 16 inset - (17 reference + 32 buttons) - 3 font padding = 53 dp: two 18 dp lines.
+        assertEquals(2, text.maxLines)
+        text.assertCompleteLines("padded verse and reference")
+    }
+
+    @Test fun minimumWidgetTradesSourceForASecondVerseLine() {
+        val v = body(verse, w = 110, h = 110)
+        assertFalse(v.texts().any { it.contains("Memory verses") })
+        val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == verse.text }
+        assertEquals(2, text.maxLines)
+        text.assertCompleteLines("two-line minimum verse")
+    }
+
+    @Test fun unavailableBudgetReservesPaddingForBothTextBlocks() {
+        val reason = VerseWidgetContent.Unavailable.Reason.LABEL_EMPTY
+        val v = body(VerseWidgetContent.Unavailable(reason), w = 110, h = 120)
+        val text = v.allViews().filterIsInstance<android.widget.TextView>()
+            .single { it.text.toString() == strings.verseUnavailable(reason) }
+        // 120 - 16 inset - 19 title - 4 gap - 3 explanation padding: four 16 dp lines.
+        assertEquals(4, text.maxLines)
+        text.assertCompleteLines("padded unavailable explanation")
     }
 
     @Test fun minimumWidgetDropsSourceBeforeClippingAnEnlargedVerse() {

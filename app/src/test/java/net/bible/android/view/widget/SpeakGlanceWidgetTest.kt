@@ -114,10 +114,28 @@ class SpeakGlanceWidgetTest {
         }
     }
 
-    @Test fun responsiveMinimumUsesTheRealTwoCellGeometry() {
-        val sizes = (SpeakTextGlanceWidget().sizeMode as androidx.glance.appwidget.SizeMode.Responsive).sizes
-        val smallest = sizes.minBy { it.width.value * it.height.value }
-        assertTrue("two-cell widgets must not render into an obsolete 80 dp bucket", smallest.width >= 110.dp)
+    @Test fun textWidgetUsesTheRealSizeIncludingNarrowTallLayouts() {
+        assertEquals(androidx.glance.appwidget.SizeMode.Exact, SpeakTextGlanceWidget().sizeMode)
+        val longVerse = "gyp descenders ".repeat(60)
+        val v = text(110, 180, speakingState().copy(verseText = longVerse))
+        val verse = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
+        assertEquals(3, verse.maxLines)
+        verse.assertCompleteLines("narrow tall Speak text")
+    }
+
+    @Test fun narrowTextBudgetReservesFontPaddingOncePerBlock() {
+        val longVerse = "gyp descenders ".repeat(60)
+        val originalScale = context.resources.configuration.fontScale
+        try {
+            org.robolectric.RuntimeEnvironment.setFontScale(1.1f)
+            val v = text(110, 110, speakingState().copy(verseText = longVerse))
+            val verse = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
+            // 110 - 16 inset - 36 play - 4 gap - 3 padding: two 18 dp lines, not three.
+            assertEquals(2, verse.maxLines)
+            verse.assertCompleteLines("padded Speak text")
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(originalScale)
+        }
     }
 
     @Test fun minimumTextWidgetKeepsCompleteLinesAtLargerFontSizes() {

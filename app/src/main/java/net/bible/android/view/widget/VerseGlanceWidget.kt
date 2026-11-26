@@ -193,7 +193,8 @@ fun VerseWidgetBody(
     when (content) {
         is VerseWidgetContent.Unavailable -> WidgetRoot(actionStartActivity(verseConfigIntent(context, appWidgetId)), padding = padding) {
             val lineHeight = kotlin.math.ceil(13 * fontScale * 1.2f)
-            val lines = ((height.value - padding.value * 2 - lineHeight - 4) / lineHeight).toInt().coerceIn(1, 5)
+            val fontPadding = kotlin.math.ceil(13 * fontScale * 0.16f)
+            val lines = ((height.value - padding.value * 2 - lineHeight - 4 - fontPadding * 2) / lineHeight).toInt().coerceIn(1, 5)
             Column {
                 WidgetText(strings.verseName, size = 13, bold = true)
                 Spacer(GlanceModifier.height(4.dp))
@@ -207,17 +208,22 @@ fun VerseWidgetBody(
                 Intent(Intent.ACTION_VIEW, Uri.parse(content.link)).setPackage(context.packageName),
             )
             val stackedFooter = !wide && config.showButtons
-            val referenceHeight = kotlin.math.ceil(12 * fontScale * 1.2f)
+            val reference = "${content.reference} · ${content.bibleAbbreviation}"
+            val referenceHeight = kotlin.math.ceil(12 * fontScale * 1.2f) + kotlin.math.ceil(12 * fontScale * 0.16f)
             val footerHeight = when {
                 stackedFooter -> referenceHeight + 32
                 config.showButtons -> maxOf(referenceHeight, 32f)
                 else -> referenceHeight
             }
-            val lineHeight = kotlin.math.ceil((if (tall) 17 else 15) * fontScale * 1.2f)
+            val verseSize = if (tall) 17 else 15
+            val lineHeight = kotlin.math.ceil(verseSize * fontScale * 1.2f)
+            // TextView adds font padding once per block, not once per line.
+            val fontPadding = kotlin.math.ceil(verseSize * fontScale * 0.16f)
             val headerHeight = maxOf(14f, referenceHeight) + 4
-            val verseSpace = height.value - padding.value * 2 - footerHeight
-            // Source/date is optional: do not keep it at the cost of a clipped first verse line.
-            val showSource = config.showSourceAndDate && verseSpace - headerHeight >= lineHeight
+            val verseSpace = height.value - padding.value * 2 - footerHeight - fontPadding
+            // Give the verse a second complete line before keeping the optional source/date row.
+            val preferSecondLine = verseSpace - headerHeight < lineHeight * 2 && verseSpace >= lineHeight * 2
+            val showSource = config.showSourceAndDate && verseSpace - headerHeight >= lineHeight && !preferSecondLine
             val lines = ((verseSpace - if (showSource) headerHeight else 0f) / lineHeight)
                 .toInt().coerceIn(1, if (tall) 8 else if (wide) 3 else 4)
             WidgetRoot(open, padding = padding) {
@@ -244,12 +250,12 @@ fun VerseWidgetBody(
                     }
                     // At the minimum width the controls leave too little room beside the reference.
                     if (stackedFooter) {
-                        WidgetText("${content.reference} · ${content.bibleAbbreviation}", size = 12, bold = true)
+                        WidgetText(reference, size = 12, bold = true)
                     }
                     Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         if (stackedFooter) Spacer(GlanceModifier.defaultWeight())
                         else Column(modifier = GlanceModifier.defaultWeight()) {
-                            WidgetText("${content.reference} · ${content.bibleAbbreviation}", size = 12, bold = true)
+                            WidgetText(reference, size = 12, bold = true)
                         }
                         if (config.showButtons) {
                             WidgetIconButton(

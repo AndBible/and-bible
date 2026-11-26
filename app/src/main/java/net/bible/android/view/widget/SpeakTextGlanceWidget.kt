@@ -19,7 +19,6 @@ package net.bible.android.view.widget
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -52,9 +51,7 @@ internal const val TEXT_MEDIUM_DP = 180
  * 4x2 (+ status line), 4x3 and larger (+ next verse dimmed, progress bar and the full control row).
  */
 class SpeakTextGlanceWidget : GlanceAppWidget() {
-    override val sizeMode = SizeMode.Responsive(
-        setOf(DpSize(110.dp, 110.dp), DpSize(TEXT_MEDIUM_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, TEXT_TALL_DP.dp)),
-    )
+    override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideWidgetContent(context) { state, strings ->
         SpeakTextContent(state, strings, LocalSize.current.width, LocalSize.current.height)
@@ -70,7 +67,8 @@ fun SpeakTextContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp,
         // 2 cells wide: leave whole verse lines above the 36 dp play button and its 4 dp gap.
         val fontScale = LocalContext.current.resources.configuration.fontScale
         val lineHeight = kotlin.math.ceil(13 * fontScale * 1.2f)
-        val lines = ((height.value - 16 - 36 - 4) / lineHeight).toInt().coerceIn(1, 3)
+        val fontPadding = kotlin.math.ceil(13 * fontScale * 0.16f)
+        val lines = ((height.value - 16 - 36 - 4 - fontPadding) / lineHeight).toInt().coerceIn(1, 3)
         WidgetRoot(openAppAction(), padding = 8.dp) {
             Column(modifier = GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Column(modifier = GlanceModifier.defaultWeight()) {
