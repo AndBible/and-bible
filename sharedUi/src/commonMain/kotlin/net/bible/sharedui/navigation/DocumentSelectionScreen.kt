@@ -115,11 +115,13 @@ fun DocumentSelectionScreen(
     onDismissProceed: () -> Unit,
     onNavigateUp: () -> Unit,
     onExitSelection: () -> Unit,
+    bottomBar: @Composable () -> Unit = {},
 ) {
     val strings = LocalStrings.current
 
     AbDocumentListScaffold(
         title = title,
+        bottomBar = bottomBar,
         selectionMode = selectionMode,
         selectedCount = selectedIds.size,
         onNavigateUp = onNavigateUp,

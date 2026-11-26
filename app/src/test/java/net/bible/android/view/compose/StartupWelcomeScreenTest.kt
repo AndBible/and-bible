@@ -16,6 +16,16 @@
  */
 package net.bible.android.view.compose
 
+import android.view.View
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.semantics.SemanticsActions
@@ -66,6 +76,35 @@ class StartupWelcomeScreenTest {
     )
 
     private var scheme: ColorScheme? = null
+    private lateinit var view: View
+
+    @Test
+    @Config(sdk = [35], qualifiers = "h900dp")
+    fun footerClearsNavigationBarAndHeaderClearsStatusBar() {
+        show(state())
+        compose.runOnUiThread {
+            ViewCompat.dispatchApplyWindowInsets(view, WindowInsetsCompat.Builder().build())
+        }
+        compose.waitForIdle()
+        val before = compose.onNodeWithText("AndBible").fetchSemanticsNode().boundsInRoot
+        compose.runOnUiThread {
+            ViewCompat.dispatchApplyWindowInsets(
+                view,
+                WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, 80, 0, 0))
+                    .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, 160))
+                    .build(),
+            )
+        }
+        compose.waitForIdle()
+        val root = compose.onNodeWithTag("test-root").fetchSemanticsNode().boundsInRoot
+        for (label in listOf("Website", "GitHub", "Video")) {
+            val footer = compose.onNodeWithText(label).fetchSemanticsNode().boundsInRoot
+            org.junit.Assert.assertTrue("$label overlaps navigation bar: $footer / $root", footer.bottom <= root.bottom - 160f)
+        }
+        val after = compose.onNodeWithText("AndBible").fetchSemanticsNode().boundsInRoot
+        assertEquals("header must move below status bar", before.top + 80f, after.top, 1f)
+    }
 
     private fun show(
         s: StartupWelcomeState,
@@ -75,14 +114,17 @@ class StartupWelcomeScreenTest {
         ProvideAppLocals {
             AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
                 scheme = MaterialTheme.colorScheme
-                StartupWelcomeScreen(
-                    state = s, appName = "AndBible", logo = null,
-                    onSelectTab = { calls += "tab:$it" },
-                    onDownload = { calls += "download" }, onImport = { calls += "import" },
-                    onRestore = { calls += "restore" }, onRedownload = { calls += "redownload" },
-                    onEasyStart = { calls += "easy" },
-                    onOpenHomepage = { calls += "home" }, onOpenGithub = { calls += "github" },
-                )
+                view = LocalView.current
+                Box(Modifier.fillMaxSize().testTag("test-root")) {
+                    StartupWelcomeScreen(
+                        state = s, appName = "AndBible", logo = null,
+                        onSelectTab = { calls += "tab:$it" },
+                        onDownload = { calls += "download" }, onImport = { calls += "import" },
+                        onRestore = { calls += "restore" }, onRedownload = { calls += "redownload" },
+                        onEasyStart = { calls += "easy" },
+                        onOpenHomepage = { calls += "home" }, onOpenGithub = { calls += "github" },
+                    )
+                }
             }
         }
     }

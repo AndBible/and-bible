@@ -61,6 +61,7 @@ fun AbSelectionScaffold(
     search: AbTopBarSearchState? = null,
     searchCallbacks: AbTopBarSearchCallbacks? = null,
     searchActions: @Composable RowScope.() -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -110,6 +111,7 @@ fun AbSelectionScaffold(
                 )
             }
         },
+        bottomBar = bottomBar,
         // Same content insets as AbScaffold (`abScaffoldContentInsets`, fix batch 2).
         contentWindowInsets = abScaffoldContentInsets(),
         content = content,

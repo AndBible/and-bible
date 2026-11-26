@@ -70,6 +70,7 @@ fun <T> AbDocumentListScaffold(
     groupHeaderLabel: (DocGroupKey) -> String,
     itemKey: (T) -> Any,
     emptyText: String?,
+    bottomBar: @Composable () -> Unit = {},
     row: @Composable (T) -> Unit,
 ) {
     AbSelectionScaffold(
@@ -82,6 +83,7 @@ fun <T> AbDocumentListScaffold(
         search = search,
         searchCallbacks = searchCallbacks,
         selectionActions = selectionActions,
+        bottomBar = bottomBar,
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             filterBar()

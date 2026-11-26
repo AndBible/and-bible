@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -35,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -893,24 +893,20 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 onDismissProceed = controller::dismissProceed,
                 onNavigateUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
                 onExitSelection = controller::clearSelection,
+                bottomBar = {
+                    // Scaffold reserves the measured bar height so the last row stays reachable.
+                    // The bar owns its system inset, including the iOS home-indicator area.
+                    if (firstDownload) {
+                        Button(
+                            onClick = { navController.popOrExit(backStackEntry, deps.exitHost) },
+                            enabled = bibleInstalled,
+                            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
+                        ) {
+                            Text(strings.okay)
+                        }
+                    }
+                },
             )
-
-            // FirstDownload onboarding OK gate, a sibling in the same Box exactly as classic
-            // (:351-364): a bottom button, enabled once a Bible is installed. Classic returned
-            // DownloadKeys.DOWNLOAD_FINISH here; every one of its consumers ignored the code, so
-            // OK is now the ordinary exit this destination already has (plan D7).
-            if (firstDownload) {
-                Button(
-                    onClick = { navController.popOrExit(backStackEntry, deps.exitHost) },
-                    enabled = bibleInstalled,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                ) {
-                    Text(strings.okay)
-                }
-            }
         }
     }
 

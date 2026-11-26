@@ -28,6 +28,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -109,7 +112,8 @@ fun StartupWelcomeScreen(
     val linkOpener = LocalAbLinkOpener.current
     // The footer (version + links) is pinned to the bottom edge; only the content above it scrolls.
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp).testTag("welcome-screen"),
+        modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(24.dp).testTag("welcome-screen"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
