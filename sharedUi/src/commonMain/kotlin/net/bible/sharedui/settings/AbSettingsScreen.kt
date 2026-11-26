@@ -307,6 +307,7 @@ private fun RenderSettingsItem(
                 onLongClick = onLongPress?.let { press -> { press(item.key) } },
                 badge = badge,
                 modifier = rowModifier,
+                summaryMaxLines = item.summaryMaxLines,
             )
         }
 

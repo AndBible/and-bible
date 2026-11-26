@@ -94,16 +94,21 @@ fun AppSettingsScreen(
     val betaKey = "desktop_update_offer_beta"
     val desktopRows = buildList {
         if (scaleSetting != null) {
+            val value = if (scaleSetting.overriddenThisSession) {
+                scaleSetting.effectivePercent?.let { strings.desktopUiScaleOverriddenEffective(scalePercent, it) }
+                    ?: strings.desktopUiScaleOverridden(scalePercent)
+            } else {
+                scaleSetting.effectivePercent?.let { strings.desktopUiScaleEffective(scalePercent, it) }
+                    ?: strings.desktopUiScalePercent(scalePercent)
+            }
             add(SettingsItem.ListChoiceRow(
                 key = DESKTOP_UI_SCALE_KEY, title = strings.desktopUiScaleTitle,
+                summary = strings.desktopUiScaleSummary,
                 entries = DESKTOP_UI_SCALE_PRESETS.map { SettingsItem.Choice(it.toString(), strings.desktopUiScalePercent(it)) },
                 selectedValue = scalePercent.toString(),
-                selectedValueSummary = if (scaleSetting.overriddenThisSession) {
-                    scaleSetting.effectivePercent?.let { strings.desktopUiScaleOverriddenEffective(scalePercent, it) }
-                        ?: strings.desktopUiScaleOverridden(scalePercent)
-                } else scaleSetting.effectivePercent?.let { strings.desktopUiScaleEffective(scalePercent, it) },
+                selectedValueSummary = "${strings.desktopUiScaleSummary}\n${strings.desktopUiScaleCurrentValue(value)}",
+                summaryMaxLines = Int.MAX_VALUE,
             ))
-            add(SettingsItem.InfoRow(key = "desktop_ui_scale_help", title = strings.desktopUiScaleSummary))
         }
         if (updateSetting != null) add(SettingsItem.ListChoiceRow(
             key = updateKey, title = strings.desktopUpdateSettingTitle,

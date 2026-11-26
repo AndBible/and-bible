@@ -229,6 +229,7 @@ fun AbSettingsRow(
     onLongClick: (() -> Unit)? = null,
     badge: String? = null,
     modifier: Modifier = Modifier,
+    summaryMaxLines: Int = 1,
 ) {
     val mono = LocalDisplayColorMode.current.isInkBase
     val disabled = LocalAbColors.current.monoDisabled
@@ -274,7 +275,7 @@ fun AbSettingsRow(
                         summary,
                         style = MaterialTheme.typography.bodySmall,
                         color = if (mono && !enabled) disabled else MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
+                        maxLines = summaryMaxLines,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }

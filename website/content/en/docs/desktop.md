@@ -94,14 +94,17 @@ The interface and the WebView2 reading pane use the same density; moving the win
 lets Windows update its native DPI rather than applying that scale twice.
 
 To make the whole interface smaller or larger, open **Application preferences** and choose **UI scale**
-(75%, 100%, 125%, 150%, 175% or 200%), then close and restart AndBible. This preference is available
-only in the Windows and Linux desktop builds, not on macOS. It multiplies your display scale: 75% on a
-Windows display set to 150% gives an interface at 112.5%. On Windows it scales Compose menus, toolbars,
-dialogs and controls, and the WebView2 reading pane follows the same scale (including document text and
-inline controls). It does not change the document's font-size setting or the Windows desktop scale.
+(50%, 60%, 67%, 75%, 80%, 90%, 100%, 110%, 125%, 150%, 175% or 200%), then close and restart AndBible.
+The row explains what the setting changes and ends with **Current value: 100%** (or your chosen value).
+This preference is available only in the Windows and Linux desktop builds, not on macOS.
+It multiplies your display scale: 75% on a Windows display set to 150% gives an interface at 112.5%.
+At a 100% display scale, the 50% preset gives a 50% interface on Windows and the normal Linux off-screen
+engine. On Windows it scales Compose menus, toolbars, dialogs and controls, and the WebView2 reading
+pane follows the same scale (including document text and inline controls). It does not change the document's font-size setting or the Windows desktop scale.
 At startup, the detected scale multiplied by the preset is limited to 50%-400%; for example, a 300% display with the 200% preset uses 400%, not 600%.
-The default is 100%. It is stored on this device, not synchronized. The **font size multiplier** remains
-separate: it changes document text, not menus and toolbars.
+The default is 100%, which follows the operating system's scale without adjustment; AndBible does not
+shrink the interface automatically based on screen size. The preference is stored on this device, not
+synchronized. The **font size multiplier** remains separate: it changes document text, not menus and toolbars.
 
 For troubleshooting, `ANDBIBLE_UI_SCALE` or `-Dandbible.uiScale` sets an absolute app scale and takes
 precedence over this preference on Windows and Linux. Explicit JDK scale settings (`-Dsun.java2d.uiScale`
@@ -131,7 +134,7 @@ ANDBIBLE_UI_SCALE=1.5 andbible
 Good to know:
 
 - The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
-- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. For example, 125% becomes 100% and 150% becomes 200%. The **UI scale** row shows both your chosen preset and the effective scale for the current session, for example **125% (this session: 200%)**. Changing a preset updates the chosen percentage immediately, but the effective session scale stays unchanged until restart. The normal off-screen engine supports fractional scales.
+- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. The result is at least 100%: at a 100% desktop scale, the 50% and 60% presets both stay at 100% in this fallback mode. For example, a final scale of 125% becomes 100% and 150% becomes 200%. The **UI scale** row includes its description and both your chosen preset and the effective scale for the current session, for example **Current value: 125% (this session: 200%)**. Changing a preset updates the chosen percentage immediately, but the effective session scale stays unchanged until restart. The normal off-screen engine supports fractional scales.
 - `GDK_SCALE` is treated as a detected desktop scale, so the UI scale preference multiplies it. It does not mark the preference as overridden.
 - Explicit `-Dsun.java2d.uiScale` and `J2D_UISCALE` values take precedence over the UI scale preference, as does disabling JDK scaling with `-Dsun.java2d.uiScale.enabled=false`.
 - On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.

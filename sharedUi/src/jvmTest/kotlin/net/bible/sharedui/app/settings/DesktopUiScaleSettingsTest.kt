@@ -15,6 +15,7 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedui.desktop.settings.PersistentDesktopUiScaleSetting
 import net.bible.sharedui.settings.AppSettingsScreen
 import net.bible.sharedui.settings.DesktopUiScaleSetting
+import net.bible.sharedui.settings.DESKTOP_UI_SCALE_PRESETS
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
@@ -35,22 +36,26 @@ class DesktopUiScaleSettingsTest {
             val prefs = DesktopDeviceSettings(path)
             val setting = PersistentDesktopUiScaleSetting(prefs)
             assertEquals(100, setting.percent)
-            for (percent in listOf(75, 100, 125, 150, 175, 200)) {
+            for (percent in listOf(50, 60, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200)) {
                 setting.setPercent(percent)
                 assertEquals(percent, PersistentDesktopUiScaleSetting(DesktopDeviceSettings(path)).percent)
                 val disk = Properties().apply { Files.newBufferedReader(path).use { load(it) } }
                 assertEquals(percent.toString(), disk.getProperty("desktop_ui_scale_percent"))
             }
-            assertFailsWith<IllegalArgumentException> { setting.setPercent(110) }
+            assertFailsWith<IllegalArgumentException> { setting.setPercent(55) }
             assertEquals(200, setting.percent)
             prefs.putString("desktop_ui_scale_percent", "invalid")
             assertEquals(100, setting.percent)
-            prefs.putString("desktop_ui_scale_percent", "110")
+            prefs.putString("desktop_ui_scale_percent", "55")
             assertEquals(100, setting.percent)
         } finally {
             Files.deleteIfExists(path)
             Files.deleteIfExists(directory)
         }
+    }
+
+    @Test fun presetsAreOrderedAndDistinct() {
+        assertEquals(listOf(50, 60, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200), DESKTOP_UI_SCALE_PRESETS)
     }
 
     @Test fun scaleBindingIsAbsentOnUnsupportedHosts() {
@@ -109,18 +114,18 @@ class DesktopUiScaleSettingsTest {
                         }
                     }
                 }
-                onNodeWithText("100% (this session: 200%)").assertExists()
+                onNode(hasText("UI scale") and hasText("Restart required.", substring = true) and
+                    hasText("Current value: 100% (this session: 200%)", substring = true)).assertExists()
                 onNodeWithText("UI scale").performClick()
                 onNodeWithText("75%").performClick()
-                onNodeWithText("75% (this session: 200%)").assertExists()
+                onNodeWithText("Current value: 75% (this session: 200%)", substring = true).assertExists()
                 assertEquals(75, app.koin.get<DesktopUiScaleSetting>().percent)
                 val layouts = mutableListOf<TextLayoutResult>()
-                onNodeWithText("75% (this session: 200%)", useUnmergedTree = true)
+                onNodeWithText("Current value: 75% (this session: 200%)", substring = true, useUnmergedTree = true)
                     .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                 assertEquals(1, layouts.size)
-                assertFalse(layouts.single().isLineEllipsized(0), "Effective scale must not be ellipsized")
-                assertEquals(layouts.single().layoutInput.text.length, layouts.single().getLineEnd(0, visibleEnd = true),
-                    "Effective scale must fit on the visible summary line")
+                assertFalse((0 until layouts.single().lineCount).any { layouts.single().isLineEllipsized(it) },
+                    "Effective scale must not be ellipsized")
                 System.getenv("UI_SCALE_EVIDENCE_DIR")?.let { directory ->
                     val file = File(directory, "effective-scale-${if (dark) "dark" else "light"}-${mode.name.lowercase()}.png")
                     file.parentFile.mkdirs()
@@ -135,8 +140,8 @@ class DesktopUiScaleSettingsTest {
     }
 
     @Test fun explicitOverrideIsExplainedWithoutHidingChosenPreset() {
-        checkOverrideSummary(null, "125% (overridden this session)", "75% (overridden this session)")
-        checkOverrideSummary(200, "125% (overridden this session: 200%)", "75% (overridden this session: 200%)")
+        checkOverrideSummary(null, "Current value: 125% (overridden this session)", "Current value: 75% (overridden this session)")
+        checkOverrideSummary(200, "Current value: 125% (overridden this session: 200%)", "Current value: 75% (overridden this session: 200%)")
     }
 
     private fun checkOverrideSummary(effectivePercent: Int?, before: String, after: String) {
@@ -160,17 +165,16 @@ class DesktopUiScaleSettingsTest {
                         }
                     }
                 }
-                onNodeWithText(before).assertExists()
+                onNodeWithText(before, substring = true).assertExists()
                 val initialLayouts = mutableListOf<TextLayoutResult>()
-                onNodeWithText(before, useUnmergedTree = true)
+                onNodeWithText(before, substring = true, useUnmergedTree = true)
                     .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(initialLayouts) }
-                assertFalse(initialLayouts.single().isLineEllipsized(0))
-                assertEquals(before.length, initialLayouts.single().getLineEnd(0, visibleEnd = true))
+                assertFalse((0 until initialLayouts.single().lineCount).any { initialLayouts.single().isLineEllipsized(it) })
                 onNodeWithText("UI scale").performClick()
                 onNodeWithText("75%").performClick()
-                onNodeWithText(after).assertExists()
+                onNodeWithText(after, substring = true).assertExists()
                 val layouts = mutableListOf<TextLayoutResult>()
-                onNodeWithText(after, useUnmergedTree = true)
+                onNodeWithText(after, substring = true, useUnmergedTree = true)
                     .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                 assertEquals(75, app.koin.get<DesktopUiScaleSetting>().percent)
                 System.getenv("UI_SCALE_EVIDENCE_DIR")?.let { directory ->
@@ -180,9 +184,8 @@ class DesktopUiScaleSettingsTest {
                     file.writeBytes(checkNotNull(image.encodeToData()).bytes)
                 }
                 val layout = layouts.single()
-                assertFalse(layout.isLineEllipsized(0), "Override and session value must not be ellipsized")
-                assertEquals(after.length, layout.getLineEnd(0, visibleEnd = true),
-                    "Override and session value must fit on the visible summary line")
+                assertFalse((0 until layout.lineCount).any { layout.isLineEllipsized(it) },
+                    "Override and session value must not be ellipsized")
             }
         } finally {
             app.close()
@@ -219,16 +222,24 @@ class DesktopUiScaleSettingsTest {
                             }
                         }
                     }
-                    onNodeWithText("Restart required.", substring = true).assertExists()
-                    onNodeWithText("UI scale").assertExists().performClick()
-                    onNodeWithText("150%").assertExists().performClick()
+                    onNode(hasText("UI scale") and hasText("Restart required.", substring = true) and
+                        hasText("Current value: ${setting.percent}%", substring = true)).assertExists()
+                    onAllNodesWithText("Restart required.", substring = true).assertCountEquals(1)
+                    for (percent in listOf(50, 60)) {
+                        onNodeWithText("UI scale").assertExists().performClick()
+                        onNodeWithText("$percent%").assertExists().performClick()
+                        onNodeWithText("Current value: $percent%", substring = true).assertExists()
+                        assertEquals(percent, setting.percent)
+                    }
+                    onNodeWithText("UI scale").performClick()
+                    onNodeWithText("150%").performScrollTo().assertIsDisplayed().performClick()
                     runOnIdle {
                         assertEquals(150, setting.percent)
                         val disk = Properties().apply { Files.newBufferedReader(path).use { load(it) } }
                         assertEquals("150", disk.getProperty("desktop_ui_scale_percent"))
                         prefs.putInt("desktop_ui_scale_percent", 175)
                     }
-                    onNodeWithText("175%", substring = true).assertExists()
+                    onNodeWithText("Current value: 175%", substring = true).assertExists()
                 }
             }
         } finally {

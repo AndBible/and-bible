@@ -12,5 +12,5 @@ interface DesktopUiScaleSetting {
 }
 
 const val DESKTOP_UI_SCALE_KEY = "desktop_ui_scale_percent"
-val DESKTOP_UI_SCALE_PRESETS = listOf(75, 100, 125, 150, 175, 200)
+val DESKTOP_UI_SCALE_PRESETS = listOf(50, 60, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200)
 const val DESKTOP_UI_SCALE_DEFAULT = 100

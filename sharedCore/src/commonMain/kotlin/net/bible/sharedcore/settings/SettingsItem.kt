@@ -36,6 +36,7 @@ sealed interface SettingsItem {
         val enabled: Boolean = true,
         /** Overrides the selected label in the row, without changing the labels in the choice dialog. */
         val selectedValueSummary: String? = null,
+        val summaryMaxLines: Int = 1,
     ) : SettingsItem
 
     /** Opens a text/numeric editor dialog. [value] is the current display value. */
