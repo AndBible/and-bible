@@ -114,6 +114,60 @@ class SpeakGlanceWidgetTest {
         }
     }
 
+    @Test fun textWidgetUsesTheRealSizeIncludingNarrowTallLayouts() {
+        assertEquals(androidx.glance.appwidget.SizeMode.Exact, SpeakTextGlanceWidget().sizeMode)
+        val longVerse = "gyp descenders ".repeat(60)
+        val v = text(110, 180, speakingState().copy(verseText = longVerse))
+        val verse = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
+        assertEquals(3, verse.maxLines)
+        verse.assertCompleteLines("narrow tall Speak text")
+    }
+
+    @Test fun narrowTextBudgetReservesFontPaddingOncePerBlock() {
+        val longVerse = "gyp descenders ".repeat(60)
+        val originalScale = context.resources.configuration.fontScale
+        try {
+            org.robolectric.RuntimeEnvironment.setFontScale(1.1f)
+            val v = text(110, 110, speakingState().copy(verseText = longVerse))
+            val verse = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
+            // 110 - 16 inset - 36 play - 4 gap - 3 padding: two 18 dp lines, not three.
+            assertEquals(2, verse.maxLines)
+            verse.assertCompleteLines("padded Speak text")
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(originalScale)
+        }
+    }
+
+    @Test fun minimumTextWidgetKeepsCompleteLinesAtLargerFontSizes() {
+        val longVerse = "The LORD is my shepherd; I shall not want. ".repeat(15)
+        val originalScale = context.resources.configuration.fontScale
+        try {
+            for (scale in listOf(1f, 1.3f)) {
+                org.robolectric.RuntimeEnvironment.setFontScale(scale)
+                val v = text(110, 110, speakingState().copy(verseText = longVerse))
+                v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
+                    .assertCompleteLines("Speak text responsive minimum, fontScale $scale")
+            }
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(originalScale)
+        }
+    }
+
+    @Test fun smallestTextWidgetClipsLongVerseWithoutHidingPlay() {
+        val longVerse = "The LORD is my shepherd; I shall not want. ".repeat(15)
+        for (mode in WidgetMode.entries) {
+            val state = speakingState().copy(verseText = longVerse)
+            val v = renderWidget(context, 110, 110, mode) { SpeakTextContent(state, strings, 110.dp, 110.dp) }
+            val play = v.byDescription(s(R.string.pause))!!
+            val bounds = android.graphics.Rect()
+            assertTrue("$mode play button is visible", play.getGlobalVisibleRect(bounds))
+            assertEquals("$mode play button is not vertically clipped", play.height, bounds.height())
+            val verse = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
+            verse.assertCompleteLines("$mode minimum Speak text")
+            assertEquals(android.text.TextUtils.TruncateAt.END, verse.ellipsize)
+        }
+    }
+
     @Test fun textWidgetThreeToFourCellsBreakAtTheLauncherMinimums() {
         assertNotNull(text(180, 110, speakingState()).byDescription(s(R.string.previous)))
         assertNull("249 dp is still 3 cells wide, no status line", text(249, 130, speakingState()).texts().firstOrNull { it == "Psalm 23:1 · 34 % · WEB" })

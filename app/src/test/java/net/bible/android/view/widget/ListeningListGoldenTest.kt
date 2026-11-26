@@ -32,6 +32,9 @@ class ListeningListGoldenTest {
             val full = speakingState().copy(listening = rows)
             captureWidget(context, "listening_2x2", 162, 162, mode) { ListeningListContent(full, strings, 162.dp, 162.dp) }
             captureWidget(context, "listening_4x3", 334, 278, mode) { ListeningListContent(full, strings, 334.dp, 278.dp) }
+            val stopped = stoppedState().copy(listening = rows.map { it.copy(current = false) })
+            captureWidget(context, "listening_4x3_stopped", 334, 278, mode) { ListeningListContent(stopped, strings, 334.dp, 278.dp) }
+            captureWidget(context, "listening_minimum", 110, 110, mode) { ListeningListContent(stopped, strings, 110.dp, 110.dp) }
             captureWidget(context, "listening_4x2_empty", 334, 182, mode) { ListeningListContent(stoppedState(), strings, 334.dp, 182.dp) }
         }
     }

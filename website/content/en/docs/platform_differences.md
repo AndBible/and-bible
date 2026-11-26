@@ -47,8 +47,8 @@ resized, and shows more the larger it is. Tapping the background of a widget ope
 
 | Widget | Size (cells) | Shows and does |
 |---|---|---|
-| Speak | 2×1 to 5×1 | 2×1: play/pause and the verse being read with its progress. 3×1: also a progress bar, previous and next verse and the sleep timer button. 4×1: also the title and rewind, stop and fast-forward. 5×1: also the status line and the time left on the sleep timer. |
-| Speak with text | 3×2 to 5×4 | The title, the verse being spoken and previous, play/pause and next. Wider: the status line. 4×3 or larger: also the next verse, the progress bar, and rewind, fast-forward, stop and the sleep timer. |
+| Speak | 1×1 to 5×1 | 1×1: just play/pause. 2×1: play/pause and the verse being read with its progress. 3×1: also a progress bar, previous and next verse and the sleep timer button. 4×1: also the title and rewind, stop and fast-forward. 5×1: also the status line and the time left on the sleep timer. |
+| Speak with text | 2×2 to 5×4 | 2×2: the verse and play/pause. 3×2: the title, the verse being spoken and previous, play/pause and next. Wider: the status line. 4×3 or larger: also the next verse, the progress bar, and rewind, fast-forward, stop and the sleep timer. |
 | Listening list | 2×2 to 5×5 | Your [Speak bookmarks](speak.md#text-follows-speech-and-bookmarks) as rows with the Bible reference, the Bible, a repeat symbol when the bookmark has a repeat range, and the progress in the book. The row being read is highlighted and shows a pause symbol. Tap a row to start speaking from that bookmark. |
 | Verse | 2×2 to 5×4 | One verse, with its source and the date, its reference and Bible, and buttons to speak it or shuffle to another one. Tap the verse to open it in AndBible. |
 
@@ -56,7 +56,8 @@ resized, and shows more the larger it is. Tapping the background of a widget ope
 - The sleep timer button turns the [sleep timer](speak.md#sleep-timer) on and off. When switched on, it uses the last time you set, and the widget shows the minutes left.
 - Previous and next move one verse.
 - The Listening list shows as many rows as fit. Until you have Speak bookmarks it says so and explains how to get them: turn on **Automatic bookmarking** in the Speak settings, or give any bookmark the Speak label.
-- The old Small, Middle and Large speak control, Speak text control and Speak bookmarks widgets that you may have placed earlier keep working: they now look like the Speak, Speak with text and Listening list widgets. An old widget that was placed smaller than the new ones can be (a single cell, or two cells wide for Speak with text) shows just the play/pause button, or the verse and play/pause. The widget list shows only the four widgets above on newer Android versions.
+- Speak and Verse start four cells wide; you can resize them afterwards. The smallest available size depends on your launcher's grid. Below four cells wide, Verse puts the reference above the speak and shuffle buttons so it stays readable. A short Verse widget may hide the source and date to make room for two complete verse lines, or to keep a complete line visible at larger system font sizes. Android widgets refresh when the system font size changes; a narrow, tall Speak with text widget uses the extra height for more verse lines.
+- The old Small, Middle and Large speak control, Speak text control and Speak bookmarks widgets that you may have placed earlier keep working: they now look like the Speak, Speak with text and Listening list widgets, including the smaller layouts. The widget list shows only the four widgets above on newer Android versions.
 
 #### Verse widget {#verse-widget}
 

@@ -25,7 +25,6 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
@@ -82,9 +81,8 @@ import kotlin.random.Random
  * three hours or only on shuffle. 2x2, 4x2 and 4x3+ layouts. The verse of a period is stable ([VerseSelector]).
  */
 class VerseGlanceWidget : GlanceAppWidget() {
-    override val sizeMode = SizeMode.Responsive(
-        setOf(DpSize(110.dp, 110.dp), DpSize(250.dp, 110.dp), DpSize(250.dp, 180.dp)),
-    )
+    // Whole-line clipping and compact/tall layouts need the actual space the launcher provides.
+    override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
@@ -190,12 +188,17 @@ fun VerseWidgetBody(
     height: Dp,
 ) {
     val context = LocalContext.current
+    val fontScale = context.resources.configuration.fontScale
+    val padding = if (height < 180.dp) 8.dp else 12.dp
     when (content) {
-        is VerseWidgetContent.Unavailable -> WidgetRoot(actionStartActivity(verseConfigIntent(context, appWidgetId))) {
+        is VerseWidgetContent.Unavailable -> WidgetRoot(actionStartActivity(verseConfigIntent(context, appWidgetId)), padding = padding) {
+            val lineHeight = kotlin.math.ceil(13 * fontScale * 1.2f)
+            val fontPadding = kotlin.math.ceil(13 * fontScale * 0.16f)
+            val lines = ((height.value - padding.value * 2 - lineHeight - 4 - fontPadding * 2) / lineHeight).toInt().coerceIn(1, 5)
             Column {
                 WidgetText(strings.verseName, size = 13, bold = true)
                 Spacer(GlanceModifier.height(4.dp))
-                WidgetText(strings.verseUnavailable(content.reason), size = 13, maxLines = 5)
+                WidgetText(strings.verseUnavailable(content.reason), size = 13, maxLines = lines)
             }
         }
         is VerseWidgetContent.Verse -> {
@@ -204,9 +207,28 @@ fun VerseWidgetBody(
             val open: Action = actionStartActivity(
                 Intent(Intent.ACTION_VIEW, Uri.parse(content.link)).setPackage(context.packageName),
             )
-            WidgetRoot(open) {
+            val stackedFooter = !wide && config.showButtons
+            val reference = "${content.reference} · ${content.bibleAbbreviation}"
+            val referenceHeight = kotlin.math.ceil(12 * fontScale * 1.2f) + kotlin.math.ceil(12 * fontScale * 0.16f)
+            val footerHeight = when {
+                stackedFooter -> referenceHeight + 32
+                config.showButtons -> maxOf(referenceHeight, 32f)
+                else -> referenceHeight
+            }
+            val verseSize = if (tall) 17 else 15
+            val lineHeight = kotlin.math.ceil(verseSize * fontScale * 1.2f)
+            // TextView adds font padding once per block, not once per line.
+            val fontPadding = kotlin.math.ceil(verseSize * fontScale * 0.16f)
+            val headerHeight = maxOf(14f, referenceHeight) + 4
+            val verseSpace = height.value - padding.value * 2 - footerHeight - fontPadding
+            // Give the verse a second complete line before keeping the optional source/date row.
+            val preferSecondLine = verseSpace - headerHeight < lineHeight * 2 && verseSpace >= lineHeight * 2
+            val showSource = config.showSourceAndDate && verseSpace - headerHeight >= lineHeight && !preferSecondLine
+            val lines = ((verseSpace - if (showSource) headerHeight else 0f) / lineHeight)
+                .toInt().coerceIn(1, if (tall) 8 else if (wide) 3 else 4)
+            WidgetRoot(open, padding = padding) {
                 Column(modifier = GlanceModifier.fillMaxWidth()) {
-                    if (config.showSourceAndDate) {
+                    if (showSource) {
                         Row(
                             modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity(verseConfigIntent(context, appWidgetId))),
                             verticalAlignment = Alignment.CenterVertically,
@@ -223,11 +245,17 @@ fun VerseWidgetBody(
                         Spacer(GlanceModifier.height(4.dp))
                     }
                     Column(modifier = GlanceModifier.defaultWeight()) {
-                        WidgetText(content.text, size = if (tall) 17 else 15, maxLines = if (tall) 8 else if (wide) 3 else 4)
+                        // RemoteViews otherwise clips a partly visible last line instead of ellipsising it.
+                        WidgetText(content.text, size = if (tall) 17 else 15, maxLines = lines)
+                    }
+                    // At the minimum width the controls leave too little room beside the reference.
+                    if (stackedFooter) {
+                        WidgetText(reference, size = 12, bold = true)
                     }
                     Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = GlanceModifier.defaultWeight()) {
-                            WidgetText("${content.reference} · ${content.bibleAbbreviation}", size = 12, bold = true)
+                        if (stackedFooter) Spacer(GlanceModifier.defaultWeight())
+                        else Column(modifier = GlanceModifier.defaultWeight()) {
+                            WidgetText(reference, size = 12, bold = true)
                         }
                         if (config.showButtons) {
                             WidgetIconButton(
