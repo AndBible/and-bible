@@ -29,6 +29,7 @@ import net.bible.service.sword.SwordContentFacade
 import fi.sykero.kdom.Document
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.query.descendantElements
+import fi.sykero.kdom.query.descendantTexts
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedlogic.platform.EpubStoreEdge
 import net.bible.sharedlogic.util.decodeUrl
@@ -37,9 +38,8 @@ import org.koin.mp.KoinPlatform
 
 private val urlRe = Regex("""^https?://.*""")
 
-const val EPUB_OPTIMIZER_VERSION = 2
-internal const val EPUB_DOCUMENT_TITLE = "data-andbible-document-title"
-internal val EPUB_HEADINGS = setOf("h1", "h2", "h3", "h4", "h5", "h6")
+const val EPUB_OPTIMIZER_VERSION = 3
+private val EPUB_HEADINGS = setOf("h1", "h2", "h3", "h4", "h5", "h6")
 
 fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     val file = fileForOriginalId(origId)?: return Pair(null, 0)
@@ -89,12 +89,6 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
             val processed = fixReferences(it.rootElement)
             val body = XmlQueries.body(processed, xhtmlNamespace)
                 ?: return Pair(null, 0)
-            // Only the body survives optimization; carry its document title into every split fragment.
-            val title = processed.children.firstOrNull { it.name == "head" }?.children
-                ?.firstOrNull { it.name == "title" }?.value?.trim()?.takeIf { it.isNotEmpty() }
-                ?: body.descendantElements().firstOrNull { it.name in EPUB_HEADINGS && it.value.isNotBlank() }
-                    ?.value?.trim()
-            title?.let { body.setAttribute(EPUB_DOCUMENT_TITLE, it) }
             val maxOrdinal = SwordContentFacade.addAnchors(body, getBookMetaData().language.code, true)
             Pair(it, maxOrdinal)
         }
@@ -186,11 +180,11 @@ fun EpubBackendState.optimizeEpub() {
             bvas.last().getAttribute("ordinal")!!.intValue
     }
 
-    fun splitIntoFragments(originalId: String, origDocument: Document, maxOrdinal: Int): List<EpubFragment> {
+    fun splitIntoFragments(originalId: String, origDocument: Document, maxOrdinal: Int, title: String?, hasText: Boolean): List<EpubFragment> {
         return splitIntoN(origDocument, 0..maxOrdinal, maxOrdinal/ORDINALS_PER_FRAGMENT).mapNotNull {
             val ordinalRange = getOrdinalRange(it)
             if (ordinalRange == null) null
-            else EpubFragment(originalId = originalId, ordinalRange.first, ordinalRange.last).apply {
+            else EpubFragment(originalId, ordinalRange.first, ordinalRange.last, title = title, hasText = hasText).apply {
                 element=it.rootElement
             }
         }
@@ -228,8 +222,14 @@ fun EpubBackendState.optimizeEpub() {
         val (origDocument, maxOrdinal) = readOriginal(k)
         origDocument ?: continue
 
-        val fragments = splitIntoFragments(k, origDocument, maxOrdinal).let {
-            it.ifEmpty{ listOf(EpubFragment(k, 0, 0).apply { element = origDocument.rootElement }) }
+        val body = XmlQueries.body(origDocument.rootElement, xhtmlNamespace)!!
+        val documentTitle = origDocument.rootElement.children.firstOrNull { it.name == "head" }?.children
+            ?.firstOrNull { it.name == "title" }?.value?.trim()?.takeIf { it.isNotEmpty() }
+        val chapterTitle = body.descendantElements().firstOrNull { it.name in EPUB_HEADINGS && it.value.isNotBlank() }
+            ?.value?.trim() ?: documentTitle?.takeUnless { it == getBookMetaData().name }
+        val hasText = body.descendantTexts().any { it.text.isNotBlank() }
+        val fragments = splitIntoFragments(k, origDocument, maxOrdinal, chapterTitle, hasText).let {
+            it.ifEmpty { listOf(EpubFragment(k, 0, 0, title = chapterTitle, hasText = hasText).apply { element = origDocument.rootElement }) }
         }
         val head = origDocument.rootElement.children.find { it.name == "head" }!!
         val styleSheets = head.children

@@ -451,9 +451,19 @@ class EpubBackendStateTest {
         chapter.writeText(chapter.readText().replace("<p>", "<p id=\"target\">"))
         val state = newState(dir)
         val toc = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
-        assertEquals(listOf("Second section", "Chapter One"), toc.map { it.getName() })
-        assertEquals(listOf("target", null), toc.map { it.htmlId })
-        assertTrue(state.read(toc[1].key).contains("first chapter"))
+        assertEquals(listOf("Chapter One", "Second section"), toc.map { it.getName() })
+        assertEquals(listOf(null, "target"), toc.map { it.htmlId })
+        assertTrue(state.read(toc[0].key).contains("first chapter"))
+    }
+
+    @Test fun partialTocInsertsMiddleChapterAtItsSpinePosition() = runTest {
+        val dir = tocFixture("toc-middle", navPoint("First", "ch1.xhtml") + navPoint("Third", "ch3.xhtml"))
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText()
+            .replace("</manifest>", "<item id=\"ch3\" href=\"ch3.xhtml\" media-type=\"application/xhtml+xml\"/></manifest>")
+            .replace("</spine>", "<itemref idref=\"ch3\"/></spine>"))
+        File(dir, "OEBPS/ch3.xhtml").writeText(chapterXhtml("Chapter Three", "Third chapter prose."))
+        assertEquals(listOf("First", "Chapter Two", "Third"), newState(dir).tocKeys().map { it.getName() })
     }
 
     @Test fun fallbackListsSplitSpineDocumentOnceAtItsFirstFragment() = runTest {
@@ -485,24 +495,48 @@ class EpubBackendStateTest {
         assertEquals(names, listOf(state.getKey("ch1", "")!!.getName(), state.getKey("ch2", "")!!.getName()))
     }
 
-    @Test fun legacySplitDocumentUsesFirstHeadingRegardlessOfKeyLookupOrder() = runTest {
-        val dir = tocFixture("legacy-title-order", null)
-        File(dir, "OEBPS/ch1.xhtml").writeText("""
-            <html xmlns="http://www.w3.org/1999/xhtml"><head><title>Legacy title</title></head>
-            <body><h1>First heading</h1>
-            ${(1..1200).joinToString("") { "<p id=\"paragraph-$it\">Short paragraph $it.</p>" }}
-            </body></html>
-        """.trimIndent())
-        val initial = newState(dir)
-        assertTrue(initial.keys.size > 2)
-        initial.close()
-        File(dir, "optimized").listFiles()!!.filter { it.name.endsWith(".xhtml.gz") }.forEach { file ->
-            val xml = readFragment(file.toOkioPath()).replace(Regex(" data-andbible-document-title=\"[^\"]*\""), "")
-            writeFragment(file.toOkioPath(), xml)
+    @Test fun headingIsPreferredOverBookWideTitleAndKeysNeverReadFragments() = runTest {
+        val dir = tocFixture("stored-titles", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Test Tabletalk", "<h2>Chapter heading</h2>Readable prose."))
+        File(dir, "OEBPS/ch2.xhtml").writeText(chapterXhtml("Test Tabletalk", "Second chapter prose."))
+        val first = newState(dir)
+        first.close()
+        File(dir, "optimized").listFiles()!!.filter { it.name.endsWith(".xhtml.gz") }.forEach {
+            it.writeText("corrupt fragment")
         }
         val state = newState(dir)
-        assertEquals("First heading", state.getKey("ch1", "paragraph-1200")!!.getName())
-        assertEquals("First heading", state.tocKeys().first().getName())
+        val expected = listOf("Chapter heading", testCoreStrings().namelessTitle)
+        assertEquals(expected, state.keys.map { it.getName() })
+        assertEquals(expected, state.tocKeys().map { it.getName() })
+        assertEquals("Chapter heading", state.getKey("ch1", "")!!.getName())
+    }
+
+    @Test fun headingIsPreferredOverDistinctDocumentTitle() = runTest {
+        val dir = tocFixture("heading-over-title", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Document title", "<h2>Body heading</h2>Readable prose."))
+        assertEquals("Body heading", newState(dir).tocKeys().first().getName())
+    }
+
+    @Test fun corruptInstalledGzipDoesNotReplaceAValidOpenAppDatabase() {
+        val dir = buildEpub("corrupt-gzip-valid-db")
+        val first = newState(dir)
+        val gzip = File(dir, "optimized.sqlite3.gz")
+        gzip.writeText("not gzip")
+        val state = newState(dir)
+        assertEquals(2, state.keys.size)
+        assertTrue(state.read(state.keys.first()).contains("first chapter"))
+        assertTrue(first.read(first.keys.first()).contains("first chapter"))
+        assertTrue(dir.exists())
+    }
+
+    @Test fun corruptInstalledGzipWithoutAppDatabaseNeverDeletesTheBook() {
+        val dir = buildEpub("corrupt-gzip-no-db")
+        newState(dir).close()
+        application.deleteDatabase("epub-${epubInitials(dir.name)}.sqlite3")
+        File(dir, "optimized.sqlite3.gz").writeText("not gzip")
+        runCatching { addEpubBook(dir.toOkioPath(), testCoreStrings(), AndroidAppEnvironment(application)) }
+        assertTrue("read failures must not delete installed books", dir.exists())
+        assertTrue(File(dir, "optimized").isDirectory)
     }
 
     @Test fun reopeningUnchangedInstalledGzPreservesDerivedCharacterCache() = runTest {
@@ -520,86 +554,22 @@ class EpubBackendStateTest {
         }
     }
 
-    @Test fun changedGzInvalidatesCharacterCacheEvenWhenChapterIndexIsIdentical() = runTest {
-        val dir = buildEpub("gz-meta-replacement")
-        val sources = listOf("ch1.xhtml", "ch2.xhtml").associateWith { File(dir, "OEBPS/$it").readText() }
-        val first = newState(dir)
-        assertEquals(107, first.totalCharacters())
-        val appDb = application.getDatabasePath(first.appDbFilename)
-        first.close()
-        val staleDatabase = appDb.readBytes()
-        File(dir, "optimized.sqlite3.gz").delete()
-        sources.forEach { (name, text) -> File(dir, "OEBPS/$name").writeText(text.replace("readable content", "much longer replacement readable content")) }
-        val replacement = newState(dir)
-        replacement.close()
-        appDb.writeBytes(staleDatabase)
-        val state = newState(dir)
-        assertTrue("same fragment ranges do not make an old character count valid", state.totalCharacters() > 107)
-    }
-
-    @Test fun cacheMarkerWriteFailureDoesNotPreventReading() = runTest {
-        val dir = buildEpub("cache-marker-unwritable")
-        val first = newState(dir)
-        first.close()
-        // Deterministically deny the file write, even when tests run with elevated filesystem privileges.
-        File(dir, "optimized/installed-cache.sha256.tmp").mkdir()
-        val state = newState(dir)
-        assertEquals(2, state.keys.size)
-        assertTrue(state.read(state.keys.first()).contains("first chapter"))
-        assertEquals(107, state.totalCharacters())
-    }
-
-    @Test fun installedEmptyGzIsRecoveredEvenWhenAppDatabaseContainsStaleFragments() {
-        val dir = buildEpub("empty-gz-stale-db")
-        val opf = File(dir, "OEBPS/content.opf")
-        val originalOpf = opf.readText()
-        val sources = listOf("ch1.xhtml", "ch2.xhtml").associateWith { File(dir, "OEBPS/$it").readText() }
-        val first = newState(dir)
-        val appDb = application.getDatabasePath(first.appDbFilename)
-        first.close()
-        val staleDatabase = appDb.readBytes()
-        File(dir, "optimized.sqlite3.gz").delete()
-        opf.writeText(originalOpf.replace("<itemref idref=\"ch1\"/>", "").replace("<itemref idref=\"ch2\"/>", ""))
-        newState(dir).close()
-        appDb.writeBytes(staleDatabase)
-        sources.forEach { (name, text) -> File(dir, "OEBPS/$name").writeText(text.replace("readable content", "fresh content")) }
-        opf.writeText(originalOpf)
-        val repaired = newState(dir)
-        assertEquals(2, repaired.keys.size)
-        assertTrue("installed empty gz must trigger rebuilding rather than reusing stale rows", repaired.read(repaired.keys.first()).contains("fresh content"))
-    }
-
-    @Test fun installedReadableGzWinsOverCorruptAppDatabaseWithoutReoptimizingSources() {
-        val dir = buildEpub("readable-gz-corrupt-db")
-        val sources = listOf("ch1.xhtml", "ch2.xhtml").associateWith { File(dir, "OEBPS/$it").readText() }
-        val first = newState(dir)
-        val appDb = application.getDatabasePath(first.appDbFilename)
-        first.close()
-        appDb.writeText("not a SQLite database")
-        sources.forEach { (name, text) -> File(dir, "OEBPS/$name").writeText(text.replace("readable content", "replacement content")) }
-        val state = newState(dir)
-        assertEquals(2, state.keys.size)
-        assertTrue("readable installed gz, not a silently reset app DB, determines recovery", state.read(state.keys.first()).contains("readable content"))
-        assertTrue("valid optimization must not delete sources again", File(dir, "OEBPS/ch1.xhtml").exists())
-    }
-
-    @Test fun freshReadableGzReplacesStaleAppDatabaseEvenWithoutOriginalSources() {
-        val dir = buildEpub("fresh-gz-stale-db")
-        val sources = listOf("ch1.xhtml", "ch2.xhtml").associateWith { File(dir, "OEBPS/$it").readText() }
-        val first = newState(dir)
-        val appDb = application.getDatabasePath(first.appDbFilename)
-        first.close()
-        val staleDatabase = appDb.readBytes()
-        File(dir, "optimized.sqlite3.gz").delete()
-        sources.forEach { (name, text) -> File(dir, "OEBPS/$name").writeText(text) }
-        val opf = File(dir, "OEBPS/content.opf")
-        opf.writeText(opf.readText().replace("<itemref idref=\"ch2\"/>", ""))
-        newState(dir).close()
-        File(dir, "OEBPS/ch2.xhtml").delete()
-        appDb.writeBytes(staleDatabase)
-        val state = newState(dir)
-        assertEquals("installed gz has one chapter, stale app DB has two", 1, state.keys.size)
-        assertTrue(state.keys.all { state.read(it).isNotEmpty() })
+    @Test fun reinstallDropsStaleAppDatabaseBeforeUsingNewOptimization() = runTest {
+        val name = "reinstall-stale-cache"
+        val dir = buildEpub(name)
+        val old = newState(dir)
+        old.close()
+        val archive = epubArchive(name, "quartz")
+        try {
+            assertTrue(committer().commitEpub(archive, name))
+            val book = org.crosswire.jsword.book.Books.installed().getBook(epubInitials(name))!!
+            val replacement = book.epubBackend!!.state
+            assertTrue(replacement.keys.all { replacement.read(it).isNotEmpty() })
+            assertTrue(replacement.read(replacement.keys.first()).contains("quartz"))
+            assertFalse(replacement.read(replacement.keys.first()).contains("first chapter"))
+        } finally {
+            archive.delete()
+        }
     }
 
     @Test fun opfQueriesIgnoreNestedAndForeignPackages() {
@@ -1762,33 +1732,16 @@ class EpubBackendStateTest {
         assertTrue("totalCharacters must survive a missing fragment", total >= 0)
     }
 
-    /** F124: a bundled optimized.sqlite3.gz without its optimized/ fragments (the kit EPUB) must be re-optimized. */
-    @Test
-    fun aStaleOptimizedDatabaseWithoutFragmentsIsReoptimized() {
-        val epubDir = buildEpub("stale-gz")
-        newState(epubDir) // first open: optimizes and writes optimized.sqlite3.gz
-        assertTrue(File(epubDir, "optimized.sqlite3.gz").exists())
-        assertTrue(optimizedDirOf(epubDir).deleteRecursively())
-        buildEpub("stale-gz") // optimization deletes the source files; a kit EPUB ships them beside the foreign gz
-        application.deleteDatabase("epub-${epubInitials("stale-gz")}.sqlite3") // as on a fresh install of the kit file
-
-        val state = newState(epubDir)
-        val keys = state.keys
-        assertTrue(keys.isNotEmpty())
-        assertTrue("every fragment must read back content", keys.all { state.read(it).isNotEmpty() })
-    }
-
-    /** F124 variant: sources present, fragments gone, app database surviving: optimized again. */
-    @Test
-    fun missingFragmentsWithASurvivingAppDatabaseAreReoptimized() {
-        val epubDir = buildEpub("stale-frags")
-        newState(epubDir)
-        assertTrue(optimizedDirOf(epubDir).deleteRecursively())
-        buildEpub("stale-frags") // optimization deletes the source files; restore them as the user's copy would have
-
-        val state = newState(epubDir)
-        assertTrue(state.keys.isNotEmpty())
-        assertTrue(state.keys.all { state.read(it).isNotEmpty() })
+    @Test fun nonemptyAppDatabaseIsNotReoptimizedEvenWhenSourcesArePresent() {
+        val dir = buildEpub("nonempty-db-reuse")
+        val first = newState(dir)
+        first.close()
+        val stamp = File(dir, "optimized/version.txt").lastModified()
+        buildEpub("nonempty-db-reuse")
+        val state = newState(dir)
+        assertEquals(2, state.keys.size)
+        assertTrue(File(dir, "OEBPS/ch1.xhtml").exists())
+        assertEquals(stamp, File(dir, "optimized/version.txt").lastModified())
     }
 
     /** Review Focus 5: an intact optimized EPUB is reused, not optimized again on every open. */

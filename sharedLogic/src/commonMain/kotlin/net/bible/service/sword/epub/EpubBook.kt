@@ -251,12 +251,8 @@ fun addEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment
     val owner = moduleOwner(epubDir)
     if (!owner.tryLock()) return // Discovery must not reopen a retiring or partially extracted module.
     try {
-        try {
-            addOwnedEpubBook(epubDir, strings, environment, startupDiscovery)
-        } catch (e: Exception) {
-            deleteOwnedEpubModule(epubDir)
-            throw e
-        }
+        // Discovery/read errors must not remove an installed book. The installer owns rollback of new files.
+        addOwnedEpubBook(epubDir, strings, environment, startupDiscovery)
     } finally {
         owner.unlock()
     }

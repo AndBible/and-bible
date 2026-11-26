@@ -145,8 +145,8 @@ top of the screen. AndBible keeps the book's table of contents, including its la
 links within chapters. If it is incomplete, missing readable chapters are added in reading
 order; non-linear sections and sections without text are not added. If the table of
 contents is missing, readable chapters are listed in reading order, once per chapter even
-when a long chapter is split internally. Chapter titles come from the document title or
-first heading when available. If the book has no chapters to read, AndBible shows an error
+when a long chapter is split internally. Chapter titles prefer the first heading in the
+chapter, then its document title when appropriate. If the book has no chapters to read, AndBible shows an error
 message and stays on the current document rather than returning to the previous document.
 EPUBs have their own search modes, including *Raw query syntax*; see
 [Searching EPUB books](search.md#searching-epub-books).

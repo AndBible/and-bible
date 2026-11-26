@@ -46,6 +46,18 @@ class MigrationDataTest {
     }
 
     @Test
+    fun epubV2KeepsFragmentsWithoutInventingDocumentMetadata() = runTest {
+        migrated("net.bible.android.database.EpubDatabase", 2, listOf(
+            "INSERT INTO EpubFragment (id,originalId,ordinalStart,ordinalEnd) VALUES (7,'chapter',10,20)",
+            "INSERT INTO EpubHtmlToFrag (htmlId,fragId) VALUES ('chapter#anchor',7)",
+        )) { db ->
+            assertEquals(listOf(listOf("7", "chapter", "10", "20", null, "0")),
+                db.rawRows("SELECT id,originalId,ordinalStart,ordinalEnd,title,hasText FROM EpubFragment", 6))
+            assertEquals(listOf(listOf("chapter#anchor", "7")), db.rawRows("SELECT htmlId,fragId FROM EpubHtmlToFrag", 2))
+        }
+    }
+
+    @Test
     fun bookmarkV1TextAndRelationshipsSurvive() = runTest {
         migrated("net.bible.android.database.BookmarkDatabase", 1, listOf(
             "INSERT INTO Label (id,name,color,markerStyle,underlineStyleWholeVerse) VALUES (X'01','Personal',123,1,1)",
