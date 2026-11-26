@@ -99,6 +99,7 @@ only in the Windows and Linux desktop builds, not on macOS. It multiplies your d
 Windows display set to 150% gives an interface at 112.5%. On Windows it scales Compose menus, toolbars,
 dialogs and controls, and the WebView2 reading pane follows the same scale (including document text and
 inline controls). It does not change the document's font-size setting or the Windows desktop scale.
+At startup, the detected scale multiplied by the preset is limited to 50%-400%; for example, a 300% display with the 200% preset uses 400%, not 600%.
 The default is 100%. It is stored on this device, not synchronized. The **font size multiplier** remains
 separate: it changes document text, not menus and toolbars.
 
@@ -131,7 +132,8 @@ Good to know:
 
 - The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
 - When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. For example, 125% becomes 100% and 150% becomes 200%. The **UI scale** row shows both your chosen preset and the effective scale for the current session, for example **125% (this session: 200%)**. Changing a preset updates the chosen percentage immediately, but the effective session scale stays unchanged until restart. The normal off-screen engine supports fractional scales.
-- Explicit `-Dsun.java2d.uiScale`, `J2D_UISCALE` and `GDK_SCALE` values take precedence over the UI scale preference, as does disabling JDK scaling with `-Dsun.java2d.uiScale.enabled=false`.
+- `GDK_SCALE` is treated as a detected desktop scale, so the UI scale preference multiplies it. It does not mark the preference as overridden.
+- Explicit `-Dsun.java2d.uiScale` and `J2D_UISCALE` values take precedence over the UI scale preference, as does disabling JDK scaling with `-Dsun.java2d.uiScale.enabled=false`.
 - On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.
 
 The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.

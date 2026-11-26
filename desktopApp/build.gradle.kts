@@ -906,7 +906,6 @@ tasks.named<Test>("test") {
     systemProperty("expectedTimestamp", windowsTimestampUrl)
     systemProperty("expectedTestSigning", windowsTestSigning.toString())
     systemProperty("expectedPublisher", windowsPublisher)
-    systemProperty("expectedWindowsAssociations", windowsAssociations.keys.joinToString(","))
 }
 
 fun windowsSdkTool(name: String): String {

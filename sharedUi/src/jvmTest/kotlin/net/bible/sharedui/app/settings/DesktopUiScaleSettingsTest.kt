@@ -54,18 +54,13 @@ class DesktopUiScaleSettingsTest {
     }
 
     @Test fun scaleBindingIsAbsentOnUnsupportedHosts() {
-        val keys = listOf("os.name", "compose.layers.type", "sun.java2d.uiScale", "sun.java2d.uiScale.enabled")
-        val original = keys.associateWith(System::getProperty)
+        val properties = mapOf("compose.layers.type" to "WINDOW", "sun.java2d.uiScale" to "2")
         val directory = Files.createTempDirectory("ui-scale-binding")
         try {
-            System.setProperty("sun.java2d.uiScale.enabled", "true")
             for (os in listOf("Mac OS X", "FreeBSD", "Linux", "GNU/Linux", "Windows 11")) {
-                System.setProperty("os.name", os)
-                System.setProperty("compose.layers.type", "WINDOW")
-                System.setProperty("sun.java2d.uiScale", "2")
                 val app = koinApplication {
                     modules(module { single { DesktopDeviceSettings(directory.resolve("settings")) } },
-                        net.bible.sharedui.desktop.assembly.desktopMiscModule())
+                        net.bible.sharedui.desktop.assembly.desktopMiscModule(os = os, property = properties::get))
                 }
                 try {
                     val setting = app.koin.getOrNull<DesktopUiScaleSetting>()
@@ -74,20 +69,19 @@ class DesktopUiScaleSettingsTest {
                     // The detector writes this JDK property too; it is not evidence of a user override.
                     if (setting != null) assertFalse(setting.overriddenThisSession)
                 } finally { app.close() }
-                System.setProperty("sun.java2d.uiScale.enabled", "false")
+                val disabledProperties = properties + ("sun.java2d.uiScale.enabled" to "false")
                 val disabled = koinApplication {
                     modules(module { single { DesktopDeviceSettings(directory.resolve("settings")) } },
-                        net.bible.sharedui.desktop.assembly.desktopMiscModule(uiScaleOverridden = true))
+                        net.bible.sharedui.desktop.assembly.desktopMiscModule(
+                            uiScaleOverridden = true, os = os, property = disabledProperties::get))
                 }
                 try {
                     val setting = disabled.koin.getOrNull<DesktopUiScaleSetting>()
                     assertEquals(if (os in listOf("Linux", "GNU/Linux")) 100 else null, setting?.effectivePercent)
                     if (setting != null) assertEquals(true, setting.overriddenThisSession)
                 } finally { disabled.close() }
-                System.setProperty("sun.java2d.uiScale.enabled", "true")
             }
         } finally {
-            original.forEach { (key, value) -> if (value == null) System.clearProperty(key) else System.setProperty(key, value) }
             directory.toFile().deleteRecursively()
         }
     }
@@ -99,16 +93,11 @@ class DesktopUiScaleSettingsTest {
     }
 
     private fun checkWindowedSummary(dark: Boolean, mode: DisplayColorMode) {
-        val keys = listOf("os.name", "compose.layers.type", "sun.java2d.uiScale", "sun.java2d.uiScale.enabled")
-        val original = keys.associateWith(System::getProperty)
+        val properties = mapOf("compose.layers.type" to "WINDOW", "sun.java2d.uiScale" to "2")
         val directory = Files.createTempDirectory("ui-scale-effective")
-        System.setProperty("os.name", "Linux")
-        System.setProperty("sun.java2d.uiScale.enabled", "true")
-        System.setProperty("compose.layers.type", "WINDOW")
-        System.setProperty("sun.java2d.uiScale", "2")
         val app = koinApplication {
             modules(module { single { DesktopDeviceSettings(directory.resolve("settings")) } },
-                net.bible.sharedui.desktop.assembly.desktopMiscModule())
+                net.bible.sharedui.desktop.assembly.desktopMiscModule(os = "Linux", property = properties::get))
         }
         try {
             runComposeUiTest {
@@ -141,7 +130,6 @@ class DesktopUiScaleSettingsTest {
             }
         } finally {
             app.close()
-            original.forEach { (key, value) -> if (value == null) System.clearProperty(key) else System.setProperty(key, value) }
             directory.toFile().deleteRecursively()
         }
     }

@@ -153,14 +153,17 @@ object DesktopNoSentenceBreaker : SentenceBreaker {
     override fun following(text: String, offset: Int): Int = text.length
 }
 
-fun desktopMiscModule(uiScaleOverridden: Boolean = false): Module = module {
-    val os = System.getProperty("os.name").orEmpty()
+fun desktopMiscModule(
+    uiScaleOverridden: Boolean = false,
+    os: String = System.getProperty("os.name").orEmpty(),
+    property: (String) -> String? = System::getProperty,
+): Module = module {
     val linux = net.bible.sharedcore.platform.desktop.isLinuxDesktop(os)
     if (linux || os.startsWith("Windows", ignoreCase = true)) {
         // WINDOW popups use the JDK's whole-number scale, already fixed before the graph starts.
-        val effectivePercent = if (linux && System.getProperty("compose.layers.type") == "WINDOW") {
-            if (System.getProperty("sun.java2d.uiScale.enabled").equals("false", ignoreCase = true)) 100
-            else System.getProperty("sun.java2d.uiScale")?.toDoubleOrNull()?.let { (it * 100).toInt() } ?: 100
+        val effectivePercent = if (linux && property("compose.layers.type") == "WINDOW") {
+            if (property("sun.java2d.uiScale.enabled").equals("false", ignoreCase = true)) 100
+            else property("sun.java2d.uiScale")?.toDoubleOrNull()?.let { (it * 100).toInt() } ?: 100
         } else null
         single<DesktopUiScaleSetting> { PersistentDesktopUiScaleSetting(get(), effectivePercent, uiScaleOverridden) }
     }

@@ -58,7 +58,8 @@ class DisplayScaleTest {
     @Test fun windowsExplicitJdkScaleIgnoresThePreference() {
         for (asProperty in listOf(false, true)) {
             val props = if (asProperty) mapOf("sun.java2d.uiScale" to "1.25") else emptyMap()
-            val env = if (asProperty) emptyMap() else mapOf("J2D_UISCALE" to "1.25")
+            // Windows' native GetScreenDpi reads J2D_UISCALE as DPI (120 / 96 = 1.25).
+            val env = if (asProperty) emptyMap() else mapOf("J2D_UISCALE" to "120")
             val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
                 false, env, props::get, null, null, windowsScale = 1.25, preferencePercent = 75,
             ))!!
@@ -128,13 +129,47 @@ class DisplayScaleTest {
         assertEquals(1.25, overridden.scale)
     }
 
+    @Test fun gdkDesktopScaleIsMultipliedByThePreference() {
+        for ((percent, expected) in listOf(75 to 1.5, 100 to 2.0, 125 to 2.5)) {
+            val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                true, mapOf("GDK_SCALE" to "2"), { null }, null, "Xft.dpi: 144", preferencePercent = percent,
+            ))!!
+            assertEquals(expected, scale.scale, "GDK_SCALE=2 with preference $percent%")
+            assertEquals(false, scale.preferenceOverridden)
+            assertTrue("GDK_SCALE=2" in scale.source)
+        }
+    }
+
+    @Test fun linuxPreferenceProductIsClampedToTheMaximumScale() {
+        for (env in listOf(emptyMap(), mapOf("GDK_SCALE" to "3"))) {
+            val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                true, env, { null }, null, "Xft.dpi: 288", preferencePercent = 200,
+            ))!!
+            assertEquals(4.0, scale.scale)
+            assertEquals(4, scale.awtScale)
+            assertEquals(1.0, scale.composeFactor)
+        }
+    }
+
+    @Test fun windowsPreferenceProductIsClampedWithoutPinningNativeDpi() {
+        for ((native, percent, expected) in listOf(Triple(3.0, 200, 4.0), Triple(0.5, 75, 0.5))) {
+            val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                false, emptyMap(), { null }, null, null, windowsScale = native, preferencePercent = percent,
+            ))!!
+            assertEquals(expected, scale.scale)
+            assertEquals(native, scale.awtDensity)
+            val writes = mutableMapOf<String, String>()
+            scale.applyToJdk { key, value -> writes[key] = value }
+            assertTrue(writes.isEmpty(), "A preference must not pin Windows per-monitor DPI")
+        }
+    }
+
     @Test fun sessionReportsOnlyOverridesThatActuallyBypassThePreference() {
         val cases = listOf(
             mapOf("andbible.uiScale" to "1.25") to emptyMap<String, String>(),
             emptyMap<String, String>() to mapOf("ANDBIBLE_UI_SCALE" to "1.25"),
             mapOf("sun.java2d.uiScale" to "1.5") to emptyMap<String, String>(),
             emptyMap<String, String>() to mapOf("J2D_UISCALE" to "1.5"),
-            emptyMap<String, String>() to mapOf("GDK_SCALE" to "2"),
             mapOf("sun.java2d.uiScale.enabled" to "false") to emptyMap<String, String>(),
         )
         for ((props, env) in cases) {
@@ -159,17 +194,16 @@ class DisplayScaleTest {
         }
     }
 
-    @Test fun explicitJdkAndGtkScalesIgnoreThePreference() {
+    @Test fun explicitJdkScalesIgnoreThePreference() {
         val cases = listOf(
             mapOf("sun.java2d.uiScale" to "1.5") to emptyMap<String, String>(),
             emptyMap<String, String>() to mapOf("J2D_UISCALE" to "1.5"),
-            emptyMap<String, String>() to mapOf("GDK_SCALE" to "2"),
         )
         for ((props, env) in cases) {
             val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
                 true, env, props::get, null, "Xft.dpi: 288", preferencePercent = 75,
             ))!!
-            assertEquals(if ("GDK_SCALE" in env) 2.0 else 1.5, scale.scale)
+            assertEquals(1.5, scale.scale)
             assertTrue("preference" !in scale.source)
         }
     }
@@ -208,6 +242,17 @@ class DisplayScaleTest {
     /** A DPI below 96 (a bogus or physical-DPI Xresources line) never shrinks the UI. */
     @Test fun lowDpiIsClampedToOne() {
         assertEquals(1.0, detect(resources = "Xft.dpi: 72")!!.scale)
+    }
+
+    @Test fun invalidGdkScaleFallsBackToDesktopDetectionAndKeepsThePreference() {
+        for (raw in listOf("invalid", "0", "1.5", "5")) {
+            val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                true, mapOf("GDK_SCALE" to raw), { null }, null, "Xft.dpi: 192", preferencePercent = 75,
+            ))!!
+            assertEquals(1.5, scale.scale)
+            assertEquals(false, scale.preferenceOverridden)
+            assertTrue("ignored GDK_SCALE=$raw" in scale.source)
+        }
     }
 
     @Test fun gdkScaleBeatsTheDesktopSettings() {

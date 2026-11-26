@@ -96,7 +96,7 @@ fun main(args: Array<String>) {
 }
 
 fun runDesktopApp(args: Array<String>, provider: DesktopEngineProvider) {
-    // Linux must set its scale before AWT; Windows keeps the JDK's native fractional/per-monitor DPI.
+    // init starts AWT on Windows; set all AWT/Java2D properties before this call (Linux sets its scale here).
     DesktopDisplayScale.init(integerOnly = provider.windowedRendering)
     desktopLayersType(provider)?.let { System.setProperty("compose.layers.type", it) }
     runApp(args.toList(), provider)
