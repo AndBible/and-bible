@@ -21,6 +21,14 @@ $genericDefaults = @(Rows 'SELECT `Key`, `Name`, `Value` FROM `Registry`' 3 | Wh
         ($_.Fields[1] -eq '' -or $_.Fields[1] -eq '@')
 })
 Assert ($genericDefaults.Count -eq 0) 'MSI must not replace default handlers for generic files'
+# Advertised associations use MSI's Extension table instead of explicit Registry rows.
+$tables = @(Rows 'SELECT `Name` FROM `_Tables`' 1 | ForEach-Object { $_.Fields[0] })
+if ('Extension' -in $tables) {
+    $genericAdvertised = @(Rows 'SELECT `Extension` FROM `Extension`' 1 | Where-Object {
+        $_.Fields[0] -match '^(zip|csv|ttf|epub|jpg|jpeg|png|webp|sqlite3)$'
+    })
+    Assert ($genericAdvertised.Count -eq 0) 'MSI must not advertise generic file handlers'
+}
 # Evaluate the compiled MSI conditions, not a second implementation of the UI routing.
 $session = $installer.OpenPackage((Resolve-Path $Msi).Path, 1)
 $upgrades = @(Rows 'SELECT `ActionProperty`, `VersionMax` FROM `Upgrade`')
