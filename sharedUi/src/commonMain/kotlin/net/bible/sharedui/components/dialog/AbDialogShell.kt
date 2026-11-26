@@ -80,6 +80,10 @@ private val CompactPaddingBottom = 8.dp
 /** Smallest height reserved for the middle area (detail + content) when there is content. */
 private val MiddleMinHeight = 56.dp
 
+/** Oversized action stacks must leave a visible viewport for the question and its content. */
+private const val ButtonsMaxHeightFraction = 0.8f
+private val LeadMinHeight = 24.dp
+
 private enum class ShellSlot { Icon, Lead, Middle, Buttons }
 
 /**
@@ -99,8 +103,10 @@ private enum class ShellSlot { Icon, Lead, Middle, Buttons }
  *    The shell always sets `usePlatformDefaultWidth = false` (the width is ours), and ignores the other fields.
  *
  * Height safety, in order of priority (one custom layout pass decides all of it):
- *  1. the button row is measured first and is never capped and never scrolls;
- *  2. the middle area ([content]) keeps at least [MiddleMinHeight];
+ *  1. the button row is measured first, capped at 80% of the inner height (or less to keep a small lead/middle
+ *     viewport); oversized rows scroll with edge dividers, while rows that fit keep their natural height;
+ *  2. the middle area ([content]) keeps at least [MiddleMinHeight], except in extremely short viewports where
+ *     it shares the remaining space with the lead; content reserves never take more than half the inner height;
  *  3. the lead yields first: its cap is `min(40% of the available height, what remains after the button row, the
  *     middle area, the icon and the gaps)`, and it scrolls inside that cap with a divider at each edge that can
  *     scroll further. When the middle needs less than its reserve, the unused part goes back to the lead;
@@ -196,12 +202,15 @@ fun AbDialogShell(
                                 if (scrollState.canScrollForward) ScrollDivider("dialog-divider-bottom")
                             }
                         }
-                        Box(Modifier.layoutId(ShellSlot.Buttons)) {
+                        val buttonsScroll = rememberScrollState()
+                        Column(Modifier.layoutId(ShellSlot.Buttons).testTag("dialog-buttons-area")) {
+                            if (buttonsScroll.canScrollBackward) ScrollDivider("dialog-buttons-divider-top")
                             FlowRow(
-                                Modifier.fillMaxWidth(),
+                                Modifier.weight(1f, fill = false).fillMaxWidth().verticalScroll(buttonsScroll),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                                 verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) { buttons() }
+                            if (buttonsScroll.canScrollForward) ScrollDivider("dialog-buttons-divider-bottom")
                         }
                     },
                 ) { measurables, constraints ->
@@ -211,9 +220,18 @@ fun AbDialogShell(
                     val total = if (constraints.hasBoundedHeight) constraints.maxHeight else Int.MAX_VALUE / 2
                     val gapLead = AbDialogTokens.GapLeadToBody.roundToPx()
 
-                    // 1. Buttons: never capped, never scrolling. An empty row (progress and list-choice dialogs)
-                    //    has no height and no gap above it.
-                    val buttonsP = slot(ShellSlot.Buttons)!!.measure(loose.copy(maxHeight = total))
+                    // Measure the scrolling row against a finite cap, not the whole window: otherwise a wrapped
+                    // stack can consume all the space before the lead and middle are measured. Keep small viewports
+                    // even in a short window; the 80% cap alone would leave less than the middle's 56dp reserve.
+                    val contentReserve = (if (slot(ShellSlot.Lead) != null) LeadMinHeight.roundToPx() else 0) +
+                        (if (slot(ShellSlot.Middle) != null) MiddleMinHeight.roundToPx() else 0) +
+                        (if (slot(ShellSlot.Lead) != null && slot(ShellSlot.Middle) != null) gapLead else 0)
+                    val buttonsCap = minOf(
+                        (total * ButtonsMaxHeightFraction).toInt(),
+                        total - minOf(contentReserve + AbDialogTokens.GapAboveButtons.roundToPx(), total / 2),
+                    ).coerceAtLeast(0)
+                    // An empty row (progress and list-choice dialogs) still has no height and no gap above it.
+                    val buttonsP = slot(ShellSlot.Buttons)!!.measure(loose.copy(maxHeight = buttonsCap))
                     val gapButtons = if (buttonsP.height == 0) 0 else AbDialogTokens.GapAboveButtons.roundToPx()
                     var used = buttonsP.height + gapButtons
                     // Icon: fixed.
@@ -236,7 +254,11 @@ fun AbDialogShell(
                     val leadFraction = leadCapFraction.roundToPx()
                     val leadWanted = leadM?.let { minOf(leadFraction, it.maxIntrinsicHeight(width)) } ?: 0
                     val room = (total - used - gapMiddleHeld).coerceAtLeast(0)
-                    val middleP = middleM?.measure(loose.copy(maxHeight = maxOf(room - leadWanted, minOf(middleReserve, room))))
+                    // If the whole viewport is tiny (e.g. above an IME), share it rather than reducing either
+                    // the lead or buttons to zero. Normal windows retain the full middle reserve.
+                    val leadReserve = if (leadM == null) 0 else minOf(LeadMinHeight.roundToPx(), room / 2)
+                    val effectiveMiddleReserve = minOf(middleReserve, room - leadReserve)
+                    val middleP = middleM?.measure(loose.copy(maxHeight = maxOf(room - leadWanted, effectiveMiddleReserve)))
                     val gapMiddle = if (leadM != null && (middleP?.height ?: 0) > 0) gapLead else 0
                     val leadCap = minOf(leadFraction, room + gapMiddleHeld - gapMiddle - (middleP?.height ?: 0)).coerceAtLeast(0)
                     val leadP = leadM?.measure(loose.copy(maxHeight = leadCap))

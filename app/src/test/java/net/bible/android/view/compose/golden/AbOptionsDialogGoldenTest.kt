@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.github.takahirom.roborazzi.RoborazziComposeFontScaleOption
 import com.github.takahirom.roborazzi.RoborazziComposeOption
 import net.bible.android.TEST_SDK
+import net.bible.android.view.compose.dialog.ManyActionOptionsFixture
 import net.bible.sharedcore.ui.dialog.DialogAnswer
 import net.bible.sharedui.components.AbOptionsDialog
 import org.junit.Test
@@ -63,6 +64,12 @@ class AbOptionsDialogGoldenTest {
     fun fourAnswers_rtl() = captureRtl("AbOptionsDialog", "fourAnswers", heightDp = 640) { FourAnswers() }
 
     @Test fun checkbox_matrix() = captureMatrix("AbOptionsDialog", "checkbox") { Checkbox() }
+
+    @Test fun manyActionsCheckbox_matrix() =
+        captureMatrix("AbOptionsDialog", "manyActionsCheckbox", heightDp = 900) { ManyActionOptionsFixture() }
+
+    @Test fun ax5ManyActionsCheckbox_matrix() =
+        captureMatrix("AbOptionsDialog", "ax5ManyActionsCheckbox", heightDp = 900, captureOptions = ax5) { ManyActionOptionsFixture() }
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")

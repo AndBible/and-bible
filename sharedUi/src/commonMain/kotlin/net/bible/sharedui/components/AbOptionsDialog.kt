@@ -51,7 +51,8 @@ import net.bible.sharedui.theme.LocalDisableAnimations
  *
  * Each answer is an [AbAnswerCard] in the scrolling middle area, so every answer stays reachable at any font scale.
  * With [checkboxLabel] the dialog keeps a checkbox row and the answers become end-aligned buttons in the button row
- * (Confirm role, Destructive for a destructive answer); there are no cards then.
+ * (Confirm role, Destructive for a destructive answer); there are no cards then. An oversized button row scrolls
+ * independently so the headline, message and checkbox stay reachable too.
  */
 @Composable
 fun AbOptionsDialog(

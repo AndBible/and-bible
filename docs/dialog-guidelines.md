@@ -53,8 +53,8 @@ actions go to a sheet, answers to a dialog.
 
 The sizes of the lead, body, detail, card and shell (padding, corner, gaps, width, the 40% lead fraction) live in `AbDialogTokens` (`AbDialogTokens.kt`). The shell's height-safety constants are private to `AbDialogShell.kt`: the 16dp side and 24dp top/bottom screen margins, the 56dp middle reserve, and the compact frame (windows shorter than 420dp: 8dp margin, 12dp top and 8dp bottom padding). `AbAlertDialog` bounds its text at 10000dp. The shell applies three height rules:
 
-1. the button row is never capped and never scrolls (an empty row takes no height and no gap above it);
-2. the middle area (detail + content) keeps at least 56dp and scrolls; a caller's own height cap or scroll inside it nests a second scroll, so do not add one;
+1. the button row keeps its natural height up to 80% of the shell's inner height (or less to leave a 24dp lead viewport and the middle's 56dp reserve); above that it scrolls with edge dividers (an empty row takes no height and no gap above it);
+2. the middle area (detail + content) keeps at least 56dp and scrolls; in exceptionally short viewports the lead and middle share the remaining space instead of disappearing. The button area's content reserve never exceeds half the inner height. A caller's own height cap or scroll inside the middle nests a second scroll, so do not add one;
 3. the lead line yields first: its cap is the smaller of 40% of the available height and what remains after the button row and the middle area, and it scrolls inside the cap. Both scroll areas show a divider at an edge that can scroll further, and a middle area that needs less than its reserve hands the rest back to the lead.
 
 - **Lead line:** 18sp / 25sp, medium, `onSurface`.
