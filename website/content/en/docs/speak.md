@@ -64,6 +64,8 @@ For legacy documents rendered as a whole passage, a changed switch applies from 
 start, not to text already prepared for playback.
 The switch is on by default and is saved with the other playback settings, including
 Speak bookmarks when **Save playback settings to bookmarks** is enabled.
+Resuming a bookmark without an explicit links setting keeps your current links preference.
+Named anchors that only mark a position in the document are not links; their text is still read.
 
 When syncing with an older AndBible version, leave this switch on for compatibility.
 Older versions cannot read playback settings saved with the switch off and instead

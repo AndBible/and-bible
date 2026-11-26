@@ -63,7 +63,7 @@ class SpeakSettingsServiceImpl(private val advancedSpeakSettings: AdvancedSpeakS
             speakChapterChanges = p.speakChapterChanges,
             speakTitles = p.speakTitles,
             speakFootnotes = p.speakFootnotes,
-            speakLinks = p.speakLinks,
+            speakLinks = p.speakLinks != false,
             sleepTimerMinutes = s.sleepTimer,
             repeatRangeName = range?.getName(),
             lastSleepTimerMinutes = s.lastSleepTimer,

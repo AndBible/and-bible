@@ -870,7 +870,7 @@ class SwordContentFacade(
             actualKey = actualKey.start
         }
         val arr = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
-        cachedText(book, actualKey, strings, forSpeech = true, speakLinks = settings.playbackSettings.speakLinks)[key.ordinal!!.start]?.takeIf { it.isNotBlank() }?.let {
+        cachedText(book, actualKey, strings, forSpeech = true, speakLinks = settings.playbackSettings.speakLinks != false)[key.ordinal!!.start]?.takeIf { it.isNotBlank() }?.let {
             arr.add(TextCommand(it.replace("\n", " ")))
         }
         return arr

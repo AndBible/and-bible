@@ -17,7 +17,6 @@
 package net.bible.service.device.speak
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.database.bookmarks.SpeakSettings.RewindAmount
 import net.bible.service.common.AndRuntimeException
@@ -68,13 +67,6 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         }
     }
 
-    private var speakSettings = net.bible.android.database.bookmarks.SpeakSettings.load()
-
-    // Whole passages are rendered at setup; changed settings apply from the next start.
-    override fun updateSettings(change: SpeakSettingsChange) {
-        speakSettings = change.speakSettings
-    }
-
     override var isSpeaking: Boolean
         get() = false
         set(isSpeaking) {}
@@ -101,7 +93,7 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         this.keyList = keyList
         // first concatenate the number of required chapters
         try {
-            val speakLinks = speakSettings.playbackSettings.speakLinks
+            val speakLinks = net.bible.android.database.bookmarks.SpeakSettings.load().playbackSettings.speakLinks != false
             for (key in keyList) {
                 // intro
                 textToSpeak.add(key.getName() + ". ")

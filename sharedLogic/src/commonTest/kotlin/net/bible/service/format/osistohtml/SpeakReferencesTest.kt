@@ -52,10 +52,34 @@ class SpeakReferencesTest {
     }
 
     @Test
+    fun anchorsWithoutHrefKeepTheirTextWhenLinksAreSkipped() {
+        assertEquals("Before named anchor after.", bible("<verse>Before <a id='chapter'>named anchor</a> after.</verse>", links = false))
+        assertEquals("Before named anchor after.", legacy("<div>Before <a name='chapter'>named anchor</a> after.</div>", links = false))
+    }
+
+    @Test
+    fun skippedLinksRemoveConnectorTextInsideEmptyBrackets() {
+        assertEquals("Before after.", bible("<verse>Before (see <a href='x'>X</a> and <a href='y'>Y</a>) after.</verse>", links = false))
+        assertEquals("Before (explanation and words) after.", bible("<verse>Before (explanation and words <a href='x'>X</a>) after.</verse>", links = false))
+    }
+
+    @Test
     fun skippedLinksSeparateAdjacentWords() {
         for (link in listOf("<reference osisRef='Matt.2.9'/>", "<a href='https://example.org'><hi>link</hi></a>")) {
             assertEquals("word next.", bible("<verse>word${link}next.</verse>", links = false))
         }
+    }
+
+    @Test
+    fun endDocumentWithoutSkippedLinkMarkerPreservesPunctuationAndEmptyNoteCommands() {
+        val handler = OsisToBibleSpeak(
+            SpeakSettings(playbackSettings = PlaybackSettings(speakFootnotes = true, speakLinks = false)),
+            phrases, advanced, 4000, SaxTextPolicy.MODERN,
+        )
+        XmlEventParser().parse("<verse>—<note type='study'></note>!</verse>", handler)
+
+        assertEquals(listOf("—", "!"), handler.speakCommands.filterIsInstance<TextCommand>().map { it.text })
+        assertEquals(2, handler.speakCommands.count { it !is TextCommand })
     }
 
     @Test
@@ -161,6 +185,13 @@ class SpeakReferencesTest {
         val formatter = SpeakReferenceText(KLocale.ENGLISH)
         assertEquals(listOf("Matthew 2:9", ""), anchors.map { formatter.forAnchor(it) })
         assertEquals(listOf("Matt.", " 2:9"), anchors.map { it.value })
+    }
+
+    @Test
+    fun bvaAnchorsInsideAnchorWithoutHrefKeepTheirTextWhenLinksAreSkipped() {
+        val root = KdomBuilder().build("<div><BVA ordinal='0'>Before </BVA><a id='chapter'><BVA ordinal='1'>named anchor</BVA></a><BVA ordinal='2'> after.</BVA></div>").rootElement
+        val anchors = root.descendantElements().filter { it.name == "BVA" }.toList()
+        assertEquals(listOf("Before ", "named anchor", " after."), SpeakReferenceText(KLocale.ENGLISH).forAnchors(anchors, speakLinks = false))
     }
 
     @Test

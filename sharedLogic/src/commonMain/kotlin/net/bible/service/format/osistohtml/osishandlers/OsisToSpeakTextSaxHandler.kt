@@ -35,7 +35,7 @@ class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: 
         if (referenceDepth > 0) {
             referenceDepth++
             writeContent(false)
-        } else if (!speakLinks && (name == OSISUtil.OSIS_ELEMENT_REFERENCE || name == "a")) {
+        } else if (!speakLinks && (name == OSISUtil.OSIS_ELEMENT_REFERENCE || name == "a" && attrs.getValue("href") != null)) {
             if (writeContentStack.last() == CONTENT_STATE.WRITE) write(SkippedSpeakLinks.marker)
             referenceDepth = 1
             writeContent(false)

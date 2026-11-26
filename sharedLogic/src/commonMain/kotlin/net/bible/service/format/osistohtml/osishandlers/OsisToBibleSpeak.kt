@@ -66,7 +66,9 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
 
     override fun endDocument() {
         elementStack.removeAt(elementStack.lastIndex)
-        if (!speakSettings.playbackSettings.speakLinks) {
+        if (speakSettings.playbackSettings.speakLinks == false &&
+            speakCommands.filterIsInstance<TextCommand>().none { SkippedSpeakLinks.marker in it.text }) return
+        if (speakSettings.playbackSettings.speakLinks == false) {
             val cleaned = SkippedSpeakLinks.cleanParts(speakCommands.filterIsInstance<TextCommand>().map { it.text })
             var index = 0
             for (i in speakCommands.indices.reversed()) {
@@ -111,7 +113,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
         if (skippedLinkDepth > 0) {
             skippedLinkDepth++
             elementStack.add(StackEntry(false))
-        } else if ((name == OSISUtil.OSIS_ELEMENT_REFERENCE || name == "a") && !speakSettings.playbackSettings.speakLinks) {
+        } else if ((name == OSISUtil.OSIS_ELEMENT_REFERENCE || name == "a" && attrs.getValue("href") != null) && speakSettings.playbackSettings.speakLinks == false) {
             previousRawEnd = RawEnd.CROSSED_SEPARATOR
             if (peekVisible) addText(SkippedSpeakLinks.marker)
             previousRawEnd = RawEnd.CROSSED_SEPARATOR

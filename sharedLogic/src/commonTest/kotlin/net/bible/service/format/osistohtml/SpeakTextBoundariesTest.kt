@@ -150,4 +150,11 @@ class SpeakTextBoundariesTest {
         XmlEventParser().parse("<div><divineName>Lord</divineName>’s house</div>", handler)
         assertEquals("Lord’s house", handler.toString().trim())
     }
+
+    @Test
+    fun legacyWithoutSkippedLinkMarkerPreservesPunctuationAndEmptyNotes() {
+        val handler = OsisToSpeakTextSaxHandler(false, SaxTextPolicy.MODERN, speakLinks = false)
+        XmlEventParser().parse("<div>Text.<note></note> More.</div>", handler)
+        assertEquals("Text. More.", handler.toString().trim())
+    }
 }

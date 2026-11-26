@@ -36,10 +36,24 @@ class PlaybackLinksCompatibilityTest {
     }
 
     @Test
+    fun missingBookmarkLinksRemainUnspecified() {
+        assertEquals<Boolean?>(null, PlaybackSettings.fromJson("""{"speed":145}""").speakLinks)
+        assertEquals<Boolean?>(null, PlaybackSettings.fromJson(PlaybackSettings().toJson()).speakLinks)
+    }
+
+    @Test
+    fun explicitEnabledLinksStillOmitTheKeyForOldClients() {
+        val settings = PlaybackSettings.fromJson("""{"speed":145,"speakLinks":true}""")
+        assertEquals(true, settings.speakLinks)
+        assertFalse("speakLinks" in settings.toJson())
+        assertFalse("speakLinks" in SpeakSettings(settings).toJson())
+    }
+
+    @Test
     fun disabledLinksRoundTripInPlaybackAndWorkspaceSettings() {
         val settings = PlaybackSettings.fromJson("""{"speed":145,"speakLinks":false}""")
         assertEquals(145, settings.speed)
-        assertFalse(settings.speakLinks)
+        assertEquals(false, settings.speakLinks)
         assertEquals(settings, PlaybackSettings.fromJson(settings.toJson()))
         val workspace = SpeakSettings(settings, sleepTimer = 7)
         assertEquals(workspace, SpeakSettings.fromJson(workspace.toJson()))

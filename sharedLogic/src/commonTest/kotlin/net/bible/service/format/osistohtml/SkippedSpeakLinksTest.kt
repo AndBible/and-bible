@@ -24,6 +24,18 @@ class SkippedSpeakLinksTest {
     }
 
     @Test
+    fun connectorsOnlyDisappearWithTheirWholeLinkOnlyBracket() {
+        val marker = SkippedSpeakLinks.marker
+        for (connector in listOf("and", ",", "et", "ja", "as well as")) {
+            assertEquals("Before after.", SkippedSpeakLinks.clean("Before (see $marker $connector $marker) after."))
+        }
+        assertEquals("Keep (real text between links) after.",
+            SkippedSpeakLinks.clean("Keep (real $marker text between links $marker) after."))
+        assertEquals("Before real prose after.",
+            SkippedSpeakLinks.clean("Before ($marker) real prose ($marker) after."))
+    }
+
+    @Test
     fun removedLinksSeparateWordsEvenWithoutSourceWhitespace() {
         val marker = SkippedSpeakLinks.marker
         assertEquals("foo bar", SkippedSpeakLinks.clean("foo${marker}bar"))

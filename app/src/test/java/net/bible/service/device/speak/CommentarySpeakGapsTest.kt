@@ -4,6 +4,10 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChange
+import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import org.crosswire.jsword.passage.VerseRange
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.sword.BookAndKey
@@ -39,6 +43,7 @@ import java.nio.ByteOrder
 class CommentarySpeakGapsTest : AbstractSpeakTests() {
     @get:Rule val temporaryFolder = TemporaryFolder()
     private var commentary: SwordBook? = null
+    private val previousSpeakSettings = SpeakSettings.currentSettings?.makeCopy()
     private val v11n = Versifications.instance().getVersification("KJV")!!
     private fun verse(number: Int) = Verse(v11n, BibleBook.OBAD, 1, number)
 
@@ -80,6 +85,7 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
 
     @After
     fun removeCommentary() {
+        SpeakSettings.currentSettings = previousSpeakSettings
         commentary?.let {
             SwordContentFacade.evictBook(it.initials)
             Books.installed().removeBook(it)
@@ -178,6 +184,7 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
         val doc = sparseCommentary("<p>Before [<reference osisRef='Matt.2.9'>Matthew 2:9</reference>] after.</p>")
         val provider = LegacySpeakTextProvider(testAppSettings(), testCoreStrings(), net.bible.android.platform.androidSaxTextPolicy())
         val initial = SpeakSettings(PlaybackSettings(speakLinks = true))
+        initial.save()
         provider.updateSettings(SpeakSettingsChange(initial))
 
         fun read() = runBlocking {
@@ -192,11 +199,98 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
         }
 
         val withLinks = read()
-        provider.updateSettings(SpeakSettingsChange(initial.copy(playbackSettings = initial.playbackSettings.copy(speakLinks = false))))
+        val disabled = initial.copy(playbackSettings = initial.playbackSettings.copy(speakLinks = false))
+        disabled.save()
+        provider.updateSettings(SpeakSettingsChange(disabled))
         val withoutLinks = read()
 
         assertTrue(withLinks, withLinks.contains("Matthew 2 verse 9"))
         assertFalse(withoutLinks, withoutLinks.contains("Matthew 2 verse 9"))
+    }
+
+    @Test
+    fun `inactive legacy provider reloads global links at the next start`() = runBlocking {
+        val doc = sparseCommentary("<p>Before [<reference osisRef='Matt.2.9'>link</reference>] after.</p>")
+        SpeakSettings(PlaybackSettings(speakLinks = true)).save()
+        val provider = LegacySpeakTextProvider(testAppSettings(), testCoreStrings(), net.bible.android.platform.androidSaxTextPolicy())
+        // Only the active provider receives updateSettings; this one must reload at setup.
+        SpeakSettings(PlaybackSettings(speakLinks = false)).save()
+        provider.setupReading(doc, listOf(verse(1)))
+        val text = buildString {
+            while (provider.isMoreTextToSpeak()) append((provider.getNextSpeakCommand("inactive") as TextCommand).text)
+        }
+        assertTrue(text, text.contains("Before after."))
+        assertFalse(text, text.contains("Matthew"))
+    }
+
+    @Test
+    fun `inactive Bible provider reloads global links at the next start`() = runBlocking {
+        val doc = sparseCommentary("<p>Before <reference osisRef='Matt.2.9'>link</reference>.</p>")
+        SpeakSettings(PlaybackSettings(speakLinks = true, speakTitles = false)).save()
+        val provider = BibleSpeakTextProvider(
+            bibleTraverser, bookmarkControl, doc, FakeSpeakPlatform(FakeSpeakEngine(emptyMap())),
+            testAppSettings(), AdvancedSpeakSettings(testAppSettings()), testOrderedLauncher(), testSwordContentFacade(),
+        )
+        SpeakSettings(PlaybackSettings(speakLinks = false, speakTitles = false)).save()
+        provider.setupReading(doc, verse(1))
+        assertEquals("Before.", (provider.getNextSpeakCommand("inactive") as TextCommand).text)
+    }
+
+    @Test
+    fun `inactive General provider reloads global links at the next start`() = runBlocking {
+        val doc = sparseCommentary("<p><reference osisRef='Matt.2.9'>link</reference>Before.</p>")
+        SpeakSettings(PlaybackSettings(speakLinks = true, speakChapterChanges = false)).save()
+        val provider = GeneralSpeakTextProvider(
+            bookmarkControl, doc, FakeSpeakPlatform(FakeSpeakEngine(emptyMap())), testAppSettings(),
+            AdvancedSpeakSettings(testAppSettings()), testOrderedLauncher(), GlobalContext.get().get(),
+            testSwordContentFacade(), testCoreStrings(), bibleTraverser,
+        )
+        SpeakSettings(PlaybackSettings(speakLinks = false, speakChapterChanges = false)).save()
+        provider.setupReading(BookAndKey(verse(1), doc, OrdinalRange(0)))
+        assertEquals("Before.", (provider.getNextSpeakCommand("inactive") as TextCommand).text)
+    }
+
+    @Test
+    fun `old Bible bookmark keeps global links disabled when restoring other settings`() = runBlocking {
+        val doc = sparseCommentary()
+        SpeakSettings(PlaybackSettings(speakLinks = false)).save()
+        val advanced = AdvancedSpeakSettings(testAppSettings()).apply { restoreSettingsFromBookmarks = true }
+        val provider = BibleSpeakTextProvider(
+            bibleTraverser, bookmarkControl, doc, FakeSpeakPlatform(FakeSpeakEngine(emptyMap())),
+            testAppSettings(), advanced, testOrderedLauncher(), testSwordContentFacade(),
+        )
+        bookmarkControl.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(VerseRange(v11n, verse(1)), null, true, null).apply {
+            playbackSettings = PlaybackSettings.fromJson("""{"speed":145,"bookId":"SpeakGaps"}""")
+        }, labels = setOf(bookmarkControl.speakLabel().id))
+        provider.setupReading(doc, verse(1))
+        provider.loadBookmarkState()
+        provider.prepareForStartSpeaking()
+        assertEquals(145, provider.settings.playbackSettings.speed)
+        assertEquals(false, provider.settings.playbackSettings.speakLinks)
+        assertEquals(false, SpeakSettings.load().playbackSettings.speakLinks)
+    }
+
+    @Test
+    fun `old General bookmark keeps global links disabled when restoring other settings`() = runBlocking {
+        val doc = sparseCommentary()
+        SpeakSettings(PlaybackSettings(speakLinks = false)).save()
+        val advanced = AdvancedSpeakSettings(testAppSettings()).apply { restoreSettingsFromBookmarks = true }
+        val provider = GeneralSpeakTextProvider(
+            bookmarkControl, doc, FakeSpeakPlatform(FakeSpeakEngine(emptyMap())), testAppSettings(),
+            advanced, testOrderedLauncher(), GlobalContext.get().get(),
+            testSwordContentFacade(), testCoreStrings(), bibleTraverser,
+        )
+        bookmarkControl.addOrUpdateGenericBookmark(
+            net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes(verse(1), doc, null, 0).apply {
+                playbackSettings = PlaybackSettings.fromJson("""{"speed":145,"bookId":"SpeakGaps"}""")
+            }, labels = setOf(bookmarkControl.speakLabel().id),
+        )
+        provider.setupReading(BookAndKey(verse(1), doc, OrdinalRange(0)))
+        provider.loadBookmarkState()
+        provider.prepareForStartSpeaking()
+        assertEquals(145, provider.settings.playbackSettings.speed)
+        assertEquals(false, provider.settings.playbackSettings.speakLinks)
+        assertEquals(false, SpeakSettings.load().playbackSettings.speakLinks)
     }
 
     @Test

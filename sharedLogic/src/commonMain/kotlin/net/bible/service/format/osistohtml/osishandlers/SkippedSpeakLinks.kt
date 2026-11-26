@@ -22,8 +22,12 @@ internal object SkippedSpeakLinks {
                     if (text[i] != when (text[start]) { '(' -> ')'; '[' -> ']'; else -> '}' }) continue
                     brackets.removeAt(brackets.lastIndex)
                     val content = text.substring(start + 1, i)
-                    val words = bracketDebris.replace(content, " ").trim().lowercase()
-                    if (marker in content && words in listOf("", "see", "see also", "cf")) {
+                    val markerStart = content.indexOf(marker)
+                    val markerEnd = content.lastIndexOf(marker) + marker.length
+                    // In an otherwise link-only bracket, text between links is connector material.
+                    val candidate = if (markerStart >= 0) content.removeRange(markerStart, markerEnd) else content
+                    val words = bracketDebris.replace(candidate, " ").trim().lowercase()
+                    if (markerStart >= 0 && words in listOf("", "see", "see also", "cf")) {
                         for (j in start..i) removed[j] = true
                     }
                 }
