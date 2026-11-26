@@ -21,8 +21,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
 import { readingProgressSettingsKey } from "@/types/constants";
 
+const appSettings = vi.hoisted(() => ({disableAnimations: false}));
+
 vi.mock("@/composables", () => ({
     useCommon: () => ({
+        appSettings,
         strings: {
             typeEverything: "Type full words",
             reset: "Reset",
@@ -67,6 +70,27 @@ describe("WordType.vue", () => {
             }
         });
     };
+
+    it.each([[false, 'smooth'], [true, 'auto']])("uses the animation setting on advance and reset (disabled=%s)", async (disabled, behavior) => {
+        appSettings.disableAnimations = disabled;
+        const wrapper = createWrapper();
+        const words = wrapper.findAll('.type-word');
+        const scrolls = words.map(word => {
+            word.element.scrollIntoView = vi.fn();
+            return word.element.scrollIntoView;
+        });
+        try {
+            await wrapper.find('.type-hidden-input').setValue('F');
+            await nextTick();
+            expect(scrolls[1]).toHaveBeenCalledWith({behavior, block: 'nearest'});
+            await wrapper.find('.memorize-controls .icon-button').trigger('click');
+            await nextTick();
+            expect(scrolls[0]).toHaveBeenCalledWith({behavior, block: 'nearest'});
+        } finally {
+            wrapper.unmount();
+            appSettings.disableAnimations = false;
+        }
+    });
 
     it("keeps the focused input beside the active word through restore, advance, completion, and reset", async () => {
         const wrapper = createWrapper({

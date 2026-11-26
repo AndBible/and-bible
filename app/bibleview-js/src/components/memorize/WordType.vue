@@ -114,7 +114,7 @@ const emit = defineEmits<{
 }>();
 
 const {settings: globalSettings, updateSettings} = inject(readingProgressSettingsKey)!;
-const {strings} = useCommon();
+const {strings, appSettings} = useCommon();
 
 const currentWordIndex = ref(0);
 const typeEverything = ref(false);
@@ -285,7 +285,7 @@ function scrollToCurrentWord() {
         updateInputPosition();
         const el = wordRefs.value[currentWordIndex.value] as HTMLElement | undefined;
         if (el?.scrollIntoView) {
-            el.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            el.scrollIntoView({behavior: appSettings.disableAnimations ? 'auto' : 'smooth', block: 'nearest'});
             requestAnimationFrame(updateInputPosition);
         }
     });
