@@ -45,6 +45,19 @@ The reading view requires the Direct3D graphics renderer. If the window uses a d
 
 Switching workspaces reuses the reading pages. Returning to a workspace restores its StudyPad, Bible and commentary panes without restarting the browser page.
 
+### Opening backups and document files with the Windows MSI
+
+The MSI does not register generic ZIP, CSV, font, image, EPUB or SQLite extensions as default
+AndBible file types. Backups and module ZIPs remain openable from **Backup & Restore** or
+**Load Documents From Files** inside AndBible. To open a supported file from Explorer, choose
+**Open with** and browse to `AndBible.exe`; do not choose **Always** unless you want all files
+of that type to use AndBible. The MSIX package can still appear in **Open with** without replacing
+an existing default.
+
+If an older MSI changed a default, choose your preferred application in **Settings > Apps > Default apps**.
+An explicit choice saved in Windows is not reset by AndBible. Upgrading removes the old MSI's generic
+registrations, but does not change choices you saved yourself.
+
 ## Linux packages
 
 The `andbible` `.deb` includes Chromium (KCEF), as does the AppImage.

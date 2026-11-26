@@ -247,6 +247,8 @@ val windowsPublisher = providers.gradleProperty("windowsPublisher").orElse("CN=A
     require(it.startsWith("CN=") && it.isNotBlank() && it == it.trim()) { "windowsPublisher must be a distinguished name starting with CN=" }
 }
 val windowsIdentity = mapOf("NAME" to "AndBible.Desktop", "PUBLISHER" to windowsPublisher)
+// MSIX only adds Open with candidates. jpackage MSI associations overwrite extension defaults, so keep them separate.
+val windowsMsiAssociations = emptyMap<String, String>()
 val windowsAssociations = mapOf(
     "zip" to "application/zip", "epub" to "application/epub+zip", "ttf" to "font/ttf",
     "csv" to "text/csv", "jpg" to "image/jpeg", "jpeg" to "image/jpeg", "png" to "image/png",
@@ -288,7 +290,7 @@ compose.desktop {
             // jlink module set: the suggestRuntimeModules result plus what TLS (jdk.crypto.ec) and HTTP clients
             // (java.net.http) need at run time, and jdk.localedata the non-English locales, which static analysis cannot see.
             modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http", "jdk.localedata", "jdk.security.auth")
-            if (isWindowsHost) windowsAssociations.forEach { (ext, mime) ->
+            if (isWindowsHost) windowsMsiAssociations.forEach { (ext, mime) ->
                 fileAssociation(mimeType = mime, extension = ext, description = "AndBible $ext file")
             }
             windows {
@@ -866,6 +868,7 @@ val generateWindowsManifest by tasks.registering {
     inputs.property("identity", windowsIdentity)
     inputs.property("version", windowsPackageVersion)
     inputs.property("associations", windowsAssociations)
+    inputs.property("msiAssociations", windowsMsiAssociations)
     inputs.property("timestamp", windowsTimestampUrl)
     inputs.property("testSigning", windowsTestSigning)
     outputs.dir(windowsMsixStage)
@@ -880,7 +883,7 @@ val generateWindowsManifest by tasks.registering {
         File(stage, "AppxManifest.xml").writeText(manifest)
         val policy = File(stage.parentFile, "packaging-policy.properties")
         Properties().apply {
-            setProperty("msi.extensions", windowsAssociations.keys.joinToString(","))
+            setProperty("msi.extensions", windowsMsiAssociations.keys.joinToString(","))
             setProperty("timestamp.url", windowsTimestampUrl)
             setProperty("test.signing", windowsTestSigning.toString())
             setProperty("timestamp.args", windowsTimestampArgs.joinToString("|"))
@@ -903,6 +906,7 @@ tasks.named<Test>("test") {
     systemProperty("expectedTimestamp", windowsTimestampUrl)
     systemProperty("expectedTestSigning", windowsTestSigning.toString())
     systemProperty("expectedPublisher", windowsPublisher)
+    systemProperty("expectedWindowsAssociations", windowsAssociations.keys.joinToString(","))
 }
 
 fun windowsSdkTool(name: String): String {
@@ -968,7 +972,7 @@ tasks.register("packageWindowsMsi") {
         val msi = File(dir, "AndBible-$windowsPackageVersion.msi")
         msi.delete()
         val associationsDir = layout.buildDirectory.dir("windows-msi/associations").get().asFile.apply { mkdirs() }
-        val associationArgs = windowsAssociations.flatMap { (ext, mime) ->
+        val associationArgs = windowsMsiAssociations.flatMap { (ext, mime) ->
             val association = File(associationsDir, "$ext.properties")
             association.writeText("extension=$ext\nmime-type=$mime\ndescription=AndBible $ext file\n")
             listOf("--file-associations", association.absolutePath)

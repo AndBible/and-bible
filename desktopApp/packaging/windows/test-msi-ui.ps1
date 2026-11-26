@@ -15,6 +15,12 @@ function Rows([string]$Sql, [int]$Columns = 2) {
 function Assert([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
+# Inspect the compiled registry table: jpackage's non-advertised associations can silently replace generic defaults.
+$genericDefaults = @(Rows 'SELECT `Key`, `Name`, `Value` FROM `Registry`' 3 | Where-Object {
+    $_.Fields[0] -match '^(Software\\Classes\\)?\.(zip|csv|ttf|epub|jpg|jpeg|png|webp|sqlite3)$' -and
+        ($_.Fields[1] -eq '' -or $_.Fields[1] -eq '@')
+})
+Assert ($genericDefaults.Count -eq 0) 'MSI must not replace default handlers for generic files'
 # Evaluate the compiled MSI conditions, not a second implementation of the UI routing.
 $session = $installer.OpenPackage((Resolve-Path $Msi).Path, 1)
 $upgrades = @(Rows 'SELECT `ActionProperty`, `VersionMax` FROM `Upgrade`')
