@@ -69,6 +69,8 @@ import net.bible.sharedui.desktop.update.desktopBuildNumber
 import net.bible.sharedui.desktop.update.detectDistribution
 import net.bible.sharedui.settings.DesktopBetaUpdateSetting
 import net.bible.sharedui.settings.DesktopUpdateCheckSetting
+import net.bible.sharedui.settings.DesktopUiScaleSetting
+import net.bible.sharedui.desktop.settings.PersistentDesktopUiScaleSetting
 import java.nio.file.Path
 
 // OWNER: plan D3d (desktop misc: night mode, notification permission, system screens, debug actions, bug report, text
@@ -151,7 +153,20 @@ object DesktopNoSentenceBreaker : SentenceBreaker {
     override fun following(text: String, offset: Int): Int = text.length
 }
 
-fun desktopMiscModule(): Module = module {
+fun desktopMiscModule(
+    uiScaleOverridden: Boolean = false,
+    os: String = System.getProperty("os.name").orEmpty(),
+    property: (String) -> String? = System::getProperty,
+): Module = module {
+    val linux = net.bible.sharedcore.platform.desktop.isLinuxDesktop(os)
+    if (linux || os.startsWith("Windows", ignoreCase = true)) {
+        // WINDOW popups use the JDK's whole-number scale, already fixed before the graph starts.
+        val effectivePercent = if (linux && property("compose.layers.type") == "WINDOW") {
+            if (property("sun.java2d.uiScale.enabled").equals("false", ignoreCase = true)) 100
+            else property("sun.java2d.uiScale")?.toDoubleOrNull()?.let { (it * 100).toInt() } ?: 100
+        } else null
+        single<DesktopUiScaleSetting> { PersistentDesktopUiScaleSetting(get(), effectivePercent, uiScaleOverridden) }
+    }
     single<net.bible.android.control.activity.ActivityReporter> {
         net.bible.android.control.activity.HostActivityReporter(get<AppCoroutineScope>())
     }

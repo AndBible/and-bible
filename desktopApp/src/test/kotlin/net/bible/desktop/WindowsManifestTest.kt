@@ -32,8 +32,8 @@ class WindowsManifestTest {
         val policy = java.util.Properties().apply {
             File("build/windows-msix/packaging-policy.properties").inputStream().use { load(it) }
         }
-        val extensions = policy.getProperty("msi.extensions").split(',').toSet()
-        assertEquals(setOf("zip", "epub", "ttf", "csv", "jpg", "jpeg", "png", "webp", "sqlite3"), extensions)
+        val extensions = policy.getProperty("msi.extensions").split(',').filter(String::isNotBlank).toSet()
+        assertTrue(extensions.isEmpty(), "MSI must not replace default handlers for generic files: $extensions")
         assertEquals(System.getProperty("expectedTimestamp"), policy.getProperty("timestamp.url"))
         assertEquals(System.getProperty("expectedTestSigning"), policy.getProperty("test.signing"))
         val expectedArgs = if (System.getProperty("expectedTestSigning") == "true") "" else
@@ -67,8 +67,9 @@ class WindowsManifestTest {
         assertTrue(elements("Verb").single().textContent.isNotBlank(), "File activation verb needs a display name")
 
         val extensions = elements("FileType").map { it.textContent }.toSet()
-        // MSIX associations are independent of Linux and MSI policy; Windows reserves .ttf.
-        assertEquals(setOf(".zip", ".epub", ".csv", ".jpg", ".jpeg", ".png", ".webp", ".sqlite3"), extensions)
+        // Keep this policy independent from the build's association map so removals are caught.
+        val expected = setOf(".zip", ".epub", ".csv", ".jpg", ".jpeg", ".png", ".webp", ".sqlite3")
+        assertEquals(expected, extensions)
         for ((name, size) in listOf("StoreLogo" to 50, "Square150x150Logo" to 150, "Square44x44Logo" to 44)) {
             val image = assertNotNull(ImageIO.read(File(stage, "Assets/$name.png")))
             assertEquals(size, image.width)

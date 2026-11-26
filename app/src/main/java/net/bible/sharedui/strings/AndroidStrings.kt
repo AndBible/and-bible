@@ -516,6 +516,12 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 5 — search
     override val search: String get() = context.getString(R.string.search)
     override val emptyList: String get() = context.getString(R.string.empty_list)
+    override fun desktopUiScalePercent(percent: Int): String = context.getString(R.string.desktop_ui_scale_percent, percent)
+    override fun desktopUiScaleEffective(percent: Int, effectivePercent: Int): String = context.getString(R.string.desktop_ui_scale_effective, percent, effectivePercent)
+    override fun desktopUiScaleOverridden(percent: Int): String = context.getString(R.string.desktop_ui_scale_overridden, percent)
+    override fun desktopUiScaleOverriddenEffective(percent: Int, effectivePercent: Int): String = context.getString(R.string.desktop_ui_scale_overridden_effective, percent, effectivePercent)
+    override val desktopUiScaleTitle: String get() = context.getString(R.string.desktop_ui_scale_title)
+    override val desktopUiScaleSummary: String get() = context.getString(R.string.desktop_ui_scale_summary)
     override val desktopUpdateSettingTitle: String get() = context.getString(R.string.desktop_update_setting_title)
     override val desktopUpdateSettingSummary: String get() = context.getString(R.string.desktop_update_setting_summary)
     override val desktopUpdateIntervalDaily: String get() = context.getString(R.string.desktop_update_interval_daily)

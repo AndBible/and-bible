@@ -115,7 +115,8 @@ object DesktopAppStartup {
      * crash-recovery backup path needs the databases closed); a later call with true opens them. [repositories] is the
      * repository site map (`repositories.txt` on the classpath; tests pass their own). [launchArgs] and
      * [lifecycleEvents] go into the graph (see [desktopPlatformModule]); only the first successful start uses them.
-     * [notifierSource] selects the native notifier and its availability.
+     * [notifierSource] selects the native notifier and its availability. [uiScaleOverridden] is the scale detector's
+     * startup decision, captured before it writes JDK properties, not a fresh read of those properties.
      */
     fun ensureStarted(
         paths: DesktopPaths,
@@ -126,10 +127,11 @@ object DesktopAppStartup {
         launchArgs: List<String> = emptyList(),
         lifecycleEvents: DesktopLifecycleEvents = DesktopLifecycleEvents(),
         notifierSource: DesktopNotifierSource = linuxNotifierSource(),
+        uiScaleOverridden: Boolean = false,
     ): StartupPhase = synchronized(lock) {
         HostStartup.register(info)
         try {
-            if (koinApp == null) startCore(paths, window, language, repositories, launchArgs, lifecycleEvents, notifierSource)
+            if (koinApp == null) startCore(paths, window, language, repositories, launchArgs, lifecycleEvents, notifierSource, uiScaleOverridden)
             if (openDatabases && !opened) openDatabasesLocked()
             StartupPhase.Ready
         } catch (e: Throwable) {
@@ -147,6 +149,7 @@ object DesktopAppStartup {
         launchArgs: List<String>,
         lifecycleEvents: DesktopLifecycleEvents,
         notifierSource: DesktopNotifierSource,
+        uiScaleOverridden: Boolean,
     ) {
         ensureWritableDirectory(paths.data)
         configureDesktopLogFile(paths.data.resolve("logs"))
@@ -160,7 +163,7 @@ object DesktopAppStartup {
         try {
             app.modules(
                 desktopPlatformModule(paths, window, language, launchArgs, lifecycleEvents, notifierSource),
-                desktopReadingModule(), desktopDocumentModule(), desktopMiscModule(), desktopSyncModule(openBrowser = { url -> app.koin.get<DesktopExternalLinks>().openAndWait(url) }),
+                desktopReadingModule(), desktopDocumentModule(), desktopMiscModule(uiScaleOverridden), desktopSyncModule(openBrowser = { url -> app.koin.get<DesktopExternalLinks>().openAndWait(url) }),
             )
             // Before any eager instance or other reader can touch a setting: the settings store opens through this host.
             DatabaseContainer.installHost(DesktopDatabaseHost(app.koin.get()))
