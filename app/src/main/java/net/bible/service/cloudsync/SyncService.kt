@@ -45,6 +45,9 @@ private const val SYNC_NOTIFICATION_ID=2
 const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
 private const val WAKELOCK_TAG = "andbible:sync-wakelock"
 
+internal fun leaveEligible(ports: SyncNowPorts, signedIn: Boolean = true) =
+    CommonUtils.isCloudSyncEnabled && ports.networkAvailable() && signedIn && !net.bible.service.db.DatabaseContainer.replacing
+
 /** Leave sync must not apply remote rows while the independent onPause save is still pending. */
 internal suspend fun awaitLeaveWorkspacePersisted(ports: SyncNowPorts): Boolean {
     val persisted = kotlinx.coroutines.withTimeoutOrNull(5_000) {
@@ -175,9 +178,8 @@ class SyncService: Service() {
                     try {
                         if (interactive && !cloudSync.signedIn && cloudSync.signIn(waitForExisting = true) != true) {
                             // A cancelled or failed sign-in must not start a sync pass.
-                        } else if (!isLeave || (CommonUtils.isCloudSyncEnabled && ports.networkAvailable() && cloudSync.signedIn && !net.bible.service.db.DatabaseContainer.replacing)) {
-                            if (!isLeave || (awaitLeaveWorkspacePersisted(ports) && CommonUtils.isCloudSyncEnabled &&
-                                    ports.networkAvailable() && !net.bible.service.db.DatabaseContainer.replacing)) {
+                        } else if (!isLeave || leaveEligible(ports, cloudSync.signedIn)) {
+                            if (!isLeave || (awaitLeaveWorkspacePersisted(ports) && leaveEligible(ports, cloudSync.signedIn))) {
                                 jobStarted = true
                                 succeeded = runDatabaseSyncJob(cloudSync, settings, allowInteraction = !isLeave, backgroundErrors = isLeave || !interactive, reportTransportErrors = !isLeave && interactive)
                             }

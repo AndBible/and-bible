@@ -96,6 +96,78 @@ class SyncLeaveHandOffTest {
     }
 
     @Test
+    fun olderLeaveCompletionDoesNotOverwriteNewerOpenStartForNetworkRestore() = runTest {
+        val handoff = CompletableDeferred<Boolean>()
+        var online = true
+        var syncs = 0
+        val policy = BackgroundSyncPolicy(
+            syncEnabled = { true }, replacing = { false }, intervalSeconds = { 300 },
+            lastSynchronizedMs = { 0 }, nowMs = { currentTime }, signedIn = { true },
+            signIn = { true }, startSync = { syncs++; CompletableDeferred(true) },
+        )
+        val driver = SyncTriggerDriver(
+            policy = policy, scope = backgroundScope, leaveHandOff = { handoff },
+            networkAvailable = { online }, networkRestoreGapMs = 30_000L,
+        )
+
+        driver.onBackground()
+        advanceTimeBy(10_000)
+        driver.onForeground()?.join()
+        advanceTimeBy(25_000)
+        handoff.complete(true)
+        runCurrent()
+
+        assertNull(
+            driver.onNetworkAvailable(),
+            "the leave completion must not replace the newer Open start and allow a redundant restore sync",
+        )
+        assertEquals(1, syncs, "only the Open pass should have synced")
+    }
+
+    @Test
+    fun leaveCompletionDoesNotMoveTimerMarkBackAcrossReentrantOpen() = runTest {
+        val handoff = CompletableDeferred<Boolean>()
+        var driver: SyncTriggerDriver? = null
+        var reenterOnClockRead = false
+        var syncs = 0
+        val policy = BackgroundSyncPolicy(
+            syncEnabled = { true }, replacing = { false }, intervalSeconds = { 300 },
+            lastSynchronizedMs = { 0 }, nowMs = {
+                val capturedTime = currentTime
+                if (reenterOnClockRead) {
+                    reenterOnClockRead = false
+                    advanceTimeBy(5_000)
+                    driver!!.onForeground()
+                    runCurrent()
+                }
+                capturedTime
+            },
+            signedIn = { true }, signIn = { true },
+            startSync = { syncs++; CompletableDeferred(true) },
+        )
+        driver = SyncTriggerDriver(
+            policy = policy, scope = backgroundScope, leaveHandOff = { handoff },
+        )
+
+        driver!!.onBackground()
+        advanceTimeBy(5_000)
+        reenterOnClockRead = true
+        handoff.complete(true)
+        runCurrent()
+
+        assertEquals(1, syncs, "the reentrant Open pass should finish before the leave callback resumes")
+        advanceTimeBy(294_999)
+        runCurrent()
+        assertEquals(1, syncs, "the timer must not run at the older completion mark's deadline")
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(1, syncs, "the newer Open mark must still determine the timer deadline")
+        advanceTimeBy(5_000)
+        runCurrent()
+        assertEquals(2, syncs, "the timer should run one interval after the newer Open mark")
+    }
+
+    @Test
     fun leaveDoesNotHandOffWhenSyncPolicyCannotRun() = runTest {
         var handoffs = 0
         var prepared = 0

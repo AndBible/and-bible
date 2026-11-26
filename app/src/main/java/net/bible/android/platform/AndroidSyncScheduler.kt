@@ -17,7 +17,6 @@ class AndroidSyncScheduler(private val context: Context) : SyncScheduler {
     enum class Request { Leave, Interactive }
 
     private var pending: CompletableDeferred<Boolean>? = null
-    override val pendingDatabaseSync: Deferred<Boolean>? get() = synchronized(this) { pending }
     private var pendingRequest: Request? = null
     override fun startDatabaseSync(): Deferred<Boolean> = start(false)
     override fun startUserInitiatedDatabaseSync(): Deferred<Boolean> = start(true)

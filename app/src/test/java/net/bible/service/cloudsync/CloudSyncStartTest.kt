@@ -94,7 +94,7 @@ class CloudSyncStartTest {
     }
 
     @Test
-    fun waitUntilFinishedIncludesLeavePendingBeforeEngineStarts() = runBlocking {
+    fun waitUntilFinishedDoesNotWaitForPendingSchedulerRun() = runBlocking {
         val scheduler = org.koin.core.context.GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
         val cloud = org.koin.core.context.GlobalContext.get().get<CloudSync>()
         try {
@@ -102,28 +102,10 @@ class CloudSyncStartTest {
             val waiter = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
                 cloud.waitUntilFinished()
             }
-            assertFalse("restore must wait for the leave service even before its engine starts", waiter.isCompleted)
+            assertTrue("a host-owned pending run is not a CloudSync start or an active engine", waiter.isCompleted)
             scheduler.complete(true)
             withTimeout(1000) { waiter.await() }
         } finally { scheduler.complete(false) }
-    }
-
-    @Test
-    fun waitUntilFinishedIncludesInProcessFallback() = runBlocking {
-        val scheduler = org.koin.core.context.GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
-        val cloud = org.koin.core.context.GlobalContext.get().get<CloudSync>()
-        val entered = CompletableDeferred<Unit>()
-        val release = CompletableDeferred<Unit>()
-        val fallback = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
-            scheduler.runFallback { entered.complete(Unit); release.await(); true }
-        }
-        try {
-            entered.await()
-            val waiter = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { cloud.waitUntilFinished() }
-            assertFalse("restore must wait for fallback persistence as well as its engine", waiter.isCompleted)
-            release.complete(Unit)
-            withTimeout(1000) { fallback.await(); waiter.await() }
-        } finally { release.complete(Unit); fallback.cancel(); scheduler.complete(false) }
     }
 
     @Test

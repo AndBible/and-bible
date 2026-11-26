@@ -118,6 +118,7 @@ class SyncServiceLeaveBehaviorTest {
     @Test fun leaveRechecksNetworkAfterPersistence() = runBlocking { recheckAfterPersistence("network") }
     @Test fun leaveRechecksEnabledAfterPersistence() = runBlocking { recheckAfterPersistence("enabled") }
     @Test fun leaveRechecksReplacementAfterPersistence() = runBlocking { recheckAfterPersistence("replacement") }
+    @Test fun leaveRechecksSignedInAfterPersistence() = runBlocking { recheckAfterPersistence("signedIn") }
 
     private suspend fun recheckAfterPersistence(reason: String) = kotlinx.coroutines.coroutineScope {
         val koin = GlobalContext.get()
@@ -153,6 +154,7 @@ class SyncServiceLeaveBehaviorTest {
             withTimeout(10000) { entered.await() }
             when (reason) {
                 "network" -> online.set(false)
+                "signedIn" -> cloud.dropAdapterForReconnect()
                 "enabled" -> previous.keys.forEach { it.setSyncEnabled(settings, false) }
                 "replacement" -> {
                     replacement = launch(kotlinx.coroutines.Dispatchers.IO) {

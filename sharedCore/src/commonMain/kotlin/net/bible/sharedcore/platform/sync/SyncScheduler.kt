@@ -6,8 +6,5 @@ import kotlinx.coroutines.Deferred
 fun interface SyncScheduler {
     fun startDatabaseSync(): Deferred<Boolean>
 
-    /** Host-owned work that can start without CloudSync.start(), including Android leave sync. */
-    val pendingDatabaseSync: Deferred<Boolean>? get() = null
-
     fun startUserInitiatedDatabaseSync(): Deferred<Boolean> = startDatabaseSync()
 }

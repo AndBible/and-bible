@@ -18,6 +18,7 @@ package net.bible.service.cloudsync
 
 import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CancellationException
@@ -164,8 +165,9 @@ class SyncTriggerDriver(
                 val start = policy.now()
                 job.invokeOnCompletion { failure ->
                     if (failure == null && job.getCompleted()) {
-                        lastPassStartMs.value = start
-                        lastPassMarkMs.value = policy.now()
+                        lastPassStartMs.update { maxOf(it, start) }
+                        val finished = policy.now()
+                        lastPassMarkMs.update { maxOf(it, finished) }
                     }
                 }
                 synchronized(lock) { leaveJob = job }
