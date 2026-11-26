@@ -67,9 +67,8 @@ class WindowsManifestTest {
         assertTrue(elements("Verb").single().textContent.isNotBlank(), "File activation verb needs a display name")
 
         val extensions = elements("FileType").map { it.textContent }.toSet()
-        // MSIX adds Open with candidates; MSI default-handler policy is independent. Windows reserves .ttf.
-        val expected = System.getProperty("expectedWindowsAssociations").split(',')
-            .filter { it.isNotBlank() && it != "ttf" }.map { ".$it" }.toSet()
+        // Keep this policy independent from the build's association map so removals are caught.
+        val expected = setOf(".zip", ".epub", ".csv", ".jpg", ".jpeg", ".png", ".webp", ".sqlite3")
         assertEquals(expected, extensions)
         for ((name, size) in listOf("StoreLogo" to 50, "Square150x150Logo" to 150, "Square44x44Logo" to 44)) {
             val image = assertNotNull(ImageIO.read(File(stage, "Assets/$name.png")))

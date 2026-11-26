@@ -20,17 +20,33 @@
         <RegistryValue Root="HKCU" Key="Software\AndBible\Installer" Name="InstallDir" Type="string" Value="[INSTALLDIR]" KeyPath="yes" />
       </Component>
       <!-- OpenWithProgids adds candidates without writing an extension's default value. -->
-      <Component Id="AndBibleOpenWithEpub" Guid="*">
+      <Component Id="AndBibleOpenWithEpub" Guid="*" Win64="yes">
         <RegistryValue Root="HKCU" Key="Software\Classes\.epub\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
       </Component>
-      <Component Id="AndBibleOpenWithSqlite" Guid="*">
+      <Component Id="AndBibleOpenWithSqlite" Guid="*" Win64="yes">
         <RegistryValue Root="HKCU" Key="Software\Classes\.sqlite3\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
       </Component>
-      <Component Id="AndBibleOpenWithZip" Guid="*">
+      <Component Id="AndBibleOpenWithZip" Guid="*" Win64="yes">
         <RegistryValue Root="HKCU" Key="Software\Classes\.zip\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
       </Component>
-      <Component Id="AndBibleDocumentProgId" Guid="*">
+      <Component Id="AndBibleOpenWithCsv" Guid="*" Win64="yes">
+        <RegistryValue Root="HKCU" Key="Software\Classes\.csv\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
+      </Component>
+      <Component Id="AndBibleOpenWithJpg" Guid="*" Win64="yes">
+        <RegistryValue Root="HKCU" Key="Software\Classes\.jpg\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
+      </Component>
+      <Component Id="AndBibleOpenWithJpeg" Guid="*" Win64="yes">
+        <RegistryValue Root="HKCU" Key="Software\Classes\.jpeg\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
+      </Component>
+      <Component Id="AndBibleOpenWithPng" Guid="*" Win64="yes">
+        <RegistryValue Root="HKCU" Key="Software\Classes\.png\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
+      </Component>
+      <Component Id="AndBibleOpenWithWebp" Guid="*" Win64="yes">
+        <RegistryValue Root="HKCU" Key="Software\Classes\.webp\OpenWithProgids" Name="AndBible.Document" Type="string" Value="" KeyPath="yes" />
+      </Component>
+      <Component Id="AndBibleDocumentProgId" Guid="*" Win64="yes">
         <RegistryValue Root="HKCU" Key="Software\Classes\AndBible.Document\Application" Name="ApplicationName" Type="string" Value="AndBible" />
+        <RegistryValue Root="HKCU" Key="Software\Classes\AndBible.Document\DefaultIcon" Type="string" Value="&quot;[INSTALLDIR]AndBible.exe&quot;,0" />
         <RegistryValue Root="HKCU" Key="Software\Classes\AndBible.Document\shell\open\command" Type="string" Value="&quot;[INSTALLDIR]AndBible.exe&quot; &quot;%1&quot;" KeyPath="yes" />
       </Component>
     </DirectoryRef>
@@ -39,6 +55,11 @@
       <ComponentRef Id="AndBibleOpenWithEpub" />
       <ComponentRef Id="AndBibleOpenWithSqlite" />
       <ComponentRef Id="AndBibleOpenWithZip" />
+      <ComponentRef Id="AndBibleOpenWithCsv" />
+      <ComponentRef Id="AndBibleOpenWithJpg" />
+      <ComponentRef Id="AndBibleOpenWithJpeg" />
+      <ComponentRef Id="AndBibleOpenWithPng" />
+      <ComponentRef Id="AndBibleOpenWithWebp" />
       <ComponentRef Id="AndBibleDocumentProgId" />
     </FeatureRef>
     <WixVariable Id="WixUILicenseRtf" Value="$(var.JpLicenseRtf)" />
