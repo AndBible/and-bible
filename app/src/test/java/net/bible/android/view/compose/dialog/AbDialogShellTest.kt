@@ -2,11 +2,14 @@ package net.bible.android.view.compose.dialog
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -17,7 +20,9 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -102,11 +107,126 @@ class AbDialogShellTest {
         compose.waitForIdle()
         compose.onNodeWithTag("dialog-confirm").assertIsDisplayed()
         compose.onNodeWithTag("dialog-dismiss").assertIsDisplayed()
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(0)
+        compose.onAllNodesWithTag("dialog-buttons-divider-top").assertCountEquals(0)
         val root = dialogRoot().rootBounds()
         listOf("dialog-confirm", "dialog-dismiss").forEach { tag ->
             val b = compose.onNodeWithTag(tag).rootBounds()
             assertTrue("$tag $b outside dialog root $root", b.top >= root.top && b.bottom <= root.bottom && b.left >= root.left && b.right <= root.right)
         }
+    }
+
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun leadYieldsBeforeFittingButtonsStartScrolling() {
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(
+                    onDismissRequest = {},
+                    buttons = { Spacer(Modifier.fillMaxWidth().height(230.dp).testTag("tall-action")) },
+                    lead = { Text(ax5Lead) },
+                    content = { Spacer(Modifier.height(56.dp)) },
+                )
+            }
+        }
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(0)
+        assertEquals(230 * compose.density.density, compose.onNodeWithTag("tall-action").rootBounds().height, 1f)
+        assertTrue(compose.onNodeWithTag("dialog-middle-area").rootBounds().height >= 56 * compose.density.density - 1)
+    }
+
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun exactlyFittingButtonsRetainTheOldMiddleMinimum() {
+        val actionHeight = androidx.compose.runtime.mutableStateOf(240.dp)
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(
+                    onDismissRequest = {},
+                    buttons = { Spacer(Modifier.fillMaxWidth().height(actionHeight.value)) },
+                    lead = { Text(ax5Lead) },
+                    content = { Spacer(Modifier.height(56.dp)) },
+                )
+            }
+        }
+        fun assertFittingRow() {
+            compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(0)
+            val middleHeight = compose.onNodeWithTag("dialog-middle-area").rootBounds().height
+            assertTrue("fitting buttons must preserve 56dp middle, got $middleHeight",
+                middleHeight >= 56 * compose.density.density - 1)
+        }
+        assertFittingRow()
+        actionHeight.value = 600.dp
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(1)
+        compose.onNodeWithTag("dialog-lead").assertIsDisplayed()
+        actionHeight.value = 240.dp
+        assertFittingRow()
+    }
+
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun iconIsReservedBeforeOversizedButtons() {
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(
+                    onDismissRequest = {},
+                    icon = { Spacer(Modifier.fillMaxWidth().height(80.dp).testTag("fixed-icon")) },
+                    lead = { Text("Lead") },
+                    content = { Text(longBody) },
+                    buttons = { Spacer(Modifier.height(600.dp)) },
+                )
+            }
+        }
+        assertEquals(80 * compose.density.density, compose.onNodeWithTag("fixed-icon").rootBounds().height, 1f)
+        assertTrue("middle must keep a viewport beside the fixed icon",
+            compose.onNodeWithTag("dialog-middle-area").rootBounds().height >= 24 * compose.density.density - 1)
+        compose.onNodeWithTag("dialog-lead").assertIsDisplayed()
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(1)
+    }
+
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun buttonsWithoutLeadOrMiddleUseTheWholeHeight() {
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(onDismissRequest = {}, buttons = { Spacer(Modifier.height(280.dp)) })
+            }
+        }
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(0)
+    }
+
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun buttonsOnlyFillTheViewportWithoutAnUnreachableGap() {
+        var lastBounds = Rect.Zero
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(onDismissRequest = {}, buttons = {
+                    Spacer(Modifier.fillMaxWidth().height(600.dp))
+                    Text("Last action", Modifier.onGloballyPositioned {
+                        lastBounds = Rect(it.positionInRoot(), it.size.toSize())
+                    })
+                })
+            }
+        }
+        compose.onNodeWithText("Last action").performScrollTo().assertIsDisplayed()
+        compose.waitForIdle()
+        val root = dialogRoot().rootBounds()
+        assertTrue("last action $lastBounds outside window $root", lastBounds.bottom <= root.bottom)
+        compose.onAllNodesWithTag("dialog-buttons-divider-top").assertCountEquals(1)
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(0)
+    }
+
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp-h100dp")
+    @Test fun veryShortDialogDoesNotExceedTheWindowHeight() {
+        var size = IntSize.Zero
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(
+                    onDismissRequest = {}, modifier = Modifier.onGloballyPositioned { size = it.size },
+                    lead = { Text(longBody) }, buttons = {},
+                )
+            }
+        }
+        compose.waitForIdle()
+        val root = dialogRoot().rootBounds()
+        assertTrue("dialog $size exceeds window", size.height <= root.height)
+        assertTrue("lead cap must use the real window, not a taller floor",
+            compose.onNodeWithTag("dialog-lead-area").rootBounds().height <= root.height * 0.4f + 1)
     }
 
     /** Guards the AX5 tests: the font scale must really reach the dialog window's text. */
@@ -126,6 +246,8 @@ class AbDialogShellTest {
     @Test fun threeButtonsAndMiddleMinimumInShortWindowAtAx5() {
         show(lead = ax5Lead, body = longBody, threeButtons = true)
         compose.waitForIdle()
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(0)
+        compose.onAllNodesWithTag("dialog-buttons-divider-top").assertCountEquals(0)
         val root = dialogRoot().rootBounds()
         listOf("dialog-neutral", "dialog-dismiss", "dialog-confirm").forEach { tag ->
             compose.onNodeWithTag(tag).assertIsDisplayed()

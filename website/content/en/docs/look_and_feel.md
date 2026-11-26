@@ -192,7 +192,9 @@ the document text. To change Bible text size, use the text display settings or
 the **Font size multiplier** below; increasing the system text size does not
 replace those controls. At large accessibility text sizes, long dialog titles
 and messages can be scrolled separately so the choices and confirmation buttons
-remain reachable on a phone.
+remain reachable on a phone. The title gives up space before fitting action
+buttons need to scroll. If a dialog has too many action buttons to fit, its
+button area also scrolls; a divider marks an edge with more content.
 
 - **Font size multiplier:** A global scaling factor (10%–500%) applied to all
     document text. Useful when you synchronize workspaces across devices with

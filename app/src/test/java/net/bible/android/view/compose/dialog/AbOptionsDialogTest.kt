@@ -106,6 +106,64 @@ class AbOptionsDialogTest {
         compose.onNodeWithTag("dialog-dismiss").assertIsDisplayed()
     }
 
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp-h900dp")
+    fun checkboxWithManyActionsNeedsNoScrollingAtNormalScale() {
+        compose.setContent { AbTheme { ManyActionOptionsFixture() } }
+        compose.onNodeWithText("New version available").assertIsDisplayed()
+        compose.onNodeWithText("Don't notify me about updates").assertIsDisplayed()
+        updateDialogAnswers.forEach { compose.onNodeWithText(it.label).assertIsDisplayed() }
+        compose.onAllNodesWithTag("dialog-buttons-divider-top").assertCountEquals(0)
+        compose.onAllNodesWithTag("dialog-buttons-divider-bottom").assertCountEquals(0)
+        val area = compose.onNodeWithTag("dialog-buttons-area").fetchSemanticsNode().boundsInRoot
+        val last = compose.onNodeWithText(updateDialogAnswers.last().label).fetchSemanticsNode().boundsInRoot
+        assertTrue("last action $last outside button area $area", last.top >= area.top && last.bottom <= area.bottom)
+    }
+
+    @Ax5 @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp-h900dp")
+    fun checkboxWithManyActionsKeepsContentAndEveryActionReachableAtAx5() {
+        checkManyActionCheckboxReachability()
+    }
+
+    @Ax5 @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp-h360dp")
+    fun checkboxWithManyActionsKeepsContentAndEveryActionReachableInShortWindowAtAx5() {
+        checkManyActionCheckboxReachability()
+    }
+
+    @Ax5 @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp-h120dp")
+    fun checkboxWithManyActionsKeepsScrollableViewportsInVeryShortWindowAtAx5() {
+        compose.setContent { AbTheme { ManyActionOptionsFixture() } }
+        compose.onNodeWithTag("dialog-lead").assertIsDisplayed()
+        compose.onNodeWithTag("dialog-middle").assertIsDisplayed()
+        val d = compose.density.density
+        listOf("dialog-lead-area", "dialog-middle-area").forEach { tag ->
+            val h = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.height
+            assertTrue("$tag $h must retain a usable viewport", h >= 8 * d)
+        }
+        compose.onNodeWithText("AndBible production-99999 is available. You have 6.0.1266.")
+            .performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Don't notify me about updates").performScrollTo().assertIsDisplayed()
+        updateDialogAnswers.forEach { answer ->
+            compose.onNodeWithText(answer.label).performScrollTo().assertIsDisplayed()
+        }
+    }
+
+    private fun checkManyActionCheckboxReachability() {
+        val results = mutableListOf<Pair<String, Boolean>>()
+        compose.setContent { AbTheme { ManyActionOptionsFixture { value, checked -> results += value to checked } } }
+        compose.onNodeWithText("New version available").assertIsDisplayed()
+        compose.onNodeWithText("AndBible production-99999 is available. You have 6.0.1266.")
+            .performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Don't notify me about updates").performScrollTo().performClick()
+        updateDialogAnswers.forEach { answer ->
+            compose.onNodeWithText(answer.label).performScrollTo().assertIsDisplayed().performClick()
+        }
+        assertEquals(updateDialogAnswers.map { it.value to true }, results)
+    }
+
     @Test fun checkboxVariantKeepsCheckboxAndButtons() {
         var result: Pair<String, Boolean>? = null
         compose.setContent {
