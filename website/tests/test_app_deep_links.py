@@ -178,7 +178,7 @@ def test_every_catalog_page_is_a_user_guide_page():
     toc_stems = set(re.findall(r'\bPage\("([a-z0-9_/.-]+)"', GENERATED_TOC.read_text(encoding="utf-8")))
     assert toc_stems
     # Release notes are linked by the updater, not offered as topics in the in-app guide.
-    release_pages = {"releases/release_6_0", "releases/release_5_0", "releases/release_4_1", "releases/release_4_0"}
+    release_pages = {page for _, _, page, _ in scan() if page.startswith("releases/")}
     assert sorted({page for _, _, page, _ in scan()} - toc_stems - release_pages) == []
 
 
