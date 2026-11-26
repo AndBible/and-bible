@@ -202,7 +202,8 @@ fun VerseWidgetBody(
             val open: Action = actionStartActivity(
                 Intent(Intent.ACTION_VIEW, Uri.parse(content.link)).setPackage(context.packageName),
             )
-            WidgetRoot(open) {
+            val padding = if (height < 180.dp) 8.dp else 12.dp
+            WidgetRoot(open, padding = padding) {
                 Column(modifier = GlanceModifier.fillMaxWidth()) {
                     if (config.showSourceAndDate) {
                         Row(
@@ -233,11 +234,11 @@ fun VerseWidgetBody(
                             else -> referenceHeight
                         }
                         val lineHeight = (if (tall) 23 else 20) * fontScale
-                        val lines = ((height.value - 24 - headerHeight - footerHeight) / lineHeight)
+                        val lines = ((height.value - padding.value * 2 - headerHeight - footerHeight) / lineHeight)
                             .toInt().coerceIn(1, if (tall) 8 else if (wide) 3 else 4)
                         WidgetText(content.text, size = if (tall) 17 else 15, maxLines = lines)
                     }
-                    // Two 32 dp controls beside the reference leave only 22 dp at the 110 dp minimum width.
+                    // At the minimum width the controls leave too little room beside the reference.
                     if (stackedFooter) {
                         WidgetText("${content.reference} · ${content.bibleAbbreviation}", size = 12, bold = true)
                     }
