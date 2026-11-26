@@ -24,6 +24,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -95,8 +97,13 @@ class SpeakWidgetStateProducer(
      */
     fun start() {
         val fresh = scope.launch(start = CoroutineStart.LAZY) {
-            launch { rebuild() }
-            launch { source.changes.debounce(COALESCE_MS).collect { rebuild() } }
+            val changes = Channel<Unit>(Channel.CONFLATED)
+            // Subscribe before the first read; buffer invalidations arriving while it is in flight.
+            launch(start = CoroutineStart.UNDISPATCHED) { source.changes.collect { changes.trySend(Unit) } }
+            launch {
+                rebuild()
+                changes.receiveAsFlow().debounce(COALESCE_MS).collect { rebuild() }
+            }
             // The ticker only runs while a sleep timer is set; a timer change arrives as a change event.
             launch {
                 source.changes.onStart { emit(Unit) }.collectLatest {

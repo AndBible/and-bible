@@ -96,6 +96,29 @@ class MenuCommandHandlerDialogTest {
     private fun idle() = shadowOf(Looper.getMainLooper()).idle()
 
     @Test(timeout = 30000)
+    fun questionsAndContributeOpenTheWebsiteDocs() {
+        val targets = listOf(
+            R.id.needHelp to "https://andbible.org/docs/support/",
+            R.id.howToContribute to "https://andbible.org/docs/contribute/",
+        )
+        targets.forEach { (id, url) ->
+            assertTrue(handler.handleMenuRequest(id))
+            idle()
+            if (CommonUtils.isDiscrete) {
+                assertNull(shadowOf(activity).nextStartedActivityForResult)
+                val pending = dialogs.pending.value!!
+                val request = pending.request as AppDialogRequest.Confirm
+                assertEquals(url, request.detail)
+                dialogs.respond(pending.id, AppDialogResult.Ok)
+                idle()
+            }
+            val intent = shadowOf(activity).nextStartedActivityForResult.intent
+            assertEquals(Intent.ACTION_VIEW, intent.action)
+            assertEquals(url, intent.dataString)
+        }
+    }
+
+    @Test(timeout = 30000)
     fun rateButtonPostsAnHtmlMessageWithCancelAndOpensThePlayStoreOnlyOnOk() {
         handler.handleMenuRequest(R.id.rateButton)
         idle()
@@ -103,6 +126,8 @@ class MenuCommandHandlerDialogTest {
         val request = dialogs.pending.value!!.request as AppDialogRequest.Message
         assertEquals(RuntimeEnvironment.getApplication().getString(R.string.rate_question), request.title)
         assertTrue("body is HTML, not spanned/plain text", request.message.contains("<br>"))
+        assertTrue(request.message.contains("https://andbible.org/docs/faq/#please-add-module-x-to-andbible"))
+        assertTrue(request.message.contains("https://andbible.org/docs/faq/#i-found-a-text-issue-in-a-bible-commentary-module"))
         assertEquals(RuntimeEnvironment.getApplication().getString(R.string.proceed_google_play), request.confirmText)
         assertEquals(RuntimeEnvironment.getApplication().getString(R.string.cancel), request.dismissText)
         assertTrue(request.cancellable)

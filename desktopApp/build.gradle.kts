@@ -247,6 +247,8 @@ val windowsPublisher = providers.gradleProperty("windowsPublisher").orElse("CN=A
     require(it.startsWith("CN=") && it.isNotBlank() && it == it.trim()) { "windowsPublisher must be a distinguished name starting with CN=" }
 }
 val windowsIdentity = mapOf("NAME" to "AndBible.Desktop", "PUBLISHER" to windowsPublisher)
+// MSIX only adds Open with candidates. jpackage MSI associations overwrite extension defaults, so keep them separate.
+val windowsMsiAssociations = emptyMap<String, String>()
 val windowsAssociations = mapOf(
     "zip" to "application/zip", "epub" to "application/epub+zip", "ttf" to "font/ttf",
     "csv" to "text/csv", "jpg" to "image/jpeg", "jpeg" to "image/jpeg", "png" to "image/png",
@@ -288,7 +290,7 @@ compose.desktop {
             // jlink module set: the suggestRuntimeModules result plus what TLS (jdk.crypto.ec) and HTTP clients
             // (java.net.http) need at run time, and jdk.localedata the non-English locales, which static analysis cannot see.
             modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http", "jdk.localedata", "jdk.security.auth")
-            if (isWindowsHost) windowsAssociations.forEach { (ext, mime) ->
+            if (isWindowsHost) windowsMsiAssociations.forEach { (ext, mime) ->
                 fileAssociation(mimeType = mime, extension = ext, description = "AndBible $ext file")
             }
             windows {
@@ -534,6 +536,17 @@ tasks.register("verifyWebView2Pins") {
     }
 }
 tasks.named("check") { dependsOn("verifyWebView2Pins") }
+
+// Windows packaging checks the compiled MSI with PowerShell; container/Unix gates check the WiX source.
+if (!isWindowsHost) {
+    val verifyMsiPolicy by tasks.registering(Exec::class) {
+        group = "verification"
+        description = "Checks candidate-only Windows MSI associations without Windows tooling."
+        commandLine("python3", "-I", layout.projectDirectory.file("packaging/windows/test_msi_policy.py").asFile.absolutePath)
+    }
+    tasks.named("test") { dependsOn(verifyMsiPolicy) }
+    tasks.named("check") { dependsOn(verifyMsiPolicy) }
+}
 
 // Headless desktop Compose (no X server in the container / CI).
 tasks.withType<Test>().configureEach {
@@ -801,7 +814,8 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         check(desktopEntry.isFile) { "Missing jpackage desktop entry: $desktopEntry" }
         desktopEntry.writeText(desktopTemplate.readText())
         check("Exec=/opt/andbible/bin/andbible %F" in desktopEntry.readText())
-        check("MimeType=application/zip;application/epub+zip;font/ttf;text/csv;image/jpeg;image/png;image/webp;application/vnd.sqlite3;" in desktopEntry.readText())
+        // Advertising generic MIME handlers can make AndBible the desktop's fallback default.
+        check(desktopEntry.readLines().none { it.startsWith("MimeType=") })
         check("Icon=/opt/andbible/lib/andbible.png" in desktopEntry.readText())
         check(File(unpacked, "opt/andbible/lib/andbible.png").isFile)
         check(unpacked.walkTopDown().count { it.isFile && it.extension == "desktop" } == 1)
@@ -865,6 +879,7 @@ val generateWindowsManifest by tasks.registering {
     inputs.property("identity", windowsIdentity)
     inputs.property("version", windowsPackageVersion)
     inputs.property("associations", windowsAssociations)
+    inputs.property("msiAssociations", windowsMsiAssociations)
     inputs.property("timestamp", windowsTimestampUrl)
     inputs.property("testSigning", windowsTestSigning)
     outputs.dir(windowsMsixStage)
@@ -879,7 +894,7 @@ val generateWindowsManifest by tasks.registering {
         File(stage, "AppxManifest.xml").writeText(manifest)
         val policy = File(stage.parentFile, "packaging-policy.properties")
         Properties().apply {
-            setProperty("msi.extensions", windowsAssociations.keys.joinToString(","))
+            setProperty("msi.extensions", windowsMsiAssociations.keys.joinToString(","))
             setProperty("timestamp.url", windowsTimestampUrl)
             setProperty("test.signing", windowsTestSigning.toString())
             setProperty("timestamp.args", windowsTimestampArgs.joinToString("|"))
@@ -967,7 +982,7 @@ tasks.register("packageWindowsMsi") {
         val msi = File(dir, "AndBible-$windowsPackageVersion.msi")
         msi.delete()
         val associationsDir = layout.buildDirectory.dir("windows-msi/associations").get().asFile.apply { mkdirs() }
-        val associationArgs = windowsAssociations.flatMap { (ext, mime) ->
+        val associationArgs = windowsMsiAssociations.flatMap { (ext, mime) ->
             val association = File(associationsDir, "$ext.properties")
             association.writeText("extension=$ext\nmime-type=$mime\ndescription=AndBible $ext file\n")
             listOf("--file-associations", association.absolutePath)
@@ -988,6 +1003,10 @@ tasks.register("packageWindowsMsi") {
         runWindowsTool(listOf(
             "powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
             project.file("packaging/windows/test-msi-ui.ps1").absolutePath, "-Msi", msi.absolutePath,
+        ))
+        runWindowsTool(listOf(
+            "powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+            project.file("packaging/windows/test-msi-associations.ps1").absolutePath,
         ))
         val output = layout.buildDirectory.file("compose/binaries/main/andbible-$windowsPackageVersion-windows-x64.msi").get().asFile
         Files.copy(msi.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)

@@ -218,7 +218,10 @@ internal class HostReadingToolbarHost(
         KeyChooserKind.Grid -> emptyList()
     }
 
-    /** Opens the menu; not while the toolbar shows the search field (it has no overflow button then). */
+    /**
+     * Opens the menu unless search mode hides its button. Unlike Android, this host does not
+     * explicitly dismiss a native editor's keyboard before opening the overflow menu.
+     */
     override fun openOverflowMenu() {
         if (searchModeActive()) return
         overflowItems.value = rebuildOverflow()

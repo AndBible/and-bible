@@ -307,7 +307,364 @@ class EpubBackendStateTest {
     }
 
     @Test
-    fun suspendQueriesReadGeneratedXhtmlAndToc() = runTest {
+    fun manifestAndSpineAcceptMixedOpfAndNoNamespaceButExcludeForeignElements() {
+        val opf = fi.sykero.kdom.Namespace.getNamespace("opf", "http://www.idpf.org/2007/opf")
+        val doc = KdomBuilder().build("""
+            <package xmlns="http://www.idpf.org/2007/opf" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:foreign="urn:foreign">
+              <manifest><item id="a"/><item xmlns="" id="b"/><foreign:item id="bad"/></manifest>
+              <manifest xmlns=""><item id="c"/><opf:item id="d"/></manifest>
+              <foreign:manifest><item id="bad-parent"/></foreign:manifest>
+              <spine><itemref idref="a"/><itemref xmlns="" idref="b"/><foreign:itemref idref="bad"/></spine>
+              <spine xmlns=""><itemref idref="c"/><opf:itemref idref="d"/></spine>
+              <foreign:spine><itemref idref="bad-parent"/></foreign:spine>
+            </package>
+        """.trimIndent())
+        assertEquals(listOf("a", "b", "c", "d"), XmlQueries.manifestItems(doc, opf).map { it.getAttributeValue("id") })
+        assertEquals(listOf("a", "b", "c", "d"), XmlQueries.spineItemrefs(doc, opf).map { it.getAttributeValue("idref") })
+    }
+
+    @Test fun noNamespacePackageOptimizesSpineInOrder() {
+        val dir = buildEpub("no-namespace-package")
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText().replace(" xmlns=\"http://www.idpf.org/2007/opf\"", ""))
+        val state = newState(dir)
+        assertEquals(2, state.keys.size)
+        assertTrue(state.read(state.keys[0]).contains("first chapter"))
+        assertTrue(state.read(state.keys[1]).contains("second chapter"))
+    }
+
+    @Test fun noNamespaceTocManifestItemIsDiscovered() = runTest {
+        val dir = buildEpub("no-namespace-toc")
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText().replace("<manifest>", "<manifest xmlns=\"\">") )
+        val toc = newState(dir).tocKeys()
+        assertEquals(listOf("Chapter One", "Chapter Two"), toc.map { it.getName() })
+    }
+
+    private fun tocFixture(name: String, entries: String?): File {
+        val dir = buildEpub(name)
+        val opf = File(dir, "OEBPS/content.opf")
+        if (entries == null) {
+            opf.writeText(opf.readText().replace("<item id=\"toc\" href=\"toc.ncx\" media-type=\"application/x-dtbncx+xml\"/>", ""))
+        } else {
+            File(dir, "OEBPS/toc.ncx").writeText("""
+                <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/"><navMap>$entries</navMap></ncx>
+            """.trimIndent())
+        }
+        return dir
+    }
+
+    private fun navPoint(label: String, src: String) =
+        "<navPoint><navLabel><text>$label</text></navLabel><content src=\"$src\"/></navPoint>"
+
+    private suspend fun assertSpineFallback(state: EpubBackendState) {
+        val toc = state.tocKeys()
+        assertEquals(2, toc.size)
+        assertTrue(state.read((toc[0] as net.bible.service.sword.BookAndKey).key).contains("first chapter"))
+        assertTrue(state.read((toc[1] as net.bible.service.sword.BookAndKey).key).contains("second chapter"))
+    }
+
+    @Test fun absentTocFallsBackToSpineOrder() = runTest {
+        val state = newState(tocFixture("toc-absent", null))
+        assertSpineFallback(state)
+        assertEquals(listOf("Chapter One", "Chapter Two"), state.tocKeys().map { it.getName() })
+    }
+
+    @Test fun tocBeforeRegistrationDoesNotCacheKeysWithoutTheirBook() = runTest {
+        val state = newState(tocFixture("toc-registration", null))
+        val before = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertTrue(before.all { it.document == null })
+        val book = org.crosswire.jsword.book.sword.SwordGenBook(state.getBookMetaData(), EpubBackend(state, state.getBookMetaData()))
+        val books = org.crosswire.jsword.book.Books.installed()
+        try {
+            books.addBook(book)
+            val after = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+            assertEquals(2, after.size)
+            assertTrue("TOC entries must resolve their book after registration", after.all { it.document === book })
+        } finally {
+            books.removeBook(book)
+        }
+    }
+
+    @Test fun imageOnlyLinearDocumentsRemainReachableWithoutAToc() = runTest {
+        val dir = tocFixture("image-only-fallback", null)
+        for (chapter in 1..2) {
+            File(dir, "OEBPS/ch$chapter.xhtml").writeText(chapterXhtml("Image $chapter", "<img src=\"page$chapter.png\"/>"))
+        }
+        val state = newState(dir)
+        val toc = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(listOf("Image 1", "Image 2"), toc.map { it.getName() })
+        assertTrue(state.read(toc[0].key).contains("page1.png"))
+        assertTrue(state.read(toc[1].key).contains("page2.png"))
+    }
+
+    @Test fun storedChapterTitlesCollapseWhitespaceAndSeparateLineBreaks() = runTest {
+        val dir = tocFixture("title-whitespace", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Ignored", "<h2>  First&#10;&#9;<span>chapter</span><br/>subtitle  </h2>Prose."))
+        File(dir, "OEBPS/ch2.xhtml").writeText(chapterXhtml("  Second&#10;&#9; chapter  ", "More prose."))
+        val state = newState(dir)
+        assertEquals(listOf("First chapter subtitle", "Second chapter"), state.tocKeys().map { it.getName() })
+        assertEquals(listOf("First chapter subtitle", "Second chapter"), state.keys.map { it.getName() })
+    }
+
+    @Test fun partialTocKeepsKnownLabelAndUsesDocumentTitleForMissingLabel() = runTest {
+        val state = newState(tocFixture("toc-partial-labels", navPoint("First chapter", "ch1.xhtml")))
+        assertEquals(listOf("First chapter", "Chapter Two"), state.tocKeys().map { it.getName() })
+    }
+
+    @Test fun missingDeclaredNcxFallsBackToSpineOrder() = runTest {
+        val dir = buildEpub("toc-missing-file")
+        assertTrue(File(dir, "OEBPS/toc.ncx").delete())
+        assertSpineFallback(newState(dir))
+    }
+
+    @Test fun missingNavLabelStillAllowsSpineFallback() = runTest {
+        val dir = tocFixture("toc-missing-label", "<navPoint><content src=\"ch1.xhtml\"/></navPoint>")
+        val state = newState(dir)
+        assertSpineFallback(state)
+        assertEquals(listOf("Chapter One", "Chapter Two"), state.tocKeys().map { it.getName() })
+    }
+
+    @Test fun missingTocTargetStillAllowsSpineFallback() = runTest {
+        val dir = tocFixture("toc-missing-target", "<navPoint><navLabel><text>Invalid</text></navLabel><content/></navPoint>")
+        assertSpineFallback(newState(dir))
+    }
+
+    @Test fun coverOnlyTocFallsBackToSpineOrder() = runTest {
+        assertSpineFallback(newState(tocFixture("toc-cover", navPoint("Cover", "cover.xhtml"))))
+    }
+
+    @Test fun partialTocFallsBackToSpineOrder() = runTest {
+        assertSpineFallback(newState(tocFixture("toc-partial", navPoint("Chapter One", "ch1.xhtml"))))
+    }
+
+    @Test fun noNamespaceSpineWithEmptyNonlinearCoverAndCoverOnlyTocOpensChapters() = runTest {
+        val dir = tocFixture("toc-empty-cover-mixed-spine", navPoint("Cover", "cover.xhtml"))
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText()
+            .replace("<item id=\"ch1\"", "<item id=\"cover\" href=\"cover.xhtml\" media-type=\"application/xhtml+xml\"/><item id=\"ch1\"")
+            .replace("<itemref idref=\"ch1\"/>", "<itemref xmlns=\"\" idref=\"cover\" linear=\"no\"/><itemref xmlns=\"\" idref=\"ch1\"/>")
+            .replace("<itemref idref=\"ch2\"/>", "<itemref xmlns=\"\" idref=\"ch2\"/>"))
+        File(dir, "OEBPS/cover.xhtml").writeText(chapterXhtml("Cover", ""))
+        val state = newState(dir)
+        val contents = state.tocKeys().map { state.read((it as net.bible.service.sword.BookAndKey).key) }
+        val first = contents.indexOfFirst { it.contains("first chapter") }
+        val second = contents.indexOfFirst { it.contains("second chapter") }
+        assertTrue("both readable chapters must appear in spine order", first >= 0 && second > first)
+    }
+
+    @Test fun completeTocPreservesLabelsOrderAndAnchors() = runTest {
+        val dir = tocFixture("toc-complete-anchors", navPoint("Second", "ch2.xhtml#target") + navPoint("First", "ch1.xhtml"))
+        val chapter = File(dir, "OEBPS/ch2.xhtml")
+        chapter.writeText(chapter.readText().replace("<p>", "<p id=\"target\">"))
+        val toc = newState(dir).tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(listOf("Second", "First"), toc.map { it.getName() })
+        assertEquals(listOf("target", null), toc.map { it.htmlId })
+    }
+
+    @Test fun tocKeepsLabelsAnchorsAndOrderWithUncoveredNonlinearAndTextlessItems() = runTest {
+        val dir = tocFixture("toc-frontmatter", navPoint("Second", "ch2.xhtml#target") + navPoint("First", "ch1.xhtml"))
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText().replace("</manifest>", """
+            <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
+            <item id="copyright" href="copyright.xhtml" media-type="application/xhtml+xml"/>
+            <item id="blank" href="blank.xhtml" media-type="application/xhtml+xml"/></manifest>
+        """.trimIndent()).replace("<spine>", """
+            <spine><itemref idref="cover" linear="no"/><itemref idref="copyright" linear="no"/><itemref idref="blank"/>
+        """.trimIndent()))
+        File(dir, "OEBPS/cover.xhtml").writeText(chapterXhtml("Cover", ""))
+        File(dir, "OEBPS/copyright.xhtml").writeText(chapterXhtml("Copyright", "Copyright notice."))
+        File(dir, "OEBPS/blank.xhtml").writeText(chapterXhtml("Blank", ""))
+        val chapter = File(dir, "OEBPS/ch2.xhtml")
+        chapter.writeText(chapter.readText().replace("<p>", "<p id=\"target\">"))
+        val toc = newState(dir).tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(listOf("Second", "First"), toc.map { it.getName() })
+        assertEquals(listOf("target", null), toc.map { it.htmlId })
+    }
+
+    @Test fun partialTocAddsMissingChaptersWithoutReplacingExistingEntries() = runTest {
+        val dir = tocFixture("toc-partial-anchored", navPoint("Second section", "ch2.xhtml#target"))
+        val chapter = File(dir, "OEBPS/ch2.xhtml")
+        chapter.writeText(chapter.readText().replace("<p>", "<p id=\"target\">"))
+        val state = newState(dir)
+        val toc = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(listOf("Chapter One", "Second section"), toc.map { it.getName() })
+        assertEquals(listOf(null, "target"), toc.map { it.htmlId })
+        assertTrue(state.read(toc[0].key).contains("first chapter"))
+    }
+
+    @Test fun partialTocInsertsMiddleChapterAtItsSpinePosition() = runTest {
+        val dir = tocFixture("toc-middle", navPoint("First", "ch1.xhtml") + navPoint("Third", "ch3.xhtml"))
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText()
+            .replace("</manifest>", "<item id=\"ch3\" href=\"ch3.xhtml\" media-type=\"application/xhtml+xml\"/></manifest>")
+            .replace("</spine>", "<itemref idref=\"ch3\"/></spine>"))
+        File(dir, "OEBPS/ch3.xhtml").writeText(chapterXhtml("Chapter Three", "Third chapter prose."))
+        assertEquals(listOf("First", "Chapter Two", "Third"), newState(dir).tocKeys().map { it.getName() })
+    }
+
+    @Test fun repeatedSpineDocumentIsListedOnce() = runTest {
+        val dir = tocFixture("toc-repeated-spine", null)
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText().replace("</spine>", "<itemref idref=\"ch1\"/></spine>"))
+        assertEquals(listOf("Chapter One", "Chapter Two"), newState(dir).tocKeys().map { it.getName() })
+    }
+
+    @Test fun legacyFragmentsKeepNavigationWithoutReadingTheirFiles() = runTest {
+        val dir = tocFixture("legacy-navigation", null)
+        val initial = newState(dir)
+        val path = application.getDatabasePath(initial.appDbFilename).absolutePath
+        initial.close()
+        net.bible.service.db.openSqlite(path).use { db ->
+            db.prepare("ALTER TABLE EpubFragment DROP COLUMN title").use { it.step() }
+            db.prepare("ALTER TABLE EpubFragment DROP COLUMN hasText").use { it.step() }
+            db.prepare("PRAGMA user_version=2").use { it.step() }
+        }
+        File(dir, "optimized").listFiles()!!.filter { it.name.endsWith(".xhtml.gz") }.forEach { it.writeText("corrupt") }
+        val state = newState(dir)
+        assertEquals(2, state.tocKeys().size)
+        assertTrue(state.tocKeys().all { it.getName() == testCoreStrings().namelessTitle })
+    }
+
+    @Test fun fallbackListsSplitSpineDocumentOnceAtItsFirstFragment() = runTest {
+        val dir = tocFixture("toc-split", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText("""
+            <html xmlns="http://www.w3.org/1999/xhtml"><head><title>Long chapter</title></head><body>
+            ${(1..1200).joinToString("") { "<p id=\"paragraph-$it\">Short paragraph $it.</p>" }}
+            </body></html>
+        """.trimIndent())
+        val state = newState(dir)
+        assertTrue("fixture must actually split a chapter", state.keys.size > 2)
+        val toc = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(2, toc.size)
+        assertEquals(state.keys.first().getOsisRef(), toc.first().key.getOsisRef())
+        assertEquals(listOf("Long chapter", "Chapter Two"), toc.map { it.getName() })
+    }
+
+    @Test fun fallbackTitleSurvivesReopeningAndGetKeyUsesTheSameTitle() = runTest {
+        val dir = tocFixture("toc-title", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText("""
+            <html xmlns="http://www.w3.org/1999/xhtml"><head><title> </title></head>
+            <body><h2>A real heading</h2><p>Readable prose.</p></body></html>
+        """.trimIndent())
+        File(dir, "OEBPS/ch2.xhtml").writeText(chapterXhtml("", "Readable prose without a heading."))
+        newState(dir).close()
+        val state = newState(dir)
+        val names = listOf("A real heading", testCoreStrings().namelessTitle)
+        assertEquals(names, state.tocKeys().map { it.getName() })
+        assertEquals(names, listOf(state.getKey("ch1", "")!!.getName(), state.getKey("ch2", "")!!.getName()))
+    }
+
+    @Test fun headingIsPreferredOverBookWideTitleAndKeysNeverReadFragments() = runTest {
+        val dir = tocFixture("stored-titles", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Test Tabletalk", "<h2>Chapter heading</h2>Readable prose."))
+        File(dir, "OEBPS/ch2.xhtml").writeText(chapterXhtml("Test Tabletalk", "Second chapter prose."))
+        val first = newState(dir)
+        first.close()
+        File(dir, "optimized").listFiles()!!.filter { it.name.endsWith(".xhtml.gz") }.forEach {
+            it.writeText("corrupt fragment")
+        }
+        val state = newState(dir)
+        val expected = listOf("Chapter heading", testCoreStrings().namelessTitle)
+        assertEquals(expected, state.keys.map { it.getName() })
+        assertEquals(expected, state.tocKeys().map { it.getName() })
+        assertEquals("Chapter heading", state.getKey("ch1", "")!!.getName())
+    }
+
+    @Test fun headingIsPreferredOverDistinctDocumentTitle() = runTest {
+        val dir = tocFixture("heading-over-title", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Document title", "<h2>Body heading</h2>Readable prose."))
+        assertEquals("Body heading", newState(dir).tocKeys().first().getName())
+    }
+
+    @Test fun corruptInstalledGzipDoesNotReplaceAValidOpenAppDatabase() {
+        val dir = buildEpub("corrupt-gzip-valid-db")
+        val first = newState(dir)
+        val gzip = File(dir, "optimized.sqlite3.gz")
+        gzip.writeText("not gzip")
+        val state = newState(dir)
+        assertEquals(2, state.keys.size)
+        assertTrue(state.read(state.keys.first()).contains("first chapter"))
+        assertTrue(first.read(first.keys.first()).contains("first chapter"))
+        assertTrue(dir.exists())
+    }
+
+    @Test fun corruptInstalledGzipWithoutAppDatabaseNeverDeletesTheBook() {
+        val dir = buildEpub("corrupt-gzip-no-db")
+        newState(dir).close()
+        application.deleteDatabase("epub-${epubInitials(dir.name)}.sqlite3")
+        File(dir, "optimized.sqlite3.gz").writeText("not gzip")
+        runCatching { addEpubBook(dir.toOkioPath(), testCoreStrings(), AndroidAppEnvironment(application)) }
+        assertTrue("read failures must not delete installed books", dir.exists())
+        assertTrue(File(dir, "optimized").isDirectory)
+    }
+
+    @Test fun reopeningUnchangedInstalledGzPreservesDerivedCharacterCache() = runTest {
+        val dir = buildEpub("gz-preserves-meta")
+        val first = newState(dir)
+        assertEquals(107, first.totalCharacters())
+        val filename = first.appDbFilename
+        first.close()
+        newState(dir)
+        val db = getEpubDatabase(filename)
+        try {
+            assertEquals("derived text count must survive reopening the same installed book", 107, db.epubDao().getMeta()?.totalCharacters)
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test fun reinstallDropsStaleAppDatabaseBeforeUsingNewOptimization() = runTest {
+        val name = "reinstall-stale-cache"
+        val dir = buildEpub(name)
+        val old = newState(dir)
+        old.close()
+        val archive = epubArchive(name, "quartz")
+        try {
+            assertTrue(committer().commitEpub(archive, name))
+            val book = org.crosswire.jsword.book.Books.installed().getBook(epubInitials(name))!!
+            val replacement = book.epubBackend!!.state
+            assertTrue(replacement.keys.all { replacement.read(it).isNotEmpty() })
+            assertTrue(replacement.read(replacement.keys.first()).contains("quartz"))
+            assertFalse(replacement.read(replacement.keys.first()).contains("first chapter"))
+        } finally {
+            archive.delete()
+        }
+    }
+
+    @Test fun opfQueriesIgnoreNestedAndForeignPackages() {
+        val ns = fi.sykero.kdom.Namespace.getNamespace("opf", "http://www.idpf.org/2007/opf")
+        val doc = KdomBuilder().build("""
+            <package xmlns="${ns.uri}" xmlns:f="urn:foreign">
+              <manifest><item id="good"/><manifest><item id="nested"/></manifest></manifest>
+              <spine><itemref idref="good"/></spine>
+              <metadata><manifest><item id="metadata"/></manifest><spine><itemref idref="metadata"/></spine></metadata>
+              <f:package><manifest><item id="foreign"/></manifest></f:package>
+            </package>
+        """.trimIndent())
+        assertEquals(listOf("good"), XmlQueries.manifestItems(doc, ns).map { it.getAttributeValue("id") })
+        assertEquals(listOf("good"), XmlQueries.spineItemrefs(doc, ns).map { it.getAttributeValue("idref") })
+        val foreign = KdomBuilder().build("""<package xmlns="urn:foreign"><manifest xmlns="${ns.uri}"><item id="bad"/></manifest></package>""")
+        assertTrue(XmlQueries.manifestItems(foreign, ns).isEmpty())
+    }
+
+    @Test fun installedEmptyOptimizationWithSourcesIsRebuilt() {
+        val dir = buildEpub("empty-optimized-recovery")
+        val opf = File(dir, "OEBPS/content.opf")
+        val original = opf.readText()
+        opf.writeText(original.replace("<itemref idref=\"ch1\"/>", "").replace("<itemref idref=\"ch2\"/>", ""))
+        val broken = newState(dir)
+        assertTrue(broken.keys.isEmpty())
+        broken.close()
+        assertTrue(File(dir, "OEBPS/ch1.xhtml").exists())
+        opf.writeText(original)
+        val repaired = newState(dir)
+        assertEquals(2, repaired.keys.size)
+        assertTrue(repaired.read(repaired.keys[0]).contains("first chapter"))
+        assertTrue(repaired.read(repaired.keys[1]).contains("second chapter"))
+    }
+
+    @Test fun suspendQueriesReadGeneratedXhtmlAndToc() = runTest {
         val state = newState(buildEpub("suspend-queries"))
         // BVA text includes the sentence splitter's separator space (107, not prose length 104).
         assertEquals(107, state.totalCharacters())
@@ -1435,33 +1792,65 @@ class EpubBackendStateTest {
         assertTrue("totalCharacters must survive a missing fragment", total >= 0)
     }
 
-    /** F124: a bundled optimized.sqlite3.gz without its optimized/ fragments (the kit EPUB) must be re-optimized. */
-    @Test
-    fun aStaleOptimizedDatabaseWithoutFragmentsIsReoptimized() {
-        val epubDir = buildEpub("stale-gz")
-        newState(epubDir) // first open: optimizes and writes optimized.sqlite3.gz
-        assertTrue(File(epubDir, "optimized.sqlite3.gz").exists())
-        assertTrue(optimizedDirOf(epubDir).deleteRecursively())
-        buildEpub("stale-gz") // optimization deletes the source files; a kit EPUB ships them beside the foreign gz
-        application.deleteDatabase("epub-${epubInitials("stale-gz")}.sqlite3") // as on a fresh install of the kit file
-
-        val state = newState(epubDir)
-        val keys = state.keys
-        assertTrue(keys.isNotEmpty())
-        assertTrue("every fragment must read back content", keys.all { state.read(it).isNotEmpty() })
+    /** F124: bundled database rows without their optimized files must be rebuilt from sources. */
+    @Test fun aStaleOptimizedDatabaseWithoutFragmentsIsReoptimized() {
+        val dir = buildEpub("stale-gz")
+        newState(dir).close()
+        assertTrue(File(dir, "optimized.sqlite3.gz").exists())
+        assertTrue(optimizedDirOf(dir).deleteRecursively())
+        buildEpub("stale-gz")
+        application.deleteDatabase("epub-${epubInitials(dir.name)}.sqlite3")
+        val state = newState(dir)
+        assertTrue(state.keys.isNotEmpty())
+        assertTrue("every fragment must read back content", state.keys.all { state.read(it).isNotEmpty() })
     }
 
-    /** F124 variant: sources present, fragments gone, app database surviving: optimized again. */
-    @Test
-    fun missingFragmentsWithASurvivingAppDatabaseAreReoptimized() {
-        val epubDir = buildEpub("stale-frags")
-        newState(epubDir)
-        assertTrue(optimizedDirOf(epubDir).deleteRecursively())
-        buildEpub("stale-frags") // optimization deletes the source files; restore them as the user's copy would have
-
-        val state = newState(epubDir)
+    @Test fun missingFragmentsWithASurvivingAppDatabaseAreReoptimized() {
+        val dir = buildEpub("stale-frags")
+        newState(dir).close()
+        assertTrue(optimizedDirOf(dir).deleteRecursively())
+        buildEpub("stale-frags")
+        val state = newState(dir)
         assertTrue(state.keys.isNotEmpty())
         assertTrue(state.keys.all { state.read(it).isNotEmpty() })
+    }
+
+    @Test fun rebuildingIncompleteOutputInvalidatesItsOldSearchIndex() = runTest {
+        val dir = buildEpub("stale-output-index")
+        val original = newState(dir)
+        original.buildSearchIndex()
+        assertTrue(original.isIndexed)
+        original.close()
+        assertTrue(optimizedDirOf(dir).deleteRecursively())
+        buildEpub("stale-output-index")
+        val rebuilt = newState(dir)
+        assertFalse("old search fragment IDs cannot survive re-optimization", rebuilt.isIndexed)
+        rebuilt.buildSearchIndex()
+        assertTrue(rebuilt.isIndexed)
+        assertTrue(rebuilt.search("first").isNotEmpty())
+    }
+
+    @Test fun missingVersionWithSourcesRebuildsIncompleteOutput() {
+        val dir = buildEpub("stale-version")
+        newState(dir).close()
+        assertTrue(File(dir, "optimized/version.txt").delete())
+        buildEpub("stale-version")
+        File(dir, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Rebuilt", "Fresh replacement prose."))
+        val state = newState(dir)
+        assertTrue(File(dir, "optimized/version.txt").isFile)
+        assertTrue(state.read(state.keys.first()).contains("Fresh replacement prose"))
+    }
+
+    @Test fun nonemptyAppDatabaseIsNotReoptimizedEvenWhenSourcesArePresent() {
+        val dir = buildEpub("nonempty-db-reuse")
+        val first = newState(dir)
+        first.close()
+        val stamp = File(dir, "optimized/version.txt").lastModified()
+        buildEpub("nonempty-db-reuse")
+        val state = newState(dir)
+        assertEquals(2, state.keys.size)
+        assertTrue(File(dir, "OEBPS/ch1.xhtml").exists())
+        assertEquals(stamp, File(dir, "optimized/version.txt").lastModified())
     }
 
     /** Review Focus 5: an intact optimized EPUB is reused, not optimized again on every open. */

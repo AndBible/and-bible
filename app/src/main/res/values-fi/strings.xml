@@ -838,7 +838,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="please_wait">Odota…</string>
   <string name="all">Kaikki</string>
   <string name="reset_generic">Tyhjennä</string>
-  <string name="watch_tutorial_video">Katso ohjevideo (englanninkielinen)</string>
   <string name="watch_tutorial_video_plain">Katso opetusvideo</string>
   <string name="verse_not_found">Jaetta ei löytynyt</string>
   <!--Errors-->

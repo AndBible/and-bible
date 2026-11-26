@@ -42,6 +42,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     private val divineNameReplace = phrases.divineNameReplace
     private var titleLevel = 0
     private var divineNameLevel = 0
+    private var skippedLinkDepth = 0
     private var anyTextWritten = false
     /** What the previous visible raw text chunk left at the boundary to the next one. */
     private enum class RawEnd { NO_WHITESPACE, WHITESPACE, CROSSED_SEPARATOR }
@@ -65,6 +66,31 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
 
     override fun endDocument() {
         elementStack.removeAt(elementStack.lastIndex)
+        if (speakSettings.playbackSettings.speakLinks == false &&
+            speakCommands.filterIsInstance<TextCommand>().none { SkippedSpeakLinks.marker in it.text }) return
+        if (speakSettings.playbackSettings.speakLinks == false) {
+            val cleaned = SkippedSpeakLinks.cleanParts(speakCommands.filterIsInstance<TextCommand>().map { it.text })
+            var index = 0
+            for (i in speakCommands.indices.reversed()) {
+                // Work backwards so removing empty text does not shift commands still to clean.
+                if (speakCommands[i] !is TextCommand) continue
+                index++
+                val old = speakCommands[i] as TextCommand
+                val text = cleaned[cleaned.size - index]
+                if (text.none(Char::isLetterOrDigit)) speakCommands.removeAt(i)
+                else speakCommands[i] = TextCommand(text, old.type, old.joinToPrevious)
+            }
+            // With their only link removed, empty notes/titles need no earcons or pause.
+            for (i in speakCommands.lastIndex - 1 downTo 0) {
+                val start = speakCommands[i]
+                val end = speakCommands.getOrNull(i + 1)
+                if ((start is PreFootnoteCommand && end is PostFootnoteCommand) ||
+                    (start is PreTitleCommand && end is SilenceCommand)) {
+                    speakCommands.removeAt(i + 1)
+                    speakCommands.removeAt(i)
+                }
+            }
+        }
     }
 
     private fun getName(eName: String, qName: String): String {
@@ -84,7 +110,16 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
 
         val peekVisible = elementStack.last().visible
 
-        if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
+        if (skippedLinkDepth > 0) {
+            skippedLinkDepth++
+            elementStack.add(StackEntry(false))
+        } else if ((name == OSISUtil.OSIS_ELEMENT_REFERENCE || name == "a" && attrs.getValue("href") != null) && speakSettings.playbackSettings.speakLinks == false) {
+            previousRawEnd = RawEnd.CROSSED_SEPARATOR
+            if (peekVisible) addText(SkippedSpeakLinks.marker)
+            previousRawEnd = RawEnd.CROSSED_SEPARATOR
+            skippedLinkDepth = 1
+            elementStack.add(StackEntry(false))
+        } else if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
             anyTextWritten = false
             elementStack.add(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
@@ -142,6 +177,10 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     ) {
         if (separatesText(getName(simplifiedName, qualifiedName))) previousRawEnd = RawEnd.CROSSED_SEPARATOR
         val state = elementStack.removeAt(elementStack.lastIndex)
+        if (skippedLinkDepth > 0) {
+            skippedLinkDepth--
+            return
+        }
 
         if(state.tagType == TagType.PARAGRAPH) {
             if(anyTextWritten) {

@@ -90,7 +90,8 @@ first letter of the word, even when a verse begins with one of these markers.
 
 Other Word Type settings, also in the gear button, include **Word visibility** (**Light** /
 **Dim** / **Hidden**) and an **Error heatmap** that highlights words you mistype most
-often. Tap *Tap here to start typing* to bring up the keyboard.
+often. Tap *Tap here to start typing* to bring up the keyboard. While you type,
+the current word stays in view, including in a long passage or a split window.
 
 The setting **Include verse reference** (in `Progress & memorization`) adds the verse
 reference as the last item to memorize in every mode.

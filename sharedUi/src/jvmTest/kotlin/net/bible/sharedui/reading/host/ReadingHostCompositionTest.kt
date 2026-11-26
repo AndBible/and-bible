@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.testTag
@@ -30,6 +32,9 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
@@ -38,6 +43,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import java.lang.reflect.Proxy
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -276,6 +282,79 @@ class ReadingHostCompositionTest {
 
         onNodeWithText("Drawer Settings Row").assertIsNotDisplayed()
     }
+    @Test
+    fun drawerReopensAtTheTopAfterScrolling() = runComposeUiTest {
+        val state = newState()
+        val menu = DrawerMenuState(
+            appName = "Drawer Header",
+            groups = listOf(DrawerGroup(null, (1..30).map {
+                DrawerItem("item-$it", "Drawer Row $it", "settings")
+            })),
+            versionText = "1.0",
+        )
+        val deps = deps(state, controller("w1"), drawerMenu = menu)
+        setContent { Themed { ReadingHost(deps) } }
+
+        repeat(2) { opening ->
+            if (opening == 0) {
+                state.openDrawer()
+            } else {
+                onRoot().performTouchInput {
+                    down(androidx.compose.ui.geometry.Offset(4f, centerY))
+                    repeat(40) { moveBy(androidx.compose.ui.geometry.Offset(6f, 0f), delayMillis = 16) }
+                    up()
+                }
+            }
+            waitForIdle()
+            onNodeWithText("Drawer Header").assertIsDisplayed()
+            val scrollRange = onNode(hasScrollAction()).fetchSemanticsNode()
+                .config[SemanticsProperties.VerticalScrollAxisRange]
+            assertEquals(0f, scrollRange.value(), "each opening must start at the top")
+            onNodeWithText("Drawer Row 30").performScrollTo().assertIsDisplayed()
+            onNodeWithText("Drawer Header").assertIsNotDisplayed()
+            assertTrue(scrollRange.value() > 0f, "the menu must actually scroll")
+            state.closeDrawer()
+            waitForIdle()
+            onNodeWithText("Drawer Row 30").assertIsNotDisplayed()
+        }
+    }
+
+    @Test
+    fun openDrawerKeepsItsScrollAfterSavedStateRestore() = runComposeUiTest {
+        val state = newState()
+        val menu = DrawerMenuState(
+            appName = "Drawer Header",
+            groups = listOf(DrawerGroup(null, (1..30).map {
+                DrawerItem("item-$it", "Drawer Row $it", "settings")
+            })),
+            versionText = "1.0",
+        )
+        val deps = deps(state, controller("w1"), drawerMenu = menu)
+        val registry = mutableStateOf<SaveableStateRegistry?>(SaveableStateRegistry(null) { true })
+        setContent {
+            registry.value?.let { reg ->
+                CompositionLocalProvider(LocalSaveableStateRegistry provides reg) {
+                    Themed { ReadingHost(deps) }
+                }
+            }
+        }
+        state.openDrawer()
+        waitForIdle()
+        onNodeWithText("Drawer Row 30").performScrollTo().assertIsDisplayed()
+        val scrollBefore = onNode(hasScrollAction()).fetchSemanticsNode()
+            .config[SemanticsProperties.VerticalScrollAxisRange].value()
+        assertTrue(scrollBefore > 0f)
+        var saved: Map<String, List<Any?>> = emptyMap()
+        runOnIdle { saved = registry.value!!.performSave() }
+        runOnIdle { registry.value = null }
+        waitForIdle()
+        runOnIdle { registry.value = SaveableStateRegistry(saved) { true } }
+        waitForIdle()
+        onNodeWithText("Drawer Row 30").assertIsDisplayed()
+        assertEquals(scrollBefore, onNode(hasScrollAction()).fetchSemanticsNode()
+            .config[SemanticsProperties.VerticalScrollAxisRange].value())
+    }
+
     /** #4074: the leading-edge swipe opens the real host's drawer (and its request state); a swipe in the panes does not. */
     @Test
     fun edgeSwipeOpensTheDrawerButAPaneSwipeDoesNot() = runComposeUiTest {

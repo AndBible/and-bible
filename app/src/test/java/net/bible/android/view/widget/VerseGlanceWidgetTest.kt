@@ -54,6 +54,113 @@ class VerseGlanceWidgetTest {
         assertNotNull(v.byDescription(s(R.string.widget_speak_verse)))
     }
 
+    @Test fun smallestWidgetKeepsReferenceReadableBesideControls() {
+        for (mode in WidgetMode.entries) {
+            val v = renderWidget(context, 110, 110, mode) {
+                VerseWidgetBody(verse, config, strings, 7, 110.dp, 110.dp)
+            }
+            val reference = v.allViews().filterIsInstance<android.widget.TextView>()
+                .single { it.text.toString() == "Psalm 23:1 · KJV" }
+            val density = context.resources.displayMetrics.density
+            assertTrue("$mode reference column must have room for a short reference, width=${reference.width / density}dp",
+                reference.width / density >= 60)
+            listOf(R.string.widget_speak_verse, R.string.widget_shuffle).forEach { id ->
+                val button = v.byDescription(s(id))!!
+                val bounds = android.graphics.Rect()
+                assertTrue("$mode ${s(id)} is visible", button.getGlobalVisibleRect(bounds))
+                assertEquals("$mode ${s(id)} is not vertically clipped", button.height, bounds.height())
+            }
+        }
+    }
+
+    @Test fun widgetUsesRealHeightSoTallCompactWidgetsCanShowMoreVerse() {
+        assertEquals(androidx.glance.appwidget.SizeMode.Exact, VerseGlanceWidget().sizeMode)
+        val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
+        fun verseLines(height: Int): Int = body(long, w = 110, h = height).allViews()
+            .filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }.maxLines
+        assertEquals(2, verseLines(110))
+        assertTrue("a taller compact widget should show more verse", verseLines(162) >= 3)
+    }
+
+    @Test fun compactVerseDoesNotClipHalfATextLineAboveTheFooter() {
+        val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
+        for (height in listOf(110, 162, 180, 250)) {
+            val v = body(long, w = 110, h = height)
+            val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
+            val layout = text.layout
+            val visible = android.graphics.Rect()
+            assertTrue("$height dp: verse has a visible line", text.getGlobalVisibleRect(visible))
+            assertEquals("$height dp: no ancestor clips the verse", text.height, visible.height())
+            assertTrue("$height dp: last verse line must fit above the reference",
+                layout.getLineBottom(layout.lineCount - 1) <= text.height - text.totalPaddingTop - text.totalPaddingBottom)
+        }
+    }
+
+    @Test fun defaultWideWidgetKeepsMultipleCompleteVerseLines() {
+        val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
+        val v = body(long, w = 250, h = 110)
+        val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
+        assertTrue("the default 4x2 widget must not collapse to one verse line", text.layout.lineCount >= 2)
+        text.assertCompleteLines("default 250x110 verse")
+    }
+
+    @Test fun verseLineBudgetReservesFontPaddingAndThePaddedReferenceBlock() {
+        val long = verse.copy(text = "gyp descenders ".repeat(60))
+        val v = body(long, config.copy(showSourceAndDate = false), w = 110, h = 121)
+        val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
+        // 121 - 16 inset - (17 reference + 32 buttons) - 3 font padding = 53 dp: two 18 dp lines.
+        assertEquals(2, text.maxLines)
+        text.assertCompleteLines("padded verse and reference")
+    }
+
+    @Test fun minimumWidgetTradesSourceForASecondVerseLine() {
+        val v = body(verse, w = 110, h = 110)
+        assertFalse(v.texts().any { it.contains("Memory verses") })
+        val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == verse.text }
+        assertEquals(2, text.maxLines)
+        text.assertCompleteLines("two-line minimum verse")
+    }
+
+    @Test fun unavailableBudgetReservesPaddingForBothTextBlocks() {
+        val reason = VerseWidgetContent.Unavailable.Reason.LABEL_EMPTY
+        val v = body(VerseWidgetContent.Unavailable(reason), w = 110, h = 120)
+        val text = v.allViews().filterIsInstance<android.widget.TextView>()
+            .single { it.text.toString() == strings.verseUnavailable(reason) }
+        // 120 - 16 inset - 19 title - 4 gap - 3 explanation padding: four 16 dp lines.
+        assertEquals(4, text.maxLines)
+        text.assertCompleteLines("padded unavailable explanation")
+    }
+
+    @Test fun minimumWidgetDropsSourceBeforeClippingAnEnlargedVerse() {
+        val originalScale = context.resources.configuration.fontScale
+        try {
+            org.robolectric.RuntimeEnvironment.setFontScale(1.3f)
+            val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
+            val v = body(long, w = 110, h = 110)
+            assertFalse("source/date gives way to the verse at large font sizes", v.texts().any { it.contains("Memory verses") })
+            val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
+            text.assertCompleteLines("fontScale 1.3 minimum verse")
+            assertTrue(v.texts().contains("Psalm 23:1 · KJV"))
+            listOf(R.string.widget_speak_verse, R.string.widget_shuffle).forEach { id ->
+                val button = v.byDescription(s(id))!!
+                val bounds = android.graphics.Rect()
+                assertTrue(button.getGlobalVisibleRect(bounds))
+                assertEquals(button.height, bounds.height())
+            }
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(originalScale)
+        }
+    }
+
+    @Test fun minimumUnavailableExplanationUsesOnlyCompleteLines() {
+        for (reason in VerseWidgetContent.Unavailable.Reason.entries) {
+            val v = body(VerseWidgetContent.Unavailable(reason), w = 110, h = 110)
+            val text = v.allViews().filterIsInstance<android.widget.TextView>()
+                .single { it.text.toString() == strings.verseUnavailable(reason) }
+            text.assertCompleteLines("minimum unavailable $reason")
+        }
+    }
+
     @Test fun hidingButtonsRemovesShuffleAndSpeak() {
         val v = body(verse, config.copy(showButtons = false))
         assertNull(v.byDescription(s(R.string.widget_shuffle)))

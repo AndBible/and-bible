@@ -42,6 +42,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CompletableDeferred
@@ -286,6 +288,11 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             openCompare = { range -> linkControl.openCompare(range) },
             applyChosenVerse = { osisId -> activity.readingCommands.applyChosenVerse(osisId) },
             formatHistoryTimestamp = { createdAt -> format("h:mm a, E d MMM ", createdAt).toString() },
+            // The editor is a native WebView, so Compose's keyboard controller may ignore hide().
+            hideKeyboardForPaneMenu = {
+                WindowInsetsControllerCompat(activity.hostActivity.window, activity.hostActivity.window.decorView)
+                    .hide(WindowInsetsCompat.Type.ime())
+            },
             paneMenuItemsFor = { windowId ->
                 activity.hostWindowRepository.getWindow(IdType(windowId))?.let { paneMenuStateBuilder.build(it) }
             },
@@ -991,6 +998,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         if (searchController.searchModeActive.value) return
         activity.fullScreen = false
         overflowItems.value = activity.readingCommands.buildOptionsMenuItems()
+        WindowInsetsControllerCompat(activity.hostActivity.window, activity.hostActivity.window.decorView)
+            .hide(WindowInsetsCompat.Type.ime())
         overflowExpanded.value = true
     }
 

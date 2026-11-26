@@ -2,6 +2,10 @@ package net.bible.desktop
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
+import net.bible.sharedcore.platform.desktop.DesktopPaths
+import net.bible.sharedui.desktop.assembly.DESKTOP_DEVICE_SETTINGS_FILE
+import net.bible.sharedui.desktop.settings.PersistentDesktopUiScaleSetting
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -12,7 +16,7 @@ import kotlin.math.roundToInt
 internal data class XSettingsValues(val windowScalingFactor: Int?, val xftDpi: Double?, val unscaledDpi: Double? = null)
 
 /**
- * Everything the Linux display scale is decided from: [env] and [property] are the process environment and the system
+ * Inputs to desktop display scaling: [env] and [property] are the process environment and the system
  * properties, [xsettings] the parsed `_XSETTINGS_SETTINGS` of the screen's XSETTINGS manager, [xResources] the root
  * window's `RESOURCE_MANAGER` text (what `xrdb -query` prints).
  */
@@ -24,6 +28,9 @@ internal data class DisplayScaleInputs(
     val xResources: String?,
     /** Why the probe found nothing, for the default's source (see [X11DisplayScaleProbe.Result.note]). */
     val probeNote: String? = null,
+    /** Windows' native fractional scale from the JDK graphics configuration; null on other hosts. */
+    val windowsScale: Double? = null,
+    val preferencePercent: Int = 100,
 )
 
 /**
@@ -35,18 +42,29 @@ internal data class DisplayScaleInputs(
  * use [integerOnly] instead.
  *
  * [jdkScaling] false: the user switched JDK scaling off (`-Dsun.java2d.uiScale.enabled=false`); AWT stays at 1 and the
- * whole scale goes through the Compose density.
+ * whole scale goes through the Compose density. Windows normally keeps its native fractional/per-monitor [awtDensity];
+ * only an explicit absolute override sets the fractional JDK property before AWT starts.
  */
 internal data class DisplayScale(
     val scale: Double,
     val source: String,
     val jdkScaling: Boolean = true,
+    /** Windows' fractional JDK scale. Automatic DPI must never use the X11 integer split. */
+    val nativeAwtScale: Double? = null,
+    /** An absolute Windows override is supported fractionally by the JDK, including on monitor changes. */
+    val windowsOverride: Boolean = false,
+    val preferenceOverridden: Boolean = false,
 ) {
     val awtScale: Int get() = if (!jdkScaling) 1 else floor(scale + EPSILON).toInt().coerceAtLeast(1)
-    val composeFactor: Double get() = round4(scale / awtScale)
+    val awtDensity: Double get() = nativeAwtScale ?: awtScale.toDouble()
+    val composeFactor: Double get() = round4(scale / awtDensity)
 
     /** Sets the JDK's own scale and keeps skiko from replacing it. Before AWT initialises (it reads `sun.java2d.uiScale` once). */
     fun applyToJdk(setProperty: (String, String) -> Unit) {
+        if (nativeAwtScale != null) {
+            if (windowsOverride && jdkScaling) setProperty("sun.java2d.uiScale", scale.toString())
+            return
+        }
         // Compose's Swing globals turn skiko's Linux auto-DPI on by default; it would overwrite the scale with its own
         // (Xft.dpi only) whenever skiko initialises before AWT. This decision replaces it.
         setProperty("skiko.linux.autodpi", "false")
@@ -66,7 +84,7 @@ internal data class DisplayScale(
             copy(scale = whole, source = "$source, ${fmt(scale)} rounded: Compose popups are own windows")
     }
 
-    fun describe(): String = "display scale ${fmt(scale)} ($source): AWT $awtScale, Compose x${fmt(composeFactor)}"
+    fun describe(): String = "display scale ${fmt(scale)} ($source): AWT ${fmt(awtDensity)}, Compose x${fmt(composeFactor)}"
 
     private companion object {
         const val EPSILON = 1e-6
@@ -78,13 +96,14 @@ private fun round4(v: Double): Double = (v * 10_000).roundToInt() / 10_000.0
 private fun fmt(v: Double): String = if (v == floor(v)) v.toInt().toString() else v.toString()
 
 /**
- * Decides the Linux UI scale (#4006). Pure: the X11 reads are done by [X11DisplayScaleProbe].
+ * Decides the desktop UI scale (#4006, #4240). Pure: X11 reads are done by [X11DisplayScaleProbe]; Windows
+ * supplies the JDK's native scale. The ordering below describes Linux's detection.
  *
  * In this order, the first usable one wins:
  * 1. the manual override, `-Dandbible.uiScale` or `ANDBIBLE_UI_SCALE` (0.5 to 4, fractional allowed);
  * 2. `-Dsun.java2d.uiScale.enabled=false`: the user switched JDK scaling off, scale 1 (the override above still works);
- * 3. an explicit JDK scale, `-Dsun.java2d.uiScale` or `J2D_UISCALE`, then `GDK_SCALE` (what the JDK itself reads);
- * 4. the desktop's scale, the largest of: XSETTINGS `Xft/DPI` / 96 (GNOME's gsd-xsettings, Xfce, KDE's xsettingsd: what
+ * 3. an explicit JDK scale, `-Dsun.java2d.uiScale` or `J2D_UISCALE`;
+ * 4. the desktop's `GDK_SCALE` (also read by the JDK), else the largest of: XSETTINGS `Xft/DPI` / 96 (GNOME's gsd-xsettings, Xfce, KDE's xsettingsd: what
  *    GTK and Chromium scale by), else the `Xft.dpi` X resource / 96 (KDE, Xfce, `~/.Xresources`); and XSETTINGS
  *    `Gdk/WindowScalingFactor` times `Gdk/UnscaledDPI` / 96 (GNOME publishes both consistently; an xsettingsd may set the
  *    factor with an unscaled `Xft/DPI`);
@@ -95,7 +114,9 @@ private fun fmt(v: Double): String = if (v == floor(v)) v.toInt().toString() els
  * GNOME on Wayland reaches X11 apps through Xwayland: with Xwayland native scaling, GNOME publishes the scale in
  * XSETTINGS/`Xft.dpi` and expects the app to scale itself; without it, Mutter scales X11 windows itself and publishes 96 DPI.
  * Reading the Mutter monitor scale (D-Bus) would therefore double the scale in the second mode, so it is not used.
- * A desktop-derived scale below 1 is raised to 1. Not Linux: null, the JDK's own (Windows) scaling stays.
+ * A Linux desktop-derived scale below 1 is raised to 1. Windows uses the JDK's native fractional/per-monitor scale,
+ * without pinning its system properties, unless the user supplies an absolute override. The device-local preference
+ * multiplies detection, not an explicit override.
  */
 internal object DisplayScaleDetector {
     const val OVERRIDE_PROPERTY = "andbible.uiScale"
@@ -106,7 +127,6 @@ internal object DisplayScaleDetector {
     private const val BASE_DPI = 96.0
 
     fun detect(inputs: DisplayScaleInputs): DisplayScale? {
-        if (!inputs.isLinux) return null
         val ignored = mutableListOf<String>()
         fun explicit(name: String, raw: String?, label: String): DisplayScale? {
             raw ?: return null
@@ -117,20 +137,44 @@ internal object DisplayScaleDetector {
         fun note(source: String) = if (ignored.isEmpty()) source else "$source; ${ignored.joinToString("; ")}"
         val env = inputs.env
         val jdkScaling = inputs.property(JDK_ENABLED_PROPERTY)?.trim()?.equals("false", ignoreCase = true) != true
-        val chosen = (
+        val override = (
             explicit(OVERRIDE_PROPERTY, inputs.property(OVERRIDE_PROPERTY), "-D$OVERRIDE_PROPERTY=${inputs.property(OVERRIDE_PROPERTY)?.trim()}")
                 ?: explicit(OVERRIDE_ENV, env[OVERRIDE_ENV], "$OVERRIDE_ENV=${env[OVERRIDE_ENV]?.trim()}")
             )?.copy(jdkScaling = jdkScaling)
+        val preference = inputs.preferencePercent / 100.0
+        if (!inputs.isLinux) {
+            val native = inputs.windowsScale?.takeIf { it.isFinite() && it > 0 }
+            // The JDK has already applied its explicit Windows overrides to native DPI.
+            val jdkOverride = !jdkScaling ||
+                parseScale(inputs.property("sun.java2d.uiScale").orEmpty())?.let { it.isFinite() && it > 0 } == true ||
+                parseScale(env["J2D_UISCALE"].orEmpty())?.let { it.isFinite() && it > 0 } == true
+            val chosen = override ?: native?.let {
+                val factor = if (jdkOverride) 1.0 else preference
+                DisplayScale((it * factor).coerceIn(MIN, MAX), if (jdkOverride) "Windows explicit JDK scale ${fmt(it)}"
+                    else "Windows per-monitor DPI ${fmt(it * BASE_DPI)}; preference ${inputs.preferencePercent}%")
+            } ?: return null
+            return chosen.copy(
+                nativeAwtScale = if (override != null && jdkScaling) chosen.scale else native ?: 1.0,
+                windowsOverride = override != null,
+                source = note(chosen.source),
+                preferenceOverridden = override != null || jdkOverride,
+            )
+        }
+        val explicitScale = override
             ?: (if (!jdkScaling) DisplayScale(1.0, "-D$JDK_ENABLED_PROPERTY=false", jdkScaling = false) else null)
             ?: explicit("sun.java2d.uiScale", inputs.property("sun.java2d.uiScale"), "-Dsun.java2d.uiScale=${inputs.property("sun.java2d.uiScale")?.trim()}")
             ?: explicit("J2D_UISCALE", env["J2D_UISCALE"], "J2D_UISCALE=${env["J2D_UISCALE"]?.trim()}")
-            ?: env["GDK_SCALE"]?.let { raw ->
-                raw.trim().toIntOrNull()?.takeIf { it in 1..MAX.toInt() }?.let { DisplayScale(it.toDouble(), "GDK_SCALE=$it") }
-                    ?: null.also { ignored += "ignored GDK_SCALE=$raw" }
-            }
+        val chosen = explicitScale ?: env["GDK_SCALE"]?.let { raw ->
+            raw.trim().toIntOrNull()?.takeIf { it in 1..MAX.toInt() }?.let { DisplayScale(it.toDouble(), "GDK_SCALE=$it") }
+                ?: null.also { ignored += "ignored GDK_SCALE=$raw" }
+        }
             ?: desktopScale(inputs.xsettings, inputs.xResources)
             ?: DisplayScale(1.0, "default (no system scale found${inputs.probeNote?.let { ": $it" }.orEmpty()})")
-        return chosen.copy(source = note(chosen.source))
+        return chosen.copy(
+            scale = if (explicitScale != null) chosen.scale else (chosen.scale * preference).coerceIn(MIN, MAX),
+            preferenceOverridden = explicitScale != null,
+            source = note(chosen.source + if (explicitScale == null && preference != 1.0) "; preference ${inputs.preferencePercent}%" else ""),
+        )
     }
 
     /** Step 4 of [detect]: the largest scale the desktop publishes (the first named wins a tie), or null. */
@@ -218,33 +262,51 @@ internal object DisplayScaleDetector {
 object DesktopDisplayScale {
     @Volatile private var decided: DisplayScale? = null
 
-    /** The integer scale given to the JDK; 1 off Linux or before [init]. */
+    /** The integer scale explicitly given to the Linux JDK; 1 before [init]. */
     val awtScale: Int get() = decided?.awtScale ?: 1
 
-    /** The fractional rest, applied to the Compose density; 1 off Linux, before [init] or with integerOnly. */
+    /** The extra content factor; Windows already supplies the detected DPI through AWT. */
     val composeFactor: Double get() = decided?.composeFactor ?: 1.0
 
-    /** The whole scale; 1 off Linux or before [init]. */
+    /** The initial whole scale, before a Windows monitor change; 1 before [init]. */
     val scale: Double get() = decided?.scale ?: 1.0
 
-    /** The log line naming the scale and its source, or null off Linux. */
+    /** Captured before [DisplayScale.applyToJdk] writes its own properties; never inferred from those writes. */
+    val preferenceOverridden: Boolean get() = decided?.preferenceOverridden == true
+
+    /** The log line naming the initial scale and its source, or null on unsupported hosts. */
     val description: String? get() = decided?.describe()
 
     /**
-     * Detects the Linux scale and sets the JDK's integer scale. [integerOnly]: Compose layers are own windows (windowed
-     * web panes), see [DisplayScale.integerOnly]. Idempotent (the first call decides); must run before any AWT use.
+     * Detects the scale and applies the preference once. Linux sets the JDK's integer scale before any AWT use;
+     * Windows reads the JDK's native DPI, pinning it only for explicit overrides. [integerOnly] rounds Linux windowed-pane hosts.
      */
     @Synchronized
     fun init(integerOnly: Boolean) {
         if (decided != null) return
-        val linux = System.getProperty("os.name").orEmpty().lowercase().contains("linux")
-        if (!linux) return
+        val os = System.getProperty("os.name").orEmpty()
+        val linux = net.bible.sharedcore.platform.desktop.isLinuxDesktop(os)
+        val windows = os.startsWith("Windows", ignoreCase = true)
+        if (!linux && !windows) return
         val env = System.getenv()
-        val x11 = X11DisplayScaleProbe.read(env)
+        // Pre-startup device-settings.properties read; DesktopDeviceSettings caches it for later graph instances.
+        val preferences = DesktopDeviceSettings(DesktopPaths.system().config.resolve(DESKTOP_DEVICE_SETTINGS_FILE))
+        val percent = PersistentDesktopUiScaleSetting(preferences).percent
+        // Only an explicit absolute override pins Windows DPI. Automatic detection keeps native per-monitor updates.
+        if (windows) {
+            DisplayScaleDetector.detect(DisplayScaleInputs(false, env, System::getProperty, null, null, windowsScale = 1.0))
+                ?.applyToJdk(System::setProperty)
+        }
+        val native = if (windows) runCatching {
+            java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.defaultConfiguration
+                .defaultTransform.scaleX
+        }.getOrDefault(1.0) else null
+        val x11 = if (linux) X11DisplayScaleProbe.read(env) else null
         decided = DisplayScaleDetector.detect(
-            DisplayScaleInputs(true, env, System::getProperty, x11.xsettings, x11.xResources, x11.note()),
-        )?.let { if (x11.waitedMs > 0 && "waited" !in it.source) it.copy(source = "${it.source}; ${x11.note()}") else it }
-            ?.let { if (integerOnly) it.integerOnly() else it }?.also { it.applyToJdk(System::setProperty) }
+            DisplayScaleInputs(linux, env, System::getProperty, x11?.xsettings, x11?.xResources, x11?.note(),
+                windowsScale = native, preferencePercent = percent),
+        )?.let { if (x11 != null && x11.waitedMs > 0 && "waited" !in it.source) it.copy(source = "${it.source}; ${x11.note()}") else it }
+            ?.let { if (linux && integerOnly) it.integerOnly() else it }?.also { it.applyToJdk(System::setProperty) }
     }
 }
 

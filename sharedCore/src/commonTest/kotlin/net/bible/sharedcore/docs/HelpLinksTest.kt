@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 
 class HelpLinksTest {
     @Test fun everyDocsLinkRoundTripsThroughItsHelpUrl() {
-        for (link in DocsLink.entries) {
+        for (link in DocsLink.entries.filter { it.isHelpTopic }) {
             val url = HelpLinks.url(link)
             assertTrue(HelpLinks.isHelpUrl(url), url)
             assertEquals(link, HelpLinks.parse(url))
@@ -20,12 +20,16 @@ class HelpLinksTest {
         assertNull(HelpLinks.parse("https://example.org/"))
         assertNull(HelpLinks.parse("andbible-help:NO_SUCH_TOPIC"))
         assertNull(HelpLinks.parse("andbible-help:"))
+        assertNull(HelpLinks.parse("andbible-help:RELEASE_6_0"))
     }
 
-    /** The topic catalog's guarantee: every help topic has a section on the User guide tab to scroll to and highlight. */
+    /** Release notes are external updater targets; every other topic belongs to the in-app User guide tab. */
     @Test fun everyHelpTopicResolvesToAUserGuidePage() {
-        val missing = DocsLink.entries.filter { UserGuideToc.pageFor(it) == null }
-        assertEquals(emptyList(), missing, "DocsLink entries without a User guide tab page")
+        val helpTopics = DocsLink.entries.filter { it.isHelpTopic }
+        val externalPages = DocsLink.entries.filterNot { it.isHelpTopic }
+        val missing = helpTopics.filter { UserGuideToc.pageFor(it) == null }
+        assertEquals(emptyList(), missing, "Help topics without a User guide tab page")
+        externalPages.forEach { assertNull(UserGuideToc.pageFor(it), it.name) }
     }
 
     @Test fun anchoredTopicsResolveToTheirPage() {

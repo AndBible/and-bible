@@ -422,6 +422,8 @@ interface Strings {
     val openLogFolder: String                       // R.string.open_log_folder
     val startupReportBug: String                    // R.string.startup_report_bug
     val errorOccurred: String
+    fun epubNoReadableChapters(name: String): String  // R.string.epub_no_readable_chapters
+    val epubNoReadableChaptersHelp: String          // R.string.epub_no_readable_chapters_help
     val okay: String
     // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing
     // R.string.external_link_open_question words `CommonUtils.openLink` already asks.
@@ -684,6 +686,7 @@ interface Strings {
     val confChangeChapter: String
     val confChangeTitle: String
     val confSpeakFootnotes: String
+    val speakLinks: String
     val speakSpeedTitle: String
     val repeatPassage: String
     val setRepeatPassageRange: String
@@ -1061,6 +1064,12 @@ interface Strings {
     val memorizeCalendar: String                            // memorize_calendar
 
     // Batch 10-remainder — preference search (main Settings screen)
+    fun desktopUiScalePercent(percent: Int): String
+    fun desktopUiScaleEffective(percent: Int, effectivePercent: Int): String
+    fun desktopUiScaleOverridden(percent: Int): String
+    fun desktopUiScaleOverriddenEffective(percent: Int, effectivePercent: Int): String
+    val desktopUiScaleTitle: String
+    val desktopUiScaleSummary: String
     val desktopUpdateSettingTitle: String
     val desktopUpdateSettingSummary: String
     val desktopUpdateIntervalDaily: String
@@ -1184,7 +1193,6 @@ interface Strings {
     val autoAssignLabelsHelpIntroWorkspace: String    // R.string.auto_assign_labels_help_intro_workspace
     val hideLabelsHelpIntro: String                   // R.string.bookmark_settings_hide_labels_summary
     val studyPadsHelpText: String                     // R.string.help_studypads_text
-    val watchTutorialVideo: String                    // R.string.watch_tutorial_video
     val watchTutorialVideoPlain: String               // R.string.watch_tutorial_video_plain
 
     // Help & tips screen (#4134)
@@ -1312,6 +1320,7 @@ interface Strings {
     val desktopUpdateAvailableTitle: String // R.string.desktop_update_available_title
     fun desktopUpdateAvailableMessage(available: String, current: String): String // R.string.desktop_update_available_message
     val desktopUpdateDownload: String // R.string.desktop_update_download
+    val desktopUpdateWhatsNew: String // R.string.desktop_update_whats_new
     val desktopUpdateSnoozeDay: String // R.string.desktop_update_snooze_day
     val desktopUpdateSnoozeWeek: String // R.string.desktop_update_snooze_week
     val desktopUpdateSnoozeMonth: String // R.string.desktop_update_snooze_month

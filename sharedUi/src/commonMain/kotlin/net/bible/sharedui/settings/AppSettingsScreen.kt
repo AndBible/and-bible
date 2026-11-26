@@ -84,9 +84,27 @@ fun AppSettingsScreen(
         val unsubscribe = betaSetting?.observeChanges { betaEnabled = betaSetting.enabled }
         onDispose { unsubscribe?.invoke() }
     }
+    val scaleSetting = remember(settingsKoin) { settingsKoin?.getOrNull<DesktopUiScaleSetting>() }
+    var scalePercent by remember(scaleSetting) { mutableStateOf(scaleSetting?.percent ?: DESKTOP_UI_SCALE_DEFAULT) }
+    DisposableEffect(scaleSetting) {
+        val unsubscribe = scaleSetting?.observeChanges { scalePercent = scaleSetting.percent }
+        onDispose { unsubscribe?.invoke() }
+    }
     val updateKey = "desktop_update_check"
     val betaKey = "desktop_update_offer_beta"
     val desktopRows = buildList {
+        if (scaleSetting != null) {
+            add(SettingsItem.ListChoiceRow(
+                key = DESKTOP_UI_SCALE_KEY, title = strings.desktopUiScaleTitle,
+                entries = DESKTOP_UI_SCALE_PRESETS.map { SettingsItem.Choice(it.toString(), strings.desktopUiScalePercent(it)) },
+                selectedValue = scalePercent.toString(),
+                selectedValueSummary = if (scaleSetting.overriddenThisSession) {
+                    scaleSetting.effectivePercent?.let { strings.desktopUiScaleOverriddenEffective(scalePercent, it) }
+                        ?: strings.desktopUiScaleOverridden(scalePercent)
+                } else scaleSetting.effectivePercent?.let { strings.desktopUiScaleEffective(scalePercent, it) },
+            ))
+            add(SettingsItem.InfoRow(key = "desktop_ui_scale_help", title = strings.desktopUiScaleSummary))
+        }
         if (updateSetting != null) add(SettingsItem.ListChoiceRow(
             key = updateKey, title = strings.desktopUpdateSettingTitle,
             summary = strings.desktopUpdateSettingSummary,
@@ -115,7 +133,13 @@ fun AppSettingsScreen(
         },
         onListChoice = { key, value ->
             val chosen = DesktopUpdateInterval.fromStored(value)
-            if (key == updateKey && updateSetting != null && chosen != null) {
+            val scale = value.toIntOrNull()
+            if (key == DESKTOP_UI_SCALE_KEY && scaleSetting != null) {
+                if (scale != null && scale in DESKTOP_UI_SCALE_PRESETS) {
+                    scaleSetting.setPercent(scale)
+                    scalePercent = scaleSetting.percent
+                }
+            } else if (key == updateKey && updateSetting != null && chosen != null) {
                 updateSetting.setInterval(chosen)
                 updateInterval = updateSetting.interval
             } else onListChoice(key, value)

@@ -40,7 +40,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
-import fi.sykero.kdom.input.JDOMParseException
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
 import okio.Path
@@ -114,7 +113,10 @@ class EpubBackend(private val createState: () -> EpubBackendState, metadata: Swo
      */
     val state: EpubBackendState get() {
         val result = withMonitor(stateLock) {
-            built ?: (try { Result.success(createState()) } catch (e: Exception) { Result.failure(e) }).also { built = it }
+            built ?: (try { Result.success(createState()) } catch (e: Exception) {
+                Log.e(TAG, "Could not initialize EPUB ${bookMetaData.initials}; leaving its files installed", e)
+                Result.failure(e)
+            }).also { built = it }
         }
         return result.getOrThrow()
     }
@@ -251,12 +253,8 @@ fun addEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment
     val owner = moduleOwner(epubDir)
     if (!owner.tryLock()) return // Discovery must not reopen a retiring or partially extracted module.
     try {
-        try {
-            addOwnedEpubBook(epubDir, strings, environment, startupDiscovery)
-        } catch (e: Exception) {
-            deleteOwnedEpubModule(epubDir)
-            throw e
-        }
+        // Discovery/read errors must not remove an installed book. The installer owns rollback of new files.
+        addOwnedEpubBook(epubDir, strings, environment, startupDiscovery)
     } finally {
         owner.unlock()
     }
@@ -300,6 +298,8 @@ internal fun addOwnedEpubBook(epubDir: Path, strings: CoreStrings, environment: 
 /** The `epub` module folder, resolved through the [AppDirectories] port at call time. */
 @VisibleForTesting fun epubModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "epub"
 
+private val failedEpubDiscoveries = mutableSetOf<Path>()
+
 fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment, startupDiscovery: Boolean = false): Boolean {
     val dir = epubModulesDir()
     // Put back an old module that an interrupted replacement left set aside, before the scan registers what is there.
@@ -311,14 +311,11 @@ fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironm
     for(f in KFiles.list(dir).map { dir / it }) {
         try {
             addEpubBook(f, strings, environment, startupDiscovery)
-        } catch (e: JDOMParseException) {
-            Log.e(TAG, "addEpubBook catched JDOMParseException", e)
-            ok = false
-        } catch (e: IOException) {
-            Log.e(TAG, "addEpubBook catched IOException", e)
-            ok = false
+            withMonitor(failedEpubDiscoveries) { failedEpubDiscoveries.remove(f) }
         } catch (e: Exception) {
-            Log.e(TAG, "addEpubBook catched another exception", e)
+            if (withMonitor(failedEpubDiscoveries) { failedEpubDiscoveries.add(f) }) {
+                Log.e(TAG, "Could not initialize EPUB $f; leaving its files installed", e)
+            }
             ok = false
         }
     }

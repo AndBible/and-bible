@@ -59,6 +59,7 @@ fun SpeakSettingsContent(
     onSpeakChapterChanges: (Boolean) -> Unit,
     onSpeakTitles: (Boolean) -> Unit,
     onSpeakFootnotes: (Boolean) -> Unit,
+    onSpeakLinks: (Boolean) -> Unit,
     onOpenRepeatRange: () -> Unit,
     onOpenSleepTimer: () -> Unit,
     onOpenAdvanced: () -> Unit,
@@ -99,6 +100,10 @@ fun SpeakSettingsContent(
         AbSwitchRow(
             strings.confSpeakFootnotes, playback.speakFootnotes, onSpeakFootnotes,
             leadingIcon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null) },
+        )
+        AbSwitchRow(
+            strings.speakLinks, playback.speakLinks, onSpeakLinks,
+            leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null) },
         )
 
         AbSettingsCategoryHeader(strings.repeatPassage)

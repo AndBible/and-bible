@@ -296,7 +296,7 @@ private fun RenderSettingsItem(
         )
 
         is SettingsItem.ListChoiceRow -> {
-            val selectedLabel = item.entries.firstOrNull { it.value == item.selectedValue }?.label
+            val selectedLabel = item.selectedValueSummary ?: item.entries.firstOrNull { it.value == item.selectedValue }?.label
             AbSettingsRow(
                 title = item.title,
                 // Disabled choices explain their restriction instead of hiding it behind the value.

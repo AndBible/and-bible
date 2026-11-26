@@ -39,6 +39,30 @@ class SpeakWidgetsGoldenTest {
         }
     }
 
+    @Test fun minimumSizes_allModes() {
+        for (mode in WidgetMode.entries) {
+            captureWidget(context, "speak_minimum", 40, 40, mode) { SpeakStripContent(stoppedState(), strings, 40.dp) }
+            val longVerse = speakingState().copy(verseText = "The LORD is my shepherd; I shall not want. ".repeat(15))
+            captureWidget(context, "speaktext_minimum_long", 110, 110, mode) { SpeakTextContent(longVerse, strings, 110.dp, 110.dp) }
+            captureWidget(context, "speaktext_narrow_tall", 110, 180, mode) { SpeakTextContent(longVerse, strings, 110.dp, 180.dp) }
+        }
+    }
+
+    @Test fun enlargedMinimum_allModes() {
+        val originalScale = context.resources.configuration.fontScale
+        try {
+            org.robolectric.RuntimeEnvironment.setFontScale(1.3f)
+            val state = speakingState().copy(verseText = "The LORD is my shepherd; I shall not want. ".repeat(15))
+            for (mode in WidgetMode.entries) {
+                captureWidget(context, "speaktext_minimum_font130", 110, 110, mode) {
+                    SpeakTextContent(state, strings, 110.dp, 110.dp)
+                }
+            }
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(originalScale)
+        }
+    }
+
     @Test fun attention_allModes() {
         for (mode in WidgetMode.entries) {
             captureWidget(context, "attention_4x1", 334, 86, mode) { AttentionGlanceContent() }

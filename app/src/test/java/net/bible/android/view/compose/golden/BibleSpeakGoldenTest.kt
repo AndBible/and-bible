@@ -17,7 +17,7 @@ class BibleSpeakGoldenTest {
         androidx.compose.foundation.layout.Column {
             SpeakSettingsContent(
                 playback = pb,
-                onSpeedChange = {}, onSpeakChapterChanges = {}, onSpeakTitles = {}, onSpeakFootnotes = {},
+                onSpeedChange = {}, onSpeakChapterChanges = {}, onSpeakTitles = {}, onSpeakFootnotes = {}, onSpeakLinks = {},
                 onOpenRepeatRange = {}, onOpenSleepTimer = {}, onOpenAdvanced = {},
                 onSystemTtsSettings = {}, onHelp = {},
             )

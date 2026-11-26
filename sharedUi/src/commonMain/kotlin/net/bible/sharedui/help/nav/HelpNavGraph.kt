@@ -40,7 +40,7 @@ class HelpNavDeps(
     /** All episodes in series order; unpublished ones open the placeholder with its caption languages. */
     val tutorialVideos: (appLanguage: String) -> List<VideoRowUi> = { lang ->
         TutorialVideos.Episode.entries.map {
-            VideoRowUi(guideStrings.numberedEpisode(it), TutorialVideos.url(it, lang), TutorialVideos.hasPlainLabel(it, lang))
+            VideoRowUi(guideStrings.numberedEpisode(it), TutorialVideos.url(it, lang))
         }
     },
 )

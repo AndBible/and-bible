@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+# Offline approval contracts: real waiter and jq, external gh and clock only are stubbed.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+T="$(mktemp -d)"
+trap 'rm -rf "$T"' EXIT
+source <(awk '/^KIND=production$/ {exit} {print}' "$ROOT/scripts/github-release.sh")
+
+cat > "$T/gh" <<'STUB'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "$*" >> "$STATE/calls"
+[[ "$1" == api ]] || exit 1
+shift
+method=GET; query=.
+if [[ "$1" == --method ]]; then method="$2"; shift 2; fi
+endpoint="$1"; shift
+while (($#)); do
+    case "$1" in
+        --method) method="$2"; shift 2 ;;
+        --jq) query="$2"; shift 2 ;;
+        -F|-f) shift 2 ;;
+        *) exit 1 ;;
+    esac
+done
+count() {
+    local n=0
+    [[ ! -f "$STATE/$1" ]] || read -r n < "$STATE/$1"
+    n=$((n + 1)); printf '%s\n' "$n" > "$STATE/$1"; printf '%s\n' "$n"
+}
+case "$endpoint" in
+    */workflows/*/runs\?*) boundary=lookup ;;
+    */pending_deployments) boundary=pending ;;
+    */jobs) boundary=jobs ;;
+    */actions/runs/202|*/actions/runs/101|*/actions/runs/303) boundary=status ;;
+    *) printf 'Unexpected endpoint: %s\n' "$endpoint" >&2; exit 1 ;;
+esac
+n=$(count "$method-$boundary")
+# A stale approved run must look successful, not merely trigger an unexpected-endpoint error.
+case "$endpoint:$boundary:$method" in
+    */101:status:GET|*/303:status:GET) printf '{"status":"completed","conclusion":"success"}\n' | jq -r "$query"; exit ;;
+    */101/jobs:jobs:GET|*/303/jobs:jobs:GET)
+        printf '{"jobs":[{"name":"%s","status":"completed","conclusion":"success"}]}\n' "$JOB" | jq -r "$query"; exit ;;
+esac
+if [[ "$method" == GET ]]; then
+    [[ "$SCENARIO" != success-stderr ]] || printf 'diagnostic only (HTTP 403)\n' >&2
+    if [[ "$SCENARIO" == "get-$boundary-"* && "$n" == 1 ]]; then
+        printf 'gh: lookup error (HTTP %s)\n' "${SCENARIO##*-}" >&2; exit 1
+    fi
+    if [[ "$SCENARIO" == "rate-$boundary-403" && "$n" == 1 ]]; then
+        printf 'gh: API rate limit exceeded (HTTP 403)\n' >&2; exit 1
+    fi
+    if [[ "$SCENARIO" == "quiet-$boundary" ]]; then
+        printf 'temporary GET error\n' >&2; exit 1
+    fi
+fi
+case "$boundary:$method" in
+    lookup:GET)
+        # Same tag + same SHA is insufficient: the old run must also fail the push-time boundary.
+        runs='[{"id":101,"head_sha":"release-sha","head_branch":"beta-1284","event":"push","created_at":"2026-11-25T09:54:59Z"},{"id":303,"head_sha":"other-sha","head_branch":"beta-1284","event":"push","created_at":"2026-11-25T10:00:01Z"}]'
+        if [[ "$SCENARIO" != missing && "$SCENARIO" != old-only && !( "$SCENARIO" == delayed && "$n" -lt 3 ) ]]; then
+            runs=$(jq '. + [{id:202,head_sha:"release-sha",head_branch:"beta-1284",event:"push",created_at:"2026-11-25T10:00:00Z"}]' <<< "$runs")
+        fi
+        [[ "$SCENARIO" != missing ]] || runs='[]'
+        if [[ "$SCENARIO" == clock-skew ]]; then
+            runs=$(jq 'map(if .id == 202 then .created_at = "2026-11-25T09:55:00Z" else . end)' <<< "$runs")
+        fi
+        json="{\"workflow_runs\":$runs}" ;;
+    pending:POST)
+        if [[ "$SCENARIO" == post-* && ( "$SCENARIO" != post-race-422 || "$n" == 1 ) ]]; then
+            [[ "$SCENARIO" != post-race-422 ]] || touch "$STATE/approved"
+            printf 'gh: POST error\nwith details (HTTP %s)\n' "${SCENARIO##*-}" >&2; exit 1
+        fi
+        touch "$STATE/approved"; exit 0 ;;
+    pending:GET)
+        if [[ "$SCENARIO" == repeated-pending ]]; then
+            json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":true}]'
+            [[ "$n" -lt 2 ]] || json=$(jq '. + [{environment:{id:44},current_user_can_approve:true}]' <<< "$json")
+        elif [[ "$SCENARIO" == denied-* ]]; then
+            json='[{"environment":{"id":42},"current_user_can_approve":false},{"environment":{"id":43}}]'
+        elif [[ "$SCENARIO" == mixed ]]; then
+            json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":false}]'
+        elif [[ "$SCENARIO" == manual-* || "$SCENARIO" == terminal-* || "$SCENARIO" == waiting || -f "$STATE/approved" ]]; then
+            json='[]'
+        else
+            json='[{"environment":{"id":42},"current_user_can_approve":true},{"environment":{"id":43},"current_user_can_approve":true}]'
+        fi ;;
+    jobs:GET)
+        status=waiting; conclusion=null
+        if [[ "$SCENARIO" == manual-queued || "$SCENARIO" == desktop-queued || "$SCENARIO" == queued-cancelled || ( "$SCENARIO" == posted-queued && -f "$STATE/approved" ) || ( "$SCENARIO" == queued-desktop && "$n" == 1 ) ]]; then
+            status=queued
+        elif [[ "$SCENARIO" == terminal-job-* ]]; then
+            status=completed; conclusion="\"${SCENARIO##*-}\""
+        elif [[ "$SCENARIO" == terminal-run-* ]]; then
+            json='{"jobs":[]}'; printf '%s\n' "$json" | jq -r "$query"; exit
+        elif [[ "$SCENARIO" == manual-success ]]; then
+            status=completed; conclusion='"success"'
+        elif [[ "$SCENARIO" != posted-waiting && "$SCENARIO" != repeated-pending && ( "$SCENARIO" == manual-running || "$SCENARIO" == manual-desktop || "$SCENARIO" == queued-desktop || -f "$STATE/approved" || ( "$SCENARIO" == denied-other && "$n" -ge 3 ) ) ]]; then
+            status=in_progress
+            if [[ -f "$STATE/ran" ]]; then
+                status=completed; conclusion='"success"'
+                [[ "$SCENARIO" != follow-failure ]] || conclusion='"failure"'
+            fi
+            touch "$STATE/ran"
+        fi
+        # Older runs were already approved; accepting one is a false success.
+        json="{\"jobs\":[{\"name\":\"$JOB\",\"status\":\"$status\",\"conclusion\":$conclusion}]}" ;;
+    status:GET)
+        if [[ "$SCENARIO" == queued-cancelled && "$n" -ge 2 ]]; then
+            json='{"status":"completed","conclusion":"cancelled"}'
+        elif [[ "$SCENARIO" == terminal-run-* || "$SCENARIO" == terminal-waiting-* ]]; then
+            json="{\"status\":\"completed\",\"conclusion\":\"${SCENARIO##*-}\"}"
+        else
+            json='{"status":"in_progress","conclusion":null}'
+        fi ;;
+esac
+printf '%s\n' "$json" | jq -r "$query"
+STUB
+chmod +x "$T/gh"
+export PATH="$T:$PATH"
+sleep() { printf '%s\n' "$SECONDS" >> "$STATE/sleeps"; SECONDS=$((SECONDS + $1)); }
+signpath_approval_reminder() { printf 'SignPath reminder\n'; }
+cases=0; failed=0
+check() { if ! eval "$1"; then printf 'FAIL %s: %s\n' "$SCENARIO" "$2"; failed=$((failed + 1)); fi; }
+run_case() {
+    cases=$((cases + 1))
+    export SCENARIO="$1" STATE="$T/$cases-$1" JOB="${2:-build}"
+    mkdir -p "$STATE"; SECONDS=0; rc=0
+    approve_workflow_deployments "${3:-build-apk.yml}" beta-1284 180 30 "$JOB" release-sha 2026-11-25T10:00:00Z "${4:-false}" > "$STATE/output" 2>&1 || rc=$?
+}
+for scenario in ordinary delayed reused-tag clock-skew post-race-422 manual-queued posted-queued manual-running manual-success denied-other mixed success-stderr; do
+    run_case "$scenario"
+    check '[[ "$rc" == 0 ]]' 'gated job running/success was not recognized'
+    check '! grep -Eq "runs/(101|303)/" "$STATE/calls"' 'selected an old or wrong-commit run'
+done
+run_case ordinary
+check 'grep -q "environment_ids\[\]=42 -F environment_ids\[\]=43" "$STATE/calls"' 'omitted eligible environments'
+run_case mixed
+check 'grep -q "environment_ids\[\]=42" "$STATE/calls" && ! grep -q "environment_ids\[\]=43" "$STATE/calls"' 'posted an unauthorized environment'
+run_case success-stderr
+check '! grep -q "diagnostic only" "$STATE/output"' 'successful stderr contaminated the result'
+for scenario in manual-running manual-success denied-other; do
+    run_case "$scenario"
+    check '[[ ! -f "$STATE/POST-pending" ]]' 'posted when no eligible deployment existed'
+done
+run_case denied-other
+check '[[ $(grep -c "WARNING.*cannot approve" "$STATE/output") == 1 ]]' 'permission warning not emitted exactly once'
+check 'grep -q "https://github.com/AndBible/and-bible/actions/runs/202" "$STATE/output"' 'permission warning omitted run URL'
+for scenario in missing old-only denied-forever waiting posted-waiting post-400 post-401 post-403 post-404 post-422 post-429 post-503; do
+    run_case "$scenario"
+    check '[[ "$rc" != 0 && $(wc -l < "$STATE/sleeps") -eq 6 ]]' 'did not wait until the bounded deadline'
+    check 'grep -q "WARNING.*approval" "$STATE/output"' 'missing timeout warning'
+    if [[ "$scenario" == post-* ]]; then
+        check '[[ $(< "$STATE/POST-pending") == 6 ]]' 'POST error was not retried every poll'
+        check '[[ $(grep -c "POST.*error.*with details" "$STATE/output") == 6 ]]' 'POST failures were not logged on one line each'
+    fi
+    if [[ "$scenario" == missing || "$scenario" == old-only ]]; then
+        check 'grep -q "https://github.com/AndBible/and-bible/actions/workflows/build-apk.yml" "$STATE/output"' 'no-run warning omitted workflow URL'
+    fi
+done
+for scenario in terminal-run-cancelled terminal-run-failure terminal-run-success terminal-job-skipped terminal-job-failure terminal-job-cancelled terminal-waiting-cancelled; do
+    run_case "$scenario"
+    check '[[ "$rc" != 0 && ! -f "$STATE/sleeps" ]]' 'terminal state did not stop immediately'
+    if [[ "$scenario" == terminal-job-skipped || "$scenario" == terminal-waiting-* ]]; then
+        check 'grep -qi "without the gated job running" "$STATE/output"' 'missing non-execution explanation'
+    else
+        check '! grep -qi "without.*running" "$STATE/output"' 'claimed non-execution without evidence'
+    fi
+    check 'grep -q "${SCENARIO##*-}" "$STATE/output"' 'terminal message omitted real conclusion'
+    check 'grep -q "https://github.com/AndBible/and-bible/actions/runs/202" "$STATE/output"' 'terminal message omitted run URL'
+done
+for boundary in lookup status jobs pending; do
+    for status in 429 503; do
+        run_case "get-$boundary-$status"
+        check '[[ "$rc" == 0 ]]' 'transient GET error was not retried'
+    done
+    run_case "rate-$boundary-403"
+    check '[[ "$rc" == 0 ]]' 'rate-limited GET error was not retried'
+    for status in 401 403 404; do
+        run_case "get-$boundary-$status"
+        check '[[ "$rc" != 0 && ! -f "$STATE/sleeps" ]]' 'permanent GET error did not fail fast'
+        check 'grep -q "HTTP $status" "$STATE/output"' 'permanent GET diagnostic omitted reason'
+    done
+done
+run_case get-lookup-422
+check '[[ "$rc" != 0 && ! -f "$STATE/sleeps" ]]' 'invalid run lookup did not fail fast'
+for boundary in status jobs pending; do
+    run_case "get-$boundary-422"
+    check '[[ "$rc" == 0 ]]' 'per-run 422 was not retried'
+done
+for boundary in lookup status jobs pending; do
+    run_case "quiet-$boundary"
+    check '[[ "$rc" != 0 ]]' 'persistent GET errors produced success'
+    check '[[ $(grep -c "lookup failed" "$STATE/output") == 1 ]]' 'GET summary was not bounded'
+    check '! grep -q "temporary GET error" "$STATE/output"' 'GET stderr leaked on every poll'
+    check '[[ $(grep -c "Still waiting" "$STATE/output") == 2 ]]' 'missing minute-scale foreground progress'
+done
+run_case repeated-pending
+check '[[ "$rc" != 0 && $(< "$STATE/POST-pending") == 2 ]]' 'successful environments were posted again or new environment was ignored'
+check '[[ $(grep -c "environment_ids\[\]=42" "$STATE/calls") == 1 && $(grep -c "environment_ids\[\]=43" "$STATE/calls") == 1 && $(grep -c "environment_ids\[\]=44" "$STATE/calls") == 1 ]]' 'environment POST deduplication was not per ID'
+run_case queued-cancelled windows-sign desktop.yml true
+check '[[ "$rc" != 0 ]] && grep -q "cancelled" "$STATE/output"' 'terminal run after queued approval omitted its conclusion'
+check '! grep -qi "without.*running" "$STATE/output"' 'queued terminal run claimed non-execution without evidence'
+run_case desktop-queued windows-sign desktop.yml true
+check '[[ "$rc" != 0 && $(wc -l < "$STATE/sleeps") == 6 ]]' 'Desktop stopped following an approved queued job'
+check 'grep -qi "approved.*waiting for a runner" "$STATE/output"' 'queued Desktop timeout did not distinguish approval from runner wait'
+check '! grep -q "SignPath reminder" "$STATE/output"' 'SignPath reminder preceded signing execution'
+run_case queued-desktop windows-sign desktop.yml true
+check '[[ "$rc" == 0 ]] && grep -q "windows-sign: success" "$STATE/output"' 'Desktop did not follow queued job through execution'
+check '[[ $(grep -c "SignPath reminder" "$STATE/output") == 1 ]]' 'queued approval lost the later SignPath reminder'
+run_case manual-desktop windows-sign desktop.yml true
+check '[[ "$rc" == 0 ]] && grep -q "windows-sign: success" "$STATE/output"' 'Desktop did not follow signing to completion'
+check '[[ $(grep -c "SignPath reminder" "$STATE/output") == 1 ]]' 'missing/duplicated signing reminder'
+run_case follow-failure windows-sign desktop.yml true
+check '[[ "$rc" != 0 ]] && grep -q "windows-sign: failure" "$STATE/output"' 'failure after running was not reported'
+printf 'scenarios %s, failed %s\n' "$cases" "$failed"
+[[ "$failed" == 0 ]]

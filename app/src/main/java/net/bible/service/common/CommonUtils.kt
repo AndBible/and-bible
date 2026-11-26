@@ -785,7 +785,6 @@ object CommonUtils : CommonUtilsBase() {
         "bookmark_warning4" to R.string.bookmark_warning4,
         "buy_development" to R.string.buy_development,
         "buy_development2" to R.string.buy_development2,
-        "watch_tutorial_video" to R.string.watch_tutorial_video,
         "watch_tutorial_video_plain" to R.string.watch_tutorial_video_plain,
         "help_full_documentation_link" to R.string.help_full_documentation_link,
         "help" to R.string.help,
@@ -1209,7 +1208,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val lang = Locale.getDefault().displayLanguage
         val instr = application.getString(R.string.instructions_for_translators)
-        val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
+        val instructionsUrl = DocsLink.CONTRIBUTE_TRANSLATING.url
         val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
         val msg = application.getString(R.string.incomplete_translation, lang, application.getString(incompleteTranslationAppName(isDiscrete)), instructionsLink)
 

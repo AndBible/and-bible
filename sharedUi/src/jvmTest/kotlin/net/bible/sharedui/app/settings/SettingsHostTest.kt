@@ -119,16 +119,16 @@ class SettingsHostTest {
 
     @Test
     fun discreteHelpUsesCalculatorTextInDiscreteBuild() {
-        val wiki = "https://github.com/AndBible/and-bible/wiki/Discrete-build"
+        val docs = "https://andbible.org/docs/discrete_build/"
         val discrete = host(discrete = true).buildDiscreteHelpHtml()
         assertTrue(discrete.contains(strings.calculatorPar1))
         assertTrue(discrete.contains(strings.calculatorPar3))
-        assertTrue(discrete.contains(wiki))
+        assertTrue(discrete.contains(docs))
         assertFalse(discrete.contains(strings.discreteModeInfoPar1))
 
         val normal = host(discrete = false).buildDiscreteHelpHtml()
         assertTrue(normal.contains(strings.discreteModeInfoPar1))
-        assertTrue(normal.contains(wiki))
+        assertTrue(normal.contains(docs))
         assertFalse(normal.contains(strings.calculatorPar1))
         assertFalse(normal.contains(strings.calculatorPar3))
     }

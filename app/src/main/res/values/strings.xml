@@ -23,6 +23,12 @@
 <resources>
     <string name="desktop_webview2_startup_error">AndBible could not start WebView2, which is required to display Bible text. Install or repair the Microsoft Edge WebView2 Evergreen Runtime from:\n%1$s\n\nDetails are in the log file:\n%2$s</string>
     <string name="desktop_webview2_graphics_error">AndBible requires Direct3D graphics to display Bible text with WebView2. The current graphics renderer is %1$s. Check your graphics driver and Direct3D support.\n\nDetails are in the log file:\n%2$s</string>
+    <string name="desktop_ui_scale_title">UI scale</string>
+    <string name="desktop_ui_scale_percent">%d%%</string>
+    <string name="desktop_ui_scale_effective">%1$d%% (this session: %2$d%%)</string>
+    <string name="desktop_ui_scale_overridden">%d%% (overridden this session)</string>
+    <string name="desktop_ui_scale_overridden_effective">%1$d%% (overridden this session: %2$d%%)</string>
+    <string name="desktop_ui_scale_summary">Adjust the automatic interface scale. Restart required. Bible text size is set separately.</string>
     <string name="desktop_update_setting_title">Check for updates</string>
     <string name="desktop_update_interval_daily">Daily</string>
     <string name="desktop_update_interval_weekly">Weekly</string>
@@ -38,6 +44,7 @@
     <string name="desktop_update_available_title">New version available</string>
     <string name="desktop_update_available_message">AndBible %1$s is available. You have %2$s.</string>
     <string name="desktop_update_download">Download</string>
+    <string name="desktop_update_whats_new">What\'s new</string>
     <string name="desktop_update_snooze_day">Remind me tomorrow</string>
     <string name="desktop_update_snooze_week">Remind me in a week</string>
     <string name="desktop_update_snooze_month">Remind me in a month</string>
@@ -658,6 +665,7 @@
     <string name="conf_change_chapter">Chapter changes</string>
     <string name="conf_change_title">Titles</string>
     <string name="conf_speak_footnotes">Footnotes</string>
+    <string name="speak_links">Read links and Bible references</string>
     <string name="conf_speak_sleep_timer">Set sleep timer</string>
 
     <string name="sleep_timer_title">Sleep time in minutes</string>
@@ -966,7 +974,6 @@
     <string name="please_wait">Please wait…</string>
     <string name="all">All</string>
     <string name="reset_generic">Reset</string>
-    <string name="watch_tutorial_video">Watch tutorial video (English)</string>
     <string name="watch_tutorial_video_plain">Watch tutorial video</string>
     <string name="verse_not_found">Verse not found</string>
 
@@ -1595,6 +1602,8 @@
     <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>
     <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
     <string name="processing_epub">Processing EPUB: %s</string>
+    <string name="epub_no_readable_chapters">No readable chapters found in “%s”</string>
+    <string name="epub_no_readable_chapters_help">Try importing another copy of this EPUB, or check that it contains readable chapters.</string>
     <string name="buy_development">Buy development work</string>
     <string name="buy_development2">Support project</string>
     <string name="dont_show">
@@ -2439,6 +2448,7 @@
     <string name="user_guide_page_customisation_module_creation">Module Creation</string>
     <string name="user_guide_page_faq">Frequently Asked Questions</string>
     <string name="user_guide_page_support">Support</string>
+    <string name="user_guide_page_contribute">Contribute</string>
     <string name="tutorial_title_whats_new_6_0">What\'s new in AndBible 6.0</string>
     <string name="tutorial_title_01_getting_started">Getting started: install and your first Bibles</string>
     <string name="tutorial_title_02_finding_your_way">Finding your way</string>

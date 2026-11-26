@@ -265,7 +265,7 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="error">Xato</string>
   <string name="all">Hammasi</string>
   <string name="reset_generic">Ilk holatga qaytarish</string>
-  <string name="watch_tutorial_video">Videodarsni tomosha qilish (Ingliz tilida)</string>
+  <string name="watch_tutorial_video_plain">Videodarsni tomosha qilish</string>
   <!--Errors-->
   <string name="report_error">Ma\'lumot Yuborish</string>
   <string name="error_occurred">Xato ro\'y berdi</string>

@@ -216,6 +216,7 @@ class ReadingHostSlotsTest {
         override fun setSpeakChapterChanges(on: Boolean) = Unit
         override fun setSpeakTitles(on: Boolean) = Unit
         override fun setSpeakFootnotes(on: Boolean) = Unit
+        override fun setSpeakLinks(on: Boolean) = Unit
         override fun clearRepeatRange() = Unit
         override fun setSleepTimerMinutes(minutes: Int) = Unit
         override fun setRepeatRange(startOsisId: String, endOsisId: String) = Unit
@@ -534,10 +535,12 @@ class ReadingHostSlotsTest {
         onNodeWithText(strings.confChangeChapter).performScrollTo().performClick()
         onNodeWithText(strings.confChangeTitle).performScrollTo().performClick()
         onNodeWithText(strings.confSpeakFootnotes).performScrollTo().performClick()
+        onNodeWithText(strings.speakLinks).performScrollTo().performClick()
         onNodeWithText(strings.confChangeChapter).assertIsOff()
         onNodeWithText(strings.confChangeTitle).assertIsOff()
         onNodeWithText(strings.confSpeakFootnotes).assertIsOn()
-        waitUntil { service.playback.value.speakChapterChanges.not() && service.playback.value.speakTitles.not() && service.playback.value.speakFootnotes }
+        onNodeWithText(strings.speakLinks).assertIsOff()
+        waitUntil { service.playback.value.speakChapterChanges.not() && service.playback.value.speakTitles.not() && service.playback.value.speakFootnotes && !service.playback.value.speakLinks }
         onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).performScrollTo()
             .performSemanticsAction(SemanticsActions.SetProgress) { assertTrue(it(185f)) }
         waitUntil { service.playback.value.speedPercent == 185 }
@@ -571,6 +574,8 @@ class ReadingHostSlotsTest {
         onNodeWithText(strings.confChangeChapter).assertIsOff()
         onNodeWithText(strings.confChangeTitle).assertIsOff()
         onNodeWithText(strings.confSpeakFootnotes).assertIsOn()
+        onNodeWithText(strings.speakLinks).assertIsOff()
+        assertEquals(false, reloaded.playback.value.speakLinks)
         assertEquals(false, reloaded.playback.value.speakChapterChanges)
         assertEquals(false, reloaded.playback.value.speakTitles)
         assertEquals(true, reloaded.playback.value.speakFootnotes)

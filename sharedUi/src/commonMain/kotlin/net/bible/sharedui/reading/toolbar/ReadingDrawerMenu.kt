@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.reading.toolbar
 
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.DrawerGroupSpec
 import net.bible.sharedcore.reading.DrawerItemSpec
@@ -185,8 +186,8 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
         const val ID_NEED_HELP = "needHelp"
         const val ID_HOW_TO_CONTRIBUTE = "howToContribute"
 
-        const val NEED_HELP_LINK = "https://github.com/AndBible/and-bible/wiki/Support"
-        const val CONTRIBUTE_LINK = "https://github.com/AndBible/and-bible/wiki/How-to-contribute"
+        val NEED_HELP_LINK = DocsLink.SUPPORT.url
+        val CONTRIBUTE_LINK = DocsLink.CONTRIBUTE.url
 
         /** Rows whose destination the platform supplies through [ReadingDrawerHost.runExtraRow] (`HostReadingExtras`). */
         val EXTRA_ROWS: Set<String> = setOf(ID_HELP, ID_LICENCE, ID_BUG_REPORT, ID_TELL_FRIEND, ID_RATE, ID_BUY_DEVELOPMENT)

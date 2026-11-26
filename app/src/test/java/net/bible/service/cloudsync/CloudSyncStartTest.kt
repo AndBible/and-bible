@@ -2,6 +2,7 @@ package net.bible.service.cloudsync
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -75,6 +76,35 @@ class CloudSyncStartTest {
             scheduler.complete(true)
             cloud.start()
             assertFalse(org.robolectric.Shadows.shadowOf(context).nextStartedService.getBooleanExtra(SyncService.USER_INITIATED, false))
+        } finally { scheduler.complete(false) }
+    }
+
+    @Test
+    fun manualStartPromotesAlreadyJoinedAutomaticRun() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>()
+        val scheduler = org.koin.core.context.GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
+        val cloud = org.koin.core.context.GlobalContext.get().get<CloudSync>()
+        try {
+            val leave = scheduler.startLeave()!!
+            assertSame(leave, cloud.start())
+            assertSame(leave, cloud.start(userInitiated = true))
+            assertEquals("manual origin must reach the scheduler even after an automatic join",
+                net.bible.android.platform.AndroidSyncScheduler.Request.Interactive, scheduler.consumeRequest())
+        } finally { scheduler.complete(false) }
+    }
+
+    @Test
+    fun waitUntilFinishedDoesNotWaitForPendingSchedulerRun() = runBlocking {
+        val scheduler = org.koin.core.context.GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
+        val cloud = org.koin.core.context.GlobalContext.get().get<CloudSync>()
+        try {
+            scheduler.startLeave()!!
+            val waiter = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                cloud.waitUntilFinished()
+            }
+            assertTrue("a host-owned pending run is not a CloudSync start or an active engine", waiter.isCompleted)
+            scheduler.complete(true)
+            withTimeout(1000) { waiter.await() }
         } finally { scheduler.complete(false) }
     }
 

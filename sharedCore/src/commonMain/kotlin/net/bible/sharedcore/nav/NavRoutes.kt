@@ -406,7 +406,7 @@ object NavRoutes {
 
     /** The topic of a [help] route argument; null for none or an unknown name (an old saved route). */
     fun helpTopic(argument: String?): net.bible.sharedcore.docs.DocsLink? =
-        net.bible.sharedcore.docs.DocsLink.entries.firstOrNull { it.name == argument }
+        net.bible.sharedcore.docs.DocsLink.entries.firstOrNull { it.isHelpTopic && it.name == argument }
 
     const val ARG_INSTALL_ACTION: String = "installAction"
     const val ARG_INSTALL_URIS: String = "installUris"

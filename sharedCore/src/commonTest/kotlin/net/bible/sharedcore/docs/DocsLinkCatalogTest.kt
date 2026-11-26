@@ -56,7 +56,22 @@ class DocsLinkCatalogTest {
             DocsLink.WINDOWS to "https://andbible.org/docs/windows/",
             DocsLink.WORKSPACES to "https://andbible.org/docs/workspaces/",
         )
-        assertEquals(DocsLink.entries.toSet(), original.keys)
+        val migratedWikiTargets = mapOf(
+            DocsLink.CONTRIBUTE to "https://andbible.org/docs/contribute/",
+            DocsLink.CONTRIBUTE_TRANSLATING to "https://andbible.org/docs/contribute/#translating-the-user-interface",
+            DocsLink.FAQ_ADD_MODULE to "https://andbible.org/docs/faq/#please-add-module-x-to-andbible",
+            DocsLink.FAQ_TEXT_ISSUE to "https://andbible.org/docs/faq/#i-found-a-text-issue-in-a-bible-commentary-module",
+        )
+        val updateTargets = mapOf(
+            DocsLink.DESKTOP_UPDATE_CHECKS to "https://andbible.org/docs/desktop/#update-checks",
+            DocsLink.RELEASE_4_0 to "https://andbible.org/docs/releases/release_4_0/",
+            DocsLink.RELEASE_4_1 to "https://andbible.org/docs/releases/release_4_1/",
+            DocsLink.RELEASE_5_0 to "https://andbible.org/docs/releases/release_5_0/",
+            DocsLink.RELEASE_6_0 to "https://andbible.org/docs/releases/release_6_0/",
+        )
+        assertEquals(DocsLink.entries.toSet(), original.keys + migratedWikiTargets.keys + updateTargets.keys)
+        updateTargets.forEach { (link, expected) -> assertEquals(expected, link.url, link.name) }
+        migratedWikiTargets.forEach { (link, expected) -> assertEquals(expected, link.url, link.name) }
         original.forEach { (link, expected) ->
             assertEquals(expected, link.url, link.name)
         }

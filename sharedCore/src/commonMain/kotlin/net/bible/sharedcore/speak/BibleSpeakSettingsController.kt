@@ -14,6 +14,7 @@ class BibleSpeakSettingsController(private val service: SpeakSettingsService) {
     fun setSpeakChapterChanges(on: Boolean) = service.setSpeakChapterChanges(on)
     fun setSpeakTitles(on: Boolean) = service.setSpeakTitles(on)
     fun setSpeakFootnotes(on: Boolean) = service.setSpeakFootnotes(on)
+    fun setSpeakLinks(on: Boolean) = service.setSpeakLinks(on)
 
     fun setSleepTimerMinutes(minutes: Int) = service.setSleepTimerMinutes(minutes)
     fun setRepeatRange(startOsisId: String, endOsisId: String) = service.setRepeatRange(startOsisId, endOsisId)

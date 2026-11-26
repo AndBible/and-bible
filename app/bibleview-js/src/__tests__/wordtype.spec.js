@@ -21,8 +21,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
 import { readingProgressSettingsKey } from "@/types/constants";
 
+const appSettings = vi.hoisted(() => ({disableAnimations: false}));
+
 vi.mock("@/composables", () => ({
     useCommon: () => ({
+        appSettings,
         strings: {
             typeEverything: "Type full words",
             reset: "Reset",
@@ -67,6 +70,66 @@ describe("WordType.vue", () => {
             }
         });
     };
+
+    it.each([[false, 'smooth'], [true, 'auto']])("uses the animation setting on advance and reset (disabled=%s)", async (disabled, behavior) => {
+        appSettings.disableAnimations = disabled;
+        const wrapper = createWrapper();
+        const words = wrapper.findAll('.type-word');
+        const scrolls = words.map(word => {
+            word.element.scrollIntoView = vi.fn();
+            return word.element.scrollIntoView;
+        });
+        try {
+            await wrapper.find('.type-hidden-input').setValue('F');
+            await nextTick();
+            expect(scrolls[1]).toHaveBeenCalledWith({behavior, block: 'nearest'});
+            await wrapper.find('.memorize-controls .icon-button').trigger('click');
+            await nextTick();
+            expect(scrolls[0]).toHaveBeenCalledWith({behavior, block: 'nearest'});
+        } finally {
+            wrapper.unmount();
+            appSettings.disableAnimations = false;
+        }
+    });
+
+    it("keeps the focused input beside the active word through restore, advance, completion, and reset", async () => {
+        const wrapper = createWrapper({
+            textItems: [{ key: "verse1", text: "For God so" }],
+            modeConfig: { typeConfig: { currentWordIndex: 1, typeEverything: false } },
+        });
+        await nextTick();
+
+        const text = wrapper.find(".type-text").element;
+        const words = wrapper.findAll(".type-word:not(.punctuation)");
+        const rect = (left, top) => ({left, top, right: left + 20, bottom: top + 12, width: 20, height: 12, x: left, y: top, toJSON() {}});
+        vi.spyOn(text, "getBoundingClientRect").mockReturnValue(rect(100, 200));
+        words.forEach((word, index) => vi.spyOn(word.element, "getBoundingClientRect").mockImplementation(() => {
+            const padding = text.classList.contains('completed') ? 16 : 0;
+            return rect(110 + index * 30 + padding, 220 + padding);
+        }));
+
+        const input = wrapper.find(".type-hidden-input").element;
+        const focus = vi.spyOn(input, "focus");
+        await wrapper.find(".type-text").trigger("click");
+        expect(focus).toHaveBeenCalledWith({preventScroll: true});
+        expect(input.style.left).toBe("40px");
+        expect(input.style.top).toBe("20px");
+
+        await wrapper.find(".type-hidden-input").setValue("G");
+        await nextTick();
+        expect(input.style.left).toBe("70px");
+
+        await wrapper.find(".type-hidden-input").setValue("S");
+        await nextTick();
+        expect(input.style.left).toBe("86px");
+        expect(input.style.top).toBe("36px");
+        expect(wrapper.emitted("memorize-completed")).toHaveLength(1);
+
+        await wrapper.find(".memorize-controls .icon-button").trigger("click");
+        await nextTick();
+        expect(input.style.left).toBe("10px");
+        wrapper.unmount();
+    });
 
     it("renders all words with type-unreached or type-current class initially", () => {
         const wrapper = createWrapper();

@@ -38,6 +38,7 @@ class SpeakTransportControllerTest {
         override fun setSpeakChapterChanges(on: Boolean) {}
         override fun setSpeakTitles(on: Boolean) {}
         override fun setSpeakFootnotes(on: Boolean) {}
+        override fun setSpeakLinks(on: Boolean) {}
         override fun clearRepeatRange() {}
         override fun setSleepTimerMinutes(minutes: Int) {}
         override fun setRepeatRange(startOsisId: String, endOsisId: String) {}

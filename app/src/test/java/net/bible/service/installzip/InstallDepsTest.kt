@@ -2,15 +2,26 @@ package net.bible.service.installzip
 
 import kotlinx.coroutines.test.runTest
 import net.bible.android.SharedConstants
+import net.bible.service.sword.epub.EpubBackend
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
+import net.bible.service.db.DatabaseContainer
+import net.bible.test.DatabaseResetter
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmark
+import net.bible.service.sword.epub.epubInitials
+import net.bible.service.sword.epub.EpubBackendStateTest
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordGenBook
+import org.junit.After
+import org.junit.Before
 import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.test.testCoreStrings
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -23,6 +34,57 @@ import java.util.zip.ZipOutputStream
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class InstallDepsTest {
+    private val installedBooks = mutableListOf<org.crosswire.jsword.book.Book>()
+    private val stateFixture = EpubBackendStateTest()
+    private var fixtureStarted = false
+    private var wasReady = false
+
+    @Before fun setUp() {
+        DatabaseResetter.resetDatabase()
+        wasReady = DatabaseContainer.ready
+        DatabaseContainer.ready = true
+    }
+
+    @After fun tearDown() {
+        installedBooks.forEach { Books.installed().removeBook(it) }
+        installedBooks.clear()
+        if (fixtureStarted) stateFixture.tearDown()
+        DatabaseResetter.resetDatabase()
+        DatabaseContainer.ready = wasReady
+    }
+
+    private suspend fun epubUpgradeFixture(displayName: String, optimizerVersion: Int, withBookmark: Boolean): Boolean {
+        if (!fixtureStarted) {
+            stateFixture.setUp()
+            fixtureStarted = true
+        }
+        val dir = stateFixture.buildEpub(displayName)
+        val state = stateFixture.openState(dir)
+        File(dir, "optimized/version.txt").writeText(optimizerVersion.toString())
+        val initials = epubInitials(displayName)
+        val metadata = state.getBookMetaData()
+        val backend = EpubBackend(state, metadata)
+        val book = SwordGenBook(metadata, backend)
+        Books.installed().addBook(book)
+        installedBooks += book
+        if (withBookmark) DatabaseContainer.instance.bookmarkDb.bookmarkDao().insert(
+            GenericBookmark(key = "fragment", bookInitials = initials, ordinalStart = 0, ordinalEnd = 0,
+                startOffset = null, endOffset = null, customIcon = null),
+        )
+        return checkEpubUpgrade(displayName)
+    }
+
+    @Test fun upgradePromptDistinguishesOrdinalBreakingOptimizerVersionFromMetadataOnlyVersion() = runTest {
+        val legacy = "upgrade-legacy-${System.nanoTime()}"
+        val metadataOnly = "upgrade-metadata-only-${System.nanoTime()}"
+        assertTrue(epubUpgradeFixture(legacy, optimizerVersion = 1, withBookmark = true))
+        assertFalse(epubUpgradeFixture(metadataOnly, optimizerVersion = 2, withBookmark = true))
+    }
+
+    @Test fun upgradePromptIsNotShownWithoutBookmarks() = runTest {
+        val displayName = "upgrade-no-bookmarks-${System.nanoTime()}"
+        assertFalse(epubUpgradeFixture(displayName, optimizerVersion = 1, withBookmark = false))
+    }
     @Test fun terminalMessagesPreserveExistingToastMapping() {
         val strings = testCoreStrings()
         assertEquals(strings.installZipSuccessful, terminalEventMessage(InstallPhase.Done, strings))

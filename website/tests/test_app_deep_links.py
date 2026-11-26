@@ -78,12 +78,35 @@ def missing(site, links):
     return problems
 
 
+# Intentional additions since the pre-catalog snapshot; never rewrite the historical fixture.
+ADDED_TARGETS = {
+    "DESKTOP_UPDATE_CHECKS": "https://andbible.org/docs/desktop/#update-checks",
+    "RELEASE_6_0": "https://andbible.org/docs/releases/release_6_0/",
+    "RELEASE_5_0": "https://andbible.org/docs/releases/release_5_0/",
+    "RELEASE_4_1": "https://andbible.org/docs/releases/release_4_1/",
+    "RELEASE_4_0": "https://andbible.org/docs/releases/release_4_0/",
+    "CONTRIBUTE": "https://andbible.org/docs/contribute/",
+    "CONTRIBUTE_TRANSLATING": "https://andbible.org/docs/contribute/#translating-the-user-interface",
+    "FAQ_ADD_MODULE": "https://andbible.org/docs/faq/#please-add-module-x-to-andbible",
+    "FAQ_TEXT_ISSUE": "https://andbible.org/docs/faq/#i-found-a-text-issue-in-a-bible-commentary-module",
+}
+ADDED_CALL_SITES = {
+    "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/UserGuideToc.kt": ["CONTRIBUTE"],
+    "app/src/main/java/net/bible/service/common/CommonUtils.kt": ["CONTRIBUTE_TRANSLATING"],
+    "app/src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt": [
+        "CONTRIBUTE", "SUPPORT", "FAQ_ADD_MODULE", "FAQ_TEXT_ISSUE"],
+    "sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/toolbar/ReadingDrawerMenu.kt": [
+        "SUPPORT", "CONTRIBUTE"],
+    "sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/settings/SettingsHost.kt": ["DISCRETE_BUILD"],
+}
+
+
 def test_catalog_preserves_original_urls():
     baseline = Path(__file__).parent / "fixtures/app_docs_links_before_catalog.tsv"
     old = [line.split("\t")[2] for line in baseline.read_text().splitlines() if not line.startswith("#")]
     current = [f"https://andbible.org/docs/{page}/" + (f"#{anchor}" if anchor else "")
                for _, _, page, anchor in scan()]
-    assert Counter(current) == Counter(set(old))
+    assert Counter(current) == Counter(set(old) | set(ADDED_TARGETS.values()))
 
 
 def test_migrated_call_sites_preserve_original_targets():
@@ -93,6 +116,8 @@ def test_migrated_call_sites_preserve_original_targets():
         if not line.startswith("#"):
             source, name, _ = line.split("\t")
             by_source.setdefault(source, []).append(name)
+    for source, names in ADDED_CALL_SITES.items():
+        by_source.setdefault(source, []).extend(names)
     for source, names in by_source.items():
         kt = paths.REPO / source
         if kt == GENERATED_TOC:
@@ -110,6 +135,33 @@ def test_migrated_call_sites_preserve_original_targets():
             assert current == names, source
 
 
+@pytest.mark.parametrize(("source", "target"), [
+    ("app/src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt", "CONTRIBUTE"),
+    ("app/src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt", "SUPPORT"),
+    ("app/src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt", "FAQ_ADD_MODULE"),
+    ("app/src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt", "FAQ_TEXT_ISSUE"),
+    ("sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/toolbar/ReadingDrawerMenu.kt", "SUPPORT"),
+    ("sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/toolbar/ReadingDrawerMenu.kt", "CONTRIBUTE"),
+    ("sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/settings/SettingsHost.kt", "DISCRETE_BUILD"),
+])
+def test_migrated_call_site_guard_rejects_changed_new_targets(tmp_path, monkeypatch, source, target):
+    baseline = Path(__file__).parent / "fixtures/app_docs_links_before_catalog.tsv"
+    sources = {line.split("\t")[0] for line in baseline.read_text().splitlines()
+               if not line.startswith("#")} | set(ADDED_CALL_SITES) | {source}
+    for name in sources:
+        fixture = tmp_path / name
+        fixture.parent.mkdir(parents=True, exist_ok=True)
+        fixture.write_text((paths.REPO / name).read_text(encoding="utf-8"))
+    changed = tmp_path / source
+    text = changed.read_text(encoding="utf-8")
+    assert f"DocsLink.{target}" in text
+    changed.write_text(text.replace(f"DocsLink.{target}", "DocsLink.WRONG_TARGET"))
+    monkeypatch.setitem(globals(), "GENERATED_TOC", tmp_path / GENERATED_TOC.relative_to(paths.REPO))
+    monkeypatch.setattr(paths, "REPO", tmp_path)
+    with pytest.raises(AssertionError, match=re.escape(source)):
+        test_migrated_call_sites_preserve_original_targets()
+
+
 def test_generated_toc_targets_are_cataloged():
     catalog_entries = {match[1]: match[2] for match in ENTRY.finditer(CATALOG.read_text(encoding="utf-8"))}
     toc = GENERATED_TOC.read_text(encoding="utf-8")
@@ -125,7 +177,10 @@ def test_every_catalog_page_is_a_user_guide_page():
     """In-app help items name a DocsLink topic; the Help screen highlights the guide page with that stem (#4159)."""
     toc_stems = set(re.findall(r'\bPage\("([a-z0-9_/.-]+)"', GENERATED_TOC.read_text(encoding="utf-8")))
     assert toc_stems
-    assert sorted({page for _, _, page, _ in scan()} - toc_stems) == []
+    # Release notes are linked by the updater, not offered as topics in the in-app guide.
+    catalog_pages = {page for _, _, page, _ in scan()}
+    release_pages = {page for page in catalog_pages if page.startswith("releases/")}
+    assert sorted(catalog_pages - toc_stems - release_pages) == []
 
 
 def test_docs_base_url_is_used_only_at_the_documentation_roots():
@@ -148,6 +203,111 @@ def test_no_hardcoded_docs_urls_left():
              for n, line in enumerate(kt.read_text(encoding="utf-8").splitlines(), 1)
              if "docs.andbible.org" in line or "andbible.org/docs/" in line]
     assert stale == []
+
+
+WIKI_TEST_SOURCE_SETS = {
+    "test", "tests", "androidTest", "androidUnitTest", "androidInstrumentedTest",
+    "commonTest", "jvmTest", "iosTest", "iosArm64Test", "iosSimulatorArm64Test",
+    "__tests__", "iosAppUITests", "iosAppUnitTests",
+}
+
+
+def is_wiki_test_source(source, root):
+    directories = source.relative_to(root).parts[:-1]
+    # Roots are either a module's src directory or the native/web app directory.
+    if directories and directories[0] == "src":
+        directories = directories[1:]
+    return bool(directories and directories[0] in WIKI_TEST_SOURCE_SETS)
+
+
+def legacy_wiki_links(roots):
+    return [f"{source}:{n}: use a DocsLink catalog entry instead of the GitHub wiki"
+            for root in roots for source in sorted(root.rglob("*"))
+            if source.suffix in {".kt", ".java", ".xml", ".swift", ".ts", ".vue", ".yaml", ".html"}
+            and not is_wiki_test_source(source, root)
+            for n, line in enumerate(source.read_text(encoding="utf-8").splitlines(), 1)
+            if re.search(r"github\.com/AndBible/and-bible/wiki\b", line, re.IGNORECASE)]
+
+
+def test_no_github_wiki_urls_in_app_code():
+    assert legacy_wiki_links([*ROOTS, paths.REPO / "iosApp", paths.REPO / "app/bibleview-js"]) == []
+
+
+@pytest.mark.parametrize("suffix", [".kt", ".java", ".xml", ".swift", ".ts", ".vue", ".yaml", ".html"])
+def test_legacy_wiki_link_is_reported(tmp_path, suffix):
+    source = tmp_path / f"X{suffix}"
+    source.write_text('\n"https://github.com/AndBible/and-bible/wiki/Support"\n')
+    assert legacy_wiki_links([tmp_path]) == [
+        f"{source}:2: use a DocsLink catalog entry instead of the GitHub wiki"]
+
+
+@pytest.mark.parametrize("relative_source", [
+    "iosApp/iosApp/Help.swift",
+    "app/bibleview-js/src/Help.vue",
+    "app/bibleview-js/index.html",
+])
+def test_wiki_guard_scans_native_and_web_app_roots(tmp_path, monkeypatch, relative_source):
+    source = tmp_path / relative_source
+    source.parent.mkdir(parents=True)
+    source.write_text('"https://github.com/AndBible/and-bible/wiki/Support"')
+    monkeypatch.setattr(paths, "REPO", tmp_path)
+    # Exercise the repository gate, not just the scanner with a hand-picked root.
+    with pytest.raises(AssertionError, match="use a DocsLink catalog entry"):
+        test_no_github_wiki_urls_in_app_code()
+
+
+@pytest.mark.parametrize("directory", ["latest", "contest", "Testament", "testimonials"])
+def test_wiki_guard_does_not_skip_production_paths_containing_test(tmp_path, directory):
+    source = tmp_path / "main" / directory / "Help.kt"
+    source.parent.mkdir(parents=True)
+    source.write_text('"https://github.com/AndBible/and-bible/wiki/Support"')
+    assert legacy_wiki_links([tmp_path]) == [
+        f"{source}:1: use a DocsLink catalog entry instead of the GitHub wiki"]
+
+
+@pytest.mark.parametrize("relative_source", [
+    "main/test/Help.kt", "main/tests/Help.kt", "main/commonTest/Help.kt",
+    "src/components/test/Help.vue",
+])
+def test_wiki_guard_does_not_treat_nested_production_directories_as_source_sets(tmp_path, relative_source):
+    source = tmp_path / relative_source
+    source.parent.mkdir(parents=True)
+    source.write_text('"https://github.com/AndBible/and-bible/wiki/Support"')
+    assert legacy_wiki_links([tmp_path]) == [
+        f"{source}:1: use a DocsLink catalog entry instead of the GitHub wiki"]
+
+
+@pytest.mark.parametrize("ending", [")", "<"])
+def test_wiki_guard_reports_bare_wiki_before_punctuation(tmp_path, ending):
+    source = tmp_path / "Help.kt"
+    source.write_text(f"https://github.com/AndBible/and-bible/wiki{ending}")
+    assert legacy_wiki_links([tmp_path]) == [
+        f"{source}:1: use a DocsLink catalog entry instead of the GitHub wiki"]
+
+
+@pytest.mark.parametrize("directory", [
+    "test", "tests", "androidTest", "androidUnitTest", "androidInstrumentedTest",
+    "commonTest", "jvmTest", "iosTest", "iosArm64Test", "iosSimulatorArm64Test",
+    "__tests__", "iosAppUITests", "iosAppUnitTests", "src/__tests__",
+])
+def test_wiki_guard_skips_real_test_source_sets(tmp_path, directory):
+    source = tmp_path / directory / "Help.kt"
+    source.parent.mkdir(parents=True)
+    source.write_text('"https://github.com/AndBible/and-bible/wiki/Support"')
+    assert legacy_wiki_links([tmp_path]) == []
+
+
+def test_wiki_guard_ignores_similarly_named_non_wiki_path(tmp_path):
+    (tmp_path / "Help.kt").write_text('"https://github.com/AndBible/and-bible/wikipedia"')
+    assert legacy_wiki_links([tmp_path]) == []
+
+
+def test_wiki_guard_ignores_test_fixtures_and_other_repositories(tmp_path):
+    tests = tmp_path / "commonTest"
+    tests.mkdir()
+    (tests / "X.kt").write_text('"https://github.com/AndBible/and-bible/wiki/Support"')
+    (tmp_path / "X.kt").write_text('"https://github.com/Other/project/wiki/Support"')
+    assert legacy_wiki_links([tmp_path]) == []
 
 
 def test_no_uncataloged_docs_calls():

@@ -68,6 +68,24 @@ class ListeningListGlanceWidgetTest {
         assertEquals(1, bars(v).size)
     }
 
+    /** Static layout regression net, not coverage of the unreproduced launcher first-placement issue. */
+    @Test fun stoppedListRowsFitWithoutClipping() {
+        val rows = (1..5).map { row("Genesis $it:1", "KJV", id = "r$it") }
+        for (mode in WidgetMode.entries) {
+            val v = renderWidget(context, 250, 278, mode) {
+                ListeningListContent(stoppedState().copy(listening = rows), strings, 250.dp, 278.dp)
+            }
+            for (row in rows) {
+                val reference = v.allViews().filterIsInstance<android.widget.TextView>()
+                    .single { it.text.toString() == row.reference }
+                val bounds = android.graphics.Rect()
+                assertTrue("$mode ${row.reference} visible", reference.getGlobalVisibleRect(bounds))
+                assertTrue("$mode ${row.reference} has nonzero width", bounds.width() > 0)
+                assertEquals("$mode ${row.reference} not vertically clipped", reference.height, bounds.height())
+            }
+        }
+    }
+
     @Test fun emptyListShowsExplanation() {
         val v = list(334, 182, emptyList())
         assertTrue(v.texts().contains(strings.listeningListEmptyTitle))

@@ -13,6 +13,7 @@ data class SpeakPlaybackVd(
     val speakFootnotes: Boolean,
     val sleepTimerMinutes: Int,          // 0 = off
     val repeatRangeName: String?,        // null = no repeat range
+    val speakLinks: Boolean = true,
     val lastSleepTimerMinutes: Int = 10, // seeds the sleep-timer page's custom slider
     val repeatRangeStart: PickedVerse? = null,
     val repeatRangeEnd: PickedVerse? = null,

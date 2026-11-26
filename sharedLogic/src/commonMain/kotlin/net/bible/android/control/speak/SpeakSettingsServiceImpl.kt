@@ -63,6 +63,7 @@ class SpeakSettingsServiceImpl(private val advancedSpeakSettings: AdvancedSpeakS
             speakChapterChanges = p.speakChapterChanges,
             speakTitles = p.speakTitles,
             speakFootnotes = p.speakFootnotes,
+            speakLinks = p.speakLinks != false,
             sleepTimerMinutes = s.sleepTimer,
             repeatRangeName = range?.getName(),
             lastSleepTimerMinutes = s.lastSleepTimer,
@@ -89,6 +90,7 @@ class SpeakSettingsServiceImpl(private val advancedSpeakSettings: AdvancedSpeakS
     override fun setSpeakChapterChanges(on: Boolean) = mutatePlayback { it.playbackSettings = it.playbackSettings.copy(speakChapterChanges = on) }
     override fun setSpeakTitles(on: Boolean) = mutatePlayback { it.playbackSettings = it.playbackSettings.copy(speakTitles = on) }
     override fun setSpeakFootnotes(on: Boolean) = mutatePlayback { it.playbackSettings = it.playbackSettings.copy(speakFootnotes = on) }
+    override fun setSpeakLinks(on: Boolean) = mutatePlayback { it.playbackSettings = it.playbackSettings.copy(speakLinks = on) }
     override fun clearRepeatRange() = mutatePlayback { it.playbackSettings = it.playbackSettings.copy(verseRange = null) }
 
     override fun setSleepTimerMinutes(minutes: Int) = mutatePlayback {

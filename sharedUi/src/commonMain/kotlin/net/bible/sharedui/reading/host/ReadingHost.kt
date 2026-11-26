@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.DrawerDefaults
@@ -319,6 +320,13 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     val hideTabBarInFullScreen = fullScreen &&
         state.settings.getBoolean("full_screen_hide_buttons_pref", true)
     val md3DrawerState = rememberDrawerState(DrawerValue.Closed)
+    val drawerScrollState = rememberScrollState()
+    // Reset toolbar and edge-swipe openings, not an already-open drawer restored after a config change.
+    LaunchedEffect(md3DrawerState) {
+        snapshotFlow { md3DrawerState.targetValue }
+            .drop(1)
+            .collect { target -> if (target == DrawerValue.Open) drawerScrollState.scrollTo(0) }
+    }
     val drawerOpen = state.drawerOpen
     val pane = LocalReadingPane.current
 
@@ -401,6 +409,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
             ReadingDrawerSheet(
                 state = deps.drawerMenu.value,
                 icon = deps.drawerIcon,
+                scrollState = drawerScrollState,
                 onItemClick = { id ->
                     drawerOpen.value = false
                     deps.onDrawerItemClick(id)

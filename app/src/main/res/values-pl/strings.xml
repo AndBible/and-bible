@@ -831,7 +831,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="please_wait">Proszę czekać…</string>
   <string name="all">Wszystkie</string>
   <string name="reset_generic">Reset</string>
-  <string name="watch_tutorial_video">Obejrzyj filmik instruktażowy (po angielsku)</string>
   <string name="watch_tutorial_video_plain">Obejrzyj film instruktażowy</string>
   <string name="verse_not_found">Nie znaleziono wersetu</string>
   <!--Errors-->

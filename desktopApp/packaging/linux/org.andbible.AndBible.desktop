@@ -7,4 +7,3 @@ Icon=/opt/andbible/lib/andbible.png
 StartupWMClass=net-bible-desktop-MainKt
 Terminal=false
 Categories=Education;
-MimeType=application/zip;application/epub+zip;font/ttf;text/csv;image/jpeg;image/png;image/webp;application/vnd.sqlite3;

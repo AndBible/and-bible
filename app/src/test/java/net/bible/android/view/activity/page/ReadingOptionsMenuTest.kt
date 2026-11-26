@@ -78,6 +78,7 @@ class ReadingOptionsMenuTest {
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
     private lateinit var activity: NavHostComposeActivity
+    private val controllers = mutableListOf<org.robolectric.android.controller.ActivityController<NavHostComposeActivity>>()
     /** The Koin singleton `MainBibleActivity` injected as `documentControl` (the nav host has no such member). */
     private val documentControl: DocumentControl get() = GlobalContext.get().get()
 
@@ -90,10 +91,12 @@ class ReadingOptionsMenuTest {
         windowRepository.initializeAtEdge()
 
         // Built WITHOUT `.create()`, for the reasons OptionsMenuStateBuilderTest's kdoc gives.
-        activity = Robolectric.buildActivity(
+        val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).get()
+        )
+        controllers.add(controller)
+        activity = controller.get()
         activity.readingAppBootstrap.windowRepository = windowRepository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
     }
@@ -105,7 +108,7 @@ class ReadingOptionsMenuTest {
         // `setCurrentDocument` persists this; the commentary long-press test really does switch.
         CommonUtils.settings.setString("default-COMMENTARY", null)
         CommonUtils.settings.setString("default-DICTIONARY", null)
-        DatabaseResetter.resetDatabase(windowRepository.scope)
+        net.bible.test.closeReadingHostsBeforeReset(controllers, reset = { DatabaseResetter.resetDatabase(windowRepository.scope) })
     }
 
     // ---------------------------------------------------------------- XML parity

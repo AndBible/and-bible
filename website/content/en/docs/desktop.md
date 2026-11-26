@@ -45,9 +45,78 @@ The reading view requires the Direct3D graphics renderer. If the window uses a d
 
 Switching workspaces reuses the reading pages. Returning to a workspace restores its StudyPad, Bible and commentary panes without restarting the browser page.
 
+### Opening backups and document files with the Windows MSI
+
+The MSI lists AndBible as an **Open with** candidate for ZIP, EPUB, SQLite (`.sqlite3`), CSV,
+JPEG/PNG/WebP image files and TrueType (`.ttf`) fonts, without making it the default. Existing ZIP, CSV, font and image defaults are left unchanged.
+If you have not explicitly chosen a ZIP default, Windows may show its own new-app chooser after installation;
+keep **File Explorer** there to continue browsing archives rather than opening them in AndBible. Backups and module ZIPs remain openable from
+**Backup & Restore** or **Load Documents From Files** inside AndBible. To open one from Explorer,
+choose **Open with > AndBible**; do not choose **Always** unless you want all files of that type to
+use AndBible. The MSIX package also supports **Open with** without replacing an existing default.
+
+If an older MSI changed a default, choose your preferred application in **Settings > Apps > Default apps**.
+An explicit choice saved in Windows is not reset by AndBible. Upgrading removes the old MSI's generic
+registrations, but does not change choices you saved yourself.
+
 ## Linux packages
 
 The `andbible` `.deb` includes Chromium (KCEF), as does the AppImage.
+
+### Opening backups and document files on Linux
+
+AndBible does not register as a handler for generic file types such as ZIP, CSV, TTF, images,
+EPUB or SQLite databases. This avoids making it the default app for files that belong in other
+applications. Double-clicking an AndBible backup (`*.abdb.zip`) or a module ZIP therefore does
+not automatically open AndBible either.
+
+- For database backups, use **Backup & Restore** in AndBible's main menu, select **Database**,
+  then **Restore or Import from…**. See [Backup and Restore](backup_restore.md#how-to-restore-your-data).
+- For module ZIPs, document backups (`*.abmd.zip`), EPUBs and other supported document files,
+  use **Load Documents From Files**. See [Load Documents](documents.md#load-documents).
+- Alternatively, use your file manager's **Open with** action and select AndBible. You may need
+  to show all applications or enter a custom command, such as `/opt/andbible/bin/andbible` for the
+  `.deb` install (or the path to your AppImage). Do not select **Always use** unless you want
+  AndBible to handle all files of that type. You can also pass a file on the command line:
+  `/opt/andbible/bin/andbible /path/to/backup.abdb.zip`.
+
+If an older installation made AndBible the default for one of these types, choose your preferred
+application in the file manager's **Open with** or your desktop's default-application settings.
+Removing AndBible's advertised file types does not reset an explicit default you previously saved.
+If you integrated an older AppImage with AppImageLauncher or appimaged, remove and redo that
+integration (or delete the old `~/.local/share/applications/*andbible*.desktop` file), because the
+integrated copy still lists the old file types.
+
+## Desktop UI scale
+
+On Windows, AndBible follows Windows' display scaling, including fractional scales such as 125% and 150%.
+The interface and the WebView2 reading pane use the same density; moving the window to another monitor
+lets Windows update its native DPI rather than applying that scale twice.
+
+To make the whole interface smaller or larger, open **Application preferences** and choose **UI scale**
+(75%, 100%, 125%, 150%, 175% or 200%), then close and restart AndBible. This preference is available
+only in the Windows and Linux desktop builds, not on macOS. It multiplies your display scale: 75% on a
+Windows display set to 150% gives an interface at 112.5%. On Windows it scales Compose menus, toolbars,
+dialogs and controls, and the WebView2 reading pane follows the same scale (including document text and
+inline controls). It does not change the document's font-size setting or the Windows desktop scale.
+At startup, the detected scale multiplied by the preset is limited to 50%-400%; for example, a 300% display with the 200% preset uses 400%, not 600%.
+The default is 100%. It is stored on this device, not synchronized. The **font size multiplier** remains
+separate: it changes document text, not menus and toolbars.
+
+For troubleshooting, `ANDBIBLE_UI_SCALE` or `-Dandbible.uiScale` sets an absolute app scale and takes
+precedence over this preference on Windows and Linux. Explicit JDK scale settings (`-Dsun.java2d.uiScale`
+or `J2D_UISCALE`) also take precedence over the preference. The **UI scale** row keeps showing your saved
+preset and says **overridden this session** when a startup override takes precedence. Changing the preset
+still saves it for a later launch without an override. For example, from PowerShell:
+
+```powershell
+$env:ANDBIBLE_UI_SCALE = "1.25"
+& "$env:LOCALAPPDATA\AndBible\AndBible.exe"
+```
+
+Use your installation's actual executable path if different. Remove the environment override to use
+automatic display detection and the UI scale preference again. The selected scale is recorded in the
+startup log; on Windows this is `%APPDATA%\AndBible\logs\andbible.log`.
 
 ## Display scaling on Linux
 
@@ -62,7 +131,9 @@ ANDBIBLE_UI_SCALE=1.5 andbible
 Good to know:
 
 - The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
-- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds fractional scaling to a whole number, including for Bible text.
+- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. For example, 125% becomes 100% and 150% becomes 200%. The **UI scale** row shows both your chosen preset and the effective scale for the current session, for example **125% (this session: 200%)**. Changing a preset updates the chosen percentage immediately, but the effective session scale stays unchanged until restart. The normal off-screen engine supports fractional scales.
+- `GDK_SCALE` is treated as a detected desktop scale, so the UI scale preference multiplies it. It does not mark the preference as overridden.
+- Explicit `-Dsun.java2d.uiScale` and `J2D_UISCALE` values take precedence over the UI scale preference, as does disabling JDK scaling with `-Dsun.java2d.uiScale.enabled=false`.
 - On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.
 
 The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.
@@ -91,7 +162,7 @@ horizontal mouse wheel or a sideways touchpad gesture acts as a swipe gesture.
 
 ## Update checks
 
-Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub once a week by default. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. Use **Check for updates** in *Application preferences* (in the main menu; the row is at the end of the list) to choose how often: daily, weekly, monthly or never. An earlier "yes" becomes weekly and an earlier "no" becomes never. When a newer version is found, AndBible can open its release page; you install it yourself. Instead of installing, you can choose **Remind me tomorrow**, **Remind me in a week** or **Remind me in a month**; AndBible then stays quiet until that time, even across restarts. **Skip this version** hides that release and offers only a newer one. To stop checking, select **Don't notify me about updates** before closing the offer, which sets **Check for updates** to never. You can turn checks back on using **Check for updates** in *Application preferences*. The update check never offers a release that is less stable than the one you have installed.
+Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub once a week by default. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. Use **Check for updates** in *Application preferences* (in the main menu; the row is at the end of the list) to choose how often: daily, weekly, monthly or never. An earlier "yes" becomes weekly and an earlier "no" becomes never. When a newer version is found, choose **Download** to open its GitHub release page; you install it yourself. **What's new** opens the release notes on andbible.org for the offered version, or this update-checks guide if that version has no release-notes page yet. The update offer stays available after you open the notes, so you can still download, postpone or skip that version. Reading the notes does not skip the version or postpone the next reminder. Instead of installing, you can choose **Remind me tomorrow**, **Remind me in a week** or **Remind me in a month**; AndBible then stays quiet until that time, even across restarts. **Skip this version** hides that release and offers only a newer one. To stop checking, select **Don't notify me about updates** before closing the offer, which sets **Check for updates** to never. You can turn checks back on using **Check for updates** in *Application preferences*. The update check never offers a release that is less stable than the one you have installed.
 <!-- if beta -->
 
 **Offer public beta updates** (also in *Application preferences*) decides whether public beta versions are offered. It is on by default when you have a public beta installed and off by default when you have a production release installed. Turn it on in a production install to be offered newer public betas. Turn it off in a beta install to be offered production releases only: you then wait until a production release is newer than your beta, and are never moved to an older version. The setting is not shown for Flatpak and MSIX package installs and development installs, which do not use this update check, nor for developer test builds, which always see every channel.

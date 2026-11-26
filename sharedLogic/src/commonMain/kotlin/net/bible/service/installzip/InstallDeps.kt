@@ -34,7 +34,6 @@ import net.bible.service.common.createTempFile
 import net.bible.service.common.safeZipEntryPath
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmarksDbStats
-import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.epubInitials
 import net.bible.service.sword.mybible.SqliteVerseBackendState
@@ -229,11 +228,10 @@ fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
     return InstallInspector.SwordZipScan(existingFiles, totalEntries, isEpub = false, invalid = false, isModuleBackup = isModuleBackup)
 }
 
-/**
- * Mirrors classic `InstallZip.installEpub`'s optimizer-version + bookmark-count test: an upgrade
- * confirmation is needed only when the epub is already installed, has genuine bookmarks/notes
- * against it, AND its persisted optimizer version is behind the current one.
- */
+// Version 3 adds chapter metadata only; version 2 was the last change to bookmark ordinals/fragmentation.
+private const val EPUB_ORDINAL_BREAKING_VERSION = 2
+
+/** Warn only when re-importing can change the ordinals used by existing bookmarks or notes. */
 suspend fun checkEpubUpgrade(displayName: String): Boolean {
     val dir = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "epub/$displayName"
     if (!FileSystem.SYSTEM.exists(dir)) return false
@@ -243,5 +241,5 @@ suspend fun checkEpubUpgrade(displayName: String): Boolean {
     val bookmarkCount = if (DatabaseContainer.ready) {
         DatabaseContainer.instance.bookmarkDb.bookmarkDao().genericBookmarkCountFor(initials)
     } else 0
-    return bookmarkCount > 0 && optimizerVersion < EPUB_OPTIMIZER_VERSION
+    return bookmarkCount > 0 && optimizerVersion < EPUB_ORDINAL_BREAKING_VERSION
 }

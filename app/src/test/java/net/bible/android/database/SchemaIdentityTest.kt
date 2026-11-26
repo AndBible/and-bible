@@ -45,7 +45,7 @@ class SchemaIdentityTest {
         "net.bible.android.database.DocumentSyncDatabase" to "c18e038b74d4446605e2b99f1cee1533",
         "net.bible.android.database.RepoDatabase" to "c1bf74115c370f8176d77ec922e6a1f9",
         "net.bible.android.database.SettingsDatabase" to "766325557c50c33c7c4f6857d0cba8ad",
-        "net.bible.android.database.EpubDatabase" to "b5106d138f8ff91075378a776b0cbb21",
+        "net.bible.android.database.EpubDatabase" to "9370c13654356df8aaacfd4880a0000d",
     )
 
     @Test

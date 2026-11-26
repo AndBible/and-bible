@@ -33,10 +33,6 @@ object HelpAndTips {
     /** The video link of [item] for an app in [appLanguage]: with captions in that language when the episode has them. */
     fun videoUrl(item: Item, appLanguage: String): String? = item.episode?.let { TutorialVideos.url(it, appLanguage) }
 
-    /** True when [item]'s video label needs no "(English)" qualifier in [appLanguage]. */
-    fun plainVideoLabel(item: Item, appLanguage: String): Boolean =
-        item.episode?.let { TutorialVideos.hasPlainLabel(it, appLanguage) } ?: false
-
     /** Builds the screen's tip rows; [text] resolves a string resource key (the keyed string table of the host). */
     fun toUi(strings: Strings, text: (String) -> String, items: List<Item> = HelpAndTips.items, appLanguage: String = "en"): List<HelpTipUi> =
         items.map { item ->
@@ -44,7 +40,7 @@ object HelpAndTips {
                 title = text(item.titleKey),
                 text = text(item.textKey),
                 videoUrl = videoUrl(item, appLanguage),
-                videoLabel = if (plainVideoLabel(item, appLanguage)) strings.watchTutorialVideoPlain else strings.watchTutorialVideo,
+                videoLabel = strings.watchTutorialVideoPlain,
                 docUrl = docUrl(item.docPage),
             )
         }

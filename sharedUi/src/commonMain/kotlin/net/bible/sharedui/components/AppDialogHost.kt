@@ -190,7 +190,7 @@ fun AppDialogHost(
                         title = request.title, message = request.message, options = request.options,
                         onSelect = { onRespond(id, AppDialogResult.Selected(it)) }, onDismissRequest = cancel,
                         dismissText = request.dismissText, cancellable = request.cancellable,
-                        checkboxLabel = request.checkboxLabel,
+                        checkboxLabel = request.checkboxLabel, initialChecked = request.checkboxChecked,
                         onSelectWithCheckbox = { value, checked ->
                             onRespond(id, AppDialogResult.SelectedWithCheckbox(value, checked))
                         },

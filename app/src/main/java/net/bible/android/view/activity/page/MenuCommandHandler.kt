@@ -39,6 +39,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
@@ -56,10 +57,10 @@ import net.bible.sharedui.strings.AndroidStrings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-contribute"
-const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
-const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-module-x-to-and-bible"
-const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
+val contributeLink = DocsLink.CONTRIBUTE.url
+val needHelpLink = DocsLink.SUPPORT.url
+val howToAdd = DocsLink.FAQ_ADD_MODULE.url
+val textIssue = DocsLink.FAQ_TEXT_ISSUE.url
 const val buyDevelopmentLink = net.bible.sharedcore.docs.SiteLinks.SHOP_URL
 const val homepageLink = "https://andbible.org"
 // Other distributions and debug/discrete packages do not have their own Play listing.

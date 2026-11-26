@@ -859,7 +859,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="please_wait">Prosím čakajte…</string>
   <string name="all">Všetko</string>
   <string name="reset_generic">Resetovať</string>
-  <string name="watch_tutorial_video">Pozri si ukážkové video (Anglicky)</string>
   <string name="watch_tutorial_video_plain">Pozrieť video s návodom</string>
   <string name="verse_not_found">Verš nebol nájdený</string>
   <!--Errors-->

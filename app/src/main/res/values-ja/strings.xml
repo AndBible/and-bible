@@ -808,7 +808,6 @@
   <string name="please_wait">しばらくお待ちください…</string>
   <string name="all">すべて</string>
   <string name="reset_generic">リセット</string>
-  <string name="watch_tutorial_video">チュートリアル動画を見る（英語）</string>
   <string name="watch_tutorial_video_plain">チュートリアル動画を見る</string>
   <string name="verse_not_found">節が見つかりません</string>
   <!--Errors-->

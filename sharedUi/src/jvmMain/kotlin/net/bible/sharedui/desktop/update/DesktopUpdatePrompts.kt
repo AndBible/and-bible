@@ -1,6 +1,7 @@
 package net.bible.sharedui.desktop.update
 
 import java.net.URI
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.ui.dialog.toAnswers
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -68,24 +69,23 @@ class DesktopUpdatePrompts(
             else -> null
         }
     }, announceAndAwait = { release ->
-        val result = dialogs.await(AppDialogRequest.Localized {
-            val table = strings.current
-            AppDialogRequest.Options(table.text("desktop_update_available_title"),
-                "${table.fmt("desktop_update_available_message", release.tag, version)}<br><br>${table.text("desktop_update_reenable")}",
-                listOf(SettingsItem.Choice("download", table.text("desktop_update_download")),
-                    SettingsItem.Choice("snooze_day", table.text("desktop_update_snooze_day")),
-                    SettingsItem.Choice("snooze_week", table.text("desktop_update_snooze_week")),
-                    SettingsItem.Choice("snooze_month", table.text("desktop_update_snooze_month")),
-                    SettingsItem.Choice("skip", table.text("desktop_update_skip"))).toAnswers(),
-                dismissText = null, asActionSheet = false, cancellable = false,
-                checkboxLabel = table.text("desktop_update_dont_notify"))
-        })
-        val choice = when (result) {
-            is AppDialogResult.Selected -> result.value to false
-            is AppDialogResult.SelectedWithCheckbox -> result.value to result.checked
-            else -> null
-        }
-        if (choice?.second == true) settings.putString(CONSENT_KEY, DesktopUpdateInterval.NEVER.value)
+        val originalInterval = settings.updateInterval() ?: DesktopUpdateInterval.WEEKLY
+        var choice: Pair<String, Boolean>?
+        do {
+            val result = dialogs.await(AppDialogRequest.Localized {
+                desktopUpdateDialog(strings.current, release.version ?: release.tag, version,
+                    dontNotify = settings.updateInterval() == DesktopUpdateInterval.NEVER)
+            })
+            choice = when (result) {
+                is AppDialogResult.Selected -> result.value to false
+                is AppDialogResult.SelectedWithCheckbox -> result.value to result.checked
+                else -> null
+            }
+            choice?.let { (_, checked) ->
+                settings.putString(CONSENT_KEY, if (checked) DesktopUpdateInterval.NEVER.value else originalInterval.value)
+            }
+            if (choice?.first == "whats_new") links.open(DocsLinks.releaseNotes(release.version))
+        } while (choice?.first == "whats_new")
         val snoozeDays = when (choice?.first) { "snooze_day" -> 1; "snooze_week" -> 7; "snooze_month" -> 30; else -> 0 }
         if (snoozeDays > 0) settings.snoozeUntil(clock() + snoozeDays * DAY_MS)
         when (choice?.first) {

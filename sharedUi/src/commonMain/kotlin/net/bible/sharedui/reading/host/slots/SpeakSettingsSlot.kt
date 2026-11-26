@@ -158,6 +158,7 @@ internal class SpeakSettingsState(
                     onSpeakChapterChanges = settingsController::setSpeakChapterChanges,
                     onSpeakTitles = settingsController::setSpeakTitles,
                     onSpeakFootnotes = settingsController::setSpeakFootnotes,
+                    onSpeakLinks = settingsController::setSpeakLinks,
                     onOpenRepeatRange = {
                         rangeEditor.seed(playback.repeatRangeStart, playback.repeatRangeEnd)
                         sheet.push(SpeakSheetPage.RepeatRange)

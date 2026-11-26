@@ -32,6 +32,9 @@ import android.content.res.Resources
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import kotlinx.coroutines.launch
+import net.bible.android.view.widget.WidgetUpdater
+import net.bible.sharedcore.platform.AppCoroutineScope
 import androidx.core.app.NotificationCompat
 import net.bible.service.db.AndroidDatabaseHost
 import net.bible.service.db.DatabaseContainer
@@ -321,6 +324,7 @@ open class BibleApplication : Application() {
 
     /** Fix batch 5 §1.2: the Application's own Resources follow `locale_pref` live -- no process restart. */
     @Volatile private var uiResources: Resources? = null
+    private var lastFontScale = 1f
 
     override fun getResources(): Resources = uiResources ?: super.getResources()
 
@@ -329,6 +333,7 @@ open class BibleApplication : Application() {
      */
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(newBase)
+        lastFontScale = newBase.resources.configuration.fontScale
         // #4176: before the content providers (androidx.startup, WorkManager, ...) and onCreate, so that a crash there
         // is recorded and the next start can offer the report. Tests keep the JVM's handler.
         if (!isRunningTests) StartupCrashGuard.install(newBase)
@@ -343,6 +348,13 @@ open class BibleApplication : Application() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         applyUiLocale(LocaleHelper.getOverrideLanguage(baseContext), refresh = false)
+        if (newConfig.fontScale != lastFontScale) {
+            lastFontScale = newConfig.fontScale
+            // A running Glance session reads fontScale on composition, but needs an explicit redraw request.
+            org.koin.mp.KoinPlatform.getKoinOrNull()?.get<AppCoroutineScope>()?.launch {
+                runCatching { WidgetUpdater.refreshAll(this@BibleApplication) }
+            }
+        }
     }
 
     /** Held in a field: SharedPreferences keeps listeners weakly. */

@@ -23,6 +23,27 @@ class EpubReferenceQueryScalingTest {
     }
 
     @Test
+    fun packageQueriesDoNotTraverseUnrelatedMetadataSubtrees() {
+        val ns = Namespace.getNamespace("opf", "http://www.idpf.org/2007/opf")
+        val work = Work()
+        val root = CountedElement("package", ns, work)
+        val doc = Document(root)
+        root.addContent(CountedElement("manifest", ns, work).apply {
+            addContent(Element("item", ns).setAttribute("id", "chapter"))
+        })
+        root.addContent(CountedElement("spine", ns, work).apply {
+            addContent(Element("itemref", ns).setAttribute("idref", "chapter"))
+        })
+        root.addContent(CountedElement("metadata", ns, work).apply {
+            repeat(1024) { addContent(CountedElement("extra", ns, work)) }
+        })
+        work.reads = 0
+        assertEquals(1, XmlQueries.manifestItems(doc, ns).size)
+        assertEquals(1, XmlQueries.spineItemrefs(doc, ns).size)
+        assertTrue(work.reads < 20, "direct package queries must not scan metadata: ${work.reads} reads")
+    }
+
+    @Test
     fun referenceQueriesVisitChapterContentLinearly() {
         val svg = Namespace.getNamespace("svg", "http://www.w3.org/2000/svg")
         val xlink = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink")

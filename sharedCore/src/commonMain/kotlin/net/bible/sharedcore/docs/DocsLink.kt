@@ -3,8 +3,9 @@ package net.bible.sharedcore.docs
 /**
  * All documentation targets opened by the app. Add targets here, not at call sites.
  *
- * Keep entries literal: the website deep-link gate checks each target against the built docs. Entries
- * without anchors are the user guide pages, and their stems resolve in the generated table of contents.
+ * Keep entries literal: the website deep-link gate checks each target against the built docs. User guide
+ * page stems resolve in the generated table of contents; RELEASE_* targets are external updater links,
+ * not topics to pass to HelpLinks for an in-app guide highlight.
  */
 enum class DocsLink(val page: String, val anchor: String? = null) {
     AI("ai"),
@@ -19,15 +20,20 @@ enum class DocsLink(val page: String, val anchor: String? = null) {
     BIBLE_LINKS("bible_links"),
     BOOKMARKS("bookmarks"),
     CLOUD_SYNC("cloud_sync"),
+    CONTRIBUTE("contribute"),
+    CONTRIBUTE_TRANSLATING("contribute", "translating-the-user-interface"),
     CUSTOMISATION("customisation"),
     CUSTOMISATION_CUSTOM_CSS("customisation/custom_css"),
     CUSTOMISATION_MODULE_CREATION("customisation/module_creation"),
     CUSTOM_REPOSITORIES("custom_repositories"),
     DESKTOP("desktop"),
+    DESKTOP_UPDATE_CHECKS("desktop", "update-checks"),
     DISCRETE_BUILD("discrete_build"),
     DOCUMENTS("documents"),
     DOCUMENT_SYNC("document_sync"),
     FAQ("faq"),
+    FAQ_ADD_MODULE("faq", "please-add-module-x-to-andbible"),
+    FAQ_TEXT_ISSUE("faq", "i-found-a-text-issue-in-a-bible-commentary-module"),
     GETTING_STARTED("getting_started"),
     GETTING_STARTED_ANDROID("getting_started", "android"),
     GETTING_STARTED_INSTALLATION("getting_started", "installation"),
@@ -44,6 +50,10 @@ enum class DocsLink(val page: String, val anchor: String? = null) {
     PLATFORM_DIFFERENCES("platform_differences"),
     READING_PLANS("reading_plans"),
     READING_PROGRESS("reading_progress"),
+    RELEASE_4_0("releases/release_4_0"),
+    RELEASE_4_1("releases/release_4_1"),
+    RELEASE_5_0("releases/release_5_0"),
+    RELEASE_6_0("releases/release_6_0"),
     SEARCH("search"),
     SEARCH_ADVANCED_SEARCH("search", "advanced-search"),
     SHARE("share"),
@@ -56,4 +66,6 @@ enum class DocsLink(val page: String, val anchor: String? = null) {
     WORKSPACES("workspaces");
 
     val url: String get() = DocsLinks.page(this)
+
+    val isHelpTopic: Boolean get() = !page.startsWith("releases/")
 }

@@ -30,11 +30,30 @@ class VerseWidgetGoldenTest {
         bibleAbbreviation = "KJV", sourceName = "Memory verses", periodLabel = "Fri 20 Nov", link = "https://example.org/v",
     )
 
+    @Test fun enlargedMinimum_allModes() {
+        val originalScale = context.resources.configuration.fontScale
+        try {
+            org.robolectric.RuntimeEnvironment.setFontScale(1.3f)
+            for (mode in WidgetMode.entries) {
+                captureWidget(context, "verse_minimum_font130", 110, 110, mode) {
+                    VerseWidgetBody(verse, config, strings, 1, 110.dp, 110.dp)
+                }
+            }
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(originalScale)
+        }
+    }
+
     @Test fun verseWidget_allModes() {
         for (mode in WidgetMode.entries) {
             for ((name, size) in listOf("2x2" to (162 to 162), "4x2" to (334 to 162), "4x3" to (334 to 278))) {
                 val (w, h) = size
                 captureWidget(context, "verse_$name", w, h, mode) { VerseWidgetBody(verse, config, strings, 1, w.dp, h.dp) }
+            }
+            captureWidget(context, "verse_minimum", 110, 110, mode) { VerseWidgetBody(verse, config, strings, 1, 110.dp, 110.dp) }
+            captureWidget(context, "verse_default", 250, 110, mode) { VerseWidgetBody(verse, config, strings, 1, 250.dp, 110.dp) }
+            captureWidget(context, "verse_minimum_unavailable", 110, 110, mode) {
+                VerseWidgetBody(VerseWidgetContent.Unavailable(VerseWidgetContent.Unavailable.Reason.LABEL_EMPTY), config, strings, 1, 110.dp, 110.dp)
             }
             captureWidget(context, "verse_4x2_nobuttons", 334, 162, mode) {
                 VerseWidgetBody(verse, config.copy(showButtons = false, showSourceAndDate = false), strings, 1, 334.dp, 162.dp)

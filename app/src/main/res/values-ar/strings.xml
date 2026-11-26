@@ -842,7 +842,6 @@
   <string name="please_wait">برجاء الانتظار...</string>
   <string name="all">الكل</string>
   <string name="reset_generic">اعادة تهيئة</string>
-  <string name="watch_tutorial_video">شاهد فيديو تعليمي (بالإنجليزية)</string>
   <string name="watch_tutorial_video_plain">مشاهدة الفيديو التعليمي</string>
   <string name="verse_not_found">الآية غير موجودة</string>
   <!--Errors-->

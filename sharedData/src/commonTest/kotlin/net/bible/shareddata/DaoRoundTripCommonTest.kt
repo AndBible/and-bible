@@ -59,7 +59,7 @@ import kotlin.test.assertTrue
  */
 class DaoRoundTripCommonTest {
     private val range = VerseRangeFactory.fromString(KJVA, "Gen.1.1-Gen.1.3")
-    private val playback = PlaybackSettings(speed = 130, bookId = "KJV", bookmarkWasCreated = true, verseRange = range)
+    private val playback = PlaybackSettings(speed = 130, bookId = "KJV", bookmarkWasCreated = true, verseRange = range, speakLinks = false)
 
     @Test
     fun bookmarkDatabase() = runTest {
@@ -263,12 +263,14 @@ class DaoRoundTripCommonTest {
     fun epubDatabase() = runTest {
         withDb<EpubDatabase> { db ->
             val dao = db.epubDao()
-            val id = dao.insert(EpubFragment("orig", 1, 9)).single()
+            val id = dao.insert(EpubFragment("orig", 1, 9, title = "Chapter heading", hasText = true)).single()
             dao.insert(EpubHtmlToFrag("ch1.html#a", id))
             dao.insert(EpubMeta(0, 4242))
             val frag = assertNotNull(dao.getFragment("ch1.html#a"))
             assertEquals(id, frag.id)
             assertEquals(9, frag.ordinalEnd)
+            assertEquals("Chapter heading", frag.title)
+            assertEquals(true, frag.hasText)
             assertEquals(4242, dao.getMeta()!!.totalCharacters)
         }
     }

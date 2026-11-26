@@ -5,6 +5,7 @@ package net.bible.sharedui.app.settings
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
@@ -232,10 +233,10 @@ class SettingsHost(
 
     /**
      * The persecution-help HTML body. It feeds [AppSettingsController.showDiscreteHelp], rendered as a message
-     * dialog whose inline wiki link goes through the `askBeforeOpeningLink` / `onOpenExternal` pair.
+     * dialog whose inline documentation link goes through the `askBeforeOpeningLink` / `onOpenExternal` pair.
      */
     internal fun buildDiscreteHelpHtml(): String {
-        val linkUrl = "https://github.com/AndBible/and-bible/wiki/Discrete-build"
+        val linkUrl = DocsLink.DISCRETE_BUILD.url
         val linkText = "<a href=\"$linkUrl\">$linkUrl</a>"
 
         val dPar1 = strings.discreteModeInfoPar1
