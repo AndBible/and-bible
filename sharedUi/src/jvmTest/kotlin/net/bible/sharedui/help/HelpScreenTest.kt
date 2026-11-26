@@ -189,16 +189,16 @@ class HelpScreenTest {
         onNodeWithText(strings.helpTabUserGuide).performClick()
         onAllNodesWithText(strings.watchTutorialVideoPlain).assertCountEquals(2)
         onNodeWithText(episodeTitle(episode)).performClick()
-        assertEquals(listOf("https://www.youtube.com/watch?v=RlLkpKZZwTg"), opened)
+        assertEquals(listOf("https://www.youtube.com/watch?v=FESfauIvIBE"), opened)
     }
 
-    @Test fun episodeRowsUseTheAppLanguageForTheirUrls() = runComposeUiTest {
+    @Test fun episodeRowsDoNotRequestUnpublishedFinnishCaptions() = runComposeUiTest {
         val opened = mutableListOf<String>()
         val episode = Episode.TUTORIAL_02_FINDING_YOUR_WAY
         show(videos = emptyList(), appLanguage = "fi", opened = opened)
         onNodeWithText(strings.helpTabUserGuide).performClick()
         onNodeWithText(episodeTitle(episode)).performClick()
-        assertEquals(listOf("https://www.youtube.com/watch?v=FESfauIvIBE&cc_load_policy=1&cc_lang_pref=fi&hl=fi"), opened)
+        assertEquals(listOf("https://www.youtube.com/watch?v=FESfauIvIBE"), opened)
     }
 
     @Test fun videoRowWithoutCaptionsUsesThePlainLabel() = runComposeUiTest {
