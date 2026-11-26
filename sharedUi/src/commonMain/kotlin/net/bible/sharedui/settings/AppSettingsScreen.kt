@@ -96,8 +96,9 @@ fun AppSettingsScreen(
         if (scaleSetting != null) {
             add(SettingsItem.ListChoiceRow(
                 key = DESKTOP_UI_SCALE_KEY, title = strings.desktopUiScaleTitle,
-                entries = DESKTOP_UI_SCALE_PRESETS.map { SettingsItem.Choice(it.toString(), strings.readingProgressPercentLabel(it)) },
+                entries = DESKTOP_UI_SCALE_PRESETS.map { SettingsItem.Choice(it.toString(), strings.desktopUiScalePercent(it)) },
                 selectedValue = scalePercent.toString(),
+                selectedValueSummary = scaleSetting.effectivePercent?.let(strings::desktopUiScaleEffective),
             ))
             add(SettingsItem.InfoRow(key = "desktop_ui_scale_help", title = strings.desktopUiScaleSummary))
         }

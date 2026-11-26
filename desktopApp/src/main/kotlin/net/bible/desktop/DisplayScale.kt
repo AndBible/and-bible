@@ -143,15 +143,22 @@ internal object DisplayScaleDetector {
         val preference = inputs.preferencePercent / 100.0
         if (!inputs.isLinux) {
             val native = inputs.windowsScale?.takeIf { it.isFinite() && it > 0 }
-            val chosen = override ?: native?.let { DisplayScale(it * preference, "Windows per-monitor DPI ${fmt(it * BASE_DPI)}; preference ${inputs.preferencePercent}%") }
-                ?: return null
+            // The JDK has already applied its explicit Windows overrides to native DPI.
+            val jdkOverride = !jdkScaling ||
+                parseScale(inputs.property("sun.java2d.uiScale").orEmpty())?.let { it.isFinite() && it > 0 } == true ||
+                parseScale(env["J2D_UISCALE"].orEmpty())?.let { it.isFinite() && it > 0 } == true
+            val chosen = override ?: native?.let {
+                val factor = if (jdkOverride) 1.0 else preference
+                DisplayScale(it * factor, if (jdkOverride) "Windows explicit JDK scale ${fmt(it)}"
+                    else "Windows per-monitor DPI ${fmt(it * BASE_DPI)}; preference ${inputs.preferencePercent}%")
+            } ?: return null
             return chosen.copy(
                 nativeAwtScale = if (override != null && jdkScaling) chosen.scale else native ?: 1.0,
                 windowsOverride = override != null,
                 source = note(chosen.source),
             )
         }
-        val chosen = override
+        val explicitScale = override
             ?: (if (!jdkScaling) DisplayScale(1.0, "-D$JDK_ENABLED_PROPERTY=false", jdkScaling = false) else null)
             ?: explicit("sun.java2d.uiScale", inputs.property("sun.java2d.uiScale"), "-Dsun.java2d.uiScale=${inputs.property("sun.java2d.uiScale")?.trim()}")
             ?: explicit("J2D_UISCALE", env["J2D_UISCALE"], "J2D_UISCALE=${env["J2D_UISCALE"]?.trim()}")
@@ -159,11 +166,11 @@ internal object DisplayScaleDetector {
                 raw.trim().toIntOrNull()?.takeIf { it in 1..MAX.toInt() }?.let { DisplayScale(it.toDouble(), "GDK_SCALE=$it") }
                     ?: null.also { ignored += "ignored GDK_SCALE=$raw" }
             }
-            ?: desktopScale(inputs.xsettings, inputs.xResources)
+        val chosen = explicitScale ?: desktopScale(inputs.xsettings, inputs.xResources)
             ?: DisplayScale(1.0, "default (no system scale found${inputs.probeNote?.let { ": $it" }.orEmpty()})")
         return chosen.copy(
-            scale = if (override != null) chosen.scale else chosen.scale * preference,
-            source = note(chosen.source + if (override == null && preference != 1.0) "; preference ${inputs.preferencePercent}%" else ""),
+            scale = if (explicitScale != null) chosen.scale else chosen.scale * preference,
+            source = note(chosen.source + if (explicitScale == null && preference != 1.0) "; preference ${inputs.preferencePercent}%" else ""),
         )
     }
 

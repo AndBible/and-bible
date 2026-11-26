@@ -55,6 +55,32 @@ class DisplayScaleTest {
         }
     }
 
+    @Test fun windowsExplicitJdkScaleIgnoresThePreference() {
+        for (asProperty in listOf(false, true)) {
+            val props = if (asProperty) mapOf("sun.java2d.uiScale" to "1.25") else emptyMap()
+            val env = if (asProperty) emptyMap() else mapOf("J2D_UISCALE" to "1.25")
+            val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                false, env, props::get, null, null, windowsScale = 1.25, preferencePercent = 75,
+            ))!!
+            assertEquals(1.25, scale.scale)
+            assertEquals(1.0, scale.composeFactor)
+        }
+    }
+
+    @Test fun windowsDisabledJdkScalingAlsoIgnoresThePreference() {
+        val props = mapOf("sun.java2d.uiScale.enabled" to "false", "sun.java2d.uiScale" to "2")
+        val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+            false, emptyMap(), props::get, null, null, windowsScale = 1.0, preferencePercent = 75,
+        ))!!
+        assertEquals(1.0, scale.scale)
+        assertEquals(1.0, scale.composeFactor)
+        val overridden = DisplayScaleDetector.detect(DisplayScaleInputs(
+            false, mapOf("ANDBIBLE_UI_SCALE" to "1.25"), props::get, null, null,
+            windowsScale = 1.0, preferencePercent = 75,
+        ))!!
+        assertEquals(1.25, overridden.scale)
+    }
+
     @Test fun windowsOverrideReplacesRatherThanMultipliesNativeScale() {
         val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
             false, mapOf("ANDBIBLE_UI_SCALE" to "1.25"), { null }, null, null,
@@ -100,6 +126,21 @@ class DisplayScaleTest {
             true, mapOf("ANDBIBLE_UI_SCALE" to "1.25"), { null }, null, "Xft.dpi: 144", preferencePercent = 200,
         ))!!
         assertEquals(1.25, overridden.scale)
+    }
+
+    @Test fun explicitJdkAndGtkScalesIgnoreThePreference() {
+        val cases = listOf(
+            mapOf("sun.java2d.uiScale" to "1.5") to emptyMap<String, String>(),
+            emptyMap<String, String>() to mapOf("J2D_UISCALE" to "1.5"),
+            emptyMap<String, String>() to mapOf("GDK_SCALE" to "2"),
+        )
+        for ((props, env) in cases) {
+            val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                true, env, props::get, null, "Xft.dpi: 288", preferencePercent = 75,
+            ))!!
+            assertEquals(if ("GDK_SCALE" in env) 2.0 else 1.5, scale.scale)
+            assertTrue("preference" !in scale.source)
+        }
     }
 
     /** GNOME at 200 %: gsd-xsettings publishes Xft/DPI = 96 * 2 * 1024 and Gdk/WindowScalingFactor = 2. */

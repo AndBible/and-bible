@@ -154,7 +154,16 @@ object DesktopNoSentenceBreaker : SentenceBreaker {
 }
 
 fun desktopMiscModule(): Module = module {
-    single<DesktopUiScaleSetting> { PersistentDesktopUiScaleSetting(get()) }
+    val os = System.getProperty("os.name").orEmpty()
+    val linux = os.equals("Linux", ignoreCase = true)
+    if (linux || os.startsWith("Windows", ignoreCase = true)) {
+        // WINDOW popups use the JDK's whole-number scale, already fixed before the graph starts.
+        val effectivePercent = if (linux && System.getProperty("compose.layers.type") == "WINDOW") {
+            if (System.getProperty("sun.java2d.uiScale.enabled").equals("false", ignoreCase = true)) 100
+            else System.getProperty("sun.java2d.uiScale")?.toDoubleOrNull()?.let { (it * 100).toInt() } ?: 100
+        } else null
+        single<DesktopUiScaleSetting> { PersistentDesktopUiScaleSetting(get(), effectivePercent) }
+    }
     single<net.bible.android.control.activity.ActivityReporter> {
         net.bible.android.control.activity.HostActivityReporter(get<AppCoroutineScope>())
     }

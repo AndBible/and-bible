@@ -3,6 +3,8 @@ package net.bible.sharedui.settings
 /** Device-local UI scale, applied on the next desktop startup. */
 interface DesktopUiScaleSetting {
     val percent: Int
+    /** Actual startup scale where the renderer rounds preferences; null when fractional scaling is supported. */
+    val effectivePercent: Int? get() = null
     fun setPercent(percent: Int)
     fun observeChanges(onChange: () -> Unit): () -> Unit
 }
