@@ -68,6 +68,23 @@ class ListeningListGlanceWidgetTest {
         assertEquals(1, bars(v).size)
     }
 
+    @Test fun stoppedListMeasuresEveryRowOnTheFirstDraw() {
+        val rows = (1..5).map { row("Genesis $it:1", "KJV", id = "r$it") }
+        for (mode in WidgetMode.entries) {
+            val v = renderWidget(context, 250, 278, mode) {
+                ListeningListContent(stoppedState().copy(listening = rows), strings, 250.dp, 278.dp)
+            }
+            for (row in rows) {
+                val reference = v.allViews().filterIsInstance<android.widget.TextView>()
+                    .single { it.text.toString() == row.reference }
+                val bounds = android.graphics.Rect()
+                assertTrue("$mode ${row.reference} visible on first draw", reference.getGlobalVisibleRect(bounds))
+                assertTrue("$mode ${row.reference} has nonzero width", bounds.width() > 0)
+                assertEquals("$mode ${row.reference} not vertically clipped", reference.height, bounds.height())
+            }
+        }
+    }
+
     @Test fun emptyListShowsExplanation() {
         val v = list(334, 182, emptyList())
         assertTrue(v.texts().contains(strings.listeningListEmptyTitle))
