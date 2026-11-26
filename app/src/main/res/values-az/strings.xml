@@ -270,7 +270,7 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="error">Xəta</string>
   <string name="all">Hamısı</string>
   <string name="reset_generic">Sıfırdan başla</string>
-    <string name="watch_tutorial_video_plain">Təlim videosuna baxın</string>
+  <string name="watch_tutorial_video_plain">Təlim videosuna baxın</string>
 <!--Errors-->
   <string name="report_error">Reportu göndərin</string>
   <string name="error_occurred">Bir xəta oldu</string>
