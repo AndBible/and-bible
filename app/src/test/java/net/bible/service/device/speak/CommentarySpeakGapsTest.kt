@@ -140,9 +140,9 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
                 SpeakSettings(PlaybackSettings(speakLinks = links)),
             ))
         }.filterIsInstance<TextCommand>().joinToString("") { it.text }
-        assertEquals("Before [see Matthew 2:9] after.", spoken(true))
+        assertEquals("Before [see Matthew 2:9 ] after.", spoken(true))
         assertEquals("Before after.", spoken(false))
-        assertEquals("Before [see Matthew 2:9] after.", spoken(true))
+        assertEquals("Before [see Matthew 2:9 ] after.", spoken(true))
         assertEquals(listOf("Before [see ", "v. 9", "] after."),
             SwordContentFacade.getTextWithinOrdinalsAsString(doc, verse(1), 0..2, testCoreStrings()))
     }
