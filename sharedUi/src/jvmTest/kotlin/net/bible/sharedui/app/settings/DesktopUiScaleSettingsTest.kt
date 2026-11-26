@@ -173,13 +173,17 @@ class DesktopUiScaleSettingsTest {
                     }
                 }
                 onNodeWithText(before).assertExists()
+                val initialLayouts = mutableListOf<TextLayoutResult>()
+                onNodeWithText(before, useUnmergedTree = true)
+                    .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(initialLayouts) }
+                assertFalse(initialLayouts.single().isLineEllipsized(0))
+                assertEquals(before.length, initialLayouts.single().getLineEnd(0, visibleEnd = true))
                 onNodeWithText("UI scale").performClick()
                 onNodeWithText("75%").performClick()
                 onNodeWithText(after).assertExists()
                 val layouts = mutableListOf<TextLayoutResult>()
                 onNodeWithText(after, useUnmergedTree = true)
                     .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
-                assertFalse(layouts.single().hasVisualOverflow, "Override and session value must both remain visible")
                 assertEquals(75, app.koin.get<DesktopUiScaleSetting>().percent)
                 System.getenv("UI_SCALE_EVIDENCE_DIR")?.let { directory ->
                     val file = File(directory, "scale-overridden-${effectivePercent ?: "fractional"}.png")
@@ -187,6 +191,10 @@ class DesktopUiScaleSettingsTest {
                     val image = Image.makeFromBitmap(onRoot().captureToImage().asSkiaBitmap())
                     file.writeBytes(checkNotNull(image.encodeToData()).bytes)
                 }
+                val layout = layouts.single()
+                assertFalse(layout.isLineEllipsized(0), "Override and session value must not be ellipsized")
+                assertEquals(after.length, layout.getLineEnd(0, visibleEnd = true),
+                    "Override and session value must fit on the visible summary line")
             }
         } finally {
             app.close()
