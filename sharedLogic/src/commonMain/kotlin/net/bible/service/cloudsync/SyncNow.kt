@@ -42,6 +42,7 @@ class SyncNowPorts(
     val saveWorkspace: suspend () -> Unit,
     val networkAvailable: () -> Boolean,
     val noNetwork: () -> Unit,
+    val awaitWorkspacePersisted: suspend () -> Unit = {},
 )
 
 class SyncNow(

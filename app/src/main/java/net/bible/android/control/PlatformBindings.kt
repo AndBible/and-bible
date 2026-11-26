@@ -83,6 +83,12 @@ fun buildPlatformBindings() = module {
                 } else network.available
             },
             noNetwork = { notifier.showInfo(context.getString(net.bible.android.activity.R.string.sync_now_no_network)) },
+            awaitWorkspacePersisted = {
+                val repository = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    koin.get<net.bible.android.control.page.window.WindowControl>().windowRepository
+                }
+                repository.persistence.awaitPersisted()
+            },
         )
     }
     single<net.bible.sharedcore.platform.sync.SyncScheduler> { get<net.bible.android.platform.AndroidSyncScheduler>() }
@@ -110,6 +116,13 @@ fun buildPlatformBindings() = module {
             // The workspace save is queued; cloud sync must not apply remote rows before it has landed.
             prepare = ports.saveWorkspace,
             networkAvailable = ports.networkAvailable,
+            leaveHandOff = { koin.get<net.bible.android.platform.AndroidSyncScheduler>().startLeave() },
+            leaveFallback = {
+                val cloud = cloudSync()
+                if (cloud.signedIn) {
+                    net.bible.service.cloudsync.runDatabaseSyncJob(cloud, koin.get(), allowInteraction = false)
+                }
+            },
         )
     } onClose { it?.close() }
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }

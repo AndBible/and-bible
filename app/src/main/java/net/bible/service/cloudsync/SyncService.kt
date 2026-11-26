@@ -45,9 +45,11 @@ class SyncService: Service() {
     private val cloudSync: CloudSync by inject()
     private val scheduler: net.bible.android.platform.AndroidSyncScheduler by inject()
     private val settings: net.bible.sharedcore.platform.AppSettings by inject()
+    private val ports: SyncNowPorts by inject()
 
     companion object {
         const val START_SERVICE="action_start_service"
+        const val ACTION_LEAVE="action_leave"
         const val USER_INITIATED = "user_initiated"
     }
     private val app get() = application
@@ -83,6 +85,12 @@ class SyncService: Service() {
             START_SERVICE -> if (!syncing) {
                 syncing = true
                 synchronize(intent.getBooleanExtra(USER_INITIATED, false))
+            }
+            ACTION_LEAVE -> if (!syncing) {
+                if (scheduler.consumeLeave()) {
+                    syncing = true
+                    synchronize(false, leave = true)
+                } else stop()
             }
             else -> {
                 Log.w(TAG, "Unknown command $intent ${intent?.action}")
@@ -131,7 +139,7 @@ class SyncService: Service() {
         }
     }
 
-    private fun synchronize(userInitiated: Boolean) {
+    private fun synchronize(userInitiated: Boolean, leave: Boolean = false) {
         val run = ++currentRun
         syncJob = scope.launch {
             var succeeded = false
@@ -141,8 +149,25 @@ class SyncService: Service() {
                 Log.i(TAG, "Synchronize started")
                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
                 wakeLock.acquire(5 * 60 * 1000)
-                jobStarted = true
-                succeeded = runDatabaseSyncJob(cloudSync, settings, backgroundErrors = !userInitiated, reportTransportErrors = userInitiated)
+                var isLeave = leave
+                do {
+                    if (!isLeave || (CommonUtils.isCloudSyncEnabled && ports.networkAvailable() && cloudSync.signedIn && !net.bible.service.db.DatabaseContainer.replacing)) {
+                        if (isLeave) {
+                            ports.awaitWorkspacePersisted()
+                        }
+                        jobStarted = true
+                        succeeded = runDatabaseSyncJob(cloudSync, settings, allowInteraction = !isLeave, backgroundErrors = isLeave || !userInitiated, reportTransportErrors = !isLeave && userInitiated)
+                    }
+                    isLeave = synchronized(this@SyncService) {
+                        scheduler.consumeLeaveOrComplete(succeeded) {
+                            if (run == currentRun) {
+                                finish(succeeded, jobStarted, wakeLock, completePending = false)
+                                currentRun++
+                                wakeLock = null
+                            }
+                        }
+                    }
+                } while (isLeave)
                 if (succeeded) Log.i(TAG, "Synchronize finished")
             } catch (e: Exception) {
                 Log.e(TAG, "Synchronization or foreground service entry failed", e)
@@ -160,7 +185,7 @@ class SyncService: Service() {
     }
 
     @Synchronized
-    private fun finish(succeeded: Boolean, jobStarted: Boolean, wakeLock: PowerManager.WakeLock?) {
+    private fun finish(succeeded: Boolean, jobStarted: Boolean, wakeLock: PowerManager.WakeLock?, completePending: Boolean = true) {
         // Release every owner even if a listener or cleanup operation throws.
         try {
             // The job clears the running flag itself; only a failure before it started needs it here.
@@ -177,7 +202,7 @@ class SyncService: Service() {
                     }
                 } finally {
                     try {
-                        scheduler.complete(succeeded)
+                        if (completePending) scheduler.complete(succeeded)
                     } finally {
                         syncing = false
                     }

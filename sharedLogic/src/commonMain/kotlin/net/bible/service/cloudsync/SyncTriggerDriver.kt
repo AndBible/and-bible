@@ -84,6 +84,8 @@ class SyncTriggerDriver(
     private val backgroundAllowance: SyncBackgroundAllowance? = null,
     private val networkRestoreGapMs: Long = DEFAULT_NETWORK_RESTORE_GAP_MS,
     private val passWrapper: suspend (pass: Pass, run: suspend () -> Unit) -> Unit = { _, run -> run() },
+    private val leaveHandOff: (() -> Job?)? = null,
+    private val leaveFallback: (suspend () -> Unit)? = null,
 ) {
     /** One sync pass: its job, what started it, and whether it actually did its work. */
     class Pass internal constructor(val trigger: SyncTrigger) {
@@ -101,6 +103,7 @@ class SyncTriggerDriver(
     private var foreground = false
     /** Set by [onBackground], cleared by [onForeground]: a second leave notice (two Android hosts) adds no pass. */
     private var left = false
+    private var leaveJob: Job? = null
 
     /** Policy time when the latest syncing pass started or ended; the timer counts the interval from it. */
     private val lastPassMarkMs = atomic(0L)
@@ -133,6 +136,7 @@ class SyncTriggerDriver(
             if (foreground) return null
             foreground = true
             left = false
+            leaveJob = null
             timer?.cancel()
             timer = scope.launch { timerLoop() }
         }
@@ -149,7 +153,11 @@ class SyncTriggerDriver(
     fun onBackground(): Job {
         val again = synchronized(lock) { left.also { left = true } }
         stopTimer()
-        if (again) return latestPass?.job ?: Job().apply { complete() }
+        if (again) return synchronized(lock) { leaveJob } ?: latestPass?.job ?: Job().apply { complete() }
+        leaveHandOff?.invoke()?.let { job ->
+            synchronized(lock) { leaveJob = job }
+            return job
+        }
         val pass = trigger(SyncTrigger.Background)
         val allowance = backgroundAllowance ?: return pass.job
         val ended = atomic(false)
@@ -273,7 +281,11 @@ class SyncTriggerDriver(
                 lastPassMarkMs.value = start
                 try {
                     prepare()
-                    if (!policy.runOnce(force = true)) Log.i(TAG, "${pass.trigger} sync did not complete (sign-in or sync failed)")
+                    if (pass.trigger == SyncTrigger.Background && leaveHandOff != null && leaveFallback != null) {
+                        leaveFallback.invoke()
+                    } else if (!policy.runOnce(force = true)) {
+                        Log.i(TAG, "${pass.trigger} sync did not complete (sign-in or sync failed)")
+                    }
                 } finally {
                     lastPassMarkMs.value = policy.now()
                 }
