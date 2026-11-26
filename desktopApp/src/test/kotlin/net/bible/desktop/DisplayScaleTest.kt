@@ -128,6 +128,37 @@ class DisplayScaleTest {
         assertEquals(1.25, overridden.scale)
     }
 
+    @Test fun sessionReportsOnlyOverridesThatActuallyBypassThePreference() {
+        val cases = listOf(
+            mapOf("andbible.uiScale" to "1.25") to emptyMap<String, String>(),
+            emptyMap<String, String>() to mapOf("ANDBIBLE_UI_SCALE" to "1.25"),
+            mapOf("sun.java2d.uiScale" to "1.5") to emptyMap<String, String>(),
+            emptyMap<String, String>() to mapOf("J2D_UISCALE" to "1.5"),
+            emptyMap<String, String>() to mapOf("GDK_SCALE" to "2"),
+            mapOf("sun.java2d.uiScale.enabled" to "false") to emptyMap<String, String>(),
+        )
+        for ((props, env) in cases) {
+            val scale = DisplayScaleDetector.detect(DisplayScaleInputs(
+                true, env, props::get, null, "Xft.dpi: 192", preferencePercent = 75,
+            ))!!
+            assertTrue(scale.preferenceOverridden, "$props $env must explain the ignored preset")
+        }
+        for (linux in listOf(true, false)) {
+            val automatic = DisplayScaleDetector.detect(DisplayScaleInputs(
+                linux, mapOf("ANDBIBLE_UI_SCALE" to "invalid"), { null }, null, "Xft.dpi: 192",
+                windowsScale = 1.5, preferencePercent = 75,
+            ))!!
+            assertEquals(false, automatic.preferenceOverridden)
+            if (!linux) {
+                val explicit = DisplayScaleDetector.detect(DisplayScaleInputs(
+                    false, mapOf("J2D_UISCALE" to "1.5"), { null }, null, null,
+                    windowsScale = 1.5, preferencePercent = 75,
+                ))!!
+                assertTrue(explicit.preferenceOverridden)
+            }
+        }
+    }
+
     @Test fun explicitJdkAndGtkScalesIgnoreThePreference() {
         val cases = listOf(
             mapOf("sun.java2d.uiScale" to "1.5") to emptyMap<String, String>(),

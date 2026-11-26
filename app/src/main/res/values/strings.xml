@@ -25,7 +25,9 @@
     <string name="desktop_webview2_graphics_error">AndBible requires Direct3D graphics to display Bible text with WebView2. The current graphics renderer is %1$s. Check your graphics driver and Direct3D support.\n\nDetails are in the log file:\n%2$s</string>
     <string name="desktop_ui_scale_title">UI scale</string>
     <string name="desktop_ui_scale_percent">%d%%</string>
-    <string name="desktop_ui_scale_effective">Effective scale this session: %d%%.</string>
+    <string name="desktop_ui_scale_effective">%1$d%% (this session: %2$d%%)</string>
+    <string name="desktop_ui_scale_overridden">%d%% (overridden this session)</string>
+    <string name="desktop_ui_scale_overridden_effective">%1$d%% (overridden this session: %2$d%%)</string>
     <string name="desktop_ui_scale_summary">Adjust the automatic interface scale. Restart required. Bible text size is set separately.</string>
     <string name="desktop_update_setting_title">Check for updates</string>
     <string name="desktop_update_interval_daily">Daily</string>

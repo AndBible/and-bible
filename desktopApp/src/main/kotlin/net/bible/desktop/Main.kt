@@ -239,7 +239,7 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
             start = { openDatabases ->
                 DesktopAppStartup.ensureStarted(
                     paths, windowHandle, language, openDatabases, launchArgs = launchArgs, lifecycleEvents = lifecycle.events,
-                    notifierSource = notifierSource,
+                    notifierSource = notifierSource, uiScaleOverridden = DesktopDisplayScale.preferenceOverridden,
                 )
             },
             platform = { platform },
@@ -335,7 +335,7 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
             ScaledDensity(scaleFactor) {
                 val density = androidx.compose.ui.platform.LocalDensity.current.density
                 LaunchedEffect(density) {
-                    val awtDensity = awtWindow.graphicsConfiguration.defaultTransform.scaleX
+                    val awtDensity = awtWindow.graphicsConfiguration?.defaultTransform?.scaleX
                     desktopEngineLog("[desktop] window density: AWT $awtDensity, Compose $density, content factor $scaleFactor")
                 }
                 ExitSyncWindow(closing, state.language, skipRequested, requestClose, tasks = tasks) {

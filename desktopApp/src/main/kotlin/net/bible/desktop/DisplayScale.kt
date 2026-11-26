@@ -53,6 +53,7 @@ internal data class DisplayScale(
     val nativeAwtScale: Double? = null,
     /** An absolute Windows override is supported fractionally by the JDK, including on monitor changes. */
     val windowsOverride: Boolean = false,
+    val preferenceOverridden: Boolean = false,
 ) {
     val awtScale: Int get() = if (!jdkScaling) 1 else floor(scale + EPSILON).toInt().coerceAtLeast(1)
     val awtDensity: Double get() = nativeAwtScale ?: awtScale.toDouble()
@@ -156,6 +157,7 @@ internal object DisplayScaleDetector {
                 nativeAwtScale = if (override != null && jdkScaling) chosen.scale else native ?: 1.0,
                 windowsOverride = override != null,
                 source = note(chosen.source),
+                preferenceOverridden = override != null || jdkOverride,
             )
         }
         val explicitScale = override
@@ -170,6 +172,7 @@ internal object DisplayScaleDetector {
             ?: DisplayScale(1.0, "default (no system scale found${inputs.probeNote?.let { ": $it" }.orEmpty()})")
         return chosen.copy(
             scale = if (explicitScale != null) chosen.scale else chosen.scale * preference,
+            preferenceOverridden = explicitScale != null,
             source = note(chosen.source + if (explicitScale == null && preference != 1.0) "; preference ${inputs.preferencePercent}%" else ""),
         )
     }
@@ -268,6 +271,9 @@ object DesktopDisplayScale {
     /** The initial whole scale, before a Windows monitor change; 1 before [init]. */
     val scale: Double get() = decided?.scale ?: 1.0
 
+    /** Captured before [DisplayScale.applyToJdk] writes its own properties; never inferred from those writes. */
+    val preferenceOverridden: Boolean get() = decided?.preferenceOverridden == true
+
     /** The log line naming the initial scale and its source, or null on unsupported hosts. */
     val description: String? get() = decided?.describe()
 
@@ -279,7 +285,7 @@ object DesktopDisplayScale {
     fun init(integerOnly: Boolean) {
         if (decided != null) return
         val os = System.getProperty("os.name").orEmpty()
-        val linux = os.contains("linux", ignoreCase = true)
+        val linux = net.bible.sharedcore.platform.desktop.isLinuxDesktop(os)
         val windows = os.startsWith("Windows", ignoreCase = true)
         if (!linux && !windows) return
         val env = System.getenv()

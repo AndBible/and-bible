@@ -59,7 +59,7 @@ class DesktopUiScaleSettingsTest {
         val directory = Files.createTempDirectory("ui-scale-binding")
         try {
             System.setProperty("sun.java2d.uiScale.enabled", "true")
-            for (os in listOf("Mac OS X", "FreeBSD", "Linux", "Windows 11")) {
+            for (os in listOf("Mac OS X", "FreeBSD", "Linux", "GNU/Linux", "Windows 11")) {
                 System.setProperty("os.name", os)
                 System.setProperty("compose.layers.type", "WINDOW")
                 System.setProperty("sun.java2d.uiScale", "2")
@@ -69,17 +69,20 @@ class DesktopUiScaleSettingsTest {
                 }
                 try {
                     val setting = app.koin.getOrNull<DesktopUiScaleSetting>()
-                    assertEquals(os in listOf("Linux", "Windows 11"), setting != null, os)
-                    assertEquals(if (os == "Linux") 200 else null, setting?.effectivePercent)
+                    assertEquals(os in listOf("Linux", "GNU/Linux", "Windows 11"), setting != null, os)
+                    assertEquals(if (os in listOf("Linux", "GNU/Linux")) 200 else null, setting?.effectivePercent)
+                    // The detector writes this JDK property too; it is not evidence of a user override.
+                    if (setting != null) assertFalse(setting.overriddenThisSession)
                 } finally { app.close() }
                 System.setProperty("sun.java2d.uiScale.enabled", "false")
                 val disabled = koinApplication {
                     modules(module { single { DesktopDeviceSettings(directory.resolve("settings")) } },
-                        net.bible.sharedui.desktop.assembly.desktopMiscModule())
+                        net.bible.sharedui.desktop.assembly.desktopMiscModule(uiScaleOverridden = true))
                 }
                 try {
-                    assertEquals(if (os == "Linux") 100 else null,
-                        disabled.koin.getOrNull<DesktopUiScaleSetting>()?.effectivePercent)
+                    val setting = disabled.koin.getOrNull<DesktopUiScaleSetting>()
+                    assertEquals(if (os in listOf("Linux", "GNU/Linux")) 100 else null, setting?.effectivePercent)
+                    if (setting != null) assertEquals(true, setting.overriddenThisSession)
                 } finally { disabled.close() }
                 System.setProperty("sun.java2d.uiScale.enabled", "true")
             }
@@ -89,7 +92,7 @@ class DesktopUiScaleSettingsTest {
         }
     }
 
-    @Test fun windowedLinuxSummaryReportsEffectiveScaleNotPendingPreference() {
+    @Test fun windowedLinuxSummaryKeepsChosenPresetAlongsideSessionScale() {
         for (dark in listOf(false, true)) for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.MONOCHROME)) {
             checkWindowedSummary(dark, mode)
         }
@@ -117,13 +120,13 @@ class DesktopUiScaleSettingsTest {
                         }
                     }
                 }
-                onNodeWithText("Effective scale this session: 200%.", substring = true).assertExists()
+                onNodeWithText("100% (this session: 200%)").assertExists()
                 onNodeWithText("UI scale").performClick()
                 onNodeWithText("75%").performClick()
-                onNodeWithText("Effective scale this session: 200%.", substring = true).assertExists()
+                onNodeWithText("75% (this session: 200%)").assertExists()
                 assertEquals(75, app.koin.get<DesktopUiScaleSetting>().percent)
                 val layouts = mutableListOf<TextLayoutResult>()
-                onNodeWithText("Effective scale this session: 200%.", useUnmergedTree = true)
+                onNodeWithText("75% (this session: 200%)", useUnmergedTree = true)
                     .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                 assertEquals(1, layouts.size)
                 assertFalse(layouts.single().isLineEllipsized(0), "Effective scale must not be ellipsized")
@@ -139,6 +142,54 @@ class DesktopUiScaleSettingsTest {
         } finally {
             app.close()
             original.forEach { (key, value) -> if (value == null) System.clearProperty(key) else System.setProperty(key, value) }
+            directory.toFile().deleteRecursively()
+        }
+    }
+
+    @Test fun explicitOverrideIsExplainedWithoutHidingChosenPreset() {
+        checkOverrideSummary(null, "125% (overridden this session)", "75% (overridden this session)")
+        checkOverrideSummary(200, "125% (overridden this session: 200%)", "75% (overridden this session: 200%)")
+    }
+
+    private fun checkOverrideSummary(effectivePercent: Int?, before: String, after: String) {
+        val directory = Files.createTempDirectory("ui-scale-override")
+        val app = koinApplication {
+            modules(module {
+                single<DesktopUiScaleSetting> {
+                    PersistentDesktopUiScaleSetting(DesktopDeviceSettings(directory.resolve("settings")),
+                        effectivePercent = effectivePercent, overriddenThisSession = true)
+                }
+            })
+        }
+        app.koin.get<DesktopUiScaleSetting>().setPercent(125)
+        try {
+            runComposeUiTest {
+                setContent {
+                    CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
+                        AbTheme(darkTheme = false, disableAnimations = true) {
+                            AppSettingsScreen(SettingsScreenState("Settings", emptyList()), null, { _, _ -> }, { _, _ -> },
+                                { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, "Reset", settingsKoin = app.koin)
+                        }
+                    }
+                }
+                onNodeWithText(before).assertExists()
+                onNodeWithText("UI scale").performClick()
+                onNodeWithText("75%").performClick()
+                onNodeWithText(after).assertExists()
+                val layouts = mutableListOf<TextLayoutResult>()
+                onNodeWithText(after, useUnmergedTree = true)
+                    .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                assertFalse(layouts.single().hasVisualOverflow, "Override and session value must both remain visible")
+                assertEquals(75, app.koin.get<DesktopUiScaleSetting>().percent)
+                System.getenv("UI_SCALE_EVIDENCE_DIR")?.let { directory ->
+                    val file = File(directory, "scale-overridden-${effectivePercent ?: "fractional"}.png")
+                    file.parentFile.mkdirs()
+                    val image = Image.makeFromBitmap(onRoot().captureToImage().asSkiaBitmap())
+                    file.writeBytes(checkNotNull(image.encodeToData()).bytes)
+                }
+            }
+        } finally {
+            app.close()
             directory.toFile().deleteRecursively()
         }
     }

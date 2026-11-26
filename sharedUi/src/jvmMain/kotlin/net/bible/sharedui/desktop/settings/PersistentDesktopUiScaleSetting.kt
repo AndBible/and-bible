@@ -9,6 +9,7 @@ import net.bible.sharedui.settings.DesktopUiScaleSetting
 class PersistentDesktopUiScaleSetting(
     private val settings: DesktopDeviceSettings,
     override val effectivePercent: Int? = null,
+    override val overriddenThisSession: Boolean = false,
 ) : DesktopUiScaleSetting {
     override val percent: Int
         get() = settings.getInt(DESKTOP_UI_SCALE_KEY, DESKTOP_UI_SCALE_DEFAULT)

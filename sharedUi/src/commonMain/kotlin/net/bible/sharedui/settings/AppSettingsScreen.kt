@@ -98,7 +98,10 @@ fun AppSettingsScreen(
                 key = DESKTOP_UI_SCALE_KEY, title = strings.desktopUiScaleTitle,
                 entries = DESKTOP_UI_SCALE_PRESETS.map { SettingsItem.Choice(it.toString(), strings.desktopUiScalePercent(it)) },
                 selectedValue = scalePercent.toString(),
-                selectedValueSummary = scaleSetting.effectivePercent?.let(strings::desktopUiScaleEffective),
+                selectedValueSummary = if (scaleSetting.overriddenThisSession) {
+                    scaleSetting.effectivePercent?.let { strings.desktopUiScaleOverriddenEffective(scalePercent, it) }
+                        ?: strings.desktopUiScaleOverridden(scalePercent)
+                } else scaleSetting.effectivePercent?.let { strings.desktopUiScaleEffective(scalePercent, it) },
             ))
             add(SettingsItem.InfoRow(key = "desktop_ui_scale_help", title = strings.desktopUiScaleSummary))
         }

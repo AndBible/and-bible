@@ -1065,7 +1065,9 @@ interface Strings {
 
     // Batch 10-remainder — preference search (main Settings screen)
     fun desktopUiScalePercent(percent: Int): String
-    fun desktopUiScaleEffective(percent: Int): String
+    fun desktopUiScaleEffective(percent: Int, effectivePercent: Int): String
+    fun desktopUiScaleOverridden(percent: Int): String
+    fun desktopUiScaleOverriddenEffective(percent: Int, effectivePercent: Int): String
     val desktopUiScaleTitle: String
     val desktopUiScaleSummary: String
     val desktopUpdateSettingTitle: String

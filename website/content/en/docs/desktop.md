@@ -47,8 +47,8 @@ Switching workspaces reuses the reading pages. Returning to a workspace restores
 
 ### Opening backups and document files with the Windows MSI
 
-The MSI lists AndBible as an **Open with** candidate for ZIP, EPUB and SQLite (`.sqlite3`) files,
-without making it the default. Existing ZIP, CSV, font and image defaults are left unchanged.
+The MSI lists AndBible as an **Open with** candidate for ZIP, EPUB, SQLite (`.sqlite3`), CSV and
+JPEG/PNG/WebP image files, matching the MSIX package's supported types, without making it the default. Existing ZIP, CSV, font and image defaults are left unchanged.
 If you have not explicitly chosen a ZIP default, Windows may show its own new-app chooser after installation;
 keep **File Explorer** there to continue browsing archives rather than opening them in AndBible. Backups and module ZIPs remain openable from
 **Backup & Restore** or **Load Documents From Files** inside AndBible. To open one from Explorer,
@@ -104,7 +104,9 @@ separate: it changes document text, not menus and toolbars.
 
 For troubleshooting, `ANDBIBLE_UI_SCALE` or `-Dandbible.uiScale` sets an absolute app scale and takes
 precedence over this preference on Windows and Linux. Explicit JDK scale settings (`-Dsun.java2d.uiScale`
-or `J2D_UISCALE`) also take precedence over the preference. For example, from PowerShell:
+or `J2D_UISCALE`) also take precedence over the preference. The **UI scale** row keeps showing your saved
+preset and says **overridden this session** when a startup override takes precedence. Changing the preset
+still saves it for a later launch without an override. For example, from PowerShell:
 
 ```powershell
 $env:ANDBIBLE_UI_SCALE = "1.25"
@@ -128,7 +130,7 @@ ANDBIBLE_UI_SCALE=1.5 andbible
 Good to know:
 
 - The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
-- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. For example, 125% becomes 100% and 150% becomes 200%. The **UI scale** row also shows the effective scale for the current session; changing a preset does not change it until restart. The normal off-screen engine supports fractional scales.
+- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds the final scale (including the UI scale preference or environment override) to a whole number, including for Bible text. For example, 125% becomes 100% and 150% becomes 200%. The **UI scale** row shows both your chosen preset and the effective scale for the current session, for example **125% (this session: 200%)**. Changing a preset updates the chosen percentage immediately, but the effective session scale stays unchanged until restart. The normal off-screen engine supports fractional scales.
 - Explicit `-Dsun.java2d.uiScale`, `J2D_UISCALE` and `GDK_SCALE` values take precedence over the UI scale preference, as does disabling JDK scaling with `-Dsun.java2d.uiScale.enabled=false`.
 - On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.
 
