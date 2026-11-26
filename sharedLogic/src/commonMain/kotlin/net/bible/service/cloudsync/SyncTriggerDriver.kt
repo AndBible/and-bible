@@ -18,11 +18,13 @@ package net.bible.service.cloudsync
 
 import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -84,7 +86,7 @@ class SyncTriggerDriver(
     private val backgroundAllowance: SyncBackgroundAllowance? = null,
     private val networkRestoreGapMs: Long = DEFAULT_NETWORK_RESTORE_GAP_MS,
     private val passWrapper: suspend (pass: Pass, run: suspend () -> Unit) -> Unit = { _, run -> run() },
-    private val leaveHandOff: (() -> Job?)? = null,
+    private val leaveHandOff: (() -> Deferred<Boolean>?)? = null,
     private val leaveFallback: (suspend () -> Unit)? = null,
 ) {
     /** One sync pass: its job, what started it, and whether it actually did its work. */
@@ -150,6 +152,7 @@ class SyncTriggerDriver(
      *
      * @return the pass's job; its completion ends the allowance
      */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun onBackground(): Job {
         val again = synchronized(lock) { left.also { left = true } }
         stopTimer()
@@ -160,9 +163,13 @@ class SyncTriggerDriver(
             }
             leaveHandOff.invoke()?.let { job ->
                 val start = policy.now()
-                lastPassStartMs.value = start
-                lastPassMarkMs.value = start
-                job.invokeOnCompletion { lastPassMarkMs.value = policy.now() }
+                job.invokeOnCompletion { failure ->
+                    if (failure == null && job.getCompleted()) {
+                        lastPassStartMs.update { maxOf(it, start) }
+                        val finished = policy.now()
+                        lastPassMarkMs.update { maxOf(it, finished) }
+                    }
+                }
                 synchronized(lock) { leaveJob = job }
                 return job
             }

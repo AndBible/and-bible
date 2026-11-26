@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TestBibleApplication
@@ -111,6 +112,74 @@ class SyncServiceLeaveBehaviorTest {
             cloud.adapterId = oldId
             field.set(cloud, original)
             category.setSyncEnabled(settings, enabled)
+        }
+    }
+
+    @Test fun leaveRechecksNetworkAfterPersistence() = runBlocking { recheckAfterPersistence("network") }
+    @Test fun leaveRechecksEnabledAfterPersistence() = runBlocking { recheckAfterPersistence("enabled") }
+    @Test fun leaveRechecksReplacementAfterPersistence() = runBlocking { recheckAfterPersistence("replacement") }
+    @Test fun leaveRechecksSignedInAfterPersistence() = runBlocking { recheckAfterPersistence("signedIn") }
+
+    private suspend fun recheckAfterPersistence(reason: String) = kotlinx.coroutines.coroutineScope {
+        val koin = GlobalContext.get()
+        val cloud = koin.get<CloudSync>()
+        val scheduler = koin.get<AndroidSyncScheduler>()
+        val settings = koin.get<net.bible.sharedcore.platform.AppSettings>()
+        val previous = SyncableDatabaseDefinition.ALL.associateWith { it.isSyncEnabled(settings) }
+        val oldId = cloud.adapterId
+        val field = CloudSync::class.java.getDeclaredField("_adapter").apply { isAccessible = true }
+        val original = field.get(cloud)
+        val snapshot = KoinFactorySnapshot.of<SyncNowPorts>()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val replacementEntered = CompletableDeferred<Unit>()
+        val endReplacement = CompletableDeferred<Unit>()
+        var replacement: Job? = null
+        val online = java.util.concurrent.atomic.AtomicBoolean(true)
+        val edges = CopyOnWriteArrayList<Boolean>()
+        val subscription = cloud.runningChanged.subscribe { edges += it }
+        val adapter = java.lang.reflect.Proxy.newProxyInstance(CloudAdapter::class.java.classLoader, arrayOf(CloudAdapter::class.java)) { _, method, _ ->
+            if (method.name == "getSignedIn") true else throw IOException("fixture")
+        } as CloudAdapter
+        var service: SyncService? = null
+        try {
+            cloud.adapterId = "WEBDAV"
+            previous.keys.forEach { it.setSyncEnabled(settings, false) }
+            SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(settings, true)
+            field.set(cloud, adapter)
+            loadKoinModules(module { single { SyncNowPorts(saveWorkspace = {}, networkAvailable = { online.get() }, noNetwork = {}, awaitWorkspacePersisted = { entered.complete(Unit); release.await() }) } })
+            service = Robolectric.buildService(SyncService::class.java).create().get()
+            val pending = scheduler.startLeave()!!
+            service.onStartCommand(Intent().setAction(SyncService.ACTION_LEAVE), 0, 1)
+            withTimeout(10000) { entered.await() }
+            when (reason) {
+                "network" -> online.set(false)
+                "signedIn" -> cloud.dropAdapterForReconnect()
+                "enabled" -> previous.keys.forEach { it.setSyncEnabled(settings, false) }
+                "replacement" -> {
+                    replacement = launch(kotlinx.coroutines.Dispatchers.IO) {
+                        net.bible.service.db.DatabaseContainer.replacingDatabases {
+                            replacementEntered.complete(Unit)
+                            endReplacement.await()
+                        }
+                    }
+                    withTimeout(10000) { replacementEntered.await() }
+                }
+            }
+            release.complete(Unit)
+            withTimeout(10000) { pending.await() }
+            assertFalse("$reason changed during persistence: no engine pass", edges.contains(true))
+        } finally {
+            release.complete(Unit)
+            endReplacement.complete(Unit)
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { withTimeout(10000) { replacement?.join() } }
+            service?.let { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { withTimeout(10000) { it.scope.coroutineContext[Job]!!.cancelAndJoin() }; it.onDestroy() } }
+            scheduler.complete(false)
+            subscription.cancel()
+            snapshot.restore()
+            cloud.adapterId = oldId
+            field.set(cloud, original)
+            previous.forEach { (category, enabled) -> category.setSyncEnabled(settings, enabled) }
         }
     }
 
