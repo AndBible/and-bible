@@ -1,0 +1,24 @@
+- New desktop UI scale presets (75–200%) on Linux and Windows, with the effective scale shown in settings ([#4240](https://github.com/AndBible/and-bible/issues/4240))
+- New Speak setting to skip links instead of reading them aloud ([#4248](https://github.com/AndBible/and-bible/issues/4248))
+- Desktop installers offer AndBible under "Open with" for EPUB, SQLite and ZIP files without changing default apps ([#4232](https://github.com/AndBible/and-bible/issues/4232))
+- The update offer opens the release notes for the new version and stays until you act on it; the opt-out can be reversed ([#4241](https://github.com/AndBible/and-bible/issues/4241))
+- Speak and Verse widgets: compact sizes allowed, whole verse lines kept, and text refreshes on font-size changes ([#4239](https://github.com/AndBible/and-bible/issues/4239))
+- Tutorial links show the plain localized label ([#4247](https://github.com/AndBible/and-bible/issues/4247))
+- In-app help and contribution links point to the user documentation instead of the retired wiki ([#4245](https://github.com/AndBible/and-bible/issues/4245))
+- Exports use the share chooser and document-based filenames that stay Unicode- and Windows-safe ([#4235](https://github.com/AndBible/and-bible/issues/4235))
+- Typing and resetting memorized words respect the no-animations setting ([13072f4](https://github.com/AndBible/and-bible/commit/13072f402d))
+- Dialog action buttons stay reachable and keep their height in small windows ([#4250](https://github.com/AndBible/and-bible/issues/4250))
+- The main drawer scroll resets when opened and is kept across state restore ([#4246](https://github.com/AndBible/and-bible/issues/4246), [2f667d5](https://github.com/AndBible/and-bible/commit/2f667d5bf7))
+- Widgets refresh their listed rows when documents are installed or removed ([#4243](https://github.com/AndBible/and-bible/issues/4243))
+- Android sync on leave waits for pending saves, re-checks eligibility and ignores stale workers ([#4242](https://github.com/AndBible/and-bible/issues/4242))
+- EPUB chapter navigation and table of contents are fixed, damaged caches recover, and empty EPUBs show an error ([#4237](https://github.com/AndBible/and-bible/issues/4237))
+- The typing input stays anchored to the current word, including after restore and padding changes ([#4236](https://github.com/AndBible/and-bible/issues/4236), [24bf661](https://github.com/AndBible/and-bible/commit/24bf661bd9))
+- Recovery from a lost web renderer on multi-pane screens restores the active pane and is bounded to 30 seconds ([#4234](https://github.com/AndBible/and-bible/issues/4234))
+- The keyboard is hidden before the pane and overflow menus open ([#4233](https://github.com/AndBible/and-bible/issues/4233))
+- First-run screen controls stay above the keyboard and system navigation, and clear the Mac window-controls band ([#4231](https://github.com/AndBible/and-bible/issues/4231))
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
