@@ -16,6 +16,3 @@ val LocalAppLanguage = staticCompositionLocalOf { "en" }
 @Composable
 fun tutorialVideoUrl(episode: TutorialVideos.Episode): String = TutorialVideos.url(episode, LocalAppLanguage.current)
 
-/** The localized tutorial-video label, independent of the caption track selected for [episode]. */
-@Composable
-fun tutorialVideoLabel(episode: TutorialVideos.Episode): String = LocalStrings.current.watchTutorialVideoPlain
