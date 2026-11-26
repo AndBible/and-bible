@@ -36,6 +36,7 @@ class VerseWidgetGoldenTest {
                 val (w, h) = size
                 captureWidget(context, "verse_$name", w, h, mode) { VerseWidgetBody(verse, config, strings, 1, w.dp, h.dp) }
             }
+            captureWidget(context, "verse_minimum", 110, 110, mode) { VerseWidgetBody(verse, config, strings, 1, 110.dp, 110.dp) }
             captureWidget(context, "verse_4x2_nobuttons", 334, 162, mode) {
                 VerseWidgetBody(verse, config.copy(showButtons = false, showSourceAndDate = false), strings, 1, 334.dp, 162.dp)
             }

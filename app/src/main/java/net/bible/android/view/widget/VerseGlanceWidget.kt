@@ -25,7 +25,6 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
@@ -82,9 +81,8 @@ import kotlin.random.Random
  * three hours or only on shuffle. 2x2, 4x2 and 4x3+ layouts. The verse of a period is stable ([VerseSelector]).
  */
 class VerseGlanceWidget : GlanceAppWidget() {
-    override val sizeMode = SizeMode.Responsive(
-        setOf(DpSize(110.dp, 110.dp), DpSize(250.dp, 110.dp), DpSize(250.dp, 180.dp)),
-    )
+    // Whole-line clipping and compact/tall layouts need the actual space the launcher provides.
+    override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
@@ -222,11 +220,30 @@ fun VerseWidgetBody(
                         }
                         Spacer(GlanceModifier.height(4.dp))
                     }
+                    val stackedFooter = !wide && config.showButtons
                     Column(modifier = GlanceModifier.defaultWeight()) {
-                        WidgetText(content.text, size = if (tall) 17 else 15, maxLines = if (tall) 8 else if (wide) 3 else 4)
+                        // RemoteViews clips a partly visible last line instead of ellipsising it. Budget whole lines
+                        // after padding, the optional source, and the reference/buttons (stacked on narrow widgets).
+                        val fontScale = context.resources.configuration.fontScale
+                        val headerHeight = if (config.showSourceAndDate) 20 * fontScale + 4 else 0f
+                        val referenceHeight = 18 * fontScale
+                        val footerHeight = when {
+                            stackedFooter -> referenceHeight + 32
+                            config.showButtons -> maxOf(referenceHeight, 32f)
+                            else -> referenceHeight
+                        }
+                        val lineHeight = (if (tall) 23 else 20) * fontScale
+                        val lines = ((height.value - 24 - headerHeight - footerHeight) / lineHeight)
+                            .toInt().coerceIn(1, if (tall) 8 else if (wide) 3 else 4)
+                        WidgetText(content.text, size = if (tall) 17 else 15, maxLines = lines)
+                    }
+                    // Two 32 dp controls beside the reference leave only 22 dp at the 110 dp minimum width.
+                    if (stackedFooter) {
+                        WidgetText("${content.reference} · ${content.bibleAbbreviation}", size = 12, bold = true)
                     }
                     Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = GlanceModifier.defaultWeight()) {
+                        if (stackedFooter) Spacer(GlanceModifier.defaultWeight())
+                        else Column(modifier = GlanceModifier.defaultWeight()) {
                             WidgetText("${content.reference} · ${content.bibleAbbreviation}", size = 12, bold = true)
                         }
                         if (config.showButtons) {

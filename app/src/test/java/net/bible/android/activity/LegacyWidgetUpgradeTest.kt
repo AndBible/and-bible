@@ -60,6 +60,31 @@ class LegacyWidgetUpgradeTest {
         shown.forEach { assertFalse("$it must be listed", fileText(res + it).contains("hide_from_picker")) }
     }
 
+    @Test fun providersAllowTheSmallestSupportedLayoutsAndUseConsistentDropSizes() {
+        val namespace = "http://schemas.android.com/apk/res/android"
+        val parser = javax.xml.parsers.DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
+            .newDocumentBuilder()
+        val expected = listOf(
+            listOf("small_speak_control", "250", "40", "40", "40", "4", "1", "horizontal"),
+            listOf("middle_speak_control", "250", "40", "40", "40", "4", "1", "horizontal"),
+            listOf("large_speak_control", "250", "40", "40", "40", "4", "1", "horizontal"),
+            listOf("speak_text_control", "180", "110", "110", "110", "3", "2", "horizontal|vertical"),
+            listOf("speak_bookmark", "110", "110", "110", "110", "2", "2", "horizontal|vertical"),
+            listOf("verse", "250", "110", "110", "110", "4", "2", "horizontal|vertical"),
+        )
+        val dimensions = listOf("minWidth", "minHeight", "minResizeWidth", "minResizeHeight")
+        for (values in expected) {
+            val name = values.first()
+            val provider = parser.parse(File("src/main/res/xml/${name}_widget_info.xml")).documentElement
+            dimensions.forEachIndexed { index, attribute ->
+                assertEquals("$name $attribute", "${values[index + 1]}dp", provider.getAttributeNS(namespace, attribute))
+            }
+            assertEquals("$name target width", values[5], provider.getAttributeNS(namespace, "targetCellWidth"))
+            assertEquals("$name target height", values[6], provider.getAttributeNS(namespace, "targetCellHeight"))
+            assertEquals("$name resize directions", values[7], provider.getAttributeNS(namespace, "resizeMode"))
+        }
+    }
+
     @Test fun theManifestDeclaresTheFiveLegacyReceiversAndTheVerseOne() {
         val manifest = fileText("src/standard/AndroidManifest.xml")
         legacy.forEach {

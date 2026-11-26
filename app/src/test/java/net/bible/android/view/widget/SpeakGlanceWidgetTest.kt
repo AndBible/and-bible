@@ -114,6 +114,21 @@ class SpeakGlanceWidgetTest {
         }
     }
 
+    @Test fun smallestTextWidgetClipsLongVerseWithoutHidingPlay() {
+        val longVerse = "The LORD is my shepherd; I shall not want. ".repeat(15)
+        for (mode in WidgetMode.entries) {
+            val state = speakingState().copy(verseText = longVerse)
+            val v = renderWidget(context, 110, 110, mode) { SpeakTextContent(state, strings, 110.dp, 110.dp) }
+            val play = v.byDescription(s(R.string.pause))!!
+            val bounds = android.graphics.Rect()
+            assertTrue("$mode play button is visible", play.getGlobalVisibleRect(bounds))
+            assertEquals("$mode play button is not vertically clipped", play.height, bounds.height())
+            val verse = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
+            assertTrue("$mode verse has room for text", verse.height > 0)
+            assertEquals(android.text.TextUtils.TruncateAt.END, verse.ellipsize)
+        }
+    }
+
     @Test fun textWidgetThreeToFourCellsBreakAtTheLauncherMinimums() {
         assertNotNull(text(180, 110, speakingState()).byDescription(s(R.string.previous)))
         assertNull("249 dp is still 3 cells wide, no status line", text(249, 130, speakingState()).texts().firstOrNull { it == "Psalm 23:1 · 34 % · WEB" })

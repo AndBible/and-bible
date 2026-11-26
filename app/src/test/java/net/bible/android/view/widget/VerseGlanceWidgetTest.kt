@@ -54,6 +54,48 @@ class VerseGlanceWidgetTest {
         assertNotNull(v.byDescription(s(R.string.widget_speak_verse)))
     }
 
+    @Test fun smallestWidgetKeepsReferenceReadableBesideControls() {
+        for (mode in WidgetMode.entries) {
+            val v = renderWidget(context, 110, 110, mode) {
+                VerseWidgetBody(verse, config, strings, 7, 110.dp, 110.dp)
+            }
+            val reference = v.allViews().filterIsInstance<android.widget.TextView>()
+                .single { it.text.toString() == "Psalm 23:1 · KJV" }
+            val density = context.resources.displayMetrics.density
+            assertTrue("$mode reference column must have room for a short reference, width=${reference.width / density}dp",
+                reference.width / density >= 60)
+            listOf(R.string.widget_speak_verse, R.string.widget_shuffle).forEach { id ->
+                val button = v.byDescription(s(id))!!
+                val bounds = android.graphics.Rect()
+                assertTrue("$mode ${s(id)} is visible", button.getGlobalVisibleRect(bounds))
+                assertEquals("$mode ${s(id)} is not vertically clipped", button.height, bounds.height())
+            }
+        }
+    }
+
+    @Test fun widgetUsesRealHeightSoTallCompactWidgetsCanShowMoreVerse() {
+        assertEquals(androidx.glance.appwidget.SizeMode.Exact, VerseGlanceWidget().sizeMode)
+        val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
+        fun verseLines(height: Int): Int = body(long, w = 110, h = height).allViews()
+            .filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }.maxLines
+        assertEquals(1, verseLines(110))
+        assertTrue("a taller compact widget should show more verse", verseLines(162) >= 3)
+    }
+
+    @Test fun compactVerseDoesNotClipHalfATextLineAboveTheFooter() {
+        val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
+        for (height in listOf(110, 162, 180, 250)) {
+            val v = body(long, w = 110, h = height)
+            val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
+            val layout = text.layout
+            val visible = android.graphics.Rect()
+            assertTrue("$height dp: verse has a visible line", text.getGlobalVisibleRect(visible))
+            assertEquals("$height dp: no ancestor clips the verse", text.height, visible.height())
+            assertTrue("$height dp: last verse line must fit above the reference",
+                layout.getLineBottom(layout.lineCount - 1) <= text.height - text.totalPaddingTop - text.totalPaddingBottom)
+        }
+    }
+
     @Test fun hidingButtonsRemovesShuffleAndSpeak() {
         val v = body(verse, config.copy(showButtons = false))
         assertNull(v.byDescription(s(R.string.widget_shuffle)))
