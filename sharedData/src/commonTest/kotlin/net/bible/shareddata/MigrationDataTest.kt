@@ -51,7 +51,7 @@ class MigrationDataTest {
             "INSERT INTO EpubFragment (id,originalId,ordinalStart,ordinalEnd) VALUES (7,'chapter',10,20)",
             "INSERT INTO EpubHtmlToFrag (htmlId,fragId) VALUES ('chapter#anchor',7)",
         )) { db ->
-            assertEquals(listOf(listOf("7", "chapter", "10", "20", null, "0")),
+            assertEquals(listOf(listOf("7", "chapter", "10", "20", null, "1")),
                 db.rawRows("SELECT id,originalId,ordinalStart,ordinalEnd,title,hasText FROM EpubFragment", 6))
             assertEquals(listOf(listOf("chapter#anchor", "7")), db.rawRows("SELECT htmlId,fragId FROM EpubHtmlToFrag", 2))
         }

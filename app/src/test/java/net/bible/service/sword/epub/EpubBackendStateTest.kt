@@ -466,6 +466,29 @@ class EpubBackendStateTest {
         assertEquals(listOf("First", "Chapter Two", "Third"), newState(dir).tocKeys().map { it.getName() })
     }
 
+    @Test fun repeatedSpineDocumentIsListedOnce() = runTest {
+        val dir = tocFixture("toc-repeated-spine", null)
+        val opf = File(dir, "OEBPS/content.opf")
+        opf.writeText(opf.readText().replace("</spine>", "<itemref idref=\"ch1\"/></spine>"))
+        assertEquals(listOf("Chapter One", "Chapter Two"), newState(dir).tocKeys().map { it.getName() })
+    }
+
+    @Test fun legacyFragmentsKeepNavigationWithoutReadingTheirFiles() = runTest {
+        val dir = tocFixture("legacy-navigation", null)
+        val initial = newState(dir)
+        val path = application.getDatabasePath(initial.appDbFilename).absolutePath
+        initial.close()
+        net.bible.service.db.openSqlite(path).use { db ->
+            db.prepare("ALTER TABLE EpubFragment DROP COLUMN title").use { it.step() }
+            db.prepare("ALTER TABLE EpubFragment DROP COLUMN hasText").use { it.step() }
+            db.prepare("PRAGMA user_version=2").use { it.step() }
+        }
+        File(dir, "optimized").listFiles()!!.filter { it.name.endsWith(".xhtml.gz") }.forEach { it.writeText("corrupt") }
+        val state = newState(dir)
+        assertEquals(2, state.tocKeys().size)
+        assertTrue(state.tocKeys().all { it.getName() == testCoreStrings().namelessTitle })
+    }
+
     @Test fun fallbackListsSplitSpineDocumentOnceAtItsFirstFragment() = runTest {
         val dir = tocFixture("toc-split", null)
         File(dir, "OEBPS/ch1.xhtml").writeText("""

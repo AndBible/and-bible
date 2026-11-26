@@ -271,6 +271,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
                     (positions[originalId] ?: -1) > position
                 }
                 if (next < 0) result.add(addition) else result.add(next, addition)
+                coveredIds.add(id)
             }
             result.toList().also { cachedToc.compareAndSet(null, it) }
         }
@@ -303,7 +304,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
     val cardinality get() = keys.size
 
     private val spineItems = XmlQueries.spineItemrefs(content, epubNamespace)
-    internal val originalIds: List<String> get() = spineItems.map { it.getAttribute("idref")!!.value }
+    internal val originalIds: List<String> get() = spineItems.map { it.getAttribute("idref")!!.value }.distinct()
     private val linearOriginalIds: List<String> get() = spineItems.filter { it.getAttributeValue("linear") != "no" }
         .map { it.getAttribute("idref")!!.value }
 

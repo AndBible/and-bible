@@ -130,6 +130,8 @@ private val addEpubMeta = makeMigration(1..2) { db ->
 private val addDocumentMetadata = makeMigration(2..3) { db ->
     db.execSQL("ALTER TABLE EpubFragment ADD COLUMN title TEXT")
     db.execSQL("ALTER TABLE EpubFragment ADD COLUMN hasText INTEGER NOT NULL DEFAULT 0")
+    // Old optimizers removed the sources; unknown text content must not hide existing chapters.
+    db.execSQL("UPDATE EpubFragment SET hasText = 1")
 }
 
 val epubMigrations = arrayOf<Migration>(addEpubMeta, addDocumentMetadata)
