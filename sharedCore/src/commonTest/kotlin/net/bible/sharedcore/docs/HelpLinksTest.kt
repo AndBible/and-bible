@@ -20,6 +20,7 @@ class HelpLinksTest {
         assertNull(HelpLinks.parse("https://example.org/"))
         assertNull(HelpLinks.parse("andbible-help:NO_SUCH_TOPIC"))
         assertNull(HelpLinks.parse("andbible-help:"))
+        assertNull(HelpLinks.parse("andbible-help:RELEASE_6_0"))
     }
 
     /** Release notes are external updater targets; every other topic belongs to the in-app User guide tab. */

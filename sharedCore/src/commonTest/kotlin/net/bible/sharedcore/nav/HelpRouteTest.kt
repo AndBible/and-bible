@@ -19,8 +19,9 @@ class HelpRouteTest {
         }
     }
 
-    @Test fun anUnknownTopicIsIgnored() {
+    @Test fun unknownAndReleaseTopicsAreIgnored() {
         assertNull(NavRoutes.helpTopic("NOT_A_TOPIC"))
+        assertNull(NavRoutes.helpTopic("RELEASE_6_0"))
         assertNull(NavRoutes.helpTopic(null))
     }
 }

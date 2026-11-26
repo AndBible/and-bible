@@ -2,8 +2,21 @@ package net.bible.sharedcore.docs
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DocsLinksTest {
+    @Test
+    fun releaseNotesCoverEveryPublishedVersionPage() {
+        val publishedReleaseLinks = DocsLink.entries.filter { it.page.startsWith("releases/release_") }
+
+        assertTrue(publishedReleaseLinks.isNotEmpty())
+        for (link in publishedReleaseLinks) {
+            val page = link.page.substringAfter("releases/")
+            val majorMinor = page.removePrefix("release_").replace('_', '.')
+            assertEquals(link.url, DocsLinks.releaseNotes("$majorMinor.0"), majorMinor)
+        }
+    }
+
     @Test
     fun releaseNotesUseOnlyPublishedVersionPages() {
         val cases = listOf(
