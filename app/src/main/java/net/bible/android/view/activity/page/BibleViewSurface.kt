@@ -30,8 +30,10 @@ import net.bible.android.control.event.UserMessages
 import net.bible.android.platform.AndroidBackupHost
 import net.bible.service.common.CommonUtils
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
+import net.bible.sharedui.webview.sharedFileName
 import okio.Path.Companion.toOkioPath
 import java.io.File
+import java.util.UUID
 
 /** Android [ReadingWindowSurface] over one [BibleView] (its WebView selection, host activity and clipboard). */
 class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface {
@@ -50,11 +52,21 @@ class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface 
         hostActivity.startActivity(Intent.createChooser(sendIntent, hostActivity.getString(R.string.share)))
     }
 
-    /** [title] is the share subject (the document's name). */
+    /** [title] names the exported file and is also the share subject. */
     override fun shareHtml(html: String, title: String) {
-        val targetDir = File(SharedConstants.internalFilesDir, "backup/")
-        targetDir.mkdirs()
-        val targetFile = File(targetDir, "shared.html")
+        val exportRoot = File(SharedConstants.internalFilesDir, "export/html/")
+        // Only prune reading-window copies, never My Documents' exports in the parent directory.
+        // Keep recent URIs immutable: recipients may open them after another export has started.
+        val expiredBefore = System.currentTimeMillis() - 24 * 60 * 60 * 1000L
+        exportRoot.listFiles()?.filter { it.isDirectory }?.forEach { previousExport ->
+            previousExport.listFiles()?.filter {
+                it.isFile && it.extension == "html" && it.lastModified() < expiredBefore
+            }?.forEach { it.delete() }
+            if (previousExport.listFiles()?.isEmpty() == true) previousExport.delete()
+        }
+        val targetDir = File(exportRoot, UUID.randomUUID().toString()).apply { mkdirs() }
+        val fileName = "${sharedFileName(title)}.html"
+        val targetFile = File(targetDir, fileName)
         targetFile.writeText(html)
 
         val titleStr = hostActivity.getString(R.string.export_fileformat, "HTML")
@@ -62,12 +74,14 @@ class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface 
             org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
                 AndroidBackupHost { hostActivity },
                 targetFile.toOkioPath(),
-                fileName = "shared.html",
+                fileName = fileName,
                 shareMimeType = "text/html",
                 saveMimeType = "text/html",
                 chooserTitle = titleStr,
                 message = titleStr,
-                subject = title
+                subject = title,
+                promptTitle = hostActivity.getString(R.string.export_destination_title),
+                promptMessage = hostActivity.getString(R.string.export_destination_message),
             )
         }
     }
