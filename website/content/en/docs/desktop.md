@@ -61,13 +61,17 @@ not automatically open AndBible either.
 - For module ZIPs, document backups (`*.abmd.zip`), EPUBs and other supported document files,
   use **Load Documents From Files**. See [Load Documents](documents.md#load-documents).
 - Alternatively, use your file manager's **Open with** action and select AndBible. You may need
-  to show all applications or enter a custom command, such as `andbible` for the `.deb` install
-  (or the path to your AppImage). Do not select **Always use** unless you want AndBible to handle
-  all files of that type. You can also pass a file on the command line: `andbible /path/to/backup.abdb.zip`.
+  to show all applications or enter a custom command, such as `/opt/andbible/bin/andbible` for the
+  `.deb` install (or the path to your AppImage). Do not select **Always use** unless you want
+  AndBible to handle all files of that type. You can also pass a file on the command line:
+  `/opt/andbible/bin/andbible /path/to/backup.abdb.zip`.
 
 If an older installation made AndBible the default for one of these types, choose your preferred
 application in the file manager's **Open with** or your desktop's default-application settings.
 Removing AndBible's advertised file types does not reset an explicit default you previously saved.
+If you integrated an older AppImage with AppImageLauncher or appimaged, remove and redo that
+integration (or delete the old `~/.local/share/applications/*andbible*.desktop` file), because the
+integrated copy still lists the old file types.
 
 ## Display scaling on Linux
 

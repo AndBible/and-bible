@@ -147,8 +147,9 @@ For a legacy version-10 database with missing workspace tables, AndBible recreat
 those tables empty before continuing the upgrade. Existing tables and their data
 are preserved, but data from a missing table cannot be recovered this way.
 
-You can also open a database backup (`AndBibleDatabaseBackup.abdb.zip`) straight from a file
-manager or share it to AndBible. AndBible recognises it as a database backup and starts the
+You can also open a database backup (`AndBibleDatabaseBackup.abdb.zip`) from a file manager
+or share it to AndBible (on Linux desktop, use **Open with**, see
+[Opening files on Linux](desktop.md)). AndBible recognises it as a database backup and starts the
 same restore as *Restore or Import*, asking which backup sections to restore, instead of
 offering to install it as a module.
 
