@@ -50,7 +50,7 @@ import android.os.Looper
  * `WebView.requestFocus(FOCUS_DOWN, null)` -> `BibleView.onFocusChanged`.
  *
  * Focus that the user moves from a focused view (keyboard/D-pad navigation between windows) must
- * still change the active window, and so must any focus gain in touch mode.
+ * still change the active window. Renderer recovery restores selection after replacement loading.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK], shadows = [BibleViewFocusHandOverActiveWindowTest.ShadowFocusableWebView::class])
@@ -73,10 +73,19 @@ class BibleViewFocusHandOverActiveWindowTest {
 
         @Implementation
         fun findFocus(): View? = Shadow.directlyOn(realWebView, ViewGroup::class.java, "findFocus")
+
+        @Implementation
+        fun getAccessibilityNodeProvider(): android.view.accessibility.AccessibilityNodeProvider =
+            object : android.view.accessibility.AccessibilityNodeProvider() {
+                override fun performAction(virtualViewId: Int, action: Int, arguments: android.os.Bundle?): Boolean =
+                    action == android.view.accessibility.AccessibilityNodeInfo.ACTION_FOCUS && realWebView.requestFocus()
+            }
+
     }
 
     private lateinit var repository: WindowRepository
     private lateinit var navActivity: NavHostComposeActivity
+    private val hostControllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private lateinit var factory: BibleViewFactory
     private lateinit var container: ActivityController<Activity>
     private lateinit var window1: Window
@@ -95,7 +104,7 @@ class BibleViewFocusHandOverActiveWindowTest {
         navActivity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).get()
+        ).also(hostControllers::add).get()
         navActivity.readingAppBootstrap.windowRepository = repository
         navActivity.setNewHistoryTraversal(GlobalContext.get().get())
         CurrentActivityHolder.activate(navActivity)
@@ -134,10 +143,11 @@ class BibleViewFocusHandOverActiveWindowTest {
         }
         if (::factory.isInitialized) factory.clear()
         if (::navActivity.isInitialized) {
+            navActivity.composeReadingViewHost?.dispose()
             navActivity.lifecycleScope.cancel()
             CurrentActivityHolder.deactivate(navActivity)
         }
-        if (::repository.isInitialized) DatabaseResetter.resetDatabase(repository.scope)
+        net.bible.test.closeReadingHostsBeforeReset(hostControllers)
         canFocusZeroSizedBefore?.let { canFocusZeroSized.setBoolean(null, it) }
     }
 
@@ -154,6 +164,325 @@ class BibleViewFocusHandOverActiveWindowTest {
         repository.activeWindow = window
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals("precondition: active window", window.id, repository.activeWindow.id)
+    }
+
+    private fun crash(view: BibleView) {
+        assertTrue(view.webViewClient.onRenderProcessGone(
+            view, org.mockito.Mockito.mock(android.webkit.RenderProcessGoneDetail::class.java)))
+    }
+
+    private fun replace(window: Window): BibleView = factory.getOrCreateBibleView(window).apply {
+        isFocusable = true
+        isFocusableInTouchMode = true
+        (field.parent as ViewGroup).addView(this, 0)
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun loaded(view: BibleView) {
+        view.jsChannel.markClientReady()
+        view.contentVisible = true
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(200))
+    }
+
+    @Test fun activePaneIsRestoredAfterReplacementLoads() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        // Android may assign default focus AFTER attachment, while the document still loads.
+        view2.requestFocus()
+        loaded(replacement)
+        assertEquals(window1.id, repository.activeWindow.id)
+        assertTrue(replacement.hasFocus())
+    }
+
+    @Test fun nonActivePaneDeathAlsoRestoresTheOriginalSelection() {
+        setTouchMode(true)
+        makeActive(window2)
+        crash(view1)
+        val replacement = replace(window1)
+        replacement.requestFocus()
+        loaded(replacement)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(view2.hasFocus())
+    }
+
+    @Test fun userTapDuringRecoveryWins() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        val tap = android.view.MotionEvent.obtain(0, 0, android.view.MotionEvent.ACTION_DOWN, 10f, 10f, 0)
+        try { view2.onTouchEvent(tap) } finally { tap.recycle() }
+        replacement.requestFocus() // A later automatic focus must not undo the user's choice either.
+        loaded(replacement)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(view2.hasFocus())
+    }
+
+    @Test fun railSelectionDuringRecoveryWinsOverLaterDefaultFocus() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        replacement.requestFocus()
+        // Drive the same controller as the rail, without any BibleView input event.
+        navActivity.composeReadingViewHost!!.controller.onWindowActivated(window2.id.toString())
+        replacement.requestFocus()
+        loaded(replacement)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(view2.hasFocus())
+    }
+
+    @Test fun windowMenuSelectionDuringRecoveryWinsOverLaterDefaultFocus() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        replacement.requestFocus()
+        CommonUtils.windowControl.activeWindow = window2
+        replacement.requestFocus()
+        loaded(replacement)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(view2.hasFocus())
+    }
+
+    @Test fun keyboardWindowCommandDuringRecoveryWinsOverLaterDefaultFocus() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        replacement.requestFocus()
+        navActivity.composeReadingViewHost!!.controller.onFocusNext()
+        replacement.requestFocus()
+        loaded(replacement)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(view2.hasFocus())
+    }
+
+    @Test fun selectingTheAutomaticallyActivatedPaneDuringRecoveryWins() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        view2.requestFocus()
+        assertEquals(window2.id, repository.activeWindow.id)
+        navActivity.composeReadingViewHost!!.controller.onWindowActivated(window2.id.toString())
+        replacement.requestFocus()
+        loaded(replacement)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(view2.hasFocus())
+    }
+
+    @Test fun accessibilityClickOutsideRecoveryDoesNotSelectPane() {
+        setTouchMode(true)
+        makeActive(window1)
+        view2.performClick()
+        assertEquals(window1.id, repository.activeWindow.id)
+    }
+
+    @Test fun virtualNodeClickOutsideRecoveryDoesNotSelectPane() {
+        setTouchMode(true)
+        makeActive(window1)
+        // Chromium sends virtual-node click events through its host ViewGroup.
+        val event = android.view.accessibility.AccessibilityEvent.obtain(
+            android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED)
+        shadowOf(navActivity.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE)
+            as android.view.accessibility.AccessibilityManager).setEnabled(true)
+        (view2.parent as ViewGroup).requestSendAccessibilityEvent(view2, event)
+        assertEquals(window1.id, repository.activeWindow.id)
+    }
+
+    @Test fun hiddenDeadPaneCannotStealSelectionWhenItReturns() {
+        setTouchMode(true)
+        makeActive(window2)
+        window1.windowState = net.bible.android.control.page.window.WindowLayout.WindowState.MINIMISED
+        (view1.parent as ViewGroup).removeView(view1)
+        crash(view1)
+        val replacement = replace(window1)
+        replacement.requestFocus()
+        loaded(replacement)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(view2.hasFocus())
+    }
+
+    @Test fun allDeadPanesMustFinishLoadingBeforeRestoration() {
+        setTouchMode(true)
+        makeActive(window2)
+        crash(view1)
+        crash(view2)
+        val replacement1 = replace(window1)
+        val replacement2 = replace(window2)
+        loaded(replacement1)
+        replacement1.requestFocus()
+        loaded(replacement2)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(replacement2.hasFocus())
+    }
+
+    @Test fun closedUserChoiceDoesNotRestoreThePreCrashSelection() {
+        setTouchMode(true)
+        val third = repository.addNewWindow()
+        val thirdView = replace(third)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        val tap = android.view.MotionEvent.obtain(0, 0, android.view.MotionEvent.ACTION_DOWN, 10f, 10f, 0)
+        try { thirdView.onTouchEvent(tap) } finally { tap.recycle() }
+        repository.close(third)
+        val remaining = repository.activeWindow
+        field.requestFocus()
+        loaded(replacement)
+        assertEquals(remaining.id, repository.activeWindow.id)
+        assertTrue((remaining.bibleView as BibleView).hasFocus())
+    }
+
+    @Test fun minimisedPaneWithoutReplacementDoesNotDelayRestore() {
+        setTouchMode(true)
+        makeActive(window2)
+        window1.windowState = net.bible.android.control.page.window.WindowLayout.WindowState.MINIMISED
+        (view1.parent as ViewGroup).removeView(view1)
+        crash(view1)
+        field.requestFocus()
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(200))
+        assertTrue("a hidden missing replacement is already done", view2.hasFocus())
+    }
+
+    @Test fun paneHiddenByMaximiseWithoutReplacementDoesNotDelayRestore() {
+        setTouchMode(true)
+        makeActive(window2)
+        repository.maximizedWindowId = window2.id
+        (view1.parent as ViewGroup).removeView(view1)
+        crash(view1)
+        field.requestFocus()
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(200))
+        assertTrue(view2.hasFocus())
+    }
+
+    @Test fun slowVisibleReplacementStillRestoresAfterMoreThanThreeSeconds() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(5))
+        view2.requestFocus()
+        loaded(replacement)
+        assertEquals(window1.id, repository.activeWindow.id)
+        assertTrue(replacement.hasFocus())
+    }
+
+    @Test fun timeoutStartsOnlyWhenVisibleReplacementIsMountedAndLoading() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(12))
+        val replacement = replace(window1)
+        view2.requestFocus()
+        loaded(replacement)
+        assertEquals(window1.id, repository.activeWindow.id)
+    }
+
+    @Test fun newlyDeadPaneExtendsLoadingDeadline() {
+        setTouchMode(true)
+        makeActive(window2)
+        crash(view1)
+        val replacement1 = replace(window1)
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(8))
+        crash(view2)
+        val replacement2 = replace(window2)
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(5))
+        replacement1.requestFocus()
+        loaded(replacement1)
+        loaded(replacement2)
+        assertEquals(window2.id, repository.activeWindow.id)
+        assertTrue(replacement2.hasFocus())
+    }
+
+    @Test fun mountedLoadingReplacementUsesBoundedTimeout() {
+        setTouchMode(true)
+        makeActive(window1)
+        crash(view1)
+        val replacement = replace(window1)
+        view2.requestFocus()
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(12))
+        assertEquals(window1.id, repository.activeWindow.id)
+        assertTrue(replacement.hasFocus())
+    }
+
+    private fun selectionSubscriptionCount(): Int = ReflectionHelpers.getField<List<*>>(
+        repository.activeWindowSelections, "handlers").size
+
+    private fun assertRecoveryReleased(recovery: RendererRecoveryFocus = view1.rendererRecoveryFocus) {
+        val handler = ReflectionHelpers.getField<android.os.Handler>(recovery, "handler")
+        val check = ReflectionHelpers.getField<Runnable>(recovery, "check")
+        assertEquals("Recovery must stop polling and release the selection subscription",
+            false to 0, handler.hasCallbacks(check) to selectionSubscriptionCount())
+    }
+
+    @Test fun missingVisibleReplacementEndsRecoveryAndReleasesSubscription() {
+        setTouchMode(true)
+        makeActive(window2)
+        crash(view1)
+        field.requestFocus()
+        assertEquals(1, selectionSubscriptionCount())
+
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(31))
+
+        assertRecoveryReleased()
+        assertTrue("Restore the surviving pane even if another never re-attaches", view2.hasFocus())
+    }
+
+    @Test fun anotherRendererDeathDoesNotExtendTheOverallRecoveryLimit() {
+        makeActive(window2)
+        crash(view1)
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(20))
+        crash(view2)
+
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(11))
+
+        assertRecoveryReleased()
+    }
+
+    private fun recoveryWithLifecycle(): Pair<androidx.lifecycle.LifecycleRegistry, RendererRecoveryFocus> {
+        val host = org.mockito.Mockito.mock(ReadingHostActivity::class.java)
+        val lifecycle = androidx.lifecycle.LifecycleRegistry(host)
+        org.mockito.Mockito.`when`(host.lifecycle).thenReturn(lifecycle)
+        val testFactory = BibleViewFactory(host, factory.hostCallbacks)
+        return lifecycle to ReflectionHelpers.getField(testFactory, "rendererRecoveryFocus")
+    }
+
+    @Test fun stoppingHostReleasesPendingRecovery() {
+        val (lifecycle, recovery) = recoveryWithLifecycle()
+        lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+        try {
+            recovery.rendererGone(window1.id)
+            assertEquals(1, selectionSubscriptionCount())
+
+            lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP)
+
+            assertRecoveryReleased(recovery)
+            recovery.rendererGone(window1.id)
+            assertRecoveryReleased(recovery)
+
+            lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+            recovery.rendererGone(window1.id)
+            assertEquals("A restarted host can recover again", 1, selectionSubscriptionCount())
+        } finally { recovery.clear() }
+    }
+
+    @Test fun destroyingHostReleasesPendingRecoveryWithoutStop() {
+        val (lifecycle, recovery) = recoveryWithLifecycle()
+        try {
+            recovery.rendererGone(window1.id)
+            assertEquals(1, selectionSubscriptionCount())
+            lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE)
+
+            lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_DESTROY)
+
+            assertRecoveryReleased(recovery)
+            recovery.rendererGone(window1.id)
+            assertRecoveryReleased(recovery)
+        } finally { recovery.clear() }
     }
 
     @Test fun releasingFocusOutOfTouchModeKeepsTheActiveWindowAndItsFocus() {
@@ -186,14 +515,28 @@ class BibleViewFocusHandOverActiveWindowTest {
         assertTrue(view1.isFocused)
     }
 
-    @Test fun focusGainInTouchModeStillChangesTheActiveWindow() {
+    @Test fun accessibilityFocusWithoutPreviousFocusSelectsTheRequestedPane() {
         setTouchMode(true)
         makeActive(window2)
         field.requestFocus()
-        field.clearFocus() // in touch mode Android does not refocus: nothing is focused now
+        field.clearFocus()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertFalse(view1.hasFocus() || view2.hasFocus())
+
+        assertTrue(view1.accessibilityNodeProvider!!.performAction(
+            7, android.view.accessibility.AccessibilityNodeInfo.ACTION_FOCUS, null))
         shadowOf(Looper.getMainLooper()).idle()
 
-        // e.g. an accessibility action focusing window 1's WebView
+        assertEquals("an explicit accessibility action selects its pane", window1.id, repository.activeWindow.id)
+    }
+
+    @Test fun focusTransferInTouchModeStillChangesTheActiveWindow() {
+        setTouchMode(true)
+        makeActive(window2)
+        field.requestFocus()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        // An explicit focus transfer (e.g. accessibility) still selects a different pane.
         assertTrue(view1.requestFocus())
         shadowOf(Looper.getMainLooper()).idle()
 

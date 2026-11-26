@@ -44,6 +44,8 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.IdType
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedlogic.platform.FirstLoadEdge
 import org.koin.mp.KoinPlatform
@@ -313,6 +315,10 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     // Volatile: [initialized] is read off Main (WindowControl.holdsLoadedRepository, before a database replace).
     @Volatile private var _activeWindow: Window? = null
 
+    private val activeWindowSelectionSource = EventSource<Window>()
+    /** Synchronous selections, including reselecting the active pane; unlike layout changes. */
+    val activeWindowSelections: Events<Window> get() = activeWindowSelectionSource
+
     // 1 based screen no
     var activeWindow: Window
         get() {
@@ -331,6 +337,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             }
         }
         set (newActiveWindow) {
+            activeWindowSelectionSource.emit(newActiveWindow)
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
                 Log.i(TAG, "Active window: $newActiveWindow")

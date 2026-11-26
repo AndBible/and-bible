@@ -3,9 +3,7 @@ package net.bible.android.view.activity.page
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.widget.FrameLayout
-import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.cancel
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
@@ -38,6 +36,7 @@ import org.robolectric.shadows.ShadowLog
 class BibleViewSwipeTouchEndTest {
     private lateinit var repository: WindowRepository
     private lateinit var activity: NavHostComposeActivity
+    private val controllers = mutableListOf<org.robolectric.android.controller.ActivityController<NavHostComposeActivity>>()
     private lateinit var factory: BibleViewFactory
     private lateinit var parent: FrameLayout
     private var swipeModeBefore: String? = null
@@ -46,10 +45,12 @@ class BibleViewSwipeTouchEndTest {
         repository = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repository
         repository.initializeAtEdge()
-        activity = Robolectric.buildActivity(
+        val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).get()
+        )
+        controllers.add(controller)
+        activity = controller.get()
         activity.readingAppBootstrap.windowRepository = repository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
         CurrentActivityHolder.activate(activity)
@@ -65,11 +66,11 @@ class BibleViewSwipeTouchEndTest {
         CommonUtils.settings.setString("bible_view_swipe_mode", swipeModeBefore)
         if (::parent.isInitialized) parent.removeAllViews()
         if (::factory.isInitialized) factory.clear()
-        if (::activity.isInitialized) {
-            activity.lifecycleScope.cancel()
-            CurrentActivityHolder.deactivate(activity)
-        }
-        if (::repository.isInitialized) DatabaseResetter.resetDatabase(repository.scope)
+        net.bible.test.closeReadingHostsBeforeReset(
+            controllers,
+            afterClose = { if (::activity.isInitialized) CurrentActivityHolder.deactivate(activity) },
+            reset = { if (::repository.isInitialized) DatabaseResetter.resetDatabase(repository.scope) },
+        )
     }
 
     private fun event(downTime: Long, offset: Long, action: Int, x: Float) =

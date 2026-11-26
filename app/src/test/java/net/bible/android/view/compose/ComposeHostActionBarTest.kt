@@ -55,6 +55,10 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ComposeHostActionBarTest {
+    private val controllers = mutableListOf<org.robolectric.android.controller.ActivityController<NavHostComposeActivity>>()
+
+    @org.junit.After fun closeHosts() = net.bible.test.closeReadingHostsBeforeReset(controllers)
+
 
     /** A theme-less Compose host stand-in: same base class + default theme as the real ones. */
     class ActionBarProbeActivity : ActivityBase() {
@@ -167,13 +171,15 @@ class ComposeHostActionBarTest {
      * requires `EXTRA_ROUTE` and throws without it.
      */
     @Test fun `NavHostComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        val activity = Robolectric.buildActivity(
+        val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(
                 ApplicationProvider.getApplicationContext(),
                 NavRoutes.AI_CONNECTION_SETTINGS,
             ),
-        ).create().get()
+        )
+        controllers.add(controller)
+        val activity = controller.create().get()
         assertNull(
             "NavHostComposeActivity must use Theme.AbCompose (NoActionBar); a non-null " +
                 "supportActionBar means the manifest entry lost the theme -> double app bar for " +

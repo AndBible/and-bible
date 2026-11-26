@@ -47,6 +47,10 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostChromeTest {
+    private val controllers = mutableListOf<org.robolectric.android.controller.ActivityController<NavHostComposeActivity>>()
+
+    @org.junit.After fun closeHosts() = net.bible.test.closeReadingHostsBeforeReset(controllers)
+
     @Test
     fun theNavHostIsAReadingHost() {
         // Slice 8 F2: was `bothActivitiesAreReadingHosts`; its MainBibleActivity half went with the
@@ -240,5 +244,5 @@ class ReadingHostChromeTest {
         // host answers when it is NOT a reading host -- `hostWindowRepository` absent,
         // `composeReadingViewHost` null -- which is the half a reading-route fixture cannot show.
         NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.AI_TOOL_INFO),
-    ).create().get()
+    ).also { controllers.add(it) }.create().get()
 }

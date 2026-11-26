@@ -1179,6 +1179,8 @@ class BibleView(
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             Log.i(TAG, "onRenderProcessGone")
+            // removeView can synchronously move input focus to a surviving pane.
+            rendererRecoveryFocus.rendererGone(window.id)
             // A dead renderer's WebView cannot be reused. Dispose it (also evicting the factory
             // cache) before Compose remounts its AndroidViews; a rebuild alone would reuse it.
             (view.parent as? ViewGroup)?.removeView(view)
@@ -1661,6 +1663,8 @@ class BibleView(
         emit(BibleViewEvents.exportHtml())
     }
 
+    internal lateinit var rendererRecoveryFocus: RendererRecoveryFocus
+
     /** True while [requestFocus] runs for a request made when no view of the window had focus. */
     private var focusRequestWithoutPreviousFocus = false
 
@@ -1693,7 +1697,7 @@ class BibleView(
                     if (hasFocus() && activeView !== this) activeView?.requestFocus()
                 }
             } else {
-                windowRepository.activeWindow = window
+                rendererRecoveryFocus.focusChanged(window)
             }
         }
         super.onFocusChanged(focused, direction, previouslyFocusedRect)

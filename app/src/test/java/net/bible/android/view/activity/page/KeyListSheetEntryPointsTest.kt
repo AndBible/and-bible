@@ -68,6 +68,7 @@ class KeyListSheetEntryPointsTest {
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
     private lateinit var activity: NavHostComposeActivity
+    private val controllers = mutableListOf<org.robolectric.android.controller.ActivityController<NavHostComposeActivity>>()
     private lateinit var host: ComposeReadingViewHost
     private lateinit var genBook: Book
     private lateinit var map: Book
@@ -81,10 +82,12 @@ class KeyListSheetEntryPointsTest {
         windowControl.windowRepository = windowRepository
         windowRepository.initializeAtEdge()
 
-        activity = Robolectric.buildActivity(
+        val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).get()
+        )
+        controllers.add(controller)
+        activity = controller.get()
         activity.readingAppBootstrap.windowRepository = windowRepository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
         host = net.bible.test.fixtureReadingHost(activity)
@@ -96,7 +99,7 @@ class KeyListSheetEntryPointsTest {
         try {
             activity.composeReadingViewHost = null
             CurrentActivityHolder.forgetActivitiesForTest()
-            DatabaseResetter.resetDatabase(windowRepository.scope)
+            net.bible.test.closeReadingHostsBeforeReset(controllers, reset = { DatabaseResetter.resetDatabase(windowRepository.scope) })
         } finally {
             registered.forEach { Activator.deactivate(it); Books.installed().removeBook(it) }
         }

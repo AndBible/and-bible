@@ -18,6 +18,11 @@ controls that window, just as tapping a reading window does on Android. When you
 change a window's document, its window-button label updates without needing to
 activate a different window first.
 
+On Android, returning from another app keeps the selected window, including when
+Android has reclaimed the WebView renderer and the reading panes need to reload.
+If you select a different window while the panes reload, that selection takes
+priority. Minimised windows do not need to reload before selection is restored.
+
 When you scroll a synchronised commentary window, its title follows the verse
 range of the entry in view, including when you return to an already-loaded entry.
 The synchronised Bible windows follow that entry, too.
@@ -91,7 +96,7 @@ Reposition the window by using the `Move to` menu option.
 
 ## The window menu
 
-Long-press a window button at the bottom of the screen, or tap the button at the top right of a window, to open its menu. Which items you see depends on the window and its document:
+Long-press a window button at the bottom of the screen, or tap the button at the top right of a window, to open its menu. On Android, opening this menu or the three-dot menu hides the on-screen keyboard, including while editing a Study Pad. Close the menu and tap the editor to continue typing. Which items you see depends on the window and its document:
 
 - `New window`, `Maximise` and `Minimise`: see above.
 - `Change to normal window`: shown for the links window; turns it into an ordinary window.

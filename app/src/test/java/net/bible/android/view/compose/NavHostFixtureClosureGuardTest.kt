@@ -28,7 +28,7 @@ class NavHostFixtureClosureGuardTest {
         .filter { it.extension == "kt" && it.name !in exempt }
         .filter { f ->
             val t = f.readText()
-            "buildActivity(NavHostComposeActivity" in t && closers.none { it in t }
+            Regex("buildActivity\\(\\s*NavHostComposeActivity\\b").containsMatchIn(t) && closers.none { it in t }
         }
         .map { it.path }
 
@@ -40,6 +40,14 @@ class NavHostFixtureClosureGuardTest {
             "run from app/ -- the scan would pass vacuously",
             File("src/test/java").walkTopDown().any { it.name == "HostInsetOwnershipTest.kt" || it.name == "UsableBibleGateTest.kt" },
         )
+
+    @Test fun theGuardDetectsMultilineActivityConstruction() {
+        val probe = File.createTempFile("navHostMultilineProbe", ".kt").apply {
+            writeText("val a = Robolectric.buildActivity(\n    NavHostComposeActivity::class.java).get()")
+            deleteOnExit()
+        }
+        assertEquals(listOf(probe.path), offenders(listOf(probe)))
+    }
 
     @Test fun theGuardCanFail() {
         val probe = File.createTempFile("navHostProbe", ".kt").apply {
