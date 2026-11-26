@@ -16,12 +16,25 @@
  */
 package net.bible.android.view.compose
 
+import android.view.ViewGroup
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollToNode
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.performClick
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,7 +45,11 @@ import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocInstallStatus
+import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
+import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedui.ProvideAppLocals
@@ -183,6 +200,66 @@ class DownloadInGraphArmTest {
         ),
     )
 
+    @Test
+    @Config(sdk = [35])
+    fun firstDownloadButtonClearsNavigationBarAndReservesListSpace() = assertFirstDownloadLayout(navBottom = 160)
+
+    @Test
+    @Config(sdk = [35])
+    fun firstDownloadListStopsAboveButtonWithoutSystemInsets() = assertFirstDownloadLayout(navBottom = 0)
+
+    @Test
+    @Config(sdk = [35], qualifiers = "h900dp")
+    fun firstDownloadSearchKeepsLastRowAndOkayAboveKeyboard() =
+        assertFirstDownloadLayout(navBottom = 160, imeBottom = 320)
+
+    private fun assertFirstDownloadLayout(navBottom: Int, imeBottom: Int = 0) {
+        setGraph(NavRoutes.download(firstDownload = true))
+        compose.runOnIdle {
+            controller!!.setDocuments((1..30).map { index ->
+                DocRow(
+                    docId = "book-$index", osisId = "book-$index", abbreviation = "B${index.toString().padStart(2, '0')}",
+                    name = "Book ${index.toString().padStart(2, '0')}",
+                    language = LangOption("en", "English", "en"), repository = "test",
+                    category = DocCategory.BIBLE, installStatus = DocInstallStatus.NOT_INSTALLED,
+                    percentDone = 0, recommended = false, badWarn = false, locked = false,
+                    enciphered = false, canDelete = false, installSizeMb = 1.0,
+                )
+            })
+        }
+        if (imeBottom > 0) {
+            compose.runOnIdle { controller!!.openSearch() }
+            compose.waitForIdle()
+            assertTrue(controller!!.searchModeActive.value)
+        }
+        val root: ViewGroup = compose.activity.findViewById(android.R.id.content)
+        compose.runOnUiThread {
+            ViewCompat.dispatchApplyWindowInsets(
+                root,
+                WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, navBottom))
+                    .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, imeBottom))
+                    .setVisible(WindowInsetsCompat.Type.ime(), imeBottom > 0)
+                    .build(),
+            )
+        }
+        compose.waitForIdle()
+        val rootBounds = compose.onNodeWithTag("download-test-root").fetchSemanticsNode().boundsInRoot
+        val button = compose.onNodeWithText(string(R.string.okay)).fetchSemanticsNode().boundsInRoot
+        val safeBottom = rootBounds.bottom - maxOf(navBottom, imeBottom)
+        assertTrue(button.bottom <= safeBottom, "OK overlaps system UI: $button / safe bottom $safeBottom")
+        val list = compose.onNode(hasScrollAction())
+        val listBounds = list.fetchSemanticsNode().boundsInRoot
+        assertTrue(listBounds.bottom <= button.top, "list runs underneath OK: $listBounds / $button")
+        list.performScrollToNode(androidx.compose.ui.test.hasText("B30 Book 30"))
+        val lastRow = compose.onNodeWithText("B30 Book 30").fetchSemanticsNode().boundsInRoot
+        assertTrue(lastRow.bottom <= button.top, "last row hidden by OK: $lastRow / $button")
+        compose.onNodeWithText(string(R.string.okay)).assertIsNotEnabled()
+        compose.runOnIdle { hasBible.value = true }
+        compose.onNodeWithText(string(R.string.okay)).assertIsEnabled().performClick()
+        assertEquals(1, exitHostCalls, "the inset bottom bar must preserve onboarding completion")
+    }
+
     private fun setGraph(startDestination: String) {
         val d = deps()
         compose.setContent {
@@ -213,10 +290,12 @@ class DownloadInGraphArmTest {
         navController = rememberNavController()
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
-                NavHost(navController = navController, startDestination = startDestination) {
-                    downloadNavGraph(navController, d)
-                    // A sibling destination to navigate to, to dispose the arm under test (the removed progress screen's role).
-                    composable(OTHER_DESTINATION) { androidx.compose.material3.Text("other") }
+                Box(Modifier.fillMaxSize().testTag("download-test-root")) {
+                    NavHost(navController = navController, startDestination = startDestination) {
+                        downloadNavGraph(navController, d)
+                        // A sibling destination to navigate to, to dispose the arm under test (the removed progress screen's role).
+                        composable(OTHER_DESTINATION) { androidx.compose.material3.Text("other") }
+                    }
                 }
             }
         }
