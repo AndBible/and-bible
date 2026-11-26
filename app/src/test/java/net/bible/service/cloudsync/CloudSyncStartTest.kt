@@ -79,6 +79,20 @@ class CloudSyncStartTest {
     }
 
     @Test
+    fun manualStartPromotesAlreadyJoinedAutomaticRun() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>()
+        val scheduler = org.koin.core.context.GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
+        val cloud = org.koin.core.context.GlobalContext.get().get<CloudSync>()
+        try {
+            val leave = scheduler.startLeave()!!
+            assertSame(leave, cloud.start())
+            assertSame(leave, cloud.start(userInitiated = true))
+            assertEquals("manual origin must reach the scheduler even after an automatic join",
+                net.bible.android.platform.AndroidSyncScheduler.Request.Interactive, scheduler.consumeRequest())
+        } finally { scheduler.complete(false) }
+    }
+
+    @Test
     fun refusedScheduleReturnsFalseAndDoesNotLeaveWaiterOrBlockRetry() = runBlocking {
         val calls = AtomicInteger()
         val cloudSync = sync(SyncScheduler { calls.incrementAndGet(); CompletableDeferred(false) })

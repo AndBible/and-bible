@@ -206,6 +206,12 @@ independently.
     syncs also fetches the changes made on your other devices.
 - Sync also runs when you leave or quit the app, and (on Android, iPhone, iPad and
     Mac) when the network comes back after being offline.
+- On Android, turning the screen off also starts a sync when synchronization is
+    enabled, the device is online, and you are signed in. A synchronization
+    notification stays visible while it finishes; no notification appears when
+    these conditions are not met. Set up and sign in to your cloud
+    account while the app is open; leaving the app never opens a sign-in prompt.
+    Your workspace is saved locally even when sync is disabled or you are offline.
 - On iPhone, iPad and Mac, iOS can also give *AndBible* time to sync in the
     background; see [iOS background refresh](#ios-background-refresh).
 - See [Platform differences](platform_differences.md#sync) for the differences between platforms.
