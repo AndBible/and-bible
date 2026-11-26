@@ -22,10 +22,12 @@ class HelpLinksTest {
         assertNull(HelpLinks.parse("andbible-help:"))
     }
 
-    /** The topic catalog's guarantee: every help topic has a section on the User guide tab to scroll to and highlight. */
+    /** Release notes are external updater targets; every other topic belongs to the in-app User guide tab. */
     @Test fun everyHelpTopicResolvesToAUserGuidePage() {
-        val missing = DocsLink.entries.filter { UserGuideToc.pageFor(it) == null }
-        assertEquals(emptyList(), missing, "DocsLink entries without a User guide tab page")
+        val externalReleaseNotes = setOf(DocsLink.RELEASE_4_0, DocsLink.RELEASE_4_1, DocsLink.RELEASE_5_0, DocsLink.RELEASE_6_0)
+        val missing = DocsLink.entries.filter { it !in externalReleaseNotes && UserGuideToc.pageFor(it) == null }
+        assertEquals(emptyList(), missing, "Help topics without a User guide tab page")
+        externalReleaseNotes.forEach { assertNull(UserGuideToc.pageFor(it), it.name) }
     }
 
     @Test fun anchoredTopicsResolveToTheirPage() {

@@ -38,6 +38,7 @@
     <string name="desktop_update_available_title">New version available</string>
     <string name="desktop_update_available_message">AndBible %1$s is available. You have %2$s.</string>
     <string name="desktop_update_download">Download</string>
+    <string name="desktop_update_whats_new">What\'s new</string>
     <string name="desktop_update_snooze_day">Remind me tomorrow</string>
     <string name="desktop_update_snooze_week">Remind me in a week</string>
     <string name="desktop_update_snooze_month">Remind me in a month</string>

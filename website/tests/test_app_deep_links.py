@@ -80,6 +80,11 @@ def missing(site, links):
 
 # Intentional additions since the pre-catalog snapshot; never rewrite the historical fixture.
 ADDED_TARGETS = {
+    "DESKTOP_UPDATE_CHECKS": "https://andbible.org/docs/desktop/#update-checks",
+    "RELEASE_6_0": "https://andbible.org/docs/releases/release_6_0/",
+    "RELEASE_5_0": "https://andbible.org/docs/releases/release_5_0/",
+    "RELEASE_4_1": "https://andbible.org/docs/releases/release_4_1/",
+    "RELEASE_4_0": "https://andbible.org/docs/releases/release_4_0/",
     "CONTRIBUTE": "https://andbible.org/docs/contribute/",
     "CONTRIBUTE_TRANSLATING": "https://andbible.org/docs/contribute/#translating-the-user-interface",
     "FAQ_ADD_MODULE": "https://andbible.org/docs/faq/#please-add-module-x-to-andbible",
@@ -172,7 +177,9 @@ def test_every_catalog_page_is_a_user_guide_page():
     """In-app help items name a DocsLink topic; the Help screen highlights the guide page with that stem (#4159)."""
     toc_stems = set(re.findall(r'\bPage\("([a-z0-9_/.-]+)"', GENERATED_TOC.read_text(encoding="utf-8")))
     assert toc_stems
-    assert sorted({page for _, _, page, _ in scan()} - toc_stems) == []
+    # Release notes are linked by the updater, not offered as topics in the in-app guide.
+    release_pages = {"releases/release_6_0", "releases/release_5_0", "releases/release_4_1", "releases/release_4_0"}
+    assert sorted({page for _, _, page, _ in scan()} - toc_stems - release_pages) == []
 
 
 def test_docs_base_url_is_used_only_at_the_documentation_roots():

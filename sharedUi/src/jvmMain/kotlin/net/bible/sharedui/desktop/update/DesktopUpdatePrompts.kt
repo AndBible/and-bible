@@ -1,6 +1,7 @@
 package net.bible.sharedui.desktop.update
 
 import java.net.URI
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.ui.dialog.toAnswers
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -69,16 +70,7 @@ class DesktopUpdatePrompts(
         }
     }, announceAndAwait = { release ->
         val result = dialogs.await(AppDialogRequest.Localized {
-            val table = strings.current
-            AppDialogRequest.Options(table.text("desktop_update_available_title"),
-                "${table.fmt("desktop_update_available_message", release.tag, version)}<br><br>${table.text("desktop_update_reenable")}",
-                listOf(SettingsItem.Choice("download", table.text("desktop_update_download")),
-                    SettingsItem.Choice("snooze_day", table.text("desktop_update_snooze_day")),
-                    SettingsItem.Choice("snooze_week", table.text("desktop_update_snooze_week")),
-                    SettingsItem.Choice("snooze_month", table.text("desktop_update_snooze_month")),
-                    SettingsItem.Choice("skip", table.text("desktop_update_skip"))).toAnswers(),
-                dismissText = null, asActionSheet = false, cancellable = false,
-                checkboxLabel = table.text("desktop_update_dont_notify"))
+            desktopUpdateDialog(strings.current, release.tag, version)
         })
         val choice = when (result) {
             is AppDialogResult.Selected -> result.value to false
@@ -90,6 +82,7 @@ class DesktopUpdatePrompts(
         if (snoozeDays > 0) settings.snoozeUntil(clock() + snoozeDays * DAY_MS)
         when (choice?.first) {
             "download" -> { links.open(release.htmlUrl); true }
+            "whats_new" -> { links.open(DocsLinks.releaseNotes(release.version)); false }
             "skip" -> true
             else -> false
         }

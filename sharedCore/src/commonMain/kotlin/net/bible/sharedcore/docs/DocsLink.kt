@@ -3,8 +3,9 @@ package net.bible.sharedcore.docs
 /**
  * All documentation targets opened by the app. Add targets here, not at call sites.
  *
- * Keep entries literal: the website deep-link gate checks each target against the built docs. Entries
- * without anchors are the user guide pages, and their stems resolve in the generated table of contents.
+ * Keep entries literal: the website deep-link gate checks each target against the built docs. User guide
+ * page stems resolve in the generated table of contents; RELEASE_* targets are external updater links,
+ * not topics to pass to HelpLinks for an in-app guide highlight.
  */
 enum class DocsLink(val page: String, val anchor: String? = null) {
     AI("ai"),
@@ -26,6 +27,7 @@ enum class DocsLink(val page: String, val anchor: String? = null) {
     CUSTOMISATION_MODULE_CREATION("customisation/module_creation"),
     CUSTOM_REPOSITORIES("custom_repositories"),
     DESKTOP("desktop"),
+    DESKTOP_UPDATE_CHECKS("desktop", "update-checks"),
     DISCRETE_BUILD("discrete_build"),
     DOCUMENTS("documents"),
     DOCUMENT_SYNC("document_sync"),
@@ -48,6 +50,10 @@ enum class DocsLink(val page: String, val anchor: String? = null) {
     PLATFORM_DIFFERENCES("platform_differences"),
     READING_PLANS("reading_plans"),
     READING_PROGRESS("reading_progress"),
+    RELEASE_4_0("releases/release_4_0"),
+    RELEASE_4_1("releases/release_4_1"),
+    RELEASE_5_0("releases/release_5_0"),
+    RELEASE_6_0("releases/release_6_0"),
     SEARCH("search"),
     SEARCH_ADVANCED_SEARCH("search", "advanced-search"),
     SHARE("share"),
