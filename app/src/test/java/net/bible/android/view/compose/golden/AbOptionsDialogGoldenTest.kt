@@ -71,6 +71,9 @@ class AbOptionsDialogGoldenTest {
     @Test fun ax5ManyActionsCheckbox_matrix() =
         captureMatrix("AbOptionsDialog", "ax5ManyActionsCheckbox", heightDp = 900, captureOptions = ax5) { ManyActionOptionsFixture() }
 
+    @Test fun ax5ManyActionsCheckboxShort_matrix() =
+        captureMatrix("AbOptionsDialog", "ax5ManyActionsCheckboxShort", heightDp = 360, captureOptions = ax5) { ManyActionOptionsFixture() }
+
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun checkbox_rtl() = captureRtl("AbOptionsDialog", "checkbox") { Checkbox() }
