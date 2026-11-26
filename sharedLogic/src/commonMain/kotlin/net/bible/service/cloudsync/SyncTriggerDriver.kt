@@ -88,7 +88,7 @@ class SyncTriggerDriver(
     private val leaveFallback: (suspend () -> Unit)? = null,
 ) {
     /** One sync pass: its job, what started it, and whether it actually did its work. */
-    class Pass internal constructor(val trigger: SyncTrigger) {
+    class Pass internal constructor(val trigger: SyncTrigger, internal val leaveFallback: Boolean = false) {
         lateinit var job: Job
             internal set
         private val ranFlag = atomic(false)
@@ -154,11 +154,18 @@ class SyncTriggerDriver(
         val again = synchronized(lock) { left.also { left = true } }
         stopTimer()
         if (again) return synchronized(lock) { leaveJob } ?: latestPass?.job ?: Job().apply { complete() }
-        leaveHandOff?.invoke()?.let { job ->
-            synchronized(lock) { leaveJob = job }
-            return job
+        val pass = if (leaveHandOff != null) {
+            if (!policy.canRun() || !networkAvailable() || !policy.isSignedIn()) {
+                return Job().apply { complete() }
+            }
+            leaveHandOff.invoke()?.let { job ->
+                synchronized(lock) { leaveJob = job }
+                return job
+            }
+            trigger(SyncTrigger.Background, leaveFallback = leaveFallback != null)
+        } else {
+            trigger(SyncTrigger.Background)
         }
-        val pass = trigger(SyncTrigger.Background)
         val allowance = backgroundAllowance ?: return pass.job
         val ended = atomic(false)
         var end: (() -> Unit)? = null
@@ -249,12 +256,12 @@ class SyncTriggerDriver(
     }
 
     /** Joins the queued or running pass, queues a follow-up for [SyncTrigger.Background], or starts a new pass. */
-    private fun trigger(kind: SyncTrigger): Pass {
+    private fun trigger(kind: SyncTrigger, leaveFallback: Boolean = false): Pass {
         val pass = synchronized(lock) {
             queued?.takeUnless { it.job.isCompleted }?.let { return it }
             val current = running?.takeUnless { it.job.isCompleted }
             if (current != null && kind != SyncTrigger.Background) return current
-            Pass(kind).also { pass ->
+            Pass(kind, leaveFallback).also { pass ->
                 pass.job = scope.launch(start = CoroutineStart.LAZY) {
                     current?.job?.join()
                     synchronized(lock) {
@@ -280,11 +287,13 @@ class SyncTriggerDriver(
                 lastPassStartMs.value = start
                 lastPassMarkMs.value = start
                 try {
-                    prepare()
-                    if (pass.trigger == SyncTrigger.Background && leaveHandOff != null && leaveFallback != null) {
+                    if (pass.leaveFallback && leaveFallback != null) {
                         leaveFallback.invoke()
-                    } else if (!policy.runOnce(force = true)) {
-                        Log.i(TAG, "${pass.trigger} sync did not complete (sign-in or sync failed)")
+                    } else {
+                        prepare()
+                        if (!policy.runOnce(force = true)) {
+                            Log.i(TAG, "${pass.trigger} sync did not complete (sign-in or sync failed)")
+                        }
                     }
                 } finally {
                     lastPassMarkMs.value = policy.now()

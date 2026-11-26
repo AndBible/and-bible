@@ -207,7 +207,9 @@ class SyncServiceLeaveBehaviorTest {
     @Test fun refusedLeaveDuringRunningSyncAndManualFollowUpErrorRouting() = runBlocking { manualFollowUp(refuse = true) }
     @Test fun deliveredLeaveAfterManualSyncDoesNotReportTransportFailure() = runBlocking { manualFollowUp(refuse = false) }
 
-    private suspend fun manualFollowUp(refuse: Boolean) {
+    @Test fun manualRequestJoiningRunningLeaveReportsTransportFailure() = runBlocking { manualFollowUp(refuse = false, manualJoinsLeave = true) }
+
+    private suspend fun manualFollowUp(refuse: Boolean, manualJoinsLeave: Boolean = false) {
         val koin = GlobalContext.get()
         val cloud = koin.get<CloudSync>()
         val realScheduler = koin.get<AndroidSyncScheduler>()
@@ -280,12 +282,14 @@ class SyncServiceLeaveBehaviorTest {
                 single { scheduler }
                 single { SyncNowPorts(saveWorkspace = {}, networkAvailable = { true }, noNetwork = {}, awaitWorkspacePersisted = { prepares.incrementAndGet() }) }
             })
-            val pending = scheduler.startUserInitiatedDatabaseSync()
+            val pending = if (manualJoinsLeave) scheduler.startLeave()!! else scheduler.startUserInitiatedDatabaseSync()
             service = Robolectric.buildService(SyncService::class.java).create().get()
-            service.onStartCommand(Intent().setAction(SyncService.START_SERVICE).putExtra(SyncService.USER_INITIATED, true), 0, 1)
+            val initial = if (manualJoinsLeave) Intent().setAction(SyncService.ACTION_LEAVE)
+                else Intent().setAction(SyncService.START_SERVICE).putExtra(SyncService.USER_INITIATED, true)
+            service.onStartCommand(initial, 0, 1)
             withTimeout(10000) { firstProbe.await() }
-            val leave = scheduler.startLeave()
-            assertEquals("one leave start", 2, starts.get())
+            val leave = if (manualJoinsLeave) scheduler.startUserInitiatedDatabaseSync() else scheduler.startLeave()
+            assertEquals("a running owner needs no additional service start", 1, starts.get())
             val secondLeave = scheduler.startLeave()
             assertSame("multiple leaves join the same pending work", pending, secondLeave)
             if (!refuse) {
@@ -296,12 +300,16 @@ class SyncServiceLeaveBehaviorTest {
             release.complete(Unit)
             withTimeout(10000) { service.scope.coroutineContext[Job]!!.children.toList().forEach { it.join() } }
             assertSame("refused wakeup joins running service", pending, leave)
-            assertEquals("exactly one follow-up preparation", 1, prepares.get())
+            assertEquals("leave preparation runs only for the leave pass", 1, prepares.get())
             assertEquals("one original sync plus one follow-up", 2, running.count { it })
             assertTrue("both passes reach the real adapter", probes.get() >= 2)
             val errors = messages.filterIsInstance<net.bible.android.control.event.UserMessage.ErrorNotification>()
             assertTrue("follow-up must exercise the real transport", folderReads.get() >= 2)
-            assertTrue("automatic leave transport failure must remain silent: $errors", errors.isEmpty())
+            if (manualJoinsLeave) {
+                assertTrue("manual follow-up transport failure must be reported in the foreground: $errors", errors.any { !it.background })
+            } else {
+                assertTrue("automatic leave transport failure must remain silent: $errors", errors.isEmpty())
+            }
         } finally {
             release.complete(Unit)
             service?.let { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {

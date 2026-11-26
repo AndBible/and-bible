@@ -956,7 +956,7 @@ class CloudSync(
 
     fun start(userInitiated: Boolean = false): kotlinx.coroutines.Deferred<Boolean> = synchronized(startLock) { // L1-common-ok: atomicfu lock
         if (!adapterAvailable) return@synchronized kotlinx.coroutines.CompletableDeferred(false)
-        syncStarted?.takeUnless { it.isCompleted }?.let { return@synchronized it }
+        if (!userInitiated) syncStarted?.takeUnless { it.isCompleted }?.let { return@synchronized it }
         (if (userInitiated) scheduler.startUserInitiatedDatabaseSync() else scheduler.startDatabaseSync()).also { syncStarted = it }
     }
 

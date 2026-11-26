@@ -68,6 +68,9 @@ class BackgroundSyncPolicy(
     /** Whether sync is enabled and the databases are not being replaced: a pass has anything to do at all. */
     fun canRun(): Boolean = syncEnabled() && !replacing()
 
+    /** Whether the current adapter is already signed in, without starting an interactive sign-in flow. */
+    fun isSignedIn(): Boolean = signedIn()
+
     /** The `cloud_sync_interval` setting in milliseconds. */
     fun intervalMs(): Long = intervalSeconds() * 1000
 

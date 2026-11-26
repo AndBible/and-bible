@@ -27,10 +27,25 @@ class AndroidLeaveSyncOrderingTest {
             androidContext(context)
             modules(buildPlatformBindings(), module {
                 single { SyncNowPorts(saveWorkspace = { saved.set(true) }, networkAvailable = { true }, noNetwork = {}) }
+                single { org.koin.core.context.GlobalContext.get().get<CloudSync>() }
             })
         }
         val driver = app.koin.get<SyncTriggerDriver>()
+        val global = org.koin.core.context.GlobalContext.get()
+        val cloud = global.get<CloudSync>()
+        val settings = global.get<net.bible.sharedcore.platform.AppSettings>()
+        val category = SyncableDatabaseDefinition.BOOKMARKS
+        val oldEnabled = category.isSyncEnabled(settings)
+        val oldId = cloud.adapterId
+        val adapterField = CloudSync::class.java.getDeclaredField("_adapter").apply { isAccessible = true }
+        val oldAdapter = adapterField.get(cloud)
+        val adapter = java.lang.reflect.Proxy.newProxyInstance(CloudAdapter::class.java.classLoader, arrayOf(CloudAdapter::class.java)) { _, method, _ ->
+            if (method.name == "getSignedIn") true else throw java.io.IOException("offline test adapter")
+        } as CloudAdapter
         try {
+            cloud.adapterId = "WEBDAV"
+            category.setSyncEnabled(settings, true)
+            adapterField.set(cloud, adapter)
             while (shadowOf(context).nextStartedService != null) { }
             driver.onBackground()
             val intent = shadowOf(context).nextStartedService
@@ -38,8 +53,12 @@ class AndroidLeaveSyncOrderingTest {
             org.junit.Assert.assertEquals(SyncService.ACTION_LEAVE, intent.action)
             assertFalse("Workspace preparation must not precede the service start", saved.get())
         } finally {
+            kotlinx.coroutines.runBlocking { driver.stopAndJoin() }
             driver.close()
             app.close()
+            cloud.adapterId = oldId
+            adapterField.set(cloud, oldAdapter)
+            category.setSyncEnabled(settings, oldEnabled)
         }
     }
 }

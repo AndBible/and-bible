@@ -28,11 +28,15 @@ import android.os.IBinder
 import android.os.PowerManager
 import net.bible.sharedcore.log.Log
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import net.bible.android.activity.R
+import net.bible.android.platform.AndroidSyncScheduler.Request
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
@@ -87,9 +91,13 @@ class SyncService: Service() {
                 synchronize(intent.getBooleanExtra(USER_INITIATED, false))
             }
             ACTION_LEAVE -> if (!syncing) {
-                if (scheduler.consumeLeave()) {
+                val request = scheduler.consumeRequest()
+                if (request != null) {
                     syncing = true
-                    synchronize(false, leave = true)
+                    synchronize(
+                        userInitiated = request == Request.Interactive,
+                        leave = request == Request.Leave,
+                    )
                 } else stop()
             }
             else -> {
@@ -129,7 +137,7 @@ class SyncService: Service() {
      */
     @Synchronized
     override fun onTimeout(startId: Int, fgsType: Int) {
-        Log.w(TAG, "Foreground service time limit reached (type $fgsType); ending the sync")
+        Log.w(TAG, "Foreground service time limit reached (type $fgsType); ending the sync and discarding pending follow-up requests")
         if (syncing) {
             currentRun++
             syncJob?.cancel()
@@ -150,23 +158,36 @@ class SyncService: Service() {
                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
                 wakeLock.acquire(5 * 60 * 1000)
                 var isLeave = leave
+                var interactive = userInitiated
                 do {
-                    if (!isLeave || (CommonUtils.isCloudSyncEnabled && ports.networkAvailable() && cloudSync.signedIn && !net.bible.service.db.DatabaseContainer.replacing)) {
-                        if (isLeave) {
-                            ports.awaitWorkspacePersisted()
+                    succeeded = false
+                    try {
+                        if (interactive && !cloudSync.signedIn && cloudSync.signIn(waitForExisting = true) != true) {
+                            // A cancelled or failed sign-in must not start a sync pass.
+                        } else if (!isLeave || (CommonUtils.isCloudSyncEnabled && ports.networkAvailable() && cloudSync.signedIn && !net.bible.service.db.DatabaseContainer.replacing)) {
+                            if (isLeave) ports.awaitWorkspacePersisted()
+                            jobStarted = true
+                            succeeded = runDatabaseSyncJob(cloudSync, settings, allowInteraction = !isLeave, backgroundErrors = isLeave || !interactive, reportTransportErrors = !isLeave && interactive)
                         }
-                        jobStarted = true
-                        succeeded = runDatabaseSyncJob(cloudSync, settings, allowInteraction = !isLeave, backgroundErrors = isLeave || !userInitiated, reportTransportErrors = !isLeave && userInitiated)
+                    } catch (e: CancellationException) {
+                        currentCoroutineContext().ensureActive()
+                        Log.e(TAG, "Synchronization iteration cancelled", e)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Synchronization iteration failed", e)
                     }
-                    isLeave = synchronized(this@SyncService) {
-                        if (run != currentRun) false else scheduler.consumeLeaveOrComplete(succeeded) {
+                    val request = synchronized(this@SyncService) {
+                        if (run != currentRun) null else scheduler.consumeRequestOrComplete(succeeded) {
                             finish(succeeded, jobStarted, wakeLock, completePending = false)
                             currentRun++
                             wakeLock = null
                         }
                     }
-                } while (isLeave)
+                    isLeave = request == Request.Leave
+                    interactive = request == Request.Interactive
+                } while (request != null)
                 if (succeeded) Log.i(TAG, "Synchronize finished")
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Synchronization or foreground service entry failed", e)
             } finally {

@@ -63,7 +63,7 @@ class SyncServiceStaleWorkerTest {
             release.countDown()
             withTimeout(10000) { worker.join() }
             assertFalse("stale worker must not complete a newer request", next.isCompleted)
-            if (leave) assertTrue("stale worker must not consume newer leave demand", scheduler.consumeLeave())
+            if (leave) assertEquals("stale worker must not consume newer leave demand", AndroidSyncScheduler.Request.Leave, scheduler.consumeRequest())
         } finally {
             release.countDown()
             service?.let { withContext(NonCancellable) { withTimeout(10000) { it.scope.coroutineContext[Job]!!.cancelAndJoin() }; it.onDestroy() } }

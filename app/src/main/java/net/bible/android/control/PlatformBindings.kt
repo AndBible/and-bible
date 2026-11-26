@@ -85,9 +85,16 @@ fun buildPlatformBindings() = module {
             noNetwork = { notifier.showInfo(context.getString(net.bible.android.activity.R.string.sync_now_no_network)) },
             awaitWorkspacePersisted = {
                 val repository = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
-                    koin.get<net.bible.android.control.page.window.WindowControl>().windowRepository
+                    koin.get<net.bible.android.control.page.window.WindowControl>()
+                        .currentWindowRepositoryOrNull?.takeIf { it.initialized }
                 }
-                repository.persistence.awaitPersisted()
+                if (repository != null && kotlinx.coroutines.withTimeoutOrNull(5_000) {
+                        repository.persistence.awaitPersisted()
+                        true
+                    } == null
+                ) {
+                    net.bible.sharedcore.log.Log.w("DeviceSync", "Timed out waiting for workspace persistence")
+                }
             },
         )
     }
@@ -118,9 +125,15 @@ fun buildPlatformBindings() = module {
             networkAvailable = ports.networkAvailable,
             leaveHandOff = { koin.get<net.bible.android.platform.AndroidSyncScheduler>().startLeave() },
             leaveFallback = {
-                val cloud = cloudSync()
-                if (cloud.signedIn) {
-                    net.bible.service.cloudsync.runDatabaseSyncJob(cloud, koin.get(), allowInteraction = false)
+                koin.get<net.bible.android.platform.AndroidSyncScheduler>().runFallback { userInitiated ->
+                    ports.saveWorkspace()
+                    val cloud = cloudSync()
+                    if (cloud.signedIn || (userInitiated && cloud.signIn() == true)) {
+                        net.bible.service.cloudsync.runDatabaseSyncJob(
+                            cloud, koin.get(), allowInteraction = userInitiated,
+                            backgroundErrors = !userInitiated, reportTransportErrors = userInitiated,
+                        )
+                    } else false
                 }
             },
         )

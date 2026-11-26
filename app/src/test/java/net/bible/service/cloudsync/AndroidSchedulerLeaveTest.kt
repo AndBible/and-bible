@@ -43,12 +43,12 @@ class AndroidSchedulerLeaveTest {
         val previous = scheduler.startDatabaseSync()
         val leave = scheduler.startLeave()!!
         assertSame(previous, leave)
-        assertEquals(SyncService.ACTION_LEAVE, sent.last().action)
-        assertTrue("service claims accepted leave at the previous pass boundary", scheduler.consumeLeaveOrComplete(true))
+        assertEquals("running owner is reused without another service intent", SyncService.START_SERVICE, sent.last().action)
+        assertEquals("service claims accepted leave at the previous pass boundary", AndroidSyncScheduler.Request.Leave, scheduler.consumeRequestOrComplete(true))
         assertFalse("accepted leave remains pending until its work finishes", leave.isCompleted)
         assertSame("foreground joins accepted leave", leave, scheduler.startDatabaseSync())
-        assertEquals("foreground did not send another start", 2, sent.size)
-        assertFalse(scheduler.consumeLeaveOrComplete(true))
+        assertEquals("existing owner needs no extra wakeup", 1, sent.size)
+        assertNull(scheduler.consumeRequestOrComplete(true))
         assertTrue(leave.isCompleted)
     }
 
@@ -97,8 +97,51 @@ class AndroidSchedulerLeaveTest {
         refuse = true
         val leave = scheduler.startLeave()
         assertSame("existing service owns the leave follow-up even if its wakeup is refused", running, leave)
-        assertTrue(scheduler.consumeLeaveOrComplete(true))
+        assertEquals(AndroidSyncScheduler.Request.Leave, scheduler.consumeRequestOrComplete(true))
         assertFalse("running pass cannot complete a pending leave follow-up", running.isCompleted)
+        scheduler.complete(false)
+    }
+
+    @Test fun operationCancellationDoesNotDiscardFallbackFollowUp() = runBlocking {
+        val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
+        val scheduler = AndroidSyncScheduler(app)
+        var iterations = 0
+        val result = runCatching {
+            scheduler.runFallback {
+                if (++iterations == 1) {
+                    scheduler.startLeave()
+                    throw kotlinx.coroutines.CancellationException("SDK task cancelled, owner still active")
+                }
+                true
+            }
+        }
+        assertEquals("an active fallback must serve its queued leave after operation cancellation", 2, iterations)
+        assertEquals(true, result.getOrNull())
+    }
+
+    @Test fun securityExceptionOnLeaveIsARefusedStart() = assertRuntimeRefusal(SecurityException("permission denied"))
+
+    @Test fun runtimeExceptionOnLeaveIsARefusedStart() = assertRuntimeRefusal(IllegalArgumentException("invalid foreground start"))
+
+    private fun assertRuntimeRefusal(failure: RuntimeException) {
+        val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
+        var refusing = true
+        var starts = 0
+        val context = object : ContextWrapper(app) {
+            override fun startForegroundService(service: Intent): ComponentName {
+                starts++
+                if (refusing) throw failure
+                return ComponentName(app, SyncService::class.java)
+            }
+        }
+        val scheduler = AndroidSyncScheduler(context)
+        val result = runCatching { scheduler.startLeave() }
+        assertTrue("A refused lifecycle start must not throw: ${result.exceptionOrNull()}", result.isSuccess)
+        assertNull("refusal selects the in-process fallback", result.getOrNull())
+        refusing = false
+        val retry = scheduler.startDatabaseSync()
+        assertEquals("refusal must release pending", 2, starts)
+        assertFalse(retry.isCompleted)
         scheduler.complete(false)
     }
 
