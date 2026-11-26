@@ -65,7 +65,7 @@ class AbOptionsDialogGoldenTest {
         }, { _, _ -> error("No plurals in update offer") }, { emptyList() })
         CompositionLocalProvider(LocalDisableAnimations provides noAnimations) {
             AppDialogHost(
-                shown = ShownDialog(1, desktopUpdateDialog(table, "production-1286", "6.0.1285")),
+                shown = ShownDialog(1, desktopUpdateDialog(table, "6.0.1286", "6.0.1285")),
                 permission = null, onRespond = { _, _ -> }, onPermissionChoice = {},
                 onPermissionDismiss = {}, onOpenExternal = {},
             )
