@@ -122,6 +122,11 @@ class BibleSpeakTextProvider(
 
     override fun updateSettings(change: SpeakSettingsChange) {
         lock.withLock {
+            if ((settings.playbackSettings.speakLinks != false) != (change.speakSettings.playbackSettings.speakLinks != false)) {
+                // Restart the audible verse, discarding cached/prefetched text and in-flight calculations.
+                reset()
+                if (this::startVerse.isInitialized) currentVerse = startVerse
+            }
             this.settings = change.speakSettings
             Log.i(TAG, "SpeakSettings updated: $change")
             val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
@@ -169,6 +174,7 @@ class BibleSpeakTextProvider(
     fun setupReading(book: SwordBook, verse: Verse) {
         lock.withLock {
             reset()
+            settings.playbackSettings = settings.playbackSettings.copy(speakLinks = SpeakSettings.load().playbackSettings.speakLinks)
             loadedBookmark = null
             setupBook(book)
 
@@ -370,7 +376,7 @@ class BibleSpeakTextProvider(
                 if (playback != null && advanced.restoreSettingsFromBookmarks) {
                     playback.bookId = null
                     playback.bookmarkWasCreated = null
-                    settings.playbackSettings = playback
+                    settings.playbackSettings = playback.copy(speakLinks = playback.speakLinks ?: SpeakSettings.load().playbackSettings.speakLinks)
                     settings.save()
                 }
                 bookmark = loaded

@@ -63,6 +63,11 @@ data class PlaybackSettings (
     // For bible bookmarks
     @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null,
 
+    // A missing bookmark value inherits the current global preference. Globally, null means ON.
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val speakLinks: Boolean? = null,
+
     // Memorization loop mode: suppresses chapter/title/footnote announcements and bookmark saving
     @Transient val isMemorizationLoop: Boolean = false,
 ) {
@@ -80,7 +85,8 @@ data class PlaybackSettings (
     }
 
     fun toJson(): String {
-        return json.encodeToString(serializer(), this)
+        // Preserve omitted-ON compatibility with older synced clients, including explicit true.
+        return json.encodeToString(serializer(), if (speakLinks == true) copy(speakLinks = null) else this)
     }
 }
 
@@ -97,7 +103,10 @@ data class SpeakSettings(
     enum class RewindAmount {NONE, ONE_VERSE, SMART}
 
     fun toJson(): String {
-        return json.encodeToString(serializer(), this)
+        val compatible = if (playbackSettings.speakLinks == true) {
+            copy(playbackSettings = playbackSettings.copy(speakLinks = null))
+        } else this
+        return json.encodeToString(serializer(), compatible)
     }
 
     fun makeCopy(): SpeakSettings {

@@ -12,7 +12,7 @@ class SpeakControllersTest {
         override val playback: StateFlow<SpeakPlaybackVd> = _pb.asStateFlow()
         override val advanced: StateFlow<AdvancedSpeakVd> = _adv.asStateFlow()
         var speed: Int? = null; var chapter: Boolean? = null; var titles: Boolean? = null
-        var footnotes: Boolean? = null
+        var footnotes: Boolean? = null; var links: Boolean? = null
         var sync: Boolean? = null; var divine: Boolean? = null; var autoBm: Boolean? = null; var restore: Boolean? = null
         val sleepTimerWrites: MutableList<Int> = mutableListOf()
         val rangeWrites: MutableList<Pair<String, String>> = mutableListOf()
@@ -21,6 +21,7 @@ class SpeakControllersTest {
         override fun setSpeakChapterChanges(on: Boolean) { chapter = on }
         override fun setSpeakTitles(on: Boolean) { titles = on }
         override fun setSpeakFootnotes(on: Boolean) { footnotes = on }
+        override fun setSpeakLinks(on: Boolean) { links = on }
         override fun clearRepeatRange() { clearCount++ }
         override fun setSleepTimerMinutes(minutes: Int) { sleepTimerWrites.add(minutes) }
         override fun setRepeatRange(startOsisId: String, endOsisId: String) { rangeWrites.add(startOsisId to endOsisId) }
@@ -33,9 +34,9 @@ class SpeakControllersTest {
     @Test fun playback_setters_pass_through() {
         val fake = FakeSpeakSettingsService()
         val c = BibleSpeakSettingsController(fake)
-        c.setSpeed(175); c.setSpeakChapterChanges(false); c.setSpeakTitles(false); c.setSpeakFootnotes(true)
+        c.setSpeed(175); c.setSpeakChapterChanges(false); c.setSpeakTitles(false); c.setSpeakFootnotes(true); c.setSpeakLinks(false)
         assertEquals(175, fake.speed)
-        assertEquals(false, fake.chapter); assertEquals(false, fake.titles); assertEquals(true, fake.footnotes)
+        assertEquals(false, fake.chapter); assertEquals(false, fake.titles); assertEquals(true, fake.footnotes); assertEquals(false, fake.links)
         assertSame(fake.playback, c.playback)
     }
 

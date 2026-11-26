@@ -43,6 +43,28 @@ internal class SpeakReferenceText(private val locale: KLocale = LocaleProviderMa
         return text(anchor)
     }
 
+    /** Clean across anchors before returning per-ordinal text; never alter the displayed document. */
+    fun forAnchors(anchors: List<Element>, speakLinks: Boolean): List<String> {
+        if (speakLinks) return anchors.map(::forAnchor)
+        fun withoutLinks(element: Element): String {
+            if (element.name == "reference" || element.name == "a" && element.getAttributeValue("href") != null) return SkippedSpeakLinks.marker
+            return element.content.joinToString("") {
+                when (it) {
+                    is Text -> it.text
+                    is Element -> withoutLinks(it)
+                    else -> ""
+                }
+            }
+        }
+        return SkippedSpeakLinks.cleanParts(anchors.map { anchor ->
+            if (generateSequence(anchor.parentElement) { it.parentElement }.any {
+                    it.name == "reference" || it.name == "a" && it.getAttributeValue("href") != null
+                })
+                SkippedSpeakLinks.marker
+            else withoutLinks(anchor)
+        })
+    }
+
     private fun text(element: Element): String {
         if (element.name == "reference") expand(element.getAttributeValue("osisRef"))?.let { return it }
         return element.content.joinToString("") {

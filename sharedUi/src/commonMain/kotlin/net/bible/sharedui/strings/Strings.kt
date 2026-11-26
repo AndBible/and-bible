@@ -686,6 +686,7 @@ interface Strings {
     val confChangeChapter: String
     val confChangeTitle: String
     val confSpeakFootnotes: String
+    val speakLinks: String
     val speakSpeedTitle: String
     val repeatPassage: String
     val setRepeatPassageRange: String

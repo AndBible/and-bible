@@ -629,6 +629,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val confChangeChapter: String get() = context.getString(R.string.conf_change_chapter)
     override val confChangeTitle: String get() = context.getString(R.string.conf_change_title)
     override val confSpeakFootnotes: String get() = context.getString(R.string.conf_speak_footnotes)
+    override val speakLinks: String get() = context.getString(R.string.speak_links)
     override val speakSpeedTitle: String get() = context.getString(R.string.speak_speed_title)
     override val repeatPassage: String get() = context.getString(R.string.repeat_passage)
     override val setRepeatPassageRange: String get() = context.getString(R.string.set_repeat_passage_range)

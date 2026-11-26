@@ -122,6 +122,10 @@ class GeneralSpeakTextProvider(
 
     override fun updateSettings(change: SpeakSettingsChange) {
         lock.withLock {
+            if ((settings.playbackSettings.speakLinks != false) != (change.speakSettings.playbackSettings.speakLinks != false)) {
+                reset()
+                if (this::startKey.isInitialized) currentKey = startKey
+            }
             this.settings = change.speakSettings
             Log.i(TAG, "SpeakSettings updated: $change")
             val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
@@ -156,6 +160,7 @@ class GeneralSpeakTextProvider(
     fun setupReading(key: BookAndKey) {
         lock.withLock {
             reset()
+            settings.playbackSettings = settings.playbackSettings.copy(speakLinks = SpeakSettings.load().playbackSettings.speakLinks)
             loadedBookmark = null
             setupBook(key.document!!)
 
@@ -168,7 +173,7 @@ class GeneralSpeakTextProvider(
 
     private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey, readingSettings: SpeakSettings, readingPhrases: SpeakPhrases): SpeakCommandArray {
         val cmds = SpeakCommandArray(platform.maxSpeechInputLength)
-        val content = getSpeakCommandsForKey(key)
+        val content = getSpeakCommandsForKey(key, readingSettings)
         // A missing commentary entry must not produce a reference announcement on its own.
         if (key.document?.bookCategory == BookCategory.COMMENTARY && content.isEmpty()) return cmds
 
@@ -302,8 +307,8 @@ class GeneralSpeakTextProvider(
 
     override fun getText(utteranceId: String): String = currentState.command.toString()
 
-    private fun getSpeakCommandsForKey(key: BookAndKey): SpeakCommandArray =
-        swordContentFacade.getGenBookSpeakCommands(key)
+    private fun getSpeakCommandsForKey(key: BookAndKey, readingSettings: SpeakSettings): SpeakCommandArray =
+        swordContentFacade.getGenBookSpeakCommands(key, readingSettings)
 
     override fun pause() {
         lock.withLock {
@@ -370,7 +375,7 @@ class GeneralSpeakTextProvider(
                 if (playback != null && advanced.restoreSettingsFromBookmarks) {
                     playback.bookId = null
                     playback.bookmarkWasCreated = null
-                    settings.playbackSettings = playback
+                    settings.playbackSettings = playback.copy(speakLinks = playback.speakLinks ?: SpeakSettings.load().playbackSettings.speakLinks)
                     settings.save()
                 }
                 bookmark = loaded
