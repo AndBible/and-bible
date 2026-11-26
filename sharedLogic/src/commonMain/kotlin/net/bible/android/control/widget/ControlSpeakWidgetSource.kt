@@ -39,6 +39,8 @@ import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedlogic.util.currentTimeMillis
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.BooksEvent
+import org.crosswire.jsword.book.BooksListener
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Passage
@@ -60,7 +62,8 @@ internal fun redrawsListeningList(change: BookmarkChange): Boolean = when (chang
 
 /**
  * [SpeakWidgetSource] over [SpeakControl], the speak settings and the speak-label bookmarks. Subscribes to the
- * speak, settings and bookmark event streams for its whole life (a Koin single); [close] cancels them.
+ * speak, settings and bookmark event streams, plus installed-book changes, for its whole life (a Koin single);
+ * [close] cancels all subscriptions.
  */
 class ControlSpeakWidgetSource(
     private val isSpeaking: () -> Boolean,
@@ -91,7 +94,8 @@ class ControlSpeakWidgetSource(
         bookmarkControl, advancedSpeakSettings, bibleTraverser, settings, coreStrings, saxTextPolicy,
     )
 
-    private val events = MutableSharedFlow<Unit>(extraBufferCapacity = 64)
+    // Registration can finish between the producer's initial read and its change collector subscribing.
+    private val events = MutableSharedFlow<Unit>(replay = 1, extraBufferCapacity = 64)
     override val changes: Flow<Unit> = events.asSharedFlow()
 
     private val subscriptions = Subscriptions()
@@ -123,8 +127,15 @@ class ControlSpeakWidgetSource(
         })
         subscriptions.add(SpeakSettingsChanges.changes.subscribe { events.tryEmit(Unit) })
         subscriptions.add(bookmarkControl.changes.subscribe { if (redrawsListeningList(it)) events.tryEmit(Unit) })
+        val booksListener = object : BooksListener {
+            override fun bookAdded(ev: BooksEvent) { events.tryEmit(Unit) }
+            override fun bookRemoved(ev: BooksEvent) { events.tryEmit(Unit) }
+        }
+        Books.installed().addBooksListener(booksListener)
+        subscriptions.add { Books.installed().removeBooksListener(booksListener) }
     }
 
+    /** Unregisters event subscriptions, including the process-wide installed-books listener. */
     fun close() = subscriptions.cancelAll()
 
     /** Forgets the title, verse text and position of an earlier run; a producer start must not show them. */
