@@ -31,8 +31,20 @@ class EpubBrokenModuleTest {
         val c = Counting()
         val backend = EpubBackend(c.create, metadata("Epub-broken"))
         assertEquals(0, c.builds, "listing must not build the state")
-        val first = runCatching { backend.state }.exceptionOrNull()
-        val second = runCatching { backend.state }.exceptionOrNull()
+        val errors = mutableListOf<Throwable?>()
+        val previousSink = net.bible.sharedcore.log.Log.sinkOverride
+        net.bible.sharedcore.log.Log.sinkOverride = { level, tag, _, error ->
+            if (level == net.bible.sharedcore.log.LogLevel.ERROR && tag == TAG) errors += error
+        }
+        val first: Throwable?
+        val second: Throwable?
+        try {
+            first = runCatching { backend.state }.exceptionOrNull()
+            second = runCatching { backend.state }.exceptionOrNull()
+            assertEquals(listOf<Throwable?>(c.failure), errors, "a cached init failure must be logged once, not silently hidden")
+        } finally {
+            net.bible.sharedcore.log.Log.sinkOverride = previousSink
+        }
         assertSame(c.failure, first)
         assertSame(c.failure, second)
         assertNull(backend.stateOrNull)

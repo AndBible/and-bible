@@ -370,6 +370,43 @@ class EpubBackendStateTest {
         assertEquals(listOf("Chapter One", "Chapter Two"), state.tocKeys().map { it.getName() })
     }
 
+    @Test fun tocBeforeRegistrationDoesNotCacheKeysWithoutTheirBook() = runTest {
+        val state = newState(tocFixture("toc-registration", null))
+        val before = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertTrue(before.all { it.document == null })
+        val book = org.crosswire.jsword.book.sword.SwordGenBook(state.getBookMetaData(), EpubBackend(state, state.getBookMetaData()))
+        val books = org.crosswire.jsword.book.Books.installed()
+        try {
+            books.addBook(book)
+            val after = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+            assertEquals(2, after.size)
+            assertTrue("TOC entries must resolve their book after registration", after.all { it.document === book })
+        } finally {
+            books.removeBook(book)
+        }
+    }
+
+    @Test fun imageOnlyLinearDocumentsRemainReachableWithoutAToc() = runTest {
+        val dir = tocFixture("image-only-fallback", null)
+        for (chapter in 1..2) {
+            File(dir, "OEBPS/ch$chapter.xhtml").writeText(chapterXhtml("Image $chapter", "<img src=\"page$chapter.png\"/>"))
+        }
+        val state = newState(dir)
+        val toc = state.tocKeys().map { it as net.bible.service.sword.BookAndKey }
+        assertEquals(listOf("Image 1", "Image 2"), toc.map { it.getName() })
+        assertTrue(state.read(toc[0].key).contains("page1.png"))
+        assertTrue(state.read(toc[1].key).contains("page2.png"))
+    }
+
+    @Test fun storedChapterTitlesCollapseWhitespaceAndSeparateLineBreaks() = runTest {
+        val dir = tocFixture("title-whitespace", null)
+        File(dir, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Ignored", "<h2>  First&#10;&#9;<span>chapter</span><br/>subtitle  </h2>Prose."))
+        File(dir, "OEBPS/ch2.xhtml").writeText(chapterXhtml("  Second&#10;&#9; chapter  ", "More prose."))
+        val state = newState(dir)
+        assertEquals(listOf("First chapter subtitle", "Second chapter"), state.tocKeys().map { it.getName() })
+        assertEquals(listOf("First chapter subtitle", "Second chapter"), state.keys.map { it.getName() })
+    }
+
     @Test fun partialTocKeepsKnownLabelAndUsesDocumentTitleForMissingLabel() = runTest {
         val state = newState(tocFixture("toc-partial-labels", navPoint("First chapter", "ch1.xhtml")))
         assertEquals(listOf("First chapter", "Chapter Two"), state.tocKeys().map { it.getName() })
@@ -1753,6 +1790,55 @@ class EpubBackendStateTest {
         // This is the exact call path that crashed on startup in #3364 / #3365.
         val total = state.totalCharacters()
         assertTrue("totalCharacters must survive a missing fragment", total >= 0)
+    }
+
+    /** F124: bundled database rows without their optimized files must be rebuilt from sources. */
+    @Test fun aStaleOptimizedDatabaseWithoutFragmentsIsReoptimized() {
+        val dir = buildEpub("stale-gz")
+        newState(dir).close()
+        assertTrue(File(dir, "optimized.sqlite3.gz").exists())
+        assertTrue(optimizedDirOf(dir).deleteRecursively())
+        buildEpub("stale-gz")
+        application.deleteDatabase("epub-${epubInitials(dir.name)}.sqlite3")
+        val state = newState(dir)
+        assertTrue(state.keys.isNotEmpty())
+        assertTrue("every fragment must read back content", state.keys.all { state.read(it).isNotEmpty() })
+    }
+
+    @Test fun missingFragmentsWithASurvivingAppDatabaseAreReoptimized() {
+        val dir = buildEpub("stale-frags")
+        newState(dir).close()
+        assertTrue(optimizedDirOf(dir).deleteRecursively())
+        buildEpub("stale-frags")
+        val state = newState(dir)
+        assertTrue(state.keys.isNotEmpty())
+        assertTrue(state.keys.all { state.read(it).isNotEmpty() })
+    }
+
+    @Test fun rebuildingIncompleteOutputInvalidatesItsOldSearchIndex() = runTest {
+        val dir = buildEpub("stale-output-index")
+        val original = newState(dir)
+        original.buildSearchIndex()
+        assertTrue(original.isIndexed)
+        original.close()
+        assertTrue(optimizedDirOf(dir).deleteRecursively())
+        buildEpub("stale-output-index")
+        val rebuilt = newState(dir)
+        assertFalse("old search fragment IDs cannot survive re-optimization", rebuilt.isIndexed)
+        rebuilt.buildSearchIndex()
+        assertTrue(rebuilt.isIndexed)
+        assertTrue(rebuilt.search("first").isNotEmpty())
+    }
+
+    @Test fun missingVersionWithSourcesRebuildsIncompleteOutput() {
+        val dir = buildEpub("stale-version")
+        newState(dir).close()
+        assertTrue(File(dir, "optimized/version.txt").delete())
+        buildEpub("stale-version")
+        File(dir, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Rebuilt", "Fresh replacement prose."))
+        val state = newState(dir)
+        assertTrue(File(dir, "optimized/version.txt").isFile)
+        assertTrue(state.read(state.keys.first()).contains("Fresh replacement prose"))
     }
 
     @Test fun nonemptyAppDatabaseIsNotReoptimizedEvenWhenSourcesArePresent() {

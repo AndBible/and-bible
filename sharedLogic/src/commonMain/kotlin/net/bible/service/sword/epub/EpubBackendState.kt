@@ -260,10 +260,11 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
             val firstFragments = fragments.distinctBy { it.originalId }.associateBy { it.originalId }
             val originalByFragment = fragments.associate { it.id.toString() to it.originalId }
             val positions = originalIds.withIndex().associate { it.value to it.index }
+            val includeTextless = entries.isEmpty() && linearOriginalIds.none { firstFragments[it]?.hasText == true }
             val result = entries.toMutableList()
             for (id in linearOriginalIds) {
                 if (id in coveredIds) continue
-                val fragment = firstFragments[id]?.takeIf { it.hasText } ?: continue
+                val fragment = firstFragments[id]?.takeIf { it.hasText || includeTextless } ?: continue
                 val addition = BookAndKey(getKey(fragment), book)
                 val position = positions.getValue(id)
                 val next = result.indexOfFirst { entry ->
@@ -273,7 +274,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
                 if (next < 0) result.add(addition) else result.add(next, addition)
                 coveredIds.add(id)
             }
-            result.toList().also { cachedToc.compareAndSet(null, it) }
+            result.toList().also { if (book != null) cachedToc.compareAndSet(null, it) }
         }
     }
 
@@ -328,7 +329,8 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
         if (KFiles.exists(epubDbFile) && !KFiles.exists(appDbFile)) {
             gunzipFile(epubDbFile, appDbFile)
         }
-        // Trust an existing app cache. Only an empty fragment table with all sources can be rebuilt safely.
+        // version.txt is written last. Rebuild incomplete output only while every original source still exists.
+        val optimizedOutputComplete = KFiles.isDirectory(fragDir) && KFiles.exists(versionFile)
         val sourcesPresent = originalIds.isNotEmpty() && originalIds.all {
             fileForOriginalId(it)?.let { file -> KFiles.exists(file) } == true
         }
@@ -340,7 +342,12 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
                 existingDb.close()
             }
         } else false
-        if (!KFiles.exists(appDbFile) || emptyWithSources) {
+        if (!KFiles.exists(appDbFile) || emptyWithSources || (!optimizedOutputComplete && sourcesPresent)) {
+            // Recreated fragments get new IDs; an existing search index must not keep the old ones.
+            if (KFiles.exists(searchDbFile)) {
+                val oldSearch = EpubSearch(searchDbFile)
+                try { oldSearch.deleteIndex() } finally { oldSearch.close() }
+            }
             optimizeEpub()
             gzipFile(appDbFile, epubDbFile)
         }

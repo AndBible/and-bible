@@ -28,6 +28,7 @@ import net.bible.service.common.XmlQueries
 import net.bible.service.sword.SwordContentFacade
 import fi.sykero.kdom.Document
 import fi.sykero.kdom.Element
+import fi.sykero.kdom.Text
 import fi.sykero.kdom.query.descendantElements
 import fi.sykero.kdom.query.descendantTexts
 import net.bible.sharedlogic.util.currentTimeMillis
@@ -40,6 +41,17 @@ private val urlRe = Regex("""^https?://.*""")
 
 const val EPUB_OPTIMIZER_VERSION = 3
 private val EPUB_HEADINGS = setOf("h1", "h2", "h3", "h4", "h5", "h6")
+private val titleWhitespace = Regex("\\s+")
+
+/** Preserve inline text adjacency, but separate explicit line breaks in stored chapter labels. */
+private fun Element.chapterTitle(): String? = buildString {
+    for (node in descendants) {
+        when (node) {
+            is Text -> append(node.text)
+            is Element -> if (node.name == "br") append(' ')
+        }
+    }
+}.replace(titleWhitespace, " ").trim().takeIf { it.isNotEmpty() }
 
 fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     val file = fileForOriginalId(origId)?: return Pair(null, 0)
@@ -224,9 +236,9 @@ fun EpubBackendState.optimizeEpub() {
 
         val body = XmlQueries.body(origDocument.rootElement, xhtmlNamespace)!!
         val documentTitle = origDocument.rootElement.children.firstOrNull { it.name == "head" }?.children
-            ?.firstOrNull { it.name == "title" }?.value?.trim()?.takeIf { it.isNotEmpty() }
-        val chapterTitle = body.descendantElements().firstOrNull { it.name in EPUB_HEADINGS && it.value.isNotBlank() }
-            ?.value?.trim() ?: documentTitle?.takeUnless { it == getBookMetaData().name }
+            ?.firstOrNull { it.name == "title" }?.chapterTitle()
+        val chapterTitle = body.descendantElements().filter { it.name in EPUB_HEADINGS }
+            .mapNotNull { it.chapterTitle() }.firstOrNull() ?: documentTitle?.takeUnless { it == getBookMetaData().name }
         val hasText = body.descendantTexts().any { it.text.isNotBlank() }
         val fragments = splitIntoFragments(k, origDocument, maxOrdinal, chapterTitle, hasText).let {
             it.ifEmpty { listOf(EpubFragment(k, 0, 0, title = chapterTitle, hasText = hasText).apply { element = origDocument.rootElement }) }
