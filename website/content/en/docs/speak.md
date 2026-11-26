@@ -58,8 +58,10 @@ spoken as `Matthew 2:9`. In Bible text, cross-reference notes are never spoken, 
 links inside study notes are only spoken when those footnotes are enabled. If a link has no valid Bible target, its visible text is used.
 
 Turn off **Read links and Bible references** in Speak Settings to skip links in Bible
-text, commentaries, General Books and AI documents. Empty brackets and a dangling
-"see" around a skipped link are also removed; ordinary text inside brackets is kept.
+text, commentaries, General Books and AI documents. Empty brackets left by skipped
+links are not read; ordinary text inside brackets and words outside brackets are kept.
+For legacy documents rendered as a whole passage, a changed switch applies from the next
+start, not to text already prepared for playback.
 The switch is on by default and is saved with the other playback settings, including
 Speak bookmarks when **Save playback settings to bookmarks** is enabled.
 

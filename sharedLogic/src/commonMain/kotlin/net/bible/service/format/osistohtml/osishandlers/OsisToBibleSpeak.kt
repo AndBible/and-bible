@@ -75,8 +75,18 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                 index++
                 val old = speakCommands[i] as TextCommand
                 val text = cleaned[cleaned.size - index]
-                if (text.isBlank()) speakCommands.removeAt(i)
+                if (text.none(Char::isLetterOrDigit)) speakCommands.removeAt(i)
                 else speakCommands[i] = TextCommand(text, old.type, old.joinToPrevious)
+            }
+            // With their only link removed, empty notes/titles need no earcons or pause.
+            for (i in speakCommands.lastIndex - 1 downTo 0) {
+                val start = speakCommands[i]
+                val end = speakCommands.getOrNull(i + 1)
+                if ((start is PreFootnoteCommand && end is PostFootnoteCommand) ||
+                    (start is PreTitleCommand && end is SilenceCommand)) {
+                    speakCommands.removeAt(i + 1)
+                    speakCommands.removeAt(i)
+                }
             }
         }
     }
@@ -102,7 +112,9 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
             skippedLinkDepth++
             elementStack.add(StackEntry(false))
         } else if ((name == OSISUtil.OSIS_ELEMENT_REFERENCE || name == "a") && !speakSettings.playbackSettings.speakLinks) {
+            previousRawEnd = RawEnd.CROSSED_SEPARATOR
             if (peekVisible) addText(SkippedSpeakLinks.marker)
+            previousRawEnd = RawEnd.CROSSED_SEPARATOR
             skippedLinkDepth = 1
             elementStack.add(StackEntry(false))
         } else if (name == OSISUtil.OSIS_ELEMENT_VERSE) {

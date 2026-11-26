@@ -1,10 +1,9 @@
 package net.bible.service.format.osistohtml.osishandlers
 
-/** Removes only punctuation/introductions belonging to skipped links, across SAX chunks or BVA ordinals. */
+/** Removes skipped links and empty surrounding brackets without changing unrelated text. */
 internal object SkippedSpeakLinks {
     const val marker = "\uE000"
-    private val introduction = Regex("\\bsee\\s*(?=$marker)", RegexOption.IGNORE_CASE)
-    private val emptyReference = Regex("[\\s,;:.!?\\[\\](){}$marker]|\\bsee\\b", RegexOption.IGNORE_CASE)
+    private val bracketDebris = Regex("[\\s,;:.!?\\[\\](){}$marker]+")
 
     fun clean(text: String): String = cleanParts(listOf(text)).single()
 
@@ -19,51 +18,38 @@ internal object SkippedSpeakLinks {
                 '(', '[', '{' -> brackets.add(i)
                 ')', ']', '}' -> {
                     val start = brackets.lastOrNull() ?: continue
-                    val expected = when (text[start]) { '(' -> ')'; '[' -> ']'; else -> '}' }
-                    if (text[i] != expected) continue
+                    if (text[i] != when (text[start]) { '(' -> ')'; '[' -> ']'; else -> '}' }) continue
                     brackets.removeAt(brackets.lastIndex)
                     val content = text.substring(start + 1, i)
-                    if (marker in content && emptyReference.replace(content, "").isEmpty()) {
+                    val words = bracketDebris.replace(content, " ").trim().lowercase()
+                    if (marker in content && words in listOf("", "see", "see also", "cf")) {
                         for (j in start..i) removed[j] = true
                     }
                 }
             }
         }
-        introduction.findAll(text).forEach { match ->
-            for (i in match.range) removed[i] = true
-        }
-        // A removed inline citation must not leave doubled separators or a leading separator in an aside.
         for (i in text.indices) {
             if (text[i] != marker[0]) continue
             val left = (i - 1 downTo 0).firstOrNull { !removed[it] && !text[it].isWhitespace() }
             val right = (i + 1 until text.length).firstOrNull { !removed[it] && !text[it].isWhitespace() }
-            if (left != null && right != null && text[right] in ",;:" && text[left] in ",;:([{") {
-                removed[right] = true
-            }
+            if (left != null && right != null && text[right] in ",;:" && text[left] in ",;:([{") removed[right] = true
         }
-        // Collapse the gap left by a link and remove spaces before closing/sentence punctuation.
-        var previous: Int? = null
-        for (i in text.indices) {
-            if (removed[i]) continue
-            val prev = previous
-            if (prev != null && text[prev].isWhitespace()) {
-                if (text[i].isWhitespace()) {
-                    removed[i] = true
-                    continue
-                }
-                if (text[i] in ",;:.!?)]}") removed[prev] = true
-            }
-            if (prev != null && text[prev] in "([{" && text[i].isWhitespace()) {
-                removed[i] = true
-                continue
-            }
-            previous = i
+        // Only normalize gaps containing removed characters, never whitespace elsewhere.
+        var i = 0
+        while (i < text.length) {
+            if (!removed[i] && !text[i].isWhitespace()) { i++; continue }
+            val start = i
+            while (i < text.length && (removed[i] || text[i].isWhitespace())) i++
+            if ((start until i).none { removed[it] }) continue
+            val space = (start until i).firstOrNull { !removed[it] && text[it].isWhitespace() }
+            val keepSpace = start > 0 && i < text.length && text[start - 1] !in "([{" && text[i] !in ",;:.!?)]}"
+            for (j in start until i) removed[j] = !(keepSpace && j == space)
         }
-        var offset = 0
         if (text.indices.none { !removed[it] && text[it].isLetterOrDigit() }) return parts.map { "" }
+        var offset = 0
         return parts.map { part ->
             buildString {
-                for (i in part.indices) if (!removed[offset + i]) append(part[i])
+                for (j in part.indices) if (!removed[offset + j]) append(part[j])
             }.also { offset += part.length }
         }
     }

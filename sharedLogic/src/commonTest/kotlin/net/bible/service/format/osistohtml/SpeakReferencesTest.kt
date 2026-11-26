@@ -33,8 +33,8 @@ class SpeakReferencesTest {
         return handler.speakCommands.filterIsInstance<TextCommand>().joinToString("") { it.text }.trim()
     }
 
-    private fun legacy(xml: String, sayReferences: Boolean = true): String {
-        val handler = OsisToSpeakTextSaxHandler(sayReferences, SaxTextPolicy.MODERN, speakLinks = sayReferences)
+    private fun legacy(xml: String, sayReferences: Boolean = true, links: Boolean = true): String {
+        val handler = OsisToSpeakTextSaxHandler(sayReferences, SaxTextPolicy.MODERN, speakLinks = links)
         XmlEventParser().parse(xml, handler)
         return handler.toString().trim()
     }
@@ -46,9 +46,42 @@ class SpeakReferencesTest {
             val content = wrapper.replace("%s", ref)
             assertEquals("Before after.", bible("<verse>Before $content after.</verse>", links = false))
         }
-        assertEquals("Before after.", bible("<verse>Before see <a href='https://example.org'><hi>link</hi></a> after.</verse>", links = false))
+        assertEquals("Before see after.", bible("<verse>Before see <a href='https://example.org'><hi>link</hi></a> after.</verse>", links = false))
         assertEquals("Before after.", bible("<verse>Before (<reference><note type='study'>hidden</note><verse>also hidden</verse></reference>) after.</verse>", footnotes = true, links = false))
         assertEquals("Keep (real words) after.", bible("<verse>Keep (real words <reference>link</reference>) after.</verse>", links = false))
+    }
+
+    @Test
+    fun skippedLinksSeparateAdjacentWords() {
+        for (link in listOf("<reference osisRef='Matt.2.9'/>", "<a href='https://example.org'><hi>link</hi></a>")) {
+            assertEquals("word next.", bible("<verse>word${link}next.</verse>", links = false))
+        }
+    }
+
+    @Test
+    fun referenceOnlyNotesAndTitlesLeaveNoCommands() {
+        for (element in listOf("note type='study'", "title")) {
+            val name = element.substringBefore(' ')
+            val handler = OsisToBibleSpeak(
+                SpeakSettings(playbackSettings = PlaybackSettings(speakFootnotes = true, speakTitles = true, speakLinks = false)),
+                phrases, advanced, 4000, SaxTextPolicy.MODERN,
+            )
+            XmlEventParser().parse("<verse>Before.<$element><reference osisRef='Matt.2.9'/>.</$name>After.</verse>", handler)
+            assertTrue(handler.speakCommands.all { it is TextCommand }, handler.speakCommands.toString())
+            assertTrue(handler.speakCommands.filterIsInstance<TextCommand>().all { it.text.any(Char::isLetterOrDigit) })
+            assertEquals("Before.After.", handler.speakCommands.filterIsInstance<TextCommand>().joinToString("") { it.text })
+        }
+    }
+
+    @Test
+    fun realNoteAndTitleContentKeepsItsCommandsWhenLinksAreSkipped() {
+        val handler = OsisToBibleSpeak(
+            SpeakSettings(playbackSettings = PlaybackSettings(speakFootnotes = true, speakTitles = true, speakLinks = false)),
+            phrases, advanced, 4000, SaxTextPolicy.MODERN,
+        )
+        XmlEventParser().parse("<verse><title>Heading <reference/></title><note type='study'>Explanation <reference/>.</note></verse>", handler)
+        assertEquals(6, handler.speakCommands.size)
+        assertEquals(listOf("Heading", "Explanation."), handler.speakCommands.filterIsInstance<TextCommand>().map { it.text })
     }
 
     @Test
@@ -117,8 +150,8 @@ class SpeakReferencesTest {
 
     @Test
     fun legacySkipsVisibleLinksAndBracketDebrisWhenDisabled() {
-        assertEquals("Before after.", legacy("<div>Before [see <reference osisRef='Matt.2.9'><hi>v. 9</hi></reference>] after.</div>", sayReferences = false))
-        assertEquals("Before after.", legacy("<div>Before (<a href='https://example.org'>link</a>) after.</div>", sayReferences = false))
+        assertEquals("Before after.", legacy("<div>Before [see <reference osisRef='Matt.2.9'><hi>v. 9</hi></reference>] after.</div>", links = false))
+        assertEquals("Before after.", legacy("<div>Before (<a href='https://example.org'>link</a>) after.</div>", links = false))
     }
 
     @Test
@@ -174,6 +207,11 @@ class SpeakReferencesTest {
     @Test
     fun bibleSpeaksReferencesInEnabledStudyNotes() {
         assertEquals("Matthew 2:9", bible("<verse><note type='study'><reference osisRef='Matt.2.9'>v. 9</reference></note></verse>", footnotes = true))
+    }
+
+    @Test
+    fun legacyStillSpeaksVisibleReferencesWhenOnlyNoteReferencesAreDisabled() {
+        assertEquals("See Matthew 2 verse 9 now.", legacy("<div>See <reference osisRef='Matt.2.9'>v. 9</reference> now.</div>", sayReferences = false))
     }
 
     @Test
