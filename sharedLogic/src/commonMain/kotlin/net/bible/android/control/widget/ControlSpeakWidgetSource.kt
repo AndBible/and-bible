@@ -18,9 +18,14 @@ package net.bible.android.control.widget
 
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.speak.AdvancedSpeakSettings
@@ -39,6 +44,8 @@ import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedlogic.util.currentTimeMillis
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.BooksEvent
+import org.crosswire.jsword.book.BooksListener
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Passage
@@ -60,7 +67,8 @@ internal fun redrawsListeningList(change: BookmarkChange): Boolean = when (chang
 
 /**
  * [SpeakWidgetSource] over [SpeakControl], the speak settings and the speak-label bookmarks. Subscribes to the
- * speak, settings and bookmark event streams for its whole life (a Koin single); [close] cancels them.
+ * speak, settings and bookmark event streams for its whole life (a Koin single). Installed-book observation starts
+ * with the first [facts] read on IO, since initialising Books can scan disk; [close] cancels all subscriptions.
  */
 class ControlSpeakWidgetSource(
     private val isSpeaking: () -> Boolean,
@@ -95,6 +103,28 @@ class ControlSpeakWidgetSource(
     override val changes: Flow<Unit> = events.asSharedFlow()
 
     private val subscriptions = Subscriptions()
+    private val booksLock = Mutex()
+    private val closed = atomic(false)
+    private val observedBooks = atomic<Books?>(null)
+    private val booksListener = object : BooksListener {
+        // Books.addBook updates getBook's index before firing this event, so a rebuild sees the new book.
+        override fun bookAdded(ev: BooksEvent) { events.tryEmit(Unit) }
+        override fun bookRemoved(ev: BooksEvent) { events.tryEmit(Unit) }
+    }
+
+    private suspend fun observeBooks() = withContext(Dispatchers.IO) {
+        booksLock.withLock {
+            if (!closed.value && observedBooks.value == null) {
+                Books.installed().also {
+                    it.addBooksListener(booksListener)
+                    observedBooks.value = it
+                    // close() is synchronous and may have run while Books initialised on this thread.
+                    if (closed.value) it.removeBooksListener(booksListener)
+                }
+            }
+        }
+    }
+
     /** Written by the event handlers (any thread), read by [facts]; replaced whole so a read is consistent. */
     private val tracked = atomic(Tracked())
 
@@ -125,7 +155,12 @@ class ControlSpeakWidgetSource(
         subscriptions.add(bookmarkControl.changes.subscribe { if (redrawsListeningList(it)) events.tryEmit(Unit) })
     }
 
-    fun close() = subscriptions.cancelAll()
+    /** Unregisters event subscriptions, including the process-wide installed-books listener. */
+    fun close() {
+        closed.value = true
+        observedBooks.value?.removeBooksListener(booksListener)
+        subscriptions.cancelAll()
+    }
 
     /** Forgets the title, verse text and position of an earlier run; a producer start must not show them. */
     override fun reset() = tracked.update { Tracked() }
@@ -142,6 +177,7 @@ class ControlSpeakWidgetSource(
     }
 
     override suspend fun facts(): SpeakFacts {
+        observeBooks()
         val phase = when {
             isSpeaking() -> SpeakPhase.SPEAKING
             isPaused() -> SpeakPhase.PAUSED

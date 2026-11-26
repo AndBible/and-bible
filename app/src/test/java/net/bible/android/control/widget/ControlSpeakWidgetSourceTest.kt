@@ -16,7 +16,16 @@
  */
 package net.bible.android.control.widget
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
@@ -26,8 +35,15 @@ import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.PlaybackSettings
+import net.bible.android.database.mydocument.MyDocument
+import net.bible.android.database.mydocument.MyDocumentPage
+import net.bible.android.platform.AndroidWidgetStrings
 import net.bible.android.platform.androidSaxTextPolicy
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.createMyDocumentBook
 import net.bible.service.device.speak.TextCommand
 import net.bible.test.DatabaseResetter.resetDatabase
 import net.bible.test.testAppSettings
@@ -196,6 +212,152 @@ class ControlSpeakWidgetSourceTest {
         assertFalse(f.rows.any { it.current })
         assertTrue(f.rows.all { it.translation.isNotEmpty() && it.percent != null && !it.repeats })
         assertTrue(f.rows.map { it.bookmarkId }.containsAll(listOf(first.id.toString(), otherBible.id.toString())))
+    }
+
+    @Test fun lateDocumentRegistrationPopulatesTheStoppedListWithoutPlayback() = runBlocking {
+        val document = MyDocument(name = "Widget test document", initials = "MyDoc_WidgetLateRegistration")
+        val manager = MyDocumentBookManager
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val scopeJob = SupervisorJob()
+        val producer = SpeakWidgetStateProducer(
+            CoroutineScope(scopeJob + Dispatchers.Default), source,
+            AndroidWidgetStrings(org.robolectric.RuntimeEnvironment.getApplication()),
+        )
+        manager.unregisterDocument(document.initials)
+        try {
+            dao.insert(document)
+            dao.insertPageWithContent(MyDocumentPage(
+                documentId = document.id, pageKey = "widget-page", title = "Widget test page", orderNumber = 0,
+            ), "Synthetic widget content")
+            val bookmark = bookmarkControl.addOrUpdateGenericBookmark(
+                GenericBookmarkWithNotes(
+                    key = "widget-page", bookInitials = document.initials, ordinalStart = null, ordinalEnd = null,
+                    startOffset = null, endOffset = null, playbackSettings = null, new = true,
+                ), setOf(bookmarkControl.speakLabel().id),
+            )
+            producer.start()
+            val initial = withTimeoutOrNull(10_000) { producer.state.first { it.listening.size == 1 } }
+            assertNotNull("the pre-registration row was not built", initial)
+            assertEquals("", initial!!.listening.single().reference)
+
+            manager.registerDocument(document)
+            val populated = withTimeoutOrNull(10_000) {
+                producer.state.first { it.listening.singleOrNull()?.reference == "Widget test page" }
+            }
+            assertNotNull("registering the document must redraw its blank row without a playback event", populated)
+            assertEquals(bookmark.id.toString(), populated!!.listening.single().bookmarkId)
+            assertEquals(document.initials, populated.listening.single().translation)
+            assertEquals(SpeakPhase.STOPPED, populated.phase)
+
+            manager.unregisterDocument(document.initials)
+            val removed = withTimeoutOrNull(10_000) {
+                producer.state.first { it.listening.singleOrNull()?.reference == "" }
+            }
+            assertNotNull("removing the document must clear the stale row label without playback", removed)
+            assertEquals(bookmark.id.toString(), removed!!.listening.single().bookmarkId)
+            assertEquals("", removed.listening.single().translation)
+        } finally {
+            producer.stop()
+            scopeJob.cancelAndJoin()
+            manager.unregisterDocument(document.initials)
+            dao.deleteDocumentWithPages(document)
+        }
+    }
+
+    @Test fun registrationDuringTheFirstWidgetReadPopulatesTheRow() = runBlocking {
+        val document = MyDocument(name = "Widget early registration", initials = "MyDoc_WidgetEarlyRegistration")
+        val manager = MyDocumentBookManager
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val scopeJob = SupervisorJob()
+        var initialFacts: SpeakFacts? = null
+        val registeringSource = object : SpeakWidgetSource by source {
+            override suspend fun facts(): SpeakFacts {
+                val first = initialFacts
+                if (first != null) {
+                    initialFacts = null
+                    // Return a captured read without yielding: registration beats the old producer's collectors.
+                    val book = createMyDocumentBook(document)
+                    Books.installed().addBook(book)
+                    // Startup may discover it before the manager: this no-event branch must also resolve the row.
+                    assertEquals(book, manager.registerDocument(document))
+                    return first
+                }
+                return source.facts()
+            }
+        }
+        val producer = SpeakWidgetStateProducer(
+            CoroutineScope(scopeJob + Dispatchers.Unconfined), registeringSource,
+            AndroidWidgetStrings(org.robolectric.RuntimeEnvironment.getApplication()),
+        )
+        manager.unregisterDocument(document.initials)
+        try {
+            dao.insert(document)
+            dao.insertPageWithContent(MyDocumentPage(
+                documentId = document.id, pageKey = "early-page", title = "Early widget page", orderNumber = 0,
+            ), "Synthetic widget content")
+            bookmarkControl.addOrUpdateGenericBookmark(
+                GenericBookmarkWithNotes(
+                    key = "early-page", bookInitials = document.initials, ordinalStart = null, ordinalEnd = null,
+                    startOffset = null, endOffset = null, playbackSettings = null, new = true,
+                ), setOf(bookmarkControl.speakLabel().id),
+            )
+            initialFacts = source.facts()
+            assertEquals("", initialFacts!!.rows.single().reference)
+            producer.start()
+            val populated = withTimeoutOrNull(5_000) {
+                producer.state.first { it.listening.singleOrNull()?.reference == "Early widget page" }
+            }
+            assertNotNull("registration during the initial facts read must not strand a blank row", populated)
+            assertEquals(document.initials, populated!!.listening.single().translation)
+        } finally {
+            producer.stop()
+            scopeJob.cancelAndJoin()
+            Books.installed().getBook(document.initials)?.let { Books.installed().removeBook(it) }
+            dao.deleteDocumentWithPages(document)
+        }
+    }
+
+    @Test fun constructionDoesNotSubscribeToBooksAndClosePreventsLateSubscription() = runBlocking {
+        val registry = Books.installed()
+        val listeners = registry.javaClass.superclass.getDeclaredField("listeners").apply { isAccessible = true }
+        fun listenerCount() = (listeners.get(registry) as List<*>).size
+        source.close()
+        val before = listenerCount()
+        source = ControlSpeakWidgetSource(
+            { false }, { false }, { null }, bookmarkControl, AdvancedSpeakSettings(settings),
+            GlobalContext.get().get<BibleTraverser>(), settings, testCoreStrings(), androidSaxTextPolicy(),
+        )
+        assertEquals("construction must not subscribe to installed books", before, listenerCount())
+        source.close()
+        source.facts()
+        assertEquals("a read after close must not resurrect its book listener", before, listenerCount())
+    }
+
+    @Test fun closeUnsubscribesFromInstalledBookChanges() = runBlocking {
+        val document = MyDocument(name = "Widget listener test", initials = "MyDoc_WidgetListenerRemoval")
+        val manager = MyDocumentBookManager
+        manager.unregisterDocument(document.initials)
+        source.facts() // Start book observation and create the speak label before observing invalidations.
+        val changes = Channel<Unit>(Channel.UNLIMITED)
+        val collector = launch(Dispatchers.Unconfined, start = CoroutineStart.UNDISPATCHED) {
+            source.changes.collect { changes.send(it) }
+        }
+        try {
+            manager.registerDocument(document)
+            assertNotNull("registering a book should invalidate the source", withTimeoutOrNull(10_000) { changes.receive() })
+
+            manager.unregisterDocument(document.initials)
+            assertNotNull("removing a book should invalidate the source", withTimeoutOrNull(10_000) { changes.receive() })
+
+            source.close()
+            manager.registerDocument(document)
+            manager.unregisterDocument(document.initials)
+            assertNull("book changes after close must not invalidate the source", withTimeoutOrNull(100) { changes.receive() })
+        } finally {
+            collector.cancelAndJoin()
+            changes.close()
+            manager.unregisterDocument(document.initials)
+        }
     }
 
     @Test fun noRowIsCurrentWhileStopped() = runBlocking {
