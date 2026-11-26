@@ -30,6 +30,18 @@ class GithubReleasesTest {
         )
     }
 
+    @Test fun findsMarketingVersionAnywhereInReleaseTitle() {
+        val releases = parseDesktopReleases(
+            """
+            [{"tag_name":"production-1246","draft":false,"html_url":"https://example.com/1246",
+              "name":"AndBible Desktop 6.2.1400-beta (stable channel)",
+              "assets":[{"name":"andbible-desktop-linux.deb"}]}]
+            """.trimIndent(),
+        )
+
+        assertEquals("6.2.1400-beta", releases.single().version)
+    }
+
     private fun release(channel: DesktopChannel, build: Int) = DesktopRelease("${channel.name.lowercase()}-$build", build, channel, "u")
 
     /** (installed channel, available releases) -> offered tag; the rule is test < beta < production. */

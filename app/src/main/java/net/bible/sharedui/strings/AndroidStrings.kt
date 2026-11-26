@@ -1236,6 +1236,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val desktopUpdateAvailableTitle: String get() = context.getString(R.string.desktop_update_available_title)
     override fun desktopUpdateAvailableMessage(available: String, current: String): String = context.getString(R.string.desktop_update_available_message, available, current)
     override val desktopUpdateDownload: String get() = context.getString(R.string.desktop_update_download)
+    override val desktopUpdateWhatsNew: String get() = context.getString(R.string.desktop_update_whats_new)
     override val desktopUpdateSnoozeDay: String get() = context.getString(R.string.desktop_update_snooze_day)
     override val desktopUpdateSnoozeWeek: String get() = context.getString(R.string.desktop_update_snooze_week)
     override val desktopUpdateSnoozeMonth: String get() = context.getString(R.string.desktop_update_snooze_month)

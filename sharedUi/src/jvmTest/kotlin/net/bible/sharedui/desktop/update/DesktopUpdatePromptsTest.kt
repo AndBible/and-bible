@@ -48,7 +48,7 @@ class DesktopUpdatePromptsTest {
             val first = start(); runCurrent()
             val shown = assertNotNull(dialogs.pending.value)
             val options = (shown.request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
-            assertEquals(listOf("download", "snooze_day", "snooze_week", "snooze_month", "skip"), options.options.map { it.value })
+            assertEquals(listOf("download", "whats_new", "snooze_day", "snooze_week", "snooze_month", "skip"), options.options.map { it.value })
             assertEquals("desktop_update_dont_notify", options.checkboxLabel)
             kotlin.test.assertTrue(options.message.orEmpty().contains("desktop_update_reenable"))
             dialogs.cancelAll(); runCurrent()
@@ -82,6 +82,101 @@ class DesktopUpdatePromptsTest {
             fourth.close()
         } finally {
             root.toFile().deleteRecursively()
+        }
+    }
+
+    @Test fun whatsNewOpensOfferedVersionsNotesWithoutAcknowledgingOrSnoozing() = runTest {
+        // The offered version, not the installed one or the build-only tag, selects the page.
+        for ((name, expectedUrl) in listOf(
+            "Release 6.0.1240" to "https://andbible.org/docs/releases/release_6_0/",
+            "Beta release 6.0.1240-beta" to "https://andbible.org/docs/releases/release_6_0/",
+            "Test release 6.0.1240-test" to "https://andbible.org/docs/releases/release_6_0/",
+            "Test release 7.0.1240-test" to "https://andbible.org/docs/desktop/#update-checks",
+            "Release 6.0.invalid" to "https://andbible.org/docs/desktop/#update-checks",
+            "" to "https://andbible.org/docs/desktop/#update-checks",
+        )) {
+            for (followUp in listOf("download", "snooze_day", "snooze_week", "snooze_month", "skip", "cancel")) {
+                val root = Files.createTempDirectory("update-notes")
+                val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString(CONSENT_KEY, "daily") }
+                val env = DesktopAppEnvironment(DesktopPaths({ null }, "Linux", root), object : SecretStore {
+                    override fun get(key: String): String? = null
+                    override fun put(key: String, value: String) = Unit
+                    override fun remove(key: String) = Unit
+                }, prefs)
+                val dialogs = AppDialogController()
+                val opened = mutableListOf<String>()
+                val prompts = DesktopUpdatePrompts(prefs, backgroundScope, env, "5.0.1230", 1230,
+                    DesktopChannel.PRODUCTION, dialogs,
+                    HostStringTableHolder(StringTable.of("en", { it }, { _, _ -> "" }, { emptyList() })),
+                    object : ExternalLinks {
+                        override val askBeforeOpening = false
+                        override fun open(url: String) { opened += url }
+                    }, { true }, { 100000000L }, {
+                        """[{"tag_name":"production-1240","name":"$name","draft":false,"html_url":"https://example.com/1240","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
+                    })
+                try {
+                    runCurrent()
+                    val pending = assertNotNull(dialogs.pending.value)
+                    dialogs.respond(pending.id, AppDialogResult.SelectedWithCheckbox("whats_new", false))
+                    runCurrent()
+                    assertEquals(listOf(expectedUrl), opened, name)
+                    assertEquals(0, prefs.getInt("desktop_update_announced_build", 0), name)
+                    assertEquals(0L, prefs.getLong("desktop_update_snooze_until", 0L), name)
+                    assertEquals("daily", prefs.getString(CONSENT_KEY), name)
+                    val reopened = assertNotNull(dialogs.pending.value, "Offer must remain after reading notes")
+                    assertEquals((pending.request as AppDialogRequest.Localized).resolve(),
+                        (reopened.request as AppDialogRequest.Localized).resolve())
+                    dialogs.respond(reopened.id, AppDialogResult.Selected("whats_new"))
+                    runCurrent()
+                    assertEquals(listOf(expectedUrl, expectedUrl), opened)
+                    val offer = assertNotNull(dialogs.pending.value, "Repeated notes must keep the offer")
+                    if (followUp == "cancel") dialogs.cancelAll()
+                    else dialogs.respond(offer.id, AppDialogResult.SelectedWithCheckbox(followUp, false))
+                    runCurrent()
+                    assertNull(dialogs.pending.value)
+                    assertEquals(if (followUp in listOf("download", "skip")) 1240 else 0,
+                        prefs.getInt("desktop_update_announced_build", 0), followUp)
+                    val days = when (followUp) { "snooze_day" -> 1; "snooze_week" -> 7; "snooze_month" -> 30; else -> 0 }
+                    assertEquals(if (days > 0) 100000000L + days * 86400000L else 0L,
+                        prefs.getLong("desktop_update_snooze_until", 0L), followUp)
+                    assertEquals(listOf(expectedUrl, expectedUrl) +
+                        (if (followUp == "download") listOf("https://example.com/1240") else emptyList()), opened)
+                } finally {
+                    prompts.close()
+                    root.toFile().deleteRecursively()
+                }
+            }
+        }
+    }
+
+    @Test fun offerDisplaysMarketingVersionOrFallsBackToTag() = runTest {
+        for ((name, expected) in listOf("Release 6.0.1240" to "6.0.1240", "" to "production-1240")) {
+            val root = Files.createTempDirectory("update-version")
+            val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString(CONSENT_KEY, "daily") }
+            val env = DesktopAppEnvironment(DesktopPaths({ null }, "Linux", root), object : SecretStore {
+                override fun get(key: String): String? = null
+                override fun put(key: String, value: String) = Unit
+                override fun remove(key: String) = Unit
+            }, prefs)
+            val dialogs = AppDialogController()
+            val table = StringTable.of("en", { if (it == "desktop_update_available_message") "%1\$s|%2\$s" else it },
+                { _, _ -> "" }, { emptyList() })
+            val prompts = DesktopUpdatePrompts(prefs, backgroundScope, env, "5.0.1230", 1230,
+                DesktopChannel.PRODUCTION, dialogs, HostStringTableHolder(table), object : ExternalLinks {
+                    override val askBeforeOpening = false
+                    override fun open(url: String) = Unit
+                }, { true }, { 100000000L }, {
+                    """[{"tag_name":"production-1240","name":"$name","draft":false,"html_url":"https://example.com/1240","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
+                })
+            try {
+                runCurrent()
+                val request = assertNotNull(dialogs.pending.value).request as AppDialogRequest.Localized
+                assertEquals("$expected|5.0.1230<br><br>desktop_update_reenable",
+                    (request.resolve() as AppDialogRequest.Options).message)
+            } finally {
+                prompts.close()
+                root.toFile().deleteRecursively()
+            }
         }
     }
 
@@ -154,6 +249,7 @@ class DesktopUpdatePromptsTest {
 
     @Test fun optingOutWithSnoozeDisablesFutureChecks() = verifyOptOut("snooze_day")
     @Test fun optingOutWithDownloadStillOpensReleaseAndDisablesFutureChecks() = verifyOptOut("download")
+    @Test fun optingOutWithWhatsNewStillOpensNotesAndDisablesFutureChecks() = verifyOptOut("whats_new")
 
     private fun verifyOptOut(choice: String) = runTest {
         val root = Files.createTempDirectory("update-opt-out")
@@ -182,8 +278,25 @@ class DesktopUpdatePromptsTest {
             dialogs.respond(pending.id, AppDialogResult.SelectedWithCheckbox(choice, true)); runCurrent()
             assertEquals("never", prefs.getString("desktop_update_check"))
             assertEquals(DesktopUpdateInterval.NEVER, prompts.interval)
-            assertEquals(if (choice == "download") listOf("https://example.com/1240") else emptyList(), opened)
+            assertEquals(when (choice) {
+                "download" -> listOf("https://example.com/1240")
+                "whats_new" -> listOf("https://andbible.org/docs/desktop/#update-checks")
+                else -> emptyList()
+            }, opened)
             assertEquals(if (choice == "download") 1240 else 0, prefs.getInt("desktop_update_announced_build", 0))
+            if (choice == "whats_new") {
+                val reopened = assertNotNull(dialogs.pending.value, "Opt-out must not remove the current offer")
+                val request = (reopened.request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
+                kotlin.test.assertTrue(request.checkboxChecked, "Reopened offer must show the saved opt-out")
+                dialogs.respond(reopened.id, AppDialogResult.SelectedWithCheckbox("whats_new", false)); runCurrent()
+                assertEquals("daily", prefs.getString(CONSENT_KEY), "Unchecking opt-out restores the original interval")
+                val restored = assertNotNull(dialogs.pending.value)
+                val restoredRequest = (restored.request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
+                kotlin.test.assertFalse(restoredRequest.checkboxChecked)
+                dialogs.respond(restored.id, AppDialogResult.SelectedWithCheckbox("whats_new", true)); runCurrent()
+                assertEquals("never", prefs.getString(CONSENT_KEY))
+                dialogs.cancelAll(); runCurrent()
+            }
             now += 3 * 86400000L
             testScheduler.advanceTimeBy(3 * 86400000L); runCurrent()
             assertNull(dialogs.pending.value)

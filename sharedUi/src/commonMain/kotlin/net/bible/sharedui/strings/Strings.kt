@@ -1314,6 +1314,7 @@ interface Strings {
     val desktopUpdateAvailableTitle: String // R.string.desktop_update_available_title
     fun desktopUpdateAvailableMessage(available: String, current: String): String // R.string.desktop_update_available_message
     val desktopUpdateDownload: String // R.string.desktop_update_download
+    val desktopUpdateWhatsNew: String // R.string.desktop_update_whats_new
     val desktopUpdateSnoozeDay: String // R.string.desktop_update_snooze_day
     val desktopUpdateSnoozeWeek: String // R.string.desktop_update_snooze_week
     val desktopUpdateSnoozeMonth: String // R.string.desktop_update_snooze_month

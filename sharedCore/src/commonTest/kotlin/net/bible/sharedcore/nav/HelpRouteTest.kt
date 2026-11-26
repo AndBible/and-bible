@@ -12,15 +12,16 @@ class HelpRouteTest {
     }
 
     @Test fun everyTopicRoundTripsThroughTheRouteArgument() {
-        for (link in DocsLink.entries) {
+        for (link in DocsLink.entries.filter { it.isHelpTopic }) {
             val route = NavRoutes.help(link)
             assertEquals("help?topic=${link.name}", route)
             assertEquals(link, NavRoutes.helpTopic(route.substringAfter('=')))
         }
     }
 
-    @Test fun anUnknownTopicIsIgnored() {
+    @Test fun unknownAndReleaseTopicsAreIgnored() {
         assertNull(NavRoutes.helpTopic("NOT_A_TOPIC"))
+        assertNull(NavRoutes.helpTopic("RELEASE_6_0"))
         assertNull(NavRoutes.helpTopic(null))
     }
 }

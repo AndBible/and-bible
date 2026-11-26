@@ -111,8 +111,8 @@ sealed interface AppDialogRequest {
      * false = answers to a question (`AbOptionsDialog`). Answered [AppDialogResult.Selected] with the
      * chosen [SettingsItem.Choice.value], or [AppDialogResult.Cancel]. [message] is HTML, rendered by
      * `AbHtmlText`, like [Message.message] and [Confirm.message]. A non-null [checkboxLabel]
-     * shows an initially unchecked checkbox in a dialog (even when [asActionSheet] is true) and
-     * returns [AppDialogResult.SelectedWithCheckbox] instead.
+     * shows a checkbox in a dialog (even when [asActionSheet] is true), initially [Options.checkboxChecked],
+     * and returns [AppDialogResult.SelectedWithCheckbox] instead.
      */
     data class Options(
         override val title: String?,
@@ -122,6 +122,7 @@ sealed interface AppDialogRequest {
         val asActionSheet: Boolean,
         val cancellable: Boolean = true,
         val checkboxLabel: String? = null,
+        val checkboxChecked: Boolean = false,
     ) : AppDialogRequest
 
     /**
