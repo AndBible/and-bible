@@ -12,6 +12,16 @@ fun View.texts(): List<String> = allViews().filterIsInstance<TextView>().map { i
 
 fun View.descriptions(): List<String> = allViews().mapNotNull { it.contentDescription?.toString() }
 
+/** Checks both ancestor clipping and a partial last line in a weighted RemoteViews text area. */
+fun TextView.assertCompleteLines(label: String) {
+    val visible = android.graphics.Rect()
+    org.junit.Assert.assertTrue("$label: text is visible", getGlobalVisibleRect(visible))
+    org.junit.Assert.assertEquals("$label: no ancestor clips the text", height, visible.height())
+    org.junit.Assert.assertTrue("$label: at least one line", layout.lineCount > 0)
+    org.junit.Assert.assertTrue("$label: last line fits (${layout.getLineBottom(layout.lineCount - 1)} > ${height - totalPaddingTop - totalPaddingBottom})",
+        layout.getLineBottom(layout.lineCount - 1) <= height - totalPaddingTop - totalPaddingBottom)
+}
+
 /** The first view with this content description, or null. */
 fun View.byDescription(description: String): View? = allViews().firstOrNull { it.contentDescription?.toString() == description }
 

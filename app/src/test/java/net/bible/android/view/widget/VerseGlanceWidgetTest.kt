@@ -96,6 +96,44 @@ class VerseGlanceWidgetTest {
         }
     }
 
+    @Test fun defaultWideWidgetKeepsMultipleCompleteVerseLines() {
+        val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
+        val v = body(long, w = 250, h = 110)
+        val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
+        assertTrue("the default 4x2 widget must not collapse to one verse line", text.layout.lineCount >= 2)
+        text.assertCompleteLines("default 250x110 verse")
+    }
+
+    @Test fun minimumWidgetDropsSourceBeforeClippingAnEnlargedVerse() {
+        val originalScale = context.resources.configuration.fontScale
+        try {
+            org.robolectric.RuntimeEnvironment.setFontScale(1.3f)
+            val long = verse.copy(text = "The LORD is my shepherd; I shall not want. ".repeat(15))
+            val v = body(long, w = 110, h = 110)
+            assertFalse("source/date gives way to the verse at large font sizes", v.texts().any { it.contains("Memory verses") })
+            val text = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == long.text }
+            text.assertCompleteLines("fontScale 1.3 minimum verse")
+            assertTrue(v.texts().contains("Psalm 23:1 · KJV"))
+            listOf(R.string.widget_speak_verse, R.string.widget_shuffle).forEach { id ->
+                val button = v.byDescription(s(id))!!
+                val bounds = android.graphics.Rect()
+                assertTrue(button.getGlobalVisibleRect(bounds))
+                assertEquals(button.height, bounds.height())
+            }
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(originalScale)
+        }
+    }
+
+    @Test fun minimumUnavailableExplanationUsesOnlyCompleteLines() {
+        for (reason in VerseWidgetContent.Unavailable.Reason.entries) {
+            val v = body(VerseWidgetContent.Unavailable(reason), w = 110, h = 110)
+            val text = v.allViews().filterIsInstance<android.widget.TextView>()
+                .single { it.text.toString() == strings.verseUnavailable(reason) }
+            text.assertCompleteLines("minimum unavailable $reason")
+        }
+    }
+
     @Test fun hidingButtonsRemovesShuffleAndSpeak() {
         val v = body(verse, config.copy(showButtons = false))
         assertNull(v.byDescription(s(R.string.widget_shuffle)))

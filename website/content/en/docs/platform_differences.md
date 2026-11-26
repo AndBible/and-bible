@@ -56,7 +56,7 @@ resized, and shows more the larger it is. Tapping the background of a widget ope
 - The sleep timer button turns the [sleep timer](speak.md#sleep-timer) on and off. When switched on, it uses the last time you set, and the widget shows the minutes left.
 - Previous and next move one verse.
 - The Listening list shows as many rows as fit. Until you have Speak bookmarks it says so and explains how to get them: turn on **Automatic bookmarking** in the Speak settings, or give any bookmark the Speak label.
-- Speak and Verse start four cells wide; you can resize them afterwards. The smallest available size depends on your launcher's grid. At its smallest size, Verse puts the reference above the speak and shuffle buttons so it stays readable.
+- Speak and Verse start four cells wide; you can resize them afterwards. The smallest available size depends on your launcher's grid. Below four cells wide, Verse puts the reference above the speak and shuffle buttons so it stays readable. At larger system font sizes, a short Verse widget may hide the source and date to keep a complete verse line visible.
 - The old Small, Middle and Large speak control, Speak text control and Speak bookmarks widgets that you may have placed earlier keep working: they now look like the Speak, Speak with text and Listening list widgets, including the smaller layouts. The widget list shows only the four widgets above on newer Android versions.
 
 #### Verse widget {#verse-widget}

@@ -114,6 +114,27 @@ class SpeakGlanceWidgetTest {
         }
     }
 
+    @Test fun responsiveMinimumUsesTheRealTwoCellGeometry() {
+        val sizes = (SpeakTextGlanceWidget().sizeMode as androidx.glance.appwidget.SizeMode.Responsive).sizes
+        val smallest = sizes.minBy { it.width.value * it.height.value }
+        assertTrue("two-cell widgets must not render into an obsolete 80 dp bucket", smallest.width >= 110.dp)
+    }
+
+    @Test fun minimumTextWidgetKeepsCompleteLinesAtLargerFontSizes() {
+        val longVerse = "The LORD is my shepherd; I shall not want. ".repeat(15)
+        val originalScale = context.resources.configuration.fontScale
+        try {
+            for (scale in listOf(1f, 1.3f)) {
+                org.robolectric.RuntimeEnvironment.setFontScale(scale)
+                val v = text(110, 110, speakingState().copy(verseText = longVerse))
+                v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
+                    .assertCompleteLines("Speak text responsive minimum, fontScale $scale")
+            }
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(originalScale)
+        }
+    }
+
     @Test fun smallestTextWidgetClipsLongVerseWithoutHidingPlay() {
         val longVerse = "The LORD is my shepherd; I shall not want. ".repeat(15)
         for (mode in WidgetMode.entries) {
@@ -124,7 +145,7 @@ class SpeakGlanceWidgetTest {
             assertTrue("$mode play button is visible", play.getGlobalVisibleRect(bounds))
             assertEquals("$mode play button is not vertically clipped", play.height, bounds.height())
             val verse = v.allViews().filterIsInstance<android.widget.TextView>().single { it.text.toString() == longVerse }
-            assertTrue("$mode verse has room for text", verse.height > 0)
+            verse.assertCompleteLines("$mode minimum Speak text")
             assertEquals(android.text.TextUtils.TruncateAt.END, verse.ellipsize)
         }
     }

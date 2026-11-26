@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
@@ -43,7 +44,7 @@ import net.bible.android.control.widget.WidgetStrings
 internal const val TEXT_WIDE_DP = 250
 internal const val TEXT_TALL_DP = 180
 
-/** Width from which the text widget is the 3-cell layout; an old Speak text widget could be placed 2 cells wide (80 dp). */
+/** Width from which the text widget is the 3-cell layout; its two-cell minimum is 110 dp. */
 internal const val TEXT_MEDIUM_DP = 180
 
 /**
@@ -52,7 +53,7 @@ internal const val TEXT_MEDIUM_DP = 180
  */
 class SpeakTextGlanceWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Responsive(
-        setOf(DpSize(80.dp, 110.dp), DpSize(TEXT_MEDIUM_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, TEXT_TALL_DP.dp)),
+        setOf(DpSize(110.dp, 110.dp), DpSize(TEXT_MEDIUM_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, 110.dp), DpSize(TEXT_WIDE_DP.dp, TEXT_TALL_DP.dp)),
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideWidgetContent(context) { state, strings ->
@@ -66,11 +67,14 @@ fun SpeakTextContent(state: SpeakWidgetState, strings: WidgetStrings, width: Dp,
     val wide = width >= TEXT_WIDE_DP.dp
     val tall = height >= TEXT_TALL_DP.dp
     if (narrow) {
-        // 2 cells wide: the verse and a play button, nothing else fits.
+        // 2 cells wide: leave whole verse lines above the 36 dp play button and its 4 dp gap.
+        val fontScale = LocalContext.current.resources.configuration.fontScale
+        val lineHeight = kotlin.math.ceil(13 * fontScale * 1.2f)
+        val lines = ((height.value - 16 - 36 - 4) / lineHeight).toInt().coerceIn(1, 3)
         WidgetRoot(openAppAction(), padding = 8.dp) {
             Column(modifier = GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Column(modifier = GlanceModifier.defaultWeight()) {
-                    WidgetText(state.verseText.ifEmpty { state.statusLine }, size = 13, maxLines = 3)
+                    WidgetText(state.verseText.ifEmpty { state.statusLine }, size = 13, maxLines = lines)
                 }
                 Spacer(GlanceModifier.height(4.dp))
                 SpeakPlayButton(state, 36.dp)

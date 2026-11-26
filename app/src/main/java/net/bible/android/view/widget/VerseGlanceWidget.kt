@@ -188,12 +188,16 @@ fun VerseWidgetBody(
     height: Dp,
 ) {
     val context = LocalContext.current
+    val fontScale = context.resources.configuration.fontScale
+    val padding = if (height < 180.dp) 8.dp else 12.dp
     when (content) {
-        is VerseWidgetContent.Unavailable -> WidgetRoot(actionStartActivity(verseConfigIntent(context, appWidgetId))) {
+        is VerseWidgetContent.Unavailable -> WidgetRoot(actionStartActivity(verseConfigIntent(context, appWidgetId)), padding = padding) {
+            val lineHeight = kotlin.math.ceil(13 * fontScale * 1.2f)
+            val lines = ((height.value - padding.value * 2 - lineHeight - 4) / lineHeight).toInt().coerceIn(1, 5)
             Column {
                 WidgetText(strings.verseName, size = 13, bold = true)
                 Spacer(GlanceModifier.height(4.dp))
-                WidgetText(strings.verseUnavailable(content.reason), size = 13, maxLines = 5)
+                WidgetText(strings.verseUnavailable(content.reason), size = 13, maxLines = lines)
             }
         }
         is VerseWidgetContent.Verse -> {
@@ -202,10 +206,23 @@ fun VerseWidgetBody(
             val open: Action = actionStartActivity(
                 Intent(Intent.ACTION_VIEW, Uri.parse(content.link)).setPackage(context.packageName),
             )
-            val padding = if (height < 180.dp) 8.dp else 12.dp
+            val stackedFooter = !wide && config.showButtons
+            val referenceHeight = kotlin.math.ceil(12 * fontScale * 1.2f)
+            val footerHeight = when {
+                stackedFooter -> referenceHeight + 32
+                config.showButtons -> maxOf(referenceHeight, 32f)
+                else -> referenceHeight
+            }
+            val lineHeight = kotlin.math.ceil((if (tall) 17 else 15) * fontScale * 1.2f)
+            val headerHeight = maxOf(14f, referenceHeight) + 4
+            val verseSpace = height.value - padding.value * 2 - footerHeight
+            // Source/date is optional: do not keep it at the cost of a clipped first verse line.
+            val showSource = config.showSourceAndDate && verseSpace - headerHeight >= lineHeight
+            val lines = ((verseSpace - if (showSource) headerHeight else 0f) / lineHeight)
+                .toInt().coerceIn(1, if (tall) 8 else if (wide) 3 else 4)
             WidgetRoot(open, padding = padding) {
                 Column(modifier = GlanceModifier.fillMaxWidth()) {
-                    if (config.showSourceAndDate) {
+                    if (showSource) {
                         Row(
                             modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity(verseConfigIntent(context, appWidgetId))),
                             verticalAlignment = Alignment.CenterVertically,
@@ -221,21 +238,8 @@ fun VerseWidgetBody(
                         }
                         Spacer(GlanceModifier.height(4.dp))
                     }
-                    val stackedFooter = !wide && config.showButtons
                     Column(modifier = GlanceModifier.defaultWeight()) {
-                        // RemoteViews clips a partly visible last line instead of ellipsising it. Budget whole lines
-                        // after padding, the optional source, and the reference/buttons (stacked on narrow widgets).
-                        val fontScale = context.resources.configuration.fontScale
-                        val headerHeight = if (config.showSourceAndDate) 20 * fontScale + 4 else 0f
-                        val referenceHeight = 18 * fontScale
-                        val footerHeight = when {
-                            stackedFooter -> referenceHeight + 32
-                            config.showButtons -> maxOf(referenceHeight, 32f)
-                            else -> referenceHeight
-                        }
-                        val lineHeight = (if (tall) 23 else 20) * fontScale
-                        val lines = ((height.value - padding.value * 2 - headerHeight - footerHeight) / lineHeight)
-                            .toInt().coerceIn(1, if (tall) 8 else if (wide) 3 else 4)
+                        // RemoteViews otherwise clips a partly visible last line instead of ellipsising it.
                         WidgetText(content.text, size = if (tall) 17 else 15, maxLines = lines)
                     }
                     // At the minimum width the controls leave too little room beside the reference.
