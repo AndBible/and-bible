@@ -801,7 +801,8 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         check(desktopEntry.isFile) { "Missing jpackage desktop entry: $desktopEntry" }
         desktopEntry.writeText(desktopTemplate.readText())
         check("Exec=/opt/andbible/bin/andbible %F" in desktopEntry.readText())
-        check("MimeType=application/zip;application/epub+zip;font/ttf;text/csv;image/jpeg;image/png;image/webp;application/vnd.sqlite3;" in desktopEntry.readText())
+        // Advertising generic MIME handlers can make AndBible the desktop's fallback default.
+        check(desktopEntry.readLines().none { it.startsWith("MimeType=") })
         check("Icon=/opt/andbible/lib/andbible.png" in desktopEntry.readText())
         check(File(unpacked, "opt/andbible/lib/andbible.png").isFile)
         check(unpacked.walkTopDown().count { it.isFile && it.extension == "desktop" } == 1)

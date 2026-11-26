@@ -49,6 +49,26 @@ Switching workspaces reuses the reading pages. Returning to a workspace restores
 
 The `andbible` `.deb` includes Chromium (KCEF), as does the AppImage.
 
+### Opening backups and document files on Linux
+
+AndBible does not register as a handler for generic file types such as ZIP, CSV, TTF, images,
+EPUB or SQLite databases. This avoids making it the default app for files that belong in other
+applications. Double-clicking an AndBible backup (`*.abdb.zip`) or a module ZIP therefore does
+not automatically open AndBible either.
+
+- For database backups, use **Backup & Restore** in AndBible's main menu, select **Database**,
+  then **Restore or Import from…**. See [Backup and Restore](backup_restore.md#how-to-restore-your-data).
+- For module ZIPs, document backups (`*.abmd.zip`), EPUBs and other supported document files,
+  use **Load Documents From Files**. See [Load Documents](documents.md#load-documents).
+- Alternatively, use your file manager's **Open with** action and select AndBible. You may need
+  to show all applications or enter a custom command, such as `andbible` for the `.deb` install
+  (or the path to your AppImage). Do not select **Always use** unless you want AndBible to handle
+  all files of that type. You can also pass a file on the command line: `andbible /path/to/backup.abdb.zip`.
+
+If an older installation made AndBible the default for one of these types, choose your preferred
+application in the file manager's **Open with** or your desktop's default-application settings.
+Removing AndBible's advertised file types does not reset an explicit default you previously saved.
+
 ## Display scaling on Linux
 
 AndBible follows your desktop's display scale: the menus, toolbars and the Bible text get the same size as in other apps. It reads the scale that GNOME, KDE Plasma and Xfce publish for X11 apps (the `Xft.dpi` setting, which also includes GNOME's "Large Text" setting), or `GDK_SCALE` when it is set. On Wayland the app runs through Xwayland, so the scale comes from what the desktop gives Xwayland apps.

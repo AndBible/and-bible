@@ -66,19 +66,9 @@ class WindowsManifestTest {
         assertEquals("\"%1\"", elements("Verb").single().getAttribute("Parameters"))
         assertTrue(elements("Verb").single().textContent.isNotBlank(), "File activation verb needs a display name")
 
-        val mapping = mapOf(
-            "application/zip" to setOf(".zip"), "application/epub+zip" to setOf(".epub"),
-            "font/ttf" to emptySet(), // Windows reserves .ttf; import fonts through the app picker.
-            "text/csv" to setOf(".csv"),
-            "image/jpeg" to setOf(".jpg", ".jpeg"), "image/png" to setOf(".png"),
-            "image/webp" to setOf(".webp"), "application/vnd.sqlite3" to setOf(".sqlite3"),
-        )
-        val mimeLine = File("packaging/linux/org.andbible.AndBible.desktop").readLines().single { it.startsWith("MimeType=") }
-        val mimeTypes = mimeLine.substringAfter('=').split(';').filter { it.isNotEmpty() }.toSet()
-        assertEquals(emptySet(), mimeTypes - mapping.keys, "Unmapped Linux MIME types")
         val extensions = elements("FileType").map { it.textContent }.toSet()
-        assertTrue(extensions.containsAll(mimeTypes.flatMap { mapping.getValue(it) }), "Missing Linux file associations")
-        assertTrue(".ttf" !in extensions, "Windows reserves .ttf")
+        // MSIX associations are independent of Linux and MSI policy; Windows reserves .ttf.
+        assertEquals(setOf(".zip", ".epub", ".csv", ".jpg", ".jpeg", ".png", ".webp", ".sqlite3"), extensions)
         for ((name, size) in listOf("StoreLogo" to 50, "Square150x150Logo" to 150, "Square44x44Logo" to 44)) {
             val image = assertNotNull(ImageIO.read(File(stage, "Assets/$name.png")))
             assertEquals(size, image.width)

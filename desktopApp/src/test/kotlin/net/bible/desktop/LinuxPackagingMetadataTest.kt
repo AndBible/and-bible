@@ -5,6 +5,7 @@ import java.util.Properties
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class LinuxPackagingMetadataTest {
     private val linux = File("packaging/linux")
@@ -26,20 +27,20 @@ class LinuxPackagingMetadataTest {
         assertEquals("AndBible", developer.textContent.trim())
     }
 
-    @Test fun desktopMimeTypesMatchFileAssociations() {
-        val mime = File(linux, "org.andbible.AndBible.desktop").readLines().single { it.startsWith("MimeType=") }
-            .substringAfter('=').split(';').filter { it.isNotEmpty() }.toSet()
-        val mapping = mapOf(
-            ".zip" to "application/zip", ".epub" to "application/epub+zip", ".csv" to "text/csv",
-            ".jpg" to "image/jpeg", ".jpeg" to "image/jpeg", ".png" to "image/png",
-            ".webp" to "image/webp", ".sqlite3" to "application/vnd.sqlite3",
-        )
-        val factory = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
-        val manifest = factory.newDocumentBuilder().parse(File("build/windows-msix/staging/AppxManifest.xml"))
-        val nodes = manifest.getElementsByTagNameNS("*", "FileType")
-        val windowsMime = (0 until nodes.length).map { mapping.getValue(nodes.item(it).textContent) }.toSet()
-        // Windows reserves .ttf; Linux registers it in addition to the Windows associations.
-        assertEquals(windowsMime + "font/ttf", mime)
+    @Test fun desktopDoesNotClaimGenericMimeTypes() {
+        val mimeTypes = File(linux, "org.andbible.AndBible.desktop").readLines()
+            .filter { it.startsWith("MimeType=") }
+            .flatMap { it.substringAfter('=').split(';') }
+            .filter { it.isNotBlank() }.toSet()
+        // A generic handler can become the default even without an explicit default-app request.
+        // No AndBible-specific MIME type is currently installed by the Linux packages.
+        assertEquals(emptySet<String>(), mimeTypes, "Linux must not advertise generic file handlers")
+    }
+
+    @Test fun desktopKeepsExplicitFileOpeningAvailable() {
+        val command = File(linux, "org.andbible.AndBible.desktop").readLines()
+            .single { it.startsWith("Exec=") }.substringAfter('=')
+        assertTrue("%F" in command.split(' '), "Open with must pass selected file paths to AndBible")
     }
 
     @Test fun metainfoReleaseVersionEqualsDesktopVersion() {
