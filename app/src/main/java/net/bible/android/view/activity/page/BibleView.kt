@@ -1180,7 +1180,7 @@ class BibleView(
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             Log.i(TAG, "onRenderProcessGone")
             // removeView can synchronously move input focus to a surviving pane.
-            if (window.isVisible) rendererRecoveryFocus.rendererGone(window.id)
+            rendererRecoveryFocus.rendererGone(window.id)
             // A dead renderer's WebView cannot be reused. Dispose it (also evicting the factory
             // cache) before Compose remounts its AndroidViews; a rebuild alone would reuse it.
             (view.parent as? ViewGroup)?.removeView(view)
@@ -1463,6 +1463,7 @@ class BibleView(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) rendererRecoveryFocus.userSelected(window.id)
         windowControl.activeWindow = window
 
         val handled = super.onTouchEvent(event)
@@ -1600,12 +1601,6 @@ class BibleView(
             updateTextDisplaySettings(true)
         }
         jsChannel.flush()
-        // Keep the scope through AndroidView's initial attachment focus assignment.
-        post {
-            if (isAttachedToWindow && window.bibleView === this) {
-                rendererRecoveryFocus.replacementAttached(window.id)
-            }
-        }
     }
 
     override fun scrollOrJumpToVerse(key: Key, forceNow: Boolean) = documentLoader.scrollOrJumpToVerse(key, forceNow)
@@ -1669,65 +1664,27 @@ class BibleView(
         emit(BibleViewEvents.exportHtml())
     }
 
-    internal var rendererRecoveryFocus = RendererRecoveryFocus()
+    internal var rendererRecoveryFocus = RendererRecoveryFocus { windowControl.windowRepository }
 
-    // ACTION_FOCUS is a deliberate selection even when no view previously held input focus.
-    private var accessibilityFocusRequested = false
-
-    override fun getAccessibilityNodeProvider(): android.view.accessibility.AccessibilityNodeProvider? {
-        val provider = super.getAccessibilityNodeProvider() ?: return null
-        // Chromium's virtual-node provider bypasses View.performAccessibilityAction.
-        return object : android.view.accessibility.AccessibilityNodeProvider() {
-            override fun createAccessibilityNodeInfo(id: Int) = provider.createAccessibilityNodeInfo(id)
-            override fun findAccessibilityNodeInfosByText(text: String, id: Int) =
-                provider.findAccessibilityNodeInfosByText(text, id)
-            override fun findFocus(focus: Int) = provider.findFocus(focus)
-            override fun addExtraDataToAccessibilityNodeInfo(
-                id: Int, info: android.view.accessibility.AccessibilityNodeInfo, key: String, args: android.os.Bundle?,
-            ) = provider.addExtraDataToAccessibilityNodeInfo(id, info, key, args)
-
-            override fun performAction(id: Int, action: Int, arguments: android.os.Bundle?): Boolean {
-                val previous = accessibilityFocusRequested
-                accessibilityFocusRequested = previous || action == android.view.accessibility.AccessibilityNodeInfo.ACTION_FOCUS
-                try {
-                    return provider.performAction(id, action, arguments)
-                } finally {
-                    accessibilityFocusRequested = previous
-                }
-            }
-        }
+    internal fun userSelectedPane() {
+        rendererRecoveryFocus.userSelected(window.id)
+        windowControl.activeWindow = window
     }
 
-    override fun performAccessibilityAction(action: Int, arguments: android.os.Bundle?): Boolean {
-        val previous = accessibilityFocusRequested
-        accessibilityFocusRequested = previous || action == android.view.accessibility.AccessibilityNodeInfo.ACTION_FOCUS
-        try {
-            return super.performAccessibilityAction(action, arguments)
-        } finally {
-            accessibilityFocusRequested = previous
-        }
+    override fun performClick(): Boolean {
+        userSelectedPane()
+        return super.performClick()
     }
 
     /** True while [requestFocus] runs for a request made when no view of the window had focus. */
     private var focusRequestWithoutPreviousFocus = false
 
     override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
-        val previous = focusRequestWithoutPreviousFocus
         focusRequestWithoutPreviousFocus = rootView.findFocus() == null
         try {
-            if (windowRepository.activeWindow.id != window.id && !accessibilityFocusRequested) {
-                val recovering = rendererRecoveryFocus.isRecovering(windowRepository.visibleWindows.map { it.id }.toSet())
-                val activeView = windowRepository.activeWindow.bibleView as? BibleView
-                val defaultFocusWithoutTarget = focusRequestWithoutPreviousFocus && !isInTouchMode &&
-                    activeView?.isAttachedToWindow != true
-                if ((recovering && (focusRequestWithoutPreviousFocus || !isAttachedToWindow)) || defaultFocusWithoutTarget) {
-                    // Reject before focus lands: clearing it later can loop through root default focus.
-                    return false
-                }
-            }
             return super.requestFocus(direction, previouslyFocusedRect)
         } finally {
-            focusRequestWithoutPreviousFocus = previous
+            focusRequestWithoutPreviousFocus = false
         }
     }
 
@@ -1735,19 +1692,20 @@ class BibleView(
      * Gaining view focus makes this window the active one, so that keyboard / D-pad navigation
      * between the panes (and focus in touch mode, e.g. by accessibility services) selects a window.
      *
-     * Renderer teardown/remount focus is rejected in [requestFocus] before it lands. Outside
-     * recovery, preserve the older non-touch-mode default-focus handover behavior (e.g. closing
-     * search), but allow touch-mode assistive focus requests with no previously focused view.
-     * Touch selection is handled by [onTouchEvent]; keyboard navigation transfers existing focus.
+     * Except for a focus hand-over: out of touch mode (mouse, hardware keyboard, Waydroid) Android
+     * gives focus to the first focusable view whenever the focused one lets go of it with nothing
+     * to pass it to (`View.clearFocus` -> `rootViewRequestFocus`; the Compose search field or the
+     * search-index sheet leaving the composition) or when leaving touch mode with nothing focused
+     * (`restoreDefaultFocus`). That view is usually window 1's BibleView, and a search made in
+     * window 3 then made window 1 active. Such a gain, with no view focused before it, is not the
+     * user's choice of window: keep the active window and hand focus back to its pane.
      */
     override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         if(focused && windowRepository.activeWindow.id != window.id) {
-            if (!accessibilityFocusRequested && focusRequestWithoutPreviousFocus && !isInTouchMode) {
+            if (focusRequestWithoutPreviousFocus && !isInTouchMode) {
                 post {
-                    val activeView = windowRepository.activeWindow.bibleView as? BibleView
-                    if (hasFocus() && activeView !== this && activeView?.isAttachedToWindow == true) {
-                        activeView.requestFocus()
-                    }
+                    val activeView = windowRepository.activeWindow.bibleView
+                    if (hasFocus() && activeView !== this) activeView?.requestFocus()
                 }
             } else {
                 windowRepository.activeWindow = window

@@ -42,6 +42,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CompletableDeferred
@@ -82,6 +84,7 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
 import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
+import net.bible.android.view.activity.page.BiblePaneFrame
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.KeyIsNull
@@ -287,7 +290,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             applyChosenVerse = { osisId -> activity.readingCommands.applyChosenVerse(osisId) },
             formatHistoryTimestamp = { createdAt -> format("h:mm a, E d MMM ", createdAt).toString() },
             // The editor is a native WebView, so Compose's keyboard controller may ignore hide().
-            hideKeyboardForPaneMenu = { activity.hostActivity.closeKeyboard() },
+            hideKeyboardForPaneMenu = {
+                WindowInsetsControllerCompat(activity.hostActivity.window, activity.hostActivity.window.decorView)
+                    .hide(WindowInsetsCompat.Type.ime())
+            },
             paneMenuItemsFor = { windowId ->
                 activity.hostWindowRepository.getWindow(IdType(windowId))?.let { paneMenuStateBuilder.build(it) }
             },
@@ -993,7 +999,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         if (searchController.searchModeActive.value) return
         activity.fullScreen = false
         overflowItems.value = activity.readingCommands.buildOptionsMenuItems()
-        activity.hostActivity.closeKeyboard()
+        WindowInsetsControllerCompat(activity.hostActivity.window, activity.hostActivity.window.decorView)
+            .hide(WindowInsetsCompat.Type.ime())
         overflowExpanded.value = true
     }
 
@@ -1380,7 +1387,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // freshly created WebView still draws its platform-default white over that pane
             // background until its first document finishes loading -- same flash, one layer up.
             AndroidView(modifier = modifier, factory = {
-                activity.readingCommands.bibleViewFactory.getOrCreateBibleView(window).apply {
+                val view = activity.readingCommands.bibleViewFactory.getOrCreateBibleView(window).apply {
                     // Classic parity + safety net: `BibleFrame.build()/recreate()` detach the
                     // BibleView from its old frame before adding it (`BibleFrame.kt:128,147`).
                     // Compose has no equivalent — `AndroidViewHolder.onRelease()` only runs the
@@ -1419,6 +1426,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     )
                     updateBackgroundColor()
                 }
+                BiblePaneFrame(view)
             })
         }
     }

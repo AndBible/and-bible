@@ -416,8 +416,10 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
 
     fun closeKeyboard() {
-        // Focus may already be gone while the IME is still visible; its window token remains usable.
-        val windowToken = currentFocus?.windowToken ?: window.decorView.windowToken ?: return
+        // Most of our activities have no input field, so having no focused view is the normal case
+        // and not an error: there is no keyboard to close. It used to be logged as an NPE from
+        // every single onPause, which made real crashes with the same message hard to spot.
+        val windowToken = currentFocus?.windowToken ?: return
         try {
             val inputMethodManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(windowToken, 0)

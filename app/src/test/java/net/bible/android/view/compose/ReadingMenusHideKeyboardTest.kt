@@ -1,36 +1,24 @@
 package net.bible.android.view.compose
 
 import android.app.Activity
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import androidx.activity.ComponentActivity
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ApplicationProvider
-import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.android.view.activity.page.screen.PaneMenuAnchor
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.android.view.activity.page.screen.PaneMenuAnchor
-import net.bible.sharedui.theme.AbTheme
 import net.bible.test.DatabaseResetter
 import org.junit.After
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
@@ -39,21 +27,21 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.Implementation
+import org.robolectric.annotation.Implements
 
-/** Menus must explicitly hide a native editor's IME, without relying on popup focus/OEM behavior. */
+/** Reading menus hide the IME via the window controller, not focused-view lookup. */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [TEST_SDK], application = TestBibleApplication::class)
+@Config(sdk = [33, 35], application = TestBibleApplication::class, shadows = [RecordingWindowInsetsControllerShadow::class])
 class ReadingMenusHideKeyboardTest {
-    @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
     private lateinit var repository: WindowRepository
     private lateinit var host: NavHostComposeActivity
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private lateinit var reading: ComposeReadingViewHost
     private lateinit var container: ActivityController<Activity>
-    private lateinit var editor: EditText
-    private lateinit var ime: InputMethodManager
 
     @Before fun setup() {
+        RecordingWindowInsetsControllerShadow.hiddenTypes = 0
         repository = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repository
         repository.initializeAtEdge()
@@ -71,71 +59,43 @@ class ReadingMenusHideKeyboardTest {
         CurrentActivityHolder.activate(host)
         reading = net.bible.test.fixtureReadingHost(host)
         host.composeReadingViewHost = reading
-        // Attach this uncreated host's decor to a plain activity: real focus/token/IMM, no startup graph.
         container = Robolectric.buildActivity(Activity::class.java).setup()
-        editor = EditText(host)
-        host.window.setContentView(editor)
         container.get().setContentView(host.window.decorView)
-        editor.requestFocus()
-        // Activity is deliberately not created; its shadow does not resolve decor focus automatically.
-        shadowOf(host).setCurrentFocus(editor)
-        ime = host.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        assertNotNull("native editor has an attached window token", editor.windowToken)
-        assertTrue("host resolves the native editor rather than a Compose field", host.currentFocus === editor)
-        ime.showSoftInput(editor, 0)
-        assertTrue("precondition: keyboard shown for native editor", shadowOf(ime).isSoftInputVisible)
+        shadowOf(host).setCurrentFocus(null)
+        assertTrue("host has no focused view", host.currentFocus == null)
+        assertTrue("decor remains attached", host.window.decorView.windowToken != null)
     }
 
     @After fun cleanup() {
-        if (::container.isInitialized) {
-            (container.get().findViewById<View>(android.R.id.content) as ViewGroup).removeAllViews()
-            container.pause().stop().destroy()
-        }
+        (container.get().findViewById<View>(android.R.id.content) as ViewGroup).removeAllViews()
+        container.pause().stop().destroy()
         net.bible.test.closeReadingHostsBeforeReset(
             controllers,
-            afterClose = { if (::host.isInitialized) CurrentActivityHolder.deactivate(host) },
-            reset = { if (::repository.isInitialized) DatabaseResetter.resetDatabase(repository.scope) },
+            afterClose = { CurrentActivityHolder.deactivate(host) },
+            reset = { DatabaseResetter.resetDatabase(repository.scope) },
         )
     }
 
-    @Test fun openingPaneMenuHidesNativeEditorKeyboard() {
-        compose.setContent {
-            AbTheme {
-                Column {
-                    TextButton(onClick = { reading.hostState.openPaneMenu(repository.activeWindow.id.toString(), PaneMenuAnchor.Pane) }) {
-                        Text("Open pane menu")
-                    }
-                }
-            }
-        }
-        compose.onNodeWithText("Open pane menu").performClick()
-        compose.runOnIdle {
-            assertNotNull("the real pane menu state opens", reading.hostState.paneMenuWindowId.value)
-            assertFalse("opening pane menu hides native editor IME", shadowOf(ime).isSoftInputVisible)
-        }
-    }
+    private fun assertImeHidden() = assertEquals(WindowInsetsCompat.Type.ime(), RecordingWindowInsetsControllerShadow.hiddenTypes)
 
-    @Test fun openingPaneMenuHidesKeyboardWhenActivityHasNoCurrentFocus() {
-        shadowOf(host).setCurrentFocus(null)
-        assertTrue("precondition: keyboard remains visible", shadowOf(ime).isSoftInputVisible)
-        assertTrue("precondition: decor has a window token", host.window.decorView.windowToken != null)
-
+    @Test fun openingPaneMenuHidesImeWithoutFocusedView() {
         reading.hostState.openPaneMenu(repository.activeWindow.id.toString(), PaneMenuAnchor.Pane)
-
         assertNotNull("the pane menu opens", reading.hostState.paneMenuWindowId.value)
-        assertFalse("opening pane menu hides the keyboard without activity focus", shadowOf(ime).isSoftInputVisible)
+        assertImeHidden()
     }
 
-    @Test fun openingOverflowMenuHidesNativeEditorKeyboard() {
-        compose.setContent {
-            AbTheme {
-                TextButton(onClick = reading::openOverflowMenu) { Text("Open overflow menu") }
-            }
-        }
-        compose.onNodeWithText("Open overflow menu").performClick()
-        compose.runOnIdle {
-            assertTrue("the real overflow state opens", reading.overflowExpandedForTest)
-            assertFalse("opening overflow hides native editor IME", shadowOf(ime).isSoftInputVisible)
-        }
+    @Test fun openingOverflowMenuHidesImeWithoutFocusedView() {
+        reading.openOverflowMenu()
+        assertTrue("the overflow menu opens", reading.overflowExpandedForTest)
+        assertImeHidden()
+    }
+}
+
+@Implements(className = "android.view.InsetsController", minSdk = 30, isInAndroidSdk = false)
+class RecordingWindowInsetsControllerShadow {
+    companion object { var hiddenTypes: Int = 0 }
+
+    @Implementation fun hide(types: Int) {
+        hiddenTypes = hiddenTypes or types
     }
 }
