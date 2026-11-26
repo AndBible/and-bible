@@ -59,7 +59,7 @@ import kotlin.test.assertTrue
  */
 class DaoRoundTripCommonTest {
     private val range = VerseRangeFactory.fromString(KJVA, "Gen.1.1-Gen.1.3")
-    private val playback = PlaybackSettings(speed = 130, bookId = "KJV", bookmarkWasCreated = true, verseRange = range)
+    private val playback = PlaybackSettings(speed = 130, bookId = "KJV", bookmarkWasCreated = true, verseRange = range, speakLinks = false)
 
     @Test
     fun bookmarkDatabase() = runTest {
