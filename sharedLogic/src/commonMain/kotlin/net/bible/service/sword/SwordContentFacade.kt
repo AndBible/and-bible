@@ -437,8 +437,8 @@ class SwordContentFacade(
         }
 
 
-        private fun cachedText(book: Book, key: Key, strings: CoreStrings, forSpeech: Boolean = false): Map<Int, String> = withMonitor(book) {
-            val cacheKey = renderCacheKey(book, key) + if (forSpeech) "-speech" else ""
+        private fun cachedText(book: Book, key: Key, strings: CoreStrings, forSpeech: Boolean = false, speakLinks: Boolean = true): Map<Int, String> = withMonitor(book) {
+            val cacheKey = renderCacheKey(book, key) + if (forSpeech) "-speech-links-$speakLinks" else ""
             plainTextCache.get(cacheKey) ?: run {
                 val frag = try {
                     readOsisFragment(book, key, strings)
@@ -446,9 +446,11 @@ class SwordContentFacade(
                     Log.e(TAG, "Could not read fragment", e)
                     return@run emptyMap()
                 }
-                val references = if (forSpeech) SpeakReferenceText(KLocale(book.language.code)) else null
-                val texts = net.bible.service.common.XmlQueries.bvasBelow(frag, xhtmlNamespace).associate {
-                    it.getAttribute("ordinal")!!.value.toInt() to (references?.forAnchor(it) ?: getTextRecursively(it))
+                val anchors = net.bible.service.common.XmlQueries.bvasBelow(frag, xhtmlNamespace).toList()
+                val content = if (forSpeech) SpeakReferenceText(KLocale(book.language.code)).forAnchors(anchors, speakLinks)
+                    else anchors.map(::getTextRecursively)
+                val texts = anchors.zip(content).associate { (anchor, text) ->
+                    anchor.getAttribute("ordinal")!!.value.toInt() to text
                 }
                 plainTextCache.put(cacheKey, texts)
                 texts
@@ -510,12 +512,12 @@ class SwordContentFacade(
          * @param key
          * a reference, appropriate for the book, of one or more entries
          */
-        fun getTextToSpeak(book: Book, key: Key?, strings: CoreStrings, saxTextPolicy: net.bible.service.format.SaxTextPolicy): String {
+        fun getTextToSpeak(book: Book, key: Key?, strings: CoreStrings, saxTextPolicy: net.bible.service.format.SaxTextPolicy, speakLinks: Boolean = true): String {
             return try {
                 val data = BookData(book, key)
                 val osissep = data.getSAXEventProvider()
                 val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
-                val osisHandler = OsisToSpeakTextSaxHandler(sayReferences, saxTextPolicy, KLocale(book.language.code))
+                val osisHandler = OsisToSpeakTextSaxHandler(sayReferences && speakLinks, saxTextPolicy, KLocale(book.language.code), speakLinks)
                 osissep.provideSAXEvents(osisHandler)
                 osisHandler.toString()
             } catch (e: Exception) {
@@ -861,14 +863,14 @@ class SwordContentFacade(
         return lst
     }
 
-    fun getGenBookSpeakCommands(key: BookAndKey): SpeakCommandArray {
+    fun getGenBookSpeakCommands(key: BookAndKey, settings: SpeakSettings = SpeakSettings()): SpeakCommandArray {
         val book = key.document!!
         var actualKey = key.key
         if(actualKey is VerseRange) {
             actualKey = actualKey.start
         }
         val arr = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
-        cachedText(book, actualKey, strings, forSpeech = true)[key.ordinal!!.start]?.takeIf { it.isNotBlank() }?.let {
+        cachedText(book, actualKey, strings, forSpeech = true, speakLinks = settings.playbackSettings.speakLinks)[key.ordinal!!.start]?.takeIf { it.isNotBlank() }?.let {
             arr.add(TextCommand(it.replace("\n", " ")))
         }
         return arr

@@ -131,6 +131,23 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
     }
 
     @Test
+    fun `skipping links cleans bracket pairs across ordinals and separates speech cache variants`() {
+        val doc = sparseCommentary("<p>Before [see <reference osisRef='Matt.2.9'>v. 9</reference>] after.</p>")
+        val facade = testSwordContentFacade()
+        fun spoken(links: Boolean): String = SpeakCommandArray(4000).apply {
+            for (ordinal in 0..4) addAll(facade.getGenBookSpeakCommands(
+                BookAndKey(verse(1), doc, OrdinalRange(ordinal)),
+                SpeakSettings(PlaybackSettings(speakLinks = links)),
+            ))
+        }.filterIsInstance<TextCommand>().joinToString("") { it.text }
+        assertEquals("Before [see Matthew 2:9] after.", spoken(true))
+        assertEquals("Before after.", spoken(false))
+        assertEquals("Before [see Matthew 2:9] after.", spoken(true))
+        assertEquals(listOf("Before [see ", "v. 9", "] after."),
+            SwordContentFacade.getTextWithinOrdinalsAsString(doc, verse(1), 0..2, testCoreStrings()))
+    }
+
+    @Test
     fun `TSK style ThML passage links speak their target instead of numeric labels`() {
         val doc = sparseCommentary("<scripRef passage=\"Mt 2:9\">9</scripRef>", sourceType = "ThML")
         val commands = testSwordContentFacade().getGenBookSpeakCommands(BookAndKey(verse(1), doc, OrdinalRange(0)))

@@ -42,6 +42,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     private val divineNameReplace = phrases.divineNameReplace
     private var titleLevel = 0
     private var divineNameLevel = 0
+    private var skippedLinkDepth = 0
     private var anyTextWritten = false
     /** What the previous visible raw text chunk left at the boundary to the next one. */
     private enum class RawEnd { NO_WHITESPACE, WHITESPACE, CROSSED_SEPARATOR }
@@ -65,6 +66,19 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
 
     override fun endDocument() {
         elementStack.removeAt(elementStack.lastIndex)
+        if (!speakSettings.playbackSettings.speakLinks) {
+            val cleaned = SkippedSpeakLinks.cleanParts(speakCommands.filterIsInstance<TextCommand>().map { it.text })
+            var index = 0
+            for (i in speakCommands.indices.reversed()) {
+                // Work backwards so removing empty text does not shift commands still to clean.
+                if (speakCommands[i] !is TextCommand) continue
+                index++
+                val old = speakCommands[i] as TextCommand
+                val text = cleaned[cleaned.size - index]
+                if (text.isBlank()) speakCommands.removeAt(i)
+                else speakCommands[i] = TextCommand(text, old.type, old.joinToPrevious)
+            }
+        }
     }
 
     private fun getName(eName: String, qName: String): String {
@@ -84,7 +98,14 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
 
         val peekVisible = elementStack.last().visible
 
-        if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
+        if (skippedLinkDepth > 0) {
+            skippedLinkDepth++
+            elementStack.add(StackEntry(false))
+        } else if ((name == OSISUtil.OSIS_ELEMENT_REFERENCE || name == "a") && !speakSettings.playbackSettings.speakLinks) {
+            if (peekVisible) addText(SkippedSpeakLinks.marker)
+            skippedLinkDepth = 1
+            elementStack.add(StackEntry(false))
+        } else if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
             anyTextWritten = false
             elementStack.add(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
@@ -142,6 +163,10 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     ) {
         if (separatesText(getName(simplifiedName, qualifiedName))) previousRawEnd = RawEnd.CROSSED_SEPARATOR
         val state = elementStack.removeAt(elementStack.lastIndex)
+        if (skippedLinkDepth > 0) {
+            skippedLinkDepth--
+            return
+        }
 
         if(state.tagType == TagType.PARAGRAPH) {
             if(anyTextWritten) {

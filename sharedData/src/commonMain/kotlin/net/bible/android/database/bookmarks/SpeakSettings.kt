@@ -63,6 +63,11 @@ data class PlaybackSettings (
     // For bible bookmarks
     @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null,
 
+    // Omit ON even with the shared encodeDefaults=true: older synced clients reject unknown keys.
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val speakLinks: Boolean = true,
+
     // Memorization loop mode: suppresses chapter/title/footnote announcements and bookmark saving
     @Transient val isMemorizationLoop: Boolean = false,
 ) {

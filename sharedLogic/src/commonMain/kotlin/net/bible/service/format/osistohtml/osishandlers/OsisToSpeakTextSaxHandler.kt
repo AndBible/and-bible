@@ -25,7 +25,7 @@ import fi.sykero.kdom.sax.Attributes
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: SaxTextPolicy, locale: KLocale = LocaleProviderManager.getLocale()) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
+class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: SaxTextPolicy, locale: KLocale = LocaleProviderManager.getLocale(), private val speakLinks: Boolean = true) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
     private val referenceText = SpeakReferenceText(locale)
     private var referenceDepth = 0
     private var writingRef = false
@@ -34,6 +34,10 @@ class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: 
         debug(name, attrs, true)
         if (referenceDepth > 0) {
             referenceDepth++
+            writeContent(false)
+        } else if (!speakLinks && (name == OSISUtil.OSIS_ELEMENT_REFERENCE || name == "a")) {
+            if (writeContentStack.last() == CONTENT_STATE.WRITE) write(SkippedSpeakLinks.marker)
+            referenceDepth = 1
             writeContent(false)
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE &&
             (sayReferences || writeContentStack.last() == CONTENT_STATE.WRITE)) {
@@ -65,6 +69,8 @@ class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: 
         }
         super.endElement(namespaceURI, sName, qName)
     }
+
+    override fun toString(): String = if (speakLinks) super.toString() else SkippedSpeakLinks.clean(super.toString())
 
     /** adjust text in prep for speech
      */

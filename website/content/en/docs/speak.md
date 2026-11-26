@@ -57,6 +57,16 @@ Bible link target. For example, a link labelled `v. 9` that points to Matthew 2:
 spoken as `Matthew 2:9`. In Bible text, cross-reference notes are never spoken, and
 links inside study notes are only spoken when those footnotes are enabled. If a link has no valid Bible target, its visible text is used.
 
+Turn off **Read links and Bible references** in Speak Settings to skip links in Bible
+text, commentaries, General Books and AI documents. Empty brackets and a dangling
+"see" around a skipped link are also removed; ordinary text inside brackets is kept.
+The switch is on by default and is saved with the other playback settings, including
+Speak bookmarks when **Save playback settings to bookmarks** is enabled.
+
+When syncing with an older AndBible version, leave this switch on for compatibility.
+Older versions cannot read playback settings saved with the switch off and instead
+use their default playback settings (including speed and bookmark playback metadata).
+
 ## Speak Settings
 
 To start speaking, choose `☰ > Speak` or tap the Speak button in the toolbar. A playback bar appears at the bottom of the
@@ -72,6 +82,7 @@ The first page, **Playback Settings**, has:
 | *Chapter changes* | Plays a short sound when a new chapter is reached. |
 | *Titles* | Read the titles that translators have added to the Bible text. |
 | *Footnotes* | Read the footnotes included in the Bible text. |
+| *Read links and Bible references* | Read link text and Bible references aloud (on by default). Turn off to skip them and empty surrounding brackets. |
 | **Set repeat passage range** (under **Repeat passage**) | Repeat the range of verses specified; see [How to speak a range of verses](#how-to-speak-a-range-of-verses). |
 | **Set sleep timer** (under **Sleep timer**) | Stop the playback after the time specified; see [Sleep Timer](#sleep-timer). |
 
@@ -85,7 +96,7 @@ Under **Other** there are **Advanced settings**, **Open system TTS settings** an
   speech engine say "Yahweh" in place of the divine name that Bibles print as LORD (and its equivalents in other languages) where the
   module marks the divine name.
 - **Bookmarking Settings**: **Automatic bookmarking** and **Save playback settings to bookmarks**. With the latter on, the
-  playback settings (speed, chapter changes, titles, footnotes and repeat range) are saved to each Speak bookmark and loaded
+  playback settings (speed, chapter changes, titles, footnotes, links and repeat range) are saved to each Speak bookmark and loaded
   again when you resume from that bookmark. You can then, for example, listen to Genesis quickly and to Romans slowly and with chapter-change sounds.
 
 **Text follows speech** controls whether the reading
